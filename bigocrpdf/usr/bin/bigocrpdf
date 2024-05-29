@@ -5,7 +5,11 @@ export TEXTDOMAINDIR="/usr/share/locale"
 export TEXTDOMAIN=bigocrpdf
 
 # Comandos específicos para cada ambiente
-declare -g TITLE="$([[ "$XDG_CURRENT_DESKTOP" == "GNOME" ]] && echo "bigocrpdf" || echo $"Torne seu PDF pesquisável")"
+if [[ "$XDG_CURRENT_DESKTOP" == "GNOME" ]]; then
+    title="bigocrpdf"
+else
+    title=$"Torne seu PDF pesquisável"
+fi
 
 mkdir -p ~/.config/bigocrpdf
 
@@ -19,4 +23,4 @@ done
 
 cd /usr/share/bigbashview/bcc/apps/bigocrpdf/
 
-LANGUAGE=$BIGBASHVIEW_LANG GDK_BACKEND=x11 SDL_VIDEODRIVER=x11 QT_QPA_PLARFORM=xcb bigbashview index.sh.htm -s 1050x600 -i icon-big-ocr-pdf.svg -n "$TITLE" -p "$TEXTDOMAIN"
+LANGUAGE=$BIGBASHVIEW_LANG GDK_BACKEND=x11 SDL_VIDEODRIVER=x11 QT_QPA_PLARFORM=xcb bigbashview index.sh.htm -s 1050x600 -i icon-big-ocr-pdf.svg -n "$title" -p "$TEXTDOMAIN"
