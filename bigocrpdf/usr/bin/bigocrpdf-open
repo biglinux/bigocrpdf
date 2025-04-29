@@ -1,21 +1,5 @@
 #!/bin/bash
 
-#Translation
-export TEXTDOMAINDIR="/usr/share/locale"
-export TEXTDOMAIN=bigocrpdf
+cd /usr/share/biglinux/bigocrpdf
 
-mkdir -p ~/.config/bigocrpdf
-
-kdialog --passivepopup $"Escolha o arquivo PDF para aplicar o OCR, com isso será possível efetuar buscas ou copiar textos.
-
-Você também pode utilizar o gerenciador de arquivos, clicar com o botão direito no arquivo PDF, 'Abrir com' e selecionar a opção de OCR."  10 &
-
-
-kdialog --multiple --getopenurl ~ | sed 's|file:///|\n/|g' | sed '/^$/d' | sed 's/ *$//' > ~/.config/bigocrpdf/selected-file
-
-
-if [ "$?" = "0" ]; then
-    cd /usr/share/bigbashview/bcc/apps/bigocrpdf/
-    LANGUAGE=$BIGBASHVIEW_LANG QT_QPA_PLATFORM=xcb SDL_VIDEODRIVER=x11 WINIT_UNIX_BACKEND=x11 GDK_BACKEND=x11 bigbashview index.sh.htm -s 1050x600 -i icon-big-ocr-pdf.svg -n $"Torne seu PDF pesquisável"
-fi
-
+python main.py

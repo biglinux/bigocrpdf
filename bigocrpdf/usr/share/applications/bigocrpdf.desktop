@@ -27,9 +27,9 @@ Name[sv]=Lägg till stöd för kopiering eller sökning efter skannad PDF-text (
 Name[tr]=Taranmış PDF metnini (OCR) kopyalamak veya aramak için destek ekleme
 Name[uk]=Додавання підтримки копіювання або пошуку відсканованого тексту PDF (OCR)
 Name[zh]=添加对复制或搜索扫描的 PDF 文本 （OCR） 的支持
-Exec=QT_QUICK_BACKEND= bigocrpdf %F
+Exec=bigocrpdf %F
 Terminal=false
-Icon=/usr/share/bigbashview/bcc/apps/bigocrpdf/icons-mini-big-ocr-pdf.svg
+Icon=bigocrpdf
 Type=Application
 NoDisplay=true
 MimeType=application/pdf;application/x-bzpdf;application/x-gzpdf;
