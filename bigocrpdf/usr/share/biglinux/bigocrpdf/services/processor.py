@@ -1,10 +1,34 @@
-from typing import List, Tuple
+"""
+BigOcrPdf - OCR Processor Module
+
+This module handles the OCR processing of PDF files using the OCRmyPDF API.
+"""
+
+from typing import List, Tuple, Dict, Optional, Callable, Any
 import os
 import subprocess
+import logging
 
-from .settings import OcrSettings
-from ..utils.logger import logger
-from .ocr_api import OcrQueue, configure_logging
+from services.settings import OcrSettings
+from utils.logger import logger
+from services.ocr_api import OcrQueue, configure_logging
+from utils.i18n import _
+
+# Processing constants
+MAX_CONCURRENT_PROCESSES = 2
+OCR_COMPRESSION_FORMATS = {
+    "economic": "jpeg",
+    "economicplus": "jpeg"
+}
+OCR_OPTIMIZATION_LEVELS = {
+    "economic": 1,
+    "economicplus": 1
+}
+DEFAULT_LANGUAGES = [
+    ("por", "Portuguese"),
+    ("eng", "English"),
+    ("spa", "Spanish"),
+]
 
 
 class OcrProcessor:
@@ -33,162 +57,294 @@ class OcrProcessor:
             True if processing started successfully, False otherwise
         """
         try:
-            # Check if we have any files to process
-            if not self.settings.selected_files:
-                logger.error("No files to process")
+            # Validate input files
+            if not self._validate_input_files():
                 return False
 
-            # Configure OCRmyPDF logging
-            configure_logging()
+            # Configure processing environment
+            self._setup_processing()
 
-            # Reset any tracking variables
-            self._processed_files = 0
-            self._progress = 0.0
-
-            # Create a new OCR queue
-            self.ocr_queue = OcrQueue(max_concurrent=2)  # Process up to 2 files at once
-
-            # Set up callbacks
-            if self.on_file_complete:
-                self.ocr_queue.register_callback("file_complete", self.on_file_complete)
-            if self.on_all_complete:
-                self.ocr_queue.register_callback("all_complete", self.on_all_complete)
-
-            # Make sure we always have callbacks set for consistency
-            if not self.on_file_complete:
-                logger.warning("No file_complete callback registered")
-            if not self.on_all_complete:
-                logger.warning("No all_complete callback registered")
-
-            # Add each file to the queue
+            # Process each file
             for i, file_path in enumerate(self.settings.selected_files):
-                if not file_path or not os.path.exists(file_path):
-                    logger.error(f"Error: File not found or invalid: {file_path}")
+                if not self._process_single_file(file_path, i):
                     continue
 
-                # Get the base name for output file naming
-                input_filename = os.path.basename(file_path)
-                base_name = os.path.splitext(input_filename)[0]
-
-                # Determine output file path
-                # If save in same folder is enabled, use the directory of the original file
-                if self.settings.save_in_same_folder:
-                    output_dir = os.path.dirname(file_path)
-                elif self.settings.destination_folder:
-                    output_dir = self.settings.destination_folder
-                else:
-                    # Fallback to the original file's directory if no destination folder specified
-                    output_dir = os.path.dirname(file_path)
-
-                # Check if we should use the original filename
-                use_original = getattr(self.settings, "use_original_filename", False)
-
-                if use_original:
-                    # Use the original filename without adding any suffix
-                    output_file = os.path.join(output_dir, f"{base_name}.pdf")
-                else:
-                    # Get custom suffix if it exists, otherwise use default "ocr"
-                    suffix = self.settings.get_pdf_suffix() or "ocr"
-
-                    # Generate output filename with appropriate suffix
-                    if i == 0:
-                        output_file = os.path.join(
-                            output_dir, f"{base_name}-{suffix}.pdf"
-                        )
-                    else:
-                        output_file = os.path.join(
-                            output_dir, f"{base_name}-{suffix}-{i + 1}.pdf"
-                        )
-
-                # Check if file already exists and generate a unique name if needed
-                if os.path.exists(output_file) and not self.settings.overwrite_existing:
-                    # Generate a unique filename to avoid overwriting
-                    output_file = self._generate_unique_filename(output_file)
-
-                # Clean up the processed files list before starting new processing
-                if i == 0:
-                    # First file in batch, reset the processed files list
-                    self.settings.processed_files = []
-
-                # Keep track of output files for the conclusion page
-                if output_file not in self.settings.processed_files:
-                    self.settings.processed_files.append(output_file)
-
-                # Create options dictionary for OCRmyPDF
-
-                # Always create a temporary sidecar file for text extraction to memory
-                temp_dir = os.path.join(os.path.dirname(output_file), ".temp")
-                os.makedirs(temp_dir, exist_ok=True)
-                temp_sidecar = os.path.join(
-                    temp_dir,
-                    f"temp_{os.path.basename(os.path.splitext(output_file)[0])}.txt",
-                )
-
-                options = {
-                    "language": self.settings.lang,
-                    "force_ocr": True,
-                    "progress_bar": False,  # We'll handle progress display ourselves
-                    "sidecar": temp_sidecar,  # Always extract text for memory storage
-                }
-
-                # If text files should be saved permanently, set up the proper location
-                if hasattr(self.settings, "save_txt") and self.settings.save_txt:
-                    # Determine the location for the text file
-                    if (
-                        hasattr(self.settings, "separate_txt_folder")
-                        and self.settings.separate_txt_folder
-                        and self.settings.txt_folder
-                    ):
-                        # Save to a separate folder
-                        txt_filename = (
-                            os.path.basename(os.path.splitext(output_file)[0]) + ".txt"
-                        )
-                        sidecar_file = os.path.join(
-                            self.settings.txt_folder, txt_filename
-                        )
-                        # Ensure the directory exists
-                        os.makedirs(self.settings.txt_folder, exist_ok=True)
-
-                        # Update the sidecar option to save to the permanent location
-                        options["sidecar"] = sidecar_file
-                    else:
-                        # Save alongside the PDF
-                        sidecar_file = os.path.splitext(output_file)[0] + ".txt"
-
-                        # Update the sidecar option to save to the permanent location
-                        options["sidecar"] = sidecar_file
-
-                # Add quality settings
-                if self.settings.quality == "economic":
-                    options["pdfa_image_compression"] = "jpeg"
-                    options["optimize"] = 1
-                elif self.settings.quality == "economicplus":
-                    options["pdfa_image_compression"] = "jpeg"
-                    options["optimize"] = 1
-                    options["oversample"] = 300
-
-                # Add alignment settings
-                if self.settings.align == "align":
-                    options["deskew"] = True
-                elif self.settings.align == "rotate":
-                    options["rotate_pages"] = True
-                elif self.settings.align == "alignrotate":
-                    options["deskew"] = True
-                    options["rotate_pages"] = True
-
-                # Add file to queue
-                self.ocr_queue.add_file(file_path, output_file, options)
-
-            # Start processing
+            # Start the OCR queue
             self.ocr_queue.start()
             logger.info(
-                f"Started OCR processing for {len(self.settings.selected_files)} files using Python API"
+                _("Started OCR processing for {0} files using Python API").format(
+                    len(self.settings.selected_files)
+                )
             )
             return True
 
         except Exception as e:
-            logger.error(f"Error starting OCR processing: {str(e)}")
+            logger.error(_("Error starting OCR processing: {0}").format(str(e)))
             return False
+
+    def _validate_input_files(self) -> bool:
+        """Validate that we have files to process
+        
+        Returns:
+            True if files exist, False otherwise
+        """
+        if not self.settings.selected_files:
+            logger.error(_("No files to process"))
+            return False
+        return True
+
+    def _setup_processing(self) -> None:
+        """Set up the OCR processing environment"""
+        # Configure OCRmyPDF logging
+        configure_logging()
+
+        # Reset tracking variables
+        self._processed_files = 0
+        self._progress = 0.0
+
+        # Create a new OCR queue
+        self.ocr_queue = OcrQueue(max_concurrent=MAX_CONCURRENT_PROCESSES)
+
+        # Set up callbacks
+        self._register_internal_callbacks()
+
+    def _register_internal_callbacks(self) -> None:
+        """Register callbacks with the OCR queue"""
+        if self.on_file_complete:
+            self.ocr_queue.register_callback("file_complete", self.on_file_complete)
+        if self.on_all_complete:
+            self.ocr_queue.register_callback("all_complete", self.on_all_complete)
+
+        # Log warning if callbacks are missing
+        if not self.on_file_complete:
+            logger.warning(_("No file_complete callback registered"))
+        if not self.on_all_complete:
+            logger.warning(_("No all_complete callback registered"))
+
+    def _process_single_file(self, file_path: str, index: int) -> bool:
+        """Process a single file with OCR
+        
+        Args:
+            file_path: Path to the input file
+            index: Index of the file in the selected files list
+            
+        Returns:
+            True if file was added to queue, False otherwise
+        """
+        # Skip invalid files
+        if not file_path or not os.path.exists(file_path):
+            logger.error(_("Error: File not found or invalid: {0}").format(file_path))
+            return False
+
+        # Determine output file path
+        output_file = self._get_output_file_path(file_path, index)
+        if not output_file:
+            return False
+
+        # Track output files in settings
+        self._track_output_file(output_file, index)
+
+        # Create OCR options
+        options = self._create_ocr_options(file_path, output_file)
+
+        # Add file to OCR queue
+        self.ocr_queue.add_file(file_path, output_file, options)
+        return True
+
+    def _get_output_file_path(self, file_path: str, index: int) -> Optional[str]:
+        """Determine the output file path for a processed file
+        
+        Args:
+            file_path: Input file path
+            index: Index of the file in the processing queue
+            
+        Returns:
+            Output file path or None if error occurred
+        """
+        try:
+            # Get the base name for output file naming
+            input_filename = os.path.basename(file_path)
+            base_name = os.path.splitext(input_filename)[0]
+
+            # Determine output directory
+            output_dir = self._get_output_directory(file_path)
+            if not output_dir:
+                logger.error(_("Could not determine output directory for {0}").format(file_path))
+                return None
+
+            # Create output file path
+            output_file = self._create_output_file_path(output_dir, base_name, index)
+
+            # Check if file already exists and handle accordingly
+            if os.path.exists(output_file) and not self.settings.overwrite_existing:
+                # Generate a unique filename to avoid overwriting
+                output_file = self._generate_unique_filename(output_file)
+
+            return output_file
+        except Exception as e:
+            logger.error(_("Error creating output path for {0}: {1}").format(file_path, e))
+            return None
+
+    def _get_output_directory(self, file_path: str) -> Optional[str]:
+        """Determine the output directory for a processed file
+        
+        Args:
+            file_path: Input file path
+            
+        Returns:
+            Output directory path or None if error occurred
+        """
+        # If save in same folder is enabled, use the directory of the original file
+        if self.settings.save_in_same_folder:
+            return os.path.dirname(file_path)
+        elif self.settings.destination_folder:
+            # Make sure destination directory exists
+            os.makedirs(self.settings.destination_folder, exist_ok=True)
+            return self.settings.destination_folder
+        else:
+            # Fallback to the original file's directory if no destination folder specified
+            return os.path.dirname(file_path)
+
+    def _create_output_file_path(self, output_dir: str, base_name: str, index: int) -> str:
+        """Create the output file path based on settings
+        
+        Args:
+            output_dir: Output directory path
+            base_name: Base name of the input file (without extension)
+            index: Index of the file in the processing queue
+            
+        Returns:
+            Output file path
+        """
+        # Check if we should use the original filename
+        use_original = getattr(self.settings, "use_original_filename", False)
+
+        if use_original:
+            # Use the original filename without adding any suffix
+            return os.path.join(output_dir, f"{base_name}.pdf")
+        else:
+            # Get custom suffix if it exists, otherwise use default "ocr"
+            suffix = self.settings.get_pdf_suffix() or "ocr"
+
+            # Generate output filename with appropriate suffix
+            if index == 0:
+                return os.path.join(output_dir, f"{base_name}-{suffix}.pdf")
+            else:
+                return os.path.join(output_dir, f"{base_name}-{suffix}-{index + 1}.pdf")
+
+    def _track_output_file(self, output_file: str, index: int) -> None:
+        """Track output files in settings
+        
+        Args:
+            output_file: Output file path
+            index: Index of the file in the processing queue
+        """
+        # Clean up the processed files list before starting new processing
+        if index == 0:
+            # First file in batch, reset the processed files list
+            self.settings.processed_files = []
+
+        # Keep track of output files for the conclusion page
+        if output_file not in self.settings.processed_files:
+            self.settings.processed_files.append(output_file)
+
+    def _create_ocr_options(self, input_file: str, output_file: str) -> Dict[str, Any]:
+        """Create OCR options dictionary for OCRmyPDF
+        
+        Args:
+            input_file: Input file path
+            output_file: Output file path
+            
+        Returns:
+            Dictionary of OCR options
+        """
+        # Create a temporary directory for extracted text if needed
+        temp_dir = os.path.join(os.path.dirname(output_file), ".temp")
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # Create a temporary sidecar file for text extraction
+        temp_sidecar = os.path.join(
+            temp_dir,
+            f"temp_{os.path.basename(os.path.splitext(output_file)[0])}.txt",
+        )
+
+        # Base options
+        options = {
+            "language": self.settings.lang,
+            "force_ocr": True,
+            "progress_bar": False,  # We'll handle progress display ourselves
+            "sidecar": temp_sidecar,  # Always extract text for memory storage
+        }
+
+        # Add text extraction options
+        self._add_text_extraction_options(options, output_file)
+        
+        # Add quality settings
+        self._add_quality_options(options)
+        
+        # Add alignment settings
+        self._add_alignment_options(options)
+        
+        return options
+
+    def _add_text_extraction_options(self, options: Dict[str, Any], output_file: str) -> None:
+        """Add text extraction options to the options dictionary
+        
+        Args:
+            options: OCR options dictionary to modify
+            output_file: Output file path
+        """
+        # If text files should be saved permanently, set up the proper location
+        if hasattr(self.settings, "save_txt") and self.settings.save_txt:
+            # Determine the location for the text file
+            if (
+                hasattr(self.settings, "separate_txt_folder")
+                and self.settings.separate_txt_folder
+                and self.settings.txt_folder
+            ):
+                # Save to a separate folder
+                txt_filename = (
+                    os.path.basename(os.path.splitext(output_file)[0]) + ".txt"
+                )
+                sidecar_file = os.path.join(
+                    self.settings.txt_folder, txt_filename
+                )
+                # Ensure the directory exists
+                os.makedirs(self.settings.txt_folder, exist_ok=True)
+            else:
+                # Save alongside the PDF
+                sidecar_file = os.path.splitext(output_file)[0] + ".txt"
+
+            # Update the sidecar option to save to the permanent location
+            options["sidecar"] = sidecar_file
+
+    def _add_quality_options(self, options: Dict[str, Any]) -> None:
+        """Add quality-related options to the options dictionary
+        
+        Args:
+            options: OCR options dictionary to modify
+        """
+        if self.settings.quality in OCR_COMPRESSION_FORMATS:
+            options["pdfa_image_compression"] = OCR_COMPRESSION_FORMATS[self.settings.quality]
+            options["optimize"] = OCR_OPTIMIZATION_LEVELS[self.settings.quality]
+            
+            # Add oversample for economicplus
+            if self.settings.quality == "economicplus":
+                options["oversample"] = 300
+
+    def _add_alignment_options(self, options: Dict[str, Any]) -> None:
+        """Add alignment-related options to the options dictionary
+        
+        Args:
+            options: OCR options dictionary to modify
+        """
+        if self.settings.align == "align":
+            options["deskew"] = True
+        elif self.settings.align == "rotate":
+            options["rotate_pages"] = True
+        elif self.settings.align == "alignrotate":
+            options["deskew"] = True
+            options["rotate_pages"] = True
 
     def get_available_ocr_languages(self) -> List[Tuple[str, str]]:
         """Get a list of available OCR languages from tesseract
@@ -196,13 +352,6 @@ class OcrProcessor:
         Returns:
             A list of tuples containing (language_code, language_name)
         """
-        # Always initialize with default languages in case of failure
-        default_languages = [
-            ("por", "Portuguese"),
-            ("eng", "English"),
-            ("spa", "Spanish"),
-        ]
-
         try:
             # Run tesseract to list available languages
             result = subprocess.run(
@@ -213,8 +362,8 @@ class OcrProcessor:
             )
 
             if not result or not result.stdout:
-                logger.warning("tesseract --list-langs returned empty output")
-                return default_languages
+                logger.warning(_("tesseract --list-langs returned empty output"))
+                return DEFAULT_LANGUAGES
 
             languages = []
             # Process the output lines
@@ -234,11 +383,11 @@ class OcrProcessor:
                     languages.append((line, line))
 
             # Return default languages if we didn't find any
-            return languages if languages else default_languages
+            return languages if languages else DEFAULT_LANGUAGES
         except Exception as e:
-            logger.error(f"Error getting OCR languages: {e}")
+            logger.error(_("Error getting OCR languages: {0}").format(e))
             # Return default languages on error
-            return default_languages
+            return DEFAULT_LANGUAGES
 
     def get_progress(self) -> float:
         """Get the current OCR processing progress
@@ -329,7 +478,8 @@ class OcrProcessor:
         queued = len(self.settings.selected_files)
         return processed + queued
 
-    def register_callbacks(self, on_file_complete=None, on_all_complete=None):
+    def register_callbacks(self, on_file_complete: Optional[Callable] = None, 
+                         on_all_complete: Optional[Callable] = None) -> None:
         """Register callbacks for OCR processing events
 
         Args:
@@ -355,7 +505,7 @@ class OcrProcessor:
         if input_file in self.settings.selected_files:
             self.settings.selected_files.remove(input_file)
             logger.info(
-                f"Removed processed file from queue: {os.path.basename(input_file)}"
+                _("Removed processed file from queue: {0}").format(os.path.basename(input_file))
             )
 
     def _generate_unique_filename(self, file_path: str) -> str:
@@ -380,6 +530,6 @@ class OcrProcessor:
             counter += 1
 
         logger.info(
-            f"Generated unique filename to avoid overwriting: {os.path.basename(new_path)}"
+            _("Generated unique filename to avoid overwriting: {0}").format(os.path.basename(new_path))
         )
         return new_path

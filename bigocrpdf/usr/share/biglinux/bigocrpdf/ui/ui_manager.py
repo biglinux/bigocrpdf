@@ -16,10 +16,10 @@ import subprocess
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..window import BigOcrPdfWindow
+    from window import BigOcrPdfWindow
 
-from ..utils.logger import logger
-from ..utils.i18n import _
+from utils.logger import logger
+from utils.i18n import _
 
 
 class BigOcrPdfUI:
@@ -915,13 +915,14 @@ class BigOcrPdfUI:
         string_list = Gtk.StringList()
 
         alignments = [
-            ("none", "Don't change"),
-            ("align", "Align"),
-            ("rotate", "Auto rotate"),
-            ("alignrotate", "Align and auto rotate"),
+            ("none", _("Don't change")),
+            ("align", _("Align")),
+            ("rotate", _("Auto rotate")),
+            ("alignrotate", _("Align and auto rotate")),
         ]
 
-        default_index = 0  # Default to none
+        # Default to "Align and auto rotate" (index 3) unless another setting is found
+        default_index = 3  # Index of "Align and auto rotate"
         for i, (align_code, align_name) in enumerate(alignments):
             string_list.append(align_name)
             if align_code == self.window.settings.align:

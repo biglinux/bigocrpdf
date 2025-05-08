@@ -5,7 +5,7 @@ This module sets up logging for the application.
 """
 
 import logging
-from ..config import LOG_LEVEL, LOG_FORMAT, LOGGER_NAME
+from config import LOG_LEVEL, LOG_FORMAT, LOGGER_NAME
 
 
 def setup_logger() -> logging.Logger:
