@@ -15,9 +15,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: attranslate\n"
-#: NEEDS WORK
-msgid "Torne seu PDF pesquisável"
-msgstr "הפוך את ה-PDF שלך לניתן לחיפוש"
 # 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
@@ -27,10 +24,378 @@ msgstr "הפוך את ה-PDF שלך לניתן לחיפוש"
 msgid "Big OCR PDF"
 msgstr "ביג OCR PDF"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 18
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 83
 #: NEEDS WORK
-msgid "Add OCR to your PDF documents to make them searchable"
-msgstr "הוסף OCR למסמכי ה-PDF שלך כדי להפוך אותם לחיפושיים"
+msgid "BigOcrPdf - Scanned PDFs with search support"
+msgstr "BigOcrPdf - קבצי PDF סרוקים עם תמיכה בחיפוש"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 89
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 518
+#: NEEDS WORK
+msgid "Step 1/3: Settings"
+msgstr "שלב 1/3: הגדרות"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 105
+#: NEEDS WORK
+msgid "Menu"
+msgstr "תפריט"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 97
+#: NEEDS WORK
+msgid "Help"
+msgstr ""
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 109
+#: NEEDS WORK
+msgid "About the application"
+msgstr "על האפליקציה"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 141
+#: NEEDS WORK
+msgid "Back"
+msgstr "חזור"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 149
+#: NEEDS WORK
+msgid "Start"
+msgstr "התחל"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 199
+#: NEEDS WORK
+msgid "Start Processing"
+msgstr "התחל לעבד"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 234
+#: NEEDS WORK
+msgid "How to use Big OCR PDF"
+msgstr "איך להשתמש ב-Big OCR PDF"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 237
+#: NEEDS WORK
+msgid ""
+"This application adds OCR to PDF files, making it possible to search for text.\n"
+"\n"
+"<b>Steps:</b>\n"
+"1. Configure the main language of the text in the documents\n"
+"2. Choose the desired quality and alignment\n"
+"3. Define where to save the processed files\n"
+"4. Click on 'Start Processing' to begin\n"
+"\n"
+"<b>Tips:</b>\n"
+"• Use 'Economic' for smaller files with good quality\n"
+"• The 'Auto rotate' option corrects pages in wrong orientation\n"
+"• You can process multiple files at once"
+msgstr ""
+"היישום הזה מוסיף OCR לקבצי PDF, מה שמאפשר לחפש טקסט.\n"
+"\n"
+"<b>צעדים:</b>\n"
+"1. הגדר את השפה הראשית של הטקסט במסמכים\n"
+"2. בחר את האיכות והיישור הרצויים\n"
+"3. הגדר היכן לשמור את הקבצים המעובדים\n"
+"4. לחץ על 'התחל עיבוד' כדי להתחיל\n"
+"\n"
+"<b>טיפים:</b>\n"
+"• השתמש ב'כלכלי' עבור קבצים קטנים עם איכות טובה\n"
+"• אפשרות 'סיבוב אוטומטי' מתקנת עמודים בכיוון שגוי\n"
+"• תוכל לעבד מספר קבצים בו זמנית"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1492
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 250
+#: NEEDS WORK
+msgid "Close"
+msgstr "סגור"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 269
+#: NEEDS WORK
+msgid "Select PDF Files"
+msgstr "בחר קבצי PDF"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 276
+#: NEEDS WORK
+msgid "PDF Files"
+msgstr "קבצי PDF"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 320
+#: NEEDS WORK
+msgid "No valid files were selected"
+msgstr "לא נבחרו קבצים תקפים"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 321
+#: NEEDS WORK
+msgid "No valid PDF files were selected"
+msgstr "לא נבחרו קבצי PDF תקפים"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 326
+#: NEEDS WORK
+msgid "Error adding files"
+msgstr "שגיאה בהוספת קבצים"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 334
+#: NEEDS WORK
+msgid "Select destination folder"
+msgstr "בחר תיקיית יעד"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 381
+#: NEEDS WORK
+msgid "Destination folder selected"
+msgstr "תיקיית יעד נבחרה"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 387
+#: NEEDS WORK
+msgid "Error selecting destination folder"
+msgstr "שגיאה בבחירת תיקיית יעד"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 399
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 400
+#: NEEDS WORK
+msgid "No files selected for processing"
+msgstr "לא נבחרו קבצים לעיבוד"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 412
+#: NEEDS WORK
+msgid "No destination folder selected"
+msgstr "לא נבחר תיק יעד"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 413
+#: NEEDS WORK
+msgid "Please select a destination folder"
+msgstr "אנא בחר תיקיית יעד"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 433
+#: NEEDS WORK
+msgid "Normal"
+msgstr "נורמלי"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 434
+#: NEEDS WORK
+msgid "Economic"
+msgstr "כלכלי"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 435
+#: NEEDS WORK
+msgid "More economic"
+msgstr "יותר כלכלי"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 444
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 918
+#: NEEDS WORK
+msgid "Don't change"
+msgstr "אל תשנה"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 445
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 919
+#: NEEDS WORK
+msgid "Align"
+msgstr "יישר"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 446
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 920
+#: NEEDS WORK
+msgid "Auto rotate"
+msgstr "סיבוב אוטומטי"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 447
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 921
+#: NEEDS WORK
+msgid "Align and auto rotate"
+msgstr "יישור וסיבוב אוטומטי"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 498
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 499
+#: NEEDS WORK
+msgid "Failed to start OCR processing"
+msgstr "כישלון בהתחלת עיבוד OCR"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 486
+#: NEEDS WORK
+msgid "Step 2/3: Processing"
+msgstr "שלב 2/3: עיבוד"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 516
+#: NEEDS WORK
+msgid "OCR processing started using Python API"
+msgstr "עיבוד OCR החל באמצעות API של פייתון"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 517
+#: NEEDS WORK
+msgid "OCR processing started"
+msgstr "עיבוד OCR החל"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 529
+#: NEEDS WORK
+msgid "Step 3/3: Completed"
+msgstr "שלב 3/3: הושלם"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 662
+#: NEEDS WORK
+#, python-brace-format
+msgid "<b>Processing: {current}/{total}:</b> {completed} file(s) completed • <b>{remaining}</b> remaining"
+msgstr "<b>מעבד: {current}/{total}:</b> {completed} קובץ(ים) הושלמו • <b>{remaining}</b> נותרו"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 673
+#: NEEDS WORK
+#, python-brace-format
+msgid "Processed file {current}/{total}: {filename}"
+msgstr "קובץ מעובד {current}/{total}: {filename}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 682
+#: NEEDS WORK
+msgid "OCR processing complete callback triggered"
+msgstr "החזרת קריאה להשלמת עיבוד OCR הופעלה"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 687
+#: NEEDS WORK
+msgid "Processing complete but no longer on terminal page, likely cancelled"
+msgstr "העיבוד הושלם אך לא נמצא יותר בדף הטרמינל, כנראה בוטל"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 701
+#: NEEDS WORK
+#, python-brace-format
+msgid "<b>OCR processing complete!</b> {total} file(s) processed"
+msgstr "<b>עיבוד OCR הושלם!</b> {total} קובץ(ים) מעובד(ים)"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 721
+#: NEEDS WORK
+#, python-brace-format
+msgid "OCR processing completed successfully for {count} files"
+msgstr "עיבוד OCR הושלם בהצלחה עבור {count} קבצים"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 727
+#: NEEDS WORK
+msgid "OCR processing complete"
+msgstr "עיבוד OCR הושלם"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 810
+#: NEEDS WORK
+#, python-brace-format
+msgid "<b>OCR processing complete!</b> {total} file(s) processed • Total time: {time}"
+msgstr "<b>עיבוד OCR הושלם!</b> {total} קובץ(ים) מעובד • זמן כולל: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 834
+#: NEEDS WORK
+#, python-brace-format
+msgid ""
+"<b>Processing file {cur}/{total}:</b> {done} file(s) completed • <b>{rem}</b> remaining • Time: "
+"{time}"
+msgstr "<b>מעבד קובץ {cur}/{total}:</b> {done} קובץ(ים) הושלמו • <b>{rem}</b> נותרו • זמן: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 857
+#: NEEDS WORK
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 857
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 846
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 846
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 848
+#: NEEDS WORK
+#: NEEDS WORK
+#: NEEDS WORK
+#: NEEDS WORK
+msgid "analyzing document"
+msgstr "מנתח מסמך"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 850
+#: NEEDS WORK
+msgid "applying OCR"
+msgstr "החלת OCR"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 852
+#: NEEDS WORK
+msgid "processing texts"
+msgstr "מעבד טקסטים"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 854
+#: NEEDS WORK
+msgid "finalizing processing"
+msgstr "סיום עיבוד"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 858
+#: NEEDS WORK
+#, python-brace-format
+msgid "<b>Processing file 1/{total}:</b> {stage} • Time: {time}"
+msgstr "<b>מעבד קובץ 1/{total}:</b> {stage} • זמן: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 895
+#: NEEDS WORK
+msgid "OCR processing cancelled by user"
+msgstr "עיבוד OCR בוטל על ידי המשתמש"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 879
+#: NEEDS WORK
+msgid "OCR processing cancelled"
+msgstr "עיבוד OCR בוטל"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 42
+#: NEEDS WORK
+msgid "Please make sure GTK4, libadwaita, and OCRmyPDF are installed"
+msgstr "אנא ודא ש-GTK4, libadwaita ו-OCRmyPDF מותקנים."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 53
+#: NEEDS WORK
+msgid "Failed to set system locale, falling back to C locale"
+msgstr "נכשל בהגדרת לוקל המערכת, חוזר ללוקל C"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 81
+#: NEEDS WORK
+msgid "Cleared file queue at startup"
+msgstr "ניקוי תור הקבצים בהפעלה"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
+#: NEEDS WORK
+msgid "Print version information and exit"
+msgstr "הדפס מידע על גרסה וצא"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 101
+#: NEEDS WORK
+msgid "Application started successfully"
+msgstr "היישום הושק בהצלחה"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
+#: NEEDS WORK
+msgid "Error starting application"
+msgstr "שגיאה בהפעלה של היישום"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 64
+#: NEEDS WORK
+msgid "Big Linux Team"
+msgstr "צוות לינוקס גדול"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 74
+#: NEEDS WORK
+msgid "Developers"
+msgstr "מפתחים"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 34
+#: NEEDS WORK
+#, python-brace-format
+msgid "CSS file not found: {0}"
+msgstr "קובץ CSS לא נמצא: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 43
+#: NEEDS WORK
+msgid "Custom CSS styles loaded successfully"
+msgstr "סגנונות CSS מותאמים אישית נטענו בהצלחה"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 46
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error loading CSS styles: {0}"
+msgstr "שגיאה בטעינת סגנונות CSS: {0}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 97
 #: NEEDS WORK
@@ -242,14 +607,6 @@ msgstr "שמור כ-TXT"
 #: NEEDS WORK
 msgid "Save the extracted text to a .txt file"
 msgstr "שמור את הטקסט המופק לקובץ .txt"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1492
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 250
-#: NEEDS WORK
-msgid "Close"
-msgstr "סגור"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1564
 #: NEEDS WORK
@@ -485,158 +842,356 @@ msgstr "תצוגה מקדימה"
 msgid "Filename Example:"
 msgstr "דוגמת שם קובץ:"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 83
-#: NEEDS WORK
-msgid "BigOcrPdf - Scanned PDFs with search support"
-msgstr "BigOcrPdf - קבצי PDF סרוקים עם תמיכה בחיפוש"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 89
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 518
-#: NEEDS WORK
-msgid "Step 1/3: Settings"
-msgstr "שלב 1/3: הגדרות"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 97
-#: NEEDS WORK
-msgid "Help"
-msgstr ""
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 105
-#: NEEDS WORK
-msgid "Menu"
-msgstr "תפריט"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 109
-#: NEEDS WORK
-msgid "About the application"
-msgstr "על האפליקציה"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 141
-#: NEEDS WORK
-msgid "Back"
-msgstr "חזור"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 149
-#: NEEDS WORK
-msgid "Start"
-msgstr "התחל"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 234
-#: NEEDS WORK
-msgid "How to use Big OCR PDF"
-msgstr "איך להשתמש ב-Big OCR PDF"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 237
-#: NEEDS WORK
-msgid ""
-"This application adds OCR to PDF files, making it possible to search for text.\n"
-"\n"
-"<b>Steps:</b>\n"
-"1. Configure the main language of the text in the documents\n"
-"2. Choose the desired quality and alignment\n"
-"3. Define where to save the processed files\n"
-"4. Click on 'Start Processing' to begin\n"
-"\n"
-"<b>Tips:</b>\n"
-"• Use 'Economic' for smaller files with good quality\n"
-"• The 'Auto rotate' option corrects pages in wrong orientation\n"
-"• You can process multiple files at once"
-msgstr ""
-"היישום הזה מוסיף OCR לקבצי PDF, מה שמאפשר לחפש טקסט.\n"
-"\n"
-"<b>צעדים:</b>\n"
-"1. הגדר את השפה הראשית של הטקסט במסמכים\n"
-"2. בחר את האיכות והיישור הרצויים\n"
-"3. הגדר היכן לשמור את הקבצים המעובדים\n"
-"4. לחץ על 'התחל עיבוד' כדי להתחיל\n"
-"\n"
-"<b>טיפים:</b>\n"
-"• השתמש ב'כלכלי' עבור קבצים קטנים עם איכות טובה\n"
-"• אפשרות 'סיבוב אוטומטי' מתקנת עמודים בכיוון שגוי\n"
-"• תוכל לעבד מספר קבצים בו זמנית"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 269
-#: NEEDS WORK
-msgid "Select PDF Files"
-msgstr "בחר קבצי PDF"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 276
-#: NEEDS WORK
-msgid "PDF Files"
-msgstr "קבצי PDF"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 334
-#: NEEDS WORK
-msgid "Select destination folder"
-msgstr "בחר תיקיית יעד"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 486
-#: NEEDS WORK
-msgid "Step 2/3: Processing"
-msgstr "שלב 2/3: עיבוד"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 529
-#: NEEDS WORK
-msgid "Step 3/3: Completed"
-msgstr "שלב 3/3: הושלם"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 810
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 74
 #: NEEDS WORK
 #, python-brace-format
-msgid "<b>OCR processing complete!</b> {total} file(s) processed • Total time: {time}"
-msgstr "<b>עיבוד OCR הושלם!</b> {total} קובץ(ים) מעובד • זמן כולל: {time}"
+msgid "Found existing text in PDF, length: {0}"
+msgstr "נמצא טקסט קיים ב-PDF, אורך: {0}"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 834
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 79
 #: NEEDS WORK
 #, python-brace-format
-msgid ""
-"<b>Processing file {cur}/{total}:</b> {done} file(s) completed • <b>{rem}</b> remaining • Time: "
-"{time}"
-msgstr "<b>מעבד קובץ {cur}/{total}:</b> {done} קובץ(ים) הושלמו • <b>{rem}</b> נותרו • זמן: {time}"
+msgid "Failed to extract existing text from PDF: {0}"
+msgstr "נכשל בהפקת טקסט קיים מ-PDF: {0}"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 846
-#: NEEDS WORK
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 846
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 848
-#: NEEDS WORK
-#: NEEDS WORK
-msgid "analyzing document"
-msgstr "מנתח מסמך"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 850
-#: NEEDS WORK
-msgid "applying OCR"
-msgstr "החלת OCR"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 852
-#: NEEDS WORK
-msgid "processing texts"
-msgstr "מעבד טקסטים"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 854
-#: NEEDS WORK
-msgid "finalizing processing"
-msgstr "סיום עיבוד"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 858
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 100
 #: NEEDS WORK
 #, python-brace-format
-msgid "<b>Processing file 1/{total}:</b> {stage} • Time: {time}"
-msgstr "<b>מעבד קובץ 1/{total}:</b> {stage} • זמן: {time}"
+msgid "Read {0} characters of extracted text from sidecar file"
+msgstr "קרא {0} תווים של טקסט שהופק מקובץ צד"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 879
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 104
 #: NEEDS WORK
-msgid "OCR processing cancelled"
-msgstr "עיבוד OCR בוטל"
+#, python-brace-format
+msgid "Error reading sidecar file: {0}"
+msgstr "שגיאה בקריאת קובץ צד: {0}"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 64
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 113
 #: NEEDS WORK
-msgid "Big Linux Team"
-msgstr "צוות לינוקס גדול"
+msgid "SIGBUS received - memory-mapped file access error"
+msgstr "שגיאת SIGBUS - שגיאת גישה לקובץ ממופה בזיכרון"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 74
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 155
 #: NEEDS WORK
-msgid "Developers"
-msgstr "מפתחים"
+#, python-brace-format
+msgid "Started OCR process for {0}"
+msgstr "התחל תהליך OCR עבור {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 202
+#: NEEDS WORK
+#, python-brace-format
+msgid "Completed OCR processing for {0}"
+msgstr "הושלמה עיבוד OCR עבור {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 205
+#: NEEDS WORK
+#, python-brace-format
+msgid "OCR processing failed for {0}: {1}"
+msgstr "עיבוד OCR נכשל עבור {0}: {1}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 219
+#: NEEDS WORK
+#, python-brace-format
+msgid "Deleted temporary sidecar file: {0}"
+msgstr "קובץ צדדי זמני נמחק: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 223
+#: NEEDS WORK
+#, python-brace-format
+msgid "Failed to delete temporary sidecar file: {0}"
+msgstr "כישלון במחיקת קובץ צדדי זמני: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 233
+#: NEEDS WORK
+#, python-brace-format
+msgid "No sidecar file found at {0}"
+msgstr "לא נמצא קובץ צדדי ב-{0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 235
+#: NEEDS WORK
+msgid "No sidecar file was specified in options"
+msgstr "לא צוין קובץ צדדי באפשרויות"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 251
+#: NEEDS WORK
+#, python-brace-format
+msgid "Process exited with code {0}"
+msgstr "התהליך יצא עם קוד {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 306
+#: NEEDS WORK
+msgid "Process was terminated"
+msgstr "ההליך הופסק"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 308
+#: NEEDS WORK
+#, python-brace-format
+msgid "OCR process for {0} was terminated"
+msgstr "תהליך ה-OCR עבור {0} הופסק"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 346
+#: NEEDS WORK
+#, python-brace-format
+msgid "Added {0} to OCR queue"
+msgstr "נוסף {0} לתור OCR"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 357
+#: NEEDS WORK
+msgid "Started OCR queue processing"
+msgstr "החלה עיבוד תור OCR"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 368
+#: NEEDS WORK
+msgid "Stopped OCR queue processing"
+msgstr "הפסקת עיבוד תור ה-OCR"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 463
+#: NEEDS WORK
+#, python-brace-format
+msgid "Found extracted_text in process: {0} characters"
+msgstr "נמצא extracted_text בתהליך: {0} תווים"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 483
+#: NEEDS WORK
+msgid "Text extraction completed."
+msgstr "השלמת חילוץ הטקסט."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 500
+#: NEEDS WORK
+#, python-brace-format
+msgid "Read {0} characters from sidecar file before callback"
+msgstr "קרא {0} תווים מקובץ צד לפני הקריאה."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 506
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error reading sidecar file before callback: {0}"
+msgstr "שגיאה בקריאת קובץ צד לפני קריאה חוזרת: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 529
+#: NEEDS WORK
+#, python-brace-format
+msgid "Read {0} characters from temporary file before callback"
+msgstr "קרא {0} תווים מקובץ זמני לפני הקריאה חוזרת"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 535
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error reading temporary file before callback: {0}"
+msgstr "שגיאה בקריאת קובץ זמני לפני קריאה חוזרת: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 75
+#: NEEDS WORK
+#, python-brace-format
+msgid "Started OCR processing for {0} files using Python API"
+msgstr "החלה עיבוד OCR עבור {0} קבצים באמצעות API של פייתון"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 82
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error starting OCR processing: {0}"
+msgstr "שגיאה בהתחלת עיבוד OCR: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 92
+#: NEEDS WORK
+msgid "No files to process"
+msgstr "אין קבצים לעיבוד"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 120
+#: NEEDS WORK
+msgid "No file_complete callback registered"
+msgstr "לא נרשם callback של file_complete"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 122
+#: NEEDS WORK
+msgid "No all_complete callback registered"
+msgstr "לא נרשם callback של all_complete"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 136
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error: File not found or invalid: {0}"
+msgstr "שגיאה: הקובץ לא נמצא או לא תקין: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 172
+#: NEEDS WORK
+#, python-brace-format
+msgid "Could not determine output directory for {0}"
+msgstr "לא ניתן לקבוע את תיקיית הפלט עבור {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 185
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error creating output path for {0}: {1}"
+msgstr "שגיאה ביצירת נתיב פלט עבור {0}: {1}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 365
+#: NEEDS WORK
+msgid "tesseract --list-langs returned empty output"
+msgstr "tesseract --list-langs החזיר פלט ריק"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 388
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error getting OCR languages: {0}"
+msgstr "שגיאה בקבלת שפות OCR: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 508
+#: NEEDS WORK
+#, python-brace-format
+msgid "Removed processed file from queue: {0}"
+msgstr "הקובץ המעובד הוסר מהתור: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 533
+#: NEEDS WORK
+#, python-brace-format
+msgid "Generated unique filename to avoid overwriting: {0}"
+msgstr "נוצר שם קובץ ייחודי כדי למנוע כתיבה מחדש: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 75
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error creating alignment setting file: {0}"
+msgstr "שגיאה ביצירת קובץ הגדרות יישור: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 105
+#: NEEDS WORK
+#, python-brace-format
+msgid "Attempting to add {0} files"
+msgstr "מנסה להוסיף {0} קבצים"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 120
+#: NEEDS WORK
+#, python-brace-format
+msgid "Successfully added {0} files"
+msgstr "נוספו בהצלחה {0} קבצים"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 122
+#: NEEDS WORK
+msgid "No valid PDF files were found to add"
+msgstr "לא נמצאו קבצי PDF תקפים להוספה"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 140
+#: NEEDS WORK
+msgid "Empty file path provided"
+msgstr "נתיב קובץ ריק שסופק"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 145
+#: NEEDS WORK
+#, python-brace-format
+msgid "File does not exist: {0}"
+msgstr "הקובץ אינו קיים: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 150
+#: NEEDS WORK
+#, python-brace-format
+msgid "Not a PDF file: {0}"
+msgstr "לא קובץ PDF: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 155
+#: NEEDS WORK
+#, python-brace-format
+msgid "File already in list: {0}"
+msgstr "הקובץ כבר ברשימה: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 159
+#: NEEDS WORK
+#, python-brace-format
+msgid "Adding valid PDF: {0}"
+msgstr "הוספת PDF תקף: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 231
+#: NEEDS WORK
+msgid "Settings saved successfully"
+msgstr "הגדרות נשמרו בהצלחה"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 234
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error saving settings: {0}"
+msgstr "שגיאה בשמירת ההגדרות: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 254
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error saving setting to {0}: {1}"
+msgstr "שגיאה בשמירת ההגדרה ל-{0}: {1}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 294
+#: NEEDS WORK
+msgid "PDF output settings saved successfully"
+msgstr "הגדרות פלט PDF נשמרו בהצלחה"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 296
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error saving PDF output settings: {0}"
+msgstr "שגיאה בשמירת הגדרות פלט PDF: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 376
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error getting page count for {0}: {1}"
+msgstr "שגיאה בקבלת מספר העמודים עבור {0}: {1}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 404
+#: NEEDS WORK
+#, python-brace-format
+msgid "Saved {0} selected files"
+msgstr "שמרו {0} קבצים שנבחרו"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 406
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error saving selected files: {0}"
+msgstr "שגיאה בשמירת הקבצים שנבחרו: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 430
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error loading selected files: {0}"
+msgstr "שגיאה בטעינת הקבצים שנבחרו: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 452
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error loading setting from {0}: {1}"
+msgstr "שגיאה בטעינת הגדרה מ-{0}: {1}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 532
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error loading PDF date settings: {0}"
+msgstr "שגיאה בטעינת הגדרות תאריך PDF: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 558
+#: NEEDS WORK
+#, python-brace-format
+msgid "Invalid position value for {0}: {1}"
+msgstr "ערך מיקום לא חוקי עבור {0}: {1}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 560
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error loading date format order settings: {0}"
+msgstr "שגיאה בטעינת הגדרות פורמט תאריך: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 18
+#: NEEDS WORK
+msgid "Add OCR to your PDF documents to make them searchable"
+msgstr "הוסף OCR למסמכי ה-PDF שלך כדי להפוך אותם לחיפושיים"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 72
+#: NEEDS WORK
+msgid "Enable debug mode"
+msgstr "אפשר מצב דיבוג"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 74
+#: NEEDS WORK
+msgid "Enable verbose output"
+msgstr "אפשר פלט מפורט"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
+#: NEEDS WORK
+msgid "PDF files to process"
+msgstr "קבצי PDF לעיבוד"
