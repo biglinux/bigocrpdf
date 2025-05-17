@@ -13,7 +13,7 @@ from gi.repository import Gtk, Adw, Gio, GLib
 import os
 import time
 
-from config import ICON_PATH
+from config import ICON_PATH, CONFIG_DIR
 from utils.logger import logger
 from services.settings import OcrSettings
 from services.processor import OcrProcessor
@@ -24,6 +24,25 @@ from utils.timer import safe_remove_source
 
 class BigOcrPdfWindow(Adw.ApplicationWindow):
     """Main application window for BigOcrPdf"""
+
+    # Configuration dictionaries for dropdowns
+    LANGUAGES_CONFIG = "LANGUAGES"  # This will be populated dynamically
+    
+    QUALITY_CONFIG = [
+        ("normal", _("Normal")),
+        ("economic", _("Economic")),
+        ("economicplus", _("More economic")),
+    ]
+    
+    ALIGNMENT_CONFIG = [
+        ("none", _("Don't change")),
+        ("align", _("Align")),
+        ("rotate", _("Auto rotate")),
+        ("alignrotate", _("Align and auto rotate")),
+    ]
+
+    # Configuration file to store welcome dialog preference
+    WELCOME_DIALOG_CONFIG = os.path.join(CONFIG_DIR, "show_welcome_dialog")
 
     def __init__(self, app: Adw.Application):
         """Initialize application window
@@ -44,8 +63,17 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         self.settings = OcrSettings()
         self.ocr_processor = OcrProcessor(self.settings)
         self.ui = BigOcrPdfUI(self)
+        
+        # Initialize state variables
         self.process_pid = None  # Process ID for OCR operation
         self.processed_files = []  # List to store processed output files
+        self.process_start_time = 0
+        self.progress_timer_id = None
+        self.conclusion_timer_id = None
+        
+        # Animation state variables
+        self._animation_progress = 0.05
+        self._animation_direction = 0.01
 
         # Initialize UI components
         self.stack = None  # ViewStack for main UI transitions
@@ -53,44 +81,58 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         self.step_label = None  # Step indicator
         self.back_button = None  # Back button
         self.next_button = None  # Next button
+        self.header_bar = None  # Header bar reference
+
+        # Signal handler tracking
+        self.signal_handlers = {}  # Dictionary to track signal handlers
 
         # Create the main layout
         self.setup_ui()
 
     def setup_ui(self) -> None:
+        """Set up the main user interface"""
         # Create the toast overlay for notifications
         self.toast_overlay = Adw.ToastOverlay()
 
-        # Create a view stack with smooth transitions
+        # Create main containers
+        self.setup_stack()
+        self.setup_header_bar()
+        self.setup_content_area()
+        self.setup_action_bar()
+        
+        # Add pages to the stack
+        self.setup_pages()
+        
+        # Connect signals
+        self.stack.connect("notify::visible-child", self._on_page_changed)
+
+        # Set initial view
+        self.stack.set_visible_child_name("settings")
+
+        # Set up content with toast overlay for notifications
+        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        main_box.append(self.toolbar_view)
+        main_box.append(self.action_bar)
+        
+        self.toast_overlay.set_child(main_box)
+        self.set_content(self.toast_overlay)
+
+    def setup_stack(self) -> None:
+        """Set up the main view stack"""
         self.stack = Adw.ViewStack()
         self.stack.set_vexpand(True)
         self.stack.set_transition_duration(300)  # 300ms animation duration
 
-        # Create a unified headerbar
-        header_bar = Adw.HeaderBar()
-        header_bar.set_show_end_title_buttons(True)
-        header_bar.set_show_start_title_buttons(True)
-        header_bar.add_css_class("flat")  # Make header flat for modern look
+    def setup_header_bar(self) -> None:
+        """Set up the application header bar"""
+        self.header_bar = Adw.HeaderBar()
+        self.header_bar.set_show_end_title_buttons(True)
+        self.header_bar.set_show_start_title_buttons(True)
+        self.header_bar.add_css_class("flat")  # Make header flat for modern look
 
         # Use a simpler title for better space management
         title_label = Gtk.Label(label=_("BigOcrPdf - Scanned PDFs with search support"))
-        header_bar.set_title_widget(title_label)
-
-        # Create step indicator (will be added to the footer later)
-        self.step_label = Gtk.Label()
-        self.step_label.set_markup(
-            "<span font_size='small'>" + _("Step 1/3: Settings") + "</span>"
-        )
-        self.step_label.add_css_class("dim-label")
-        self.step_label.set_margin_start(12)
-
-        # # Create a help button
-        # help_button = Gtk.Button()
-        # help_button.set_icon_name("help-about-symbolic")
-        # help_button.set_tooltip_text(_("Help"))
-        # help_button.add_css_class("flat")
-        # help_button.connect("clicked", self.show_help)
-        # header_bar.pack_end(help_button)
+        self.header_bar.set_title_widget(title_label)
 
         # Create a menu button
         menu_button = Gtk.MenuButton()
@@ -102,19 +144,15 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         menu.append(_("Help"), "win.help")
         menu.append(_("About the application"), "app.about")
         menu_button.set_menu_model(menu)
-        header_bar.pack_end(menu_button)
+        self.header_bar.pack_end(menu_button)
 
-        # Add about action
-        about_action = Gio.SimpleAction.new("about", None)
-        about_action.connect("activate", lambda a, p: self.show_about_dialog())
-        self.get_application().add_action(about_action)
-        
-        # Add help action (nova ação para a janela)
+        # Add help action for the window
         help_action = Gio.SimpleAction.new("help", None)
-        help_action.connect("activate", lambda a, p: self.show_help(None))
+        help_action.connect("activate", lambda a, p: self.show_welcome_dialog())
         self.add_action(help_action)
 
-        # Create a content container with scrolling support
+    def setup_content_area(self) -> None:
+        """Set up the main content area with scrolling"""
         content_scroll = Gtk.ScrolledWindow()
         content_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         content_scroll.set_propagate_natural_height(True)
@@ -123,23 +161,30 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         content_scroll.set_child(self.stack)
 
         # Create adaptive layout structure
-        toolbar_view = Adw.ToolbarView()
-        toolbar_view.add_top_bar(header_bar)
-        toolbar_view.set_content(content_scroll)
+        self.toolbar_view = Adw.ToolbarView()
+        self.toolbar_view.add_top_bar(self.header_bar)
+        self.toolbar_view.set_content(content_scroll)
 
-        # Bottom navigation bar for wizard-style navigation
-        action_bar = Gtk.ActionBar()
+    def setup_action_bar(self) -> None:
+        """Set up the bottom action bar for navigation"""
+        self.action_bar = Gtk.ActionBar()
 
-        # Move step indicator from header to action bar (footer) and center it
+        # Create step indicator
+        self.step_label = Gtk.Label()
+        self.step_label.set_markup(
+            "<span font_size='small'>" + _("Step 1/3: Settings") + "</span>"
+        )
+        self.step_label.add_css_class("dim-label")
+        self.step_label.set_margin_start(12)
         self.step_label.set_hexpand(True)
         self.step_label.set_halign(Gtk.Align.CENTER)
-        action_bar.set_center_widget(self.step_label)
+        self.action_bar.set_center_widget(self.step_label)
 
         # Create back button (initially hidden)
         self.back_button = Gtk.Button()
         self.back_button.set_label(_("Back"))
         self.back_button.set_icon_name("go-previous-symbolic")
-        self.back_button.connect("clicked", self.on_back_clicked)
+        self.connect_signal(self.back_button, "clicked", self.on_back_clicked)
         self.back_button.set_sensitive(False)
         self.back_button.set_visible(False)
 
@@ -147,18 +192,15 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         self.next_button = Gtk.Button()
         self.next_button.set_label(_("Start"))
         self.next_button.add_css_class("suggested-action")
-        self.next_button.connect("clicked", self.on_next_clicked)
+        self.connect_signal(self.next_button, "clicked", self.on_next_clicked)
 
         # Add buttons to action bar
-        action_bar.pack_start(self.back_button)
-        action_bar.pack_end(self.next_button)
+        self.action_bar.pack_start(self.back_button)
+        self.action_bar.pack_end(self.next_button)
 
-        # Add content with navigation controls
-        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        main_box.append(toolbar_view)
-        main_box.append(action_bar)
-
-        # Create pages - each in its own scrolled window for better space management
+    def setup_pages(self) -> None:
+        """Set up the application pages"""
+        # Create pages for the stack
         settings_page = self.ui.create_settings_page()
         self.stack.add_named(settings_page, "settings")
 
@@ -168,17 +210,199 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         conclusion_page = self.ui.create_conclusion_page()
         self.stack.add_named(conclusion_page, "conclusion")
 
-        # Store reference to the unified header for consistent access
-        self.header_bar = header_bar
+    def connect_signal(self, widget, signal, callback, *args) -> int:
+        """Connect a signal and store the handler ID
+        
+        Args:
+            widget: The widget to connect the signal to
+            signal: The signal name
+            callback: The callback function
+            args: Additional arguments to pass to the callback
+            
+        Returns:
+            The handler ID
+        """
+        handler_id = widget.connect(signal, callback, *args)
+        
+        # Store the handler ID
+        if widget not in self.signal_handlers:
+            self.signal_handlers[widget] = {}
+        
+        self.signal_handlers[widget][signal] = handler_id
+        
+        return handler_id
 
-        self.stack.connect("notify::visible-child", self._on_page_changed)
+    def disconnect_signal(self, widget, signal) -> bool:
+        """Disconnect a signal if it exists
+        
+        Args:
+            widget: The widget to disconnect the signal from
+            signal: The signal name
+            
+        Returns:
+            True if the signal was disconnected, False otherwise
+        """
+        if widget in self.signal_handlers and signal in self.signal_handlers[widget]:
+            widget.disconnect(self.signal_handlers[widget][signal])
+            del self.signal_handlers[widget][signal]
+            return True
+        return False
 
-        # Set initial view
-        self.stack.set_visible_child_name("settings")
+    def should_show_welcome_dialog(self) -> bool:
+        """Check if the welcome dialog should be shown at startup
+        
+        Returns:
+            True if the dialog should be shown, False otherwise
+        """
+        if not os.path.exists(self.WELCOME_DIALOG_CONFIG):
+            # File doesn't exist, create it with default value (show dialog)
+            try:
+                with open(self.WELCOME_DIALOG_CONFIG, "w") as f:
+                    f.write("true")
+                return True
+            except Exception as e:
+                logger.error(f"Error creating welcome dialog config: {e}")
+                return True
+        
+        try:
+            with open(self.WELCOME_DIALOG_CONFIG, "r") as f:
+                content = f.read().strip()
+                return content.lower() == "true"
+        except Exception as e:
+            logger.error(f"Error reading welcome dialog config: {e}")
+            return True
 
-        # Set up content with toast overlay for notifications
-        self.toast_overlay.set_child(main_box)
-        self.set_content(self.toast_overlay)
+    def set_show_welcome_dialog(self, show: bool) -> None:
+        """Set whether to show the welcome dialog at startup
+        
+        Args:
+            show: True to show the dialog, False to hide it
+        """
+        try:
+            with open(self.WELCOME_DIALOG_CONFIG, "w") as f:
+                f.write("true" if show else "false")
+            logger.info(f"Set show welcome dialog: {show}")
+        except Exception as e:
+            logger.error(f"Error setting welcome dialog config: {e}")
+
+    def show_welcome_dialog(self) -> None:
+        """Show the welcome dialog with application information"""
+        # Create the welcome dialog
+        dialog = Gtk.Window()
+        dialog.set_title(_("Welcome to Big OCR PDF"))
+        dialog.set_default_size(640, 670)
+        dialog.set_modal(True)
+        dialog.set_transient_for(self)
+        
+        # Create a toolbar view for the content
+        toolbar_view = Adw.ToolbarView()
+        
+        # Create a box for the content
+        content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16)
+        content_box.set_margin_top(24)
+        content_box.set_margin_bottom(24)
+        content_box.set_margin_start(24)
+        content_box.set_margin_end(24)
+        
+        # Add logo/icon
+        icon = Gtk.Image.new_from_icon_name("x-office-document-symbolic")
+        icon.set_pixel_size(64)
+        icon.set_margin_bottom(16)
+        content_box.append(icon)
+        
+        # Add title
+        title = Gtk.Label()
+        title.set_markup("<span size='x-large' weight='bold'>" + _("Welcome to Big OCR PDF") + "</span>")
+        title.set_margin_bottom(16)
+        content_box.append(title)
+        
+        # Add "What is Big OCR PDF?" section
+        what_is = Gtk.Label()
+        what_is.set_markup("<span weight='bold'>" + _("What is Big OCR PDF?") + "</span>")
+        what_is.set_halign(Gtk.Align.START)
+        content_box.append(what_is)
+        
+        what_is_desc = Gtk.Label()
+        what_is_desc.set_markup(_(
+            "Big OCR PDF adds optical character recognition to your PDF files, "
+            "making them searchable and allowing you to select and copy text "
+            "from scanned documents."
+        ))
+        what_is_desc.set_wrap(True)
+        what_is_desc.set_halign(Gtk.Align.START)
+        what_is_desc.set_margin_bottom(16)
+        content_box.append(what_is_desc)
+        
+        # Add "Benefits of using Big OCR PDF" section
+        benefits = Gtk.Label()
+        benefits.set_markup("<span weight='bold'>" + _("Benefits of using Big OCR PDF:") + "</span>")
+        benefits.set_halign(Gtk.Align.START)
+        content_box.append(benefits)
+        
+        # Create a list of benefits
+        benefits_list = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        benefits_list.set_margin_bottom(16)
+        
+        benefit_items = [
+            _("• Search through your scanned PDF documents"),
+            _("• Copy text from images and scanned documents"),
+            _("• Process multiple files at once"),
+            _("• Correct page alignment and rotation automatically"),
+            _("• Choose optimal quality settings for your needs")
+        ]
+        
+        for item in benefit_items:
+            benefit_label = Gtk.Label()
+            benefit_label.set_markup(item)
+            benefit_label.set_halign(Gtk.Align.START)
+            benefits_list.append(benefit_label)
+        
+        content_box.append(benefits_list)
+        
+        # Add "Show dialog at startup" switch
+        show_at_startup_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+        show_at_startup_box.set_margin_top(16)
+        
+        show_at_startup_label = Gtk.Label(label=_("Show this dialog at startup"))
+        show_at_startup_label.set_halign(Gtk.Align.START)
+        show_at_startup_label.set_hexpand(True)
+        
+        show_at_startup_switch = Gtk.Switch()
+        show_at_startup_switch.set_active(self.should_show_welcome_dialog())
+        show_at_startup_switch.set_valign(Gtk.Align.CENTER)
+        
+        show_at_startup_box.append(show_at_startup_label)
+        show_at_startup_box.append(show_at_startup_switch)
+        content_box.append(show_at_startup_box)
+        
+        # Add "Let's Get Started" button
+        start_button = Gtk.Button()
+        start_button.set_label(_("Let's Get Started"))
+        start_button.add_css_class("suggested-action")
+        start_button.set_margin_top(16)
+        start_button.set_halign(Gtk.Align.CENTER)
+        content_box.append(start_button)
+        
+        # Create a scrolled window for the content
+        scrolled_window = Gtk.ScrolledWindow()
+        scrolled_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        scrolled_window.set_child(content_box)
+        
+        # Add the scrolled window to the toolbar view
+        toolbar_view.set_content(scrolled_window)
+        
+        # Set the toolbar view as the dialog content
+        dialog.set_child(toolbar_view)
+        
+        # Connect signals
+        def on_switch_toggle(switch, _param):
+            self.set_show_welcome_dialog(switch.get_active())
+        
+        show_at_startup_switch.connect("notify::active", on_switch_toggle)
+        start_button.connect("clicked", lambda _: dialog.close())
+        
+        # Show the dialog
+        dialog.present()
 
     def on_back_clicked(self, button: Gtk.Button) -> None:
         """Handle back button navigation
@@ -223,34 +447,14 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
             # Start a new conversion
             self.reset_and_go_to_settings()
 
-    def show_help(self, button: Gtk.Button) -> None:
+    def show_help(self, button: Gtk.Button = None) -> None:
         """Show help dialog with usage instructions
 
         Args:
-            button: The button that triggered the event
+            button: The button that triggered the event (optional)
         """
-        help_dialog = Adw.MessageDialog(transient_for=self)
-        help_dialog.set_heading(_("How to use Big OCR PDF"))
-
-        help_content = _(
-            "This application adds OCR to PDF files, making it possible to search for text.\n\n"
-            "<b>Steps:</b>\n"
-            "1. Configure the main language of the text in the documents\n"
-            "2. Choose the desired quality and alignment\n"
-            "3. Define where to save the processed files\n"
-            "4. Click on 'Start Processing' to begin\n\n"
-            "<b>Tips:</b>\n"
-            "• Use 'Economic' for smaller files with good quality\n"
-            "• The 'Auto rotate' option corrects pages in wrong orientation\n"
-            "• You can process multiple files at once"
-        )
-
-        help_dialog.set_body_use_markup(True)
-        help_dialog.set_body(help_content)
-        
-        help_dialog.add_response("close", _("Close"))
-        help_dialog.set_response_appearance("close", Adw.ResponseAppearance.DEFAULT)
-        help_dialog.present()
+        # Now this method redirects to the welcome dialog
+        self.show_welcome_dialog()
 
     def show_about_dialog(self) -> None:
         """Show about dialog with application information"""
@@ -313,19 +517,26 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
                 added = self.settings.add_files(file_paths)
 
                 if added > 0:
-                    # Update UI only once (removed duplicate call)
+                    # Update UI
                     self.update_file_info()
                 else:
                     # No valid files found, log the issue and show toast
                     logger.warning(_("No valid files were selected"))
-                    toast = Adw.Toast.new(_("No valid PDF files were selected"))
-                    toast.set_timeout(3)
-                    self.toast_overlay.add_toast(toast)
+                    self.show_toast(_("No valid PDF files were selected"))
         except Exception as e:
             logger.error(f"Error adding files: {e}")
-            toast = Adw.Toast.new(_("Error adding files"))
-            toast.set_timeout(3)
-            self.toast_overlay.add_toast(toast)
+            self.show_toast(_("Error adding files"))
+
+    def show_toast(self, message: str, timeout: int = 3) -> None:
+        """Show a toast notification
+        
+        Args:
+            message: The message to display
+            timeout: The timeout in seconds
+        """
+        toast = Adw.Toast.new(message)
+        toast.set_timeout(timeout)
+        self.toast_overlay.add_toast(toast)
 
     def on_browse_clicked(self, button: Gtk.Button) -> None:
         """Handle the browse button click for selecting a destination folder
@@ -339,6 +550,19 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         folder_chooser.set_modal(True)
 
         # Set initial folder if we have one already selected
+        self.set_initial_folder(folder_chooser)
+
+        # Show the folder selection dialog
+        folder_chooser.select_folder(
+            parent=self, cancellable=None, callback=self._on_select_folder_callback
+        )
+
+    def set_initial_folder(self, folder_chooser: Gtk.FileDialog) -> None:
+        """Set the initial folder for a folder chooser dialog
+        
+        Args:
+            folder_chooser: The folder chooser dialog
+        """
         if self.settings.destination_folder:
             # Try to use the directory from existing destination path
             if os.path.isdir(self.settings.destination_folder):
@@ -350,11 +574,6 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
             if os.path.exists(initial_folder):
                 folder = Gio.File.new_for_path(initial_folder)
                 folder_chooser.set_initial_folder(folder)
-
-        # Show the folder selection dialog
-        folder_chooser.select_folder(
-            parent=self, cancellable=None, callback=self._on_select_folder_callback
-        )
 
     def _on_select_folder_callback(
         self, dialog: Gtk.FileDialog, result: Gio.AsyncResult
@@ -378,15 +597,11 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
 
                 # Log destination selection and show toast
                 logger.info(f"Destination folder selected: {path}")
-                toast = Adw.Toast.new(_("Destination folder selected"))
-                toast.set_timeout(3)
-                self.toast_overlay.add_toast(toast)
+                self.show_toast(_("Destination folder selected"))
 
         except Exception as e:
             logger.error(f"Error selecting save location: {e}")
-            toast = Adw.Toast.new(_("Error selecting destination folder"))
-            toast.set_timeout(3)
-            self.toast_overlay.add_toast(toast)
+            self.show_toast(_("Error selecting destination folder"))
 
     def _validate_ocr_settings(self) -> bool:
         """Validate OCR settings before processing
@@ -397,25 +612,29 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         # Validate there are files to process
         if not self.settings.selected_files:
             logger.warning(_("No files selected for processing"))
-            toast = Adw.Toast.new(_("No files selected for processing"))
-            toast.set_timeout(3)
-            self.toast_overlay.add_toast(toast)
+            self.show_toast(_("No files selected for processing"))
             return False
 
         # Get "save in same folder" option
-        save_in_same_folder = False
-        if hasattr(self.ui, "same_folder_switch_row") and self.ui.same_folder_switch_row:
-            save_in_same_folder = self.ui.same_folder_switch_row.get_active()
+        save_in_same_folder = self.get_save_in_same_folder()
 
         # Validate destination folder if not saving in same folder
         if not save_in_same_folder and not self.settings.destination_folder:
             logger.warning(_("No destination folder selected"))
-            toast = Adw.Toast.new(_("Please select a destination folder"))
-            toast.set_timeout(3)
-            self.toast_overlay.add_toast(toast)
+            self.show_toast(_("Please select a destination folder"))
             return False
 
         return True
+
+    def get_save_in_same_folder(self) -> bool:
+        """Get the value of the save in same folder switch
+        
+        Returns:
+            True if saving in the same folder, False otherwise
+        """
+        if hasattr(self.ui, "same_folder_switch_row") and self.ui.same_folder_switch_row:
+            return self.ui.same_folder_switch_row.get_active()
+        return False
 
     def _get_settings_from_ui(self) -> None:
         """Get settings from UI components"""
@@ -429,30 +648,17 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         # Get quality setting
         if hasattr(self.ui, "quality_dropdown") and self.ui.quality_dropdown is not None:
             quality_index = self.ui.quality_dropdown.get_selected()
-            qualities = [
-                ("normal", _("Normal")),
-                ("economic", _("Economic")),
-                ("economicplus", _("More economic")),
-            ]
-            if 0 <= quality_index < len(qualities):
-                self.settings.quality = qualities[quality_index][0]
+            if 0 <= quality_index < len(self.QUALITY_CONFIG):
+                self.settings.quality = self.QUALITY_CONFIG[quality_index][0]
 
         # Get alignment setting
         if hasattr(self.ui, "alignment_dropdown") and self.ui.alignment_dropdown is not None:
             align_index = self.ui.alignment_dropdown.get_selected()
-            alignments = [
-                ("none", _("Don't change")),
-                ("align", _("Align")),
-                ("rotate", _("Auto rotate")),
-                ("alignrotate", _("Align and auto rotate")),
-            ]
-            if 0 <= align_index < len(alignments):
-                self.settings.align = alignments[align_index][0]
+            if 0 <= align_index < len(self.ALIGNMENT_CONFIG):
+                self.settings.align = self.ALIGNMENT_CONFIG[align_index][0]
 
         # Get "save in same folder" option
-        save_in_same_folder = False
-        if hasattr(self.ui, "same_folder_switch_row") and self.ui.same_folder_switch_row:
-            save_in_same_folder = self.ui.same_folder_switch_row.get_active()
+        save_in_same_folder = self.get_save_in_same_folder()
 
         # Get destination folder
         if hasattr(self.ui, "dest_entry") and self.ui.dest_entry is not None:
@@ -496,9 +702,7 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         success = self.ocr_processor.process_with_api()
         if not success:
             logger.error(_("Failed to start OCR processing"))
-            toast = Adw.Toast.new(_("Failed to start OCR processing"))
-            toast.set_timeout(3)
-            self.toast_overlay.add_toast(toast)
+            self.show_toast(_("Failed to start OCR processing"))
             return
 
         # Switch to terminal page and update UI
@@ -514,9 +718,7 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
 
         # Processing has started - log and show toast
         logger.info(_("OCR processing started using Python API"))
-        toast = Adw.Toast.new(_("OCR processing started"))
-        toast.set_timeout(3)
-        self.toast_overlay.add_toast(toast)
+        self.show_toast(_("OCR processing started"))
 
     def reset_and_go_to_settings(self) -> None:
         """Reset the application state and return to the settings page"""
@@ -528,13 +730,9 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         self.next_button.set_sensitive(True)
         self.next_button.set_visible(True)
 
-        # Disconnect any previous handlers from the next button
-        for handler_id in getattr(self.next_button, "handler_ids", []):
-            self.next_button.disconnect(handler_id)
-
-        # Connect the standard handler
-        handler_id = self.next_button.connect("clicked", self.on_next_clicked)
-        self.next_button.handler_ids = [handler_id]
+        # Disconnect any previous handlers and connect the standard handler
+        self.disconnect_signal(self.next_button, "clicked")
+        self.connect_signal(self.next_button, "clicked", self.on_next_clicked)
 
         # Return to the settings page
         self.stack.set_visible_child_name("settings")
@@ -561,9 +759,9 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         self.next_button.set_visible(True)
         self.next_button.set_sensitive(True)
 
-        # Disconnect any existing signal handlers
-        if hasattr(self.next_button, "_handler_id") and self.next_button._handler_id:
-            self.next_button.disconnect(self.next_button._handler_id)
+        # Disconnect any existing signal handlers and reconnect
+        self.disconnect_signal(self.next_button, "clicked")
+        self.connect_signal(self.next_button, "clicked", self.on_next_clicked)
 
     def update_file_info(self) -> None:
         """Update the file information UI after files have been added or removed"""
@@ -604,13 +802,13 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
 
     def _apply_headerbar_sidebar_style(self) -> None:
         """Apply a style to the headerbar for the settings page (optional)"""
-        if hasattr(self, "header_bar") and self.header_bar:
+        if self.header_bar:
             self.header_bar.add_css_class("settings-page-header")
             self.header_bar.remove_css_class("default-header")
 
     def _remove_headerbar_sidebar_style(self) -> None:
         """Remove style from the headerbar for non-settings pages"""
-        if hasattr(self, "header_bar") and self.header_bar:
+        if self.header_bar:
             # Toggle the classes to reset to default style
             self.header_bar.remove_css_class("settings-page-header")
             self.header_bar.add_css_class("default-header")
@@ -689,23 +887,13 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
             return
 
         # Update the progress display to show 100%
-        if hasattr(self.ui, "terminal_progress_bar") and self.ui.terminal_progress_bar:
-            self.ui.terminal_progress_bar.set_fraction(1.0)
-            self.ui.terminal_progress_bar.set_text("100%")
+        self._update_terminal_progress(1.0, "100%")
 
         # Update the status text
-        if hasattr(self.ui, "terminal_status_bar") and self.ui.terminal_status_bar:
-            # Get the total files processed from the OCR queue
-            total_files = self.ocr_processor.get_processed_count()
-            self.ui.terminal_status_bar.set_markup(
-                _("<b>OCR processing complete!</b> {total} file(s) processed").format(
-                    total=total_files
-                )
-            )
+        self._update_terminal_status_complete()
 
         # Stop the spinner if it's still spinning
-        if hasattr(self.ui, "terminal_spinner") and self.ui.terminal_spinner:
-            self.ui.terminal_spinner.set_spinning(False)
+        self._stop_terminal_spinner()
 
         # First update the conclusion page with actual values
         if hasattr(self.ui, "update_conclusion_page"):
@@ -724,9 +912,35 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         )
 
         # Show toast notification
-        toast = Adw.Toast.new(_("OCR processing complete"))
-        toast.set_timeout(3)
-        self.toast_overlay.add_toast(toast)
+        self.show_toast(_("OCR processing complete"))
+
+    def _update_terminal_progress(self, fraction: float, text: str = None) -> None:
+        """Update the terminal progress bar
+        
+        Args:
+            fraction: Progress fraction (0.0-1.0)
+            text: Optional text to display
+        """
+        if hasattr(self.ui, "terminal_progress_bar") and self.ui.terminal_progress_bar:
+            self.ui.terminal_progress_bar.set_fraction(fraction)
+            if text:
+                self.ui.terminal_progress_bar.set_text(text)
+
+    def _update_terminal_status_complete(self) -> None:
+        """Update terminal status to show completion"""
+        if hasattr(self.ui, "terminal_status_bar") and self.ui.terminal_status_bar:
+            # Get the total files processed from the OCR queue
+            total_files = self.ocr_processor.get_processed_count()
+            self.ui.terminal_status_bar.set_markup(
+                _("<b>OCR processing complete!</b> {total} file(s) processed").format(
+                    total=total_files
+                )
+            )
+
+    def _stop_terminal_spinner(self) -> None:
+        """Stop the terminal spinner"""
+        if hasattr(self.ui, "terminal_spinner") and self.ui.terminal_spinner:
+            self.ui.terminal_spinner.set_spinning(False)
 
     def _start_progress_monitor(self) -> None:
         """Start monitoring the OCR progress"""
@@ -743,7 +957,7 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         """
         if self.stack.get_visible_child_name() != "terminal":
             # If we've left the terminal page, stop the timer
-            if hasattr(self, "progress_timer_id") and self.progress_timer_id:
+            if self.progress_timer_id is not None:
                 safe_remove_source(self.progress_timer_id)
                 self.progress_timer_id = None
             return False
@@ -760,33 +974,45 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         # Use a timebased animation if the progress is still at 0
         # This gives feedback to the user that processing is happening
         if progress == 0:
-            if not hasattr(self, "_animation_progress"):
-                self._animation_progress = 0.05
-            else:
-                # Oscillate between 0.05 and 0.15 to show activity
-                if self._animation_progress >= 0.15:
-                    self._animation_direction = -0.01
-                elif self._animation_progress <= 0.05:
-                    self._animation_direction = 0.01
+            # Oscillate between 0.05 and 0.15 to show activity
+            if self._animation_progress >= 0.15:
+                self._animation_direction = -0.01
+            elif self._animation_progress <= 0.05:
+                self._animation_direction = 0.01
 
-                if hasattr(self, "_animation_direction"):
-                    self._animation_progress += self._animation_direction
-                else:
-                    self._animation_direction = 0.01
-                    self._animation_progress += self._animation_direction
-
+            self._animation_progress += self._animation_direction
+            
             # Use animation progress during active processing
             return self._animation_progress
         else:
             # Use real progress
             return progress
 
-    def _update_progress_bar(self, progress: float) -> None:
-        """Update the progress bar with the current progress
+    def _update_ocr_progress(self) -> bool:
+        """Update the OCR progress in the UI
 
+        Returns:
+            True to continue updating, False to stop
+        """
+        # Check if we're still on the terminal page
+        if not self._is_on_terminal_page():
+            return False
+
+        # Calculate and update the progress
+        progress = self._calculate_progress()
+        
+        # Update the UI with progress information
+        self._update_progress_ui(progress)
+        
+        return True
+
+    def _update_progress_ui(self, progress: float) -> None:
+        """Update all progress UI elements
+        
         Args:
             progress: Progress value between 0.0 and 1.0
         """
+        # Update progress bar
         if hasattr(self.ui, "terminal_progress_bar") and self.ui.terminal_progress_bar:
             self.ui.terminal_progress_bar.set_fraction(progress)
             progress_percent = int(progress * 100)
@@ -796,6 +1022,9 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         if hasattr(self.ui, "terminal_spinner") and self.ui.terminal_spinner:
             if not self.ui.terminal_spinner.get_spinning():
                 self.ui.terminal_spinner.set_spinning(True)
+                
+        # Update status text
+        self._update_progress_status()
 
     def _update_progress_status(self) -> None:
         """Update the status text with current progress information"""
@@ -826,11 +1055,10 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
                 )
 
                 # Stop the spinner
-                if hasattr(self.ui, "terminal_spinner") and self.ui.terminal_spinner:
-                    self.ui.terminal_spinner.set_spinning(False)
+                self._stop_terminal_spinner()
 
                 # Stop the timer
-                if hasattr(self, "progress_timer_id") and self.progress_timer_id:
+                if self.progress_timer_id is not None:
                     safe_remove_source(self.progress_timer_id)
                     self.progress_timer_id = None
 
@@ -853,39 +1081,33 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
                 )
             else:
                 # Show different stages of processing based on elapsed time
-                if elapsed_time < 5:
-                    stage = _("starting conversion")
-                elif elapsed_time < 10:
-                    stage = _("analyzing document")
-                elif elapsed_time < 15:
-                    stage = _("applying OCR")
-                elif elapsed_time < 20:
-                    stage = _("processing texts")
-                else:
-                    stage = _("finalizing processing")
-
+                stage = self._get_processing_stage(elapsed_time)
+                
                 self.ui.terminal_status_bar.set_markup(
                     _(
                         "<b>Processing file 1/{total}:</b> {stage} • Time: {time}"
                     ).format(total=total_files, stage=stage, time=time_str)
                 )
 
-    def _update_ocr_progress(self) -> bool:
-        """Update the OCR progress in the UI
-
-        Returns:
-            True to continue updating, False to stop
-        """
-        # Check if we're still on the terminal page
-        if not self._is_on_terminal_page():
-            return False
-
-        # Calculate and update the progress
-        progress = self._calculate_progress()
-        self._update_progress_bar(progress)
-        self._update_progress_status()
+    def _get_processing_stage(self, elapsed_time: int) -> str:
+        """Get the current processing stage based on elapsed time
         
-        return True
+        Args:
+            elapsed_time: Elapsed time in seconds
+            
+        Returns:
+            String describing the current stage
+        """
+        if elapsed_time < 5:
+            return _("starting conversion")
+        elif elapsed_time < 10:
+            return _("analyzing document")
+        elif elapsed_time < 15:
+            return _("applying OCR")
+        elif elapsed_time < 20:
+            return _("processing texts")
+        else:
+            return _("finalizing processing")
 
     def on_cancel_clicked(self) -> None:
         """Handle cancel button click during OCR processing"""
@@ -895,14 +1117,12 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
             logger.info(_("OCR processing cancelled by user"))
 
             # Stop the progress monitor
-            if hasattr(self, "progress_timer_id") and self.progress_timer_id:
+            if self.progress_timer_id is not None:
                 safe_remove_source(self.progress_timer_id)
                 self.progress_timer_id = None
 
             # Show a toast notification
-            toast = Adw.Toast.new(_("OCR processing cancelled"))
-            toast.set_timeout(3)
-            self.toast_overlay.add_toast(toast)
+            self.show_toast(_("OCR processing cancelled"))
 
             # Reset the OCR processor status
             self.ocr_processor._processed_files = 0

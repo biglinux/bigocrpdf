@@ -98,6 +98,11 @@ class BigOcrPdfApp(Adw.Application):
             # Show the window
             win.present()
             
+            # Check if we should show the welcome dialog
+            if hasattr(win, "should_show_welcome_dialog") and win.should_show_welcome_dialog():
+                # Use a small delay to ensure the window is fully drawn
+                GLib.timeout_add(300, lambda: win.show_welcome_dialog())
+            
             logger.info(_("Application started successfully"))
             
         except Exception as e:
