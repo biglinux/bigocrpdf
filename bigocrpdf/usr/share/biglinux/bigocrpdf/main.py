@@ -13,11 +13,18 @@ import logging
 # Add the parent directory to Python path to make imports work
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Import core modules
-from utils.i18n import _
-from app import BigOcrPdfApp
-from config import CONFIG_DIR, SELECTED_FILE_PATH, setup_environment, parse_command_line
+# First import and configure logger
 from utils.logger import logger
+
+# Then import and initialize i18n before any other module that uses translations
+from utils.i18n import _, setup_i18n
+
+# Re-initialize translation explicitly
+_ = setup_i18n()
+
+# After i18n is set up, import other modules that may use translations
+from config import CONFIG_DIR, SELECTED_FILE_PATH, setup_environment, parse_command_line
+from app import BigOcrPdfApp
 
 
 def check_dependencies() -> bool:
@@ -47,6 +54,7 @@ def setup_locale() -> None:
     """Setup localization"""
     try:
         locale.setlocale(locale.LC_ALL, '')
+        logger.info(f"Set locale to: {locale.getlocale()}")
     except locale.Error:
         # Fallback to C locale
         locale.setlocale(locale.LC_ALL, 'C')
@@ -59,12 +67,12 @@ def main() -> int:
     Returns:
         The application exit code
     """
+    # Setup locale first, before other initialization
+    setup_locale()
+    
     # Setup environment and parse command line arguments
     setup_environment()
     args = parse_command_line()
-    
-    # Set up localization
-    setup_locale()
     
     # Check dependencies
     if not check_dependencies():

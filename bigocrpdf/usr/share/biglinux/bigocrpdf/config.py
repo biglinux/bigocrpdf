@@ -16,7 +16,7 @@ from utils.i18n import _
 # Application information
 APP_NAME = _("Big OCR PDF")
 APP_ID = "br.com.biglinux.bigocrpdf"
-APP_VERSION = "1.0"
+APP_VERSION = "2.0.0"
 APP_DESCRIPTION = _("Add OCR to your PDF documents to make them searchable")
 APP_WEBSITE = "https://www.biglinux.com.br"
 APP_ISSUES = "https://github.com/biglinux/bigocrpdf/issues"
@@ -34,7 +34,7 @@ else:
     BASE_DIR = os.path.join(sys.prefix, "share", "bigocrpdf")
     RESOURCES_DIR = os.path.join(BASE_DIR, "resources")
 
-ICON_PATH = os.path.join(BASE_DIR, "bigocrpdf.svg")
+APP_ICON_NAME = "bigocrpdf"
 
 # Configuration directory
 CONFIG_DIR = os.path.expanduser("~/.config/bigocrpdf")

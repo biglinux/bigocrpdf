@@ -20,7 +20,7 @@ from config import (
     APP_WEBSITE,
     APP_ISSUES,
     APP_DEVELOPERS,
-    ICON_PATH,
+    APP_ICON_NAME,
 )
 from window import BigOcrPdfWindow
 from ui.widgets import load_css
@@ -126,14 +126,14 @@ class BigOcrPdfApp(Adw.Application):
         about = Adw.AboutWindow(transient_for=win)
         about.set_application_name(APP_NAME)
         about.set_version(APP_VERSION)
-        about.set_developer_name(_("Big Linux Team"))
+        about.set_developer_name(_("BigLinux Team"))
         about.set_license_type(Gtk.License.GPL_3_0)
         about.set_comments(APP_DESCRIPTION)
         about.set_website(APP_WEBSITE)
         about.set_issue_url(APP_ISSUES)
 
         # Use app icon for the about dialog
-        about.set_application_icon(ICON_PATH)
+        about.set_application_icon(APP_ICON_NAME)
 
         # Add credits
         about.add_credit_section(_("Developers"), APP_DEVELOPERS)

@@ -13,7 +13,7 @@ from gi.repository import Gtk, Adw, Gio, GLib
 import os
 import time
 
-from config import ICON_PATH, CONFIG_DIR
+from config import APP_ICON_NAME, CONFIG_DIR
 from utils.logger import logger
 from services.settings import OcrSettings
 from services.processor import OcrProcessor
@@ -54,10 +54,7 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         self.set_default_size(820, 600)
 
         # Set up the window icon (either by name or path)
-        if os.path.exists(ICON_PATH):
-            self.set_icon_name(ICON_PATH)
-        else:
-            self.set_icon_name("document-edit-symbolic")
+        self.set_icon_name(APP_ICON_NAME)
 
         # Initialize components
         self.settings = OcrSettings()
