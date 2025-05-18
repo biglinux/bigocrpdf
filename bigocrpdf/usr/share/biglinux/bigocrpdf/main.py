@@ -8,19 +8,15 @@ This is the main entry point for the BigOcrPdf application.
 import os
 import sys
 import locale
-import logging
 
 # Add the parent directory to Python path to make imports work
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# Then import and initialize i18n before any other module that uses translations
+from utils.i18n import _
+
 # First import and configure logger
 from utils.logger import logger
-
-# Then import and initialize i18n before any other module that uses translations
-from utils.i18n import _, setup_i18n
-
-# Re-initialize translation explicitly
-_ = setup_i18n()
 
 # After i18n is set up, import other modules that may use translations
 from config import CONFIG_DIR, SELECTED_FILE_PATH, setup_environment, parse_command_line
@@ -34,14 +30,17 @@ def check_dependencies() -> bool:
         True if all dependencies are met, False otherwise
     """
     try:
-        # Check for GTK
+        # Check for GTK - import only inside this function
         import gi
         gi.require_version("Gtk", "4.0")
         gi.require_version("Adw", "1")
-        from gi.repository import Gtk, Adw
         
-        # Check for OCRmyPDF
-        import ocrmypdf
+        # Just check that these can be imported
+        from gi.repository import Gtk  # noqa
+        from gi.repository import Adw  # noqa
+        
+        # Check for OCRmyPDF - import only inside this function
+        import ocrmypdf  # noqa
         
         return True
     except (ImportError, ValueError) as e:
