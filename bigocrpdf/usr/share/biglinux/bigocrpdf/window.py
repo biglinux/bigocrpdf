@@ -38,7 +38,14 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         ("none", _("Don't change")),
         ("align", _("Align")),
         ("rotate", _("Auto rotate")),
-        ("alignrotate", _("Align and auto rotate")),
+        ("alignrotate", _("Align + rotate")),
+    ]
+    
+    ALIGNMENT_TOOLTIPS = [
+        _("Keep pages as they are without any modifications"),
+        _("Align page content to improve readability"),
+        _("Automatically rotate pages to correct orientation"),
+        _("Align page content and automatically rotate pages to correct orientation"),
     ]
 
     # Configuration file to store welcome dialog preference
@@ -302,7 +309,7 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         content_box.set_margin_end(24)
         
         # Add logo/icon
-        icon = Gtk.Image.new_from_icon_name("x-office-document-symbolic")
+        icon = Gtk.Image.new_from_icon_name(APP_ICON_NAME)
         icon.set_pixel_size(64)
         icon.set_margin_bottom(16)
         content_box.append(icon)

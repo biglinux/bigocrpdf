@@ -906,10 +906,10 @@ class BigOcrPdfUI:
         return dropdown
 
     def _create_alignment_dropdown(self) -> Gtk.DropDown:
-        """Create the alignment dropdown
+        """Create the alignment dropdown with tooltips
 
         Returns:
-            A Gtk.DropDown widget configured with alignment options
+            A Gtk.DropDown widget configured with alignment options and tooltips
         """
         dropdown = Gtk.DropDown()
         string_list = Gtk.StringList()
@@ -918,11 +918,11 @@ class BigOcrPdfUI:
             ("none", _("Don't change")),
             ("align", _("Align")),
             ("rotate", _("Auto rotate")),
-            ("alignrotate", _("Align and auto rotate")),
+            ("alignrotate", _("Align + rotate")),  # Texto encurtado
         ]
 
-        # Default to "Align and auto rotate" (index 3) unless another setting is found
-        default_index = 3  # Index of "Align and auto rotate"
+        # Default to "Align + rotate" (index 3) unless another setting is found
+        default_index = 3  # Index of "Align + rotate"
         for i, (align_code, align_name) in enumerate(alignments):
             string_list.append(align_name)
             if align_code == self.window.settings.align:
@@ -931,6 +931,25 @@ class BigOcrPdfUI:
         dropdown.set_model(string_list)
         dropdown.set_valign(Gtk.Align.CENTER)
         dropdown.set_selected(default_index)
+        
+        # Set initial tooltip
+        dropdown.set_tooltip_text(
+            _("Choose how to handle page alignment and rotation during OCR processing")
+        )
+        
+        # Connect signal to update tooltip based on selection
+        def on_alignment_selection_changed(dropdown_widget, param):
+            selected_index = dropdown_widget.get_selected()
+            if 0 <= selected_index < len(self.window.ALIGNMENT_TOOLTIPS):
+                tooltip_text = self.window.ALIGNMENT_TOOLTIPS[selected_index]
+                dropdown_widget.set_tooltip_text(tooltip_text)
+        
+        dropdown.connect("notify::selected", on_alignment_selection_changed)
+        
+        # Set initial detailed tooltip
+        if len(self.window.ALIGNMENT_TOOLTIPS) > default_index:
+            dropdown.set_tooltip_text(self.window.ALIGNMENT_TOOLTIPS[default_index])
+        
         return dropdown
 
     def _update_queue_status(self) -> None:
