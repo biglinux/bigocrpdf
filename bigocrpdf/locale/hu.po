@@ -16,23 +16,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: attranslate\n"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 34
-#: NEEDS WORK
-#, python-brace-format
-msgid "CSS file not found: {0}"
-msgstr "CSS fájl nem található: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 43
-#: NEEDS WORK
-msgid "Custom CSS styles loaded successfully"
-msgstr "A testreszabott CSS stílusok sikeresen betöltődtek."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 46
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error loading CSS styles: {0}"
-msgstr "Hiba a CSS stílusok betöltésekor: {0}"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 97
 #: NEEDS WORK
 msgid "Configuration"
@@ -93,6 +76,11 @@ msgstr "Hozzáadás"
 msgid "Remove All"
 msgstr "Összes eltávolítása"
 # 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 324
+#: NEEDS WORK
+msgid "Drop PDF files here"
+msgstr "Húzza ide a PDF fájlokat"
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 305
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 948
 #: NEEDS WORK
@@ -104,27 +92,59 @@ msgstr "Nincsenek kiválasztott fájlok"
 msgid "Add PDF files for OCR processing"
 msgstr "PDF fájlok hozzáadása OCR feldolgozáshoz"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 324
-#: NEEDS WORK
-msgid "Drop PDF files here"
-msgstr "Húzza ide a PDF fájlokat"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 380
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 918
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 38
 #: NEEDS WORK
-msgid "Processing PDF files..."
-msgstr "PDF fájlok feldolgozása..."
+msgid "Don't change"
+msgstr "Ne változtass."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 385
-#: NEEDS WORK
-msgid "Preparing processing..."
-msgstr "Feldolgozás előkészítése..."
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 398
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1641
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1752
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 919
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 39
 #: NEEDS WORK
-msgid "Cancel"
-msgstr "Mégse"
+msgid "Align"
+msgstr "Igazítás"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 920
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 40
+#: NEEDS WORK
+msgid "Auto rotate"
+msgstr "Automatikus elforgatás"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 921
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 41
+#: NEEDS WORK
+msgid "Align + rotate"
+msgstr "Igazítás + forgatás"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 937
+#: NEEDS WORK
+msgid "Choose how to handle page alignment and rotation during OCR processing"
+msgstr "Válassza ki, hogyan kezelje az oldal igazítását és elforgatását az OCR feldolgozás során."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 34
+#: NEEDS WORK
+#, python-brace-format
+msgid "CSS file not found: {0}"
+msgstr "CSS fájl nem található: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 43
+#: NEEDS WORK
+msgid "Custom CSS styles loaded successfully"
+msgstr "A testreszabott CSS stílusok sikeresen betöltődtek."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 46
+#: NEEDS WORK
+#, python-brace-format
+msgid "Error loading CSS styles: {0}"
+msgstr "Hiba a CSS stílusok betöltésekor: {0}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 424
 #: NEEDS WORK
@@ -166,161 +186,20 @@ msgstr "Fájl megnyitása"
 msgid "View extracted text"
 msgstr "Megjelenített szöveg"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 918
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 38
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 610
 #: NEEDS WORK
-msgid "Don't change"
-msgstr "Ne változtass."
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 919
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 39
-#: NEEDS WORK
-msgid "Align"
-msgstr "Igazítás"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 920
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 40
-#: NEEDS WORK
-msgid "Auto rotate"
-msgstr "Automatikus elforgatás"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 921
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 41
-#: NEEDS WORK
-msgid "Align + rotate"
-msgstr "Igazítás + forgatás"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 937
-#: NEEDS WORK
-msgid "Choose how to handle page alignment and rotation during OCR processing"
-msgstr "Válassza ki, hogyan kezelje az oldal igazítását és elforgatását az OCR feldolgozás során."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1247
-#: NEEDS WORK
-#, python-brace-format
-msgid "No extracted text available for {0}"
-msgstr "Nincs elérhető kinyert szöveg a(z) {0} számára."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1258
-#: NEEDS WORK
-#, python-brace-format
-msgid "Read {0} characters from sidecar file"
-msgstr "Olvasson {0} karaktert a mellékfájlból"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1266
-#: NEEDS WORK
-msgid "Text Not Available"
-msgstr "Szöveg nem elérhető"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1269
-#: NEEDS WORK
-#, python-brace-format
-msgid "Could not read extracted text for this file. Error: {0}"
-msgstr "Nem sikerült elolvasni a kinyert szöveget ehhez a fájlhoz. Hiba: {0}"
+msgid "Extracted Text"
+msgstr "Kivont szöveg"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1272
 #: NEEDS WORK
 msgid "OK"
 msgstr "Rendben"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1324
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 639
 #: NEEDS WORK
-msgid "Search in text..."
-msgstr "Keresés a szövegben..."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1331
-#: NEEDS WORK
-msgid "Find previous match"
-msgstr "Előző mérkőzés keresése"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1338
-#: NEEDS WORK
-msgid "Find next match"
-msgstr "Következő mérkőzés keresése"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1420
-#: NEEDS WORK
-#, python-brace-format
-msgid "{0} matches found"
-msgstr "{0} találat található"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1443
-#: NEEDS WORK
-#, python-brace-format
-msgid "Match {0} of {1}"
-msgstr "A {0} a {1} ellenében"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1477
-#: NEEDS WORK
-msgid "Copy to Clipboard"
-msgstr "Másolás a vágólapra"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1478
-#: NEEDS WORK
-msgid "Copy the entire text to clipboard"
-msgstr "Másolja az egész szöveget a vágólapra."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1485
-#: NEEDS WORK
-msgid "Save as TXT"
-msgstr "Mentés TXT-ként"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1486
-#: NEEDS WORK
-msgid "Save the extracted text to a .txt file"
-msgstr "Mentse a kinyert szöveget .txt fájlba"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1493
-#: NEEDS WORK
-msgid "Close"
-msgstr "Bezárás"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1565
-#: NEEDS WORK
-msgid "Save Extracted Text"
-msgstr "Mentett Kivont Szöveg"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1616
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1726
-#: NEEDS WORK
-msgid "Save Failed"
-msgstr "Mentés sikertelen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1618
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1727
-#: NEEDS WORK
-#, python-brace-format
-msgid "Failed to save the text file: {0}"
-msgstr "A szövegfájl mentése nem sikerült: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1632
-#: NEEDS WORK
-msgid "File Already Exists"
-msgstr "A fájl már létezik"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1633
-#: NEEDS WORK
-#, python-brace-format
-msgid "The file '{0}' already exists. What would you like to do?"
-msgstr "A '{0}' fájl már létezik. Mit szeretnél tenni?"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1639
-#: NEEDS WORK
-msgid "Overwrite"
-msgstr "Felülírás"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1640
-#: NEEDS WORK
-msgid "Auto-Rename"
-msgstr "Automatikus átnevezés"
+msgid "No text content was detected in this file during OCR processing."
+msgstr "A fájlban az OCR feldolgozás során nem észleltek szöveges tartalmat."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1738
 #: NEEDS WORK
@@ -331,6 +210,13 @@ msgstr "PDF Kimeneti Beállítások"
 #: NEEDS WORK
 msgid "PDF Output Settings"
 msgstr "PDF Kimeneti Beállítások"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 398
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1641
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1752
+#: NEEDS WORK
+msgid "Cancel"
+msgstr "Mégse"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1757
 #: NEEDS WORK
@@ -352,16 +238,6 @@ msgstr "Használja az eredeti fájlnevet"
 msgid "Use the same name as the original file"
 msgstr "Használja az eredeti fájl azonos nevét."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1785
-#: NEEDS WORK
-msgid "Warning"
-msgstr "Figyelmeztetés"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1788
-#: NEEDS WORK
-msgid "If saving to the same folder as original, this will replace the original files"
-msgstr "Ha ugyanabba a mappába ment, mint az eredeti, ez felülírja az eredeti fájlokat."
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1802
 #: NEEDS WORK
 msgid "Filename Suffix"
@@ -381,6 +257,16 @@ msgstr "Meglévő fájlok felülírása"
 #: NEEDS WORK
 msgid "Replace files with the same name"
 msgstr "Fájlok cseréje azonos névvel"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1785
+#: NEEDS WORK
+msgid "Warning"
+msgstr "Figyelmeztetés"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1788
+#: NEEDS WORK
+msgid "If saving to the same folder as original, this will replace the original files"
+msgstr "Ha ugyanabba a mappába ment, mint az eredeti, ez felülírja az eredeti fájlokat."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1821
 #: NEEDS WORK
@@ -427,11 +313,6 @@ msgstr "Nincs beállítva"
 msgid "Select folder"
 msgstr "Mappa kiválasztása"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1898
-#: NEEDS WORK
-msgid "Select Folder for Text Files"
-msgstr "Válassza ki a mappát a szövegfájlokhoz"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1919
 #: NEEDS WORK
 msgid "Date and Time"
@@ -446,26 +327,6 @@ msgstr "Dátum hozzáadása a fájlnevéhez"
 #: NEEDS WORK
 msgid "Include date elements in the filename"
 msgstr "Tartalmazza a dátum elemeket a fájlnevében"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1930
-#: NEEDS WORK
-msgid "Date Format"
-msgstr "Dátumformátum"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1932
-#: NEEDS WORK
-msgid "YYYY-MM-DD (ISO)"
-msgstr "YYYY-HH-NN (ISO)"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1933
-#: NEEDS WORK
-msgid "DD-MM-YYYY (Europe)"
-msgstr "DD-HH-YYYY (Európa)"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1934
-#: NEEDS WORK
-msgid "MM-DD-YYYY (US)"
-msgstr "MM-NN-ÉÉÉÉ (US)"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1959
 #: NEEDS WORK
@@ -507,6 +368,26 @@ msgstr "Idő hozzáadása"
 msgid "Add HHMM to the filename"
 msgstr "Add meg a HHMM-et a fájlnévhez."
 # 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1930
+#: NEEDS WORK
+msgid "Date Format"
+msgstr "Dátumformátum"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1932
+#: NEEDS WORK
+msgid "YYYY-MM-DD (ISO)"
+msgstr "YYYY-HH-NN (ISO)"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1933
+#: NEEDS WORK
+msgid "DD-MM-YYYY (Europe)"
+msgstr "DD-HH-YYYY (Európa)"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1934
+#: NEEDS WORK
+msgid "MM-DD-YYYY (US)"
+msgstr "MM-NN-ÉÉÉÉ (US)"
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 2003
 #: NEEDS WORK
 msgid "Preview"
@@ -516,6 +397,175 @@ msgstr "Előnézet"
 #: NEEDS WORK
 msgid "Filename Example:"
 msgstr "Fájlnév példa:"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1898
+#: NEEDS WORK
+msgid "Select Folder for Text Files"
+msgstr "Válassza ki a mappát a szövegfájlokhoz"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 708
+#: NEEDS WORK
+msgid "OCR processing was completed for this file, but the extracted text could not be found."
+msgstr "Az OCR feldolgozás befejeződött ehhez a fájlhoz, de a kinyert szöveg nem található."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1324
+#: NEEDS WORK
+msgid "Search in text..."
+msgstr "Keresés a szövegben..."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1331
+#: NEEDS WORK
+msgid "Find previous match"
+msgstr "Előző mérkőzés keresése"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1338
+#: NEEDS WORK
+msgid "Find next match"
+msgstr "Következő mérkőzés keresése"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1477
+#: NEEDS WORK
+msgid "Copy to Clipboard"
+msgstr "Másolás a vágólapra"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1478
+#: NEEDS WORK
+msgid "Copy the entire text to clipboard"
+msgstr "Másolja az egész szöveget a vágólapra."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1485
+#: NEEDS WORK
+msgid "Save as TXT"
+msgstr "Mentés TXT-ként"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1486
+#: NEEDS WORK
+msgid "Save the extracted text to a .txt file"
+msgstr "Mentse a kinyert szöveget .txt fájlba"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1493
+#: NEEDS WORK
+msgid "Close"
+msgstr "Bezárás"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1420
+#: NEEDS WORK
+#, python-brace-format
+msgid "{0} matches found"
+msgstr "{0} találat található"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1443
+#: NEEDS WORK
+#, python-brace-format
+msgid "Match {0} of {1}"
+msgstr "A {0} a {1} ellenében"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1565
+#: NEEDS WORK
+msgid "Save Extracted Text"
+msgstr "Mentett Kivont Szöveg"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1616
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1726
+#: NEEDS WORK
+msgid "Save Failed"
+msgstr "Mentés sikertelen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1632
+#: NEEDS WORK
+msgid "File Already Exists"
+msgstr "A fájl már létezik"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1633
+#: NEEDS WORK
+#, python-brace-format
+msgid "The file '{0}' already exists. What would you like to do?"
+msgstr "A '{0}' fájl már létezik. Mit szeretnél tenni?"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1639
+#: NEEDS WORK
+msgid "Overwrite"
+msgstr "Felülírás"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1640
+#: NEEDS WORK
+msgid "Auto-Rename"
+msgstr "Automatikus átnevezés"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 380
+#: NEEDS WORK
+msgid "Processing PDF files..."
+msgstr "PDF fájlok feldolgozása..."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 385
+#: NEEDS WORK
+msgid "Preparing processing..."
+msgstr "Feldolgozás előkészítése..."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 857
+#: NEEDS WORK
+#, python-brace-format
+msgid "<b>Processing: {current}/{total}:</b> {completed} file(s) completed • <b>{remaining}</b> remaining"
+msgstr "<b>Feldolgozás: {current}/{total}:</b> {completed} fájl(ok) befejezve • <b>{remaining}</b> hátralévő"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 868
+#: NEEDS WORK
+#, python-brace-format
+msgid "Processed file {current}/{total}: {filename}"
+msgstr "Feldolgozott fájl {current}/{total}: {filename}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 932
+#: NEEDS WORK
+#, python-brace-format
+msgid "<b>OCR processing complete!</b> {total} file(s) processed"
+msgstr "<b>Az OCR feldolgozás befejeződött!</b> {total} fájl(ok) feldolgozva"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1050
+#: NEEDS WORK
+#, python-brace-format
+msgid "<b>OCR processing complete!</b> {total} file(s) processed • Total time: {time}"
+msgstr "<b>OCR feldolgozás befejeződött!</b> {total} fájl(ok) feldolgozva • Összes idő: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1070
+#: NEEDS WORK
+#, python-brace-format
+msgid ""
+"<b>Processing file {cur}/{total}:</b> {done} file(s) completed • <b>{rem}</b> remaining • Time: "
+"{time}"
+msgstr ""
+"<b>Fájl feldolgozása {cur}/{total}:</b> {done} fájl(ok) befejezve • <b>{rem}</b> hátralévő • Idő: "
+"{time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1085
+#: NEEDS WORK
+#, python-brace-format
+msgid "<b>Processing file 1/{total}:</b> {stage} • Time: {time}"
+msgstr "<b>Fájl feldolgozása 1/{total}:</b> {stage} • Idő: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1099
+#: NEEDS WORK
+msgid "starting conversion"
+msgstr "A konverzió megkezdése"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1101
+#: NEEDS WORK
+msgid "analyzing document"
+msgstr "dokumentum elemzése"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1103
+#: NEEDS WORK
+msgid "applying OCR"
+msgstr "OCR alkalmazása"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1105
+#: NEEDS WORK
+msgid "processing texts"
+msgstr "szövegek feldolgozása"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1107
+#: NEEDS WORK
+msgid "finalizing processing"
+msgstr "feldolgozás véglegesítése"
 # 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
@@ -647,12 +697,6 @@ msgstr "Vissza"
 msgid "Start"
 msgstr "Kezdés"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 289
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 312
-#: NEEDS WORK
-msgid "Welcome to Big OCR PDF"
-msgstr "Üdvözöljük a Big OCR PDF-ben"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 318
 #: NEEDS WORK
 msgid "What is Big OCR PDF?"
@@ -672,30 +716,45 @@ msgstr ""
 msgid "Benefits of using Big OCR PDF:"
 msgstr "A Big OCR PDF használatának előnyei:"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 344
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
 #: NEEDS WORK
-msgid "• Search through your scanned PDF documents"
-msgstr "• Keresés a beolvasott PDF dokumentumaid között"
+msgid "Search"
+msgstr "Keresés"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 345
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
 #: NEEDS WORK
-msgid "• Copy text from images and scanned documents"
-msgstr "• Szöveg másolása képekből és beolvasott dokumentumokból"
+msgid "Search through your scanned PDF documents"
+msgstr "Keresés a beolvasott PDF dokumentumaid között"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 346
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
 #: NEEDS WORK
-msgid "• Process multiple files at once"
-msgstr "• Több fájlt egyszerre feldolgozni"
+msgid "Copy text"
+msgstr "Szöveg másolása"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 347
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
 #: NEEDS WORK
-msgid "• Correct page alignment and rotation automatically"
-msgstr "• Automatikus oldal igazítás és elforgatás javítása"
+msgid "Copy text from images and scanned documents"
+msgstr "Szöveg másolása képekből és beolvasott dokumentumokból"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 348
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
 #: NEEDS WORK
-msgid "• Choose optimal quality settings for your needs"
-msgstr "• Válassza ki az igényeinek megfelelő optimális minőségi beállításokat"
+msgid "Batch processing"
+msgstr "Tömeges feldolgozás"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
+#: NEEDS WORK
+msgid "Process multiple files at once"
+msgstr "Több fájl egyidejű feldolgozása"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
+#: NEEDS WORK
+msgid "Auto-correction"
+msgstr "Automatikus javítás"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
+#: NEEDS WORK
+msgid "Automatically correct page alignment and rotation"
+msgstr "Automatikusan javítja az oldal igazítását és elforgatását"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 363
 #: NEEDS WORK
@@ -784,27 +843,10 @@ msgstr "2/3. lépés: Feldolgozás"
 msgid "OCR processing started using Python API"
 msgstr "OCR feldolgozás megkezdődött a Python API használatával"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 718
-#: NEEDS WORK
-msgid "OCR processing started"
-msgstr "OCR feldolgozás megkezdődött"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 748
 #: NEEDS WORK
 msgid "Step 3/3: Completed"
 msgstr "3/3. Lépés: Befejezve"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 857
-#: NEEDS WORK
-#, python-brace-format
-msgid "<b>Processing: {current}/{total}:</b> {completed} file(s) completed • <b>{remaining}</b> remaining"
-msgstr "<b>Feldolgozás: {current}/{total}:</b> {completed} fájl(ok) befejezve • <b>{remaining}</b> hátralévő"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 868
-#: NEEDS WORK
-#, python-brace-format
-msgid "Processed file {current}/{total}: {filename}"
-msgstr "Feldolgozott fájl {current}/{total}: {filename}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 877
 #: NEEDS WORK
@@ -826,59 +868,6 @@ msgstr "Az OCR feldolgozás sikeresen befejeződött {count} fájlra."
 #: NEEDS WORK
 msgid "OCR processing complete"
 msgstr "OCR feldolgozás befejeződött"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 932
-#: NEEDS WORK
-#, python-brace-format
-msgid "<b>OCR processing complete!</b> {total} file(s) processed"
-msgstr "<b>Az OCR feldolgozás befejeződött!</b> {total} fájl(ok) feldolgozva"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1050
-#: NEEDS WORK
-#, python-brace-format
-msgid "<b>OCR processing complete!</b> {total} file(s) processed • Total time: {time}"
-msgstr "<b>OCR feldolgozás befejeződött!</b> {total} fájl(ok) feldolgozva • Összes idő: {time}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1070
-#: NEEDS WORK
-#, python-brace-format
-msgid ""
-"<b>Processing file {cur}/{total}:</b> {done} file(s) completed • <b>{rem}</b> remaining • Time: "
-"{time}"
-msgstr ""
-"<b>Fájl feldolgozása {cur}/{total}:</b> {done} fájl(ok) befejezve • <b>{rem}</b> hátralévő • Idő: "
-"{time}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1085
-#: NEEDS WORK
-#, python-brace-format
-msgid "<b>Processing file 1/{total}:</b> {stage} • Time: {time}"
-msgstr "<b>Fájl feldolgozása 1/{total}:</b> {stage} • Idő: {time}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1099
-#: NEEDS WORK
-msgid "starting conversion"
-msgstr "A konverzió megkezdése"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1101
-#: NEEDS WORK
-msgid "analyzing document"
-msgstr "dokumentum elemzése"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1103
-#: NEEDS WORK
-msgid "applying OCR"
-msgstr "OCR alkalmazása"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1105
-#: NEEDS WORK
-msgid "processing texts"
-msgstr "szövegek feldolgozása"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1107
-#: NEEDS WORK
-msgid "finalizing processing"
-msgstr "feldolgozás véglegesítése"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1114
 #: NEEDS WORK
