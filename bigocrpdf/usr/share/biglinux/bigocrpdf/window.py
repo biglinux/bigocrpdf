@@ -319,7 +319,7 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         
         # Main title
         what_is = Gtk.Label()
-        what_is.set_markup("<span size='large' weight='bold'>" + _("What is Big OCR PDF?") + "</span>")
+        what_is.set_markup("<span size='large' weight='bold'>" + _("What is") + " Big OCR PDF?</span>")
         what_is.set_halign(Gtk.Align.CENTER)
         what_is.set_margin_bottom(14)
         content_box.append(what_is)
