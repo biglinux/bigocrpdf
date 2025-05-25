@@ -290,42 +290,41 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
             logger.error(f"Error setting welcome dialog config: {e}")
 
     def show_welcome_dialog(self) -> None:
-        """Show the welcome dialog with application information"""
-        # Create the welcome dialog
-        dialog = Gtk.Window()
-        dialog.set_title(_("Welcome to Big OCR PDF"))
-        dialog.set_default_size(640, 670)
+        """Show the welcome dialog as a centered modal like WebApps"""
+        
+        # Create modal dialog
+        dialog = Adw.Window()
+        dialog.set_default_size(650, 380)
         dialog.set_modal(True)
         dialog.set_transient_for(self)
+        dialog.set_resizable(False)
+        dialog.set_hide_on_close(True)
         
-        # Create a toolbar view for the content
-        toolbar_view = Adw.ToolbarView()
+        # Create overlay for close button
+        overlay = Gtk.Overlay()
         
-        # Create a box for the content
-        content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16)
-        content_box.set_margin_top(24)
-        content_box.set_margin_bottom(24)
-        content_box.set_margin_start(24)
-        content_box.set_margin_end(24)
+        # Main content box
+        content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        content_box.set_margin_top(16)
+        content_box.set_margin_bottom(20)
+        content_box.set_margin_start(36)
+        content_box.set_margin_end(36)
         
         # Add logo/icon
         icon = Gtk.Image.new_from_icon_name(APP_ICON_NAME)
         icon.set_pixel_size(64)
         icon.set_margin_bottom(16)
+        icon.set_halign(Gtk.Align.CENTER)
         content_box.append(icon)
         
-        # Add title
-        title = Gtk.Label()
-        title.set_markup("<span size='x-large' weight='bold'>" + _("Welcome to Big OCR PDF") + "</span>")
-        title.set_margin_bottom(16)
-        content_box.append(title)
-        
-        # Add "What is Big OCR PDF?" section
+        # Main title
         what_is = Gtk.Label()
-        what_is.set_markup("<span weight='bold'>" + _("What is Big OCR PDF?") + "</span>")
-        what_is.set_halign(Gtk.Align.START)
+        what_is.set_markup("<span size='large' weight='bold'>" + _("What is Big OCR PDF?") + "</span>")
+        what_is.set_halign(Gtk.Align.CENTER)
+        what_is.set_margin_bottom(14)
         content_box.append(what_is)
         
+        # Description text
         what_is_desc = Gtk.Label()
         what_is_desc.set_markup(_(
             "Big OCR PDF adds optical character recognition to your PDF files, "
@@ -333,39 +332,56 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
             "from scanned documents."
         ))
         what_is_desc.set_wrap(True)
+        what_is_desc.set_justify(Gtk.Justification.LEFT)
         what_is_desc.set_halign(Gtk.Align.START)
         what_is_desc.set_margin_bottom(16)
+        what_is_desc.set_max_width_chars(65)
         content_box.append(what_is_desc)
         
-        # Add "Benefits of using Big OCR PDF" section
+        # Benefits title
         benefits = Gtk.Label()
         benefits.set_markup("<span weight='bold'>" + _("Benefits of using Big OCR PDF:") + "</span>")
         benefits.set_halign(Gtk.Align.START)
+        benefits.set_margin_bottom(8)
         content_box.append(benefits)
         
-        # Create a list of benefits
-        benefits_list = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        # Benefits list
+        benefits_list = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=3)
+        benefits_list.set_halign(Gtk.Align.START)
         benefits_list.set_margin_bottom(16)
         
+        # Benefit items formatted like WebApps
         benefit_items = [
-            _("• Search through your scanned PDF documents"),
-            _("• Copy text from images and scanned documents"),
-            _("• Process multiple files at once"),
-            _("• Correct page alignment and rotation automatically"),
-            _("• Choose optimal quality settings for your needs")
+            (_("Search"), _("Search through your scanned PDF documents")),
+            (_("Copy text"), _("Copy text from images and scanned documents")),
+            (_("Batch processing"), _("Process multiple files at once")),
+            (_("Auto-correction"), _("Automatically correct page alignment and rotation"))
         ]
         
-        for item in benefit_items:
+        for title, description in benefit_items:
             benefit_label = Gtk.Label()
-            benefit_label.set_markup(item)
+            benefit_label.set_markup(f"<span>• <b>{title}:</b> {description}</span>")
+            benefit_label.set_wrap(True)
             benefit_label.set_halign(Gtk.Align.START)
+            benefit_label.set_xalign(0)
+            benefit_label.set_margin_bottom(3)
+            
             benefits_list.append(benefit_label)
         
         content_box.append(benefits_list)
         
-        # Add "Show dialog at startup" switch
+        # SEPARATOR LINE like WebApps
+        separator = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
+        separator.set_margin_top(4)
+        separator.set_margin_bottom(16)
+        content_box.append(separator)
+        
+        # Bottom section
+        bottom_section = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16)
+        
+        # "Show dialog at startup" switch
         show_at_startup_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
-        show_at_startup_box.set_margin_top(16)
+        show_at_startup_box.set_halign(Gtk.Align.FILL)
         
         show_at_startup_label = Gtk.Label(label=_("Show this dialog at startup"))
         show_at_startup_label.set_halign(Gtk.Align.START)
@@ -374,29 +390,41 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         show_at_startup_switch = Gtk.Switch()
         show_at_startup_switch.set_active(self.should_show_welcome_dialog())
         show_at_startup_switch.set_valign(Gtk.Align.CENTER)
+        show_at_startup_switch.set_halign(Gtk.Align.END)
         
         show_at_startup_box.append(show_at_startup_label)
         show_at_startup_box.append(show_at_startup_switch)
-        content_box.append(show_at_startup_box)
+        bottom_section.append(show_at_startup_box)
         
-        # Add "Let's Get Started" button
+        # "Let's Get Started" button
         start_button = Gtk.Button()
         start_button.set_label(_("Let's Get Started"))
         start_button.add_css_class("suggested-action")
-        start_button.set_margin_top(16)
+        start_button.set_size_request(160, 36)
         start_button.set_halign(Gtk.Align.CENTER)
-        content_box.append(start_button)
+        bottom_section.append(start_button)
         
-        # Create a scrolled window for the content
-        scrolled_window = Gtk.ScrolledWindow()
-        scrolled_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        scrolled_window.set_child(content_box)
+        content_box.append(bottom_section)
         
-        # Add the scrolled window to the toolbar view
-        toolbar_view.set_content(scrolled_window)
+        # Add close button as overlay (floating on top-right)
+        close_button = Gtk.Button()
+        close_button.set_icon_name("window-close-symbolic")
+        close_button.add_css_class("circular")
+        close_button.add_css_class("flat")
+        close_button.set_tooltip_text(_("Close"))
+        close_button.set_halign(Gtk.Align.END)
+        close_button.set_valign(Gtk.Align.START)
+        close_button.set_margin_top(8)
+        close_button.set_margin_end(8)
+        close_button.connect("clicked", lambda _: dialog.close())
         
-        # Set the toolbar view as the dialog content
-        dialog.set_child(toolbar_view)
+        # Add content as main child
+        overlay.set_child(content_box)
+        # Add close button as overlay
+        overlay.add_overlay(close_button)
+        
+        # Set the overlay directly as dialog content
+        dialog.set_content(overlay)
         
         # Connect signals
         def on_switch_toggle(switch, _param):
@@ -404,6 +432,9 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         
         show_at_startup_switch.connect("notify::active", on_switch_toggle)
         start_button.connect("clicked", lambda _: dialog.close())
+        
+        # Add CSS class for modal styling
+        dialog.add_css_class("welcome-modal")
         
         # Show the dialog
         dialog.present()
@@ -722,7 +753,6 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
 
         # Processing has started - log and show toast
         logger.info(_("OCR processing started using Python API"))
-        self.show_toast(_("OCR processing started"))
 
     def reset_and_go_to_settings(self) -> None:
         """Reset the application state and return to the settings page"""
