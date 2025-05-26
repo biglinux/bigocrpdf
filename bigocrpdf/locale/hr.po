@@ -567,14 +567,6 @@ msgstr "obrada tekstova"
 msgid "finalizing processing"
 msgstr "finaliziranje obrade"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 53
-#: NEEDS WORK
-msgid "Big OCR PDF"
-msgstr "Veliki OCR PDF"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
 #: NEEDS WORK
 msgid "Add OCR to your PDF documents to make them searchable"
@@ -658,6 +650,14 @@ msgstr "Automatski rotirajte stranice za ispravnu orijentaciju"
 msgid "Align page content and automatically rotate pages to correct orientation"
 msgstr "Poravnajte sadržaj stranice i automatski rotirajte stranice u ispravnu orijentaciju."
 # 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 53
+#: NEEDS WORK
+msgid "Big OCR PDF"
+msgstr "Veliki OCR PDF"
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 131
 #: NEEDS WORK
 msgid "BigOcrPdf - Scanned PDFs with search support"
@@ -696,11 +696,6 @@ msgstr "Natrag"
 #: NEEDS WORK
 msgid "Start"
 msgstr "Započni"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 322
-#: NEEDS WORK
-msgid "What is"
-msgstr ""
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 324
 #: NEEDS WORK
@@ -842,6 +837,11 @@ msgstr "Korak 2/3: Obrada"
 #: NEEDS WORK
 msgid "OCR processing started using Python API"
 msgstr "OCR obrada započeta korištenjem Python API-ja"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 837
+#: NEEDS WORK
+msgid "OCR processor cleaned up aggressively"
+msgstr "OCR procesor je agresivno očišćen."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 748
 #: NEEDS WORK
@@ -992,10 +992,10 @@ msgstr "Dodano {0} u OCR red čekanja"
 msgid "Started OCR queue processing"
 msgstr "Započela obrada OCR reda."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 368
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 389
 #: NEEDS WORK
-msgid "Stopped OCR queue processing"
-msgstr "Zaustavljena obrada OCR reda."
+msgid "Stopped OCR queue processing with aggressive cleanup"
+msgstr "Zaustavljena obrada OCR reda s agresivnim čišćenjem"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 463
 #: NEEDS WORK
@@ -1159,6 +1159,16 @@ msgstr "Nevažeća vrijednost pozicije za {0}: {1}"
 #, python-brace-format
 msgid "Error loading date format order settings: {0}"
 msgstr "Greška pri učitavanju postavki formata datuma: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 594
+#: NEEDS WORK
+msgid "Processing state reset successfully"
+msgstr "Stanje obrade uspješno resetirano"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 612
+#: NEEDS WORK
+msgid "Temporary files cleanup completed"
+msgstr "Završeno čišćenje privremenih datoteka"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 75
 #: NEEDS WORK

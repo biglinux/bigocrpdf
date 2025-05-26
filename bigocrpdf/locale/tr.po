@@ -560,8 +560,18 @@ msgstr "<b>Dosya 1/{total} işleniyor:</b> {stage} • Zaman: {time}"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 427
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1136
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1229
 #: NEEDS WORK
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 427
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1229
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 427
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1136
 # 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
@@ -589,6 +599,8 @@ msgstr "<b>Dosya 1/{total} işleniyor:</b> {stage} • Zaman: {time}"
 #: NEEDS WORK
 #: NEEDS WORK
 #: NEEDS WORK
+#: NEEDS WORK
+#: NEEDS WORK
 msgid "analyzing document"
 msgstr "belge analiz ediliyor"
 # 
@@ -606,14 +618,6 @@ msgstr "metin işleme"
 #: NEEDS WORK
 msgid "finalizing processing"
 msgstr "işlemi tamamlama"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 60
-#: NEEDS WORK
-msgid "Big OCR PDF"
-msgstr "Büyük OCR PDF"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
 #: NEEDS WORK
@@ -698,6 +702,14 @@ msgstr "Sayfaları doğru yönlendirme için otomatik olarak döndür."
 msgid "Align page content and automatically rotate pages to correct orientation"
 msgstr "Sayfa içeriğini hizalayın ve sayfaları doğru yönlendirmeye otomatik olarak döndürün."
 # 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 60
+#: NEEDS WORK
+msgid "Big OCR PDF"
+msgstr "Büyük OCR PDF"
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 138
 #: NEEDS WORK
 msgid "BigOcrPdf - Scanned PDFs with search support"
@@ -736,11 +748,6 @@ msgstr "Geri dön"
 #: NEEDS WORK
 msgid "Start"
 msgstr "Başla"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 322
-#: NEEDS WORK
-msgid "What is"
-msgstr ""
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 331
 #: NEEDS WORK
@@ -882,6 +889,11 @@ msgstr "Adım 2/3: İşleniyor"
 #: NEEDS WORK
 msgid "OCR processing started using Python API"
 msgstr "Python API kullanılarak OCR işleme başlatıldı."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 837
+#: NEEDS WORK
+msgid "OCR processor cleaned up aggressively"
+msgstr "OCR işlemcisi agresif bir şekilde temizlendi."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 755
 #: NEEDS WORK
@@ -1032,10 +1044,10 @@ msgstr "OCR kuyruğuna {0} eklendi."
 msgid "Started OCR queue processing"
 msgstr "OCR kuyruğu işleme başlatıldı"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 368
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 389
 #: NEEDS WORK
-msgid "Stopped OCR queue processing"
-msgstr "OCR kuyruğu işleme durduruldu."
+msgid "Stopped OCR queue processing with aggressive cleanup"
+msgstr "Agresif temizlik ile OCR kuyruk işleme durduruldu."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 463
 #: NEEDS WORK
@@ -1199,6 +1211,16 @@ msgstr "{0} için geçersiz konum değeri: {1}"
 #, python-brace-format
 msgid "Error loading date format order settings: {0}"
 msgstr "Tarih formatı sipariş ayarları yüklenirken hata: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 594
+#: NEEDS WORK
+msgid "Processing state reset successfully"
+msgstr "İşlem durumu başarıyla sıfırlandı."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 612
+#: NEEDS WORK
+msgid "Temporary files cleanup completed"
+msgstr "Geçici dosya temizliği tamamlandı."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 75
 #: NEEDS WORK

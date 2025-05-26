@@ -567,14 +567,6 @@ msgstr "szövegek feldolgozása"
 msgid "finalizing processing"
 msgstr "feldolgozás véglegesítése"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 53
-#: NEEDS WORK
-msgid "Big OCR PDF"
-msgstr "Nagy OCR PDF"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
 #: NEEDS WORK
 msgid "Add OCR to your PDF documents to make them searchable"
@@ -658,6 +650,14 @@ msgstr "Automatikusan elforgatja az oldalakat a helyes tájolás érdekében"
 msgid "Align page content and automatically rotate pages to correct orientation"
 msgstr "Igazítsa a lap tartalmát, és automatikusan forgassa el a lapokat a helyes tájolás érdekében."
 # 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 53
+#: NEEDS WORK
+msgid "Big OCR PDF"
+msgstr "Nagy OCR PDF"
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 131
 #: NEEDS WORK
 msgid "BigOcrPdf - Scanned PDFs with search support"
@@ -696,11 +696,6 @@ msgstr "Vissza"
 #: NEEDS WORK
 msgid "Start"
 msgstr "Kezdés"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 322
-#: NEEDS WORK
-msgid "What is"
-msgstr ""
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 324
 #: NEEDS WORK
@@ -842,6 +837,11 @@ msgstr "2/3. lépés: Feldolgozás"
 #: NEEDS WORK
 msgid "OCR processing started using Python API"
 msgstr "OCR feldolgozás megkezdődött a Python API használatával"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 837
+#: NEEDS WORK
+msgid "OCR processor cleaned up aggressively"
+msgstr "Az OCR feldolgozó agresszíven megtisztítva."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 748
 #: NEEDS WORK
@@ -992,10 +992,10 @@ msgstr "Hozzáadva {0} az OCR sorhoz"
 msgid "Started OCR queue processing"
 msgstr "Megkezdődött az OCR sor feldolgozása."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 368
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 389
 #: NEEDS WORK
-msgid "Stopped OCR queue processing"
-msgstr "Az OCR sor feldolgozása leállítva."
+msgid "Stopped OCR queue processing with aggressive cleanup"
+msgstr "Megállította az OCR sorfeldolgozást agresszív tisztítással."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 463
 #: NEEDS WORK
@@ -1159,6 +1159,16 @@ msgstr "Érvénytelen pozícióérték a(z) {0} számára: {1}"
 #, python-brace-format
 msgid "Error loading date format order settings: {0}"
 msgstr "Hiba a dátumformátum rendelési beállításainak betöltésekor: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 594
+#: NEEDS WORK
+msgid "Processing state reset successfully"
+msgstr "A feldolgozási állapot sikeresen visszaállítva"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 612
+#: NEEDS WORK
+msgid "Temporary files cleanup completed"
+msgstr "Ideiglenes fájlok törlése befejeződött"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 75
 #: NEEDS WORK

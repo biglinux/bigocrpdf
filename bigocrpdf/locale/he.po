@@ -564,8 +564,18 @@ msgstr "<b>מעבד קובץ 1/{total}:</b> {stage} • זמן: {time}"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 427
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1136
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1229
 #: NEEDS WORK
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 427
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1229
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 427
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1136
 # 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
@@ -605,6 +615,8 @@ msgstr "<b>מעבד קובץ 1/{total}:</b> {stage} • זמן: {time}"
 #: NEEDS WORK
 #: NEEDS WORK
 #: NEEDS WORK
+#: NEEDS WORK
+#: NEEDS WORK
 msgid "analyzing document"
 msgstr "מנתח מסמך"
 # 
@@ -622,14 +634,6 @@ msgstr "מעבד טקסטים"
 #: NEEDS WORK
 msgid "finalizing processing"
 msgstr "סיום עיבוד"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 53
-#: NEEDS WORK
-msgid "Big OCR PDF"
-msgstr "ביג OCR PDF"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
 #: NEEDS WORK
@@ -714,6 +718,14 @@ msgstr "סובב דפים אוטומטית לכיוון הנכון"
 msgid "Align page content and automatically rotate pages to correct orientation"
 msgstr "יישר את תוכן הדף וסובב אוטומטית את הדפים לכיוון הנכון"
 # 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 53
+#: NEEDS WORK
+msgid "Big OCR PDF"
+msgstr "ביג OCR PDF"
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 131
 #: NEEDS WORK
 msgid "BigOcrPdf - Scanned PDFs with search support"
@@ -752,11 +764,6 @@ msgstr "חזור"
 #: NEEDS WORK
 msgid "Start"
 msgstr "התחל"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 322
-#: NEEDS WORK
-msgid "What is"
-msgstr ""
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 324
 #: NEEDS WORK
@@ -898,6 +905,11 @@ msgstr "שלב 2/3: עיבוד"
 #: NEEDS WORK
 msgid "OCR processing started using Python API"
 msgstr "עיבוד OCR החל באמצעות API של פייתון"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 837
+#: NEEDS WORK
+msgid "OCR processor cleaned up aggressively"
+msgstr "מעבד OCR נוקה בצורה אגרסיבית"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 748
 #: NEEDS WORK
@@ -1048,10 +1060,10 @@ msgstr "נוסף {0} לתור ה-OCR"
 msgid "Started OCR queue processing"
 msgstr "החלה עיבוד תור OCR"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 368
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 389
 #: NEEDS WORK
-msgid "Stopped OCR queue processing"
-msgstr "הפסקת עיבוד תור ה-OCR"
+msgid "Stopped OCR queue processing with aggressive cleanup"
+msgstr "הפסקת עיבוד תור ה-OCR עם ניקוי אגרסיבי"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 463
 #: NEEDS WORK
@@ -1215,6 +1227,16 @@ msgstr "ערך מיקום לא חוקי עבור {0}: {1}"
 #, python-brace-format
 msgid "Error loading date format order settings: {0}"
 msgstr "שגיאה בטעינת הגדרות פורמט תאריך: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 594
+#: NEEDS WORK
+msgid "Processing state reset successfully"
+msgstr "איפוס מצב העיבוד בוצע בהצלחה"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 612
+#: NEEDS WORK
+msgid "Temporary files cleanup completed"
+msgstr "ניקוי קבצים זמניים הושלם"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 75
 #: NEEDS WORK

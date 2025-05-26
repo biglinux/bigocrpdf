@@ -574,14 +574,6 @@ msgstr "przetwarzanie tekstów"
 msgid "finalizing processing"
 msgstr "finalizowanie przetwarzania"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 53
-#: NEEDS WORK
-msgid "Big OCR PDF"
-msgstr "Duży OCR PDF"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
 #: NEEDS WORK
 msgid "Add OCR to your PDF documents to make them searchable"
@@ -665,6 +657,14 @@ msgstr "Automatycznie obracaj strony do poprawnej orientacji"
 msgid "Align page content and automatically rotate pages to correct orientation"
 msgstr "Wyrównaj zawartość strony i automatycznie obróć strony do poprawnej orientacji."
 # 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 53
+#: NEEDS WORK
+msgid "Big OCR PDF"
+msgstr "Duży OCR PDF"
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 131
 #: NEEDS WORK
 msgid "BigOcrPdf - Scanned PDFs with search support"
@@ -703,11 +703,6 @@ msgstr "Wstecz"
 #: NEEDS WORK
 msgid "Start"
 msgstr "Start"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 322
-#: NEEDS WORK
-msgid "What is"
-msgstr ""
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 324
 #: NEEDS WORK
@@ -849,6 +844,11 @@ msgstr "Krok 2/3: Przetwarzanie"
 #: NEEDS WORK
 msgid "OCR processing started using Python API"
 msgstr "Rozpoczęto przetwarzanie OCR za pomocą interfejsu API Pythona."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 837
+#: NEEDS WORK
+msgid "OCR processor cleaned up aggressively"
+msgstr "Procesor OCR został agresywnie oczyszczony."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 748
 #: NEEDS WORK
@@ -999,10 +999,10 @@ msgstr "Dodano {0} do kolejki OCR"
 msgid "Started OCR queue processing"
 msgstr "Rozpoczęto przetwarzanie kolejki OCR"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 368
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 389
 #: NEEDS WORK
-msgid "Stopped OCR queue processing"
-msgstr "Zatrzymano przetwarzanie kolejki OCR"
+msgid "Stopped OCR queue processing with aggressive cleanup"
+msgstr "Zatrzymano przetwarzanie kolejki OCR z agresywnym czyszczeniem"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 463
 #: NEEDS WORK
@@ -1166,6 +1166,16 @@ msgstr "Nieprawidłowa wartość pozycji dla {0}: {1}"
 #, python-brace-format
 msgid "Error loading date format order settings: {0}"
 msgstr "Błąd ładowania ustawień formatu daty: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 594
+#: NEEDS WORK
+msgid "Processing state reset successfully"
+msgstr "Stan przetwarzania zresetowany pomyślnie"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 612
+#: NEEDS WORK
+msgid "Temporary files cleanup completed"
+msgstr "Zakończono czyszczenie plików tymczasowych."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 75
 #: NEEDS WORK

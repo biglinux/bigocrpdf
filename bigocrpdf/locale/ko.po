@@ -565,14 +565,6 @@ msgstr "텍스트 처리 중"
 msgid "finalizing processing"
 msgstr "처리 완료 중"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 53
-#: NEEDS WORK
-msgid "Big OCR PDF"
-msgstr "빅 OCR PDF"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
 #: NEEDS WORK
 msgid "Add OCR to your PDF documents to make them searchable"
@@ -656,6 +648,14 @@ msgstr "페이지를 자동으로 회전하여 올바른 방향으로 설정합�
 msgid "Align page content and automatically rotate pages to correct orientation"
 msgstr "페이지 콘텐츠를 정렬하고 페이지를 자동으로 회전하여 올바른 방향으로 맞춥니다."
 # 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 53
+#: NEEDS WORK
+msgid "Big OCR PDF"
+msgstr "빅 OCR PDF"
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 131
 #: NEEDS WORK
 msgid "BigOcrPdf - Scanned PDFs with search support"
@@ -694,11 +694,6 @@ msgstr "뒤로"
 #: NEEDS WORK
 msgid "Start"
 msgstr "시작"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 322
-#: NEEDS WORK
-msgid "What is"
-msgstr ""
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 324
 #: NEEDS WORK
@@ -838,6 +833,11 @@ msgstr "2단계/3: 처리 중"
 #: NEEDS WORK
 msgid "OCR processing started using Python API"
 msgstr "Python API를 사용하여 OCR 처리가 시작되었습니다."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 837
+#: NEEDS WORK
+msgid "OCR processor cleaned up aggressively"
+msgstr "OCR 프로세서가 강력하게 정리되었습니다."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 748
 #: NEEDS WORK
@@ -988,10 +988,10 @@ msgstr "{0}을 OCR 대기열에 추가했습니다."
 msgid "Started OCR queue processing"
 msgstr "OCR 큐 처리 시작됨"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 368
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 389
 #: NEEDS WORK
-msgid "Stopped OCR queue processing"
-msgstr "OCR 대기열 처리를 중지했습니다."
+msgid "Stopped OCR queue processing with aggressive cleanup"
+msgstr "공격적인 정리로 OCR 대기열 처리를 중지했습니다."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 463
 #: NEEDS WORK
@@ -1155,6 +1155,16 @@ msgstr "{0}에 대한 잘못된 위치 값: {1}"
 #, python-brace-format
 msgid "Error loading date format order settings: {0}"
 msgstr "날짜 형식 주문 설정을 로드하는 중 오류: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 594
+#: NEEDS WORK
+msgid "Processing state reset successfully"
+msgstr "처리 상태가 성공적으로 재설정되었습니다."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 612
+#: NEEDS WORK
+msgid "Temporary files cleanup completed"
+msgstr "임시 파일 정리 완료"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 75
 #: NEEDS WORK
