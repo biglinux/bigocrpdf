@@ -576,3 +576,76 @@ class OcrSettings:
 
         # Set the destination folder
         self.destination_folder = file_folder
+        
+    def reset_processing_state(self) -> None:
+        """Reset processing-related state for new OCR run"""
+        # Clear processed files list
+        self.processed_files = []
+        
+        # Clear extracted text to free memory
+        if hasattr(self, 'extracted_text') and self.extracted_text:
+            text_count = len(self.extracted_text)
+            total_chars = sum(len(text) for text in self.extracted_text.values())
+            self.extracted_text.clear()
+            logger.info(f"Cleared {text_count} extracted texts ({total_chars} characters) from memory")
+        else:
+            self.extracted_text = {}
+            
+        logger.info(_("Processing state reset successfully"))
+    
+    def cleanup_temp_files(self, processed_files: List[str]) -> None:
+        """Clean up temporary files after OCR processing
+        
+        Args:
+            processed_files: List of processed output files
+        """
+        try:
+            for output_file in processed_files:
+                if not output_file or not os.path.exists(output_file):
+                    continue
+                    
+                # Clean up .temp directory for this file
+                temp_dir = os.path.join(os.path.dirname(output_file), ".temp")
+                if os.path.exists(temp_dir):
+                    self._cleanup_temp_directory(temp_dir, output_file)
+                    
+            logger.info(_("Temporary files cleanup completed"))
+            
+        except Exception as e:
+            logger.error(f"Error cleaning up temporary files: {e}")
+
+    def _cleanup_temp_directory(self, temp_dir: str, output_file: str) -> None:
+        """Clean up specific temporary directory
+        
+        Args:
+            temp_dir: Path to temporary directory
+            output_file: Output file path to match temp files
+        """
+        import glob
+        
+        try:
+            # Get base name for matching temp files
+            base_name = os.path.basename(os.path.splitext(output_file)[0])
+            
+            # Find temp files related to this output file
+            temp_pattern = os.path.join(temp_dir, f"temp_{base_name}*")
+            temp_files = glob.glob(temp_pattern)
+            
+            # Remove matching temp files
+            for temp_file in temp_files:
+                try:
+                    os.remove(temp_file)
+                    logger.info(f"Removed temporary file: {os.path.basename(temp_file)}")
+                except Exception as e:
+                    logger.warning(f"Could not remove temp file {temp_file}: {e}")
+                    
+            # Try to remove temp directory if empty
+            try:
+                if os.path.exists(temp_dir) and not os.listdir(temp_dir):
+                    os.rmdir(temp_dir)
+                    logger.info("Removed empty temporary directory")
+            except Exception:
+                pass  # Directory not empty or other issue, ignore
+                
+        except Exception as e:
+            logger.error(f"Error cleaning temp directory {temp_dir}: {e}")

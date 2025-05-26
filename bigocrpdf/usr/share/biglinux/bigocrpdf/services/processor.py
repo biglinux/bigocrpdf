@@ -533,3 +533,26 @@ class OcrProcessor:
             _("Generated unique filename to avoid overwriting: {0}").format(os.path.basename(new_path))
         )
         return new_path
+    
+    def force_cleanup(self) -> None:
+        """Force aggressive cleanup of all resources"""
+        try:
+            # Stop OCR queue if exists
+            if self.ocr_queue:
+                self.ocr_queue.stop()
+                self.ocr_queue = None
+                
+            # Reset all state
+            self._progress = 0.0
+            self._processed_files = 0
+            self._total_files = 0
+            self.process_pid = None
+            
+            # Clear callbacks
+            self.on_file_complete = None
+            self.on_all_complete = None
+            
+            logger.info("OCR processor force cleanup completed")
+            
+        except Exception as e:
+            logger.error(f"Error in force cleanup: {e}")

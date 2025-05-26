@@ -285,7 +285,7 @@ class OcrProcess:
         elif elapsed_time < MAIN_STAGE_THRESHOLD:
             # Main OCR processing stage
             self.progress = INITIAL_STAGE_MAX + min(
-                MAIN_STAGE_MAX, (elapsed_time - INITIAL_STAGE_THRESHOLD) / 20
+                MAIN_STAGE_MAX, (elapsed_time - MAIN_STAGE_THRESHOLD) / 20
             )
         elif elapsed_time < FINAL_STAGE_THRESHOLD:
             # Final processing stage
@@ -293,10 +293,12 @@ class OcrProcess:
                 FINAL_STAGE_MAX, (elapsed_time - MAIN_STAGE_THRESHOLD) / 30
             )
         else:
-            # Almost done
-            self.progress = PROGRESS_ALMOST_DONE
+            # Continue progressing slowly instead of stopping at 95%
+            extra_time = elapsed_time - FINAL_STAGE_THRESHOLD
+            additional_progress = min(0.04, extra_time / 600 * 0.04)  # Very slow progress over 10 minutes max
+            self.progress = PROGRESS_ALMOST_DONE + additional_progress
             
-        return self.progress
+        return min(0.99, self.progress)  # Cap at 99%, never show 100% until really done
 
     def terminate(self) -> None:
         """Terminate the OCR process"""
@@ -361,11 +363,37 @@ class OcrQueue:
         with self.lock:
             self.stop_monitor = True
 
-            # Terminate all running processes
+            # Terminate all running processes more aggressively
             for process in self.running:
-                process.terminate()
+                try:
+                    process.terminate()
+                    # Wait a bit, then force kill if still alive
+                    if hasattr(process, 'process') and process.process:
+                        if process.process.is_alive():
+                            process.process.join(timeout=2)
+                            if process.process.is_alive():
+                                process.process.kill()
+                except Exception as e:
+                    logger.warning(f"Error terminating OCR process: {e}")
 
-            logger.info(_("Stopped OCR queue processing"))
+            # Clear all lists
+            self.running.clear()
+            self.queue.clear()
+            self.completed.clear()
+            self.failed.clear()
+
+            # Reset counters
+            self._total_files = 0
+            self._processed_files = 0
+
+            logger.info(_("Stopped OCR queue processing with aggressive cleanup"))
+
+            # Force cleanup of monitor thread
+            if self.monitor_thread and self.monitor_thread.is_alive():
+                try:
+                    self.monitor_thread.join(timeout=1)
+                except Exception:
+                    pass
 
     def _monitor_queue(self) -> None:
         """Monitor the OCR queue and start new processes as needed"""

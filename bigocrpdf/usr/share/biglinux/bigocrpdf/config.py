@@ -14,7 +14,7 @@ import sys
 from utils.i18n import _
 
 # Application information
-APP_NAME = _("Big OCR PDF")
+APP_NAME = "Big OCR PDF"
 APP_ID = "br.com.biglinux.bigocrpdf"
 APP_VERSION = "2.0.0"
 APP_DESCRIPTION = _("Add OCR to your PDF documents to make them searchable")

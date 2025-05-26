@@ -319,7 +319,7 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         
         # Main title
         what_is = Gtk.Label()
-        what_is.set_markup("<span size='large' weight='bold'>" + _("What is") + " Big OCR PDF?</span>")
+        what_is.set_markup(f"<span size='large' weight='bold'>{_('What is')} Big OCR PDF?</span>")
         what_is.set_halign(Gtk.Align.CENTER)
         what_is.set_margin_bottom(14)
         content_box.append(what_is)
@@ -720,6 +720,13 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         if not self._validate_ocr_settings():
             return
 
+        # Clean up any previous processing state
+        if hasattr(self, 'ocr_processor') and self.ocr_processor:
+            if hasattr(self.ocr_processor, 'force_cleanup'):
+                self.ocr_processor.force_cleanup()
+        self._cleanup_ocr_processor()
+        self.settings.reset_processing_state()
+
         # Get settings from UI
         self._get_settings_from_ui()
 
@@ -756,9 +763,28 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
 
     def reset_and_go_to_settings(self) -> None:
         """Reset the application state and return to the settings page"""
+        # Stop all timers first
+        if self.progress_timer_id is not None:
+            safe_remove_source(self.progress_timer_id)
+            self.progress_timer_id = None
+            
+        if self.conclusion_timer_id is not None:
+            safe_remove_source(self.conclusion_timer_id)
+            self.conclusion_timer_id = None
+
+        # Force cleanup of OCR processor and queue
+        if hasattr(self, 'ocr_processor') and self.ocr_processor:
+            if hasattr(self.ocr_processor, 'force_cleanup'):
+                self.ocr_processor.force_cleanup()
+            self._cleanup_ocr_processor()
+
         # Clear processed files list
         self.processed_files = []
-
+        
+        # Clean memory and temp files when returning to settings
+        if hasattr(self.settings, 'reset_processing_state'):
+            self.settings.reset_processing_state()
+        
         # Reset UI elements
         self.next_button.set_label(_("Start"))
         self.next_button.set_sensitive(True)
@@ -776,6 +802,42 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
 
         # Update the file queue interface to reflect any changes
         self.update_file_info()
+
+    def _cleanup_ocr_processor(self) -> None:
+        """Force aggressive cleanup of OCR processor resources"""
+        if not self.ocr_processor:
+            return
+            
+        try:
+            # Stop and cleanup OCR queue more aggressively
+            if hasattr(self.ocr_processor, 'ocr_queue') and self.ocr_processor.ocr_queue:
+                self.ocr_processor.ocr_queue.stop()
+                
+                # Force cleanup of any remaining threads/processes
+                import time
+                time.sleep(0.5)  # Give time for cleanup
+                
+                # Nullify the queue reference
+                self.ocr_processor.ocr_queue = None
+                
+            # Reset processor state completely
+            self.ocr_processor._progress = 0.0
+            self.ocr_processor._processed_files = 0
+            self.ocr_processor._total_files = 0
+            self.ocr_processor.process_pid = None
+            
+            # Clear callbacks
+            self.ocr_processor.on_file_complete = None
+            self.ocr_processor.on_all_complete = None
+            
+            # Force garbage collection
+            import gc
+            gc.collect()
+            
+            logger.info(_("OCR processor cleaned up aggressively"))
+            
+        except Exception as e:
+            logger.error(f"Error in aggressive OCR processor cleanup: {e}")
 
     def show_conclusion_page(self) -> None:
         """Show the conclusion page after OCR processing completes"""
@@ -796,6 +858,33 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         # Disconnect any existing signal handlers and reconnect
         self.disconnect_signal(self.next_button, "clicked")
         self.connect_signal(self.next_button, "clicked", self.on_next_clicked)
+        
+    def _safe_show_conclusion_page(self) -> bool:
+        """Safely show conclusion page with allocation check
+        
+        Returns:
+            False to stop the timer
+        """
+        try:
+            # Ensure we're still on terminal page
+            if self.stack.get_visible_child_name() != "terminal":
+                return False
+                
+            # Check if window is properly allocated
+            if not self.get_allocated_width() or not self.get_allocated_height():
+                # Try again after a short delay if not allocated
+                GLib.timeout_add(100, self._safe_show_conclusion_page)
+                return False
+                
+            # Safe to show conclusion page
+            self.show_conclusion_page()
+            return False
+            
+        except Exception as e:
+            logger.error(f"Error showing conclusion page safely: {e}")
+            # Fallback to normal transition
+            self.show_conclusion_page()
+            return False
 
     def update_file_info(self) -> None:
         """Update the file information UI after files have been added or removed"""
@@ -923,19 +1012,23 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         # Update the progress display to show 100%
         self._update_terminal_progress(1.0, "100%")
 
-        # Update the status text
+        # Update the status text  
         self._update_terminal_status_complete()
 
         # Stop the spinner if it's still spinning
         self._stop_terminal_spinner()
 
+        # Clean up temporary files
+        if hasattr(self.settings, 'processed_files') and self.settings.processed_files:
+            self.settings.cleanup_temp_files(self.settings.processed_files)
+
         # First update the conclusion page with actual values
         if hasattr(self.ui, "update_conclusion_page"):
             self.ui.update_conclusion_page()
 
-        # Show conclusion page with a short delay
+        # Show conclusion page with a longer delay to avoid GTK allocation warning
         self.conclusion_timer_id = GLib.timeout_add(
-            1000, lambda: self.show_conclusion_page()
+            2000, lambda: self._safe_show_conclusion_page()
         )
 
         # Log completion
