@@ -41,7 +41,7 @@ class DialogsManager:
         # Create the options dialog
         dialog = Adw.Window()
         dialog.set_title(_("PDF Output Options"))
-        dialog.set_default_size(550, 500)
+        dialog.set_default_size(550, 590)
         dialog.set_modal(True)
         dialog.set_transient_for(self.window)
 

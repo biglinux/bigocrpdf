@@ -25,17 +25,17 @@ STATUS_COMPLETED = "completed"
 STATUS_FAILED = "failed"
 
 # Constants for progress estimation
-INITIAL_STAGE_THRESHOLD = 5  # seconds
-MAIN_STAGE_THRESHOLD = 15    # seconds
-FINAL_STAGE_THRESHOLD = 30   # seconds
-INITIAL_STAGE_MAX = 0.25
-MAIN_STAGE_MAX = 0.5
-FINAL_STAGE_MAX = 0.2
+INITIAL_STAGE_THRESHOLD = 10
+MAIN_STAGE_THRESHOLD = 50
+FINAL_STAGE_THRESHOLD = 70
+INITIAL_STAGE_MAX = 0.15
+MAIN_STAGE_MAX = 0.65
+FINAL_STAGE_MAX = 0.15
 PROGRESS_ALMOST_DONE = 0.95
 PROGRESS_COMPLETE = 1.0
 
 # Constants for monitor thread
-MONITOR_SLEEP_INTERVAL = 0.5
+MONITOR_SLEEP_INTERVAL = 1.0
 
 
 def configure_logging() -> None:
@@ -242,6 +242,7 @@ class OcrProcess:
         """
         if self.status == STATUS_RUNNING and self.process:
             if not self.process.is_alive():
+                # logger.info(f"Process for {os.path.basename(self.input_file)} finished with exitcode: {self.process.exitcode}") #DEBUG
                 if self.process.exitcode == 0:
                     self.status = STATUS_COMPLETED
                     self.progress = PROGRESS_COMPLETE
@@ -280,24 +281,25 @@ class OcrProcess:
         elapsed_time = time.time() - self.start_time
         
         if elapsed_time < INITIAL_STAGE_THRESHOLD:
-            # Initial processing stage
-            self.progress = min(INITIAL_STAGE_MAX, elapsed_time / 20)
+            # Initial processing stage (0-10 seconds) -> 0% to 15%
+            self.progress = min(INITIAL_STAGE_MAX, (elapsed_time / INITIAL_STAGE_THRESHOLD) * INITIAL_STAGE_MAX)
         elif elapsed_time < MAIN_STAGE_THRESHOLD:
-            # Main OCR processing stage
-            self.progress = INITIAL_STAGE_MAX + min(
-                MAIN_STAGE_MAX, (elapsed_time - MAIN_STAGE_THRESHOLD) / 20
-            )
+            # Main OCR processing stage (10-50 seconds) -> 15% to 80%
+            stage_duration = MAIN_STAGE_THRESHOLD - INITIAL_STAGE_THRESHOLD
+            stage_progress = (elapsed_time - INITIAL_STAGE_THRESHOLD) / stage_duration
+            self.progress = INITIAL_STAGE_MAX + (stage_progress * MAIN_STAGE_MAX)
         elif elapsed_time < FINAL_STAGE_THRESHOLD:
-            # Final processing stage
-            self.progress = (INITIAL_STAGE_MAX + MAIN_STAGE_MAX) + min(
-                FINAL_STAGE_MAX, (elapsed_time - MAIN_STAGE_THRESHOLD) / 30
-            )
+            # Final processing stage (50-70 seconds) -> 80% to 95%
+            stage_duration = FINAL_STAGE_THRESHOLD - MAIN_STAGE_THRESHOLD
+            stage_progress = (elapsed_time - MAIN_STAGE_THRESHOLD) / stage_duration
+            self.progress = INITIAL_STAGE_MAX + MAIN_STAGE_MAX + (stage_progress * FINAL_STAGE_MAX)
         else:
-            # Continue progressing slowly instead of stopping at 95%
+            # After 70 seconds -> slowly progress from 95% to 99%
             extra_time = elapsed_time - FINAL_STAGE_THRESHOLD
-            additional_progress = min(0.04, extra_time / 600 * 0.04)  # Very slow progress over 10 minutes max
+            # Progress 4% over 5 minutes (300 seconds)
+            additional_progress = min(0.04, (extra_time / 300) * 0.04)
             self.progress = PROGRESS_ALMOST_DONE + additional_progress
-            
+        
         return min(0.99, self.progress)  # Cap at 99%, never show 100% until really done
 
     def terminate(self) -> None:
@@ -425,6 +427,9 @@ class OcrQueue:
                         self._processed_files += 1
                     else:
                         still_running.append(process)
+
+                # if self.running: # DEBUG
+                    # logger.info(f"Running processes: {len(self.running)}, First process alive: {self.running[0].process.is_alive() if self.running[0].process else 'No process'}")
 
                 # Update running processes
                 self.running = still_running

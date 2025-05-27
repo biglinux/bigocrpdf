@@ -8,7 +8,7 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Gtk, Adw, Gio, Gdk
+from gi.repository import Gtk, Adw, Gio, Gdk, GLib
 
 import os
 import subprocess
@@ -336,6 +336,15 @@ class SettingsPageManager:
         self.file_list_box = Gtk.ListBox()
         self.file_list_box.set_selection_mode(Gtk.SelectionMode.MULTIPLE)
         self.file_list_box.add_css_class("boxed-list")
+        self.file_list_box.set_can_focus(False)
+    
+        # Enable focus after a short delay to ensure the list box is ready
+        def enable_focus():
+            if self.file_list_box:
+                self.file_list_box.set_can_focus(True)
+            return False
+            
+        GLib.timeout_add(500, enable_focus)
 
         # Set up drag-and-drop target
         self._setup_drag_and_drop()
@@ -485,9 +494,14 @@ class SettingsPageManager:
 
     def _populate_file_list(self) -> None:
         """Populate the file list box with the selected files"""
+        # Check if the file list box is ready
+        if not self.file_list_box or not self.file_list_box.get_realized():
+            return
+        
         # Remove existing items
         while True:
-            child = self.file_list_box.get_first_child()
+            if self.file_list_box and self.file_list_box.get_mapped():
+                child = self.file_list_box.get_first_child()
             if child:
                 self.file_list_box.remove(child)
             else:

@@ -5,6 +5,7 @@ This module contains the main application window implementation.
 """
 
 import gi
+import threading
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
@@ -110,16 +111,20 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         # Connect signals
         self.stack.connect("notify::visible-child", self._on_page_changed)
 
-        # Set initial view
-        self.stack.set_visible_child_name("settings")
-
         # Set up content with toast overlay for notifications
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         main_box.append(self.toolbar_view)
         main_box.append(self.action_bar)
-        
+
         self.toast_overlay.set_child(main_box)
         self.set_content(self.toast_overlay)
+
+        # Set initial view after UI is fully constructed
+        def set_initial_view():
+            self.stack.set_visible_child_name("settings")
+            return False
+
+        GLib.idle_add(set_initial_view)
 
     def setup_stack(self) -> None:
         """Set up the main view stack"""
@@ -946,31 +951,39 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
             output_file: Path to the output file
             extracted_text: The text extracted from the processed PDF
         """
-        # Remove the processed file from the queue
-        self.ocr_processor.remove_processed_file(input_file)
-
-        # Store the extracted text for this output file
-        logger.info(
-            f"Received extracted_text in _on_file_processed: length={len(extracted_text)}"
-        )
-
-        # Make sure output_file is in processed_files list
-        if output_file not in self.settings.processed_files:
-            self.settings.processed_files.append(output_file)
-            logger.info(f"Added {output_file} to processed_files list")
-
-        # Store the extracted text, ensuring we have the dictionary initialized
-        if not hasattr(self.settings, "extracted_text"):
-            self.settings.extracted_text = {}
-
-        # Store the text with the output file as key
-        self.settings.extracted_text[output_file] = extracted_text
-        logger.info(
-            f"Stored {len(extracted_text)} characters of extracted text for {os.path.basename(output_file)}"
-        )
+        # logger.info(f"_on_file_processed called from thread: {threading.current_thread().name}") #DEBUG
         
-        # Update the status bar with current progress
-        self._update_processing_status(input_file)
+        def process_in_main_thread():
+            # Remove the processed file from the queue
+            self.ocr_processor.remove_processed_file(input_file)
+
+            # Store the extracted text for this output file
+            logger.info(
+                f"Received extracted_text in _on_file_processed: length={len(extracted_text)}"
+            )
+
+            # Make sure output_file is in processed_files list
+            if output_file not in self.settings.processed_files:
+                self.settings.processed_files.append(output_file)
+                logger.info(f"Added {output_file} to processed_files list")
+
+            # Store the extracted text, ensuring we have the dictionary initialized
+            if not hasattr(self.settings, "extracted_text"):
+                self.settings.extracted_text = {}
+
+            # Store the text with the output file as key
+            self.settings.extracted_text[output_file] = extracted_text
+            logger.info(
+                f"Stored {len(extracted_text)} characters of extracted text for {os.path.basename(output_file)}"
+            )
+            
+            # Update the status bar with current progress
+            self._update_processing_status(input_file)
+            
+            return False  # Remove from idle
+        
+        # Schedule execution in GTK main thread
+        GLib.idle_add(process_in_main_thread)
 
     def _update_processing_status(self, input_file: str = None) -> None:
         """Update the status bar with current processing information"""
@@ -1000,46 +1013,53 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
 
     def _on_processing_complete(self) -> None:
         """Callback when all files are processed with OCR"""
-        logger.info(_("OCR processing complete callback triggered"))
+        # logger.info(f"_on_processing_complete called from thread: {threading.current_thread().name}") #DEBUG
+        
+        def complete_in_main_thread():
+            logger.info(_("OCR processing complete callback triggered"))
 
-        # Check if we're still on the terminal page (might have been cancelled)
-        if self.stack.get_visible_child_name() != "terminal":
+            # Check if we're still on the terminal page (might have been cancelled)
+            if self.stack.get_visible_child_name() != "terminal":
+                logger.info(
+                    _("Processing complete but no longer on terminal page, likely cancelled")
+                )
+                return False
+
+            # Update the progress display to show 100%
+            self._update_terminal_progress(1.0, "100%")
+
+            # Update the status text  
+            self._update_terminal_status_complete()
+
+            # Stop the spinner if it's still spinning
+            self._stop_terminal_spinner()
+
+            # Clean up temporary files
+            if hasattr(self.settings, 'processed_files') and self.settings.processed_files:
+                self.settings.cleanup_temp_files(self.settings.processed_files)
+
+            # First update the conclusion page with actual values
+            if hasattr(self.ui, "update_conclusion_page"):
+                self.ui.update_conclusion_page()
+
+            # Show conclusion page with a longer delay to avoid GTK allocation warning
+            self.conclusion_timer_id = GLib.timeout_add(
+                2000, lambda: self._safe_show_conclusion_page()
+            )
+
+            # Log completion
             logger.info(
-                _("Processing complete but no longer on terminal page, likely cancelled")
+                _("OCR processing completed successfully for {count} files").format(
+                    count=self.ocr_processor.get_processed_count()
+                )
             )
-            return
 
-        # Update the progress display to show 100%
-        self._update_terminal_progress(1.0, "100%")
-
-        # Update the status text  
-        self._update_terminal_status_complete()
-
-        # Stop the spinner if it's still spinning
-        self._stop_terminal_spinner()
-
-        # Clean up temporary files
-        if hasattr(self.settings, 'processed_files') and self.settings.processed_files:
-            self.settings.cleanup_temp_files(self.settings.processed_files)
-
-        # First update the conclusion page with actual values
-        if hasattr(self.ui, "update_conclusion_page"):
-            self.ui.update_conclusion_page()
-
-        # Show conclusion page with a longer delay to avoid GTK allocation warning
-        self.conclusion_timer_id = GLib.timeout_add(
-            2000, lambda: self._safe_show_conclusion_page()
-        )
-
-        # Log completion
-        logger.info(
-            _("OCR processing completed successfully for {count} files").format(
-                count=self.ocr_processor.get_processed_count()
-            )
-        )
-
-        # Show toast notification
-        self.show_toast(_("OCR processing complete"))
+            # Show toast notification
+            self.show_toast(_("OCR processing complete"))
+            
+            return False
+        
+        GLib.idle_add(complete_in_main_thread)
 
     def _update_terminal_progress(self, fraction: float, text: str = None) -> None:
         """Update the terminal progress bar
@@ -1098,8 +1118,7 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         """
         progress = self.ocr_processor.get_progress()
 
-        # Use a timebased animation if the progress is still at 0
-        # This gives feedback to the user that processing is happening
+        # Use animation only when progress is exactly 0 (not started yet)
         if progress == 0:
             # Oscillate between 0.05 and 0.15 to show activity
             if self._animation_progress >= 0.15:
@@ -1109,11 +1128,13 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
 
             self._animation_progress += self._animation_direction
             
-            # Use animation progress during active processing
+            # Ensure animation stays within bounds
+            self._animation_progress = max(0.05, min(0.15, self._animation_progress))
+            
             return self._animation_progress
         else:
-            # Use real progress
-            return progress
+            # Use real progress - ensure it's always positive
+            return max(0.0, min(1.0, progress))
 
     def _update_ocr_progress(self) -> bool:
         """Update the OCR progress in the UI
