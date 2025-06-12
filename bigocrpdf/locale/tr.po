@@ -16,81 +16,48 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: attranslate\n"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 97
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
 #: NEEDS WORK
-msgid "Configuration"
-msgstr "Yapılandırma"
+msgid "Add OCR to your PDF documents to make them searchable"
+msgstr "PDF belgelerinize arama yapılabilir hale getirmek için OCR ekleyin."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 106
-#: NEEDS WORK
-msgid "Save in same folder as original file"
-msgstr "Orijinal dosya ile aynı klasöre kaydet"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 125
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
 #: NEEDS WORK
-msgid "Select the destination folder"
-msgstr "Hedef klasörü seçin"
+msgid "Print version information and exit"
+msgstr "Sürüm bilgilerini yazdır ve çık."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 150
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 72
 #: NEEDS WORK
-msgid "Browse"
-msgstr "Gözat"
+msgid "Enable debug mode"
+msgstr "Hata ayıklama modunu etkinleştir"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 163
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 74
 #: NEEDS WORK
-msgid "Output File Options"
-msgstr "Çıktı Dosyası Seçenekleri"
+msgid "Enable verbose output"
+msgstr "Ayrıntılı çıktıyı etkinleştir"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 172
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
 #: NEEDS WORK
-msgid "Configure"
-msgstr "Yapılandırmak"
+msgid "PDF files to process"
+msgstr "İşlenecek PDF dosyaları"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 184
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 32
 #: NEEDS WORK
-msgid "Text Language"
-msgstr "Metin Dili"
+msgid "Normal"
+msgstr "Normal"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 194
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 33
 #: NEEDS WORK
-msgid "Quality"
-msgstr "Kalite"
+msgid "Economic"
+msgstr "Ekonomik"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 204
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 34
 #: NEEDS WORK
-msgid "Alignment"
-msgstr "Hizalama"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 234
-#: NEEDS WORK
-msgid "PDF Files Queue"
-msgstr "PDF Dosyaları Kuyruğu"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 261
-#: NEEDS WORK
-msgid "Add"
-msgstr "Ekle"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 269
-#: NEEDS WORK
-msgid "Remove All"
-msgstr "Tümünü Kaldır"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 324
-#: NEEDS WORK
-msgid "Drop PDF files here"
-msgstr "PDF dosyalarını buraya bırakın"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 305
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 967
-#: NEEDS WORK
-msgid "No files selected"
-msgstr "Hiçbir dosya seçilmedi."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 306
-#: NEEDS WORK
-msgid "Add PDF files for OCR processing"
-msgstr "OCR işleme için PDF dosyaları ekleyin."
+msgid "More economic"
+msgstr "Daha ekonomik"
 # 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
@@ -124,10 +91,274 @@ msgstr "Otomatik döndürme"
 msgid "Align + rotate"
 msgstr "Hizala + döndür"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 937
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 45
 #: NEEDS WORK
-msgid "Choose how to handle page alignment and rotation during OCR processing"
-msgstr "OCR işlemi sırasında sayfa hizalaması ve döndürme ile nasıl başa çıkılacağını seçin."
+msgid "Keep pages as they are without any modifications"
+msgstr "Sayfaları olduğu gibi, herhangi bir değişiklik yapmadan koruyun."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 46
+#: NEEDS WORK
+msgid "Align page content to improve readability"
+msgstr "Sayfa içeriğini okunabilirliği artırmak için hizalayın."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 47
+#: NEEDS WORK
+msgid "Automatically rotate pages to correct orientation"
+msgstr "Sayfaları doğru yönlendirme için otomatik olarak döndür."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 48
+#: NEEDS WORK
+msgid "Align page content and automatically rotate pages to correct orientation"
+msgstr "Sayfa içeriğini hizalayın ve sayfaları doğru yönlendirmeye otomatik olarak döndürün."
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 60
+#: NEEDS WORK
+msgid "Big OCR PDF"
+msgstr "Büyük OCR PDF"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 138
+#: NEEDS WORK
+msgid "BigOcrPdf - Scanned PDFs with search support"
+msgstr "BigOcrPdf - Arama desteği olan taranmış PDF'ler"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 144
+#: NEEDS WORK
+msgid "Menu"
+msgstr "Menü"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 148
+#: NEEDS WORK
+msgid "Help"
+msgstr "Yardım"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 149
+#: NEEDS WORK
+msgid "About the application"
+msgstr "Uygulama hakkında"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 179
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 423
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 744
+#: NEEDS WORK
+msgid "Step 1/3: Settings"
+msgstr "Adım 1/3: Ayarlar"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 189
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 762
+#: NEEDS WORK
+msgid "Back"
+msgstr "Geri dön"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 197
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 733
+#: NEEDS WORK
+msgid "Start"
+msgstr "Başla"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 331
+#: NEEDS WORK
+msgid ""
+"Big OCR PDF adds optical character recognition to your PDF files, making them searchable and "
+"allowing you to select and copy text from scanned documents."
+msgstr ""
+"Big OCR PDF, PDF dosyalarınıza optik karakter tanıma ekleyerek, bunları aranabilir hale getirir ve "
+"taranmış belgelerden metin seçip kopyalamanıza olanak tanır."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 342
+#: NEEDS WORK
+msgid "Benefits of using Big OCR PDF:"
+msgstr "Büyük OCR PDF kullanmanın avantajları:"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
+#: NEEDS WORK
+msgid "Search"
+msgstr "Araştırma"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
+#: NEEDS WORK
+msgid "Search through your scanned PDF documents"
+msgstr "Tarayıcı PDF belgelerinizde arama yapın."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
+#: NEEDS WORK
+msgid "Copy text"
+msgstr "Metni kopyala"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
+#: NEEDS WORK
+msgid "Copy text from images and scanned documents"
+msgstr "Görüntülerden ve taranmış belgelerden metin kopyalayın."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
+#: NEEDS WORK
+msgid "Batch processing"
+msgstr "Toplu işleme"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
+#: NEEDS WORK
+msgid "Process multiple files at once"
+msgstr "Birden fazla dosyayı aynı anda işleyin"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
+#: NEEDS WORK
+msgid "Auto-correction"
+msgstr "Otomatik düzeltme"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
+#: NEEDS WORK
+msgid "Automatically correct page alignment and rotation"
+msgstr "Sayfa hizalamasını ve döndürmeyi otomatik olarak düzeltin."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 370
+#: NEEDS WORK
+msgid "Show this dialog at startup"
+msgstr "Bu iletişimi başlangıçta göster."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 384
+#: NEEDS WORK
+msgid "Let's Get Started"
+msgstr "Hadi Başlayalım"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1512
+#: NEEDS WORK
+msgid "Close"
+msgstr "Kapat"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 427
+#: NEEDS WORK
+msgid "Start Processing"
+msgstr "İşleme Başla"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 478
+#: NEEDS WORK
+msgid "Select PDF Files"
+msgstr "PDF Dosyalarını Seçin"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 485
+#: NEEDS WORK
+msgid "PDF Files"
+msgstr "PDF Dosyaları"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 528
+#: NEEDS WORK
+msgid "No valid files were selected"
+msgstr "Geçerli dosya seçilmedi."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 529
+#: NEEDS WORK
+msgid "No valid PDF files were selected"
+msgstr "Geçerli PDF dosyaları seçilmedi."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 532
+#: NEEDS WORK
+msgid "Error adding files"
+msgstr "Dosya eklerken hata oluştu"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 553
+#: NEEDS WORK
+msgid "Select destination folder"
+msgstr "Hedef klasörü seçin"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 604
+#: NEEDS WORK
+msgid "Destination folder selected"
+msgstr "Hedef klasör seçildi"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 608
+#: NEEDS WORK
+msgid "Error selecting destination folder"
+msgstr "Hedef klasör seçerken hata"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 618
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 619
+#: NEEDS WORK
+msgid "No files selected for processing"
+msgstr "İşleme için dosya seçilmedi."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 627
+#: NEEDS WORK
+msgid "No destination folder selected"
+msgstr "Hedef klasör seçilmedi"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 628
+#: NEEDS WORK
+msgid "Please select a destination folder"
+msgstr "Lütfen bir hedef klasör seçin."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 708
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 709
+#: NEEDS WORK
+msgid "Failed to start OCR processing"
+msgstr "OCR işleme başlatılamadı."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 715
+#: NEEDS WORK
+msgid "Step 2/3: Processing"
+msgstr "Adım 2/3: İşleniyor"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 724
+#: NEEDS WORK
+msgid "OCR processing started using Python API"
+msgstr "Python API kullanılarak OCR işleme başlatıldı."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 837
+#: NEEDS WORK
+msgid "OCR processor cleaned up aggressively"
+msgstr "OCR işlemcisi agresif bir şekilde temizlendi."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 755
+#: NEEDS WORK
+msgid "Step 3/3: Completed"
+msgstr "Adım 3/3: Tamamlandı"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 884
+#: NEEDS WORK
+msgid "OCR processing complete callback triggered"
+msgstr "OCR işleme tamamlandı geri çağrısı tetiklendi"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 889
+#: NEEDS WORK
+msgid "Processing complete but no longer on terminal page, likely cancelled"
+msgstr "İşlem tamamlandı ancak artık terminal sayfasında değil, muhtemelen iptal edildi."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 913
+#: NEEDS WORK
+#, python-brace-format
+msgid "OCR processing completed successfully for {count} files"
+msgstr "{count} dosya için OCR işleme başarıyla tamamlandı."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 919
+#: NEEDS WORK
+msgid "OCR processing complete"
+msgstr "OCR işleme tamamlandı"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1121
+#: NEEDS WORK
+msgid "OCR processing cancelled by user"
+msgstr "Kullanıcı tarafından OCR işlemi iptal edildi."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1129
+#: NEEDS WORK
+msgid "OCR processing cancelled"
+msgstr "OCR işleme iptal edildi"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 48
+#: NEEDS WORK
+msgid "Please make sure GTK4, libadwaita, and OCRmyPDF are installed"
+msgstr "Lütfen GTK4, libadwaita ve OCRmyPDF'nin yüklü olduğundan emin olun."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 60
+#: NEEDS WORK
+msgid "Failed to set system locale, falling back to C locale"
+msgstr "Sistem yerel ayarını ayarlama başarısız oldu, C yerel ayarına geri dönülüyor."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 88
+#: NEEDS WORK
+msgid "Cleared file queue at startup"
+msgstr "Başlangıçta dosya kuyruğu temizlendi."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 34
 #: NEEDS WORK
@@ -210,6 +441,152 @@ msgstr "Evet"
 msgid "No text content was detected in this file during OCR processing."
 msgstr "Bu dosyada OCR işleme sırasında metin içeriği tespit edilmedi."
 # 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 380
+#: NEEDS WORK
+msgid "Processing PDF files..."
+msgstr "PDF dosyalarını işliyor..."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 385
+#: NEEDS WORK
+msgid "Preparing processing..."
+msgstr "İşlem hazırlanıyor..."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 398
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1660
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1771
+#: NEEDS WORK
+msgid "Cancel"
+msgstr "İptal et"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 864
+#: NEEDS WORK
+#, python-brace-format
+msgid "<b>Processing: {current}/{total}:</b> {completed} file(s) completed • <b>{remaining}</b> remaining"
+msgstr "<b>İşleniyor: {current}/{total}:</b> {completed} dosya(lar) tamamlandı • <b>{remaining}</b> kalan"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 875
+#: NEEDS WORK
+#, python-brace-format
+msgid "Processed file {current}/{total}: {filename}"
+msgstr "İşlenen dosya {current}/{total}: {filename}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 939
+#: NEEDS WORK
+#, python-brace-format
+msgid "<b>OCR processing complete!</b> {total} file(s) processed"
+msgstr "<b>OCR işleme tamamlandı!</b> {total} dosya işlendi"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1057
+#: NEEDS WORK
+#, python-brace-format
+msgid "<b>OCR processing complete!</b> {total} file(s) processed • Total time: {time}"
+msgstr "<b>OCR işleme tamamlandı!</b> {total} dosya işlendi • Toplam süre: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 347
+#: NEEDS WORK
+#, python-brace-format
+msgid "Processing file {current}/{total}: {filename} (page {page}/{pages}) • Time: {time}"
+msgstr "İşleniyor dosya {current}/{total}: {filename} (sayfa {page}/{pages}) • Zaman: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 356
+#: NEEDS WORK
+#, python-brace-format
+msgid "Processing file {current}/{total}: {filename} ({pages} pages) • Time: {time}"
+msgstr "İşleniyor dosya {current}/{total}: {filename} ({pages} sayfa) • Zaman: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 370
+#: NEEDS WORK
+#, python-brace-format
+msgid "Processing files: {processed}/{total} completed • Time: {time}"
+msgstr "Dosyalar işleniyor: {işlenmiş}/{toplam} tamamlandı • Süre: {süre}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 382
+#: NEEDS WORK
+#, python-brace-format
+msgid "Starting processing of {total} files... • Time: {time}"
+msgstr "{total} dosyanın işlenmesine başlanıyor... • Zaman: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 97
+#: NEEDS WORK
+msgid "Configuration"
+msgstr "Yapılandırma"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 106
+#: NEEDS WORK
+msgid "Save in same folder as original file"
+msgstr "Orijinal dosya ile aynı klasöre kaydet"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 125
+#: NEEDS WORK
+msgid "Select the destination folder"
+msgstr "Hedef klasörü seçin"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 150
+#: NEEDS WORK
+msgid "Browse"
+msgstr "Gözat"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 163
+#: NEEDS WORK
+msgid "Output File Options"
+msgstr "Çıktı Dosyası Seçenekleri"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 172
+#: NEEDS WORK
+msgid "Configure"
+msgstr "Yapılandırmak"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 184
+#: NEEDS WORK
+msgid "Text Language"
+msgstr "Metin Dili"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 194
+#: NEEDS WORK
+msgid "Quality"
+msgstr "Kalite"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 204
+#: NEEDS WORK
+msgid "Alignment"
+msgstr "Hizalama"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 234
+#: NEEDS WORK
+msgid "PDF Files Queue"
+msgstr "PDF Dosyaları Kuyruğu"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 261
+#: NEEDS WORK
+msgid "Add"
+msgstr "Ekle"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 269
+#: NEEDS WORK
+msgid "Remove All"
+msgstr "Tümünü Kaldır"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 324
+#: NEEDS WORK
+msgid "Drop PDF files here"
+msgstr "PDF dosyalarını buraya bırakın"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 305
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 967
+#: NEEDS WORK
+msgid "No files selected"
+msgstr "Hiçbir dosya seçilmedi."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 306
+#: NEEDS WORK
+msgid "Add PDF files for OCR processing"
+msgstr "OCR işleme için PDF dosyaları ekleyin."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 937
+#: NEEDS WORK
+msgid "Choose how to handle page alignment and rotation during OCR processing"
+msgstr "OCR işlemi sırasında sayfa hizalaması ve döndürme ile nasıl başa çıkılacağını seçin."
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1757
 #: NEEDS WORK
 msgid "PDF Output Options"
@@ -219,13 +596,6 @@ msgstr "PDF Çıktı Seçenekleri"
 #: NEEDS WORK
 msgid "PDF Output Settings"
 msgstr "PDF Çıktı Ayarları"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 398
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1660
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1771
-#: NEEDS WORK
-msgid "Cancel"
-msgstr "İptal et"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1776
 #: NEEDS WORK
@@ -458,11 +828,6 @@ msgstr "TXT Olarak Kaydet"
 msgid "Save the extracted text to a .txt file"
 msgstr "Çıkarılan metni .txt dosyasına kaydedin."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1512
-#: NEEDS WORK
-msgid "Close"
-msgstr "Kapat"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1439
 #: NEEDS WORK
 #, python-brace-format
@@ -507,158 +872,6 @@ msgstr "Üzerine yazmak"
 msgid "Auto-Rename"
 msgstr "Otomatik Yeniden Adlandırma"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 380
-#: NEEDS WORK
-msgid "Processing PDF files..."
-msgstr "PDF dosyalarını işliyor..."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 385
-#: NEEDS WORK
-msgid "Preparing processing..."
-msgstr "İşlem hazırlanıyor..."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 864
-#: NEEDS WORK
-#, python-brace-format
-msgid "<b>Processing: {current}/{total}:</b> {completed} file(s) completed • <b>{remaining}</b> remaining"
-msgstr "<b>İşleniyor: {current}/{total}:</b> {completed} dosya(lar) tamamlandı • <b>{remaining}</b> kalan"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 875
-#: NEEDS WORK
-#, python-brace-format
-msgid "Processed file {current}/{total}: {filename}"
-msgstr "İşlenen dosya {current}/{total}: {filename}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 939
-#: NEEDS WORK
-#, python-brace-format
-msgid "<b>OCR processing complete!</b> {total} file(s) processed"
-msgstr "<b>OCR işleme tamamlandı!</b> {total} dosya işlendi"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1057
-#: NEEDS WORK
-#, python-brace-format
-msgid "<b>OCR processing complete!</b> {total} file(s) processed • Total time: {time}"
-msgstr "<b>OCR işleme tamamlandı!</b> {total} dosya işlendi • Toplam süre: {time}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1077
-#: NEEDS WORK
-#, python-brace-format
-msgid ""
-"<b>Processing file {cur}/{total}:</b> {done} file(s) completed • <b>{rem}</b> remaining • Time: "
-"{time}"
-msgstr ""
-"<b>Dosya işleniyor {cur}/{total}:</b> {done} dosya(lar) tamamlandı • <b>{rem}</b> kalan • Zaman: "
-"{time}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1092
-#: NEEDS WORK
-#, python-brace-format
-msgid "<b>Processing file 1/{total}:</b> {stage} • Time: {time}"
-msgstr "<b>Dosya 1/{total} işleniyor:</b> {stage} • Zaman: {time}"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 427
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1250
-#: NEEDS WORK
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 427
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1250
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 427
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1229
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 427
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1229
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 427
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1136
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 427
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1136
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 427
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1136
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 427
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1136
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1106
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1106
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1108
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-msgid "analyzing document"
-msgstr "belge analiz ediliyor"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1110
-#: NEEDS WORK
-msgid "applying OCR"
-msgstr "OCR uygulama"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1112
-#: NEEDS WORK
-msgid "processing texts"
-msgstr "metin işleme"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1114
-#: NEEDS WORK
-msgid "finalizing processing"
-msgstr "işlemi tamamlama"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
-#: NEEDS WORK
-msgid "Add OCR to your PDF documents to make them searchable"
-msgstr "PDF belgelerinize arama yapılabilir hale getirmek için OCR ekleyin."
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
-#: NEEDS WORK
-msgid "Print version information and exit"
-msgstr "Sürüm bilgilerini yazdır ve çık."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 72
-#: NEEDS WORK
-msgid "Enable debug mode"
-msgstr "Hata ayıklama modunu etkinleştir"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 74
-#: NEEDS WORK
-msgid "Enable verbose output"
-msgstr "Ayrıntılı çıktıyı etkinleştir"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
-#: NEEDS WORK
-msgid "PDF files to process"
-msgstr "İşlenecek PDF dosyaları"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
 #: NEEDS WORK
 msgid "Application started successfully"
@@ -678,423 +891,6 @@ msgstr "BigLinux Ekibi"
 #: NEEDS WORK
 msgid "Developers"
 msgstr "Geliştiriciler"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 32
-#: NEEDS WORK
-msgid "Normal"
-msgstr "Normal"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 33
-#: NEEDS WORK
-msgid "Economic"
-msgstr "Ekonomik"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 34
-#: NEEDS WORK
-msgid "More economic"
-msgstr "Daha ekonomik"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 45
-#: NEEDS WORK
-msgid "Keep pages as they are without any modifications"
-msgstr "Sayfaları olduğu gibi, herhangi bir değişiklik yapmadan koruyun."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 46
-#: NEEDS WORK
-msgid "Align page content to improve readability"
-msgstr "Sayfa içeriğini okunabilirliği artırmak için hizalayın."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 47
-#: NEEDS WORK
-msgid "Automatically rotate pages to correct orientation"
-msgstr "Sayfaları doğru yönlendirme için otomatik olarak döndür."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 48
-#: NEEDS WORK
-msgid "Align page content and automatically rotate pages to correct orientation"
-msgstr "Sayfa içeriğini hizalayın ve sayfaları doğru yönlendirmeye otomatik olarak döndürün."
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 60
-#: NEEDS WORK
-msgid "Big OCR PDF"
-msgstr "Büyük OCR PDF"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 138
-#: NEEDS WORK
-msgid "BigOcrPdf - Scanned PDFs with search support"
-msgstr "BigOcrPdf - Arama desteği olan taranmış PDF'ler"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 144
-#: NEEDS WORK
-msgid "Menu"
-msgstr "Menü"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 148
-#: NEEDS WORK
-msgid "Help"
-msgstr "Yardım"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 149
-#: NEEDS WORK
-msgid "About the application"
-msgstr "Uygulama hakkında"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 179
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 423
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 744
-#: NEEDS WORK
-msgid "Step 1/3: Settings"
-msgstr "Adım 1/3: Ayarlar"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 189
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 762
-#: NEEDS WORK
-msgid "Back"
-msgstr "Geri dön"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 197
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 733
-#: NEEDS WORK
-msgid "Start"
-msgstr "Başla"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 331
-#: NEEDS WORK
-msgid ""
-"Big OCR PDF adds optical character recognition to your PDF files, making them searchable and "
-"allowing you to select and copy text from scanned documents."
-msgstr ""
-"Big OCR PDF, PDF dosyalarınıza optik karakter tanıma ekleyerek, bunları aranabilir hale getirir ve "
-"taranmış belgelerden metin seçip kopyalamanıza olanak tanır."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 342
-#: NEEDS WORK
-msgid "Benefits of using Big OCR PDF:"
-msgstr "Büyük OCR PDF kullanmanın avantajları:"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
-#: NEEDS WORK
-msgid "Search"
-msgstr "Araştırma"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
-#: NEEDS WORK
-msgid "Search through your scanned PDF documents"
-msgstr "Tarayıcı PDF belgelerinizde arama yapın."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
-#: NEEDS WORK
-msgid "Copy text"
-msgstr "Metni kopyala"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
-#: NEEDS WORK
-msgid "Copy text from images and scanned documents"
-msgstr "Görüntülerden ve taranmış belgelerden metin kopyalayın."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
-#: NEEDS WORK
-msgid "Batch processing"
-msgstr "Toplu işleme"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
-#: NEEDS WORK
-msgid "Process multiple files at once"
-msgstr "Birden fazla dosyayı aynı anda işleyin"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
-#: NEEDS WORK
-msgid "Auto-correction"
-msgstr "Otomatik düzeltme"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
-#: NEEDS WORK
-msgid "Automatically correct page alignment and rotation"
-msgstr "Sayfa hizalamasını ve döndürmeyi otomatik olarak düzeltin."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 370
-#: NEEDS WORK
-msgid "Show this dialog at startup"
-msgstr "Bu iletişimi başlangıçta göster."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 384
-#: NEEDS WORK
-msgid "Let's Get Started"
-msgstr "Hadi Başlayalım"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 427
-#: NEEDS WORK
-msgid "Start Processing"
-msgstr "İşleme Başla"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 478
-#: NEEDS WORK
-msgid "Select PDF Files"
-msgstr "PDF Dosyalarını Seçin"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 485
-#: NEEDS WORK
-msgid "PDF Files"
-msgstr "PDF Dosyaları"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 528
-#: NEEDS WORK
-msgid "No valid files were selected"
-msgstr "Geçerli dosya seçilmedi."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 529
-#: NEEDS WORK
-msgid "No valid PDF files were selected"
-msgstr "Geçerli PDF dosyaları seçilmedi."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 532
-#: NEEDS WORK
-msgid "Error adding files"
-msgstr "Dosya eklerken hata oluştu"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 553
-#: NEEDS WORK
-msgid "Select destination folder"
-msgstr "Hedef klasörü seçin"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 604
-#: NEEDS WORK
-msgid "Destination folder selected"
-msgstr "Hedef klasör seçildi"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 608
-#: NEEDS WORK
-msgid "Error selecting destination folder"
-msgstr "Hedef klasör seçerken hata"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 618
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 619
-#: NEEDS WORK
-msgid "No files selected for processing"
-msgstr "İşleme için dosya seçilmedi."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 627
-#: NEEDS WORK
-msgid "No destination folder selected"
-msgstr "Hedef klasör seçilmedi"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 628
-#: NEEDS WORK
-msgid "Please select a destination folder"
-msgstr "Lütfen bir hedef klasör seçin."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 708
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 709
-#: NEEDS WORK
-msgid "Failed to start OCR processing"
-msgstr "OCR işleme başlatılamadı."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 715
-#: NEEDS WORK
-msgid "Step 2/3: Processing"
-msgstr "Adım 2/3: İşleniyor"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 724
-#: NEEDS WORK
-msgid "OCR processing started using Python API"
-msgstr "Python API kullanılarak OCR işleme başlatıldı."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 837
-#: NEEDS WORK
-msgid "OCR processor cleaned up aggressively"
-msgstr "OCR işlemcisi agresif bir şekilde temizlendi."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 755
-#: NEEDS WORK
-msgid "Step 3/3: Completed"
-msgstr "Adım 3/3: Tamamlandı"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 884
-#: NEEDS WORK
-msgid "OCR processing complete callback triggered"
-msgstr "OCR işleme tamamlandı geri çağrısı tetiklendi"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 889
-#: NEEDS WORK
-msgid "Processing complete but no longer on terminal page, likely cancelled"
-msgstr "İşlem tamamlandı ancak artık terminal sayfasında değil, muhtemelen iptal edildi."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 913
-#: NEEDS WORK
-#, python-brace-format
-msgid "OCR processing completed successfully for {count} files"
-msgstr "{count} dosya için OCR işleme başarıyla tamamlandı."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 919
-#: NEEDS WORK
-msgid "OCR processing complete"
-msgstr "OCR işleme tamamlandı"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1121
-#: NEEDS WORK
-msgid "OCR processing cancelled by user"
-msgstr "Kullanıcı tarafından OCR işlemi iptal edildi."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1129
-#: NEEDS WORK
-msgid "OCR processing cancelled"
-msgstr "OCR işleme iptal edildi"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 48
-#: NEEDS WORK
-msgid "Please make sure GTK4, libadwaita, and OCRmyPDF are installed"
-msgstr "Lütfen GTK4, libadwaita ve OCRmyPDF'nin yüklü olduğundan emin olun."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 60
-#: NEEDS WORK
-msgid "Failed to set system locale, falling back to C locale"
-msgstr "Sistem yerel ayarını ayarlama başarısız oldu, C yerel ayarına geri dönülüyor."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 88
-#: NEEDS WORK
-msgid "Cleared file queue at startup"
-msgstr "Başlangıçta dosya kuyruğu temizlendi."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 74
-#: NEEDS WORK
-#, python-brace-format
-msgid "Found existing text in PDF, length: {0}"
-msgstr "PDF'de mevcut metin bulundu, uzunluk: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 79
-#: NEEDS WORK
-#, python-brace-format
-msgid "Failed to extract existing text from PDF: {0}"
-msgstr "PDF'den mevcut metni çıkarmak başarısız oldu: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 100
-#: NEEDS WORK
-#, python-brace-format
-msgid "Read {0} characters of extracted text from sidecar file"
-msgstr "Yan dosya içinden çıkarılan metnin {0} karakterini oku"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 104
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error reading sidecar file: {0}"
-msgstr "Yan dosya okunurken hata: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 113
-#: NEEDS WORK
-msgid "SIGBUS received - memory-mapped file access error"
-msgstr "SIGBUS alındı - bellek eşleme dosyası erişim hatası"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 155
-#: NEEDS WORK
-#, python-brace-format
-msgid "Started OCR process for {0}"
-msgstr "{0} için OCR süreci başlatıldı."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 202
-#: NEEDS WORK
-#, python-brace-format
-msgid "Completed OCR processing for {0}"
-msgstr "{0} için OCR işleme tamamlandı."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 205
-#: NEEDS WORK
-#, python-brace-format
-msgid "OCR processing failed for {0}: {1}"
-msgstr "{0} için OCR işleme başarısız oldu: {1}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 219
-#: NEEDS WORK
-#, python-brace-format
-msgid "Deleted temporary sidecar file: {0}"
-msgstr "Silinmiş geçici yan dosya: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 223
-#: NEEDS WORK
-#, python-brace-format
-msgid "Failed to delete temporary sidecar file: {0}"
-msgstr "Geçici yan dosya silinemedi: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 233
-#: NEEDS WORK
-#, python-brace-format
-msgid "No sidecar file found at {0}"
-msgstr "{0} konumunda yan dosya bulunamadı."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 235
-#: NEEDS WORK
-msgid "No sidecar file was specified in options"
-msgstr "Seçeneklerde yan dosya belirtilmedi."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 251
-#: NEEDS WORK
-#, python-brace-format
-msgid "Process exited with code {0}"
-msgstr "İşlem {0} kodu ile sona erdi."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 306
-#: NEEDS WORK
-msgid "Process was terminated"
-msgstr "İşlem sonlandırıldı."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 308
-#: NEEDS WORK
-#, python-brace-format
-msgid "OCR process for {0} was terminated"
-msgstr "{0} için OCR işlemi sonlandırıldı."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 346
-#: NEEDS WORK
-#, python-brace-format
-msgid "Added {0} to OCR queue"
-msgstr "OCR kuyruğuna {0} eklendi."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 357
-#: NEEDS WORK
-msgid "Started OCR queue processing"
-msgstr "OCR kuyruğu işleme başlatıldı"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 389
-#: NEEDS WORK
-msgid "Stopped OCR queue processing with aggressive cleanup"
-msgstr "Agresif temizlik ile OCR kuyruk işleme durduruldu."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 463
-#: NEEDS WORK
-#, python-brace-format
-msgid "Found extracted_text in process: {0} characters"
-msgstr "İşlemde bulunan extracted_text: {0} karakter"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 483
-#: NEEDS WORK
-msgid "Text extraction completed."
-msgstr "Metin çıkarma tamamlandı."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 500
-#: NEEDS WORK
-#, python-brace-format
-msgid "Read {0} characters from sidecar file before callback"
-msgstr "Geri çağırmadan önce yan dosyadan {0} karakter oku"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 506
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error reading sidecar file before callback: {0}"
-msgstr "Geri çağırmadan önce yan dosya okunurken hata: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 529
-#: NEEDS WORK
-#, python-brace-format
-msgid "Read {0} characters from temporary file before callback"
-msgstr "Geçici dosyadan geri çağırmadan önce {0} karakter oku"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/ocr_api.py, line: 535
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error reading temporary file before callback: {0}"
-msgstr "Geri çağırmadan önce geçici dosya okunurken hata: {0}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 75
 #: NEEDS WORK
