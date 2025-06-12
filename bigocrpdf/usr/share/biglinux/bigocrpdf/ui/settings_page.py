@@ -393,7 +393,19 @@ class SettingsPageManager:
         placeholder_row.set_subtitle(_("Add PDF files for OCR processing"))
         placeholder_icon = Gtk.Image.new_from_icon_name("document-open-symbolic")
         placeholder_row.add_prefix(placeholder_icon)
+        
+        # Temporarily disable focus to prevent GTK-CRITICAL error
+        placeholder_row.set_can_focus(False)
+        
         self.file_list_box.append(placeholder_row)
+        
+        # Re-enable focus after a short delay
+        def enable_row_focus():
+            if placeholder_row.get_parent():  # Check if row is still in the widget tree
+                placeholder_row.set_can_focus(True)
+            return False
+        
+        GLib.timeout_add(100, enable_row_focus)
 
     def _create_language_dropdown(self) -> Gtk.DropDown:
         """Create the language dropdown with available OCR languages
@@ -522,6 +534,9 @@ class SettingsPageManager:
             idx: Index of the file in the list
         """
         row = Adw.ActionRow()
+        
+        # Temporarily disable focus to prevent GTK-CRITICAL error
+        row.set_can_focus(False)
 
         # Set file name as title
         file_name = os.path.basename(file_path)
@@ -538,15 +553,18 @@ class SettingsPageManager:
         file_icon = Gtk.Image.new_from_icon_name("x-office-document-symbolic")
         row.add_prefix(file_icon)
 
-        # Store the file path using Python attributes instead of set_data
-        row.file_path = file_path
-        row.file_index = idx
-
-        # Add trash icon button for individual file removal
+        # Add remove button
         self._add_remove_button_to_row(row, idx)
 
-        # Add the row to the list box
         self.file_list_box.append(row)
+        
+        # Re-enable focus after a short delay
+        def enable_row_focus():
+            if row.get_parent():  # Check if row is still in the widget tree
+                row.set_can_focus(True)
+            return False
+        
+        GLib.timeout_add(100, enable_row_focus)
 
     def _add_page_count_to_row(self, row: Adw.ActionRow, file_path: str) -> None:
         """Add page count to a file row if available
