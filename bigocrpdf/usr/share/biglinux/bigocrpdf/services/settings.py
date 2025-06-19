@@ -7,7 +7,7 @@ This module handles configuration settings and file management for the applicati
 import os
 import subprocess
 import time
-from typing import List, Dict, Optional, Tuple, Any
+from typing import List, Dict, Optional, Any
 from utils.logger import logger
 from utils.i18n import _
 from config import (
@@ -38,18 +38,18 @@ class OcrSettings:
         self.pages_count: int = 0
         self.destination_folder: str = ""
         self.processed_files: List[str] = []
-        
+
         # OCR processing settings
         self.lang: str = DEFAULT_LANGUAGE
         self.quality: str = DEFAULT_QUALITY
         self.align: str = DEFAULT_ALIGNMENT
         self.save_in_same_folder: bool = False
         self.extracted_text: Dict[str, str] = {}
-        
+
         # Output filename settings
         self.pdf_suffix: str = DEFAULT_SUFFIX
         self.overwrite_existing: bool = False
-        
+
         # Date inclusion settings
         self.include_date: bool = False
         self.include_year: bool = False
@@ -57,15 +57,15 @@ class OcrSettings:
         self.include_day: bool = False
         self.include_time: bool = False
         self.date_format_order = DEFAULT_DATE_FORMAT.copy()
-        
+
         # Text extraction settings
         self.save_txt: bool = False
         self.separate_txt_folder: bool = False
         self.txt_folder: str = ""
-        
+
         # Ensure config directory exists
         os.makedirs(CONFIG_DIR, exist_ok=True)
-        
+
         # Ensure alignment configuration exists with default value
         if not os.path.exists(ALIGN_FILE_PATH):
             try:
@@ -73,7 +73,7 @@ class OcrSettings:
                     f.write(DEFAULT_ALIGNMENT)
             except Exception as e:
                 logger.error(_("Error creating alignment setting file: {0}").format(e))
-        
+
         # Load settings from config files
         self.load_settings()
 
@@ -85,7 +85,7 @@ class OcrSettings:
         self._load_alignment()
         self._load_same_folder_option()
         self._load_pdf_output_settings()
-        
+
         # Only initialize destination folder if it isn't already set
         if not self.destination_folder:
             self._initialize_destination_folder()
@@ -125,15 +125,15 @@ class OcrSettings:
 
     def _filter_valid_pdf_files(self, file_paths: List[str]) -> List[str]:
         """Filter a list of paths to only include valid PDF files
-        
+
         Args:
             file_paths: List of file paths to filter
-            
+
         Returns:
             List of valid PDF file paths
         """
         valid_files = []
-        
+
         for file_path in file_paths:
             # Skip empty paths
             if not file_path:
@@ -158,44 +158,8 @@ class OcrSettings:
             # File is valid, add it
             logger.info(_("Adding valid PDF: {0}").format(file_path))
             valid_files.append(file_path)
-            
+
         return valid_files
-
-    def remove_files(self, indices: List[int]) -> None:
-        """Remove files at specified indices from the selected files list
-
-        Args:
-            indices: List of indices to remove
-        """
-        if not indices or not self.selected_files:
-            return
-
-        # Sort indices in reverse order to avoid index shifting during removal
-        indices.sort(reverse=True)
-
-        # Remove files by index
-        removed_files = []
-        for idx in indices:
-            if 0 <= idx < len(self.selected_files):
-                removed_files.append(self.selected_files.pop(idx))
-
-        # Recalculate page count if files were removed
-        if removed_files:
-            self._recalculate_page_count()
-            self._save_selected_files()
-            
-            # Update destination if needed
-            if not self.selected_files:
-                self.destination_folder = ""
-            elif not self.destination_folder:
-                self._initialize_destination_folder()
-
-    def clear_files(self) -> None:
-        """Remove all files from the selection"""
-        self.selected_files = []
-        self.pages_count = 0
-        self._save_selected_files()
-        self.destination_folder = ""
 
     def save_settings(
         self,
@@ -206,7 +170,7 @@ class OcrSettings:
         save_in_same_folder: bool = False,
     ) -> None:
         """Save current settings to configuration files
-        
+
         Args:
             lang: OCR language code
             quality: Quality setting (normal, economic, economicplus)
@@ -224,7 +188,7 @@ class OcrSettings:
 
             # Save core settings
             self._save_core_settings()
-            
+
             # Save PDF output settings
             self._save_pdf_output_settings()
 
@@ -242,17 +206,20 @@ class OcrSettings:
             QUALITY_FILE_PATH: self.quality,
             ALIGN_FILE_PATH: self.align,
             SAVEFILE_PATH: self.destination_folder,
-            SAME_FOLDER_PATH: "true" if self.save_in_same_folder else "false"
+            SAME_FOLDER_PATH: "true" if self.save_in_same_folder else "false",
         }
-        
+
         # Write each setting to its file
         for filepath, value in settings_data.items():
             try:
                 with open(filepath, "w") as f:
                     f.write(str(value))
             except Exception as e:
-                logger.error(_("Error saving setting to {0}: {1}").format(
-                    os.path.basename(filepath), e))
+                logger.error(
+                    _("Error saving setting to {0}: {1}").format(
+                        os.path.basename(filepath), e
+                    )
+                )
 
     def _save_pdf_output_settings(self) -> None:
         """Save PDF output settings to configuration files"""
@@ -284,9 +251,7 @@ class OcrSettings:
                     f.write(f"{key}={str(value).lower()}\n")
 
             # Save date format order
-            order_settings_path = os.path.join(
-                pdf_settings_dir, "date_format_order"
-            )
+            order_settings_path = os.path.join(pdf_settings_dir, "date_format_order")
             with open(order_settings_path, "w") as f:
                 for key, value in self.date_format_order.items():
                     f.write(f"{key}={value}\n")
@@ -294,14 +259,6 @@ class OcrSettings:
             logger.info(_("PDF output settings saved successfully"))
         except Exception as e:
             logger.error(_("Error saving PDF output settings: {0}").format(e))
-
-    def get_pdf_count_and_pages(self) -> Tuple[int, int]:
-        """Get count of selected PDFs and total pages
-        
-        Returns:
-            Tuple containing (file_count, page_count)
-        """
-        return len(self.selected_files), self.pages_count
 
     def get_pdf_suffix(self) -> str:
         """Get the formatted PDF suffix with date elements if enabled
@@ -324,11 +281,20 @@ class OcrSettings:
 
         # Add date elements with their preferred order
         if self.include_year:
-            date_components.append((self.date_format_order.get("year", 1), f"{now.tm_year}"))
+            date_components.append((
+                self.date_format_order.get("year", 1),
+                f"{now.tm_year}",
+            ))
         if self.include_month:
-            date_components.append((self.date_format_order.get("month", 2), f"{now.tm_mon:02d}"))
+            date_components.append((
+                self.date_format_order.get("month", 2),
+                f"{now.tm_mon:02d}",
+            ))
         if self.include_day:
-            date_components.append((self.date_format_order.get("day", 3), f"{now.tm_mday:02d}"))
+            date_components.append((
+                self.date_format_order.get("day", 3),
+                f"{now.tm_mday:02d}",
+            ))
 
         # Sort components by their position value
         date_components.sort(key=lambda x: x[0])
@@ -350,16 +316,16 @@ class OcrSettings:
 
     def get_pdf_page_count(self, file_path: str) -> Optional[int]:
         """Get page count for a single PDF file
-        
+
         Args:
             file_path: Path to the PDF file
-            
+
         Returns:
             Number of pages or None if count failed
         """
         if not file_path or not os.path.exists(file_path):
             return None
-            
+
         try:
             result = subprocess.run(
                 ["pdfinfo", file_path],
@@ -367,15 +333,18 @@ class OcrSettings:
                 text=True,
                 check=False,
             )
-            
+
             for line in result.stdout.split("\n"):
                 if line.startswith("Pages:"):
                     return int(line.split(":")[1].strip())
-                    
+
         except Exception as e:
-            logger.error(_("Error getting page count for {0}: {1}").format(
-                os.path.basename(file_path), e))
-        
+            logger.error(
+                _("Error getting page count for {0}: {1}").format(
+                    os.path.basename(file_path), e
+                )
+            )
+
         return None
 
     def _count_pdf_pages(self, file_paths: List[str]) -> None:
@@ -389,11 +358,6 @@ class OcrSettings:
                 page_count = self.get_pdf_page_count(file_path)
                 if page_count:
                     self.pages_count += page_count
-
-    def _recalculate_page_count(self) -> None:
-        """Recalculate the total page count for all selected files"""
-        self.pages_count = 0
-        self._count_pdf_pages(self.selected_files)
 
     def _save_selected_files(self) -> None:
         """Save the current list of selected files to the configuration file"""
@@ -418,14 +382,16 @@ class OcrSettings:
             with open(SELECTED_FILE_PATH, "r") as f:
                 file_lines = f.readlines()
                 if file_lines:  # Check if there are any lines
-                    self.selected_files = [line.strip() for line in file_lines if line.strip()]
+                    self.selected_files = [
+                        line.strip() for line in file_lines if line.strip()
+                    ]
 
             # Filter to only existing files
             self.selected_files = [f for f in self.selected_files if os.path.exists(f)]
-                    
+
             # Count pages in PDF files
             self._count_pdf_pages(self.selected_files)
-            
+
         except Exception as e:
             logger.error(_("Error loading selected files: {0}").format(e))
             # Ensure selected_files is always a list
@@ -433,30 +399,33 @@ class OcrSettings:
 
     def _load_setting_file(self, filepath: str, default_value: Any) -> Any:
         """Load a setting from a configuration file with error handling
-        
+
         Args:
             filepath: Path to the configuration file
             default_value: Default value to use if file doesn't exist or error occurs
-            
+
         Returns:
             The loaded setting value or default
         """
         if not os.path.exists(filepath):
             return default_value
-            
+
         try:
             with open(filepath, "r") as f:
                 value = f.read().strip()
                 return value if value else default_value
         except Exception as e:
-            logger.error(_("Error loading setting from {0}: {1}").format(
-                os.path.basename(filepath), e))
+            logger.error(
+                _("Error loading setting from {0}: {1}").format(
+                    os.path.basename(filepath), e
+                )
+            )
             return default_value
 
     def _load_language(self) -> None:
         """Load language setting from configuration"""
         self.lang = self._load_setting_file(LANG_FILE_PATH, DEFAULT_LANGUAGE)
-        
+
         # If failed to load, try to detect from system locale
         if not self.lang:
             locale = os.environ.get("LANG", "").lower()
@@ -495,13 +464,13 @@ class OcrSettings:
 
         # Load date settings
         self._load_date_settings(pdf_settings_dir)
-        
+
         # Load destination folder
         self.destination_folder = self._load_setting_file(SAVEFILE_PATH, "")
 
     def _load_date_settings(self, pdf_settings_dir: str) -> None:
         """Load date-related settings from configuration
-        
+
         Args:
             pdf_settings_dir: Directory containing date settings files
         """
@@ -533,10 +502,10 @@ class OcrSettings:
 
         # Load date format order
         self._load_date_format_order(pdf_settings_dir)
-        
+
     def _load_date_format_order(self, pdf_settings_dir: str) -> None:
         """Load date format order settings
-        
+
         Args:
             pdf_settings_dir: Directory containing date format order settings file
         """
@@ -555,9 +524,15 @@ class OcrSettings:
                             if key in ["year", "month", "day"]:
                                 self.date_format_order[key] = position
                         except ValueError:
-                            logger.error(_("Invalid position value for {0}: {1}").format(key, value))
+                            logger.error(
+                                _("Invalid position value for {0}: {1}").format(
+                                    key, value
+                                )
+                            )
             except Exception as e:
-                logger.error(_("Error loading date format order settings: {0}").format(e))
+                logger.error(
+                    _("Error loading date format order settings: {0}").format(e)
+                )
                 # Reset to default in case of error
                 self.date_format_order = DEFAULT_DATE_FORMAT.copy()
 
