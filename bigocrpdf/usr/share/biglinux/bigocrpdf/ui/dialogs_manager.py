@@ -70,8 +70,11 @@ class DialogsManager:
         toolbar_view.add_top_bar(header_bar)
 
         # Create scrolled content
-        scrolled_content = self._create_pdf_options_scrolled_content()
+        scrolled_content, prefs_page = self._create_pdf_options_scrolled_content()
         toolbar_view.set_content(scrolled_content)
+
+        # Wire up callbacks once content is ready
+        self._setup_pdf_options_callbacks(dialog, prefs_page, header_bar, callback)
 
         return toolbar_view
 
@@ -104,11 +107,11 @@ class DialogsManager:
 
         return header_bar
 
-    def _create_pdf_options_scrolled_content(self) -> Gtk.ScrolledWindow:
+    def _create_pdf_options_scrolled_content(self) -> tuple[Gtk.ScrolledWindow, Adw.PreferencesPage]:
         """Create scrolled content for PDF options dialog
         
         Returns:
-            Scrolled window with preferences content
+            Tuple containing the scrolled window and the preferences page
         """
         # Create scrolled window for content
         scrolled = Gtk.ScrolledWindow()
@@ -119,7 +122,7 @@ class DialogsManager:
         prefs_page = self._create_pdf_preferences_page()
         scrolled.set_child(prefs_page)
 
-        return scrolled
+        return scrolled, prefs_page
 
     def _create_pdf_preferences_page(self) -> Adw.PreferencesPage:
         """Create the preferences page with all PDF options
@@ -421,13 +424,14 @@ class DialogsManager:
 
         return preview_group
 
-    def _setup_pdf_options_callbacks(self, dialog: Adw.Window, prefs_page: Adw.PreferencesPage, 
-                                   callback: Callable) -> None:
+    def _setup_pdf_options_callbacks(self, dialog: Adw.Window, prefs_page: Adw.PreferencesPage,
+                                   header_bar: Adw.HeaderBar, callback: Callable) -> None:
         """Set up all callbacks for PDF options dialog
         
         Args:
             dialog: The dialog window
             prefs_page: The preferences page
+            header_bar: Header bar containing the save button
             callback: The completion callback
         """
         # Get all groups and their components
@@ -481,9 +485,9 @@ class DialogsManager:
         def on_save_button_clicked(button):
             self._save_pdf_options(dialog, file_group, text_group, date_group, callback)
 
-        # Find and connect save button
-        header_bar = dialog.get_content().get_top_bar()
-        header_bar.save_button.connect("clicked", on_save_button_clicked)
+        # Connect save button
+        if hasattr(header_bar, "save_button"):
+            header_bar.save_button.connect("clicked", on_save_button_clicked)
 
         # Initial updates
         update_preview()

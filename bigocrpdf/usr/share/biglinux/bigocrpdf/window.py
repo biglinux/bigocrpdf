@@ -419,21 +419,60 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
     def on_add_file_clicked(self, button: Gtk.Button) -> None:
         """Handle add file button click"""
         file_chooser = Gtk.FileDialog.new()
-        file_chooser.set_title(_("Select PDF Files"))
+        input_type = getattr(self.settings, "input_type", "pdf")
+
+        if input_type == "image":
+            file_chooser.set_title(_("Select Image Files"))
+        else:
+            file_chooser.set_title(_("Select PDF Files"))
         file_chooser.set_modal(True)
 
-        pdf_filter = Gtk.FileFilter()
-        pdf_filter.set_name(_("PDF Files"))
-        pdf_filter.add_mime_type("application/pdf")
-        pdf_filter.add_pattern("*.pdf")
-
         filters = Gio.ListStore.new(Gtk.FileFilter)
-        filters.append(pdf_filter)
+
+        if input_type == "image":
+            image_filter = Gtk.FileFilter()
+            image_filter.set_name(_("Image Files"))
+            image_filter.add_mime_type("image/png")
+            image_filter.add_mime_type("image/jpeg")
+            image_filter.add_mime_type("image/webp")
+            image_filter.add_mime_type("image/bmp")
+            image_filter.add_mime_type("image/gif")
+            image_filter.add_mime_type("image/tiff")
+            image_filter.add_pattern("*.png")
+            image_filter.add_pattern("*.jpg")
+            image_filter.add_pattern("*.jpeg")
+            image_filter.add_pattern("*.webp")
+            image_filter.add_pattern("*.bmp")
+            image_filter.add_pattern("*.gif")
+            image_filter.add_pattern("*.tif")
+            image_filter.add_pattern("*.tiff")
+            filters.append(image_filter)
+            file_chooser.set_default_filter(image_filter)
+        else:
+            pdf_filter = Gtk.FileFilter()
+            pdf_filter.set_name(_("PDF Files"))
+            pdf_filter.add_mime_type("application/pdf")
+            pdf_filter.add_pattern("*.pdf")
+            filters.append(pdf_filter)
+            file_chooser.set_default_filter(pdf_filter)
+
         file_chooser.set_filters(filters)
 
         file_chooser.open_multiple(
             parent=self, cancellable=None, callback=self._on_open_multiple_callback
         )
+
+    def on_input_type_changed(self, input_type: str) -> None:
+        """Handle switching between PDF and image input modes."""
+        normalized = (input_type or 'pdf').lower()
+        self.settings.set_input_type(normalized)
+        self.update_file_info()
+        if hasattr(self.ui, 'refresh_queue_status'):
+            self.ui.refresh_queue_status()
+        if hasattr(self.ui, 'update_input_type_labels'):
+            self.ui.update_input_type_labels()
+        if hasattr(self.ui, 'dest_entry') and self.ui.dest_entry:
+            self.ui.dest_entry.set_text(self.settings.destination_folder)
 
     def _on_open_multiple_callback(
         self, dialog: Gtk.FileDialog, result: Gio.AsyncResult
@@ -455,7 +494,10 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
                     self.update_file_info()
                 else:
                     logger.warning(_("No valid files were selected"))
-                    self.show_toast(_("No valid PDF files were selected"))
+                    if getattr(self.settings, "input_type", "pdf") == "image":
+                        self.show_toast(_("No valid image files were selected"))
+                    else:
+                        self.show_toast(_("No valid PDF files were selected"))
         except Exception as e:
             logger.error(f"Error adding files: {e}")
             self.show_toast(_("Error adding files"))
@@ -563,6 +605,7 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
             self.settings.align,
             self.settings.destination_folder,
             save_in_same_folder,
+            input_type=getattr(self.settings, 'input_type', 'pdf'),
         )
 
     def on_apply_clicked(self, button: Gtk.Button) -> None:

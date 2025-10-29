@@ -1,22 +1,21 @@
 """
-BigOcrPdf - OCR API Service
+BigOcrPdf - OCR Service
 
-This module provides direct integration with the OCRmyPDF Python API with real-time incremental progress.
+This module orchestrates the RapidOCR processing queue, providing
+real-time progress information for both PDF and image inputs.
 """
 
-import os
 import logging
-import threading
 import multiprocessing
-import signal
+import os
 import subprocess
+import threading
 import time
-from typing import Dict, Callable, List, Optional, Any
+from typing import Any, Callable, Dict, List, Optional
 
-import ocrmypdf
-
-from utils.logger import logger
+from services.rapidocr_service import RapidOCREngine
 from utils.i18n import _
+from utils.logger import logger
 
 # Constants for process status
 STATUS_PENDING = "pending"
@@ -32,16 +31,12 @@ MONITOR_SLEEP_INTERVAL = 1.0
 
 def configure_logging() -> None:
     """Configure logging to use our application logger"""
-    ocrmypdf_logger = logging.getLogger("ocrmypdf")
-    ocrmypdf_logger.setLevel(logging.INFO)
-
-    # Clear existing handlers to avoid duplicates
-    for handler in ocrmypdf_logger.handlers:
-        ocrmypdf_logger.removeHandler(handler)
-
-    # Add our handler
-    for handler in logger.handlers:
-        ocrmypdf_logger.addHandler(handler)
+    for name in ("rapidocr", "rapidocr_onnxruntime"):
+        ocr_logger = logging.getLogger(name)
+        ocr_logger.setLevel(logging.INFO)
+        ocr_logger.handlers = []
+        for handler in logger.handlers:
+            ocr_logger.addHandler(handler)
 
 
 def extract_text_from_pdf(pdf_path: str) -> str:
@@ -82,16 +77,6 @@ def read_text_from_sidecar(sidecar_path: str) -> Optional[str]:
         return None
 
 
-def setup_sigbus_handler() -> None:
-    """Set up SIGBUS handler as recommended in OCRmyPDF docs"""
-    if hasattr(signal, "SIGBUS"):
-        def handle_sigbus(signum, frame):
-            raise RuntimeError(
-                "SIGBUS received - memory-mapped file access error"
-            )
-        signal.signal(signal.SIGBUS, handle_sigbus)
-
-
 class OcrProcess:
     """Manages an OCR process for a single file with real-time progress tracking"""
 
@@ -100,6 +85,7 @@ class OcrProcess:
         self.input_file = input_file
         self.output_file = output_file
         self.options = options
+        self.input_type = (options.get("input_type") or "pdf").lower()
         self.process = None
         self.status = STATUS_PENDING
         self.start_time = None
@@ -109,28 +95,26 @@ class OcrProcess:
         
         # File metadata for tracking
         self.file_size = os.path.getsize(input_file) if os.path.exists(input_file) else 0
-        self.total_pages = self._get_pdf_page_count()
+        self.total_pages = max(1, self._get_page_count())
         
         # Real-time progress tracking
         self.current_pages_processed = 0
         self.progress_lock = threading.Lock()
+        self._shared_processed = multiprocessing.Value("i", 0)
         
-    def _get_pdf_page_count(self) -> int:
-        """Get the total number of pages in this PDF file"""
+    def _get_page_count(self) -> int:
+        """Get the total number of pages for this input"""
+        if self.input_type == "image":
+            return 1
+
         try:
-            result = subprocess.run(
-                ["pdfinfo", self.input_file],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-            for line in result.stdout.split("\n"):
-                if line.startswith("Pages:"):
-                    return int(line.split(":")[1].strip())
-        except Exception:
-            # Fallback: estimate based on file size
-            return max(1, self.file_size // 50000)
-        return 1
+            import fitz  # type: ignore
+            with fitz.open(self.input_file) as doc:
+                return max(1, doc.page_count)
+        except Exception as exc:
+            logger.debug("Failed to determine page count with PyMuPDF: %s", exc)
+
+        return max(1, self.file_size // 50000)
 
     def start(self) -> None:
         """Start the OCR process in a separate process"""
@@ -138,7 +122,7 @@ class OcrProcess:
         self.status = STATUS_RUNNING
 
         # Create output directory if it doesn't exist
-        os.makedirs(os.path.dirname(self.output_file), exist_ok=True)
+        os.makedirs(os.path.dirname(self.output_file) or ".", exist_ok=True)
 
         # Start the process with stdout capture
         self.process = multiprocessing.Process(
@@ -150,83 +134,69 @@ class OcrProcess:
         logger.info(f"Started OCR process for {os.path.basename(self.input_file)}")
 
     def _run_ocr_with_progress(self, input_file: str, output_file: str, options: Dict[str, Any]) -> None:
-        """Run OCRmyPDF using Python API - simple and working method"""
+        """Execute RapidOCR for the provided input"""
         try:
             configure_logging()
-            setup_sigbus_handler()
+            sidecar_path = options.get("sidecar")
+            expected_pages = max(1, int(options.get("expected_pages", self.total_pages)))
+            zoom = float(options.get("render_zoom", 2.0) or 2.0)
 
-            # Get the sidecar path from options
-            sidecar_path = options.get("sidecar", None)
-            
-            # Initialize extracted text
-            self.extracted_text = extract_text_from_pdf(input_file)
+            engine = RapidOCREngine(zoom=zoom)
 
-            # Make a copy of options to modify safely
-            ocr_options = options.copy()
-            ocr_options["force_ocr"] = True
-            ocr_options["optimize"] = 0
-            ocr_options.pop("progress_bar", None)
+            def progress_callback(processed: int, total: int) -> None:
+                total = total or expected_pages
+                normalized = min(processed, total)
+                with self._shared_processed.get_lock():
+                    self._shared_processed.value = normalized
+                with self.progress_lock:
+                    self.current_pages_processed = normalized
 
-            # Run OCRmyPDF using Python API (original working method)
-            ocrmypdf.ocr(
-                input_file, 
-                output_file, 
-                progress_bar=False,
-                **ocr_options
+            text_result = engine.process_document(
+                input_file=input_file,
+                output_file=output_file,
+                input_mode=self.input_type,
+                sidecar=sidecar_path,
+                progress_cb=progress_callback if self.input_type != "image" else None,
             )
 
-            # Mark as completed
+            # Ensure progress reaches completion
+            with self._shared_processed.get_lock():
+                self._shared_processed.value = self.total_pages
             with self.progress_lock:
                 self.current_pages_processed = self.total_pages
 
-            # Read the text from the sidecar file if it exists
             if sidecar_path and os.path.exists(sidecar_path):
                 sidecar_text = read_text_from_sidecar(sidecar_path)
                 if sidecar_text:
                     self.extracted_text = sidecar_text
 
-                self._cleanup_temp_sidecar(sidecar_path)
-            else:
-                self._log_sidecar_issues(sidecar_path)
+            if not self.extracted_text:
+                self.extracted_text = text_result or extract_text_from_pdf(output_file)
 
-            logger.info(f"Completed OCR processing for {os.path.basename(input_file)}")
-        except Exception as e:
-            logger.error(
-                f"OCR processing failed for {os.path.basename(input_file)}: {str(e)}"
+            logger.info(
+                _("RapidOCR processing completed for {0}").format(
+                    os.path.basename(input_file)
+                )
             )
+        except Exception as exc:
+            logger.error(
+                _("RapidOCR processing failed for {0}: {1}").format(
+                    os.path.basename(input_file), exc
+                )
+            )
+            self.error = str(exc)
             raise
 
     def get_pages_processed(self) -> int:
-        """Get estimated pages processed based on time elapsed"""
-        if not self.start_time:
-            return 0
-            
-        if self.status == STATUS_COMPLETED:
-            return self.total_pages
-            
-        if self.status == STATUS_RUNNING:
-            # Estimate based on time elapsed (4 seconds per page average)
-            elapsed = time.time() - self.start_time
-            estimated_pages = min(self.total_pages, int(elapsed / 4.0))
-            return estimated_pages
-            
-        return 0
+        """Get the number of pages processed so far"""
+        shared_value = 0
+        with self._shared_processed.get_lock():
+            shared_value = self._shared_processed.value
 
-    def _cleanup_temp_sidecar(self, sidecar_path: str) -> None:
-        """Clean up temporary sidecar files"""
-        if ".temp" in sidecar_path:
-            try:
-                os.remove(sidecar_path)
-                logger.info(f"Deleted temporary sidecar file: {sidecar_path}")
-            except Exception as e:
-                logger.warning(f"Failed to delete temporary sidecar file: {e}")
+        with self.progress_lock:
+            local_value = self.current_pages_processed
 
-    def _log_sidecar_issues(self, sidecar_path: str) -> None:
-        """Log issues with sidecar files"""
-        if sidecar_path:
-            logger.warning(f"No sidecar file found at {sidecar_path}")
-        else:
-            logger.warning("No sidecar file was specified in options")
+        return max(shared_value, local_value)
 
     def check_status(self) -> str:
         """Check the status of the OCR process"""
@@ -237,6 +207,8 @@ class OcrProcess:
                     # Mark all pages as completed
                     with self.progress_lock:
                         self.current_pages_processed = self.total_pages
+                    with self._shared_processed.get_lock():
+                        self._shared_processed.value = self.total_pages
                     self.end_time = time.time()
                 else:
                     self.status = STATUS_FAILED
@@ -246,8 +218,14 @@ class OcrProcess:
 
     def get_pages_processed(self) -> int:
         """Get the number of pages processed so far"""
+        shared_value = 0
+        with self._shared_processed.get_lock():
+            shared_value = self._shared_processed.value
+
         with self.progress_lock:
-            return self.current_pages_processed
+            local_value = self.current_pages_processed
+
+        return max(shared_value, local_value)
 
     def get_total_pages(self) -> int:
         """Get total pages in this file"""
@@ -294,28 +272,30 @@ class OcrQueue:
             process = OcrProcess(input_file, output_file, options)
             self.queue.append(process)
             self._total_files += 1
-            
+
             # Get page count
-            page_count = self._get_pdf_page_count(input_file)
+            page_count = self._get_page_count(input_file, options.get("input_type"))
             process.total_pages = page_count
             self._total_pages += page_count
+
+            if "expected_pages" not in options:
+                options["expected_pages"] = page_count
             
             logger.info(f"Added {os.path.basename(input_file)} to OCR queue (pages: {page_count})")
 
-    def _get_pdf_page_count(self, file_path: str) -> int:
-        """Get page count using pdfinfo"""
+    def _get_page_count(self, file_path: str, input_type: Optional[str]) -> int:
+        """Get page count for PDFs or treat images as single-page documents"""
+        normalized = (input_type or "pdf").lower()
+        if normalized == "image":
+            return 1
+
         try:
-            result = subprocess.run(
-                ["pdfinfo", file_path],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-            for line in result.stdout.split("\n"):
-                if line.startswith("Pages:"):
-                    return int(line.split(":")[1].strip())
-        except Exception:
-            pass
+            import fitz  # type: ignore
+            with fitz.open(file_path) as doc:
+                return max(1, doc.page_count)
+        except Exception as exc:
+            logger.debug("Failed to count pages with PyMuPDF: %s", exc)
+
         return 1
 
     def start(self) -> None:
@@ -461,8 +441,8 @@ class OcrQueue:
         extracted_text = extract_text_from_pdf(output_file)
         if extracted_text:
             return extracted_text
-            
-        return "Text extraction completed."
+        
+        return _("No text could be extracted from this file.")
 
     def _try_get_text_from_sidecar(self, output_file: str) -> Optional[str]:
         """Try to get text from a sidecar file"""

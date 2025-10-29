@@ -6,8 +6,8 @@ and OCR processing functionality.
 
 Modules:
     - settings: Handles application configuration and file management
-    - processor: Main OCR processing module integrating with OCRmyPDF
-    - ocr_api: Low-level integration with OCRmyPDF Python API
+    - processor: Main OCR processing module integrating RapidOCR
+    - ocr_api: Low-level integration with the RapidOCR worker queue
 """
 
 from .ocr_api import OcrQueue, OcrProcess, configure_logging

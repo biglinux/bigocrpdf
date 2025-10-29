@@ -95,11 +95,11 @@ class TerminalPageManager:
 
     def _add_progress_label(self, container: Gtk.Box) -> None:
         """Add the main progress label"""
-        current_file_label = Gtk.Label()
-        current_file_label.set_markup("<big>" + _("Processing PDF files...") + "</big>")
-        current_file_label.set_halign(Gtk.Align.CENTER)
-        current_file_label.set_margin_bottom(24)
-        container.append(current_file_label)
+        self.current_file_label = Gtk.Label()
+        self.current_file_label.set_halign(Gtk.Align.CENTER)
+        self.current_file_label.set_margin_bottom(24)
+        container.append(self.current_file_label)
+        self._update_processing_header()
 
     def _add_progress_bar(self, container: Gtk.Box) -> None:
         """Add the progress bar"""
@@ -128,6 +128,19 @@ class TerminalPageManager:
         cancel_button.connect("clicked", lambda b: self.window.on_cancel_clicked())
         container.append(cancel_button)
 
+    def _update_processing_header(self) -> None:
+        """Update the terminal header to match the active input mode"""
+        if not hasattr(self, "current_file_label") or self.current_file_label is None:
+            return
+
+        mode = getattr(self.window.settings, "input_type", "pdf").lower()
+        if mode == "image":
+            header_text = _("Processing image files...")
+        else:
+            header_text = _("Processing PDF files...")
+
+        self.current_file_label.set_markup("<big>" + header_text + "</big>")
+
     def start_progress_monitor(self) -> None:
         """Start monitoring the OCR progress with smooth incremental updates"""
         # Stop any existing timer first
@@ -137,6 +150,9 @@ class TerminalPageManager:
         self._last_displayed_progress = 0.0
         self._last_displayed_text = ""
         self._last_status_text = ""
+
+        # Refresh the header in case the input mode changed
+        self._update_processing_header()
         
         # Set up timer with optimized interval for smooth incremental updates
         self.progress_timer_id = GLib.timeout_add(

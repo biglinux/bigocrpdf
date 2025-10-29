@@ -39,13 +39,16 @@ def check_dependencies() -> bool:
         from gi.repository import Gtk  # noqa
         from gi.repository import Adw  # noqa
         
-        # Check for OCRmyPDF - import only inside this function
-        import ocrmypdf  # noqa
+        # Check for RapidOCR dependencies
+        import rapidocr_onnxruntime  # noqa
+        import fitz  # noqa
+        import numpy  # noqa
+        from PIL import Image  # noqa
         
         return True
     except (ImportError, ValueError) as e:
         print(f"{_('Error: Missing dependencies')}: {e}")
-        print(_("Please make sure GTK4, libadwaita, and OCRmyPDF are installed"))
+        print(_("Please make sure GTK4, libadwaita, RapidOCR, PyMuPDF, numpy, and Pillow are installed"))
         return False
 
 

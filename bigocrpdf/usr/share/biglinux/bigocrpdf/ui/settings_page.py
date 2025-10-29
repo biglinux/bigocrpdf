@@ -36,6 +36,7 @@ class SettingsPageManager:
         self.lang_dropdown = None
         self.quality_dropdown = None
         self.alignment_dropdown = None
+        self.input_type_dropdown = None
         self.dest_entry = None
         self.dest_container = None
         self.same_folder_switch_row = None
@@ -43,6 +44,12 @@ class SettingsPageManager:
         self.remove_button = None
         self.drop_label = None
         self.status_label = None
+        self.queue_header_label = None
+        self.input_type_options = [
+            ("pdf", _("PDF documents")),
+            ("image", _("Image files")),
+        ]
+        self._suppress_input_type_signal = False
 
     def create_settings_page(self) -> Gtk.Widget:
         """Create the settings page for the application using a horizontal box layout
@@ -209,6 +216,16 @@ class SettingsPageManager:
         Args:
             container: Container to add the OCR settings to
         """
+        # Input type selection
+        self.input_type_dropdown = self._create_input_type_dropdown()
+        input_row = Adw.ActionRow(title=_("Input Type"))
+        input_row.add_css_class("action-row-config")
+        input_icon = Gtk.Image.new_from_icon_name("document-new-symbolic")
+        input_row.add_prefix(input_icon)
+        input_row.add_suffix(self.input_type_dropdown)
+        input_row.set_activatable(True)
+        container.append(input_row)
+
         # Language selection with icon
         self.lang_dropdown = self._create_language_dropdown()
         lang_row = Adw.ActionRow(title=_("Text Language"))
@@ -271,13 +288,14 @@ class SettingsPageManager:
         Args:
             container: Container to add the header to
         """
-        # Add a header for PDF Files Queue
-        queue_header = Gtk.Label(label=_("PDF Files Queue"))
-        queue_header.add_css_class("heading")
-        queue_header.set_margin_top(12)
-        queue_header.set_margin_start(12)
-        queue_header.set_halign(Gtk.Align.START)
-        container.append(queue_header)
+        # Add a header for the files queue
+        self.queue_header_label = Gtk.Label()
+        self.queue_header_label.add_css_class("heading")
+        self.queue_header_label.set_margin_top(12)
+        self.queue_header_label.set_margin_start(12)
+        self.queue_header_label.set_halign(Gtk.Align.START)
+        container.append(self.queue_header_label)
+        self._set_queue_header_text()
 
     def _add_queue_controls(self, container: Gtk.Box) -> None:
         """Add queue controls (status, add button, remove button)
@@ -368,7 +386,7 @@ class SettingsPageManager:
         container.append(file_list_container)
 
         # Add drop indicator label (hidden by default)
-        self.drop_label = Gtk.Label(label=_("Drop PDF files here"))
+        self.drop_label = Gtk.Label()
         self.drop_label.add_css_class("drop-target")
         self.drop_label.add_css_class("dim-label")
         self.drop_label.set_margin_start(12)
@@ -376,6 +394,7 @@ class SettingsPageManager:
         self.drop_label.set_margin_bottom(12)
         self.drop_label.set_visible(False)
         container.append(self.drop_label)
+        self._update_drop_label_text()
 
     def _setup_drag_and_drop(self) -> None:
         """Set up drag and drop functionality for the file list"""
@@ -390,7 +409,7 @@ class SettingsPageManager:
         """Add a placeholder row when no files are selected"""
         placeholder_row = Adw.ActionRow()
         placeholder_row.set_title(_("No files selected"))
-        placeholder_row.set_subtitle(_("Add PDF files for OCR processing"))
+        placeholder_row.set_subtitle(self._get_placeholder_subtitle())
         placeholder_icon = Gtk.Image.new_from_icon_name("document-open-symbolic")
         placeholder_row.add_prefix(placeholder_icon)
         
@@ -406,6 +425,23 @@ class SettingsPageManager:
             return False
         
         GLib.timeout_add(100, enable_row_focus)
+
+    def _create_input_type_dropdown(self) -> Gtk.DropDown:
+        """Create a dropdown allowing the user to pick the input type"""
+        dropdown = Gtk.DropDown()
+        string_list = Gtk.StringList()
+        current_type = getattr(self.window.settings, "input_type", "pdf")
+        default_index = 0
+
+        for index, (value, label) in enumerate(self.input_type_options):
+            string_list.append(label)
+            if value == current_type:
+                default_index = index
+
+        dropdown.set_model(string_list)
+        dropdown.set_selected(default_index)
+        dropdown.connect("notify::selected", self._on_input_type_selection_changed)
+        return dropdown
 
     def _create_language_dropdown(self) -> Gtk.DropDown:
         """Create the language dropdown with available OCR languages
@@ -615,16 +651,65 @@ class SettingsPageManager:
 
         file_count = len(self.window.settings.selected_files)
         if file_count > 0:
-            status_info = f"{file_count} {'file' if file_count == 1 else 'files'} selected"
-            status_info += f" • {self.window.settings.pages_count} {'page' if self.window.settings.pages_count == 1 else 'pages'} in total"
+            page_count = self.window.settings.pages_count
+            file_label = _("file") if file_count == 1 else _("files")
+            page_label = _("page") if page_count == 1 else _("pages")
+            status_info = _("{0} {1} selected").format(file_count, file_label)
+            status_info += " • " + _("{0} {1} in total").format(page_count, page_label)
         else:
             status_info = _("No files selected")
 
         self.status_label.set_text(status_info)
 
+    def _get_active_input_type(self) -> str:
+        return getattr(self.window.settings, "input_type", "pdf").lower()
+
+    def _set_queue_header_text(self) -> None:
+        if not self.queue_header_label:
+            return
+
+        if self._get_active_input_type() == "image":
+            self.queue_header_label.set_label(_("Image Files Queue"))
+        else:
+            self.queue_header_label.set_label(_("PDF Files Queue"))
+
+    def _get_placeholder_subtitle(self) -> str:
+        if self._get_active_input_type() == "image":
+            return _("Add image files for OCR processing")
+        return _("Add PDF files for OCR processing")
+
+    def _update_drop_label_text(self) -> None:
+        if not self.drop_label:
+            return
+
+        if self._get_active_input_type() == "image":
+            self.drop_label.set_label(_("Drop image files here"))
+        else:
+            self.drop_label.set_label(_("Drop PDF files here"))
+
+    def update_input_type_labels(self) -> None:
+        """Refresh UI labels that depend on the selected input type"""
+        self._set_queue_header_text()
+        self._update_drop_label_text()
+        self._update_queue_status()
+
+        if self.input_type_dropdown:
+            current_type = self._get_active_input_type()
+            for index, (value, _label) in enumerate(self.input_type_options):
+                if value == current_type:
+                    if self.input_type_dropdown.get_selected() != index:
+                        self._suppress_input_type_signal = True
+                        self.input_type_dropdown.set_selected(index)
+                        self._suppress_input_type_signal = False
+                    break
+
+        if self.file_list_box:
+            self._populate_file_list()
+
     def refresh_queue_status(self) -> None:
         """Update the queue status without rebuilding the entire settings page"""
         self._update_queue_status()
+        self._set_queue_header_text()
 
         if self.remove_button:
             self.remove_button.set_sensitive(len(self.window.settings.selected_files) > 0)
@@ -639,6 +724,16 @@ class SettingsPageManager:
             self._populate_file_list()
 
     # Event handlers
+    def _on_input_type_selection_changed(self, dropdown: Gtk.DropDown, _param_spec) -> None:
+        if self._suppress_input_type_signal:
+            return
+
+        index = dropdown.get_selected()
+        if 0 <= index < len(self.input_type_options):
+            selected_value = self.input_type_options[index][0]
+            self.window.on_input_type_changed(selected_value)
+            self.update_input_type_labels()
+
     def _on_same_folder_toggled(self, switch_row: Adw.SwitchRow, param_spec) -> None:
         """Handle toggling of the 'save in same folder' switch row
 
@@ -674,16 +769,17 @@ class SettingsPageManager:
             if not file_paths:
                 return False
 
-            # Filter for PDF files only
-            pdf_file_paths = self._filter_pdf_files(file_paths)
-            if not pdf_file_paths:
-                logger.warning("No valid PDF files in drop data")
+            supported_paths = self._filter_supported_files(file_paths)
+            if not supported_paths:
+                logger.warning("No valid files in drop data for current mode")
                 return False
 
-            logger.info(f"{len(pdf_file_paths)} PDF files dropped")
+            logger.info(
+                f"{len(supported_paths)} file(s) dropped for {self._get_active_input_type()} mode"
+            )
 
             # Add all valid PDF files to the queue
-            added = self.window.settings.add_files(pdf_file_paths)
+            added = self.window.settings.add_files(supported_paths)
 
             if added > 0:
                 # Update the UI
@@ -696,7 +792,7 @@ class SettingsPageManager:
 
                 return True
 
-            return False
+                return False
         except Exception as e:
             logger.error(f"Error handling dropped file(s): {e}")
             return False
@@ -730,28 +826,41 @@ class SettingsPageManager:
 
         return file_paths
 
-    def _filter_pdf_files(self, file_paths: List[str]) -> List[str]:
-        """Filter file paths to only include valid PDF files
-        
-        Args:
-            file_paths: List of file paths to filter
-            
-        Returns:
-            List of valid PDF file paths
-        """
-        pdf_file_paths = []
+    def _get_allowed_extensions(self) -> List[str]:
+        if self._get_active_input_type() == "image":
+            return [
+                ".png",
+                ".jpg",
+                ".jpeg",
+                ".webp",
+                ".bmp",
+                ".gif",
+                ".tif",
+                ".tiff",
+            ]
+        return [".pdf"]
+
+    def _filter_supported_files(self, file_paths: List[str]) -> List[str]:
+        """Filter dropped files to match the currently selected input type"""
+        valid_paths: List[str] = []
+        allowed = set(self._get_allowed_extensions())
+
         for file_path in file_paths:
-            if not file_path.lower().endswith(".pdf"):
-                logger.warning(f"Ignoring non-PDF file: {file_path}")
+            if not file_path:
                 continue
 
             if not os.path.exists(file_path):
                 logger.warning(f"Ignoring nonexistent file: {file_path}")
                 continue
 
-            pdf_file_paths.append(file_path)
+            extension = os.path.splitext(file_path)[1].lower()
+            if extension not in allowed:
+                logger.warning(f"Ignoring unsupported file: {file_path}")
+                continue
 
-        return pdf_file_paths
+            valid_paths.append(file_path)
+
+        return valid_paths
 
     def _on_drop_enter(self, drop_target: Gtk.DropTarget, _x: float, _y: float) -> Gdk.DragAction:
         """Handle when files are dragged over the drop area
@@ -766,6 +875,7 @@ class SettingsPageManager:
         """
         # Show the drop indicator
         if self.drop_label:
+            self._update_drop_label_text()
             self.drop_label.set_visible(True)
 
         return Gdk.DragAction.COPY

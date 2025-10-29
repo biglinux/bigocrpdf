@@ -18,6 +18,7 @@ from config import (
     SAVEFILE_PATH,
     SAME_FOLDER_PATH,
     CONFIG_DIR,
+    INPUT_TYPE_FILE_PATH,
 )
 
 # Default settings constants
@@ -26,6 +27,8 @@ DEFAULT_QUALITY = "normal"
 DEFAULT_ALIGNMENT = "alignrotate"
 DEFAULT_SUFFIX = "ocr"
 DEFAULT_DATE_FORMAT = {"year": 1, "month": 2, "day": 3}
+DEFAULT_INPUT_TYPE = "pdf"
+IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff", ".webp", ".gif"}
 
 
 class OcrSettings:
@@ -45,6 +48,7 @@ class OcrSettings:
         self.align: str = DEFAULT_ALIGNMENT
         self.save_in_same_folder: bool = False
         self.extracted_text: Dict[str, str] = {}
+        self.input_type: str = DEFAULT_INPUT_TYPE
         
         # Output filename settings
         self.pdf_suffix: str = DEFAULT_SUFFIX
@@ -73,12 +77,21 @@ class OcrSettings:
                     f.write(DEFAULT_ALIGNMENT)
             except Exception as e:
                 logger.error(_("Error creating alignment setting file: {0}").format(e))
+
+        # Ensure input type configuration exists with default value
+        if not os.path.exists(INPUT_TYPE_FILE_PATH):
+            try:
+                with open(INPUT_TYPE_FILE_PATH, "w") as f:
+                    f.write(DEFAULT_INPUT_TYPE)
+            except Exception as e:
+                logger.error(_("Error creating input type setting file: {0}").format(e))
         
         # Load settings from config files
         self.load_settings()
 
     def load_settings(self) -> None:
         """Load all settings from configuration files"""
+        self._load_input_type()
         self._load_selected_files()
         self._load_language()
         self._load_quality()
@@ -98,19 +111,20 @@ class OcrSettings:
 
         Returns:
             Number of files successfully added
+            input_type: Desired processing mode ("pdf" or "image")
         """
         if not file_paths:
             return 0
 
         logger.info(_("Attempting to add {0} files").format(len(file_paths)))
 
-        # Filter and collect valid PDF files
-        valid_files = self._filter_valid_pdf_files(file_paths)
+        # Filter and collect valid files based on current mode
+        valid_files = self._filter_valid_files(file_paths)
 
         # Add valid files and update count
         if valid_files:
             self.selected_files.extend(valid_files)
-            self._count_pdf_pages(valid_files)
+            self._count_file_pages(valid_files)
             self._save_selected_files()
 
             # Only initialize destination if it's not already set by the user
@@ -119,20 +133,22 @@ class OcrSettings:
 
             logger.info(_("Successfully added {0} files").format(len(valid_files)))
         else:
-            logger.warning(_("No valid PDF files were found to add"))
+            logger.warning(_("No valid files were found to add for the selected mode"))
 
         return len(valid_files)
 
-    def _filter_valid_pdf_files(self, file_paths: List[str]) -> List[str]:
-        """Filter a list of paths to only include valid PDF files
+    def _filter_valid_files(self, file_paths: List[str]) -> List[str]:
+        """Filter a list of paths to only include valid files for the active mode
         
         Args:
             file_paths: List of file paths to filter
             
         Returns:
-            List of valid PDF file paths
+            List of valid file paths
         """
         valid_files = []
+        normalized_mode = (self.input_type or DEFAULT_INPUT_TYPE).lower()
+        allowed_extensions = {".pdf"} if normalized_mode == "pdf" else IMAGE_EXTENSIONS
         
         for file_path in file_paths:
             # Skip empty paths
@@ -145,9 +161,11 @@ class OcrSettings:
                 logger.warning(_("File does not exist: {0}").format(file_path))
                 continue
 
-            # Skip non-PDF files
-            if not file_path.lower().endswith(".pdf"):
-                logger.warning(_("Not a PDF file: {0}").format(file_path))
+            extension = os.path.splitext(file_path)[1].lower()
+            if extension not in allowed_extensions:
+                logger.warning(
+                    _("File type not supported in current mode: {0}").format(file_path)
+                )
                 continue
 
             # Skip duplicates
@@ -155,8 +173,7 @@ class OcrSettings:
                 logger.info(_("File already in list: {0}").format(file_path))
                 continue
 
-            # File is valid, add it
-            logger.info(_("Adding valid PDF: {0}").format(file_path))
+            logger.info(_("Adding valid file: {0}").format(file_path))
             valid_files.append(file_path)
             
         return valid_files
@@ -197,6 +214,25 @@ class OcrSettings:
         self._save_selected_files()
         self.destination_folder = ""
 
+    def set_input_type(self, new_type: str) -> None:
+        """Update the preferred input type and persist the change
+        
+        Args:
+            new_type: Desired input mode (pdf or image)
+        """
+        normalized = (new_type or DEFAULT_INPUT_TYPE).lower()
+        if normalized not in ("pdf", "image"):
+            normalized = DEFAULT_INPUT_TYPE
+
+        if normalized == self.input_type:
+            self._save_input_type()
+            return
+
+        self.input_type = normalized
+        self.clear_files()
+        self._save_input_type()
+        logger.info(_("Input type changed to {0}").format(self.input_type))
+
     def save_settings(
         self,
         lang: str,
@@ -204,6 +240,7 @@ class OcrSettings:
         align: str,
         destination_folder: str,
         save_in_same_folder: bool = False,
+        input_type: Optional[str] = None,
     ) -> None:
         """Save current settings to configuration files
         
@@ -221,12 +258,15 @@ class OcrSettings:
             self.align = align or DEFAULT_ALIGNMENT
             self.destination_folder = destination_folder
             self.save_in_same_folder = save_in_same_folder
+            if input_type:
+                self.input_type = input_type.lower()
 
             # Save core settings
             self._save_core_settings()
             
             # Save PDF output settings
             self._save_pdf_output_settings()
+            self._save_input_type()
 
             logger.info(_("Settings saved successfully"))
 
@@ -253,6 +293,18 @@ class OcrSettings:
             except Exception as e:
                 logger.error(_("Error saving setting to {0}: {1}").format(
                     os.path.basename(filepath), e))
+
+    def _save_input_type(self) -> None:
+        """Persist the current input type selection"""
+        normalized = (self.input_type or DEFAULT_INPUT_TYPE).lower()
+        if normalized not in ("pdf", "image"):
+            normalized = DEFAULT_INPUT_TYPE
+
+        try:
+            with open(INPUT_TYPE_FILE_PATH, "w") as f:
+                f.write(normalized)
+        except Exception as e:
+            logger.error(_("Error saving input type setting: {0}").format(e))
 
     def _save_pdf_output_settings(self) -> None:
         """Save PDF output settings to configuration files"""
@@ -348,52 +400,68 @@ class OcrSettings:
         # Otherwise just return the suffix
         return suffix
 
-    def get_pdf_page_count(self, file_path: str) -> Optional[int]:
-        """Get page count for a single PDF file
+    def get_page_count(self, file_path: str) -> Optional[int]:
+        """Get page count for a single document
         
         Args:
-            file_path: Path to the PDF file
+            file_path: Path to the document file
             
         Returns:
             Number of pages or None if count failed
         """
         if not file_path or not os.path.exists(file_path):
             return None
-            
+
         try:
-            result = subprocess.run(
-                ["pdfinfo", file_path],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-            
-            for line in result.stdout.split("\n"):
-                if line.startswith("Pages:"):
-                    return int(line.split(":")[1].strip())
-                    
+            import fitz  # type: ignore
+            with fitz.open(file_path) as doc:
+                return doc.page_count
         except Exception as e:
-            logger.error(_("Error getting page count for {0}: {1}").format(
-                os.path.basename(file_path), e))
-        
+            logger.error(
+                _("Error getting page count for {0}: {1}").format(
+                    os.path.basename(file_path), e
+                )
+            )
+            try:
+                result = subprocess.run(
+                    ["pdfinfo", file_path],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+
+                for line in result.stdout.split("\n"):
+                    if line.startswith("Pages:"):
+                        return int(line.split(":")[1].strip())
+            except Exception:
+                logger.debug("Fallback page count detection failed for %s", file_path)
+
         return None
 
-    def _count_pdf_pages(self, file_paths: List[str]) -> None:
+    def _count_file_pages(self, file_paths: List[str]) -> None:
         """Count pages in PDF files and add to the total page count
 
         Args:
             file_paths: List of PDF file paths to count pages for
         """
+        mode = (self.input_type or DEFAULT_INPUT_TYPE).lower()
         for file_path in file_paths:
-            if file_path and file_path.lower().endswith(".pdf"):
-                page_count = self.get_pdf_page_count(file_path)
-                if page_count:
-                    self.pages_count += page_count
+            if not file_path:
+                continue
+
+            page_count = None
+            if mode == "pdf" or file_path.lower().endswith(".pdf"):
+                page_count = self.get_page_count(file_path)
+            else:
+                page_count = 1
+
+            if page_count:
+                self.pages_count += page_count
 
     def _recalculate_page_count(self) -> None:
         """Recalculate the total page count for all selected files"""
         self.pages_count = 0
-        self._count_pdf_pages(self.selected_files)
+        self._count_file_pages(self.selected_files)
 
     def _save_selected_files(self) -> None:
         """Save the current list of selected files to the configuration file"""
@@ -404,6 +472,22 @@ class OcrSettings:
             logger.info(_("Saved {0} selected files").format(len(self.selected_files)))
         except Exception as e:
             logger.error(_("Error saving selected files: {0}").format(e))
+
+    def _load_input_type(self) -> None:
+        """Load the currently selected input type from configuration"""
+        self.input_type = DEFAULT_INPUT_TYPE
+
+        if not os.path.exists(INPUT_TYPE_FILE_PATH):
+            return
+
+        try:
+            with open(INPUT_TYPE_FILE_PATH, "r") as f:
+                value = f.read().strip().lower()
+                if value in ("pdf", "image"):
+                    self.input_type = value
+        except Exception as e:
+            logger.error(_("Error loading input type setting: {0}").format(e))
+            self.input_type = DEFAULT_INPUT_TYPE
 
     def _load_selected_files(self) -> None:
         """Load selected files from configuration"""
@@ -420,11 +504,15 @@ class OcrSettings:
                 if file_lines:  # Check if there are any lines
                     self.selected_files = [line.strip() for line in file_lines if line.strip()]
 
-            # Filter to only existing files
-            self.selected_files = [f for f in self.selected_files if os.path.exists(f)]
-                    
-            # Count pages in PDF files
-            self._count_pdf_pages(self.selected_files)
+            # Filter to only existing files with supported extensions
+            allowed_extensions = {".pdf"} if (self.input_type or DEFAULT_INPUT_TYPE).lower() == "pdf" else IMAGE_EXTENSIONS
+            self.selected_files = [
+                f for f in self.selected_files
+                if os.path.exists(f) and os.path.splitext(f)[1].lower() in allowed_extensions
+            ]
+
+            # Count pages across selected files
+            self._count_file_pages(self.selected_files)
             
         except Exception as e:
             logger.error(_("Error loading selected files: {0}").format(e))

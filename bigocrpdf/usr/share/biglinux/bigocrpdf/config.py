@@ -45,6 +45,7 @@ ALIGN_FILE_PATH = os.path.join(CONFIG_DIR, "align")
 SAVEFILE_PATH = os.path.join(CONFIG_DIR, "savefile")
 SUFFIX_FILE_PATH = os.path.join(CONFIG_DIR, "suffix")
 SAME_FOLDER_PATH = os.path.join(CONFIG_DIR, "same-folder")
+INPUT_TYPE_FILE_PATH = os.path.join(CONFIG_DIR, "input-type")
 
 # Ensure configuration directory exists
 os.makedirs(CONFIG_DIR, exist_ok=True)

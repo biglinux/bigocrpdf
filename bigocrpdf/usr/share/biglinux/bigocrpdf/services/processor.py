@@ -1,7 +1,7 @@
 """
 BigOcrPdf - OCR Processor Module
 
-This module handles the OCR processing of PDF files using the OCRmyPDF API.
+This module orchestrates OCR processing jobs using the RapidOCR backend.
 """
 
 from typing import List, Tuple, Dict, Optional, Callable, Any
@@ -16,14 +16,6 @@ from utils.i18n import _
 
 # Processing constants
 MAX_CONCURRENT_PROCESSES = 2
-OCR_COMPRESSION_FORMATS = {
-    "economic": "jpeg",
-    "economicplus": "jpeg"
-}
-OCR_OPTIMIZATION_LEVELS = {
-    "economic": 1,
-    "economicplus": 1
-}
 DEFAULT_LANGUAGES = [
     ("por", "Portuguese"),
     ("eng", "English"),
@@ -191,7 +183,7 @@ class OcrProcessor:
             self.settings.processed_files.append(output_file)
 
     def _create_ocr_options(self, input_file: str, output_file: str) -> Dict[str, Any]:
-        """Create OCR options dictionary for OCRmyPDF"""
+        """Create the options dictionary consumed by the RapidOCR worker"""
         temp_dir = os.path.join(os.path.dirname(output_file), ".temp")
         os.makedirs(temp_dir, exist_ok=True)
         
@@ -202,9 +194,9 @@ class OcrProcessor:
 
         options = {
             "language": self.settings.lang,
-            "force_ocr": True,
-            "progress_bar": False,
             "sidecar": temp_sidecar,
+            "input_type": getattr(self.settings, "input_type", "pdf"),
+            "expected_pages": self._estimate_page_count(input_file),
         }
 
         self._add_text_extraction_options(options, output_file)
@@ -234,23 +226,29 @@ class OcrProcessor:
             options["sidecar"] = sidecar_file
 
     def _add_quality_options(self, options: Dict[str, Any]) -> None:
-        """Add quality-related options to the options dictionary"""
-        if self.settings.quality in OCR_COMPRESSION_FORMATS:
-            options["pdfa_image_compression"] = OCR_COMPRESSION_FORMATS[self.settings.quality]
-            options["optimize"] = OCR_OPTIMIZATION_LEVELS[self.settings.quality]
-            
-            if self.settings.quality == "economicplus":
-                options["oversample"] = 300
+        """Map quality setting to rendering parameters for RapidOCR"""
+        quality_to_zoom = {
+            "normal": 2.0,
+            "economic": 1.6,
+            "economicplus": 1.3,
+        }
+        options["render_zoom"] = quality_to_zoom.get(self.settings.quality, 2.0)
 
     def _add_alignment_options(self, options: Dict[str, Any]) -> None:
-        """Add alignment-related options to the options dictionary"""
-        if self.settings.align == "align":
-            options["deskew"] = True
-        elif self.settings.align == "rotate":
-            options["rotate_pages"] = True
-        elif self.settings.align == "alignrotate":
-            options["deskew"] = True
-            options["rotate_pages"] = True
+        """Expose alignment preference for future processing tweaks"""
+        options["alignment_mode"] = self.settings.align
+
+    def _estimate_page_count(self, input_file: str) -> int:
+        """Estimate the number of pages for progress reporting"""
+        try:
+            if hasattr(self.settings, "get_page_count"):
+                pages = self.settings.get_page_count(input_file)
+                if pages:
+                    return pages
+        except Exception as exc:
+            logger.debug("Failed to estimate page count for %s: %s", input_file, exc)
+
+        return 1
 
     def get_available_ocr_languages(self) -> List[Tuple[str, str]]:
         """Get a list of available OCR languages from tesseract"""
