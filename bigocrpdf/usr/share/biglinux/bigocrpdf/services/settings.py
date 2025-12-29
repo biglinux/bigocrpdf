@@ -5,20 +5,18 @@ This module handles configuration settings and file management for the applicati
 """
 
 import os
-import subprocess
 import time
-from typing import List, Dict, Optional, Tuple, Any
-from utils.logger import logger
-from utils.i18n import _
+from typing import Any, Dict, List
+
 from config import (
-    SELECTED_FILE_PATH,
-    LANG_FILE_PATH,
-    QUALITY_FILE_PATH,
     ALIGN_FILE_PATH,
-    SAVEFILE_PATH,
-    SAME_FOLDER_PATH,
     CONFIG_DIR,
+    SELECTED_FILE_PATH,
 )
+from utils.config_manager import get_config_manager
+from utils.i18n import _
+from utils.logger import logger
+from utils.pdf_utils import get_pdf_page_count
 
 # Default settings constants
 DEFAULT_LANGUAGE = "eng"
@@ -33,6 +31,9 @@ class OcrSettings:
 
     def __init__(self):
         """Initialize OCR settings with default values"""
+        # Get the centralized config manager
+        self._config = get_config_manager()
+
         # File management
         self.selected_files: List[str] = []
         self.pages_count: int = 0
@@ -73,22 +74,48 @@ class OcrSettings:
                     f.write(DEFAULT_ALIGNMENT)
             except Exception as e:
                 logger.error(_("Error creating alignment setting file: {0}").format(e))
-        
-        # Load settings from config files
+
+        # Load settings from JSON config manager
         self.load_settings()
 
     def load_settings(self) -> None:
-        """Load all settings from configuration files"""
+        """Load all settings from JSON configuration"""
+        # Load from JSON config manager
+        self.lang = self._config.get("ocr.language", DEFAULT_LANGUAGE)
+        self.quality = self._config.get("ocr.quality", DEFAULT_QUALITY)
+        self.align = self._config.get("ocr.alignment", DEFAULT_ALIGNMENT)
+
+        # Output settings
+        self.pdf_suffix = self._config.get("output.suffix", DEFAULT_SUFFIX)
+        self.overwrite_existing = self._config.get("output.overwrite_existing", False)
+        self.save_in_same_folder = self._config.get("output.save_in_same_folder", False)
+        self.destination_folder = self._config.get("output.destination_folder", "")
+
+        # Date settings
+        self.include_date = self._config.get("date.include_date", False)
+        self.include_year = self._config.get("date.include_year", False)
+        self.include_month = self._config.get("date.include_month", False)
+        self.include_day = self._config.get("date.include_day", False)
+        self.include_time = self._config.get("date.include_time", False)
+        self.date_format_order = self._config.get(
+            "date.format_order", DEFAULT_DATE_FORMAT.copy()
+        )
+
+        # Text extraction settings
+        self.save_txt = self._config.get("text_extraction.save_txt", False)
+        self.separate_txt_folder = self._config.get(
+            "text_extraction.separate_folder", False
+        )
+        self.txt_folder = self._config.get("text_extraction.txt_folder", "")
+
+        # Load selected files from legacy file (file list not stored in JSON)
         self._load_selected_files()
-        self._load_language()
-        self._load_quality()
-        self._load_alignment()
-        self._load_same_folder_option()
-        self._load_pdf_output_settings()
         
         # Only initialize destination folder if it isn't already set
         if not self.destination_folder:
             self._initialize_destination_folder()
+
+        logger.info("Settings loaded from JSON configuration")
 
     def add_files(self, file_paths: List[str]) -> int:
         """Add files to the selected files list
@@ -222,11 +249,8 @@ class OcrSettings:
             self.destination_folder = destination_folder
             self.save_in_same_folder = save_in_same_folder
 
-            # Save core settings
-            self._save_core_settings()
-            
-            # Save PDF output settings
-            self._save_pdf_output_settings()
+            # Save all settings to JSON
+            self._save_all_settings()
 
             logger.info(_("Settings saved successfully"))
 
@@ -234,74 +258,65 @@ class OcrSettings:
             logger.error(_("Error saving settings: {0}").format(e))
             raise
 
+    def _save_all_settings(self) -> None:
+        """Save all settings to JSON configuration"""
+        # OCR settings
+        self._config.set("ocr.language", self.lang, save_immediately=False)
+        self._config.set("ocr.quality", self.quality, save_immediately=False)
+        self._config.set("ocr.alignment", self.align, save_immediately=False)
+
+        # Output settings
+        self._config.set("output.suffix", self.pdf_suffix, save_immediately=False)
+        self._config.set(
+            "output.overwrite_existing", self.overwrite_existing, save_immediately=False
+        )
+        self._config.set(
+            "output.save_in_same_folder",
+            self.save_in_same_folder,
+            save_immediately=False,
+        )
+        self._config.set(
+            "output.destination_folder", self.destination_folder, save_immediately=False
+        )
+
+        # Date settings
+        self._config.set("date.include_date", self.include_date, save_immediately=False)
+        self._config.set("date.include_year", self.include_year, save_immediately=False)
+        self._config.set(
+            "date.include_month", self.include_month, save_immediately=False
+        )
+        self._config.set("date.include_day", self.include_day, save_immediately=False)
+        self._config.set("date.include_time", self.include_time, save_immediately=False)
+        self._config.set(
+            "date.format_order", self.date_format_order, save_immediately=False
+        )
+
+        # Text extraction settings
+        self._config.set(
+            "text_extraction.save_txt", self.save_txt, save_immediately=False
+        )
+        self._config.set(
+            "text_extraction.separate_folder",
+            self.separate_txt_folder,
+            save_immediately=False,
+        )
+        self._config.set(
+            "text_extraction.txt_folder", self.txt_folder, save_immediately=False
+        )
+
+        # Save everything at once
+        self._config.save()
+
+        logger.debug("All settings saved to JSON configuration")
+
     def _save_core_settings(self) -> None:
-        """Save core settings to configuration files"""
-        # Create a settings dictionary for writing
-        settings_data = {
-            LANG_FILE_PATH: self.lang,
-            QUALITY_FILE_PATH: self.quality,
-            ALIGN_FILE_PATH: self.align,
-            SAVEFILE_PATH: self.destination_folder,
-            SAME_FOLDER_PATH: "true" if self.save_in_same_folder else "false"
-        }
-        
-        # Write each setting to its file
-        for filepath, value in settings_data.items():
-            try:
-                with open(filepath, "w") as f:
-                    f.write(str(value))
-            except Exception as e:
-                logger.error(_("Error saving setting to {0}: {1}").format(
-                    os.path.basename(filepath), e))
+        """Save core settings to JSON configuration (legacy wrapper)"""
+        self._save_all_settings()
 
     def _save_pdf_output_settings(self) -> None:
-        """Save PDF output settings to configuration files"""
-        try:
-            pdf_settings_dir = os.path.dirname(SAVEFILE_PATH)
-
-            # PDF suffix
-            pdf_suffix_path = os.path.join(pdf_settings_dir, "pdf_suffix")
-            with open(pdf_suffix_path, "w") as f:
-                f.write(self.pdf_suffix or DEFAULT_SUFFIX)
-
-            # Overwrite existing
-            overwrite_path = os.path.join(pdf_settings_dir, "overwrite_existing")
-            with open(overwrite_path, "w") as f:
-                f.write("true" if self.overwrite_existing else "false")
-
-            # Date inclusion settings
-            date_settings_path = os.path.join(pdf_settings_dir, "pdf_date_settings")
-            date_settings = {
-                "include_date": self.include_date,
-                "include_year": self.include_year,
-                "include_month": self.include_month,
-                "include_day": self.include_day,
-                "include_time": self.include_time,
-            }
-
-            with open(date_settings_path, "w") as f:
-                for key, value in date_settings.items():
-                    f.write(f"{key}={str(value).lower()}\n")
-
-            # Save date format order
-            order_settings_path = os.path.join(
-                pdf_settings_dir, "date_format_order"
-            )
-            with open(order_settings_path, "w") as f:
-                for key, value in self.date_format_order.items():
-                    f.write(f"{key}={value}\n")
-
-            logger.info(_("PDF output settings saved successfully"))
-        except Exception as e:
-            logger.error(_("Error saving PDF output settings: {0}").format(e))
-
-    def get_pdf_count_and_pages(self) -> Tuple[int, int]:
-        """Get count of selected PDFs and total pages
-        
-        Returns:
-            Tuple containing (file_count, page_count)
-        """
-        return len(self.selected_files), self.pages_count
+        """Save PDF output settings to JSON configuration (legacy wrapper)"""
+        # Already handled by _save_all_settings, kept for compatibility
+        pass
 
     def get_pdf_suffix(self) -> str:
         """Get the formatted PDF suffix with date elements if enabled
@@ -324,11 +339,20 @@ class OcrSettings:
 
         # Add date elements with their preferred order
         if self.include_year:
-            date_components.append((self.date_format_order.get("year", 1), f"{now.tm_year}"))
+            date_components.append((
+                self.date_format_order.get("year", 1),
+                f"{now.tm_year}",
+            ))
         if self.include_month:
-            date_components.append((self.date_format_order.get("month", 2), f"{now.tm_mon:02d}"))
+            date_components.append((
+                self.date_format_order.get("month", 2),
+                f"{now.tm_mon:02d}",
+            ))
         if self.include_day:
-            date_components.append((self.date_format_order.get("day", 3), f"{now.tm_mday:02d}"))
+            date_components.append((
+                self.date_format_order.get("day", 3),
+                f"{now.tm_mday:02d}",
+            ))
 
         # Sort components by their position value
         date_components.sort(key=lambda x: x[0])
@@ -348,36 +372,6 @@ class OcrSettings:
         # Otherwise just return the suffix
         return suffix
 
-    def get_pdf_page_count(self, file_path: str) -> Optional[int]:
-        """Get page count for a single PDF file
-        
-        Args:
-            file_path: Path to the PDF file
-            
-        Returns:
-            Number of pages or None if count failed
-        """
-        if not file_path or not os.path.exists(file_path):
-            return None
-            
-        try:
-            result = subprocess.run(
-                ["pdfinfo", file_path],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-            
-            for line in result.stdout.split("\n"):
-                if line.startswith("Pages:"):
-                    return int(line.split(":")[1].strip())
-                    
-        except Exception as e:
-            logger.error(_("Error getting page count for {0}: {1}").format(
-                os.path.basename(file_path), e))
-        
-        return None
-
     def _count_pdf_pages(self, file_paths: List[str]) -> None:
         """Count pages in PDF files and add to the total page count
 
@@ -386,7 +380,7 @@ class OcrSettings:
         """
         for file_path in file_paths:
             if file_path and file_path.lower().endswith(".pdf"):
-                page_count = self.get_pdf_page_count(file_path)
+                page_count = get_pdf_page_count(file_path)
                 if page_count:
                     self.pages_count += page_count
 
@@ -431,135 +425,7 @@ class OcrSettings:
             # Ensure selected_files is always a list
             self.selected_files = []
 
-    def _load_setting_file(self, filepath: str, default_value: Any) -> Any:
-        """Load a setting from a configuration file with error handling
-        
-        Args:
-            filepath: Path to the configuration file
-            default_value: Default value to use if file doesn't exist or error occurs
-            
-        Returns:
-            The loaded setting value or default
-        """
-        if not os.path.exists(filepath):
-            return default_value
-            
-        try:
-            with open(filepath, "r") as f:
-                value = f.read().strip()
-                return value if value else default_value
-        except Exception as e:
-            logger.error(_("Error loading setting from {0}: {1}").format(
-                os.path.basename(filepath), e))
-            return default_value
-
-    def _load_language(self) -> None:
-        """Load language setting from configuration"""
-        self.lang = self._load_setting_file(LANG_FILE_PATH, DEFAULT_LANGUAGE)
-        
-        # If failed to load, try to detect from system locale
-        if not self.lang:
-            locale = os.environ.get("LANG", "").lower()
-            if locale.startswith("pt"):
-                self.lang = "por"
-            elif locale.startswith("es"):
-                self.lang = "spa"
-            else:
-                self.lang = DEFAULT_LANGUAGE
-
-    def _load_quality(self) -> None:
-        """Load quality setting from configuration"""
-        self.quality = self._load_setting_file(QUALITY_FILE_PATH, DEFAULT_QUALITY)
-
-    def _load_alignment(self) -> None:
-        """Load alignment setting from configuration"""
-        self.align = self._load_setting_file(ALIGN_FILE_PATH, DEFAULT_ALIGNMENT)
-
-    def _load_same_folder_option(self) -> None:
-        """Load save in same folder option from configuration"""
-        value = self._load_setting_file(SAME_FOLDER_PATH, "false")
-        self.save_in_same_folder = value.lower() == "true"
-
-    def _load_pdf_output_settings(self) -> None:
-        """Load PDF output filename settings from configuration"""
-        pdf_settings_dir = os.path.dirname(SAVEFILE_PATH)
-
-        # Load PDF suffix
-        pdf_suffix_path = os.path.join(pdf_settings_dir, "pdf_suffix")
-        self.pdf_suffix = self._load_setting_file(pdf_suffix_path, DEFAULT_SUFFIX)
-
-        # Load overwrite setting
-        overwrite_path = os.path.join(pdf_settings_dir, "overwrite_existing")
-        value = self._load_setting_file(overwrite_path, "false")
-        self.overwrite_existing = value.lower() == "true"
-
-        # Load date settings
-        self._load_date_settings(pdf_settings_dir)
-        
-        # Load destination folder
-        self.destination_folder = self._load_setting_file(SAVEFILE_PATH, "")
-
-    def _load_date_settings(self, pdf_settings_dir: str) -> None:
-        """Load date-related settings from configuration
-        
-        Args:
-            pdf_settings_dir: Directory containing date settings files
-        """
-        # Load date settings
-        date_settings_path = os.path.join(pdf_settings_dir, "pdf_date_settings")
-        if os.path.exists(date_settings_path):
-            try:
-                with open(date_settings_path, "r") as f:
-                    for line in f:
-                        line = line.strip()
-                        if not line or "=" not in line:
-                            continue
-
-                        key, value = line.split("=", 1)
-                        value = value.lower() == "true"
-
-                        if key == "include_date":
-                            self.include_date = value
-                        elif key == "include_year":
-                            self.include_year = value
-                        elif key == "include_month":
-                            self.include_month = value
-                        elif key == "include_day":
-                            self.include_day = value
-                        elif key == "include_time":
-                            self.include_time = value
-            except Exception as e:
-                logger.error(_("Error loading PDF date settings: {0}").format(e))
-
-        # Load date format order
-        self._load_date_format_order(pdf_settings_dir)
-        
-    def _load_date_format_order(self, pdf_settings_dir: str) -> None:
-        """Load date format order settings
-        
-        Args:
-            pdf_settings_dir: Directory containing date format order settings file
-        """
-        order_settings_path = os.path.join(pdf_settings_dir, "date_format_order")
-        if os.path.exists(order_settings_path):
-            try:
-                with open(order_settings_path, "r") as f:
-                    for line in f:
-                        line = line.strip()
-                        if not line or "=" not in line:
-                            continue
-
-                        key, value = line.split("=", 1)
-                        try:
-                            position = int(value)
-                            if key in ["year", "month", "day"]:
-                                self.date_format_order[key] = position
-                        except ValueError:
-                            logger.error(_("Invalid position value for {0}: {1}").format(key, value))
-            except Exception as e:
-                logger.error(_("Error loading date format order settings: {0}").format(e))
-                # Reset to default in case of error
-                self.date_format_order = DEFAULT_DATE_FORMAT.copy()
+    # NOTE: Legacy _load_* methods removed - settings now loaded from JSON via ConfigManager
 
     def _initialize_destination_folder(self) -> None:
         """Initialize the destination folder path based on selected files"""

@@ -9,19 +9,19 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Gtk, Adw
-
 from typing import TYPE_CHECKING
+
+from gi.repository import Adw, Gtk
 
 if TYPE_CHECKING:
     from window import BigOcrPdfWindow
 
-from ui.settings_page import SettingsPageManager
-from ui.terminal_page import TerminalPageManager
 from ui.conclusion_page import ConclusionPageManager
 from ui.dialogs_manager import DialogsManager
-from utils.logger import logger
+from ui.settings_page import SettingsPageManager
+from ui.terminal_page import TerminalPageManager
 from utils.i18n import _
+from utils.logger import logger
 
 
 class BigOcrPdfUI:
@@ -48,7 +48,7 @@ class BigOcrPdfUI:
         """Set up references to UI components for backward compatibility"""
         # These references allow the window to access UI components directly
         # without knowing which page manager they belong to
-        
+
         # Settings page components
         self.lang_dropdown = None
         self.quality_dropdown = None
@@ -57,13 +57,13 @@ class BigOcrPdfUI:
         self.same_folder_switch_row = None
         self.file_list_box = None
 
-        # Terminal page components  
+        # Terminal page components
         self.terminal_progress_bar = None
         self.terminal_status_bar = None
         self.terminal_spinner = None
 
         # These will be populated when pages are created
-        
+
     def create_settings_page(self) -> Gtk.Widget:
         """Create the settings page
 
@@ -71,10 +71,10 @@ class BigOcrPdfUI:
             Widget containing the settings UI
         """
         page = self.settings_page_manager.create_settings_page()
-        
+
         # Update component references for backward compatibility
         self._update_settings_references()
-        
+
         return page
 
     def create_terminal_page(self) -> Gtk.Widget:
@@ -84,10 +84,10 @@ class BigOcrPdfUI:
             Widget containing the terminal UI
         """
         page = self.terminal_page_manager.create_terminal_page()
-        
+
         # Update component references for backward compatibility
         self._update_terminal_references()
-        
+
         return page
 
     def create_conclusion_page(self) -> Gtk.Widget:
@@ -102,7 +102,7 @@ class BigOcrPdfUI:
     def _update_settings_references(self) -> None:
         """Update references to settings page components"""
         manager = self.settings_page_manager
-        
+
         # Update references so window can access them directly
         self.lang_dropdown = manager.lang_dropdown
         self.quality_dropdown = manager.quality_dropdown
@@ -114,7 +114,7 @@ class BigOcrPdfUI:
     def _update_terminal_references(self) -> None:
         """Update references to terminal page components"""
         manager = self.terminal_page_manager
-        
+
         # Update references so window can access them directly
         self.terminal_progress_bar = manager.terminal_progress_bar
         self.terminal_status_bar = manager.terminal_status_bar
@@ -132,7 +132,7 @@ class BigOcrPdfUI:
 
     def show_pdf_options_dialog(self, callback) -> None:
         """Show dialog with PDF output options
-        
+
         Args:
             callback: Function to call when dialog is confirmed
         """
@@ -140,7 +140,7 @@ class BigOcrPdfUI:
 
     def show_extracted_text(self, file_path: str) -> None:
         """Display extracted text from a PDF file in a dialog
-        
+
         Args:
             file_path: Path to the PDF file
         """
@@ -158,7 +158,7 @@ class BigOcrPdfUI:
 
     def update_processing_status(self, input_file: str = None) -> None:
         """Update processing status display
-        
+
         Args:
             input_file: Currently processing file (optional)
         """
@@ -166,7 +166,7 @@ class BigOcrPdfUI:
 
     def update_terminal_progress(self, fraction: float, text: str = None) -> None:
         """Update terminal progress bar
-        
+
         Args:
             fraction: Progress fraction (0.0-1.0)
             text: Optional text to display
@@ -188,25 +188,6 @@ class BigOcrPdfUI:
     def reset_terminal_progress(self) -> None:
         """Reset terminal progress to initial state"""
         self.terminal_page_manager.reset_progress()
-
-    # Backward compatibility methods - these maintain the old interface
-
-    def _show_extracted_text(self, file_path: str) -> None:
-        """Backward compatibility wrapper for show_extracted_text
-        
-        Args:
-            file_path: Path to the PDF file
-        """
-        self.show_extracted_text(file_path)
-
-    def _update_queue_status(self) -> None:
-        """Backward compatibility wrapper for refresh_queue_status"""
-        self.refresh_queue_status()
-
-    def _populate_file_list(self) -> None:
-        """Refresh the file list in settings page"""
-        if hasattr(self.settings_page_manager, '_populate_file_list'):
-            self.settings_page_manager._populate_file_list()
 
     # Cleanup and resource management
 

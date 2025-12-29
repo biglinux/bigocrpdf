@@ -8,24 +8,23 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Gtk, Adw, Gio, GLib
-
 from typing import Any
 
 from config import (
-    APP_NAME,
-    APP_ID,
-    APP_VERSION,
     APP_DESCRIPTION,
-    APP_WEBSITE,
-    APP_ISSUES,
     APP_DEVELOPERS,
     APP_ICON_NAME,
+    APP_ID,
+    APP_ISSUES,
+    APP_NAME,
+    APP_VERSION,
+    APP_WEBSITE,
 )
-from window import BigOcrPdfWindow
+from gi.repository import Adw, Gio, GLib, Gtk
 from ui.widgets import load_css
-from utils.logger import logger
 from utils.i18n import _
+from utils.logger import logger
+from window import BigOcrPdfWindow
 
 
 class BigOcrPdfApp(Adw.Application):
@@ -57,7 +56,7 @@ class BigOcrPdfApp(Adw.Application):
         
         # Quit action
         quit_action = Gio.SimpleAction.new("quit", None)
-        quit_action.connect("activate", lambda a, p: self.quit())
+        quit_action.connect("activate", lambda *_: self.quit())
         self.add_action(quit_action)
         
         # Set keyboard shortcuts

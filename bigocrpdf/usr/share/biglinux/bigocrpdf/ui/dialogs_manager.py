@@ -8,17 +8,18 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Gtk, Adw, Gio, Gdk, Pango
-
 import os
 import time
 from typing import TYPE_CHECKING, Callable, Optional
 
+from gi.repository import Adw, Gdk, Gio, Gtk, Pango
+
 if TYPE_CHECKING:
     from window import BigOcrPdfWindow
 
-from utils.logger import logger
 from utils.i18n import _
+from utils.logger import logger
+from utils.text_utils import read_text_from_sidecar
 
 
 class DialogsManager:
@@ -46,21 +47,28 @@ class DialogsManager:
         dialog.set_transient_for(self.window)
 
         # Set up the main structure
-        dialog_content = self._create_pdf_options_content(dialog, callback)
+        dialog_content, prefs_page, header_bar = self._create_pdf_options_content(
+            dialog, callback
+        )
         dialog.set_content(dialog_content)
+
+        # Set up callbacks for all widgets
+        self._setup_pdf_options_callbacks(dialog, prefs_page, header_bar, callback)
 
         # Show the dialog
         dialog.present()
 
-    def _create_pdf_options_content(self, dialog: Adw.Window, callback: Callable) -> Adw.ToolbarView:
+    def _create_pdf_options_content(
+        self, dialog: Adw.Window, callback: Callable
+    ) -> tuple:
         """Create the content for PDF options dialog
-        
+
         Args:
             dialog: The dialog window
             callback: Callback function
-            
+
         Returns:
-            The main content widget
+            Tuple of (toolbar_view, prefs_page, header_bar)
         """
         # Set up the Adwaita toolbar view structure (main container)
         toolbar_view = Adw.ToolbarView()
@@ -69,11 +77,11 @@ class DialogsManager:
         header_bar = self._create_pdf_options_header(dialog, callback)
         toolbar_view.add_top_bar(header_bar)
 
-        # Create scrolled content
-        scrolled_content = self._create_pdf_options_scrolled_content()
+        # Create scrolled content with preferences page
+        scrolled_content, prefs_page = self._create_pdf_options_scrolled_content()
         toolbar_view.set_content(scrolled_content)
 
-        return toolbar_view
+        return toolbar_view, prefs_page, header_bar
 
     def _create_pdf_options_header(self, dialog: Adw.Window, callback: Callable) -> Adw.HeaderBar:
         """Create header bar for PDF options dialog
@@ -91,7 +99,7 @@ class DialogsManager:
 
         # Add cancel button to header
         cancel_button = Gtk.Button(label=_("Cancel"))
-        cancel_button.connect("clicked", lambda b: dialog.destroy())
+        cancel_button.connect("clicked", lambda _: dialog.destroy())
         header_bar.pack_start(cancel_button)
 
         # Add save button to header
@@ -104,11 +112,11 @@ class DialogsManager:
 
         return header_bar
 
-    def _create_pdf_options_scrolled_content(self) -> Gtk.ScrolledWindow:
+    def _create_pdf_options_scrolled_content(self) -> tuple:
         """Create scrolled content for PDF options dialog
-        
+
         Returns:
-            Scrolled window with preferences content
+            Tuple of (scrolled_window, prefs_page)
         """
         # Create scrolled window for content
         scrolled = Gtk.ScrolledWindow()
@@ -119,7 +127,7 @@ class DialogsManager:
         prefs_page = self._create_pdf_preferences_page()
         scrolled.set_child(prefs_page)
 
-        return scrolled
+        return scrolled, prefs_page
 
     def _create_pdf_preferences_page(self) -> Adw.PreferencesPage:
         """Create the preferences page with all PDF options
@@ -421,13 +429,19 @@ class DialogsManager:
 
         return preview_group
 
-    def _setup_pdf_options_callbacks(self, dialog: Adw.Window, prefs_page: Adw.PreferencesPage, 
-                                   callback: Callable) -> None:
+    def _setup_pdf_options_callbacks(
+        self,
+        dialog: Adw.Window,
+        prefs_page: Adw.PreferencesPage,
+        header_bar: Adw.HeaderBar,
+        callback: Callable,
+    ) -> None:
         """Set up all callbacks for PDF options dialog
-        
+
         Args:
             dialog: The dialog window
             prefs_page: The preferences page
+            header_bar: The header bar with save button
             callback: The completion callback
         """
         # Get all groups and their components
@@ -437,10 +451,10 @@ class DialogsManager:
         preview_group = prefs_page.preview_group
 
         # Set up preview update function
-        def update_preview(*args):
+        def update_preview(*_args):
             self._update_filename_preview(file_group, date_group, preview_group)
 
-        def update_date_options_sensitivity(*args):
+        def update_date_options_sensitivity(*_args):
             is_date_enabled = date_group.include_date_row.get_active()
             date_group.year_row.set_sensitive(is_date_enabled)
             date_group.month_row.set_sensitive(is_date_enabled)
@@ -449,7 +463,7 @@ class DialogsManager:
             date_group.format_row.set_sensitive(is_date_enabled)
             update_preview()
 
-        def update_text_options_sensitivity(*args):
+        def update_text_options_sensitivity(*_args):
             is_save_txt = text_group.save_txt_row.get_active()
             is_separate_folder = text_group.separate_folder_row.get_active()
             
@@ -472,17 +486,16 @@ class DialogsManager:
         text_group.separate_folder_row.connect("notify::active", update_text_options_sensitivity)
 
         # Folder selection callback
-        def select_text_folder(*args):
+        def select_text_folder(*_args):
             self._show_folder_selection_dialog(text_group.text_folder_row.folder_label)
 
         text_group.text_folder_row.folder_button.connect("clicked", select_text_folder)
 
         # Save button callback
-        def on_save_button_clicked(button):
+        def on_save_button_clicked(_button):
             self._save_pdf_options(dialog, file_group, text_group, date_group, callback)
 
-        # Find and connect save button
-        header_bar = dialog.get_content().get_top_bar()
+        # Connect save button (header_bar passed as parameter)
         header_bar.save_button.connect("clicked", on_save_button_clicked)
 
         # Initial updates
@@ -693,7 +706,8 @@ class DialogsManager:
                 return text
 
         # Try to read from sidecar file
-        sidecar_text = self._read_from_sidecar_file(file_path)
+        sidecar_file = os.path.splitext(file_path)[0] + ".txt"
+        sidecar_text = read_text_from_sidecar(sidecar_file)
         if sidecar_text:
             self.window.settings.extracted_text[file_path] = sidecar_text
             return sidecar_text
@@ -709,55 +723,33 @@ class DialogsManager:
         self.window.settings.extracted_text[file_path] = fallback_text
         return fallback_text
 
-    def _read_from_sidecar_file(self, file_path: str) -> Optional[str]:
-        """Try to read text from a sidecar file
-        
-        Args:
-            file_path: Path to the PDF file
-            
-        Returns:
-            Text content or None if not found
-        """
-        sidecar_file = os.path.splitext(file_path)[0] + ".txt"
-        if os.path.exists(sidecar_file):
-            try:
-                with open(sidecar_file, "r", encoding="utf-8") as f:
-                    text = f.read()
-                logger.info(f"Read {len(text)} characters from sidecar file")
-                return text
-            except Exception as e:
-                logger.error(f"Error reading sidecar file: {e}")
-        return None
-
     def _read_from_temp_file(self, file_path: str) -> Optional[str]:
         """Try to read text from a temporary file
-        
+
         Args:
             file_path: Path to the PDF file
-            
+
         Returns:
             Text content or None if not found
         """
         temp_dir = os.path.join(os.path.dirname(file_path), ".temp")
         if os.path.exists(temp_dir):
-            temp_filename = f"temp_{os.path.basename(os.path.splitext(file_path)[0])}.txt"
+            temp_filename = (
+                f"temp_{os.path.basename(os.path.splitext(file_path)[0])}.txt"
+            )
             temp_sidecar = os.path.join(temp_dir, temp_filename)
-            if os.path.exists(temp_sidecar):
-                try:
-                    with open(temp_sidecar, "r", encoding="utf-8") as f:
-                        text = f.read()
-                    logger.info(f"Found text in temporary file: {temp_sidecar}")
-                    return text
-                except Exception as e:
-                    logger.error(f"Error reading temp sidecar file: {e}")
+            sidecar_text = read_text_from_sidecar(temp_sidecar)
+            if sidecar_text:
+                logger.info(f"Found text in temporary file: {temp_sidecar}")
+                return sidecar_text
         return None
 
     def _create_text_viewer_dialog(self, file_path: str) -> Gtk.Window:
         """Create the main text viewer dialog window
-        
+
         Args:
             file_path: Path to the PDF file
-            
+
         Returns:
             The dialog window
         """
@@ -770,10 +762,10 @@ class DialogsManager:
 
     def _create_text_viewer_content(self, extracted_text: str) -> Gtk.Box:
         """Create the content for text viewer dialog
-        
+
         Args:
             extracted_text: The text to display
-            
+
         Returns:
             Main content box
         """
@@ -796,13 +788,17 @@ class DialogsManager:
         content_box.append(status_box)
 
         # Set up search functionality
-        self._setup_text_search(search_entry, prev_button, next_button, text_view, status_box)
+        self._setup_text_search(
+            search_entry, prev_button, next_button, text_view, status_box
+        )
 
         return content_box
 
-    def _create_search_box(self) -> tuple[Gtk.Box, Gtk.SearchEntry, Gtk.Button, Gtk.Button]:
+    def _create_search_box(
+        self,
+    ) -> tuple[Gtk.Box, Gtk.SearchEntry, Gtk.Button, Gtk.Button]:
         """Create search box for text viewer
-        
+
         Returns:
             Tuple of (search_box, search_entry, prev_button, next_button)
         """
@@ -831,12 +827,14 @@ class DialogsManager:
 
         return search_box, search_entry, prev_button, next_button
 
-    def _create_text_view(self, extracted_text: str) -> tuple[Gtk.ScrolledWindow, Gtk.TextView]:
+    def _create_text_view(
+        self, extracted_text: str
+    ) -> tuple[Gtk.ScrolledWindow, Gtk.TextView]:
         """Create text view for displaying extracted text
-        
+
         Args:
             extracted_text: Text to display
-            
+
         Returns:
             Tuple of (scrolled_window, text_view)
         """
@@ -870,10 +868,10 @@ class DialogsManager:
 
     def _create_text_viewer_status_box(self, extracted_text: str) -> Gtk.Box:
         """Create status and action buttons box
-        
+
         Args:
             extracted_text: The extracted text
-            
+
         Returns:
             Box containing status and buttons
         """
@@ -899,10 +897,10 @@ class DialogsManager:
 
     def _create_text_viewer_buttons(self, extracted_text: str) -> Gtk.Box:
         """Create action buttons for text viewer
-        
+
         Args:
             extracted_text: The extracted text
-            
+
         Returns:
             Box containing action buttons
         """
@@ -912,28 +910,37 @@ class DialogsManager:
         # Copy to clipboard button
         copy_button = Gtk.Button(label=_("Copy to Clipboard"))
         copy_button.set_tooltip_text(_("Copy the entire text to clipboard"))
-        copy_button.connect("clicked", lambda b: self._copy_text_to_clipboard(extracted_text))
+        copy_button.connect(
+            "clicked", lambda _: self._copy_text_to_clipboard(extracted_text)
+        )
         button_box.append(copy_button)
 
-        # Save to file button  
+        # Save to file button
         save_button = Gtk.Button(label=_("Save as TXT"))
         save_button.set_tooltip_text(_("Save the extracted text to a .txt file"))
-        save_button.connect("clicked", lambda b: self._save_text_to_file(extracted_text))
+        save_button.connect(
+            "clicked", lambda _: self._save_text_to_file(extracted_text)
+        )
         button_box.append(save_button)
 
         # Close button
         close_button = Gtk.Button(label=_("Close"))
         close_button.add_css_class("suggested-action")
-        close_button.connect("clicked", lambda b: button_box.get_root().destroy())
+        close_button.connect("clicked", lambda _: button_box.get_root().destroy())
         button_box.append(close_button)
 
         return button_box
 
-    def _setup_text_search(self, search_entry: Gtk.SearchEntry, prev_button: Gtk.Button,
-                        next_button: Gtk.Button, text_view: Gtk.TextView, 
-                        status_box: Gtk.Box) -> None:
+    def _setup_text_search(
+        self,
+        search_entry: Gtk.SearchEntry,
+        prev_button: Gtk.Button,
+        next_button: Gtk.Button,
+        text_view: Gtk.TextView,
+        status_box: Gtk.Box,
+    ) -> None:
         """Set up text search functionality
-        
+
         Args:
             search_entry: Search entry widget
             prev_button: Previous button
@@ -1025,8 +1032,8 @@ class DialogsManager:
         # Store the keyboard controller setup for later - will be added after dialog is shown
         def setup_keyboard_shortcut(dialog):
             key_controller = Gtk.EventControllerKey()
-            
-            def on_key_pressed(controller, keyval, keycode, state):
+
+            def on_key_pressed(_controller, keyval, _keycode, state):
                 if keyval == Gdk.KEY_f and state & Gdk.ModifierType.CONTROL_MASK:
                     search_entry.grab_focus()
                     return True

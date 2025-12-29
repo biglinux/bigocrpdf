@@ -43,7 +43,6 @@ LANG_FILE_PATH = os.path.join(CONFIG_DIR, "lang")
 QUALITY_FILE_PATH = os.path.join(CONFIG_DIR, "quality")
 ALIGN_FILE_PATH = os.path.join(CONFIG_DIR, "align")
 SAVEFILE_PATH = os.path.join(CONFIG_DIR, "savefile")
-SUFFIX_FILE_PATH = os.path.join(CONFIG_DIR, "suffix")
 SAME_FOLDER_PATH = os.path.join(CONFIG_DIR, "same-folder")
 
 # Ensure configuration directory exists

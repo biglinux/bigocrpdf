@@ -4,19 +4,19 @@ BigOcrPdf - OCR API Service
 This module provides direct integration with the OCRmyPDF Python API with real-time incremental progress.
 """
 
-import os
 import logging
-import threading
 import multiprocessing
+import os
 import signal
 import subprocess
+import threading
 import time
-from typing import Dict, Callable, List, Optional, Any
+from typing import Any, Callable, Dict, List, Optional
 
 import ocrmypdf
-
 from utils.logger import logger
-from utils.i18n import _
+from utils.pdf_utils import get_pdf_page_count
+from utils.text_utils import read_text_from_sidecar
 
 # Constants for process status
 STATUS_PENDING = "pending"
@@ -54,41 +54,20 @@ def extract_text_from_pdf(pdf_path: str) -> str:
             check=False,
         )
         if result.stdout and len(result.stdout.strip()) > 0:
-            logger.info(
-                f"Found existing text in PDF, length: {len(result.stdout)}"
-            )
+            logger.info(f"Found existing text in PDF, length: {len(result.stdout)}")
             return result.stdout
     except Exception as e:
-        logger.warning(
-            f"Failed to extract existing text from PDF: {e}"
-        )
+        logger.warning(f"Failed to extract existing text from PDF: {e}")
     return ""
-
-
-def read_text_from_sidecar(sidecar_path: str) -> Optional[str]:
-    """Read text from a sidecar file"""
-    if not sidecar_path or not os.path.exists(sidecar_path):
-        return None
-    
-    try:
-        with open(sidecar_path, "r", encoding="utf-8") as f:
-            text = f.read()
-        logger.info(
-            f"Read {len(text)} characters of extracted text from sidecar file"
-        )
-        return text
-    except Exception as e:
-        logger.error(f"Error reading sidecar file: {e}")
-        return None
 
 
 def setup_sigbus_handler() -> None:
     """Set up SIGBUS handler as recommended in OCRmyPDF docs"""
     if hasattr(signal, "SIGBUS"):
-        def handle_sigbus(signum, frame):
-            raise RuntimeError(
-                "SIGBUS received - memory-mapped file access error"
-            )
+
+        def handle_sigbus(_signum, _frame):
+            raise RuntimeError("SIGBUS received - memory-mapped file access error")
+
         signal.signal(signal.SIGBUS, handle_sigbus)
 
 
@@ -106,31 +85,19 @@ class OcrProcess:
         self.end_time = None
         self.error = None
         self.extracted_text = ""
-        
+
         # File metadata for tracking
-        self.file_size = os.path.getsize(input_file) if os.path.exists(input_file) else 0
-        self.total_pages = self._get_pdf_page_count()
-        
+        self.file_size = (
+            os.path.getsize(input_file) if os.path.exists(input_file) else 0
+        )
+        self.total_pages = get_pdf_page_count(input_file)
+        if self.total_pages == 0:
+            # Fallback: estimate based on file size
+            self.total_pages = max(1, self.file_size // 50000)
+
         # Real-time progress tracking
         self.current_pages_processed = 0
         self.progress_lock = threading.Lock()
-        
-    def _get_pdf_page_count(self) -> int:
-        """Get the total number of pages in this PDF file"""
-        try:
-            result = subprocess.run(
-                ["pdfinfo", self.input_file],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-            for line in result.stdout.split("\n"):
-                if line.startswith("Pages:"):
-                    return int(line.split(":")[1].strip())
-        except Exception:
-            # Fallback: estimate based on file size
-            return max(1, self.file_size // 50000)
-        return 1
 
     def start(self) -> None:
         """Start the OCR process in a separate process"""
@@ -142,14 +109,16 @@ class OcrProcess:
 
         # Start the process with stdout capture
         self.process = multiprocessing.Process(
-            target=self._run_ocr_with_progress, 
-            args=(self.input_file, self.output_file, self.options)
+            target=self._run_ocr_with_progress,
+            args=(self.input_file, self.output_file, self.options),
         )
         self.process.start()
 
         logger.info(f"Started OCR process for {os.path.basename(self.input_file)}")
 
-    def _run_ocr_with_progress(self, input_file: str, output_file: str, options: Dict[str, Any]) -> None:
+    def _run_ocr_with_progress(
+        self, input_file: str, output_file: str, options: Dict[str, Any]
+    ) -> None:
         """Run OCRmyPDF using Python API - simple and working method"""
         try:
             configure_logging()
@@ -157,7 +126,7 @@ class OcrProcess:
 
             # Get the sidecar path from options
             sidecar_path = options.get("sidecar", None)
-            
+
             # Initialize extracted text
             self.extracted_text = extract_text_from_pdf(input_file)
 
@@ -168,12 +137,7 @@ class OcrProcess:
             ocr_options.pop("progress_bar", None)
 
             # Run OCRmyPDF using Python API (original working method)
-            ocrmypdf.ocr(
-                input_file, 
-                output_file, 
-                progress_bar=False,
-                **ocr_options
-            )
+            ocrmypdf.ocr(input_file, output_file, progress_bar=False, **ocr_options)
 
             # Mark as completed
             with self.progress_lock:
@@ -195,22 +159,6 @@ class OcrProcess:
                 f"OCR processing failed for {os.path.basename(input_file)}: {str(e)}"
             )
             raise
-
-    def get_pages_processed(self) -> int:
-        """Get estimated pages processed based on time elapsed"""
-        if not self.start_time:
-            return 0
-            
-        if self.status == STATUS_COMPLETED:
-            return self.total_pages
-            
-        if self.status == STATUS_RUNNING:
-            # Estimate based on time elapsed (4 seconds per page average)
-            elapsed = time.time() - self.start_time
-            estimated_pages = min(self.total_pages, int(elapsed / 4.0))
-            return estimated_pages
-            
-        return 0
 
     def _cleanup_temp_sidecar(self, sidecar_path: str) -> None:
         """Clean up temporary sidecar files"""
@@ -296,27 +244,13 @@ class OcrQueue:
             self._total_files += 1
             
             # Get page count
-            page_count = self._get_pdf_page_count(input_file)
+            page_count = get_pdf_page_count(input_file)
+            if page_count == 0:
+                page_count = 1  # Ensure at least 1 page
             process.total_pages = page_count
             self._total_pages += page_count
             
             logger.info(f"Added {os.path.basename(input_file)} to OCR queue (pages: {page_count})")
-
-    def _get_pdf_page_count(self, file_path: str) -> int:
-        """Get page count using pdfinfo"""
-        try:
-            result = subprocess.run(
-                ["pdfinfo", file_path],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-            for line in result.stdout.split("\n"):
-                if line.startswith("Pages:"):
-                    return int(line.split(":")[1].strip())
-        except Exception:
-            pass
-        return 1
 
     def start(self) -> None:
         """Start processing the OCR queue"""
@@ -339,7 +273,7 @@ class OcrQueue:
             for process in self.running:
                 try:
                     process.terminate()
-                    if hasattr(process, 'process') and process.process:
+                    if hasattr(process, "process") and process.process:
                         if process.process.is_alive():
                             process.process.join(timeout=2)
                             if process.process.is_alive():
@@ -432,10 +366,7 @@ class OcrQueue:
             self.running.append(process)
 
     def _get_extracted_text(
-        self, 
-        completed_process: Optional[OcrProcess], 
-        input_file: str, 
-        output_file: str
+        self, completed_process: Optional[OcrProcess], input_file: str, output_file: str
     ) -> str:
         """Get extracted text from a completed process"""
         # Try to get text from the completed process
@@ -448,36 +379,22 @@ class OcrQueue:
                 return extracted_text
 
         # Try to get text from sidecar file
-        extracted_text = self._try_get_text_from_sidecar(output_file)
+        sidecar_file = os.path.splitext(output_file)[0] + ".txt"
+        extracted_text = read_text_from_sidecar(sidecar_file)
         if extracted_text:
             return extracted_text
-            
+
         # Try to get text from temporary file
         extracted_text = self._try_get_text_from_temp_file(output_file)
         if extracted_text:
             return extracted_text
-            
+
         # Try direct extraction from PDF as last resort
         extracted_text = extract_text_from_pdf(output_file)
         if extracted_text:
             return extracted_text
-            
-        return "Text extraction completed."
 
-    def _try_get_text_from_sidecar(self, output_file: str) -> Optional[str]:
-        """Try to get text from a sidecar file"""
-        sidecar_file = os.path.splitext(output_file)[0] + ".txt"
-        if os.path.exists(sidecar_file):
-            try:
-                with open(sidecar_file, "r", encoding="utf-8") as f:
-                    extracted_text = f.read()
-                logger.info(
-                    f"Read {len(extracted_text)} characters from sidecar file"
-                )
-                return extracted_text
-            except Exception as e:
-                logger.error(f"Error reading sidecar file: {e}")
-        return None
+        return "Text extraction completed."
 
     def _try_get_text_from_temp_file(self, output_file: str) -> Optional[str]:
         """Try to get text from a temporary file"""
@@ -507,7 +424,7 @@ class OcrQueue:
 
             # Calculate total pages processed from completed files
             total_pages_processed = self._completed_pages
-            
+
             # Add estimated progress from currently running processes
             for process in self.running:
                 if process.start_time:
@@ -516,15 +433,18 @@ class OcrQueue:
                     # Estimate 4 seconds per page on average
                     estimated_pages = min(process.total_pages, elapsed / 4.0)
                     total_pages_processed += estimated_pages
-            
+
             # Calculate smooth progress from 0% to 100%
             progress = total_pages_processed / self._total_pages
-            
+
             # Ensure we show 100% when everything is truly done
-            if (self._completed_files >= self._total_files and 
-                not self.running and not self.queue):
+            if (
+                self._completed_files >= self._total_files
+                and not self.running
+                and not self.queue
+            ):
                 return PROGRESS_COMPLETE
-            
+
             # Clamp between 0 and 1, but allow for smooth incremental updates
             return max(0.0, min(0.99, progress))  # Cap at 99% until truly complete
 
@@ -537,11 +457,6 @@ class OcrQueue:
         """Get the total number of files in the queue"""
         with self.lock:
             return self._total_files
-
-    def count_remaining_files(self) -> int:
-        """Get the number of files remaining in the queue"""
-        with self.lock:
-            return len(self.queue) + len(self.running)
 
     def register_callback(self, event: str, callback: Callable) -> None:
         """Register a callback function for queue events"""

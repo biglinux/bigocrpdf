@@ -8,19 +8,20 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Gtk, Adw, Gio, Gdk
-
 import os
-import time
 import subprocess
+import time
 from typing import TYPE_CHECKING
+
+from gi.repository import Adw, Gtk
 
 if TYPE_CHECKING:
     from window import BigOcrPdfWindow
 
-from utils.logger import logger
+from utils.format_utils import format_file_size
 from utils.i18n import _
-
+from utils.logger import logger
+from utils.pdf_utils import get_pdf_page_count
 
 class ConclusionPageManager:
     """Manages the conclusion/results page UI and interactions"""
@@ -313,7 +314,7 @@ class ConclusionPageManager:
         page_count, total_file_size = self._calculate_file_statistics()
         
         self.result_page_count.set_text(str(page_count))
-        self.result_file_size.set_text(self._format_size(total_file_size))
+        self.result_file_size.set_text(format_file_size(total_file_size))
 
         # Update processing time
         self._update_processing_time()
@@ -341,7 +342,7 @@ class ConclusionPageManager:
                 total_file_size += file_size
 
                 # Get page count
-                pages = self._get_pdf_page_count(output_file)
+                pages = get_pdf_page_count(output_file)
                 if pages:
                     page_count += pages
 
@@ -365,30 +366,6 @@ class ConclusionPageManager:
         except Exception:
             # If we can't get creation time, assume it's valid
             return True
-
-    def _get_pdf_page_count(self, file_path: str) -> int:
-        """Get the page count of a PDF file
-        
-        Args:
-            file_path: Path to the PDF file
-            
-        Returns:
-            Number of pages, or 0 if unable to determine
-        """
-        try:
-            result = subprocess.run(
-                ["pdfinfo", file_path],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-
-            for line in result.stdout.split("\n"):
-                if line.startswith("Pages:"):
-                    return int(line.split(":")[1].strip())
-        except Exception:
-            pass
-        return 0
 
     def _update_processing_time(self) -> None:
         """Update the processing time display"""
@@ -421,14 +398,14 @@ class ConclusionPageManager:
 
     def _add_file_to_list(self, output_file: str) -> None:
         """Add a file to the output file list
-        
+
         Args:
             output_file: Path to the output file
         """
         try:
             # Get file information
             file_size = os.path.getsize(output_file)
-            pages = self._get_pdf_page_count(output_file)
+            pages = get_pdf_page_count(output_file)
 
             # Create row for the file
             row = self._create_file_row(output_file, pages, file_size)
@@ -437,14 +414,16 @@ class ConclusionPageManager:
         except Exception as e:
             logger.error(f"Error adding file to list {output_file}: {e}")
 
-    def _create_file_row(self, output_file: str, pages: int, file_size: int) -> Adw.ActionRow:
+    def _create_file_row(
+        self, output_file: str, pages: int, file_size: int
+    ) -> Adw.ActionRow:
         """Create a row for a processed file
-        
+
         Args:
             output_file: Path to the output file
             pages: Number of pages
             file_size: File size in bytes
-            
+
         Returns:
             An Adw.ActionRow for the file
         """
@@ -465,9 +444,11 @@ class ConclusionPageManager:
 
         return row
 
-    def _add_file_statistics_to_row(self, row: Adw.ActionRow, pages: int, file_size: int) -> None:
+    def _add_file_statistics_to_row(
+        self, row: Adw.ActionRow, pages: int, file_size: int
+    ) -> None:
         """Add file statistics to a file row
-        
+
         Args:
             row: The row to add statistics to
             pages: Number of pages
@@ -480,15 +461,15 @@ class ConclusionPageManager:
 
         # Add size
         size_label = Gtk.Label()
-        size_label.set_markup(f"<small>{self._format_size(file_size)}</small>")
+        size_label.set_markup(f"<small>{format_file_size(file_size)}</small>")
         row.add_suffix(size_label)
 
     def _create_file_action_buttons(self, output_file: str) -> Gtk.Box:
         """Create action buttons for a file row
-        
+
         Args:
             output_file: Path to the output file
-            
+
         Returns:
             A Gtk.Box containing the action buttons
         """
@@ -508,10 +489,10 @@ class ConclusionPageManager:
 
     def _create_open_button(self, output_file: str) -> Gtk.Button:
         """Create an open file button
-        
+
         Args:
             output_file: Path to the file to open
-            
+
         Returns:
             A Gtk.Button for opening the file
         """
@@ -527,10 +508,10 @@ class ConclusionPageManager:
 
     def _create_text_button(self, output_file: str) -> Gtk.Button:
         """Create a view text button
-        
+
         Args:
             output_file: Path to the file
-            
+
         Returns:
             A Gtk.Button for viewing extracted text
         """
@@ -539,36 +520,10 @@ class ConclusionPageManager:
         text_button.set_tooltip_text(_("View extracted text"))
         text_button.add_css_class("circular")
         text_button.set_valign(Gtk.Align.CENTER)
-        text_button.connect("clicked", lambda _b: self._show_extracted_text(output_file))
+        text_button.connect(
+            "clicked", lambda _b: self._show_extracted_text(output_file)
+        )
         return text_button
-
-    def _format_size(self, size_bytes: int) -> str:
-        """Format file size in human readable format
-
-        Args:
-            size_bytes: Size in bytes
-
-        Returns:
-            Formatted size string
-        """
-        # Handle edge cases
-        if size_bytes < 0:
-            return "0 B"
-
-        # Define size units
-        units = ["B", "KB", "MB", "GB", "TB"]
-
-        # Determine unit to use
-        i = 0
-        while size_bytes >= 1024 and i < len(units) - 1:
-            size_bytes /= 1024
-            i += 1
-
-        # Format with appropriate precision
-        if i == 0:  # Bytes
-            return f"{int(size_bytes)} {units[i]}"
-        else:
-            return f"{size_bytes:.2f} {units[i]}"
 
     def _open_file(self, file_path: str) -> None:
         """Open a file using the default application
@@ -582,17 +537,18 @@ class ConclusionPageManager:
             logger.error(f"Error opening file {file_path}: {e}")
 
     def _show_extracted_text(self, file_path: str) -> None:
-        """Show extracted text dialog - placeholder for now
-        
+        """Show extracted text dialog
+
         Args:
             file_path: Path to the PDF file
         """
-        # This will be implemented when we create the dialogs module
-        # For now, import and call the method from ui_manager
-        if hasattr(self.window, 'ui') and hasattr(self.window.ui, '_show_extracted_text'):
-            self.window.ui._show_extracted_text(file_path)
+        # Use the public interface via ui_manager
+        if hasattr(self.window, "ui") and hasattr(
+            self.window.ui, "show_extracted_text"
+        ):
+            self.window.ui.show_extracted_text(file_path)
         else:
-            logger.warning("Text viewer dialog not yet implemented")
+            logger.warning("Text viewer dialog not available")
             # Simple fallback - show a basic dialog
             self._show_simple_text_dialog(file_path)
 

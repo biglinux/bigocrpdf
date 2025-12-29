@@ -4,26 +4,18 @@ BigOcrPdf - OCR Processor Module
 This module handles the OCR processing of PDF files using the OCRmyPDF API.
 """
 
-from typing import List, Tuple, Dict, Optional, Callable, Any
 import os
 import subprocess
-import logging
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
-from services.settings import OcrSettings
-from utils.logger import logger
 from services.ocr_api import OcrQueue, configure_logging
+from services.ocr_options_builder import OcrOptionsBuilder
+from services.settings import OcrSettings
 from utils.i18n import _
+from utils.logger import logger
 
 # Processing constants
 MAX_CONCURRENT_PROCESSES = 2
-OCR_COMPRESSION_FORMATS = {
-    "economic": "jpeg",
-    "economicplus": "jpeg"
-}
-OCR_OPTIMIZATION_LEVELS = {
-    "economic": 1,
-    "economicplus": 1
-}
 DEFAULT_LANGUAGES = [
     ("por", "Portuguese"),
     ("eng", "English"),
@@ -41,7 +33,6 @@ class OcrProcessor:
             settings: The OcrSettings object containing processing settings
         """
         self.settings = settings
-        self.process_pid = None
         self.ocr_queue = None
         self.on_file_complete = None
         self.on_all_complete = None
@@ -191,66 +182,9 @@ class OcrProcessor:
             self.settings.processed_files.append(output_file)
 
     def _create_ocr_options(self, input_file: str, output_file: str) -> Dict[str, Any]:
-        """Create OCR options dictionary for OCRmyPDF"""
-        temp_dir = os.path.join(os.path.dirname(output_file), ".temp")
-        os.makedirs(temp_dir, exist_ok=True)
-        
-        temp_sidecar = os.path.join(
-            temp_dir,
-            f"temp_{os.path.basename(os.path.splitext(output_file)[0])}.txt",
-        )
-
-        options = {
-            "language": self.settings.lang,
-            "force_ocr": True,
-            "progress_bar": False,
-            "sidecar": temp_sidecar,
-        }
-
-        self._add_text_extraction_options(options, output_file)
-        self._add_quality_options(options)
-        self._add_alignment_options(options)
-        
-        return options
-
-    def _add_text_extraction_options(self, options: Dict[str, Any], output_file: str) -> None:
-        """Add text extraction options to the options dictionary"""
-        if hasattr(self.settings, "save_txt") and self.settings.save_txt:
-            if (
-                hasattr(self.settings, "separate_txt_folder")
-                and self.settings.separate_txt_folder
-                and self.settings.txt_folder
-            ):
-                txt_filename = (
-                    os.path.basename(os.path.splitext(output_file)[0]) + ".txt"
-                )
-                sidecar_file = os.path.join(
-                    self.settings.txt_folder, txt_filename
-                )
-                os.makedirs(self.settings.txt_folder, exist_ok=True)
-            else:
-                sidecar_file = os.path.splitext(output_file)[0] + ".txt"
-
-            options["sidecar"] = sidecar_file
-
-    def _add_quality_options(self, options: Dict[str, Any]) -> None:
-        """Add quality-related options to the options dictionary"""
-        if self.settings.quality in OCR_COMPRESSION_FORMATS:
-            options["pdfa_image_compression"] = OCR_COMPRESSION_FORMATS[self.settings.quality]
-            options["optimize"] = OCR_OPTIMIZATION_LEVELS[self.settings.quality]
-            
-            if self.settings.quality == "economicplus":
-                options["oversample"] = 300
-
-    def _add_alignment_options(self, options: Dict[str, Any]) -> None:
-        """Add alignment-related options to the options dictionary"""
-        if self.settings.align == "align":
-            options["deskew"] = True
-        elif self.settings.align == "rotate":
-            options["rotate_pages"] = True
-        elif self.settings.align == "alignrotate":
-            options["deskew"] = True
-            options["rotate_pages"] = True
+        """Create OCR options dictionary for OCRmyPDF using builder pattern"""
+        builder = OcrOptionsBuilder(self.settings)
+        return builder.build_for_file(output_file)
 
     def get_available_ocr_languages(self) -> List[Tuple[str, str]]:
         """Get a list of available OCR languages from tesseract"""
@@ -387,7 +321,6 @@ class OcrProcessor:
             # Reset all state
             self._is_processing = False
             self._processing_started = False
-            self.process_pid = None
             
             # Clear callbacks
             self.on_file_complete = None

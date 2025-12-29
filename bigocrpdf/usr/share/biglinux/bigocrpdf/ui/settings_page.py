@@ -8,17 +8,17 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Gtk, Adw, Gio, Gdk, GLib
-
 import os
 import subprocess
 from typing import TYPE_CHECKING, List, Tuple
 
+from gi.repository import Adw, Gdk, Gio, GLib, Gtk
+
 if TYPE_CHECKING:
     from window import BigOcrPdfWindow
 
-from utils.logger import logger
 from utils.i18n import _
+from utils.logger import logger
 
 
 class SettingsPageManager:
@@ -194,9 +194,7 @@ class SettingsPageManager:
         # Add a button to open the options dialog
         options_button = Gtk.Button()
         options_button.set_label(_("Configure"))
-        options_button.connect(
-            "clicked", lambda b: self._show_pdf_options_dialog()
-        )
+        options_button.connect("clicked", lambda _: self._show_pdf_options_dialog())
         options_button.set_valign(Gtk.Align.CENTER)
         output_options_row.add_suffix(options_button)
         output_options_row.set_activatable_widget(options_button)
@@ -490,7 +488,7 @@ class SettingsPageManager:
         )
         
         # Connect signal to update tooltip based on selection
-        def on_alignment_selection_changed(dropdown_widget, param):
+        def on_alignment_selection_changed(dropdown_widget, _param):
             selected_index = dropdown_widget.get_selected()
             if 0 <= selected_index < len(self.window.ALIGNMENT_TOOLTIPS):
                 tooltip_text = self.window.ALIGNMENT_TOOLTIPS[selected_index]
@@ -511,9 +509,8 @@ class SettingsPageManager:
             return
         
         # Remove existing items
-        while True:
-            if self.file_list_box and self.file_list_box.get_mapped():
-                child = self.file_list_box.get_first_child()
+        while self.file_list_box and self.file_list_box.get_mapped():
+            child = self.file_list_box.get_first_child()
             if child:
                 self.file_list_box.remove(child)
             else:
@@ -639,12 +636,12 @@ class SettingsPageManager:
             self._populate_file_list()
 
     # Event handlers
-    def _on_same_folder_toggled(self, switch_row: Adw.SwitchRow, param_spec) -> None:
+    def _on_same_folder_toggled(self, switch_row: Adw.SwitchRow, _param_spec) -> None:
         """Handle toggling of the 'save in same folder' switch row
 
         Args:
             switch_row: The switch row that was toggled
-            param_spec: The parameter specification
+            _param_spec: The parameter specification (unused)
         """
         # Get the active state from the switch row
         is_active = switch_row.get_active()
