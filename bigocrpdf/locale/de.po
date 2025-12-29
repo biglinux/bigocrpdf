@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the bigocrpdf package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf\n"
@@ -16,79 +15,529 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: attranslate\n"
 # 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 75
+#, python-brace-format
+msgid "Started OCR processing for {0} files using Python API"
+msgstr "OCR-Verarbeitung für {0} Dateien mit der Python-API gestartet."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 82
+#, python-brace-format
+msgid "Error starting OCR processing: {0}"
+msgstr "Fehler beim Starten der OCR-Verarbeitung: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 92
+msgid "No files to process"
+msgstr "Keine Dateien zu verarbeiten"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 120
+msgid "No file_complete callback registered"
+msgstr "Kein file_complete Callback registriert"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 122
+msgid "No all_complete callback registered"
+msgstr "Kein all_complete Callback registriert"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 136
+#, python-brace-format
+msgid "Error: File not found or invalid: {0}"
+msgstr "Fehler: Datei nicht gefunden oder ungültig: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 172
+#, python-brace-format
+msgid "Could not determine output directory for {0}"
+msgstr "Konnte das Ausgabeverzeichnis für {0} nicht bestimmen."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 185
+#, python-brace-format
+msgid "Error creating output path for {0}: {1}"
+msgstr "Fehler beim Erstellen des Ausgabepfads für {0}: {1}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 365
+msgid "tesseract --list-langs returned empty output"
+msgstr "tesseract --list-langs gab eine leere Ausgabe zurück"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 388
+#, python-brace-format
+msgid "Error getting OCR languages: {0}"
+msgstr "Fehler beim Abrufen der OCR-Sprachen: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 508
+#, python-brace-format
+msgid "Removed processed file from queue: {0}"
+msgstr "Verarbeitetes Datei aus der Warteschlange entfernt: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 533
+#, python-brace-format
+msgid "Generated unique filename to avoid overwriting: {0}"
+msgstr "Generierter eindeutiger Dateiname, um Überschreibungen zu vermeiden: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 75
+#, python-brace-format
+msgid "Error creating alignment setting file: {0}"
+msgstr "Fehler beim Erstellen der Ausrichtungsdatei: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 105
+#, python-brace-format
+msgid "Attempting to add {0} files"
+msgstr "Versuche, {0} Dateien hinzuzufügen."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 120
+#, python-brace-format
+msgid "Successfully added {0} files"
+msgstr "Erfolgreich {0} Dateien hinzugefügt"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 122
+msgid "No valid PDF files were found to add"
+msgstr "Es wurden keine gültigen PDF-Dateien gefunden, die hinzugefügt werden können."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 140
+msgid "Empty file path provided"
+msgstr "Leerer Dateipfad angegeben"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 145
+#, python-brace-format
+msgid "File does not exist: {0}"
+msgstr "Datei existiert nicht: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 150
+#, python-brace-format
+msgid "Not a PDF file: {0}"
+msgstr "Keine PDF-Datei: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 155
+#, python-brace-format
+msgid "File already in list: {0}"
+msgstr "Datei bereits in der Liste: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 159
+#, python-brace-format
+msgid "Adding valid PDF: {0}"
+msgstr "Gültige PDF hinzufügen: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 231
+msgid "Settings saved successfully"
+msgstr "Einstellungen erfolgreich gespeichert"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 234
+#, python-brace-format
+msgid "Error saving settings: {0}"
+msgstr "Fehler beim Speichern der Einstellungen: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 404
+#, python-brace-format
+msgid "Saved {0} selected files"
+msgstr "{0} ausgewählte Dateien gespeichert"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 406
+#, python-brace-format
+msgid "Error saving selected files: {0}"
+msgstr "Fehler beim Speichern der ausgewählten Dateien: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 430
+#, python-brace-format
+msgid "Error loading selected files: {0}"
+msgstr "Fehler beim Laden der ausgewählten Dateien: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 594
+msgid "Processing state reset successfully"
+msgstr "Verarbeitungszustand erfolgreich zurückgesetzt"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 612
+msgid "Temporary files cleanup completed"
+msgstr "Die Bereinigung temporärer Dateien wurde abgeschlossen."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 48
+msgid "Please make sure GTK4, libadwaita, and OCRmyPDF are installed"
+msgstr "Bitte stellen Sie sicher, dass GTK4, libadwaita und OCRmyPDF installiert sind."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 60
+msgid "Failed to set system locale, falling back to C locale"
+msgstr "Fehler beim Festlegen der Systemsprache, Rückfall auf C-Sprache."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 88
+msgid "Cleared file queue at startup"
+msgstr "Datei-Warteschlange beim Start gelöscht"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 380
+msgid "Processing PDF files..."
+msgstr "Verarbeitung von PDF-Dateien..."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 385
+msgid "Preparing processing..."
+msgstr "Vorbereitung der Verarbeitung..."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 398
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1641
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1752
+msgid "Cancel"
+msgstr "Abbrechen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 857
+#, python-brace-format
+msgid "<b>Processing: {current}/{total}:</b> {completed} file(s) completed • <b>{remaining}</b> remaining"
+msgstr ""
+"<b>Verarbeitung: {current}/{total}:</b> {completed} Datei(en) abgeschlossen • <b>{remaining}</b> "
+"verbleibend"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 868
+#, python-brace-format
+msgid "Processed file {current}/{total}: {filename}"
+msgstr "Verarbeitetes Datei {current}/{total}: {filename}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 932
+#, python-brace-format
+msgid "<b>OCR processing complete!</b> {total} file(s) processed"
+msgstr "<b>OCR-Verarbeitung abgeschlossen!</b> {total} Datei(en) verarbeitet"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1050
+#, python-brace-format
+msgid "<b>OCR processing complete!</b> {total} file(s) processed • Total time: {time}"
+msgstr "<b>OCR-Verarbeitung abgeschlossen!</b> {total} Datei(en) verarbeitet • Gesamtzeit: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 347
+#, python-brace-format
+msgid "Processing file {current}/{total}: {filename} (page {page}/{pages}) • Time: {time}"
+msgstr "Verarbeite Datei {current}/{total}: {filename} (Seite {page}/{pages}) • Zeit: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 356
+#, python-brace-format
+msgid "Processing file {current}/{total}: {filename} ({pages} pages) • Time: {time}"
+msgstr "Verarbeite Datei {current}/{total}: {filename} ({pages} Seiten) • Zeit: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 370
+#, python-brace-format
+msgid "Processing files: {processed}/{total} completed • Time: {time}"
+msgstr "Dateien werden verarbeitet: {processed}/{total} abgeschlossen • Zeit: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 382
+#, python-brace-format
+msgid "Starting processing of {total} files... • Time: {time}"
+msgstr "Verarbeitung von {total} Dateien wird gestartet... • Zeit: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1738
+msgid "PDF Output Options"
+msgstr "PDF-Ausgabeoptionen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1749
+msgid "PDF Output Settings"
+msgstr "PDF-Ausgabeeinstellungen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1757
+msgid "Save"
+msgstr "Speichern"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1772
+msgid "File Settings"
+msgstr "Dateieinstellungen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1776
+msgid "Use Original Filename"
+msgstr "Originaldateiname verwenden"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1777
+msgid "Use the same name as the original file"
+msgstr "Verwenden Sie denselben Namen wie die Originaldatei."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1802
+msgid "Filename Suffix"
+msgstr "Dateiendung"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1805
+msgid "Text added to the filename (e.g. document-ocr.pdf)"
+msgstr "Text zum Dateinamen hinzugefügt (z. B. dokument-ocr.pdf)"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1814
+msgid "Overwrite Existing Files"
+msgstr "Vorhandene Dateien überschreiben"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1815
+msgid "Replace files with the same name"
+msgstr "Dateien mit demselben Namen ersetzen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1785
+msgid "Warning"
+msgstr "Warnung"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1788
+msgid "If saving to the same folder as original, this will replace the original files"
+msgstr "Wenn Sie im selben Ordner wie das Original speichern, werden die Originaldateien ersetzt."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1821
+msgid "Text Extraction"
+msgstr "Textextraktion"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1825
+msgid "Save Text Files"
+msgstr "Textdateien speichern"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1826
+msgid "Automatically save extracted text as .txt files"
+msgstr "Extrahierten Text automatisch als .txt-Dateien speichern"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1834
+msgid "Use Separate Folder for Text Files"
+msgstr "Verwenden Sie einen separaten Ordner für Textdateien"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1835
+msgid "Save text files to a different folder"
+msgstr "Textdateien in einen anderen Ordner speichern"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1846
+msgid "Text Files Folder"
+msgstr "Textdateien-Ordner"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1847
+msgid "Select where to save text files"
+msgstr "Wählen Sie aus, wo Sie Textdateien speichern möchten."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1852
+msgid "Not set"
+msgstr "Nicht festgelegt"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1862
+msgid "Select folder"
+msgstr "Ordner auswählen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1919
+msgid "Date and Time"
+msgstr "Datum und Uhrzeit"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1923
+msgid "Add Date to Filename"
+msgstr "Datum zum Dateinamen hinzufügen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1924
+msgid "Include date elements in the filename"
+msgstr "Datumselemente im Dateinamen einfügen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1959
+msgid "Include Year"
+msgstr "Jahr einbeziehen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1960
+msgid "Add YYYY to the date"
+msgstr "Fügen Sie YYYY zum Datum hinzu."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1970
+msgid "Include Month"
+msgstr "Monat einbeziehen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1971
+msgid "Add MM to the date"
+msgstr "Fügen Sie MM zum Datum hinzu."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1981
+msgid "Include Day"
+msgstr "Tag einbeziehen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1982
+msgid "Add DD to the date"
+msgstr "Fügen Sie DD zum Datum hinzu."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1992
+msgid "Include Time"
+msgstr "Zeit einbeziehen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1993
+msgid "Add HHMM to the filename"
+msgstr "Fügen Sie HHMM zum Dateinamen hinzu."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1930
+msgid "Date Format"
+msgstr "Datumsformat"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1932
+msgid "YYYY-MM-DD (ISO)"
+msgstr "YYYY-MM-DD (ISO)"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1933
+msgid "DD-MM-YYYY (Europe)"
+msgstr "TT-MM-JJJJ (Europa)"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1934
+msgid "MM-DD-YYYY (US)"
+msgstr "MM-TT-JJJJ (DE)"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 2003
+msgid "Preview"
+msgstr "Vorschau"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 2007
+msgid "Filename Example:"
+msgstr "Dateiname Beispiel:"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1898
+msgid "Select Folder for Text Files"
+msgstr "Ordner für Textdateien auswählen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 708
+msgid "OCR processing was completed for this file, but the extracted text could not be found."
+msgstr ""
+"Die OCR-Verarbeitung für diese Datei wurde abgeschlossen, aber der extrahierte Text konnte nicht "
+"gefunden werden."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1272
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1272
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1324
+msgid "Search in text..."
+msgstr "Im Text suchen..."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1331
+msgid "Find previous match"
+msgstr "Vorheriges Match finden"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1338
+msgid "Find next match"
+msgstr "Nächstes Spiel finden"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1477
+msgid "Copy to Clipboard"
+msgstr "In die Zwischenablage kopieren"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1478
+msgid "Copy the entire text to clipboard"
+msgstr "Kopiere den gesamten Text in die Zwischenablage"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1485
+msgid "Save as TXT"
+msgstr "Als TXT speichern"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1486
+msgid "Save the extracted text to a .txt file"
+msgstr "Speichern Sie den extrahierten Text in einer .txt-Datei."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1493
+msgid "Close"
+msgstr "Schließen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1420
+#, python-brace-format
+msgid "{0} matches found"
+msgstr "{0} Übereinstimmungen gefunden"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1443
+#, python-brace-format
+msgid "Match {0} of {1}"
+msgstr "Übereinstimmung {0} von {1}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1565
+msgid "Save Extracted Text"
+msgstr "Extrahierten Text speichern"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1616
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1726
+msgid "Save Failed"
+msgstr "Speichern fehlgeschlagen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1632
+msgid "File Already Exists"
+msgstr "Datei Existiert Bereits"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1633
+#, python-brace-format
+msgid "The file '{0}' already exists. What would you like to do?"
+msgstr "Die Datei '{0}' existiert bereits. Was möchten Sie tun?"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1639
+msgid "Overwrite"
+msgstr "Überschreiben"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1640
+msgid "Auto-Rename"
+msgstr "Auto-Umbenennen"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 1206
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 568
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 1206
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 568
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 34
+#, python-brace-format
+msgid "CSS file not found: {0}"
+msgstr "CSS-Datei nicht gefunden: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 43
+msgid "Custom CSS styles loaded successfully"
+msgstr "Benutzerdefinierte CSS-Stile erfolgreich geladen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 46
+#, python-brace-format
+msgid "Error loading CSS styles: {0}"
+msgstr "Fehler beim Laden der CSS-Stile: {0}"
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 97
-#: NEEDS WORK
 msgid "Configuration"
 msgstr "Konfiguration"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 106
-#: NEEDS WORK
 msgid "Save in same folder as original file"
 msgstr "Im selben Ordner wie die Originaldatei speichern"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 125
-#: NEEDS WORK
 msgid "Select the destination folder"
 msgstr "Wählen Sie den Zielordner aus"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 150
-#: NEEDS WORK
 msgid "Browse"
 msgstr "Durchsuchen"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 163
-#: NEEDS WORK
 msgid "Output File Options"
 msgstr "Ausgabedatei-Optionen"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 172
-#: NEEDS WORK
 msgid "Configure"
 msgstr "Konfigurieren"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 184
-#: NEEDS WORK
 msgid "Text Language"
 msgstr "Textsprache"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 194
-#: NEEDS WORK
 msgid "Quality"
 msgstr "Qualität"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 204
-#: NEEDS WORK
 msgid "Alignment"
 msgstr "Ausrichtung"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 234
-#: NEEDS WORK
 msgid "PDF Files Queue"
 msgstr "PDF-Dateien-Warteschlange"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 261
-#: NEEDS WORK
 msgid "Add"
 msgstr "Hinzufügen"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 269
-#: NEEDS WORK
 msgid "Remove All"
 msgstr "Alle entfernen"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 324
-#: NEEDS WORK
 msgid "Drop PDF files here"
 msgstr "PDF-Dateien hier ablegen"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 305
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 948
-#: NEEDS WORK
 msgid "No files selected"
 msgstr "Keine Dateien ausgewählt"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 306
-#: NEEDS WORK
 msgid "Add PDF files for OCR processing"
 msgstr "PDF-Dateien für die OCR-Verarbeitung hinzufügen"
 # 
@@ -96,7 +545,6 @@ msgstr "PDF-Dateien für die OCR-Verarbeitung hinzufügen"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 918
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 38
-#: NEEDS WORK
 msgid "Don't change"
 msgstr "Ändere nichts"
 # 
@@ -104,7 +552,6 @@ msgstr "Ändere nichts"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 919
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 39
-#: NEEDS WORK
 msgid "Align"
 msgstr "Ausrichten"
 # 
@@ -112,7 +559,6 @@ msgstr "Ausrichten"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 920
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 40
-#: NEEDS WORK
 msgid "Auto rotate"
 msgstr "Automatische Drehung"
 # 
@@ -120,76 +566,48 @@ msgstr "Automatische Drehung"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 921
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 41
-#: NEEDS WORK
 msgid "Align + rotate"
 msgstr "Ausrichten + drehen"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 937
-#: NEEDS WORK
 msgid "Choose how to handle page alignment and rotation during OCR processing"
 msgstr ""
 "Wählen Sie aus, wie die Seitenausrichtung und -drehung während der OCR-Verarbeitung behandelt "
 "werden sollen."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 34
-#: NEEDS WORK
-#, python-brace-format
-msgid "CSS file not found: {0}"
-msgstr "CSS-Datei nicht gefunden: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 43
-#: NEEDS WORK
-msgid "Custom CSS styles loaded successfully"
-msgstr "Benutzerdefinierte CSS-Stile erfolgreich geladen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 46
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error loading CSS styles: {0}"
-msgstr "Fehler beim Laden der CSS-Stile: {0}"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 424
-#: NEEDS WORK
 msgid "Processing Summary"
 msgstr "Verarbeitungszusammenfassung"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 450
-#: NEEDS WORK
 msgid "Files processed:"
 msgstr "Verarbeitete Dateien:"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 466
-#: NEEDS WORK
 msgid "Total pages:"
 msgstr "Gesamtseiten:"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 488
-#: NEEDS WORK
 msgid "Processing time:"
 msgstr "Verarbeitungszeit:"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 504
-#: NEEDS WORK
 msgid "File size:"
 msgstr "Dateigröße:"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 529
-#: NEEDS WORK
 msgid "Generated Files"
 msgstr "Generierte Dateien"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 724
-#: NEEDS WORK
 msgid "Open file"
 msgstr "Datei öffnen"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 786
-#: NEEDS WORK
 msgid "View extracted text"
 msgstr "Extrahierten Text anzeigen"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 610
-#: NEEDS WORK
 msgid "Extracted Text"
 msgstr "Extrahierter Text"
 # 
@@ -197,7 +615,6 @@ msgstr "Extrahierter Text"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 612
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 1199
-#: NEEDS WORK
 # 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
@@ -255,472 +672,74 @@ msgstr "Extrahierter Text"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 1199
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 639
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
 msgid "No text content was detected in this file during OCR processing."
 msgstr "Es wurden während der OCR-Verarbeitung keine Textinhalte in dieser Datei erkannt."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1738
-#: NEEDS WORK
-msgid "PDF Output Options"
-msgstr "PDF-Ausgabeoptionen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1749
-#: NEEDS WORK
-msgid "PDF Output Settings"
-msgstr "PDF-Ausgabeeinstellungen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 398
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1641
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1752
-#: NEEDS WORK
-msgid "Cancel"
-msgstr "Abbrechen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1757
-#: NEEDS WORK
-msgid "Save"
-msgstr "Speichern"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1772
-#: NEEDS WORK
-msgid "File Settings"
-msgstr "Dateieinstellungen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1776
-#: NEEDS WORK
-msgid "Use Original Filename"
-msgstr "Originaldateiname verwenden"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1777
-#: NEEDS WORK
-msgid "Use the same name as the original file"
-msgstr "Verwenden Sie denselben Namen wie die Originaldatei."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1802
-#: NEEDS WORK
-msgid "Filename Suffix"
-msgstr "Dateiendung"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1805
-#: NEEDS WORK
-msgid "Text added to the filename (e.g. document-ocr.pdf)"
-msgstr "Text zum Dateinamen hinzugefügt (z. B. dokument-ocr.pdf)"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1814
-#: NEEDS WORK
-msgid "Overwrite Existing Files"
-msgstr "Vorhandene Dateien überschreiben"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1815
-#: NEEDS WORK
-msgid "Replace files with the same name"
-msgstr "Dateien mit demselben Namen ersetzen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1785
-#: NEEDS WORK
-msgid "Warning"
-msgstr "Warnung"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1788
-#: NEEDS WORK
-msgid "If saving to the same folder as original, this will replace the original files"
-msgstr "Wenn Sie im selben Ordner wie das Original speichern, werden die Originaldateien ersetzt."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1821
-#: NEEDS WORK
-msgid "Text Extraction"
-msgstr "Textextraktion"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1825
-#: NEEDS WORK
-msgid "Save Text Files"
-msgstr "Textdateien speichern"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1826
-#: NEEDS WORK
-msgid "Automatically save extracted text as .txt files"
-msgstr "Extrahierten Text automatisch als .txt-Dateien speichern"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1834
-#: NEEDS WORK
-msgid "Use Separate Folder for Text Files"
-msgstr "Verwenden Sie einen separaten Ordner für Textdateien"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1835
-#: NEEDS WORK
-msgid "Save text files to a different folder"
-msgstr "Textdateien in einen anderen Ordner speichern"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1846
-#: NEEDS WORK
-msgid "Text Files Folder"
-msgstr "Textdateien-Ordner"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1847
-#: NEEDS WORK
-msgid "Select where to save text files"
-msgstr "Wählen Sie aus, wo Sie Textdateien speichern möchten."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1852
-#: NEEDS WORK
-msgid "Not set"
-msgstr "Nicht festgelegt"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1862
-#: NEEDS WORK
-msgid "Select folder"
-msgstr "Ordner auswählen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1919
-#: NEEDS WORK
-msgid "Date and Time"
-msgstr "Datum und Uhrzeit"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1923
-#: NEEDS WORK
-msgid "Add Date to Filename"
-msgstr "Datum zum Dateinamen hinzufügen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1924
-#: NEEDS WORK
-msgid "Include date elements in the filename"
-msgstr "Datumselemente im Dateinamen einfügen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1959
-#: NEEDS WORK
-msgid "Include Year"
-msgstr "Jahr einbeziehen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1960
-#: NEEDS WORK
-msgid "Add YYYY to the date"
-msgstr "Fügen Sie YYYY zum Datum hinzu."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1970
-#: NEEDS WORK
-msgid "Include Month"
-msgstr "Monat einbeziehen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1971
-#: NEEDS WORK
-msgid "Add MM to the date"
-msgstr "Fügen Sie MM zum Datum hinzu."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1981
-#: NEEDS WORK
-msgid "Include Day"
-msgstr "Tag einbeziehen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1982
-#: NEEDS WORK
-msgid "Add DD to the date"
-msgstr "Fügen Sie DD zum Datum hinzu."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1992
-#: NEEDS WORK
-msgid "Include Time"
-msgstr "Zeit einbeziehen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1993
-#: NEEDS WORK
-msgid "Add HHMM to the filename"
-msgstr "Fügen Sie HHMM zum Dateinamen hinzu."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1930
-#: NEEDS WORK
-msgid "Date Format"
-msgstr "Datumsformat"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1932
-#: NEEDS WORK
-msgid "YYYY-MM-DD (ISO)"
-msgstr "YYYY-MM-DD (ISO)"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1933
-#: NEEDS WORK
-msgid "DD-MM-YYYY (Europe)"
-msgstr "TT-MM-JJJJ (Europa)"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1934
-#: NEEDS WORK
-msgid "MM-DD-YYYY (US)"
-msgstr "MM-TT-JJJJ (DE)"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 2003
-#: NEEDS WORK
-msgid "Preview"
-msgstr "Vorschau"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 2007
-#: NEEDS WORK
-msgid "Filename Example:"
-msgstr "Dateiname Beispiel:"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1898
-#: NEEDS WORK
-msgid "Select Folder for Text Files"
-msgstr "Ordner für Textdateien auswählen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 708
-#: NEEDS WORK
-msgid "OCR processing was completed for this file, but the extracted text could not be found."
-msgstr ""
-"Die OCR-Verarbeitung für diese Datei wurde abgeschlossen, aber der extrahierte Text konnte nicht "
-"gefunden werden."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1272
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1272
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1324
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-msgid "Search in text..."
-msgstr "Im Text suchen..."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1331
-#: NEEDS WORK
-msgid "Find previous match"
-msgstr "Vorheriges Match finden"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1338
-#: NEEDS WORK
-msgid "Find next match"
-msgstr "Nächstes Spiel finden"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1477
-#: NEEDS WORK
-msgid "Copy to Clipboard"
-msgstr "In die Zwischenablage kopieren"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1478
-#: NEEDS WORK
-msgid "Copy the entire text to clipboard"
-msgstr "Kopiere den gesamten Text in die Zwischenablage"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1485
-#: NEEDS WORK
-msgid "Save as TXT"
-msgstr "Als TXT speichern"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1486
-#: NEEDS WORK
-msgid "Save the extracted text to a .txt file"
-msgstr "Speichern Sie den extrahierten Text in einer .txt-Datei."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1493
-#: NEEDS WORK
-msgid "Close"
-msgstr "Schließen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1420
-#: NEEDS WORK
-#, python-brace-format
-msgid "{0} matches found"
-msgstr "{0} Übereinstimmungen gefunden"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1443
-#: NEEDS WORK
-#, python-brace-format
-msgid "Match {0} of {1}"
-msgstr "Übereinstimmung {0} von {1}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1565
-#: NEEDS WORK
-msgid "Save Extracted Text"
-msgstr "Extrahierten Text speichern"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1616
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1726
-#: NEEDS WORK
-msgid "Save Failed"
-msgstr "Speichern fehlgeschlagen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1632
-#: NEEDS WORK
-msgid "File Already Exists"
-msgstr "Datei Existiert Bereits"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1633
-#: NEEDS WORK
-#, python-brace-format
-msgid "The file '{0}' already exists. What would you like to do?"
-msgstr "Die Datei '{0}' existiert bereits. Was möchten Sie tun?"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1639
-#: NEEDS WORK
-msgid "Overwrite"
-msgstr "Überschreiben"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1640
-#: NEEDS WORK
-msgid "Auto-Rename"
-msgstr "Auto-Umbenennen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 380
-#: NEEDS WORK
-msgid "Processing PDF files..."
-msgstr "Verarbeitung von PDF-Dateien..."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 385
-#: NEEDS WORK
-msgid "Preparing processing..."
-msgstr "Vorbereitung der Verarbeitung..."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 857
-#: NEEDS WORK
-#, python-brace-format
-msgid "<b>Processing: {current}/{total}:</b> {completed} file(s) completed • <b>{remaining}</b> remaining"
-msgstr ""
-"<b>Verarbeitung: {current}/{total}:</b> {completed} Datei(en) abgeschlossen • <b>{remaining}</b> "
-"verbleibend"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 868
-#: NEEDS WORK
-#, python-brace-format
-msgid "Processed file {current}/{total}: {filename}"
-msgstr "Verarbeitetes Datei {current}/{total}: {filename}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 932
-#: NEEDS WORK
-#, python-brace-format
-msgid "<b>OCR processing complete!</b> {total} file(s) processed"
-msgstr "<b>OCR-Verarbeitung abgeschlossen!</b> {total} Datei(en) verarbeitet"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1050
-#: NEEDS WORK
-#, python-brace-format
-msgid "<b>OCR processing complete!</b> {total} file(s) processed • Total time: {time}"
-msgstr "<b>OCR-Verarbeitung abgeschlossen!</b> {total} Datei(en) verarbeitet • Gesamtzeit: {time}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 347
-#: NEEDS WORK
-#, python-brace-format
-msgid "Processing file {current}/{total}: {filename} (page {page}/{pages}) • Time: {time}"
-msgstr "Verarbeite Datei {current}/{total}: {filename} (Seite {page}/{pages}) • Zeit: {time}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 356
-#: NEEDS WORK
-#, python-brace-format
-msgid "Processing file {current}/{total}: {filename} ({pages} pages) • Time: {time}"
-msgstr "Verarbeite Datei {current}/{total}: {filename} ({pages} Seiten) • Zeit: {time}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 370
-#: NEEDS WORK
-#, python-brace-format
-msgid "Processing files: {processed}/{total} completed • Time: {time}"
-msgstr "Dateien werden verarbeitet: {processed}/{total} abgeschlossen • Zeit: {time}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 382
-#: NEEDS WORK
-#, python-brace-format
-msgid "Starting processing of {total} files... • Time: {time}"
-msgstr "Verarbeitung von {total} Dateien wird gestartet... • Zeit: {time}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
-#: NEEDS WORK
-msgid "Add OCR to your PDF documents to make them searchable"
-msgstr "Fügen Sie OCR zu Ihren PDF-Dokumenten hinzu, um sie durchsuchbar zu machen."
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
-#: NEEDS WORK
-msgid "Print version information and exit"
-msgstr "Versionsinformationen drucken und beenden"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 72
-#: NEEDS WORK
-msgid "Enable debug mode"
-msgstr "Debug-Modus aktivieren"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 74
-#: NEEDS WORK
-msgid "Enable verbose output"
-msgstr "Aktivieren Sie die ausführliche Ausgabe"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
-#: NEEDS WORK
-msgid "PDF files to process"
-msgstr "PDF-Dateien zur Verarbeitung"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
-#: NEEDS WORK
-msgid "Application started successfully"
-msgstr "Anwendung erfolgreich gestartet"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 111
-#: NEEDS WORK
-msgid "Error starting application"
-msgstr "Fehler beim Starten der Anwendung"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 129
-#: NEEDS WORK
-msgid "BigLinux Team"
-msgstr "BigLinux-Team"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 139
-#: NEEDS WORK
-msgid "Developers"
-msgstr "Entwickler"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 420
+msgid "Start Processing"
+msgstr "Verarbeitung starten"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/navigation_manager.py, line: 109
+msgid "Process New Files"
+msgstr "Neue Dateien verarbeiten"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 471
+msgid "Select PDF Files"
+msgstr "PDF-Dateien auswählen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 478
+msgid "PDF Files"
+msgstr "PDF-Dateien"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 525
+msgid "Error adding files"
+msgstr "Fehler beim Hinzufügen von Dateien"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 521
+msgid "No valid files were selected"
+msgstr "Es wurden keine gültigen Dateien ausgewählt."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 522
+msgid "No valid PDF files were selected"
+msgstr "Es wurden keine gültigen PDF-Dateien ausgewählt."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 546
+msgid "Select destination folder"
+msgstr "Zielordner auswählen"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 601
+msgid "Error selecting destination folder"
+msgstr "Fehler beim Auswählen des Zielordners"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 597
+msgid "Destination folder selected"
+msgstr "Zielordner ausgewählt"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 32
-#: NEEDS WORK
 msgid "Normal"
 msgstr "Normal"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 33
-#: NEEDS WORK
 msgid "Economic"
 msgstr "Wirtschaftlich"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 34
-#: NEEDS WORK
 msgid "More economic"
 msgstr "Wirtschaftlicher"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 45
-#: NEEDS WORK
 msgid "Keep pages as they are without any modifications"
 msgstr "Seiten unverändert lassen, ohne Änderungen vorzunehmen."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 46
-#: NEEDS WORK
 msgid "Align page content to improve readability"
 msgstr "Inhalt der Seite ausrichten, um die Lesbarkeit zu verbessern"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 47
-#: NEEDS WORK
 msgid "Automatically rotate pages to correct orientation"
 msgstr "Seiten automatisch in die richtige Ausrichtung drehen"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 48
-#: NEEDS WORK
 msgid "Align page content and automatically rotate pages to correct orientation"
 msgstr "Inhalt der Seite ausrichten und Seiten automatisch in die richtige Ausrichtung drehen"
 # 
@@ -728,51 +747,42 @@ msgstr "Inhalt der Seite ausrichten und Seiten automatisch in die richtige Ausri
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 53
-#: NEEDS WORK
 msgid "Big OCR PDF"
 msgstr "Großes OCR-PDF"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 131
-#: NEEDS WORK
 msgid "BigOcrPdf - Scanned PDFs with search support"
 msgstr "BigOcrPdf - Durchsuchbare gescannte PDFs"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 137
-#: NEEDS WORK
 msgid "Menu"
 msgstr "Menü"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 141
-#: NEEDS WORK
 msgid "Help"
 msgstr "Hilfe"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 142
-#: NEEDS WORK
 msgid "About the application"
 msgstr "Über die Anwendung"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 172
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 416
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 737
-#: NEEDS WORK
 msgid "Step 1/3: Settings"
 msgstr "Schritt 1/3: Einstellungen"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 182
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 755
-#: NEEDS WORK
 msgid "Back"
 msgstr "Zurück"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 190
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 726
-#: NEEDS WORK
 msgid "Start"
 msgstr "Starten"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 324
-#: NEEDS WORK
 msgid ""
 "Big OCR PDF adds optical character recognition to your PDF files, making them searchable and "
 "allowing you to select and copy text from scanned documents."
@@ -781,395 +791,139 @@ msgstr ""
 "werden und Sie Text aus gescannten Dokumenten auswählen und kopieren können."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 335
-#: NEEDS WORK
 msgid "Benefits of using Big OCR PDF:"
 msgstr "Vorteile der Verwendung von Big OCR PDF:"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
-#: NEEDS WORK
 msgid "Search"
 msgstr "Suche"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
-#: NEEDS WORK
 msgid "Search through your scanned PDF documents"
 msgstr "Durchsuchen Sie Ihre gescannten PDF-Dokumente."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
-#: NEEDS WORK
 msgid "Copy text"
 msgstr "Text kopieren"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
-#: NEEDS WORK
 msgid "Copy text from images and scanned documents"
 msgstr "Text aus Bildern und gescannten Dokumenten kopieren"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
-#: NEEDS WORK
 msgid "Batch processing"
 msgstr "Stapelverarbeitung"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
-#: NEEDS WORK
 msgid "Process multiple files at once"
 msgstr "Verarbeiten Sie mehrere Dateien gleichzeitig"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
-#: NEEDS WORK
 msgid "Auto-correction"
 msgstr "Automatische Korrektur"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
-#: NEEDS WORK
 msgid "Automatically correct page alignment and rotation"
 msgstr "Automatische Korrektur der Seitenausrichtung und -drehung"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 363
-#: NEEDS WORK
 msgid "Show this dialog at startup"
 msgstr "Dieses Dialogfeld beim Start anzeigen"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 377
-#: NEEDS WORK
 msgid "Let's Get Started"
 msgstr "Lass uns anfangen"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 420
-#: NEEDS WORK
-msgid "Start Processing"
-msgstr "Verarbeitung starten"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 471
-#: NEEDS WORK
-msgid "Select PDF Files"
-msgstr "PDF-Dateien auswählen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 478
-#: NEEDS WORK
-msgid "PDF Files"
-msgstr "PDF-Dateien"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 521
-#: NEEDS WORK
-msgid "No valid files were selected"
-msgstr "Es wurden keine gültigen Dateien ausgewählt."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 522
-#: NEEDS WORK
-msgid "No valid PDF files were selected"
-msgstr "Es wurden keine gültigen PDF-Dateien ausgewählt."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 525
-#: NEEDS WORK
-msgid "Error adding files"
-msgstr "Fehler beim Hinzufügen von Dateien"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 546
-#: NEEDS WORK
-msgid "Select destination folder"
-msgstr "Zielordner auswählen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 597
-#: NEEDS WORK
-msgid "Destination folder selected"
-msgstr "Zielordner ausgewählt"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 601
-#: NEEDS WORK
-msgid "Error selecting destination folder"
-msgstr "Fehler beim Auswählen des Zielordners"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 611
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 612
-#: NEEDS WORK
 msgid "No files selected for processing"
 msgstr "Keine Dateien zur Verarbeitung ausgewählt."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 620
-#: NEEDS WORK
 msgid "No destination folder selected"
 msgstr "Kein Zielordner ausgewählt"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 621
-#: NEEDS WORK
 msgid "Please select a destination folder"
 msgstr "Bitte wählen Sie einen Zielordner aus."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 701
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 702
-#: NEEDS WORK
 msgid "Failed to start OCR processing"
 msgstr "Fehler beim Starten der OCR-Verarbeitung"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 708
-#: NEEDS WORK
 msgid "Step 2/3: Processing"
 msgstr "Schritt 2/3: Verarbeitung"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 717
-#: NEEDS WORK
 msgid "OCR processing started using Python API"
 msgstr "OCR-Verarbeitung gestartet mit Python-API"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 837
-#: NEEDS WORK
-msgid "OCR processor cleaned up aggressively"
-msgstr "OCR-Prozessor wurde aggressiv bereinigt"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 748
-#: NEEDS WORK
 msgid "Step 3/3: Completed"
 msgstr "Schritt 3/3: Abgeschlossen"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 877
-#: NEEDS WORK
 msgid "OCR processing complete callback triggered"
 msgstr "OCR-Verarbeitung abgeschlossen, Callback ausgelöst"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 882
-#: NEEDS WORK
 msgid "Processing complete but no longer on terminal page, likely cancelled"
 msgstr "Verarbeitung abgeschlossen, aber nicht mehr auf der Terminalseite, wahrscheinlich abgebrochen."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 906
-#: NEEDS WORK
 #, python-brace-format
 msgid "OCR processing completed successfully for {count} files"
 msgstr "OCR-Verarbeitung wurde erfolgreich für {count} Dateien abgeschlossen."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 912
-#: NEEDS WORK
 msgid "OCR processing complete"
 msgstr "OCR-Verarbeitung abgeschlossen"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1114
-#: NEEDS WORK
 msgid "OCR processing cancelled by user"
 msgstr "OCR-Verarbeitung vom Benutzer abgebrochen"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1122
-#: NEEDS WORK
 msgid "OCR processing cancelled"
 msgstr "OCR-Verarbeitung abgebrochen"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 48
-#: NEEDS WORK
-msgid "Please make sure GTK4, libadwaita, and OCRmyPDF are installed"
-msgstr "Bitte stellen Sie sicher, dass GTK4, libadwaita und OCRmyPDF installiert sind."
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
+msgid "Add OCR to your PDF documents to make them searchable"
+msgstr "Fügen Sie OCR zu Ihren PDF-Dokumenten hinzu, um sie durchsuchbar zu machen."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 60
-#: NEEDS WORK
-msgid "Failed to set system locale, falling back to C locale"
-msgstr "Fehler beim Festlegen der Systemsprache, Rückfall auf C-Sprache."
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 88
-#: NEEDS WORK
-msgid "Cleared file queue at startup"
-msgstr "Datei-Warteschlange beim Start gelöscht"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
+msgid "Print version information and exit"
+msgstr "Versionsinformationen drucken und beenden"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 75
-#: NEEDS WORK
-#, python-brace-format
-msgid "Started OCR processing for {0} files using Python API"
-msgstr "OCR-Verarbeitung für {0} Dateien mit der Python-API gestartet."
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 72
+msgid "Enable debug mode"
+msgstr "Debug-Modus aktivieren"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 82
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error starting OCR processing: {0}"
-msgstr "Fehler beim Starten der OCR-Verarbeitung: {0}"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 74
+msgid "Enable verbose output"
+msgstr "Aktivieren Sie die ausführliche Ausgabe"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 92
-#: NEEDS WORK
-msgid "No files to process"
-msgstr "Keine Dateien zu verarbeiten"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
+msgid "PDF files to process"
+msgstr "PDF-Dateien zur Verarbeitung"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 120
-#: NEEDS WORK
-msgid "No file_complete callback registered"
-msgstr "Kein file_complete Callback registriert"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
+msgid "Application started successfully"
+msgstr "Anwendung erfolgreich gestartet"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 122
-#: NEEDS WORK
-msgid "No all_complete callback registered"
-msgstr "Kein all_complete Callback registriert"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 111
+msgid "Error starting application"
+msgstr "Fehler beim Starten der Anwendung"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 136
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error: File not found or invalid: {0}"
-msgstr "Fehler: Datei nicht gefunden oder ungültig: {0}"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 129
+msgid "BigLinux Team"
+msgstr "BigLinux-Team"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 172
-#: NEEDS WORK
-#, python-brace-format
-msgid "Could not determine output directory for {0}"
-msgstr "Konnte das Ausgabeverzeichnis für {0} nicht bestimmen."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 185
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error creating output path for {0}: {1}"
-msgstr "Fehler beim Erstellen des Ausgabepfads für {0}: {1}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 365
-#: NEEDS WORK
-msgid "tesseract --list-langs returned empty output"
-msgstr "tesseract --list-langs gab eine leere Ausgabe zurück"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 388
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error getting OCR languages: {0}"
-msgstr "Fehler beim Abrufen der OCR-Sprachen: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 508
-#: NEEDS WORK
-#, python-brace-format
-msgid "Removed processed file from queue: {0}"
-msgstr "Verarbeitetes Datei aus der Warteschlange entfernt: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 533
-#: NEEDS WORK
-#, python-brace-format
-msgid "Generated unique filename to avoid overwriting: {0}"
-msgstr "Generierter eindeutiger Dateiname, um Überschreibungen zu vermeiden: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 75
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error creating alignment setting file: {0}"
-msgstr "Fehler beim Erstellen der Ausrichtungsdatei: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 105
-#: NEEDS WORK
-#, python-brace-format
-msgid "Attempting to add {0} files"
-msgstr "Versuche, {0} Dateien hinzuzufügen."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 120
-#: NEEDS WORK
-#, python-brace-format
-msgid "Successfully added {0} files"
-msgstr "Erfolgreich {0} Dateien hinzugefügt"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 122
-#: NEEDS WORK
-msgid "No valid PDF files were found to add"
-msgstr "Es wurden keine gültigen PDF-Dateien gefunden, die hinzugefügt werden können."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 140
-#: NEEDS WORK
-msgid "Empty file path provided"
-msgstr "Leerer Dateipfad angegeben"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 145
-#: NEEDS WORK
-#, python-brace-format
-msgid "File does not exist: {0}"
-msgstr "Datei existiert nicht: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 150
-#: NEEDS WORK
-#, python-brace-format
-msgid "Not a PDF file: {0}"
-msgstr "Keine PDF-Datei: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 155
-#: NEEDS WORK
-#, python-brace-format
-msgid "File already in list: {0}"
-msgstr "Datei bereits in der Liste: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 159
-#: NEEDS WORK
-#, python-brace-format
-msgid "Adding valid PDF: {0}"
-msgstr "Gültige PDF hinzufügen: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 231
-#: NEEDS WORK
-msgid "Settings saved successfully"
-msgstr "Einstellungen erfolgreich gespeichert"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 234
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error saving settings: {0}"
-msgstr "Fehler beim Speichern der Einstellungen: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 254
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error saving setting to {0}: {1}"
-msgstr "Fehler beim Speichern der Einstellung in {0}: {1}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 294
-#: NEEDS WORK
-msgid "PDF output settings saved successfully"
-msgstr "PDF-Ausgabeeinstellungen erfolgreich gespeichert"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 296
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error saving PDF output settings: {0}"
-msgstr "Fehler beim Speichern der PDF-Ausgabeeinstellungen: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 376
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error getting page count for {0}: {1}"
-msgstr "Fehler beim Abrufen der Seitenanzahl für {0}: {1}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 404
-#: NEEDS WORK
-#, python-brace-format
-msgid "Saved {0} selected files"
-msgstr "{0} ausgewählte Dateien gespeichert"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 406
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error saving selected files: {0}"
-msgstr "Fehler beim Speichern der ausgewählten Dateien: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 430
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error loading selected files: {0}"
-msgstr "Fehler beim Laden der ausgewählten Dateien: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 452
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error loading setting from {0}: {1}"
-msgstr "Fehler beim Laden der Einstellung von {0}: {1}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 532
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error loading PDF date settings: {0}"
-msgstr "Fehler beim Laden der PDF-Dateneinstellungen: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 558
-#: NEEDS WORK
-#, python-brace-format
-msgid "Invalid position value for {0}: {1}"
-msgstr "Ungültiger Positionswert für {0}: {1}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 560
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error loading date format order settings: {0}"
-msgstr "Fehler beim Laden der Datumsformatbestellungs-Einstellungen: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 594
-#: NEEDS WORK
-msgid "Processing state reset successfully"
-msgstr "Verarbeitungszustand erfolgreich zurückgesetzt"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 612
-#: NEEDS WORK
-msgid "Temporary files cleanup completed"
-msgstr "Die Bereinigung temporärer Dateien wurde abgeschlossen."
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 139
+msgid "Developers"
+msgstr "Entwickler"

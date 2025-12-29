@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the bigocrpdf package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf\n"
@@ -16,82 +15,527 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: attranslate\n"
 # 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 75
+#, python-brace-format
+msgid "Started OCR processing for {0} files using Python API"
+msgstr "Hafið hafið OCR úrvinnslu fyrir {0} skrár með Python API"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 82
+#, python-brace-format
+msgid "Error starting OCR processing: {0}"
+msgstr "Villa við að hefja OCR úrvinnslu: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 92
+msgid "No files to process"
+msgstr "Engin skrár til að vinna úr."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 120
+msgid "No file_complete callback registered"
+msgstr "Engin ekki skráð skrá_fullkomin viðbragð."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 122
+msgid "No all_complete callback registered"
+msgstr "Engin all_complete skráður."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 136
+#, python-brace-format
+msgid "Error: File not found or invalid: {0}"
+msgstr "Villa: Skrá fannst ekki eða er ógild: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 172
+#, python-brace-format
+msgid "Could not determine output directory for {0}"
+msgstr "Gat ekki að ákvarða úttaksstefnu fyrir {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 185
+#, python-brace-format
+msgid "Error creating output path for {0}: {1}"
+msgstr "Villa að búa til útgangsleið fyrir {0}: {1}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 365
+msgid "tesseract --list-langs returned empty output"
+msgstr "tesseract --list-langs skilaði tómu úttaki"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 388
+#, python-brace-format
+msgid "Error getting OCR languages: {0}"
+msgstr "Villa við að fá OCR tungumál: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 508
+#, python-brace-format
+msgid "Removed processed file from queue: {0}"
+msgstr "Fjarlægður úrvinnsluskjal úr biðröð: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 533
+#, python-brace-format
+msgid "Generated unique filename to avoid overwriting: {0}"
+msgstr "Búið til einstakt skráarnafn til að forðast að skrifa yfir: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 75
+#, python-brace-format
+msgid "Error creating alignment setting file: {0}"
+msgstr "Villa að búa til stillingaskrá fyrir samræmingu: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 105
+#, python-brace-format
+msgid "Attempting to add {0} files"
+msgstr "Reynir að bæta {0} skrám"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 120
+#, python-brace-format
+msgid "Successfully added {0} files"
+msgstr "Skráning {0} skráa tókst."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 122
+msgid "No valid PDF files were found to add"
+msgstr "Engin gilt PDF skrár fundust til að bæta við."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 140
+msgid "Empty file path provided"
+msgstr "Tómar skráar leið er veitt."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 145
+#, python-brace-format
+msgid "File does not exist: {0}"
+msgstr "Skjal er ekki til: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 150
+#, python-brace-format
+msgid "Not a PDF file: {0}"
+msgstr "Ekki PDF skjal: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 155
+#, python-brace-format
+msgid "File already in list: {0}"
+msgstr "Skrá þegar í lista: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 159
+#, python-brace-format
+msgid "Adding valid PDF: {0}"
+msgstr "Bætir við gilt PDF: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 231
+msgid "Settings saved successfully"
+msgstr "Stillingum vistuð með góðum árangri"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 234
+#, python-brace-format
+msgid "Error saving settings: {0}"
+msgstr "Villa að vista stillingar: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 404
+#, python-brace-format
+msgid "Saved {0} selected files"
+msgstr "Vista {0} valin skrá."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 406
+#, python-brace-format
+msgid "Error saving selected files: {0}"
+msgstr "Villa að vista valdar skrár: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 430
+#, python-brace-format
+msgid "Error loading selected files: {0}"
+msgstr "Villa að hlaða valdar skrár: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 594
+msgid "Processing state reset successfully"
+msgstr "Vinnslustaða endurstillt með góðum árangri"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 612
+msgid "Temporary files cleanup completed"
+msgstr "Tímabundin skráarhreinsun lokið"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 48
+msgid "Please make sure GTK4, libadwaita, and OCRmyPDF are installed"
+msgstr "Vinsamlegast tryggið að GTK4, libadwaita og OCRmyPDF séu uppsett."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 60
+msgid "Failed to set system locale, falling back to C locale"
+msgstr "Mistók að stilla kerfislokalega, fellur aftur á C lokals."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 88
+msgid "Cleared file queue at startup"
+msgstr "Raða skráaröð við upphaf hreinsað."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 380
+msgid "Processing PDF files..."
+msgstr "Vinnsl á PDF skjalum..."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 385
+msgid "Preparing processing..."
+msgstr "Undirbúningur vinnslu..."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 398
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1641
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1752
+msgid "Cancel"
+msgstr "Hætta við"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 857
+#, python-brace-format
+msgid "<b>Processing: {current}/{total}:</b> {completed} file(s) completed • <b>{remaining}</b> remaining"
+msgstr "<b>Vinnsla: {current}/{total}:</b> {completed} skrá(ur) lokið • <b>{remaining}</b> eftir"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 868
+#, python-brace-format
+msgid "Processed file {current}/{total}: {filename}"
+msgstr "Unnið skjal {current}/{total}: {filename}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 932
+#, python-brace-format
+msgid "<b>OCR processing complete!</b> {total} file(s) processed"
+msgstr "<b>OCR vinnsla lokið!</b> {total} skrá(ir) unnin(ar)"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1050
+#, python-brace-format
+msgid "<b>OCR processing complete!</b> {total} file(s) processed • Total time: {time}"
+msgstr "<b>OCR vinnslu lokið!</b> {total} skrá(ir) unnið • Heildartími: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 347
+#, python-brace-format
+msgid "Processing file {current}/{total}: {filename} (page {page}/{pages}) • Time: {time}"
+msgstr "Vinnsl á skrá {current}/{total}: {filename} (síða {page}/{pages}) • Tími: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 356
+#, python-brace-format
+msgid "Processing file {current}/{total}: {filename} ({pages} pages) • Time: {time}"
+msgstr "Vinnsla skrá {current}/{total}: {filename} ({pages} síður) • Tími: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 370
+#, python-brace-format
+msgid "Processing files: {processed}/{total} completed • Time: {time}"
+msgstr "Vinnsla skráa: {processed}/{total} lokið • Tími: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 382
+#, python-brace-format
+msgid "Starting processing of {total} files... • Time: {time}"
+msgstr "Byrjar að vinna úr {total} skrám... • Tími: {time}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1738
+msgid "PDF Output Options"
+msgstr "PDF Útgangsvalkostir"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1749
+msgid "PDF Output Settings"
+msgstr "PDF úttakstillur"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1757
+msgid "Save"
+msgstr "Vistaðu"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1772
+msgid "File Settings"
+msgstr "Skráarsnið"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1776
+msgid "Use Original Filename"
+msgstr "Notaðu upprunalega skráarheitið"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1777
+msgid "Use the same name as the original file"
+msgstr "Notaðu sama nafn og upprunalega skráin."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1802
+msgid "Filename Suffix"
+msgstr "Sniðnafnsviðbót"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1805
+msgid "Text added to the filename (e.g. document-ocr.pdf)"
+msgstr "Text bætt við skráarnafn (t.d. skjal-ocr.pdf)"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1814
+msgid "Overwrite Existing Files"
+msgstr "Yfirskrifa núverandi skrár"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1815
+msgid "Replace files with the same name"
+msgstr "Skipta skrár með sama nafni"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1785
+msgid "Warning"
+msgstr "Viðvörun"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1788
+msgid "If saving to the same folder as original, this will replace the original files"
+msgstr "Ef þú vistir í sama möppu og upprunalegu, mun þetta skipta út upprunalegu skrám."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1821
+msgid "Text Extraction"
+msgstr "Textaútgáfa"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1825
+msgid "Save Text Files"
+msgstr "Vista Textaskrár"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1826
+msgid "Automatically save extracted text as .txt files"
+msgstr "Vista sjálfvirkt vista útdreginn texta sem .txt skrár"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1834
+msgid "Use Separate Folder for Text Files"
+msgstr "Notaðu aðskilda möppu fyrir textaskrár"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1835
+msgid "Save text files to a different folder"
+msgstr "Vista textaskrár í aðra möppu"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1846
+msgid "Text Files Folder"
+msgstr "Textaskrár."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1847
+msgid "Select where to save text files"
+msgstr "Veldu hvar á að vista textaskrár."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1852
+msgid "Not set"
+msgstr "Ekki stillt"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1862
+msgid "Select folder"
+msgstr "Veldu möppu"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1919
+msgid "Date and Time"
+msgstr "Dagsetning og tími"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1923
+msgid "Add Date to Filename"
+msgstr "Bæta dagsetningu við skráarnafn"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1924
+msgid "Include date elements in the filename"
+msgstr "Inni dagsetningarelement í skráarheiti"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1959
+msgid "Include Year"
+msgstr "Innihalda ár."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1960
+msgid "Add YYYY to the date"
+msgstr "Bættu YYYY við dagsetninguna"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1970
+msgid "Include Month"
+msgstr "Innihalda Mánuð"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1971
+msgid "Add MM to the date"
+msgstr "Bættu MM við dagsetninguna"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1981
+msgid "Include Day"
+msgstr "Inni dagur"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1982
+msgid "Add DD to the date"
+msgstr "Bættu DD við dagsetninguna"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1992
+msgid "Include Time"
+msgstr "Inni tíma"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1993
+msgid "Add HHMM to the filename"
+msgstr "Bættu HHMM við skráarnafnið"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1930
+msgid "Date Format"
+msgstr "Dagsetningarsnið"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1932
+msgid "YYYY-MM-DD (ISO)"
+msgstr "YYYY-MM-DD (ISO)"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1933
+msgid "DD-MM-YYYY (Europe)"
+msgstr "DD-MM-YYYY (Evrópa)"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1934
+msgid "MM-DD-YYYY (US)"
+msgstr "MM-DD-ÁÁÁ (US)"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 2003
+msgid "Preview"
+msgstr "Forskoðun"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 2007
+msgid "Filename Example:"
+msgstr "Skilgreining skráar:"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1898
+msgid "Select Folder for Text Files"
+msgstr "Veldu möppu fyrir textaskrár"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 708
+msgid "OCR processing was completed for this file, but the extracted text could not be found."
+msgstr "OCR vinnsla var lokið fyrir þennan skrá, en unnið texti fannst ekki."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1272
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1272
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1324
+msgid "Search in text..."
+msgstr "Leita í texta..."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1331
+msgid "Find previous match"
+msgstr "Finndu fyrri leik."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1338
+msgid "Find next match"
+msgstr "Finndu næsta leik."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1477
+msgid "Copy to Clipboard"
+msgstr "Afrita í sk clipboard."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1478
+msgid "Copy the entire text to clipboard"
+msgstr "Kopiera hela texten till urklipp"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1485
+msgid "Save as TXT"
+msgstr "Vista sem TXT"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1486
+msgid "Save the extracted text to a .txt file"
+msgstr "Vistaðu textann sem var dreginn út í .txt skrá."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1493
+msgid "Close"
+msgstr "Lokaðu"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1420
+#, python-brace-format
+msgid "{0} matches found"
+msgstr "{0} samsvör found"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1443
+#, python-brace-format
+msgid "Match {0} of {1}"
+msgstr "Samsvar {0} af {1}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1565
+msgid "Save Extracted Text"
+msgstr "Vistaðu útdregna texta"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1616
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1726
+msgid "Save Failed"
+msgstr "Vista ekki tókst"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1632
+msgid "File Already Exists"
+msgstr "Skrá er þegar til"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1633
+#, python-brace-format
+msgid "The file '{0}' already exists. What would you like to do?"
+msgstr "Skjali '{0}' er þegar til. Hvað viltu gera?"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1639
+msgid "Overwrite"
+msgstr "Yfirskrifa"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1640
+msgid "Auto-Rename"
+msgstr "Sjálfvirk nafngift"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 1206
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 568
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 1206
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 568
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 34
+#, python-brace-format
+msgid "CSS file not found: {0}"
+msgstr "CSS skrá fannst ekki: {0}"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 43
+msgid "Custom CSS styles loaded successfully"
+msgstr "Sérstakar CSS stílar hlaðast vel."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 46
+#, python-brace-format
+msgid "Error loading CSS styles: {0}"
+msgstr "Villa að hlaða CSS stílum: {0}"
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 97
-#: NEEDS WORK
 msgid "Configuration"
 msgstr "Skilgreining"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 106
-#: NEEDS WORK
 msgid "Save in same folder as original file"
 msgstr "Vista í sömu möppu og upprunalega skráin."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 125
-#: NEEDS WORK
 msgid "Select the destination folder"
 msgstr "Veldu skráningarskápinn"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 150
-#: NEEDS WORK
 msgid "Browse"
 msgstr "Skoða"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 163
-#: NEEDS WORK
 msgid "Output File Options"
 msgstr "Úrgangsvalkostir"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 172
-#: NEEDS WORK
 msgid "Configure"
 msgstr "Stilla"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 184
-#: NEEDS WORK
 msgid "Text Language"
 msgstr "Text tungumál"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 184
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 194
-#: NEEDS WORK
-#: NEEDS WORK
 msgid "Quality"
 msgstr "Gæði"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 204
-#: NEEDS WORK
 msgid "Alignment"
 msgstr "Samræming"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 234
-#: NEEDS WORK
 msgid "PDF Files Queue"
 msgstr "PDF skjalasafn"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 261
-#: NEEDS WORK
 msgid "Add"
 msgstr "Bæta við"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 269
-#: NEEDS WORK
 msgid "Remove All"
 msgstr "Fjarlægja allt"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 324
-#: NEEDS WORK
 msgid "Drop PDF files here"
 msgstr "Dreifið PDF skrám hingað"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 305
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 948
-#: NEEDS WORK
 msgid "No files selected"
 msgstr "Engin valin ekki valin"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 306
-#: NEEDS WORK
 msgid "Add PDF files for OCR processing"
 msgstr "Bættu við PDF skrám fyrir OCR vinnslu"
 # 
@@ -99,7 +543,6 @@ msgstr "Bættu við PDF skrám fyrir OCR vinnslu"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 918
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 38
-#: NEEDS WORK
 msgid "Don't change"
 msgstr "Ekki breyta."
 # 
@@ -107,7 +550,6 @@ msgstr "Ekki breyta."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 919
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 39
-#: NEEDS WORK
 msgid "Align"
 msgstr "Línuleggja"
 # 
@@ -115,7 +557,6 @@ msgstr "Línuleggja"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 920
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 40
-#: NEEDS WORK
 msgid "Auto rotate"
 msgstr "Sjálfvirk snúningur"
 # 
@@ -123,80 +564,55 @@ msgstr "Sjálfvirk snúningur"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 921
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 41
-#: NEEDS WORK
 msgid "Align + rotate"
 msgstr "Línaðu + snúðu"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 937
-#: NEEDS WORK
 msgid "Choose how to handle page alignment and rotation during OCR processing"
 msgstr "Veldu hvernig á að meðhöndla síðuuppsetningu og snúning meðan á OCR úrvinnslu stendur."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 34
-#: NEEDS WORK
-#, python-brace-format
-msgid "CSS file not found: {0}"
-msgstr "CSS skrá fannst ekki: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 43
-#: NEEDS WORK
-msgid "Custom CSS styles loaded successfully"
-msgstr "Sérstakar CSS stílar hlaðast vel."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 46
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error loading CSS styles: {0}"
-msgstr "Villa að hlaða CSS stílum: {0}"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 424
-#: NEEDS WORK
 msgid "Processing Summary"
 msgstr "Útdráttur vinnslu"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 450
-#: NEEDS WORK
 msgid "Files processed:"
 msgstr "Skrár unnar:"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 466
-#: NEEDS WORK
 msgid "Total pages:"
 msgstr "Heildarsíður:"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 488
-#: NEEDS WORK
 msgid "Processing time:"
 msgstr "Vinnslutími:"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 504
-#: NEEDS WORK
 msgid "File size:"
 msgstr "Skjalastærð:"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 529
-#: NEEDS WORK
 msgid "Generated Files"
 msgstr "Mynduð skrár"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 724
-#: NEEDS WORK
 msgid "Open file"
 msgstr "Opna skrá"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 786
-#: NEEDS WORK
 msgid "View extracted text"
 msgstr "Skoða útdreginn texta"
 # 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 566
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 566
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 610
-#: NEEDS WORK
 # 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 612
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 1199
-#: NEEDS WORK
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 610
 # 
@@ -276,479 +692,74 @@ msgstr "Skoða útdreginn texta"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 1199
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 639
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
 msgid "No text content was detected in this file during OCR processing."
 msgstr "Engin textainni fannst ekki í þessari skrá við OCR úrvinnslu."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1738
-#: NEEDS WORK
-msgid "PDF Output Options"
-msgstr "PDF Útgangsvalkostir"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1749
-#: NEEDS WORK
-msgid "PDF Output Settings"
-msgstr "PDF úttakstillur"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 398
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1641
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1752
-#: NEEDS WORK
-msgid "Cancel"
-msgstr "Hætta við"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1757
-#: NEEDS WORK
-msgid "Save"
-msgstr "Vistaðu"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1772
-#: NEEDS WORK
-msgid "File Settings"
-msgstr "Skráarsnið"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1776
-#: NEEDS WORK
-msgid "Use Original Filename"
-msgstr "Notaðu upprunalega skráarheitið"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1777
-#: NEEDS WORK
-msgid "Use the same name as the original file"
-msgstr "Notaðu sama nafn og upprunalega skráin."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1802
-#: NEEDS WORK
-msgid "Filename Suffix"
-msgstr "Sniðnafnsviðbót"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1805
-#: NEEDS WORK
-msgid "Text added to the filename (e.g. document-ocr.pdf)"
-msgstr "Text bætt við skráarnafn (t.d. skjal-ocr.pdf)"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1814
-#: NEEDS WORK
-msgid "Overwrite Existing Files"
-msgstr "Yfirskrifa núverandi skrár"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1815
-#: NEEDS WORK
-msgid "Replace files with the same name"
-msgstr "Skipta skrár með sama nafni"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1785
-#: NEEDS WORK
-msgid "Warning"
-msgstr "Viðvörun"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1788
-#: NEEDS WORK
-msgid "If saving to the same folder as original, this will replace the original files"
-msgstr "Ef þú vistir í sama möppu og upprunalegu, mun þetta skipta út upprunalegu skrám."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1821
-#: NEEDS WORK
-msgid "Text Extraction"
-msgstr "Textaútgáfa"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1825
-#: NEEDS WORK
-msgid "Save Text Files"
-msgstr "Vista Textaskrár"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1826
-#: NEEDS WORK
-msgid "Automatically save extracted text as .txt files"
-msgstr "Vista sjálfvirkt vista útdreginn texta sem .txt skrár"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1834
-#: NEEDS WORK
-msgid "Use Separate Folder for Text Files"
-msgstr "Notaðu aðskilda möppu fyrir textaskrár"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1835
-#: NEEDS WORK
-msgid "Save text files to a different folder"
-msgstr "Vista textaskrár í aðra möppu"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1846
-#: NEEDS WORK
-msgid "Text Files Folder"
-msgstr "Textaskrár."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1847
-#: NEEDS WORK
-msgid "Select where to save text files"
-msgstr "Veldu hvar á að vista textaskrár."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1852
-#: NEEDS WORK
-msgid "Not set"
-msgstr "Ekki stillt"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1862
-#: NEEDS WORK
-msgid "Select folder"
-msgstr "Veldu möppu"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1919
-#: NEEDS WORK
-msgid "Date and Time"
-msgstr "Dagsetning og tími"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1923
-#: NEEDS WORK
-msgid "Add Date to Filename"
-msgstr "Bæta dagsetningu við skráarnafn"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1924
-#: NEEDS WORK
-msgid "Include date elements in the filename"
-msgstr "Inni dagsetningarelement í skráarheiti"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1959
-#: NEEDS WORK
-msgid "Include Year"
-msgstr "Innihalda ár."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1960
-#: NEEDS WORK
-msgid "Add YYYY to the date"
-msgstr "Bættu YYYY við dagsetninguna"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1970
-#: NEEDS WORK
-msgid "Include Month"
-msgstr "Innihalda Mánuð"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1971
-#: NEEDS WORK
-msgid "Add MM to the date"
-msgstr "Bættu MM við dagsetninguna"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1981
-#: NEEDS WORK
-msgid "Include Day"
-msgstr "Inni dagur"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1982
-#: NEEDS WORK
-msgid "Add DD to the date"
-msgstr "Bættu DD við dagsetninguna"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1992
-#: NEEDS WORK
-msgid "Include Time"
-msgstr "Inni tíma"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1993
-#: NEEDS WORK
-msgid "Add HHMM to the filename"
-msgstr "Bættu HHMM við skráarnafnið"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1930
-#: NEEDS WORK
-msgid "Date Format"
-msgstr "Dagsetningarsnið"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1932
-#: NEEDS WORK
-msgid "YYYY-MM-DD (ISO)"
-msgstr "YYYY-MM-DD (ISO)"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1933
-#: NEEDS WORK
-msgid "DD-MM-YYYY (Europe)"
-msgstr "DD-MM-YYYY (Evrópa)"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1934
-#: NEEDS WORK
-msgid "MM-DD-YYYY (US)"
-msgstr "MM-DD-ÁÁÁ (US)"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 2003
-#: NEEDS WORK
-msgid "Preview"
-msgstr "Forskoðun"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 2007
-#: NEEDS WORK
-msgid "Filename Example:"
-msgstr "Skilgreining skráar:"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1898
-#: NEEDS WORK
-msgid "Select Folder for Text Files"
-msgstr "Veldu möppu fyrir textaskrár"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 708
-#: NEEDS WORK
-msgid "OCR processing was completed for this file, but the extracted text could not be found."
-msgstr "OCR vinnsla var lokið fyrir þennan skrá, en unnið texti fannst ekki."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1272
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1272
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1324
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-msgid "Search in text..."
-msgstr "Leita í texta..."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1331
-#: NEEDS WORK
-msgid "Find previous match"
-msgstr "Finndu fyrri leik."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1338
-#: NEEDS WORK
-msgid "Find next match"
-msgstr "Finndu næsta leik."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1477
-#: NEEDS WORK
-msgid "Copy to Clipboard"
-msgstr "Afrita í sk clipboard."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1478
-#: NEEDS WORK
-msgid "Copy the entire text to clipboard"
-msgstr "Kopiera hela texten till urklipp"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1485
-#: NEEDS WORK
-msgid "Save as TXT"
-msgstr "Vista sem TXT"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1486
-#: NEEDS WORK
-msgid "Save the extracted text to a .txt file"
-msgstr "Vistaðu textann sem var dreginn út í .txt skrá."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1493
-#: NEEDS WORK
-msgid "Close"
-msgstr "Lokaðu"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1420
-#: NEEDS WORK
-#, python-brace-format
-msgid "{0} matches found"
-msgstr "{0} samsvör found"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1443
-#: NEEDS WORK
-#, python-brace-format
-msgid "Match {0} of {1}"
-msgstr "Samsvar {0} af {1}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1565
-#: NEEDS WORK
-msgid "Save Extracted Text"
-msgstr "Vistaðu útdregna texta"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1616
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1726
-#: NEEDS WORK
-msgid "Save Failed"
-msgstr "Vista ekki tókst"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1632
-#: NEEDS WORK
-msgid "File Already Exists"
-msgstr "Skrá er þegar til"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1633
-#: NEEDS WORK
-#, python-brace-format
-msgid "The file '{0}' already exists. What would you like to do?"
-msgstr "Skjali '{0}' er þegar til. Hvað viltu gera?"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1639
-#: NEEDS WORK
-msgid "Overwrite"
-msgstr "Yfirskrifa"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1640
-#: NEEDS WORK
-msgid "Auto-Rename"
-msgstr "Sjálfvirk nafngift"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 380
-#: NEEDS WORK
-msgid "Processing PDF files..."
-msgstr "Vinnsl á PDF skjalum..."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 385
-#: NEEDS WORK
-msgid "Preparing processing..."
-msgstr "Undirbúningur vinnslu..."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 857
-#: NEEDS WORK
-#, python-brace-format
-msgid "<b>Processing: {current}/{total}:</b> {completed} file(s) completed • <b>{remaining}</b> remaining"
-msgstr "<b>Vinnsla: {current}/{total}:</b> {completed} skrá(ur) lokið • <b>{remaining}</b> eftir"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 868
-#: NEEDS WORK
-#, python-brace-format
-msgid "Processed file {current}/{total}: {filename}"
-msgstr "Unnið skjal {current}/{total}: {filename}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 932
-#: NEEDS WORK
-#, python-brace-format
-msgid "<b>OCR processing complete!</b> {total} file(s) processed"
-msgstr "<b>OCR vinnsla lokið!</b> {total} skrá(ir) unnin(ar)"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1050
-#: NEEDS WORK
-#, python-brace-format
-msgid "<b>OCR processing complete!</b> {total} file(s) processed • Total time: {time}"
-msgstr "<b>OCR vinnslu lokið!</b> {total} skrá(ir) unnið • Heildartími: {time}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 347
-#: NEEDS WORK
-#, python-brace-format
-msgid "Processing file {current}/{total}: {filename} (page {page}/{pages}) • Time: {time}"
-msgstr "Vinnsl á skrá {current}/{total}: {filename} (síða {page}/{pages}) • Tími: {time}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 356
-#: NEEDS WORK
-#, python-brace-format
-msgid "Processing file {current}/{total}: {filename} ({pages} pages) • Time: {time}"
-msgstr "Vinnsla skrá {current}/{total}: {filename} ({pages} síður) • Tími: {time}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 370
-#: NEEDS WORK
-#, python-brace-format
-msgid "Processing files: {processed}/{total} completed • Time: {time}"
-msgstr "Vinnsla skráa: {processed}/{total} lokið • Tími: {time}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 382
-#: NEEDS WORK
-#, python-brace-format
-msgid "Starting processing of {total} files... • Time: {time}"
-msgstr "Byrjar að vinna úr {total} skrám... • Tími: {time}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
-#: NEEDS WORK
-msgid "Add OCR to your PDF documents to make them searchable"
-msgstr "Bættu OCR við PDF skjöl þín til að gera þau leitarhæf."
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
-#: NEEDS WORK
-msgid "Print version information and exit"
-msgstr "Prenta útgáfuupplýsingar og hætta"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 72
-#: NEEDS WORK
-msgid "Enable debug mode"
-msgstr "Virkja villuham."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 74
-#: NEEDS WORK
-msgid "Enable verbose output"
-msgstr "Virkja ítarleg úttak"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
-#: NEEDS WORK
-msgid "PDF files to process"
-msgstr "PDF skrár til að vinna úr"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
-#: NEEDS WORK
-msgid "Application started successfully"
-msgstr "Forritið byrjaði með góðum árangri"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 111
-#: NEEDS WORK
-msgid "Error starting application"
-msgstr "Villa að byrja forrit."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 129
-#: NEEDS WORK
-msgid "BigLinux Team"
-msgstr "BigLinux teymi"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 139
-#: NEEDS WORK
-msgid "Developers"
-msgstr "Þróunaraðilar"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 420
+msgid "Start Processing"
+msgstr "Byrja að vinna úr"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/navigation_manager.py, line: 109
+msgid "Process New Files"
+msgstr "Vinn nýjar skrár"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 471
+msgid "Select PDF Files"
+msgstr "Veldu PDF skrár"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 478
+msgid "PDF Files"
+msgstr "PDF skrár"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 525
+msgid "Error adding files"
+msgstr "Villa að bæta við skrám"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 521
+msgid "No valid files were selected"
+msgstr "Engin giltandi skrár voru valdar."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 522
+msgid "No valid PDF files were selected"
+msgstr "Engin gilt PDF skrár voru valdar."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 546
+msgid "Select destination folder"
+msgstr "Veldu áfangamöppu"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 601
+msgid "Error selecting destination folder"
+msgstr "Villa ekki valin."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 597
+msgid "Destination folder selected"
+msgstr "Móttökumappa valin"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 32
-#: NEEDS WORK
 msgid "Normal"
 msgstr "Venjulegt"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 33
-#: NEEDS WORK
 msgid "Economic"
 msgstr "Efnahagslegt"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 34
-#: NEEDS WORK
 msgid "More economic"
 msgstr "Meira hagnaður"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 45
-#: NEEDS WORK
 msgid "Keep pages as they are without any modifications"
 msgstr "Halduðu síður eins og þær eru án nokkurra breytinga"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 46
-#: NEEDS WORK
 msgid "Align page content to improve readability"
 msgstr "Línulegðu efni síðu til að bæta læsileika."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 47
-#: NEEDS WORK
 msgid "Automatically rotate pages to correct orientation"
 msgstr "Sjálfvirkt snúning á síðum til að leiðrétta stefnu"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 48
-#: NEEDS WORK
 msgid "Align page content and automatically rotate pages to correct orientation"
 msgstr "Líkaðu við efni síðu og snúðu síðum sjálfkrafa í rétta stefnu."
 # 
@@ -756,51 +767,42 @@ msgstr "Líkaðu við efni síðu og snúðu síðum sjálfkrafa í rétta stefn
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 53
-#: NEEDS WORK
 msgid "Big OCR PDF"
 msgstr "Stór OCR PDF"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 131
-#: NEEDS WORK
 msgid "BigOcrPdf - Scanned PDFs with search support"
 msgstr "BigOcrPdf - Skannaðir PDF-skjöl með leitarstuðningi"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 137
-#: NEEDS WORK
 msgid "Menu"
 msgstr "Valmynd"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 141
-#: NEEDS WORK
 msgid "Help"
 msgstr "I'm sorry, I can only translate the provided string. Please provide a string for translation."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 142
-#: NEEDS WORK
 msgid "About the application"
 msgstr "Um umsjóninni"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 172
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 416
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 737
-#: NEEDS WORK
 msgid "Step 1/3: Settings"
 msgstr "Skref 1/3: Stillingar"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 182
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 755
-#: NEEDS WORK
 msgid "Back"
 msgstr "Til baka"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 190
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 726
-#: NEEDS WORK
 msgid "Start"
 msgstr "Byrjun"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 324
-#: NEEDS WORK
 msgid ""
 "Big OCR PDF adds optical character recognition to your PDF files, making them searchable and "
 "allowing you to select and copy text from scanned documents."
@@ -809,22 +811,18 @@ msgstr ""
 "leyfir þér að velja og afrita texta úr skönnuðum skjölum."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 335
-#: NEEDS WORK
 msgid "Benefits of using Big OCR PDF:"
 msgstr "Kostir við notkun Big OCR PDF:"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
-#: NEEDS WORK
 msgid "Search"
 msgstr "Leitaðu"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
-#: NEEDS WORK
 msgid "Search through your scanned PDF documents"
 msgstr "Leitaðu í skönnuðum PDF skjölum þínum"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 361
-#: NEEDS WORK
 msgid "Copy text"
 msgstr "Kopiera texta"
 # 
@@ -841,381 +839,123 @@ msgstr "Kopiera texta"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
-#: NEEDS WORK
 msgid "Copy text from images and scanned documents"
 msgstr "Afritu texta úr myndum og skannaðum skjölum"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
-#: NEEDS WORK
 msgid "Batch processing"
 msgstr "Hólfun í lotum"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
-#: NEEDS WORK
 msgid "Process multiple files at once"
 msgstr "Vinnur með marga skráa í einu"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
-#: NEEDS WORK
 msgid "Auto-correction"
 msgstr "Sjálfvirk leiðrétting"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
-#: NEEDS WORK
 msgid "Automatically correct page alignment and rotation"
 msgstr "Sjálfvirk leiðrétting á síðuuppsetningu og snúningi"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 363
-#: NEEDS WORK
 msgid "Show this dialog at startup"
 msgstr "Sýna þessa glugga við ræsingu"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 377
-#: NEEDS WORK
 msgid "Let's Get Started"
 msgstr "Látum okkur byrja"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 420
-#: NEEDS WORK
-msgid "Start Processing"
-msgstr "Byrja að vinna úr"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 471
-#: NEEDS WORK
-msgid "Select PDF Files"
-msgstr "Veldu PDF skrár"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 478
-#: NEEDS WORK
-msgid "PDF Files"
-msgstr "PDF skrár"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 521
-#: NEEDS WORK
-msgid "No valid files were selected"
-msgstr "Engin giltandi skrár voru valdar."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 522
-#: NEEDS WORK
-msgid "No valid PDF files were selected"
-msgstr "Engin gilt PDF skrár voru valdar."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 525
-#: NEEDS WORK
-msgid "Error adding files"
-msgstr "Villa að bæta við skrám"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 546
-#: NEEDS WORK
-msgid "Select destination folder"
-msgstr "Veldu áfangamöppu"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 597
-#: NEEDS WORK
-msgid "Destination folder selected"
-msgstr "Móttökumappa valin"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 601
-#: NEEDS WORK
-msgid "Error selecting destination folder"
-msgstr "Villa ekki valin."
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 611
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 612
-#: NEEDS WORK
 msgid "No files selected for processing"
 msgstr "Engin valin ekki valin til úrvinnslu"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 620
-#: NEEDS WORK
 msgid "No destination folder selected"
 msgstr "Engin valin mappa ekki valin"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 621
-#: NEEDS WORK
 msgid "Please select a destination folder"
 msgstr "Vinsamlegast veldu áfangamöppu"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 701
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 702
-#: NEEDS WORK
 msgid "Failed to start OCR processing"
 msgstr "Mistók að hefja OCR úrvinnslu"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 708
-#: NEEDS WORK
 msgid "Step 2/3: Processing"
 msgstr "Skref 2/3: Vinnsla"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 717
-#: NEEDS WORK
 msgid "OCR processing started using Python API"
 msgstr "OCR vinnsla hafin með Python API"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 837
-#: NEEDS WORK
-msgid "OCR processor cleaned up aggressively"
-msgstr "OCR vinnslutæki hreinsað gríðarlega"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 748
-#: NEEDS WORK
 msgid "Step 3/3: Completed"
 msgstr "Skref 3/3: Lokið"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 877
-#: NEEDS WORK
 msgid "OCR processing complete callback triggered"
 msgstr "OCR úrvinnsla lokin kallað."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 882
-#: NEEDS WORK
 msgid "Processing complete but no longer on terminal page, likely cancelled"
 msgstr "Vinnsla lokið en ekki lengur á terminal síðu, líklega hætt."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 906
-#: NEEDS WORK
 #, python-brace-format
 msgid "OCR processing completed successfully for {count} files"
 msgstr "OCR vinnslu lokið með góðum árangri fyrir {count} skrár"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 912
-#: NEEDS WORK
 msgid "OCR processing complete"
 msgstr "OCR vinnslu lokið"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1114
-#: NEEDS WORK
 msgid "OCR processing cancelled by user"
 msgstr "OCR vinnsla hætt af notanda"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1122
-#: NEEDS WORK
 msgid "OCR processing cancelled"
 msgstr "OCR vinnsla hætt við"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 48
-#: NEEDS WORK
-msgid "Please make sure GTK4, libadwaita, and OCRmyPDF are installed"
-msgstr "Vinsamlegast tryggið að GTK4, libadwaita og OCRmyPDF séu uppsett."
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
+msgid "Add OCR to your PDF documents to make them searchable"
+msgstr "Bættu OCR við PDF skjöl þín til að gera þau leitarhæf."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 60
-#: NEEDS WORK
-msgid "Failed to set system locale, falling back to C locale"
-msgstr "Mistók að stilla kerfislokalega, fellur aftur á C lokals."
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 88
-#: NEEDS WORK
-msgid "Cleared file queue at startup"
-msgstr "Raða skráaröð við upphaf hreinsað."
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
+msgid "Print version information and exit"
+msgstr "Prenta útgáfuupplýsingar og hætta"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 75
-#: NEEDS WORK
-#, python-brace-format
-msgid "Started OCR processing for {0} files using Python API"
-msgstr "Hafið hafið OCR úrvinnslu fyrir {0} skrár með Python API"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 72
+msgid "Enable debug mode"
+msgstr "Virkja villuham."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 82
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error starting OCR processing: {0}"
-msgstr "Villa við að hefja OCR úrvinnslu: {0}"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 74
+msgid "Enable verbose output"
+msgstr "Virkja ítarleg úttak"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 92
-#: NEEDS WORK
-msgid "No files to process"
-msgstr "Engin skrár til að vinna úr."
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
+msgid "PDF files to process"
+msgstr "PDF skrár til að vinna úr"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 120
-#: NEEDS WORK
-msgid "No file_complete callback registered"
-msgstr "Engin ekki skráð skrá_fullkomin viðbragð."
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
+msgid "Application started successfully"
+msgstr "Forritið byrjaði með góðum árangri"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 122
-#: NEEDS WORK
-msgid "No all_complete callback registered"
-msgstr "Engin all_complete skráður."
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 111
+msgid "Error starting application"
+msgstr "Villa að byrja forrit."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 136
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error: File not found or invalid: {0}"
-msgstr "Villa: Skrá fannst ekki eða er ógild: {0}"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 129
+msgid "BigLinux Team"
+msgstr "BigLinux teymi"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 172
-#: NEEDS WORK
-#, python-brace-format
-msgid "Could not determine output directory for {0}"
-msgstr "Gat ekki að ákvarða úttaksstefnu fyrir {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 185
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error creating output path for {0}: {1}"
-msgstr "Villa að búa til útgangsleið fyrir {0}: {1}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 365
-#: NEEDS WORK
-msgid "tesseract --list-langs returned empty output"
-msgstr "tesseract --list-langs skilaði tómu úttaki"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 388
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error getting OCR languages: {0}"
-msgstr "Villa við að fá OCR tungumál: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 508
-#: NEEDS WORK
-#, python-brace-format
-msgid "Removed processed file from queue: {0}"
-msgstr "Fjarlægður úrvinnsluskjal úr biðröð: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 533
-#: NEEDS WORK
-#, python-brace-format
-msgid "Generated unique filename to avoid overwriting: {0}"
-msgstr "Búið til einstakt skráarnafn til að forðast að skrifa yfir: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 75
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error creating alignment setting file: {0}"
-msgstr "Villa að búa til stillingaskrá fyrir samræmingu: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 105
-#: NEEDS WORK
-#, python-brace-format
-msgid "Attempting to add {0} files"
-msgstr "Reynir að bæta {0} skrám"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 120
-#: NEEDS WORK
-#, python-brace-format
-msgid "Successfully added {0} files"
-msgstr "Skráning {0} skráa tókst."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 122
-#: NEEDS WORK
-msgid "No valid PDF files were found to add"
-msgstr "Engin gilt PDF skrár fundust til að bæta við."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 140
-#: NEEDS WORK
-msgid "Empty file path provided"
-msgstr "Tómar skráar leið er veitt."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 145
-#: NEEDS WORK
-#, python-brace-format
-msgid "File does not exist: {0}"
-msgstr "Skjal er ekki til: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 150
-#: NEEDS WORK
-#, python-brace-format
-msgid "Not a PDF file: {0}"
-msgstr "Ekki PDF skjal: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 155
-#: NEEDS WORK
-#, python-brace-format
-msgid "File already in list: {0}"
-msgstr "Skrá þegar í lista: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 159
-#: NEEDS WORK
-#, python-brace-format
-msgid "Adding valid PDF: {0}"
-msgstr "Bætir við gilt PDF: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 231
-#: NEEDS WORK
-msgid "Settings saved successfully"
-msgstr "Stillingum vistuð með góðum árangri"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 234
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error saving settings: {0}"
-msgstr "Villa að vista stillingar: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 254
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error saving setting to {0}: {1}"
-msgstr "Villa að vista stillingu í {0}: {1}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 294
-#: NEEDS WORK
-msgid "PDF output settings saved successfully"
-msgstr "PDF útgáfu stillingar vistaðar með góðum árangri"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 296
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error saving PDF output settings: {0}"
-msgstr "Villa að vista PDF úttakstillur: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 376
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error getting page count for {0}: {1}"
-msgstr "Villa að fá síðu fjölda fyrir {0}: {1}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 404
-#: NEEDS WORK
-#, python-brace-format
-msgid "Saved {0} selected files"
-msgstr "Vista {0} valin skrá."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 406
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error saving selected files: {0}"
-msgstr "Villa að vista valdar skrár: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 430
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error loading selected files: {0}"
-msgstr "Villa að hlaða valdar skrár: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 452
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error loading setting from {0}: {1}"
-msgstr "Villa að hlaða stillingu frá {0}: {1}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 532
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error loading PDF date settings: {0}"
-msgstr "Villa að hlaða PDF dagsetningarstillingar: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 558
-#: NEEDS WORK
-#, python-brace-format
-msgid "Invalid position value for {0}: {1}"
-msgstr "Ógildur staðsetningargildi fyrir {0}: {1}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 560
-#: NEEDS WORK
-#, python-brace-format
-msgid "Error loading date format order settings: {0}"
-msgstr "Villa að hlaða dagsetningarsniðstillingar: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 594
-#: NEEDS WORK
-msgid "Processing state reset successfully"
-msgstr "Vinnslustaða endurstillt með góðum árangri"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 612
-#: NEEDS WORK
-msgid "Temporary files cleanup completed"
-msgstr "Tímabundin skráarhreinsun lokið"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 139
+msgid "Developers"
+msgstr "Þróunaraðilar"
