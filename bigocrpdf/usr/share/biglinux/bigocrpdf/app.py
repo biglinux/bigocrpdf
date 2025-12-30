@@ -32,7 +32,13 @@ class BigOcrPdfApp(Adw.Application):
 
     def __init__(self):
         """Initialize the application"""
-        super().__init__(application_id=APP_ID)
+        super().__init__(
+            application_id=APP_ID,
+            flags=Gio.ApplicationFlags.HANDLES_OPEN
+        )
+        
+        # Store files to be opened
+        self._pending_files = []
         
         # Add command line handling
         self.add_main_option(
@@ -42,6 +48,7 @@ class BigOcrPdfApp(Adw.Application):
         
         # Setup signals
         self.connect("activate", self.on_activate)
+        self.connect("open", self.on_open)
         self.connect("handle-local-options", self.on_handle_local_options)
         
         # Set up application actions
@@ -110,6 +117,58 @@ class BigOcrPdfApp(Adw.Application):
             error_dialog.set_message(_("Error starting application"))
             error_dialog.set_detail(str(e))
             error_dialog.show()
+
+    def on_open(self, app: Adw.Application, files: list, n_files: int, hint: str) -> None:
+        """Callback for opening files from command line or file manager
+        
+        Args:
+            app: The application instance
+            files: List of GFile objects to open
+            n_files: Number of files
+            hint: Hint string (usually empty)
+        """
+        try:
+            # Load custom CSS
+            load_css()
+            
+            # Check if we already have a window open
+            win = self.get_active_window()
+            if not win:
+                # Create the main window
+                win = BigOcrPdfWindow(app)
+            
+            # Show the window
+            win.present()
+            
+            # Extract file paths from GFile objects
+            file_paths = []
+            for gfile in files:
+                path = gfile.get_path()
+                if path:
+                    file_paths.append(path)
+            
+            # Add files to the application using idle_add to ensure UI is ready
+            if file_paths:
+                def add_files_when_ready():
+                    try:
+                        if hasattr(win, 'settings'):
+                            added = win.settings.add_files(file_paths)
+                            if added > 0:
+                                logger.info(f"Added {added} file(s) from command line")
+                                # Refresh the file list UI
+                                if hasattr(win, 'update_file_info'):
+                                    win.update_file_info()
+                    except Exception as e:
+                        logger.error(f"Error adding files: {e}")
+                    return False  # Don't repeat
+                
+                # Use a small delay to ensure the window is fully initialized
+                GLib.timeout_add(100, add_files_when_ready)
+            
+            logger.info(_(f"Opened {n_files} file(s)"))
+            
+        except Exception as e:
+            logger.error(f"{_('Error opening files')}: {e}")
 
     def on_about_action(self, _action: Gio.SimpleAction, _param: Any) -> None:
         """Show about dialog
