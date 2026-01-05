@@ -1,0 +1,512 @@
+"""
+BigOcrPdf - Settings Service
+
+This module handles configuration settings and file management for the application.
+"""
+
+import os
+import time
+
+from bigocrpdf.config import (
+    ALIGN_FILE_PATH,
+    CONFIG_DIR,
+    SELECTED_FILE_PATH,
+)
+from bigocrpdf.utils.config_manager import get_config_manager
+from bigocrpdf.utils.i18n import _
+from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.pdf_utils import get_pdf_page_count
+
+# Default settings constants
+DEFAULT_LANGUAGE = "eng"
+DEFAULT_QUALITY = "normal"
+DEFAULT_ALIGNMENT = "alignrotate"
+DEFAULT_SUFFIX = "ocr"
+DEFAULT_DATE_FORMAT = {"year": 1, "month": 2, "day": 3}
+
+
+class OcrSettings:
+    """Class to manage OCR settings and configuration files"""
+
+    def __init__(self) -> None:
+        """Initialize OCR settings with default values"""
+        # Get the centralized config manager
+        self._config = get_config_manager()
+
+        # File management
+        self.selected_files: list[str] = []
+        self.pages_count: int = 0
+        self.destination_folder: str = ""
+        self.processed_files: list[str] = []
+
+        # OCR processing settings
+        self.lang: str = DEFAULT_LANGUAGE
+        self.quality: str = DEFAULT_QUALITY
+        self.align: str = DEFAULT_ALIGNMENT
+        self.save_in_same_folder: bool = False
+        self.extracted_text: dict[str, str] = {}
+
+        # Output filename settings
+        self.pdf_suffix: str = DEFAULT_SUFFIX
+        self.overwrite_existing: bool = False
+
+        # Date inclusion settings
+        self.include_date: bool = False
+        self.include_year: bool = False
+        self.include_month: bool = False
+        self.include_day: bool = False
+        self.include_time: bool = False
+        self.date_format_order: dict[str, int] = DEFAULT_DATE_FORMAT.copy()
+
+        # Text extraction settings
+        self.save_txt: bool = False
+        self.separate_txt_folder: bool = False
+        self.txt_folder: str = ""
+
+        # Ensure config directory exists
+        os.makedirs(CONFIG_DIR, exist_ok=True)
+
+        # Ensure alignment configuration exists with default value
+        if not os.path.exists(ALIGN_FILE_PATH):
+            try:
+                with open(ALIGN_FILE_PATH, "w") as f:
+                    f.write(DEFAULT_ALIGNMENT)
+            except Exception as e:
+                logger.error(_("Error creating alignment setting file: {0}").format(e))
+
+        # Load settings from JSON config manager
+        self.load_settings()
+
+    def load_settings(self) -> None:
+        """Load all settings from JSON configuration"""
+        # Load from JSON config manager
+        self.lang = self._config.get("ocr.language", DEFAULT_LANGUAGE)
+        self.quality = self._config.get("ocr.quality", DEFAULT_QUALITY)
+        self.align = self._config.get("ocr.alignment", DEFAULT_ALIGNMENT)
+
+        # Output settings
+        self.pdf_suffix = self._config.get("output.suffix", DEFAULT_SUFFIX)
+        self.overwrite_existing = self._config.get("output.overwrite_existing", False)
+        self.save_in_same_folder = self._config.get("output.save_in_same_folder", False)
+        self.destination_folder = self._config.get("output.destination_folder", "")
+
+        # Date settings
+        self.include_date = self._config.get("date.include_date", False)
+        self.include_year = self._config.get("date.include_year", False)
+        self.include_month = self._config.get("date.include_month", False)
+        self.include_day = self._config.get("date.include_day", False)
+        self.include_time = self._config.get("date.include_time", False)
+        self.date_format_order = self._config.get("date.format_order", DEFAULT_DATE_FORMAT.copy())
+
+        # Text extraction settings
+        self.save_txt = self._config.get("text_extraction.save_txt", False)
+        self.separate_txt_folder = self._config.get("text_extraction.separate_folder", False)
+        self.txt_folder = self._config.get("text_extraction.txt_folder", "")
+
+        # Load selected files from legacy file (file list not stored in JSON)
+        self._load_selected_files()
+
+        # Only initialize destination folder if it isn't already set
+        if not self.destination_folder:
+            self._initialize_destination_folder()
+
+        logger.info("Settings loaded from JSON configuration")
+
+    def add_files(self, file_paths: list[str]) -> int:
+        """Add files to the selected files list
+
+        Args:
+            file_paths: List of file paths to add
+
+        Returns:
+            Number of files successfully added
+        """
+        if not file_paths:
+            return 0
+
+        logger.info(_("Attempting to add {0} files").format(len(file_paths)))
+
+        # Filter and collect valid PDF files
+        valid_files = self._filter_valid_pdf_files(file_paths)
+
+        # Add valid files and update count
+        if valid_files:
+            self.selected_files.extend(valid_files)
+            self._count_pdf_pages(valid_files)
+            self._save_selected_files()
+
+            # Only initialize destination if it's not already set by the user
+            if not self.destination_folder:
+                self._initialize_destination_folder()
+
+            logger.info(_("Successfully added {0} files").format(len(valid_files)))
+        else:
+            logger.warning(_("No valid PDF files were found to add"))
+
+        return len(valid_files)
+
+    def _filter_valid_pdf_files(self, file_paths: list[str]) -> list[str]:
+        """Filter a list of paths to only include valid PDF files
+
+        Args:
+            file_paths: List of file paths to filter
+
+        Returns:
+            List of valid PDF file paths
+        """
+        valid_files: list[str] = []
+
+        for file_path in file_paths:
+            # Skip empty paths
+            if not file_path:
+                logger.warning(_("Empty file path provided"))
+                continue
+
+            # Skip non-existent files
+            if not os.path.exists(file_path):
+                logger.warning(_("File does not exist: {0}").format(file_path))
+                continue
+
+            # Skip non-PDF files
+            if not file_path.lower().endswith(".pdf"):
+                logger.warning(_("Not a PDF file: {0}").format(file_path))
+                continue
+
+            # Skip duplicates
+            if file_path in self.selected_files:
+                logger.info(_("File already in list: {0}").format(file_path))
+                continue
+
+            # File is valid, add it
+            logger.info(_("Adding valid PDF: {0}").format(file_path))
+            valid_files.append(file_path)
+
+        return valid_files
+
+    def remove_files(self, indices: list[int]) -> None:
+        """Remove files at specified indices from the selected files list
+
+        Args:
+            indices: List of indices to remove
+        """
+        if not indices or not self.selected_files:
+            return
+
+        # Sort indices in reverse order to avoid index shifting during removal
+        indices.sort(reverse=True)
+
+        # Remove files by index
+        removed_files: list[str] = []
+        for idx in indices:
+            if 0 <= idx < len(self.selected_files):
+                removed_files.append(self.selected_files.pop(idx))
+
+        # Recalculate page count if files were removed
+        if removed_files:
+            self._recalculate_page_count()
+            self._save_selected_files()
+
+            # Update destination if needed
+            if not self.selected_files:
+                self.destination_folder = ""
+            elif not self.destination_folder:
+                self._initialize_destination_folder()
+
+    def clear_files(self) -> None:
+        """Remove all files from the selection"""
+        self.selected_files = []
+        self.pages_count = 0
+        self._save_selected_files()
+        self.destination_folder = ""
+
+    def save_settings(
+        self,
+        lang: str,
+        quality: str,
+        align: str,
+        destination_folder: str,
+        save_in_same_folder: bool = False,
+    ) -> None:
+        """Save current settings to configuration files
+
+        Args:
+            lang: OCR language code
+            quality: Quality setting (normal, economic, economicplus)
+            align: Alignment setting (none, align, rotate, alignrotate)
+            destination_folder: Path to save output files
+            save_in_same_folder: Whether to save in same folder as original
+        """
+        try:
+            # Update values
+            self.lang = lang or DEFAULT_LANGUAGE
+            self.quality = quality or DEFAULT_QUALITY
+            self.align = align or DEFAULT_ALIGNMENT
+            self.destination_folder = destination_folder
+            self.save_in_same_folder = save_in_same_folder
+
+            # Save all settings to JSON
+            self._save_all_settings()
+
+            logger.info(_("Settings saved successfully"))
+
+        except Exception as e:
+            logger.error(_("Error saving settings: {0}").format(e))
+            raise
+
+    def _save_all_settings(self) -> None:
+        """Save all settings to JSON configuration"""
+        # OCR settings
+        self._config.set("ocr.language", self.lang, save_immediately=False)
+        self._config.set("ocr.quality", self.quality, save_immediately=False)
+        self._config.set("ocr.alignment", self.align, save_immediately=False)
+
+        # Output settings
+        self._config.set("output.suffix", self.pdf_suffix, save_immediately=False)
+        self._config.set(
+            "output.overwrite_existing", self.overwrite_existing, save_immediately=False
+        )
+        self._config.set(
+            "output.save_in_same_folder",
+            self.save_in_same_folder,
+            save_immediately=False,
+        )
+        self._config.set(
+            "output.destination_folder", self.destination_folder, save_immediately=False
+        )
+
+        # Date settings
+        self._config.set("date.include_date", self.include_date, save_immediately=False)
+        self._config.set("date.include_year", self.include_year, save_immediately=False)
+        self._config.set("date.include_month", self.include_month, save_immediately=False)
+        self._config.set("date.include_day", self.include_day, save_immediately=False)
+        self._config.set("date.include_time", self.include_time, save_immediately=False)
+        self._config.set("date.format_order", self.date_format_order, save_immediately=False)
+
+        # Text extraction settings
+        self._config.set("text_extraction.save_txt", self.save_txt, save_immediately=False)
+        self._config.set(
+            "text_extraction.separate_folder",
+            self.separate_txt_folder,
+            save_immediately=False,
+        )
+        self._config.set("text_extraction.txt_folder", self.txt_folder, save_immediately=False)
+
+        # Save everything at once
+        self._config.save()
+
+        logger.debug("All settings saved to JSON configuration")
+
+    def _save_core_settings(self) -> None:
+        """Save core settings to JSON configuration (legacy wrapper)"""
+        self._save_all_settings()
+
+    def _save_pdf_output_settings(self) -> None:
+        """Save PDF output settings to JSON configuration (legacy wrapper)"""
+        # Already handled by _save_all_settings, kept for compatibility
+        pass
+
+    def get_pdf_suffix(self) -> str:
+        """Get the formatted PDF suffix with date elements if enabled
+
+        Returns:
+            The formatted suffix string for PDF files
+        """
+        # Start with the base suffix
+        suffix = self.pdf_suffix or DEFAULT_SUFFIX
+
+        # If date inclusion is not enabled, return just the suffix
+        if not self.include_date:
+            return suffix
+
+        # Get current time
+        now = time.localtime()
+
+        # Initialize date components with position ordering
+        date_components: list[tuple[int, str]] = []
+
+        # Add date elements with their preferred order
+        if self.include_year:
+            date_components.append(
+                (
+                    self.date_format_order.get("year", 1),
+                    f"{now.tm_year}",
+                )
+            )
+        if self.include_month:
+            date_components.append(
+                (
+                    self.date_format_order.get("month", 2),
+                    f"{now.tm_mon:02d}",
+                )
+            )
+        if self.include_day:
+            date_components.append(
+                (
+                    self.date_format_order.get("day", 3),
+                    f"{now.tm_mday:02d}",
+                )
+            )
+
+        # Sort components by their position value
+        date_components.sort(key=lambda x: x[0])
+
+        # Extract ordered date parts
+        date_parts = [component[1] for component in date_components]
+
+        # Add time separately (always comes last)
+        if self.include_time:
+            date_parts.append(f"{now.tm_hour:02d}{now.tm_min:02d}")
+
+        # If we have date parts, add them to the suffix
+        if date_parts:
+            date_str = "-".join(date_parts)
+            return f"{suffix}-{date_str}"
+
+        # Otherwise just return the suffix
+        return suffix
+
+    def _count_pdf_pages(self, file_paths: list[str]) -> None:
+        """Count pages in PDF files and add to the total page count
+
+        Args:
+            file_paths: List of PDF file paths to count pages for
+        """
+        for file_path in file_paths:
+            if file_path and file_path.lower().endswith(".pdf"):
+                page_count = get_pdf_page_count(file_path)
+                if page_count:
+                    self.pages_count += page_count
+
+    def _recalculate_page_count(self) -> None:
+        """Recalculate the total page count for all selected files"""
+        self.pages_count = 0
+        self._count_pdf_pages(self.selected_files)
+
+    def _save_selected_files(self) -> None:
+        """Save the current list of selected files to the configuration file"""
+        try:
+            with open(SELECTED_FILE_PATH, "w") as f:
+                for file_path in self.selected_files:
+                    f.write(f"{file_path}\n")
+            logger.info(_("Saved {0} selected files").format(len(self.selected_files)))
+        except Exception as e:
+            logger.error(_("Error saving selected files: {0}").format(e))
+
+    def _load_selected_files(self) -> None:
+        """Load selected files from configuration"""
+        # Initialize selected files as empty list to ensure it's always iterable
+        self.selected_files = []
+        self.pages_count = 0
+
+        if not os.path.exists(SELECTED_FILE_PATH):
+            return
+
+        try:
+            with open(SELECTED_FILE_PATH) as f:
+                file_lines = f.readlines()
+                if file_lines:  # Check if there are any lines
+                    self.selected_files = [line.strip() for line in file_lines if line.strip()]
+
+            # Filter to only existing files
+            self.selected_files = [f for f in self.selected_files if os.path.exists(f)]
+
+            # Count pages in PDF files
+            self._count_pdf_pages(self.selected_files)
+
+        except Exception as e:
+            logger.error(_("Error loading selected files: {0}").format(e))
+            # Ensure selected_files is always a list
+            self.selected_files = []
+
+    # NOTE: Legacy _load_* methods removed - settings now loaded from JSON via ConfigManager
+
+    def _initialize_destination_folder(self) -> None:
+        """Initialize the destination folder path based on selected files"""
+        if not self.selected_files:
+            self.destination_folder = ""
+            return
+
+        first_file = self.selected_files[0]
+        file_folder = os.path.dirname(first_file)
+
+        # Check if folder is writable, if not use home directory
+        if not os.access(file_folder, os.W_OK):
+            file_folder = os.path.expanduser("~")
+
+        # Set the destination folder
+        self.destination_folder = file_folder
+
+    def reset_processing_state(self) -> None:
+        """Reset processing-related state for new OCR run"""
+        # Clear processed files list
+        self.processed_files = []
+
+        # Clear extracted text to free memory
+        if hasattr(self, "extracted_text") and self.extracted_text:
+            text_count = len(self.extracted_text)
+            total_chars = sum(len(text) for text in self.extracted_text.values())
+            self.extracted_text.clear()
+            logger.info(
+                f"Cleared {text_count} extracted texts ({total_chars} characters) from memory"
+            )
+        else:
+            self.extracted_text = {}
+
+        logger.info(_("Processing state reset successfully"))
+
+    def cleanup_temp_files(self, processed_files: list[str]) -> None:
+        """Clean up temporary files after OCR processing
+
+        Args:
+            processed_files: List of processed output files
+        """
+        try:
+            for output_file in processed_files:
+                if not output_file or not os.path.exists(output_file):
+                    continue
+
+                # Clean up .temp directory for this file
+                temp_dir = os.path.join(os.path.dirname(output_file), ".temp")
+                if os.path.exists(temp_dir):
+                    self._cleanup_temp_directory(temp_dir, output_file)
+
+            logger.info(_("Temporary files cleanup completed"))
+
+        except Exception as e:
+            logger.error(f"Error cleaning up temporary files: {e}")
+
+    def _cleanup_temp_directory(self, temp_dir: str, output_file: str) -> None:
+        """Clean up specific temporary directory
+
+        Args:
+            temp_dir: Path to temporary directory
+            output_file: Output file path to match temp files
+        """
+        import glob
+
+        try:
+            # Get base name for matching temp files
+            base_name = os.path.basename(os.path.splitext(output_file)[0])
+
+            # Find temp files related to this output file
+            temp_pattern = os.path.join(temp_dir, f"temp_{base_name}*")
+            temp_files = glob.glob(temp_pattern)
+
+            # Remove matching temp files
+            for temp_file in temp_files:
+                try:
+                    os.remove(temp_file)
+                    logger.info(f"Removed temporary file: {os.path.basename(temp_file)}")
+                except Exception as e:
+                    logger.warning(f"Could not remove temp file {temp_file}: {e}")
+
+            # Try to remove temp directory if empty
+            try:
+                if os.path.exists(temp_dir) and not os.listdir(temp_dir):
+                    os.rmdir(temp_dir)
+                    logger.info("Removed empty temporary directory")
+            except Exception:
+                pass  # Directory not empty or other issue, ignore
+
+        except Exception as e:
+            logger.error(f"Error cleaning temp directory {temp_dir}: {e}")

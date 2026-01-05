@@ -1,3 +1,11 @@
 #!/bin/sh
 
-python /usr/share/biglinux/bigocrpdf/main.py "$@"
+# Search bigocrpdf package in Python site-packages or legacy share location
+for i in /usr/lib/python3.{25..6}/site-packages/bigocrpdf /usr/share/biglinux/bigocrpdf; do
+    if [ -e "$i/__init__.py" ]; then
+        cd "$i"
+        break
+    fi
+done
+
+exec python3 __init__.py "$@"

@@ -1,23 +1,37 @@
 # Maintainer: Bruno Goncalves <bigbruno@gmail.com>
 
 pkgname=bigocrpdf
+pkgdesc="The simplest way to apply OCR to your PDF files, making it possible to search and copy texts from scanned files."
+
+depends=(
+    'gtk4'
+    'libadwaita'
+    'python'
+    'python-gobject'
+    'python-pycairo'
+    'ocrmypdf'
+    'python-sortedcontainers'
+    'python-pdfminer'
+    'python-pikepdf'
+    'jbigkit'
+    'tesseract-data-por'
+    'tesseract-data-eng'
+    'tesseract-data-spa'
+)
+
+makedepends=(
+    'python-build'
+    'python-installer'
+    'python-setuptools'
+    'python-wheel'
+)
+
 pkgver=$(date +%y.%m.%d)
 pkgrel=$(date +%H%M)
 arch=('any')
-license=('GPL')
+license=('GPL-3.0-or-later')
 url="https://github.com/biglinux/bigocrpdf"
-pkgdesc="The simplest way to apply OCR to your PDF files, making it possible to search and copy texts from scanned files."
-depends=('python-sortedcontainers'
-         'ocrmypdf'
-         'jbigkit'
-         'python-pdfminer>=20220524'
-         'python-gobject'
-         'python-pikepdf'
-         'gtk4'
-         'libadwaita'
-         'tesseract-data-por'
-         'tesseract-data-eng'
-         'tesseract-data-spa')
+
 optdepends=(
   'tesseract-data-afr: Tesseract OCR data (afr)'
   'tesseract-data-amh: Tesseract OCR data (amh)'
@@ -144,27 +158,31 @@ optdepends=(
   'tesseract-data-yor: Tesseract OCR data (yor)'
 )
 source=("git+https://github.com/biglinux/bigocrpdf.git")
-md5sums=(SKIP)
+md5sums=('SKIP')
+
+build() {
+    cd "${srcdir}/${pkgname}"
+    python -m build --wheel --no-isolation --skip-dependency-check
+}
 
 package() {
-    # Verify default folder
-    if [ -d "${srcdir}/${pkgname}/${pkgname}" ]; then
-        InternalDir="${srcdir}/${pkgname}/${pkgname}"
-    else
-        InternalDir="${srcdir}/${pkgname}"
+    cd "${srcdir}/${pkgname}"
+
+    # Install Python wheel
+    python -m installer --destdir="$pkgdir" dist/*.whl
+
+    # Install additional files (icons, desktop files, translations, etc.)
+    if [ -d "bigocrpdf/usr" ]; then
+        cp -a bigocrpdf/usr/share "${pkgdir}/usr/share"
     fi
 
-
-    # Copy files
-    if [ -d "${InternalDir}/usr" ]; then
-        cp -r "${InternalDir}/usr" "${pkgdir}/"
+    # Install license file
+    if [ -f "LICENSE" ]; then
+        install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
     fi
 
-    if [ -d "${InternalDir}/etc" ]; then
-        cp -r "${InternalDir}/etc" "${pkgdir}/"
-    fi
-
-    if [ -d "${InternalDir}/opt" ]; then
-        cp -r "${InternalDir}/opt" "${pkgdir}/"
+    # Install documentation
+    if [ -f "README.md" ]; then
+        install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
     fi
 }
