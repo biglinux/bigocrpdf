@@ -5,6 +5,7 @@ This module contains the main application class for the BigOcrPdf application.
 """
 
 from typing import Any
+import os
 
 import gi
 
@@ -139,10 +140,6 @@ class BigOcrPdfApp(Adw.Application):
                 # Create the main window
                 win = BigOcrPdfWindow(app)
 
-            # Show the window
-            win.present()
-
-            # Extract file paths from GFile objects
             # Extract file paths from GFile objects
             image_extensions = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"}
             pdf_paths = []
@@ -157,9 +154,17 @@ class BigOcrPdfApp(Adw.Application):
                     else:
                         pdf_paths.append(path)
 
+            # Determine mode and visibility
+            if image_paths and not pdf_paths:
+                # Image-only mode: Keep main window hidden
+                win.image_only_mode = True
+            else:
+                # Normal mode: Show main window
+                win.image_only_mode = False
+                win.present()
+
             # Handle image files (OCR extraction)
             if image_paths:
-                # Start with the first image
                 first_image = image_paths[0]
 
                 def open_image_when_ready():
@@ -170,27 +175,29 @@ class BigOcrPdfApp(Adw.Application):
                         logger.error(f"Error opening image: {e}")
                     return False
 
-                # Use a small delay to ensure the window is fully initialized
+                # Delay slightly to ensure window initialization
                 GLib.timeout_add(200, open_image_when_ready)
 
-            # Add PDF files to the application queue using idle_add
+            # Add PDF files to the application queue
             if pdf_paths:
 
                 def add_files_when_ready():
                     try:
+                        logger.info(f"Adding {len(pdf_paths)} PDF files...")
                         if hasattr(win, "settings"):
                             added = win.settings.add_files(pdf_paths)
                             if added > 0:
                                 logger.info(f"Added {added} file(s) from command line")
-                                # Refresh the file list UI
                                 if hasattr(win, "update_file_info"):
                                     win.update_file_info()
+                            else:
+                                logger.warning("No files added (check mime types)")
                     except Exception as e:
                         logger.error(f"Error adding files: {e}")
-                    return False  # Don't repeat
+                    return False
 
-                # Use a small delay to ensure the window is fully initialized
-                GLib.timeout_add(100, add_files_when_ready)
+                # Use a larger delay to ensure the window/settings are fully engaged
+                GLib.timeout_add(300, add_files_when_ready)
 
             logger.info(_(f"Opened {n_files} file(s)"))
 

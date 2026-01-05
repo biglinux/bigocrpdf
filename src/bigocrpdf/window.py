@@ -644,8 +644,21 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
 
     def _on_screen_capture_processing(self) -> None:
         """Handle start of processing phase (show loading dialog)."""
-        # Restore window
-        self.present()
+        # Restore window if it was minimized for capture
+        # But if we are in image_only_mode and haven't captured yet (just file processing),
+        # we might want to keep it hidden?
+        # Actually _start_screen_capture calls this.
+        # open_image_for_ocr ALSO calls this.
+        # If open_image_for_ocr calls it, we are processing a file.
+        # If we reveal window here, we break "image only mode".
+
+        # Only present window if we were minimizing (interactive capture)
+        # We can check window state? Or rely on the fact that for file processing
+        # we don't need to 'restore' anything.
+        # However, checking if we are minimized is hard reliably.
+        # A simple check: if image_only_mode is True, DO NOT present.
+        if not getattr(self, "image_only_mode", False):
+            self.present()
 
         # Close any existing dialog
         if hasattr(self, "_active_capture_dialog") and self._active_capture_dialog:
@@ -655,7 +668,20 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
                 pass
 
         self._active_capture_dialog = ScreenCaptureResultDialog(self, text=None)
+
+        # Monitor close to exit app in image-only mode
+        self._active_capture_dialog.connect("close-request", self._on_capture_dialog_close_request)
+
         self._active_capture_dialog.present()
+
+    def _on_capture_dialog_close_request(self, dialog: Adw.Window) -> bool:
+        """Handle dialog close request."""
+        # If in image-only mode, closing the dialog should close the app
+        if getattr(self, "image_only_mode", False):
+            # Close main window (which quits app) after a brief delay
+            GLib.timeout_add(100, self.close)
+
+        return False  # Allow dialog to close
 
     def _on_screen_capture_complete(self, text: str | None, error: str | None) -> None:
         """Handle screen capture completion.
