@@ -26,15 +26,21 @@ from bigocrpdf.config import (
 from bigocrpdf.ui.widgets import load_css
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.logger import logger
 from bigocrpdf.window import BigOcrPdfWindow
+from bigocrpdf.ui.image_ocr_window import ImageOcrWindow
 
 
 class BigOcrPdfApp(Adw.Application):
     """Application class for BigOcrPdf."""
 
-    def __init__(self) -> None:
-        """Initialize the application."""
-        super().__init__(application_id=APP_ID, flags=Gio.ApplicationFlags.HANDLES_OPEN)
+    def __init__(self, application_id: str = APP_ID) -> None:
+        """Initialize the application.
+
+        Args:
+            application_id: The application ID to use
+        """
+        super().__init__(application_id=application_id, flags=Gio.ApplicationFlags.HANDLES_OPEN)
 
         # Store files to be opened
         self._pending_files: list = []
@@ -68,6 +74,11 @@ class BigOcrPdfApp(Adw.Application):
         quit_action = Gio.SimpleAction.new("quit", None)
         quit_action.connect("activate", lambda *_: self.quit())
         self.add_action(quit_action)
+
+        # Image OCR action
+        image_ocr_action = Gio.SimpleAction.new("image-ocr", None)
+        image_ocr_action.connect("activate", self.on_image_ocr_action)
+        self.add_action(image_ocr_action)
 
         # Set keyboard shortcuts
         self.set_accels_for_action("app.quit", ["<Ctrl>q"])
@@ -134,12 +145,6 @@ class BigOcrPdfApp(Adw.Application):
             # Load custom CSS
             load_css()
 
-            # Check if we already have a window open
-            win = self.get_active_window()
-            if not win:
-                # Create the main window
-                win = BigOcrPdfWindow(app)
-
             # Extract file paths from GFile objects
             image_extensions = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"}
             pdf_paths = []
@@ -154,29 +159,52 @@ class BigOcrPdfApp(Adw.Application):
                     else:
                         pdf_paths.append(path)
 
-            # Determine mode and visibility
+            # Determine mode and launch appropriate window
             if image_paths and not pdf_paths:
-                # Image-only mode: Keep main window hidden
-                win.image_only_mode = True
-            else:
-                # Normal mode: Show main window
-                win.image_only_mode = False
+                # Image-only mode: Launch ImageOcrWindow
+                first_image = image_paths[0]
+                win = ImageOcrWindow(app, image_path=first_image)
                 win.present()
 
-            # Handle image files (OCR extraction)
-            if image_paths:
-                first_image = image_paths[0]
+            elif pdf_paths or not image_paths:
+                # Normal PDF mode or mixed (TODO: Handle mixed better?)
+                # For now, if there are PDFs, we prefer the main window
 
-                def open_image_when_ready():
-                    try:
-                        if hasattr(win, "open_image_for_ocr"):
-                            win.open_image_for_ocr(first_image)
-                    except Exception as e:
-                        logger.error(f"Error opening image: {e}")
-                    return False
+                # Check if we already have a window open
+                win = self.get_active_window()
+                # If active window is ImageOcrWindow, we might need a new PdfWindow?
+                # Or just check if valid PdfWindow exists.
+                # Simplification: Just make sure we have a BigOcrPdfWindow
 
-                # Delay slightly to ensure window initialization
-                GLib.timeout_add(200, open_image_when_ready)
+                if not win or isinstance(win, ImageOcrWindow):
+                    win = BigOcrPdfWindow(app)
+
+                win.present()
+
+                # Add PDF files to the application queue
+                if pdf_paths:
+
+                    def add_files_when_ready():
+                        try:
+                            logger.info(f"Adding {len(pdf_paths)} PDF files...")
+                            if hasattr(win, "settings"):
+                                added = win.settings.add_files(pdf_paths)
+                                if added > 0:
+                                    logger.info(f"Added {added} file(s) from command line")
+                                    if hasattr(win, "update_file_info"):
+                                        win.update_file_info()
+                                else:
+                                    logger.warning("No files added (check mime types)")
+                        except Exception as e:
+                            logger.error(f"Error adding files: {e}")
+                        return False
+
+                    # Use a larger delay to ensure the window/settings are fully engaged
+                    GLib.timeout_add(300, add_files_when_ready)
+
+            # If we had both images and PDFs, strictly speaking we only handled one above.
+            # But the requirement is separation. If mixed, we prioritized one.
+            # Let's assume user doesn't drag mixed types usually.
 
             # Add PDF files to the application queue
             if pdf_paths:
@@ -232,3 +260,13 @@ class BigOcrPdfApp(Adw.Application):
 
         # Show the about dialog
         about.present()
+
+    def on_image_ocr_action(self, _action: Gio.SimpleAction, _param: Any) -> None:
+        """Open the independent Image OCR window.
+
+        Args:
+           _action: The action that triggered this callback
+           _param: Action parameters
+        """
+        win = ImageOcrWindow(self)
+        win.present()

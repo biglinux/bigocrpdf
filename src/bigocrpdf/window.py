@@ -24,14 +24,9 @@ from bigocrpdf.config import (
     WINDOW_STATE_KEY,
 )
 from bigocrpdf.services.processor import OcrProcessor
-from bigocrpdf.services.screen_capture import ScreenCaptureService
 from bigocrpdf.services.settings import OcrSettings
 from bigocrpdf.ui.file_selection_manager import FileSelectionManager
 from bigocrpdf.ui.navigation_manager import NavigationManager
-from bigocrpdf.ui.screen_capture_dialog import (
-    ScreenCaptureResultDialog,
-    show_screen_capture_result,
-)
 from bigocrpdf.ui.ui_manager import BigOcrPdfUI
 from bigocrpdf.utils.config_manager import get_config_manager
 from bigocrpdf.utils.i18n import _
@@ -273,32 +268,15 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         title_label = Gtk.Label(label=_("BigOcrPdf - Scanned PDFs with search support"))
         self.header_bar.set_title_widget(title_label)
 
-        # Screen capture button
-        self._screen_capture_service = ScreenCaptureService(self)
-        if ScreenCaptureService.is_available() and ScreenCaptureService.check_tesseract():
-            screen_capture_btn = Gtk.Button()
-            screen_capture_btn.set_icon_name("camera-photo-symbolic")
-            screen_capture_btn.set_tooltip_text(
-                _("Capture text from screen - select a region to extract text using OCR")
-            )
-            screen_capture_btn.connect("clicked", self.on_screen_capture_clicked)
-            self.header_bar.pack_start(screen_capture_btn)
-
         menu_button = Gtk.MenuButton()
         menu_button.set_icon_name("open-menu-symbolic")
         menu_button.set_tooltip_text(_("Menu"))
 
         menu = Gio.Menu()
-        menu.append(_("Screen Capture OCR"), "win.screen_capture")
         menu.append(_("Help"), "win.help")
         menu.append(_("About the application"), "app.about")
         menu_button.set_menu_model(menu)
         self.header_bar.pack_end(menu_button)
-
-        # Screen capture action
-        screen_capture_action = Gio.SimpleAction.new("screen_capture", None)
-        screen_capture_action.connect("activate", self.on_screen_capture_clicked)
-        self.add_action(screen_capture_action)
 
         help_action = Gio.SimpleAction.new("help", None)
         help_action.connect("activate", lambda *_: self.show_welcome_dialog())
@@ -576,135 +554,6 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
     def on_next_clicked(self, button: Gtk.Button) -> None:
         """Handle next button navigation - delegates to NavigationManager."""
         self.nav_manager.handle_next_clicked(button)
-
-    def open_image_for_ocr(self, image_path: str) -> None:
-        """Process a specific image file for OCR.
-
-        Args:
-            image_path: Path to the image file
-        """
-        if not hasattr(self, "_screen_capture_service") or not self._screen_capture_service:
-            self._screen_capture_service = ScreenCaptureService(self)
-
-        if not ScreenCaptureService.check_tesseract():
-            self.show_toast(
-                _("Tesseract OCR is not installed. Please install tesseract-ocr."),
-                timeout=5,
-            )
-            return
-
-        self._screen_capture_service.process_image_file(
-            image_path,
-            callback=self._on_screen_capture_complete,
-            on_processing=self._on_screen_capture_processing,
-        )
-
-    def on_screen_capture_clicked(self, *args) -> None:
-        """Handle screen capture button click - captures screen region and extracts text.
-
-        Args:
-            *args: Arguments depending on caller (button click or action)
-        """
-        if not hasattr(self, "_screen_capture_service") or not self._screen_capture_service:
-            self._screen_capture_service = ScreenCaptureService(self)
-
-        # Check if tesseract is available
-        if not ScreenCaptureService.check_tesseract():
-            self.show_toast(
-                _("Tesseract OCR is not installed. Please install tesseract-ocr."),
-                timeout=5,
-            )
-            return
-
-        # Check if any screenshot tool is available
-        if not ScreenCaptureService.is_available():
-            self.show_toast(
-                _("No screenshot tool available. Please install gnome-screenshot or flameshot."),
-                timeout=5,
-            )
-            return
-
-        # Minimize window to allow capturing content behind it
-        self.minimize()
-
-        # Delay capture to allow minimize animation to complete
-        GLib.timeout_add(500, self._start_screen_capture)
-
-    def _start_screen_capture(self) -> bool:
-        """Start the screen capture process after delay.
-
-        Returns:
-            False to stop the timeout source
-        """
-        self._screen_capture_service.capture_screen_region(
-            callback=self._on_screen_capture_complete,
-            on_processing=self._on_screen_capture_processing,
-        )
-        return False
-
-    def _on_screen_capture_processing(self) -> None:
-        """Handle start of processing phase (show loading dialog)."""
-        # Restore window if it was minimized for capture
-        # But if we are in image_only_mode and haven't captured yet (just file processing),
-        # we might want to keep it hidden?
-        # Actually _start_screen_capture calls this.
-        # open_image_for_ocr ALSO calls this.
-        # If open_image_for_ocr calls it, we are processing a file.
-        # If we reveal window here, we break "image only mode".
-
-        # Only present window if we were minimizing (interactive capture)
-        # We can check window state? Or rely on the fact that for file processing
-        # we don't need to 'restore' anything.
-        # However, checking if we are minimized is hard reliably.
-        # A simple check: if image_only_mode is True, DO NOT present.
-        if not getattr(self, "image_only_mode", False):
-            self.present()
-
-        # Close any existing dialog
-        if hasattr(self, "_active_capture_dialog") and self._active_capture_dialog:
-            try:
-                self._active_capture_dialog.close()
-            except Exception:
-                pass
-
-        self._active_capture_dialog = ScreenCaptureResultDialog(self, text=None)
-
-        # Monitor close to exit app in image-only mode
-        self._active_capture_dialog.connect("close-request", self._on_capture_dialog_close_request)
-
-        self._active_capture_dialog.present()
-
-    def _on_capture_dialog_close_request(self, dialog: Adw.Window) -> bool:
-        """Handle dialog close request."""
-        # If in image-only mode, closing the dialog should close the app
-        if getattr(self, "image_only_mode", False):
-            # Close main window (which quits app) after a brief delay
-            GLib.timeout_add(100, self.close)
-
-        return False  # Allow dialog to close
-
-    def _on_screen_capture_complete(self, text: str | None, error: str | None) -> None:
-        """Handle screen capture completion.
-
-        Args:
-            text: Extracted text or None
-            error: Error message or None
-        """
-        # If we have an active dialog, update it or close it
-        if hasattr(self, "_active_capture_dialog") and self._active_capture_dialog:
-            if error:
-                self._active_capture_dialog.close()
-                self._active_capture_dialog = None
-                if "cancelled" not in error.lower():
-                    show_screen_capture_result(self, None, error)
-            elif text:
-                self._active_capture_dialog.set_text(text)
-                # We don't unset _active_capture_dialog here because user might keep it open
-                # But if they start new capture, processing callback will close it.
-            return
-
-        # Fallback if no active dialog
-        show_screen_capture_result(self, text, error)
 
     def on_add_file_clicked(self, button: Gtk.Button) -> None:
         """Handle add file button click - delegates to FileSelectionManager."""

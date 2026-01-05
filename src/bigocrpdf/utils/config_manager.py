@@ -36,7 +36,7 @@ DEFAULT_CONFIG: Final[dict[str, Any]] = {
         "height": 600,
     },
     "ocr": {
-        "language": "eng",
+        "language": None,  # Will be auto-detected
         "quality": "normal",
         "alignment": "alignrotate",
     },

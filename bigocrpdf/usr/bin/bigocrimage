@@ -2,4 +2,4 @@
 
 # Wrapper to call bigocrpdf for image OCR
 
-bigocrpdf "$@"
+bigocrpdf --image-mode "$@"

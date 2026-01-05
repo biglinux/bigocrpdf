@@ -8,6 +8,7 @@ making them searchable and their text selectable.
 import locale
 import sys
 
+
 # Handle direct execution from source directory
 if __package__ is None:
     import pathlib
@@ -16,6 +17,7 @@ if __package__ is None:
     if str(parent_dir) not in sys.path:
         sys.path.insert(0, str(parent_dir))
     __package__ = "bigocrpdf"
+
 
 __version__ = "2.0.0"
 __author__ = "BigLinux Team"

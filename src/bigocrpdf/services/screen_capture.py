@@ -46,6 +46,7 @@ class ScreenCaptureService:
         image_path: str,
         callback: Callable[[str | None, str | None], None],
         on_processing: Callable[[], None] | None = None,
+        lang: str = "eng",
     ) -> None:
         """Process an existing image file and extract text.
 
@@ -53,65 +54,91 @@ class ScreenCaptureService:
             image_path: Path to the image file
             callback: Callback function to receive the result
             on_processing: Optional callback invoked when processing starts
+            lang: Language code for OCR (default: "eng")
         """
         self._pending_callback = callback
         self._pending_processing_callback = on_processing
 
-        thread = threading.Thread(target=self._run_image_process, args=(image_path,))
+        thread = threading.Thread(target=self._run_image_process, args=(image_path, lang))
         thread.daemon = True
         thread.start()
 
-    def _run_image_process(self, image_path: str) -> None:
+    def _run_image_process(self, image_path: str, lang: str = "eng") -> None:
         """Execute the image processing in a thread."""
         self._invoke_processing_callback()
-        text = self.extract_text_from_image(image_path)
+        text = self.extract_text_from_image(image_path, lang)
         self._invoke_callback(text, None)
 
     def capture_screen_region(
         self,
         callback: Callable[[str | None, str | None], None],
         on_processing: Callable[[], None] | None = None,
+        lang: str = "eng",
     ) -> None:
-        """Capture a rectangular region of the screen and extract text.
-
-        The callback receives two arguments:
-        - extracted_text: The extracted text, or None on error
-        - error_message: Error message if failed, or None on success
+        """Capture a region of the screen and extract text from it.
 
         Args:
-            callback: Callback function to receive the result
-            on_processing: Optional callback invoked when screenshot is taken and OCR starts
+            callback: Callback function to receive the result (text, error)
+            on_processing: Optional callback invoked when processing starts
+            lang: Language code for OCR (default: "eng")
         """
         self._pending_callback = callback
         self._pending_processing_callback = on_processing
 
-        # Run capture in a separate thread to avoid freezing UI during screenshot/OCR
-        thread = threading.Thread(target=self._run_capture_flow)
+        # Run capture in a separate thread to avoid freezing the UI
+        thread = threading.Thread(target=self._run_capture_thread, args=(lang,))
         thread.daemon = True
         thread.start()
 
-    def _run_capture_flow(self) -> None:
-        """Execute the capture flow in a thread."""
-        if not self._capture_with_cli_tools():
-            self._invoke_callback(
-                None,
-                _(
-                    "No screenshot tool available. Please install spectacle, gnome-screenshot, or flameshot."
-                ),
-            )
+    def _run_capture_thread(self, lang: str) -> None:
+        """Execute the capture and OCR process in a thread."""
+        try:
+            # Generate a temporary file path
+            fd, temp_path = tempfile.mkstemp(suffix=".png", prefix="bigocrpdf_capture_")
+            os.close(fd)
 
-    def _capture_with_cli_tools(self) -> bool:
+            # Capture screen
+            tool_executed = self._capture_with_cli_tools(temp_path)
+
+            if not tool_executed:
+                self._cleanup_temp_file(temp_path)
+                self._invoke_callback(
+                    None,
+                    _(
+                        "No screenshot tool available. Please install spectacle, gnome-screenshot, or flameshot."
+                    ),
+                )
+                return
+
+            # Check if file has content (i.e., screenshot was actually taken, not just cancelled)
+            if os.path.exists(temp_path) and os.path.getsize(temp_path) > 0:
+                # Invoke processing callback (in main thread)
+                self._invoke_processing_callback()
+
+                # Extract text
+                text = self.extract_text_from_image(temp_path, lang)
+                self._cleanup_temp_file(temp_path)
+                self._invoke_callback(text, None)
+            else:
+                # Likely cancelled by user
+                self._cleanup_temp_file(temp_path)
+                self._invoke_callback(None, _("Screenshot was cancelled"))
+
+        except Exception as e:
+            logger.error(f"Screenshot capture error: {e}")
+            self._invoke_callback(None, _(f"An unexpected error occurred during capture: {e}"))
+
+    def _capture_with_cli_tools(self, temp_path: str) -> bool:
         """Capture screen using CLI tools (spectacle, gnome-screenshot, flameshot).
+
+        Args:
+            temp_path: The path where the screenshot should be saved.
 
         Returns:
             True if a tool was found and executed (screenshot taken or cancelled by user),
             False if no tool was found.
         """
         try:
-            # Create a temporary file for the screenshot
-            fd, temp_path = tempfile.mkstemp(suffix=".png", prefix="bigocrpdf_capture_")
-            os.close(fd)
-
             # Prioritize tools based on likely environment
             desktop = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
 
@@ -128,7 +155,7 @@ class ScreenCaptureService:
                 commands.append(["flameshot", "gui", "--raw"])
                 commands.append(["spectacle", "-r", "-b", "-n", "-o", temp_path])
 
-            tool_found = False
+            tool_found_and_executed = False
             for cmd in commands:
                 try:
                     if cmd[0] == "flameshot":
@@ -141,7 +168,14 @@ class ScreenCaptureService:
                         if result.returncode == 0 and result.stdout:
                             with open(temp_path, "wb") as f:
                                 f.write(result.stdout)
-                            tool_found = True
+                            tool_found_and_executed = True
+                            break
+                        elif result.returncode != 0:
+                            # Flameshot cancelled or failed
+                            logger.debug(
+                                f"Flameshot exited with code {result.returncode}: {result.stderr.decode().strip()}"
+                            )
+                            tool_found_and_executed = True  # Tool was executed, even if cancelled
                             break
                     else:
                         tool_name = cmd[0]
@@ -154,72 +188,80 @@ class ScreenCaptureService:
                             capture_output=True,
                             timeout=60,
                         )
-                        if (
-                            result.returncode == 0
-                            and os.path.exists(temp_path)
-                            and os.path.getsize(temp_path) > 0
-                        ):
-                            tool_found = True
+                        if result.returncode == 0:
+                            tool_found_and_executed = True
                             break
                         elif result.returncode != 0:
                             # Tool failed or cancelled
-                            continue
+                            logger.debug(
+                                f"{tool_name} exited with code {result.returncode}: {result.stderr.decode().strip()}"
+                            )
+                            tool_found_and_executed = True  # Tool was executed, even if cancelled
+                            break
 
                 except FileNotFoundError:
                     continue
                 except subprocess.TimeoutExpired:
+                    logger.warning(f"Screenshot tool {cmd[0]} timed out.")
+                    continue
+                except Exception as e:
+                    logger.warning(f"Error running screenshot tool {cmd[0]}: {e}")
                     continue
 
-            if not tool_found:
-                self._cleanup_temp_file(temp_path)
-                return False
-
-            # Check if file has content
-            if os.path.exists(temp_path) and os.path.getsize(temp_path) > 0:
-                # Invoke processing callback (in main thread)
-                self._invoke_processing_callback()
-
-                # Extract text
-                text = self.extract_text_from_image(temp_path)
-                self._cleanup_temp_file(temp_path)
-                self._invoke_callback(text, None)
-                return True
-            else:
-                # Likely cancelled
-                self._cleanup_temp_file(temp_path)
-                self._invoke_callback(None, _("Screenshot was cancelled"))
-                return True
+            return tool_found_and_executed
 
         except Exception as e:
             logger.error(f"Screenshot capture error: {e}")
             return False
 
-    def extract_text_from_image(self, image_path: str) -> str | None:
+    def extract_text_from_image(self, image_path: str, lang: str = "eng") -> str | None:
         """Extract text from an image using Tesseract OCR.
 
         Args:
             image_path: Path to the image file
+            lang: Language to use for OCR (default: "eng")
 
         Returns:
             Extracted text or None on error
         """
         try:
-            # First try using tesseract directly (faster, no Python dependencies)
-            result = subprocess.run(
-                ["tesseract", image_path, "stdout", "-l", "eng+por+spa"],
-                capture_output=True,
-                text=True,
-                timeout=30,
-            )
+            # Check if tesseract is installed
+            if not self.check_tesseract():
+                logger.error("Tesseract not found or not in PATH.")
+                self._invoke_callback(None, _("Tesseract OCR engine not found. Please install it."))
+                return None
+
+            # Direct tesseract execution
+            args = ["tesseract", image_path, "stdout", "-l", lang]
+
+            logger.info(f"Executing OCR: {' '.join(args)}")
+            result = subprocess.run(args, capture_output=True, text=True, timeout=30)
 
             if result.returncode == 0:
                 text = result.stdout.strip()
                 if text:
                     return text
                 return _("No text found in the selected region")
+            else:
+                logger.error(
+                    f"Tesseract direct execution failed with code {result.returncode}: {result.stderr.strip()}"
+                )
+                # Try to return something if stdout has content even with error
+                if result.stdout:
+                    return result.stdout.strip()
 
-            # If tesseract fails, log the error
-            logger.warning(f"Tesseract failed: {result.stderr}")
+                # Check for common errors
+                err_msg = result.stderr.strip()
+                if "eng" in err_msg and "not found" in err_msg:
+                    self._invoke_callback(
+                        None,
+                        _(
+                            f"Language data for '{lang}' not found. Please install tesseract-data-{lang}."
+                        ),
+                    )
+                else:
+                    self._invoke_callback(None, _(f"OCR failed: {err_msg}"))
+                return None
 
         except FileNotFoundError:
             logger.error("Tesseract not installed")
@@ -228,7 +270,7 @@ class ScreenCaptureService:
             logger.error("Tesseract OCR timed out")
             return None
         except Exception as e:
-            logger.error(f"OCR extraction error: {e}")
+            logger.error(f"OCR processing error: {e}")
             return None
 
         return None

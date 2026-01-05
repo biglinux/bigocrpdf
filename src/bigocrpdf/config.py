@@ -20,6 +20,7 @@ from bigocrpdf.utils.i18n import _
 
 APP_NAME: Final[str] = "Big OCR PDF"
 APP_ID: Final[str] = "br.com.biglinux.bigocrpdf"
+IMAGE_APP_ID: Final[str] = "br.com.biglinux.bigocrimage"
 APP_VERSION: Final[str] = "2.0.0"
 APP_DESCRIPTION: Final[str] = _("Add OCR to your PDF documents to make them searchable")
 APP_WEBSITE: Final[str] = "https://www.biglinux.com.br"
@@ -82,6 +83,7 @@ LOGGER_NAME: Final[str] = "BigOcrPdf"
 DEFAULT_WINDOW_WIDTH: Final[int] = 820
 DEFAULT_WINDOW_HEIGHT: Final[int] = 600
 WINDOW_STATE_KEY: Final[str] = "window"
+IMAGE_WINDOW_STATE_KEY: Final[str] = "image_window"
 
 
 # ============================================================================

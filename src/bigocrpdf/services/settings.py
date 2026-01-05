@@ -5,6 +5,7 @@ This module handles configuration settings and file management for the applicati
 """
 
 import os
+import subprocess
 import time
 
 from bigocrpdf.config import (
@@ -80,7 +81,12 @@ class OcrSettings:
     def load_settings(self) -> None:
         """Load all settings from JSON configuration"""
         # Load from JSON config manager
-        self.lang = self._config.get("ocr.language", DEFAULT_LANGUAGE)
+        # Load from JSON config manager
+        # If language is not set (None), try to detect system language
+        config_lang = self._config.get("ocr.language")
+        detected_lang = self._detect_default_language()
+
+        self.lang = config_lang if config_lang else detected_lang
         self.quality = self._config.get("ocr.quality", DEFAULT_QUALITY)
         self.align = self._config.get("ocr.alignment", DEFAULT_ALIGNMENT)
 
@@ -111,6 +117,45 @@ class OcrSettings:
             self._initialize_destination_folder()
 
         logger.info("Settings loaded from JSON configuration")
+
+    def _detect_default_language(self) -> str:
+        """Detect system language and find best match in tesseract."""
+        try:
+            # Get system language
+            lang = os.environ.get("LANG", "eng")
+            short_lang = lang[:2].lower()
+
+            # Map common 2-letter codes to tesseract 3-letter codes
+            mapping = {
+                "pt": "por",
+                "es": "spa",
+                "en": "eng",
+                "fr": "fra",
+                "de": "deu",
+                "it": "ita",
+                "ru": "rus",
+                "zh": "chi_sim",
+            }
+
+            target_lang = mapping.get(short_lang, "eng")
+
+            # Check installed languages in tesseract
+            # We assume tesseract is in path
+            # Wrap in try block to handle file not found if tesseract missing
+            try:
+                result = subprocess.run(
+                    ["tesseract", "--list-langs"], capture_output=True, text=True
+                )
+
+                if result.returncode == 0 and target_lang in result.stdout:
+                    return target_lang
+            except FileNotFoundError:
+                pass
+
+            return "eng"
+        except Exception as e:
+            logger.warning(f"Failed to detect tesseract language: {e}")
+            return "eng"
 
     def add_files(self, file_paths: list[str]) -> int:
         """Add files to the selected files list
