@@ -10,6 +10,7 @@ gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Adw, Gdk, GLib, Gtk
 
+from bigocrpdf.services.processor import OcrProcessor
 from bigocrpdf.services.screen_capture import ScreenCaptureService
 from bigocrpdf.services.settings import OcrSettings
 from bigocrpdf.utils.i18n import _
@@ -50,6 +51,19 @@ class ImageOcrWindow(Adw.Window):
         # Initialize services
         self._settings = OcrSettings()
         self._screen_capture_service = ScreenCaptureService(self)
+        self._ocr_processor = OcrProcessor(self._settings)
+
+        # UI references
+        self._lang_dropdown: Gtk.DropDown | None = None
+        self._psm_dropdown: Gtk.DropDown | None = None
+        self._oem_dropdown: Gtk.DropDown | None = None
+        self._redo_button: Gtk.Button | None = None
+        self._current_image_path: str | None = None  # Track current image for redo
+
+        # Load OCR settings from config (with defaults)
+        config = get_config_manager()
+        self._current_psm: int = config.get("ocr.psm", 3)  # Default: Auto
+        self._current_oem: int = config.get("ocr.oem", 3)  # Default: Auto
 
         self._setup_ui()
 
@@ -154,6 +168,39 @@ class ImageOcrWindow(Adw.Window):
         action_bar = Gtk.ActionBar()
         results_box.append(action_bar)
 
+        # Language selector (left side)
+        lang_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        lang_icon = Gtk.Image.new_from_icon_name("preferences-desktop-locale-symbolic")
+        lang_box.append(lang_icon)
+        self._lang_dropdown = self._create_language_dropdown()
+        lang_box.append(self._lang_dropdown)
+        action_bar.pack_start(lang_box)
+
+        # PSM dropdown
+        psm_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
+        psm_label = Gtk.Label(label="PSM:")
+        psm_label.add_css_class("dim-label")
+        psm_box.append(psm_label)
+        self._psm_dropdown = self._create_psm_dropdown()
+        psm_box.append(self._psm_dropdown)
+        action_bar.pack_start(psm_box)
+
+        # OEM dropdown
+        oem_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
+        oem_label = Gtk.Label(label="OEM:")
+        oem_label.add_css_class("dim-label")
+        oem_box.append(oem_label)
+        self._oem_dropdown = self._create_oem_dropdown()
+        oem_box.append(self._oem_dropdown)
+        action_bar.pack_start(oem_box)
+
+        # Apply Settings Button (was Redo OCR - renamed to be more intuitive)
+        self._redo_button = Gtk.Button(icon_name="emblem-synchronizing-symbolic", label=_("Apply"))
+        self._redo_button.set_tooltip_text(_("Apply current settings and reprocess the image"))
+        self._redo_button.connect("clicked", self._on_redo_clicked)
+        self._redo_button.set_sensitive(False)  # Disabled until image is loaded
+        action_bar.pack_start(self._redo_button)
+
         # Copy Button
         self._copy_button = Gtk.Button(icon_name="edit-copy-symbolic", label=_("Copy"))
         self._copy_button.connect("clicked", self._on_copy_clicked)
@@ -172,18 +219,175 @@ class ImageOcrWindow(Adw.Window):
 
         self._stack.add_named(results_box, "results")
 
+    def _create_language_dropdown(self) -> Gtk.DropDown:
+        """Create the language dropdown with available OCR languages.
+
+        Returns:
+            A Gtk.DropDown widget configured with available languages.
+        """
+        dropdown = Gtk.DropDown()
+        dropdown.set_can_focus(False)  # Prevent focus during construction
+        string_list = Gtk.StringList()
+
+        # Get available languages from tesseract
+        languages = self._ocr_processor.get_available_ocr_languages()
+        self._lang_codes: list[str] = []  # Store codes for lookup
+        default_index = 0
+
+        for i, (lang_code, lang_name) in enumerate(languages):
+            string_list.append(lang_name)
+            self._lang_codes.append(lang_code)
+            # Set default based on current setting
+            if lang_code == self._settings.lang:
+                default_index = i
+
+        dropdown.set_model(string_list)
+        dropdown.set_tooltip_text(_("Select OCR language"))
+
+        # Defer set_selected and re-enable focus after widget is mapped
+        def on_map(_widget):
+            dropdown.set_can_focus(True)
+            dropdown.set_selected(default_index)
+            # Connect signal only after initial selection to avoid triggering save
+            dropdown.connect("notify::selected", self._on_lang_changed)
+
+        dropdown.connect("map", on_map)
+        return dropdown
+
+    def _on_lang_changed(self, dropdown: Gtk.DropDown, _pspec) -> None:
+        """Handle language selection change."""
+        selected = dropdown.get_selected()
+        if 0 <= selected < len(self._lang_codes):
+            new_lang = self._lang_codes[selected]
+            self._settings.lang = new_lang
+            # Save to persistent config
+            config = get_config_manager()
+            config.set("ocr.language", new_lang, save_immediately=True)
+            logger.info(f"OCR language changed to: {new_lang}")
+
+    def _create_psm_dropdown(self) -> Gtk.DropDown:
+        """Create the PSM (Page Segmentation Mode) dropdown."""
+        dropdown = Gtk.DropDown()
+        dropdown.set_can_focus(False)
+        string_list = Gtk.StringList()
+
+        # PSM options - Auto first, then ordered by use case
+        self._psm_options = [
+            (3, _("Auto")),  # Default - first
+            (6, _("Block")),
+            (7, _("Line")),
+            (8, _("Word")),
+            (11, _("Sparse")),
+            (4, _("Column")),
+            (10, _("Char")),
+            (1, _("Auto + OSD")),
+            (0, _("OSD only")),
+            (13, _("Raw line")),
+        ]
+
+        # Find index for current setting
+        self._default_psm_index = 0  # Default: Auto (index 0)
+        for i, (val, name) in enumerate(self._psm_options):
+            if val == self._current_psm:
+                self._default_psm_index = i
+                break
+
+        for psm_value, psm_name in self._psm_options:
+            string_list.append(psm_name)
+
+        dropdown.set_model(string_list)
+        dropdown.set_tooltip_text(_("Page Segmentation Mode"))
+
+        def on_map(_widget):
+            dropdown.set_can_focus(True)
+            dropdown.set_selected(self._default_psm_index)
+            dropdown.connect("notify::selected", self._on_psm_changed)
+
+        dropdown.connect("map", on_map)
+        return dropdown
+
+    def _on_psm_changed(self, dropdown: Gtk.DropDown, _pspec) -> None:
+        """Handle PSM selection change."""
+        selected = dropdown.get_selected()
+        if 0 <= selected < len(self._psm_options):
+            self._current_psm = self._psm_options[selected][0]
+            # Save to config
+            config = get_config_manager()
+            config.set("ocr.psm", self._current_psm, save_immediately=True)
+            logger.info(f"PSM changed to: {self._current_psm}")
+
+    def _create_oem_dropdown(self) -> Gtk.DropDown:
+        """Create the OEM (OCR Engine Mode) dropdown."""
+        dropdown = Gtk.DropDown()
+        dropdown.set_can_focus(False)
+        string_list = Gtk.StringList()
+
+        # OEM options - Auto first
+        self._oem_options = [
+            (3, _("Auto")),  # Default - first
+            (1, _("LSTM")),
+            (0, _("Legacy")),
+            (2, _("Both")),
+        ]
+
+        # Find index for current setting
+        self._default_oem_index = 0  # Default: Auto (index 0)
+        for i, (val, name) in enumerate(self._oem_options):
+            if val == self._current_oem:
+                self._default_oem_index = i
+                break
+
+        for oem_value, oem_name in self._oem_options:
+            string_list.append(oem_name)
+
+        dropdown.set_model(string_list)
+        dropdown.set_tooltip_text(_("OCR Engine Mode"))
+
+        def on_map(_widget):
+            dropdown.set_can_focus(True)
+            dropdown.set_selected(self._default_oem_index)
+            dropdown.connect("notify::selected", self._on_oem_changed)
+
+        dropdown.connect("map", on_map)
+        return dropdown
+
+    def _on_oem_changed(self, dropdown: Gtk.DropDown, _pspec) -> None:
+        """Handle OEM selection change."""
+        selected = dropdown.get_selected()
+        if 0 <= selected < len(self._oem_options):
+            self._current_oem = self._oem_options[selected][0]
+            # Save to config
+            config = get_config_manager()
+            config.set("ocr.oem", self._current_oem, save_immediately=True)
+            logger.info(f"OEM changed to: {self._current_oem}")
+
+    def _on_redo_clicked(self, *args) -> None:
+        """Redo OCR on the current image with current settings."""
+        if self._current_image_path:
+            logger.info(f"Redoing OCR with PSM={self._current_psm}, OEM={self._current_oem}")
+            self._start_processing(self._current_image_path)
+
     def _start_processing(self, image_path: str) -> None:
         """Start OCR processing for a file."""
         self._stack.set_visible_child_name("loading")
         self._copy_button.set_sensitive(False)
+        if self._redo_button:
+            self._redo_button.set_sensitive(False)
 
-        # Use existing service
-        # Ensure we have current settings
-        self._settings.load_settings()
+        # Store current image path for redo
+        self._current_image_path = image_path
+
+        # Use the currently selected settings
         lang = self._settings.lang
+        psm = self._current_psm
+        oem = self._current_oem
 
         self._screen_capture_service.process_image_file(
-            image_path, callback=self._on_processing_complete, lang=lang
+            image_path,
+            callback=self._on_processing_complete,
+            lang=lang,
+            psm=psm,
+            oem=oem,
         )
 
     def _on_processing_complete(self, text: str | None, error: str | None) -> None:
@@ -191,6 +395,9 @@ class ImageOcrWindow(Adw.Window):
         if error:
             self._show_error(error)
             self._stack.set_visible_child_name("results")
+            # Enable redo if we have an image
+            if self._redo_button and self._current_image_path:
+                self._redo_button.set_sensitive(True)
             return
 
         if text:
@@ -200,6 +407,10 @@ class ImageOcrWindow(Adw.Window):
         else:
             self._text_buffer.set_text(_("No text extracted."))
             self._copy_button.set_sensitive(False)
+
+        # Enable redo button if we have an image
+        if self._redo_button and self._current_image_path:
+            self._redo_button.set_sensitive(True)
 
         self._stack.set_visible_child_name("results")
 
@@ -250,7 +461,10 @@ class ImageOcrWindow(Adw.Window):
         """Actually trigger the capture after minimize delay."""
         self._settings.load_settings()
         self._screen_capture_service.capture_screen_region(
-            callback=self._on_capture_complete, lang=self._settings.lang
+            callback=self._on_capture_complete,
+            lang=self._settings.lang,
+            psm=self._current_psm,
+            oem=self._current_oem,
         )
         return False
 

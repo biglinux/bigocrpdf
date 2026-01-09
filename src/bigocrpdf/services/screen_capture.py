@@ -47,6 +47,8 @@ class ScreenCaptureService:
         callback: Callable[[str | None, str | None], None],
         on_processing: Callable[[], None] | None = None,
         lang: str = "eng",
+        psm: int = 3,
+        oem: int = 3,
     ) -> None:
         """Process an existing image file and extract text.
 
@@ -55,18 +57,22 @@ class ScreenCaptureService:
             callback: Callback function to receive the result
             on_processing: Optional callback invoked when processing starts
             lang: Language code for OCR (default: "eng")
+            psm: Page segmentation mode (default: 3 - fully automatic)
+            oem: OCR engine mode (default: 3 - default based on available)
         """
         self._pending_callback = callback
         self._pending_processing_callback = on_processing
 
-        thread = threading.Thread(target=self._run_image_process, args=(image_path, lang))
+        thread = threading.Thread(target=self._run_image_process, args=(image_path, lang, psm, oem))
         thread.daemon = True
         thread.start()
 
-    def _run_image_process(self, image_path: str, lang: str = "eng") -> None:
+    def _run_image_process(
+        self, image_path: str, lang: str = "eng", psm: int = 3, oem: int = 3
+    ) -> None:
         """Execute the image processing in a thread."""
         self._invoke_processing_callback()
-        text = self.extract_text_from_image(image_path, lang)
+        text = self.extract_text_from_image(image_path, lang, psm, oem)
         self._invoke_callback(text, None)
 
     def capture_screen_region(
@@ -74,6 +80,8 @@ class ScreenCaptureService:
         callback: Callable[[str | None, str | None], None],
         on_processing: Callable[[], None] | None = None,
         lang: str = "eng",
+        psm: int = 3,
+        oem: int = 3,
     ) -> None:
         """Capture a region of the screen and extract text from it.
 
@@ -81,16 +89,18 @@ class ScreenCaptureService:
             callback: Callback function to receive the result (text, error)
             on_processing: Optional callback invoked when processing starts
             lang: Language code for OCR (default: "eng")
+            psm: Page segmentation mode (default: 3 - fully automatic)
+            oem: OCR engine mode (default: 3 - default based on available)
         """
         self._pending_callback = callback
         self._pending_processing_callback = on_processing
 
         # Run capture in a separate thread to avoid freezing the UI
-        thread = threading.Thread(target=self._run_capture_thread, args=(lang,))
+        thread = threading.Thread(target=self._run_capture_thread, args=(lang, psm, oem))
         thread.daemon = True
         thread.start()
 
-    def _run_capture_thread(self, lang: str) -> None:
+    def _run_capture_thread(self, lang: str, psm: int = 3, oem: int = 3) -> None:
         """Execute the capture and OCR process in a thread."""
         try:
             # Generate a temporary file path
@@ -116,7 +126,7 @@ class ScreenCaptureService:
                 self._invoke_processing_callback()
 
                 # Extract text
-                text = self.extract_text_from_image(temp_path, lang)
+                text = self.extract_text_from_image(temp_path, lang, psm, oem)
                 self._cleanup_temp_file(temp_path)
                 self._invoke_callback(text, None)
             else:
@@ -214,12 +224,16 @@ class ScreenCaptureService:
             logger.error(f"Screenshot capture error: {e}")
             return False
 
-    def extract_text_from_image(self, image_path: str, lang: str = "eng") -> str | None:
+    def extract_text_from_image(
+        self, image_path: str, lang: str = "eng", psm: int = 3, oem: int = 3
+    ) -> str | None:
         """Extract text from an image using Tesseract OCR.
 
         Args:
             image_path: Path to the image file
             lang: Language to use for OCR (default: "eng")
+            psm: Page segmentation mode (default: 3 - fully automatic)
+            oem: OCR engine mode (default: 3 - default based on available)
 
         Returns:
             Extracted text or None on error
@@ -231,8 +245,18 @@ class ScreenCaptureService:
                 self._invoke_callback(None, _("Tesseract OCR engine not found. Please install it."))
                 return None
 
-            # Direct tesseract execution
-            args = ["tesseract", image_path, "stdout", "-l", lang]
+            # Direct tesseract execution with psm and oem
+            args = [
+                "tesseract",
+                image_path,
+                "stdout",
+                "-l",
+                lang,
+                "--psm",
+                str(psm),
+                "--oem",
+                str(oem),
+            ]
 
             logger.info(f"Executing OCR: {' '.join(args)}")
             result = subprocess.run(args, capture_output=True, text=True, timeout=30)

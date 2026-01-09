@@ -74,6 +74,12 @@ def main() -> int:
     # Setup locale first, before other initialization
     setup_locale()
 
+    # Check if we should run in image mode (must be done BEFORE argument parsing)
+    # 1. Explicit flag (from wrapper script)
+    image_mode = "--image-mode" in sys.argv
+    if image_mode:
+        sys.argv.remove("--image-mode")
+
     # Setup environment and parse command line arguments
     setup_environment()
     args = parse_command_line()
@@ -94,15 +100,6 @@ def main() -> int:
     except Exception as e:
         logger.error(f"{_('Error clearing file queue')}: {e}")
 
-    # Determine Application ID based on context
-    app_id = APP_ID
-
-    # Check if we should run in image mode
-    # 1. Explicit flag (from wrapper script)
-    image_mode = "--image-mode" in sys.argv
-    if image_mode:
-        sys.argv.remove("--image-mode")
-
     # 2. Heuristic: Check if arguments contain images and no PDFs
     if not image_mode and len(sys.argv) > 1:
         image_exts = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
@@ -121,6 +118,8 @@ def main() -> int:
         if has_image and not has_pdf:
             image_mode = True
 
+    # Determine Application ID based on context
+    app_id = APP_ID
     if image_mode:
         from bigocrpdf.config import IMAGE_APP_ID
 
