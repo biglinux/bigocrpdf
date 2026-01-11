@@ -173,8 +173,15 @@ package() {
 	python -m installer --destdir="$pkgdir" dist/*.whl
 
 	# Install additional files (icons, desktop files, translations, etc.)
-	if [ -d "bigocrpdf/usr" ]; then
-		cp -a bigocrpdf/usr/share "${pkgdir}/usr/share"
+	# Exclude bin directory to avoid conflict with python-installer (bigocrpdf)
+	# and handle bigocrimage separately
+	if [ -d "usr/share" ]; then
+		cp -a usr/share "${pkgdir}/usr/"
+	fi
+
+	# Manually install bigocrimage script
+	if [ -f "usr/bin/bigocrimage" ]; then
+		install -Dm755 usr/bin/bigocrimage "${pkgdir}/usr/bin/bigocrimage"
 	fi
 
 	# Install license file
