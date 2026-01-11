@@ -90,7 +90,7 @@ class NavigationManager:
                 back_visible=False,
                 next_enabled=True,
                 next_visible=True,
-                next_label=_("Start Processing"),
+                next_label=_("Start"),
             ),
             self.PAGE_TERMINAL: NavigationState(
                 step_text=_(self.STEP_TERMINAL),
