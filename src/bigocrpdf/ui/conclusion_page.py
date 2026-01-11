@@ -18,6 +18,7 @@ from gi.repository import Adw, Gtk
 if TYPE_CHECKING:
     from window import BigOcrPdfWindow
 
+from bigocrpdf.ui.components import create_icon_button
 from bigocrpdf.utils.format_utils import format_file_size
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
@@ -511,15 +512,14 @@ class ConclusionPageManager:
         Returns:
             A Gtk.Button for opening the file
         """
-        open_button = Gtk.Button()
-        open_button.set_icon_name("document-open-symbolic")
-        open_button.set_tooltip_text(_("Open file"))
-        open_button.add_css_class("circular")
-        open_button.set_valign(Gtk.Align.CENTER)
-        open_button.set_margin_end(12)
-        open_button.set_margin_start(12)
-        open_button.connect("clicked", lambda _b: self._open_file(output_file))
-        return open_button
+        button = create_icon_button(
+            icon_name="document-open-symbolic",
+            tooltip=_("Open file"),
+            on_click=lambda: self._open_file(output_file),
+        )
+        button.set_margin_end(12)
+        button.set_margin_start(12)
+        return button
 
     def _create_text_button(self, output_file: str) -> Gtk.Button:
         """Create a view text button
@@ -530,13 +530,11 @@ class ConclusionPageManager:
         Returns:
             A Gtk.Button for viewing extracted text
         """
-        text_button = Gtk.Button()
-        text_button.set_icon_name("format-text-uppercase-symbolic")
-        text_button.set_tooltip_text(_("View extracted text"))
-        text_button.add_css_class("circular")
-        text_button.set_valign(Gtk.Align.CENTER)
-        text_button.connect("clicked", lambda _b: self._show_extracted_text(output_file))
-        return text_button
+        return create_icon_button(
+            icon_name="format-text-uppercase-symbolic",
+            tooltip=_("View extracted text"),
+            on_click=lambda: self._show_extracted_text(output_file),
+        )
 
     def _open_file(self, file_path: str) -> None:
         """Open a file using the default application

@@ -134,11 +134,6 @@ class NavigationManager:
         return self.window.stack
 
     @property
-    def step_label(self) -> Gtk.Label:
-        """Get the step label widget."""
-        return self.window.step_label
-
-    @property
     def back_button(self) -> Gtk.Button:
         """Get the back button widget."""
         return self.window.back_button
@@ -170,6 +165,7 @@ class NavigationManager:
 
         self.stack.set_visible_child_name(page_name)
         self._apply_page_state(page_name)
+        self._update_step_indicator(page_name)
 
         logger.debug(f"Navigated to page: {page_name}")
 
@@ -184,9 +180,6 @@ class NavigationManager:
         if not state:
             return
 
-        # Update step label
-        self._update_step_label(state.step_text)
-
         # Update back button
         self.back_button.set_sensitive(state.back_enabled)
         self.back_button.set_visible(state.back_visible)
@@ -196,15 +189,25 @@ class NavigationManager:
         self.next_button.set_visible(state.next_visible)
         self.next_button.set_label(state.next_label)
 
-    def _update_step_label(self, text: str) -> None:
+    def _update_step_indicator(self, page_name: str) -> None:
         """
-        Update the step label with formatted text.
+        Update the step indicator based on the current page.
 
         Args:
-            text: Text to display
+            page_name: Name of the current page
         """
-        markup = f"<span font_size='small'>{text}</span>"
-        self.step_label.set_markup(markup)
+        # Map page names to step indices
+        step_mapping = {
+            self.PAGE_SETTINGS: 0,
+            self.PAGE_TERMINAL: 1,
+            self.PAGE_CONCLUSION: 2,
+        }
+
+        current_step = step_mapping.get(page_name, 0)
+        completed_steps = list(range(current_step))
+
+        # Call window's set_current_step method
+        self.window.set_current_step(current_step, completed_steps)
 
     def handle_back_clicked(self, _button: Gtk.Button = None) -> None:
         """

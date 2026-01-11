@@ -36,14 +36,14 @@ DEFAULT_CONFIG: Final[dict[str, Any]] = {
         "height": 600,
     },
     "ocr": {
-        "language": None,  # Will be auto-detected
+        # "language" intentionally omitted to allow automatic detection
         "quality": "normal",
         "alignment": "alignrotate",
     },
     "output": {
         "suffix": "ocr",
         "overwrite_existing": False,
-        "save_in_same_folder": False,
+        "save_in_same_folder": True,
         "destination_folder": "",
     },
     "date": {

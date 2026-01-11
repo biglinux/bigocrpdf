@@ -17,6 +17,7 @@ from gi.repository import Adw, Gdk, Gio, GLib, Gtk
 if TYPE_CHECKING:
     from window import BigOcrPdfWindow
 
+from bigocrpdf.ui.components import create_action_button, create_icon_button
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
@@ -168,13 +169,15 @@ class SettingsPageManager:
         folder_icon = Gio.ThemedIcon.new("folder-symbolic")
         self.dest_entry.set_icon_from_gicon(Gtk.EntryIconPosition.PRIMARY, folder_icon)
 
-        # Browse button with text instead of icon
-        browse_button = Gtk.Button()
-        browse_button.set_label(_("Browse"))
-        browse_button.connect("clicked", self.window.on_browse_clicked)
-
         # Add entry and button to container
         dest_box.append(self.dest_entry)
+
+        # Browse button with text
+        browse_button = create_action_button(
+            label=_("Browse"),
+            halign=Gtk.Align.END,
+        )
+        browse_button.connect("clicked", self.window.on_browse_clicked)
         dest_box.append(browse_button)
         self.dest_container.append(dest_box)
         container.append(self.dest_container)
@@ -307,15 +310,19 @@ class SettingsPageManager:
         self._update_queue_status()
 
         # Add Files button
-        add_button = Gtk.Button()
-        add_button.set_label(_("Add"))
-        add_button.add_css_class("suggested-action")
+        add_button = create_action_button(
+            label=_("Add"),
+            css_classes=["suggested-action"],
+            halign=Gtk.Align.END,
+        )
         add_button.connect("clicked", self.window.on_add_file_clicked)
         info_controls_box.append(add_button)
 
         # Remove All Files button
-        self.remove_button = Gtk.Button()
-        self.remove_button.set_label(_("Remove All"))
+        self.remove_button = create_action_button(
+            label=_("Remove All"),
+            halign=Gtk.Align.END,
+        )
         self.remove_button.connect("clicked", lambda _b: self._remove_all_files())
         self.remove_button.set_sensitive(len(self.window.settings.selected_files) > 0)
         info_controls_box.append(self.remove_button)
@@ -437,8 +444,7 @@ class SettingsPageManager:
         # Defer set_selected and re-enable focus after widget is mapped
         def on_map(_widget):
             dropdown.set_can_focus(True)
-            if default_index != 0:
-                dropdown.set_selected(default_index)
+            dropdown.set_selected(default_index)
 
         dropdown.connect("map", on_map)
         return dropdown
@@ -471,8 +477,7 @@ class SettingsPageManager:
         # Defer set_selected and re-enable focus after widget is mapped
         def on_map(_widget):
             dropdown.set_can_focus(True)
-            if default_index != 0:
-                dropdown.set_selected(default_index)
+            dropdown.set_selected(default_index)
 
         dropdown.connect("map", on_map)
         return dropdown
@@ -521,11 +526,10 @@ class SettingsPageManager:
         # Defer set_selected and re-enable focus after widget is mapped
         def on_map(_widget):
             dropdown.set_can_focus(True)
-            if default_index != 0:
-                dropdown.set_selected(default_index)
-                # Set initial detailed tooltip
-                if len(self.window.ALIGNMENT_TOOLTIPS) > default_index:
-                    dropdown.set_tooltip_text(self.window.ALIGNMENT_TOOLTIPS[default_index])
+            dropdown.set_selected(default_index)
+            # Set initial detailed tooltip
+            if len(self.window.ALIGNMENT_TOOLTIPS) > default_index:
+                dropdown.set_tooltip_text(self.window.ALIGNMENT_TOOLTIPS[default_index])
 
         dropdown.connect("map", on_map)
 
@@ -623,12 +627,10 @@ class SettingsPageManager:
             row: The row to add the button to
             idx: Index of the file
         """
-        trash_button = Gtk.Button()
-        trash_button.set_icon_name("user-trash-symbolic")
-        trash_button.set_tooltip_text("Remove from queue")
-        trash_button.add_css_class("flat")
-        trash_button.add_css_class("circular")
-        trash_button.set_valign(Gtk.Align.CENTER)
+        trash_button = create_icon_button(
+            icon_name="user-trash-symbolic",
+            tooltip=_("Remove from queue"),
+        )
         trash_button.connect("clicked", lambda _b, idx=idx: self._remove_single_file(idx))
         row.add_suffix(trash_button)
 

@@ -1,56 +1,26 @@
-**BigOCR PDF** is a powerful utility integrated into the Linux desktop environment (specifically optimized for BigLinux) that brings Optical Character Recognition (OCR) capabilities to your PDF documents and image files. It seamlessly transforms scanned documents into searchable PDFs and allows for easy text extraction from images or screen regions.
+# bigocrpdf
+# EN
 
-![BigOCR PDF Screenshot](https://user-images.githubusercontent.com/6098501/178167560-d00d941c-8ba7-46b9-9c64-4bd1a8a47a13.jpeg)
+OCR for PDF and image files integrated into the system.
 
-## ✨ Features
+PDF files that have been scanned do not have the option to search or copy the text, in BigLinux just right-click on the file and use the OCR option, a new file will be created with these resources.
 
--   **Make PDFs Searchable**: Convert scanned non-searchable PDFs into files where you can search, select, and copy text.
--   **Image OCR**: Extract text directly from standard image files (JPG, PNG, etc.).
--   **Screen Capture Integration**: Extract text from anywhere on your screen—perfect for grabbing text from videos, protected websites, or UI elements—by selecting a rectangular region.
--   **Batch Processing**: Efficiently process multiple files at once directly from your file manager.
+If you need to perform the procedure on multiple PDF files, just select them all and use the OCR option once.
 
-## 🚀 Usage
+It is also possible to extract text from an image file, just right-click and use the option: “Extract text from image (OCR)”.
 
-### 1. Processing PDF Files
-Scanned PDFs often lack a text layer. To fix this:
-1.  Open your file manager.
-2.  Select one or more PDF files.
-3.  Right-click and select the **"OCR"** option.
-4.  A new, searchable version of the file will be generated.
+And it is still possible to use it directly from the screen capture tool, for example, if a text that you need to copy appears in the video, just press the “Print Screen” key, use the “Rectangular Region” tool, select the region with the text and then click on “Export”, and on “Extract text from image (OCR).
 
-### 2. Extracting Text from Images
-1.  Right-click on any image file.
-2.  Select **"Extract text from image (OCR)"**.
-3.  The extracted text will be available for use.
+# PT
+OCR para PDF e arquivos de imagem integrado no sistema.
 
-### 3. Screen Text Extraction
-For text that cannot be selected normally (e.g., inside a video or image on a website):
-1.  Launch your screenshot tool (e.g., press `Print Screen`).
-2.  Select the **"Rectangular Region"** tool.
-3.  Highlight the area containing the text you want to copy.
-4.  Click **"Export"** and choose **"Extract text from image (OCR)"**.
+Arquivos em formato PDF que foram digitalizados não possuem a opção de efetuar buscas ou copiar o texto, no BigLinux basta clicar com o botão direito no arquivo e utilizar a opção de OCR, será criado um novo arquivo com esses recursos.
 
-## 🛠️ Installation & Development
+Se for necessário efetuar o procedimento em vários arquivos PDF, basta selecionar todos e utilizar a opção de OCR uma vez.
 
-### Prerequisites
+Também é possível extrair o texto de um arquivo de imagem, basta clicar com o botão direito e utilizar a opção: “Extrair texto da imagem (OCR)”.
 
-Ensure you have the following system dependencies installed:
--   Python 3.10 or higher
--   GTK4 and Libadwaita
--   OCRmyPDF (the core OCR engine)
--   Tesseract OCR
--   Ghostscript
+E ainda é possível utilizar diretamente da ferramenta de captura de tela, por exemplo, se aparece no vídeo um texto que você precisa copiar, basta apertar a tecla “Print Screen”, utilizar a ferramenta de “Região Retangular”, selecionar a região com o texto e depois clicar em “Exportar”, e em “Extrair o texto da imagem (OCR).
 
-### Building from Source
 
-To install the latest version from the repository:
-
-```bash
-# Clone the repository
-git clone https://github.com/biglinux/bigocrpdf.git
-cd bigocrpdf
-
-# Install the package
-pip install .
-```
-
+![01](https://user-images.githubusercontent.com/6098501/178167560-d00d941c-8ba7-46b9-9c64-4bd1a8a47a13.jpeg)

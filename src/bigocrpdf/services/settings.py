@@ -81,12 +81,19 @@ class OcrSettings:
     def load_settings(self) -> None:
         """Load all settings from JSON configuration"""
         # Load from JSON config manager
-        # Load from JSON config manager
         # If language is not set (None), try to detect system language
         config_lang = self._config.get("ocr.language")
-        detected_lang = self._detect_default_language()
 
-        self.lang = config_lang if config_lang else detected_lang
+        if config_lang:
+            # User has explicitly set a language
+            self.lang = config_lang
+        else:
+            # No user setting - detect and save system language
+            detected_lang = self._detect_default_language()
+            self.lang = detected_lang
+            # Save the detected language so it persists and is used by UI
+            self._config.set("ocr.language", detected_lang, save_immediately=True)
+            logger.info(f"Saved detected language to config: {detected_lang}")
         self.quality = self._config.get("ocr.quality", DEFAULT_QUALITY)
         self.align = self._config.get("ocr.alignment", DEFAULT_ALIGNMENT)
 
@@ -119,43 +126,72 @@ class OcrSettings:
         logger.info("Settings loaded from JSON configuration")
 
     def _detect_default_language(self) -> str:
-        """Detect system language and find best match in tesseract."""
-        try:
-            # Get system language
-            lang = os.environ.get("LANG", "eng")
-            short_lang = lang[:2].lower()
+        """Detect system language and find best match in tesseract.
 
-            # Map common 2-letter codes to tesseract 3-letter codes
+        Maps Linux 2-letter locale codes (pt, en, es) to Tesseract 3-letter codes (por, eng, spa).
+
+        Returns:
+            Detected language code in Tesseract format, or 'eng' as fallback
+        """
+        try:
+            # Get system language from LANG environment variable
+            lang = os.environ.get("LANG", "")
+            short_lang = lang[:2].lower() if lang else ""
+
+            # Map common 2-letter ISO 639-1 codes to Tesseract 3-letter ISO 639-2 codes
             mapping = {
-                "pt": "por",
-                "es": "spa",
-                "en": "eng",
-                "fr": "fra",
-                "de": "deu",
-                "it": "ita",
-                "ru": "rus",
-                "zh": "chi_sim",
+                "pt": "por",  # Portuguese
+                "es": "spa",  # Spanish
+                "en": "eng",  # English
+                "fr": "fra",  # French
+                "de": "deu",  # German
+                "it": "ita",  # Italian
+                "ru": "rus",  # Russian
+                "zh": "chi_sim",  # Chinese Simplified
+                "ja": "jpn",  # Japanese
+                "ko": "kor",  # Korean
+                "ar": "ara",  # Arabic
+                "nl": "nld",  # Dutch
+                "pl": "pol",  # Polish
+                "tr": "tur",  # Turkish
+                "sv": "swe",  # Swedish
+                "no": "nor",  # Norwegian
+                "da": "dan",  # Danish
+                "fi": "fin",  # Finnish
+                "cs": "ces",  # Czech
+                "el": "ell",  # Greek
+                "he": "heb",  # Hebrew
+                "hu": "hun",  # Hungarian
+                "ro": "ron",  # Romanian
+                "sk": "slk",  # Slovak
+                "uk": "ukr",  # Ukrainian
+                "bg": "bul",  # Bulgarian
+                "hr": "hrv",  # Croatian
+                "vi": "vie",  # Vietnamese
+                "th": "tha",  # Thai
             }
 
             target_lang = mapping.get(short_lang, "eng")
 
-            # Check installed languages in tesseract
-            # We assume tesseract is in path
-            # Wrap in try block to handle file not found if tesseract missing
+            # Check if target language is installed in tesseract
             try:
                 result = subprocess.run(
-                    ["tesseract", "--list-langs"], capture_output=True, text=True
+                    ["tesseract", "--list-langs"], capture_output=True, text=True, timeout=2
                 )
 
                 if result.returncode == 0 and target_lang in result.stdout:
+                    logger.info(f"Detected system language: {target_lang}")
                     return target_lang
-            except FileNotFoundError:
-                pass
+                else:
+                    logger.info(f"Detected language {target_lang} not installed, using default")
+            except (FileNotFoundError, subprocess.TimeoutExpired):
+                logger.warning("Tesseract not found or timed out, using default language")
 
-            return "eng"
+            return DEFAULT_LANGUAGE
+
         except Exception as e:
-            logger.warning(f"Failed to detect tesseract language: {e}")
-            return "eng"
+            logger.warning(f"Failed to detect system language: {e}")
+            return DEFAULT_LANGUAGE
 
     def add_files(self, file_paths: list[str]) -> int:
         """Add files to the selected files list
@@ -171,13 +207,17 @@ class OcrSettings:
 
         logger.info(_("Attempting to add {0} files").format(len(file_paths)))
 
-        # Filter and collect valid PDF files
-        valid_files = self._filter_valid_pdf_files(file_paths)
+        # Filter and collect valid files (PDFs and Images)
+        valid_files = self._filter_valid_files(file_paths)
 
         # Add valid files and update count
         if valid_files:
             self.selected_files.extend(valid_files)
-            self._count_pdf_pages(valid_files)
+            # Only count pages for PDF files
+            pdf_files = [f for f in valid_files if f.lower().endswith(".pdf")]
+            if pdf_files:
+                self._count_pdf_pages(pdf_files)
+
             self._save_selected_files()
 
             # Only initialize destination if it's not already set by the user
@@ -186,18 +226,18 @@ class OcrSettings:
 
             logger.info(_("Successfully added {0} files").format(len(valid_files)))
         else:
-            logger.warning(_("No valid PDF files were found to add"))
+            logger.warning(_("No valid files were found to add"))
 
         return len(valid_files)
 
-    def _filter_valid_pdf_files(self, file_paths: list[str]) -> list[str]:
-        """Filter a list of paths to only include valid PDF files
+    def _filter_valid_files(self, file_paths: list[str]) -> list[str]:
+        """Filter a list of paths to only include valid files (PDF and Images)
 
         Args:
             file_paths: List of file paths to filter
 
         Returns:
-            List of valid PDF file paths
+            List of valid file paths
         """
         valid_files: list[str] = []
 
@@ -212,9 +252,10 @@ class OcrSettings:
                 logger.warning(_("File does not exist: {0}").format(file_path))
                 continue
 
-            # Skip non-PDF files
-            if not file_path.lower().endswith(".pdf"):
-                logger.warning(_("Not a PDF file: {0}").format(file_path))
+            # Skip non-supported files
+            ext = os.path.splitext(file_path)[1].lower()
+            if ext not in [".pdf", ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".webp"]:
+                logger.warning(_("Unsupported file type: {0}").format(file_path))
                 continue
 
             # Skip duplicates
@@ -223,7 +264,7 @@ class OcrSettings:
                 continue
 
             # File is valid, add it
-            logger.info(_("Adding valid PDF: {0}").format(file_path))
+            logger.info(_("Adding valid file: {0}").format(file_path))
             valid_files.append(file_path)
 
         return valid_files

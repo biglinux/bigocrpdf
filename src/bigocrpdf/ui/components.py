@@ -525,6 +525,76 @@ class UIComponents:
 
         return progress
 
+    @staticmethod
+    def create_step_indicator(
+        steps: list[str],
+        current_step: int = 0,
+        completed_steps: list[int] | None = None,
+    ) -> Gtk.Box:
+        """Create a visual step indicator (breadcrumbs) showing process steps.
+
+        Args:
+            steps: List of step names
+            current_step: Index of the current active step (0-based)
+            completed_steps: List of completed step indices
+
+        Returns:
+            Gtk.Box containing the step indicator
+        """
+        if completed_steps is None:
+            completed_steps = list(range(current_step))
+
+        container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
+        container.set_halign(Gtk.Align.CENTER)
+
+        for i, step_name in enumerate(steps):
+            # Create step circle/indicator
+            step_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
+            step_box.set_valign(Gtk.Align.CENTER)
+
+            # Step number/check indicator
+            indicator = Gtk.Label()
+
+            if i in completed_steps:
+                # Completed - show checkmark
+                indicator.set_markup("✓")
+                indicator.add_css_class("step-completed")
+            else:
+                # Show step number
+                indicator.set_label(str(i + 1))
+
+            indicator.add_css_class("step-indicator")
+            if i == current_step:
+                indicator.add_css_class("step-current")
+            elif i in completed_steps:
+                indicator.add_css_class("step-done")
+            else:
+                indicator.add_css_class("step-pending")
+
+            step_box.append(indicator)
+
+            # Step label
+            label = Gtk.Label(label=step_name)
+            label.add_css_class("step-label")
+            if i == current_step:
+                label.add_css_class("step-label-current")
+            elif i not in completed_steps:
+                label.add_css_class("dim-label")
+
+            step_box.append(label)
+            container.append(step_box)
+
+            # Add separator (arrow) between steps
+            if i < len(steps) - 1:
+                separator = Gtk.Label(label="›")
+                separator.add_css_class("step-separator")
+                separator.add_css_class("dim-label")
+                separator.set_margin_start(8)
+                separator.set_margin_end(8)
+                container.append(separator)
+
+        return container
+
 
 # =============================================================================
 # Convenience aliases for common use cases
@@ -544,3 +614,4 @@ create_labeled_widget = UIComponents.create_labeled_widget
 create_header_label = UIComponents.create_header_label
 create_scrolled_window = UIComponents.create_scrolled_window
 create_progress_bar = UIComponents.create_progress_bar
+create_step_indicator = UIComponents.create_step_indicator

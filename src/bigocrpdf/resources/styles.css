@@ -115,3 +115,46 @@ button.accent-button:hover {
 .welcome-modal image:hover {
     transform: scale(1.05);
 }
+
+/* Step Indicator Styles (breadcrumbs navigation) */
+.step-indicator {
+    min-width: 24px;
+    min-height: 24px;
+    border-radius: 50%;
+    padding: 2px;
+    font-weight: bold;
+    font-size: 0.85em;
+    transition: all 200ms ease;
+}
+
+.step-current {
+    background-color: @accent_bg_color;
+    color: @accent_fg_color;
+}
+
+.step-done {
+    background-color: alpha(@accent_bg_color, 0.4);
+    color: @accent_fg_color;
+}
+
+.step-pending {
+    background-color: alpha(@card_shade_color, 0.3);
+    color: @dimmed_fg_color;
+}
+
+.step-completed {
+    color: @success_color;
+}
+
+.step-label {
+    font-size: 0.9em;
+}
+
+.step-label-current {
+    font-weight: bold;
+}
+
+.step-separator {
+    font-size: 1.2em;
+    font-weight: bold;
+}

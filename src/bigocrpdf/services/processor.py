@@ -133,6 +133,7 @@ class OcrProcessor:
 
         if self.ocr_queue:
             self.ocr_queue.add_file(file_path, output_file, options)
+
         return True
 
     def _get_output_file_path(self, file_path: str, index: int) -> str | None:

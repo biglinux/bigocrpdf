@@ -11,13 +11,7 @@ import sys
 
 # After i18n is set up, import other modules that may use translations
 from bigocrpdf.application import BigOcrPdfApp
-from bigocrpdf.config import (
-    APP_ID,
-    CONFIG_DIR,
-    SELECTED_FILE_PATH,
-    parse_command_line,
-    setup_environment,
-)
+from bigocrpdf.config import CONFIG_DIR, SELECTED_FILE_PATH, parse_command_line, setup_environment
 
 # Then import and initialize i18n before any other module that uses translations
 from bigocrpdf.utils.i18n import _
@@ -74,12 +68,6 @@ def main() -> int:
     # Setup locale first, before other initialization
     setup_locale()
 
-    # Check if we should run in image mode (must be done BEFORE argument parsing)
-    # 1. Explicit flag (from wrapper script)
-    image_mode = "--image-mode" in sys.argv
-    if image_mode:
-        sys.argv.remove("--image-mode")
-
     # Setup environment and parse command line arguments
     setup_environment()
     args = parse_command_line()
@@ -100,35 +88,15 @@ def main() -> int:
     except Exception as e:
         logger.error(f"{_('Error clearing file queue')}: {e}")
 
-    # 2. Heuristic: Check if arguments contain images and no PDFs
-    if not image_mode and len(sys.argv) > 1:
-        image_exts = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
-        has_image = False
-        has_pdf = False
-
-        for arg in sys.argv[1:]:
-            # Simple extension check, not perfect but fast
-            lower_arg = arg.lower()
-            if lower_arg.endswith(".pdf"):
-                has_pdf = True
-                break
-            elif any(lower_arg.endswith(ext) for ext in image_exts):
-                has_image = True
-
-        if has_image and not has_pdf:
-            image_mode = True
-
-    # Determine Application ID based on context
-    app_id = APP_ID
-    if image_mode:
-        from bigocrpdf.config import IMAGE_APP_ID
-
-        app_id = IMAGE_APP_ID
-        logger.info(f"Starting with Image App ID: {app_id}")
-
     try:
         # Initialize the GTK application
-        app = BigOcrPdfApp(application_id=app_id)
+        app = BigOcrPdfApp()
+
+        # Add files from command line if provided
+        if hasattr(args, "files") and args.files:
+            # Files are passed to the running instance via Gio.Application default handling
+            # or on_open if this is the primary instance.
+            logger.debug(f"Files provided in arguments: {args.files}")
 
         # Run the application
         return app.run(sys.argv)

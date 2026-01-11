@@ -23,9 +23,12 @@ classifiers = [
 ]
 dependencies = [
     "PyGObject>=3.42.0",
+    "pycairo>=1.20.0",
     "ocrmypdf>=14.0.0",
 ]
 
+[project.scripts]
+bigocrpdf = "bigocrpdf:main"
 
 [project.gui-scripts]
 bigocrpdf = "bigocrpdf:main"
@@ -52,7 +55,7 @@ src = ["src"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "C4", "UP"]
-ignore = ["E501"]
+ignore = ["E501", "E402"]  # E402: Module level import not at top (needed for gi.require_version)
 
 [tool.ruff.format]
 quote-style = "double"

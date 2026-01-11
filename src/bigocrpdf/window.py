@@ -12,19 +12,18 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, Gio, GLib, Gtk
+from gi.repository import Adw, Gdk, Gio, GLib, Gtk
 
 from bigocrpdf.config import (
     APP_ICON_NAME,
     CONFIG_DIR,
     DEFAULT_WINDOW_HEIGHT,
     DEFAULT_WINDOW_WIDTH,
-    MARKUP_SPAN_CLOSE,
-    MARKUP_SPAN_SMALL_OPEN,
     WINDOW_STATE_KEY,
 )
 from bigocrpdf.services.processor import OcrProcessor
 from bigocrpdf.services.settings import OcrSettings
+from bigocrpdf.ui.components import create_step_indicator
 from bigocrpdf.ui.file_selection_manager import FileSelectionManager
 from bigocrpdf.ui.navigation_manager import NavigationManager
 from bigocrpdf.ui.ui_manager import BigOcrPdfUI
@@ -98,12 +97,17 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         # Initialize UI components
         self.stack: Adw.ViewStack | None = None
         self.toast_overlay: Adw.ToastOverlay | None = None
-        self.step_label: Gtk.Label | None = None
+        self.step_indicator: Gtk.Box | None = None
         self.back_button: Gtk.Button | None = None
         self.next_button: Gtk.Button | None = None
         self.header_bar: Adw.HeaderBar | None = None
         self.toolbar_view: Adw.ToolbarView | None = None
         self.action_bar: Gtk.ActionBar | None = None
+
+        # Step indicator configuration
+        self._step_names = [_("Settings"), _("Processing"), _("Completed")]
+        self._current_step = 0
+        self._completed_steps: list[int] = []
 
         # Signal handler tracking
         self.signal_handlers: dict = {}
@@ -236,6 +240,12 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
 
         self.setup_pages()
 
+        # Set up window-level actions for keyboard shortcuts
+        self._setup_window_actions()
+
+        # Set up global drag and drop
+        self._setup_global_drag_drop()
+
         self.stack.connect("notify::visible-child", self._on_page_changed)
 
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -251,6 +261,105 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
 
         if hasattr(self, "stack") and self.stack:
             self.stack.set_visible_child_name("settings")
+
+    def _setup_window_actions(self) -> None:
+        """Set up window-level actions for keyboard shortcuts."""
+        # Add files action (Ctrl+O)
+        add_files_action = Gio.SimpleAction.new("add-files", None)
+        add_files_action.connect("activate", self._on_add_files_action)
+        self.add_action(add_files_action)
+
+        # Start processing action (Ctrl+Enter)
+        start_action = Gio.SimpleAction.new("start-processing", None)
+        start_action.connect("activate", self._on_start_processing_action)
+        self.add_action(start_action)
+
+        # Cancel processing action (Escape)
+        cancel_action = Gio.SimpleAction.new("cancel-processing", None)
+        cancel_action.connect("activate", self._on_cancel_processing_action)
+        self.add_action(cancel_action)
+
+        # Remove all files action (Ctrl+R)
+        remove_all_action = Gio.SimpleAction.new("remove-all-files", None)
+        remove_all_action.connect("activate", self._on_remove_all_files_action)
+        self.add_action(remove_all_action)
+
+        logger.info("Window actions set up for keyboard shortcuts")
+
+    def _on_add_files_action(self, _action: Gio.SimpleAction, _param) -> None:
+        """Handle add files shortcut (Ctrl+O)."""
+        # Only work on settings page
+        if self.stack.get_visible_child_name() == "settings":
+            self.on_add_file_clicked(None)
+
+    def _on_start_processing_action(self, _action: Gio.SimpleAction, _param) -> None:
+        """Handle start processing shortcut (Ctrl+Enter)."""
+        # Only work on settings page with files selected
+        if self.stack.get_visible_child_name() == "settings":
+            if self.settings.selected_files:
+                self.on_apply_clicked(None)
+
+    def _on_cancel_processing_action(self, _action: Gio.SimpleAction, _param) -> None:
+        """Handle cancel processing shortcut (Escape)."""
+        current_page = self.stack.get_visible_child_name()
+        if current_page == "terminal":
+            self.on_cancel_clicked()
+
+    def _on_remove_all_files_action(self, _action: Gio.SimpleAction, _param) -> None:
+        """Handle remove all files shortcut (Ctrl+R)."""
+        # Only work on settings page
+        if self.stack.get_visible_child_name() == "settings":
+            if hasattr(self.ui, "settings_page") and self.ui.settings_page:
+                self.ui.settings_page._remove_all_files()
+
+    def _setup_global_drag_drop(self) -> None:
+        """Set up global drag and drop for the entire window."""
+        drop_target = Gtk.DropTarget.new(Gdk.FileList, Gdk.DragAction.COPY)
+        drop_target.set_gtypes([Gdk.FileList])
+        drop_target.connect("drop", self._on_global_drop)
+        drop_target.connect("enter", self._on_global_drop_enter)
+        drop_target.connect("leave", self._on_global_drop_leave)
+        self.add_controller(drop_target)
+        logger.info("Global drag & drop enabled")
+
+    def _on_global_drop(self, _drop_target: Gtk.DropTarget, value, _x: float, _y: float) -> bool:
+        """Handle global file drop on the window.
+
+        Args:
+            _drop_target: The drop target controller
+            value: The dropped file(s)
+            _x: X coordinate
+            _y: Y coordinate
+
+        Returns:
+            True if drop was handled
+        """
+        # Only accept drops on the settings page
+        if self.stack.get_visible_child_name() != "settings":
+            return False
+
+        # Delegate to settings page if it exists
+        if hasattr(self.ui, "settings_page") and self.ui.settings_page:
+            return self.ui.settings_page._on_drop(_drop_target, value, _x, _y)
+        return False
+
+    def _on_global_drop_enter(
+        self, _drop_target: Gtk.DropTarget, _x: float, _y: float
+    ) -> Gdk.DragAction:
+        """Handle drag enter on the window."""
+        if self.stack.get_visible_child_name() == "settings":
+            # Show visual feedback
+            if hasattr(self.ui, "settings_page") and self.ui.settings_page:
+                if self.ui.settings_page.drop_label:
+                    self.ui.settings_page.drop_label.set_visible(True)
+            return Gdk.DragAction.COPY
+        return Gdk.DragAction(0)  # Reject if not on settings page
+
+    def _on_global_drop_leave(self, _drop_target: Gtk.DropTarget) -> None:
+        """Handle drag leave from the window."""
+        if hasattr(self.ui, "settings_page") and self.ui.settings_page:
+            if self.ui.settings_page.drop_label:
+                self.ui.settings_page.drop_label.set_visible(False)
 
     def setup_stack(self) -> None:
         """Set up the main view stack."""
@@ -299,15 +408,9 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         """Set up the bottom action bar for navigation."""
         self.action_bar = Gtk.ActionBar()
 
-        self.step_label = Gtk.Label()
-        self.step_label.set_markup(
-            MARKUP_SPAN_SMALL_OPEN + _("Step 1/3: Settings") + MARKUP_SPAN_CLOSE
-        )
-        self.step_label.add_css_class("dim-label")
-        self.step_label.set_margin_start(12)
-        self.step_label.set_hexpand(True)
-        self.step_label.set_halign(Gtk.Align.CENTER)
-        self.action_bar.set_center_widget(self.step_label)
+        # Create step indicator (breadcrumbs)
+        self._update_step_indicator()
+        self.action_bar.set_center_widget(self.step_indicator)
 
         self.back_button = Gtk.Button()
         self.back_button.set_label(_("Back"))
@@ -323,6 +426,28 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
 
         self.action_bar.pack_start(self.back_button)
         self.action_bar.pack_end(self.next_button)
+
+    def _update_step_indicator(self) -> None:
+        """Update the step indicator to reflect the current step."""
+        self.step_indicator = create_step_indicator(
+            steps=self._step_names,
+            current_step=self._current_step,
+            completed_steps=self._completed_steps,
+        )
+        if self.action_bar:
+            self.action_bar.set_center_widget(self.step_indicator)
+
+    def set_current_step(self, step: int, completed: list[int] | None = None) -> None:
+        """Set the current step and optionally update completed steps.
+
+        Args:
+            step: The step index (0-based)
+            completed: List of completed step indices
+        """
+        self._current_step = step
+        if completed is not None:
+            self._completed_steps = completed
+        self._update_step_indicator()
 
     def setup_pages(self) -> None:
         """Set up the application pages."""
@@ -467,10 +592,6 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         benefit_items = [
             (_("Search"), _("Search through your scanned PDF documents")),
             (_("Copy text"), _("Copy text from images and scanned documents")),
-            (
-                _("Screen capture"),
-                _("Extract text from any screen region - videos, websites, or UI"),
-            ),
             (_("Batch processing"), _("Process multiple files at once")),
             (
                 _("Auto-correction"),
@@ -637,11 +758,11 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
             save_in_same_folder,
         )
 
-    def on_apply_clicked(self, button: Gtk.Button) -> None:
+    def on_apply_clicked(self, button: Gtk.Button | None = None) -> None:
         """Process the selected files with OCR.
 
         Args:
-            button: The button that was clicked
+            button: The button that was clicked (optional, None when called from shortcut)
         """
         if not self._validate_ocr_settings():
             return
@@ -673,9 +794,7 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
 
         # Switch to terminal page and update UI
         self.stack.set_visible_child_name("terminal")
-        self.step_label.set_markup(
-            MARKUP_SPAN_SMALL_OPEN + _("Step 2/3: Processing") + MARKUP_SPAN_CLOSE
-        )
+        self.set_current_step(1, [0])  # Step 2 (Processing), Step 1 completed
         self.back_button.set_visible(False)
         self.next_button.set_visible(False)
 
@@ -771,9 +890,7 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
     def show_conclusion_page(self) -> None:
         """Show the conclusion page after OCR processing completes."""
         self.stack.set_visible_child_name("conclusion")
-        self.step_label.set_markup(
-            MARKUP_SPAN_SMALL_OPEN + _("Step 3/3: Completed") + MARKUP_SPAN_CLOSE
-        )
+        self.set_current_step(2, [0, 1])  # Step 3 (Completed), Steps 1 and 2 completed
 
         self.back_button.set_visible(False)
 

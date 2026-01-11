@@ -5,7 +5,6 @@ This module contains the main application class for the BigOcrPdf application.
 """
 
 from typing import Any
-import os
 
 import gi
 
@@ -22,10 +21,10 @@ from bigocrpdf.config import (
     APP_NAME,
     APP_VERSION,
     APP_WEBSITE,
+    SHORTCUTS,
 )
 from bigocrpdf.ui.widgets import load_css
 from bigocrpdf.utils.i18n import _
-from bigocrpdf.utils.logger import logger
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.window import BigOcrPdfWindow
 from bigocrpdf.ui.image_ocr_window import ImageOcrWindow
@@ -34,13 +33,9 @@ from bigocrpdf.ui.image_ocr_window import ImageOcrWindow
 class BigOcrPdfApp(Adw.Application):
     """Application class for BigOcrPdf."""
 
-    def __init__(self, application_id: str = APP_ID) -> None:
-        """Initialize the application.
-
-        Args:
-            application_id: The application ID to use
-        """
-        super().__init__(application_id=application_id, flags=Gio.ApplicationFlags.HANDLES_OPEN)
+    def __init__(self) -> None:
+        """Initialize the application."""
+        super().__init__(application_id=APP_ID, flags=Gio.ApplicationFlags.HANDLES_OPEN)
 
         # Store files to be opened
         self._pending_files: list = []
@@ -80,8 +75,31 @@ class BigOcrPdfApp(Adw.Application):
         image_ocr_action.connect("activate", self.on_image_ocr_action)
         self.add_action(image_ocr_action)
 
-        # Set keyboard shortcuts
-        self.set_accels_for_action("app.quit", ["<Ctrl>q"])
+        # Set up keyboard shortcuts
+        self._setup_keyboard_shortcuts()
+
+    def _setup_keyboard_shortcuts(self) -> None:
+        """Set up application-level keyboard shortcuts."""
+        try:
+            # Application-level shortcuts
+            self.set_accels_for_action("app.quit", [SHORTCUTS.get("quit", "<Control>q")])
+            self.set_accels_for_action("app.about", [SHORTCUTS.get("about", "F1")])
+
+            # Window-level shortcuts (win. prefix)
+            self.set_accels_for_action("win.add-files", [SHORTCUTS.get("add-files", "<Control>o")])
+            self.set_accels_for_action(
+                "win.start-processing", [SHORTCUTS.get("start-processing", "<Control>Return")]
+            )
+            self.set_accels_for_action(
+                "win.cancel-processing", [SHORTCUTS.get("cancel-processing", "Escape")]
+            )
+            self.set_accels_for_action(
+                "win.remove-all-files", [SHORTCUTS.get("remove-all-files", "<Control>r")]
+            )
+
+            logger.info("Keyboard shortcuts configured successfully")
+        except Exception as e:
+            logger.error(f"Failed to setup keyboard shortcuts: {e}")
 
     def on_handle_local_options(self, app: Adw.Application, options: GLib.VariantDict) -> int:
         """Handle command line options.
@@ -145,7 +163,7 @@ class BigOcrPdfApp(Adw.Application):
             # Load custom CSS
             load_css()
 
-            # Extract file paths from GFile objects
+            # Extract file paths from GFile objects and categorize
             image_extensions = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"}
             pdf_paths = []
             image_paths = []
@@ -153,6 +171,8 @@ class BigOcrPdfApp(Adw.Application):
             for gfile in files:
                 path = gfile.get_path()
                 if path:
+                    import os
+
                     ext = os.path.splitext(path)[1].lower()
                     if ext in image_extensions:
                         image_paths.append(path)
@@ -165,20 +185,18 @@ class BigOcrPdfApp(Adw.Application):
                 first_image = image_paths[0]
                 win = ImageOcrWindow(app, image_path=first_image)
                 win.present()
+                logger.info(f"Opened image OCR window with: {first_image}")
 
             elif pdf_paths or not image_paths:
-                # Normal PDF mode or mixed (TODO: Handle mixed better?)
-                # For now, if there are PDFs, we prefer the main window
-
+                # Normal PDF mode or mixed (prioritize PDF window)
                 # Check if we already have a window open
                 win = self.get_active_window()
-                # If active window is ImageOcrWindow, we might need a new PdfWindow?
-                # Or just check if valid PdfWindow exists.
-                # Simplification: Just make sure we have a BigOcrPdfWindow
 
+                # If active window is ImageOcrWindow, create new BigOcrPdfWindow
                 if not win or isinstance(win, ImageOcrWindow):
                     win = BigOcrPdfWindow(app)
 
+                # Show the window
                 win.present()
 
                 # Add PDF files to the application queue
@@ -186,46 +204,19 @@ class BigOcrPdfApp(Adw.Application):
 
                     def add_files_when_ready():
                         try:
-                            logger.info(f"Adding {len(pdf_paths)} PDF files...")
                             if hasattr(win, "settings"):
                                 added = win.settings.add_files(pdf_paths)
                                 if added > 0:
                                     logger.info(f"Added {added} file(s) from command line")
+                                    # Refresh the file list UI
                                     if hasattr(win, "update_file_info"):
                                         win.update_file_info()
-                                else:
-                                    logger.warning("No files added (check mime types)")
                         except Exception as e:
                             logger.error(f"Error adding files: {e}")
-                        return False
+                        return False  # Don't repeat
 
-                    # Use a larger delay to ensure the window/settings are fully engaged
-                    GLib.timeout_add(300, add_files_when_ready)
-
-            # If we had both images and PDFs, strictly speaking we only handled one above.
-            # But the requirement is separation. If mixed, we prioritized one.
-            # Let's assume user doesn't drag mixed types usually.
-
-            # Add PDF files to the application queue
-            if pdf_paths:
-
-                def add_files_when_ready():
-                    try:
-                        logger.info(f"Adding {len(pdf_paths)} PDF files...")
-                        if hasattr(win, "settings"):
-                            added = win.settings.add_files(pdf_paths)
-                            if added > 0:
-                                logger.info(f"Added {added} file(s) from command line")
-                                if hasattr(win, "update_file_info"):
-                                    win.update_file_info()
-                            else:
-                                logger.warning("No files added (check mime types)")
-                    except Exception as e:
-                        logger.error(f"Error adding files: {e}")
-                    return False
-
-                # Use a larger delay to ensure the window/settings are fully engaged
-                GLib.timeout_add(300, add_files_when_ready)
+                    # Use a small delay to ensure the window is fully initialized
+                    GLib.timeout_add(100, add_files_when_ready)
 
             logger.info(_(f"Opened {n_files} file(s)"))
 
@@ -265,8 +256,8 @@ class BigOcrPdfApp(Adw.Application):
         """Open the independent Image OCR window.
 
         Args:
-           _action: The action that triggered this callback
-           _param: Action parameters
+            _action: The action that triggered this callback
+            _param: Action parameters
         """
         win = ImageOcrWindow(self)
         win.present()

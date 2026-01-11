@@ -17,6 +17,7 @@ from gi.repository import GLib, Gtk
 if TYPE_CHECKING:
     from window import BigOcrPdfWindow
 
+from bigocrpdf.ui.components import create_navigation_button
 from bigocrpdf.utils.format_utils import format_elapsed_time
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
@@ -120,12 +121,13 @@ class TerminalPageManager:
 
     def _add_cancel_button(self, container: Gtk.Box) -> None:
         """Add the cancel button"""
-        cancel_button = Gtk.Button()
-        cancel_button.set_label(_("Cancel"))
-        cancel_button.add_css_class("destructive-action")
-        cancel_button.set_halign(Gtk.Align.CENTER)
+        cancel_button = create_navigation_button(
+            label=_("Cancel"),
+            direction="destructive",
+            on_click=self.window.on_cancel_clicked,
+        )
         cancel_button.set_margin_top(16)
-        cancel_button.connect("clicked", lambda _: self.window.on_cancel_clicked())
+        cancel_button.set_halign(Gtk.Align.CENTER)
         container.append(cancel_button)
 
     def start_progress_monitor(self) -> None:
@@ -274,12 +276,7 @@ class TerminalPageManager:
         if self._progress_state.update_fraction(progress):
             self.terminal_progress_bar.set_fraction(progress)
             progress_percent = self._progress_state.get_percentage()
-
-            # Show page-based progress for more granular feedback
-            if total_pages > 0:
-                progress_text = f"{progress_percent}% ({processed_pages}/{total_pages} pages)"
-            else:
-                progress_text = f"{progress_percent}%"
+            progress_text = f"{progress_percent}%"
 
             if self._progress_state.update_text(progress_text):
                 self.terminal_progress_bar.set_text(progress_text)

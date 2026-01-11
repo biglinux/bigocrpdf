@@ -18,6 +18,7 @@ from gi.repository import Adw, Gdk, Gio, Gtk, Pango
 if TYPE_CHECKING:
     from window import BigOcrPdfWindow
 
+from bigocrpdf.ui.components import create_action_button
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.utils.text_utils import read_text_from_sidecar
@@ -925,20 +926,29 @@ class DialogsManager:
         button_box.set_halign(Gtk.Align.END)
 
         # Copy to clipboard button
-        copy_button = Gtk.Button(label=_("Copy to Clipboard"))
-        copy_button.set_tooltip_text(_("Copy the entire text to clipboard"))
-        copy_button.connect("clicked", lambda _: self._copy_text_to_clipboard(extracted_text))
+        copy_button = create_action_button(
+            label=_("Copy to Clipboard"),
+            tooltip=_("Copy the entire text to clipboard"),
+            on_click=lambda: self._copy_text_to_clipboard(extracted_text),
+            halign=Gtk.Align.END,
+        )
         button_box.append(copy_button)
 
         # Save to file button
-        save_button = Gtk.Button(label=_("Save as TXT"))
-        save_button.set_tooltip_text(_("Save the extracted text to a .txt file"))
-        save_button.connect("clicked", lambda _: self._save_text_to_file(extracted_text))
+        save_button = create_action_button(
+            label=_("Save as TXT"),
+            tooltip=_("Save the extracted text to a .txt file"),
+            on_click=lambda: self._save_text_to_file(extracted_text),
+            halign=Gtk.Align.END,
+        )
         button_box.append(save_button)
 
         # Close button
-        close_button = Gtk.Button(label=_("Close"))
-        close_button.add_css_class("suggested-action")
+        close_button = create_action_button(
+            label=_("Close"),
+            css_classes=["suggested-action"],
+            halign=Gtk.Align.END,
+        )
         close_button.connect("clicked", lambda _: button_box.get_root().destroy())
         button_box.append(close_button)
 

@@ -60,8 +60,15 @@ class ImageOcrWindow(Adw.Window):
         self._redo_button: Gtk.Button | None = None
         self._current_image_path: str | None = None  # Track current image for redo
 
-        # Load OCR settings from config (with defaults)
+        # Load OCR settings from config (with defaults and system language detection)
         config = get_config_manager()
+
+        # Language: Use config, fall back to settings (which auto-detects), then to 'eng'
+        config_lang = config.get("ocr.language")
+        if config_lang:
+            self._settings.lang = config_lang
+        # else: settings.lang is already set by OcrSettings.__init__ with detection
+
         self._current_psm: int = config.get("ocr.psm", 3)  # Default: Auto
         self._current_oem: int = config.get("ocr.oem", 3)  # Default: Auto
 
