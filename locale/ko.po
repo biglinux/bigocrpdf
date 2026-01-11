@@ -86,9 +86,9 @@ msgstr "{0} 파일을 추가하려고 합니다."
 msgid "Successfully added {0} files"
 msgstr "{0}개의 파일이 성공적으로 추가되었습니다."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 122
-msgid "No valid PDF files were found to add"
-msgstr "추가할 유효한 PDF 파일이 없습니다."
+# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 229
+msgid "No valid files were found to add"
+msgstr "추가할 유효한 파일이 없습니다."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 140
 msgid "Empty file path provided"
@@ -99,20 +99,20 @@ msgstr "빈 파일 경로가 제공되었습니다."
 msgid "File does not exist: {0}"
 msgstr "파일이 존재하지 않습니다: {0}"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 150
+# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 258
 #, python-brace-format
-msgid "Not a PDF file: {0}"
-msgstr "PDF 파일이 아닙니다: {0}"
+msgid "Unsupported file type: {0}"
+msgstr "지원되지 않는 파일 형식: {0}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 155
 #, python-brace-format
 msgid "File already in list: {0}"
 msgstr "파일이 이미 목록에 있습니다: {0}"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 159
+# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 267
 #, python-brace-format
-msgid "Adding valid PDF: {0}"
-msgstr "유효한 PDF 추가: {0}"
+msgid "Adding valid file: {0}"
+msgstr "유효한 파일 추가: {0}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 231
 msgid "Settings saved successfully"
@@ -145,6 +145,37 @@ msgstr "처리 상태가 성공적으로 재설정되었습니다."
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 612
 msgid "Temporary files cleanup completed"
 msgstr "임시 파일 정리 완료"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 118
+msgid "No screenshot tool available. Please install spectacle, gnome-screenshot, or flameshot."
+msgstr "스크린샷 도구가 없습니다. spectacle, gnome-screenshot 또는 flameshot을 설치하세요."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 135
+msgid "Screenshot was cancelled"
+msgstr "스크린샷이 취소되었습니다."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 139
+#, python-brace-format
+msgid "An unexpected error occurred during capture: {e}"
+msgstr "캡처 중 예기치 않은 오류가 발생했습니다: {e}"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 245
+msgid "Tesseract OCR engine not found. Please install it."
+msgstr "Tesseract OCR 엔진을 찾을 수 없습니다. 설치해 주십시오."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 268
+msgid "No text found in the selected region"
+msgstr "선택한 영역에서 텍스트를 찾을 수 없습니다."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 283
+#, python-brace-format
+msgid "Language data for '{lang}' not found. Please install tesseract-data-{lang}."
+msgstr "'{lang}'에 대한 언어 데이터가 없습니다. tesseract-data-{lang}을 설치하십시오."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 287
+#, python-brace-format
+msgid "OCR failed: {err_msg}"
+msgstr "OCR 실패: {err_msg}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 48
 msgid "Please make sure GTK4, libadwaita, and OCRmyPDF are installed"
@@ -458,6 +489,123 @@ msgstr "사용자 정의 CSS 스타일이 성공적으로 로드되었습니다.
 msgid "Error loading CSS styles: {0}"
 msgstr "CSS 스타일 로드 오류: {0}"
 # 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 41
+msgid "Big OCR Image"
+msgstr "큰 OCR 이미지"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 144
+msgid "Processing extracted text..."
+msgstr "추출된 텍스트 처리 중..."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
+msgid "Apply"
+msgstr "적용하다"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
+msgid "Apply current settings and reprocess the image"
+msgstr "현재 설정을 적용하고 이미지를 다시 처리합니다."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
+msgid "Copy"
+msgstr "복사"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
+msgid "New Capture"
+msgstr "새 캡처"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
+msgid "Open Image"
+msgstr "이미지 열기"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 252
+msgid "Select OCR language"
+msgstr "OCR 언어 선택"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 283
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 334
+msgid "Auto"
+msgstr "자동"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 284
+msgid "Block"
+msgstr "차단"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 285
+msgid "Line"
+msgstr "라인"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 286
+msgid "Word"
+msgstr "단어"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 287
+msgid "Sparse"
+msgstr "희소한"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 288
+msgid "Column"
+msgstr "열"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 289
+msgid "Char"
+msgstr "문자"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 290
+msgid "Auto + OSD"
+msgstr "자동 + OSD"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 291
+msgid "OSD only"
+msgstr "OSD만"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 292
+msgid "Raw line"
+msgstr "원시 라인"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 306
+msgid "Page Segmentation Mode"
+msgstr "페이지 분할 모드"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 335
+msgid "LSTM"
+msgstr "LSTM"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 336
+msgid "Legacy"
+msgstr "유산"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 337
+msgid "Both"
+msgstr "둘 다"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 351
+msgid "OCR Engine Mode"
+msgstr "OCR 엔진 모드"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
+msgid "No text extracted."
+msgstr "텍스트가 추출되지 않았습니다."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 451
+msgid "Copied!"
+msgstr "복사됨!"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
+msgid "Open Image to OCR"
+msgstr "이미지 열기 OCR"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 496
+msgid "Images"
+msgstr "이미지"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
+msgid "Error"
+msgstr "오류"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 527
+msgid "Open an image or take a screenshot to extract text."
+msgstr "이미지를 열거나 스크린샷을 찍어 텍스트를 추출하세요."
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 97
 msgid "Configuration"
 msgstr "구성"
@@ -551,6 +699,10 @@ msgstr "정렬 + 회전"
 msgid "Choose how to handle page alignment and rotation during OCR processing"
 msgstr "OCR 처리 중 페이지 정렬 및 회전을 처리하는 방법을 선택하세요."
 # 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 632
+msgid "Remove from queue"
+msgstr "대기열에서 제거"
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 424
 msgid "Processing Summary"
 msgstr "처리 요약"
@@ -591,9 +743,10 @@ msgstr "추출된 텍스트"
 msgid "No text content was detected in this file during OCR processing."
 msgstr "이 파일에서 OCR 처리 중 텍스트 콘텐츠가 감지되지 않았습니다."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 420
-msgid "Start Processing"
-msgstr "처리 시작"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 190
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 726
+msgid "Start"
+msgstr "시작"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/navigation_manager.py, line: 109
 msgid "Process New Files"
@@ -631,6 +784,34 @@ msgstr "대상 폴더 선택 오류"
 msgid "Destination folder selected"
 msgstr "대상 폴더가 선택되었습니다."
 # 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
+msgid "Print version information and exit"
+msgstr "버전 정보를 인쇄하고 종료합니다."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
+msgid "Application started successfully"
+msgstr "응용 프로그램이 성공적으로 시작되었습니다."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 111
+msgid "Error starting application"
+msgstr "애플리케이션 시작 오류"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 168
+#, python-brace-format
+msgid "Opened {n_files} file(s)"
+msgstr "{n_files} 파일이 열렸습니다."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 129
+msgid "BigLinux Team"
+msgstr "빅리눅스 팀"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 139
+msgid "Developers"
+msgstr "개발자"
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 32
 msgid "Normal"
 msgstr "정상"
@@ -666,6 +847,18 @@ msgstr "페이지 콘텐츠를 정렬하고 페이지를 자동으로 회전하�
 msgid "Big OCR PDF"
 msgstr "빅 OCR PDF"
 # 
+# File: bigocrpdf/src/bigocrpdf/window.py, line: 108
+msgid "Settings"
+msgstr "설정"
+# 
+# File: bigocrpdf/src/bigocrpdf/window.py, line: 108
+msgid "Processing"
+msgstr "처리 중"
+# 
+# File: bigocrpdf/src/bigocrpdf/window.py, line: 108
+msgid "Completed"
+msgstr "완료됨"
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 131
 msgid "BigOcrPdf - Scanned PDFs with search support"
 msgstr "BigOcrPdf - 검색 지원이 있는 스캔된 PDF"
@@ -682,21 +875,10 @@ msgstr "도움말"
 msgid "About the application"
 msgstr "애플리케이션 정보"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 172
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 416
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 737
-msgid "Step 1/3: Settings"
-msgstr "1단계/3: 설정"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 182
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 755
 msgid "Back"
 msgstr "뒤로"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 190
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 726
-msgid "Start"
-msgstr "시작"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 324
 msgid ""
@@ -766,17 +948,9 @@ msgstr "대상 폴더를 선택하십시오."
 msgid "Failed to start OCR processing"
 msgstr "OCR 처리를 시작하지 못했습니다."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 708
-msgid "Step 2/3: Processing"
-msgstr "2단계/3: 처리 중"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 717
 msgid "OCR processing started using Python API"
 msgstr "Python API를 사용하여 OCR 처리가 시작되었습니다."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 748
-msgid "Step 3/3: Completed"
-msgstr "3단계/3: 완료됨"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 877
 msgid "OCR processing complete callback triggered"
@@ -807,13 +981,6 @@ msgstr "OCR 처리 취소됨"
 msgid "Add OCR to your PDF documents to make them searchable"
 msgstr "PDF 문서에 OCR을 추가하여 검색 가능하게 만드세요."
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
-msgid "Print version information and exit"
-msgstr "버전 정보를 인쇄하고 종료합니다."
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 72
 msgid "Enable debug mode"
 msgstr "디버그 모드 활성화"
@@ -825,24 +992,3 @@ msgstr "자세한 출력 활성화"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
 msgid "PDF files to process"
 msgstr "처리할 PDF 파일"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
-msgid "Application started successfully"
-msgstr "응용 프로그램이 성공적으로 시작되었습니다."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 111
-msgid "Error starting application"
-msgstr "애플리케이션 시작 오류"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 168
-#, python-brace-format
-msgid "Opened {n_files} file(s)"
-msgstr "{n_files} 파일이 열렸습니다."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 129
-msgid "BigLinux Team"
-msgstr "빅리눅스 팀"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 139
-msgid "Developers"
-msgstr "개발자"
