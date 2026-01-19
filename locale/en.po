@@ -218,17 +218,17 @@ msgid "OCR failed: {err_msg}"
 msgstr "OCR failed: {err_msg}"
 
 #
-# File: bigocrpdf/src/bigocrpdf/main.py, line: 47
+# File: bigocrpdf/src/bigocrpdf/main.py, line: 78
 msgid "Please make sure GTK4, libadwaita, and OCRmyPDF are installed"
 msgstr "Please make sure GTK4, libadwaita, and OCRmyPDF are installed"
 
 #
-# File: bigocrpdf/src/bigocrpdf/main.py, line: 59
+# File: bigocrpdf/src/bigocrpdf/main.py, line: 90
 msgid "Failed to set system locale, falling back to C locale"
 msgstr "Failed to set system locale, falling back to C locale"
 
 #
-# File: bigocrpdf/src/bigocrpdf/main.py, line: 87
+# File: bigocrpdf/src/bigocrpdf/main.py, line: 118
 msgid "Cleared file queue at startup"
 msgstr "Cleared file queue at startup"
 
@@ -1019,28 +1019,36 @@ msgid "Print version information and exit"
 msgstr "Print version information and exit"
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 144
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+#
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 57
+# File: bigocrpdf/src/bigocrpdf/config.py, line: 139
+msgid "Start in image conversion mode"
+msgstr "Start in image conversion mode"
+
+#
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 161
 msgid "Application started successfully"
 msgstr "Application started successfully"
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 149
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 166
 msgid "Error starting application"
 msgstr "Error starting application"
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 221
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 238
 #, python-brace-format
 msgid "Opened {n_files} file(s)"
 msgstr "Opened {n_files} file(s)"
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 240
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 257
 msgid "BigLinux Team"
 msgstr "BigLinux Team"
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 250
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 267
 msgid "Developers"
 msgstr "Developers"
 
@@ -1267,6 +1275,6 @@ msgid "Enable verbose output"
 msgstr "Enable verbose output"
 
 #
-# File: bigocrpdf/src/bigocrpdf/config.py, line: 136
+# File: bigocrpdf/src/bigocrpdf/config.py, line: 141
 msgid "PDF files to process"
 msgstr "PDF files to process"
