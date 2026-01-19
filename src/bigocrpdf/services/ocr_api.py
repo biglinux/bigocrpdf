@@ -11,10 +11,18 @@ import signal
 import subprocess
 import threading
 import time
+import shutil
+
 from collections.abc import Callable
 from typing import Any
 
-import ocrmypdf
+try:
+    import ocrmypdf
+
+    OCRMYPDF_IMPORTED = True
+except ImportError:
+    OCRMYPDF_IMPORTED = False
+
 
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.utils.pdf_utils import get_pdf_page_count
@@ -109,63 +117,12 @@ class OcrProcess:
 
         # Start the process with stdout capture
         self.process = multiprocessing.Process(
-            target=self._run_ocr_with_progress,
+            target=run_ocr_worker,
             args=(self.input_file, self.output_file, self.options),
         )
         self.process.start()
 
         logger.info(f"Started OCR process for {os.path.basename(self.input_file)}")
-
-    def _run_ocr_with_progress(
-        self, input_file: str, output_file: str, options: dict[str, Any]
-    ) -> None:
-        """Run OCRmyPDF using Python API - simple and working method"""
-        try:
-            configure_logging()
-            setup_sigbus_handler()
-
-            # Get the sidecar path from options
-            sidecar_path = options.get("sidecar", None)
-
-            # Initialize extracted text
-            self.extracted_text = extract_text_from_pdf(input_file)
-
-            # Make a copy of options to modify safely
-            ocr_options = options.copy()
-            ocr_options["force_ocr"] = True
-            ocr_options["optimize"] = 0
-            ocr_options.pop("progress_bar", None)
-
-            # Run OCRmyPDF using Python API (original working method)
-            ocrmypdf.ocr(input_file, output_file, progress_bar=False, **ocr_options)
-
-            # Mark as completed
-            with self.progress_lock:
-                self.current_pages_processed = self.total_pages
-
-            # Read the text from the sidecar file if it exists
-            if sidecar_path and os.path.exists(sidecar_path):
-                sidecar_text = read_text_from_sidecar(sidecar_path)
-                if sidecar_text:
-                    self.extracted_text = sidecar_text
-
-                self._cleanup_temp_sidecar(sidecar_path)
-            else:
-                self._log_sidecar_issues(sidecar_path)
-
-            logger.info(f"Completed OCR processing for {os.path.basename(input_file)}")
-        except Exception as e:
-            logger.error(f"OCR processing failed for {os.path.basename(input_file)}: {str(e)}")
-            raise
-
-    def _cleanup_temp_sidecar(self, sidecar_path: str) -> None:
-        """Clean up temporary sidecar files"""
-        if ".temp" in sidecar_path:
-            try:
-                os.remove(sidecar_path)
-                logger.info(f"Deleted temporary sidecar file: {sidecar_path}")
-            except Exception as e:
-                logger.warning(f"Failed to delete temporary sidecar file: {e}")
 
     def _log_sidecar_issues(self, sidecar_path: str | None) -> None:
         """Log issues with sidecar files"""
@@ -206,6 +163,156 @@ class OcrProcess:
             self.status = STATUS_FAILED
             self.error = "Process was terminated"
             logger.info(f"OCR process for {os.path.basename(self.input_file)} was terminated")
+
+
+def find_python_with_ocrmypdf() -> str | None:
+    """Find a python executable that has ocrmypdf installed"""
+    # 1. Check environment variable
+    env_python = os.environ.get("OCR_PYTHON")
+    if env_python and shutil.which(env_python):
+        return env_python
+
+    # 2. Check common python versions
+    candidates = ["python3.13", "python3.12", "python3.11", "python3.10", "python3", "python"]
+
+    # 3. Add explicit paths that might not be in PATH
+    explicit_paths = [
+        "/usr/local/bin/python3.13",
+        "/opt/python3.13/bin/python3.13",
+        "/usr/bin/python3.13",
+    ]
+
+    # helper to check a candidate
+    def check_candidate(candidate: str) -> bool:
+        try:
+            # If it's a path, check existence; if name, check in path
+            resolved = shutil.which(candidate)
+            if not resolved:
+                return False
+
+            # Check if ocrmypdf is importable
+            result = subprocess.run(
+                [resolved, "-c", "import ocrmypdf"], capture_output=True, check=False
+            )
+            return result.returncode == 0
+        except Exception:
+            return False
+
+    for candidate in candidates:
+        if check_candidate(candidate):
+            logger.info(f"Found ocrmypdf in {candidate}")
+            return candidate
+
+    for path in explicit_paths:
+        if check_candidate(path):
+            logger.info(f"Found ocrmypdf in {path}")
+            return path
+
+    return None
+
+
+def _convert_options_to_cli_args(options: dict[str, Any]) -> list[str]:
+    """Convert dictionary options to CLI arguments"""
+    args = []
+
+    for key, value in options.items():
+        if value is True:
+            args.append(f"--{key.replace('_', '-')}")
+        elif value is False:
+            continue
+        elif value is not None:
+            args.append(f"--{key.replace('_', '-')}")
+            args.append(str(value))
+
+    return args
+
+
+def run_ocr_worker(input_file: str, output_file: str, options: dict[str, Any]) -> None:
+    """
+    Standalone worker function to run OCR.
+    This avoids pickling strict threading objects attached to the OcrProcess class.
+    """
+    try:
+        configure_logging()
+        setup_sigbus_handler()
+
+        # Get the sidecar path from options
+        sidecar_path = options.get("sidecar", None)
+
+        # Note: We cannot easily return the extracted text to the parent process
+        # without a queue or pipe, but the original code was just setting it on self
+        # which wouldn't propagate back anyway in multiprocessing without a Manager.
+        # We will focus on the OCR job execution.
+
+        # Prepare options
+        ocr_options = options.copy()
+
+        # Remove sidecar from options passed to ocrmypdf as it's not a standard option
+        if "sidecar" in ocr_options:
+            ocr_options.pop("sidecar")
+
+        ocr_options["force_ocr"] = True
+        ocr_options["optimize"] = 0
+        ocr_options.pop("progress_bar", None)
+
+        if OCRMYPDF_IMPORTED:
+            # Direct usage if installed in current environment
+            ocrmypdf.ocr(input_file, output_file, progress_bar=False, **ocr_options)
+        else:
+            # Fallback to subprocess if not available
+            logger.info(
+                "ocrmypdf module not found in current environment, searching for alternative..."
+            )
+            python_exe = find_python_with_ocrmypdf()
+
+            if not python_exe:
+                raise ImportError(
+                    "ocrmypdf not found in current python environment and no alternative python with ocrmypdf found."
+                )
+
+            # Build command line
+            cmd = [
+                python_exe,
+                "-m",
+                "ocrmypdf",
+                input_file,
+                output_file,
+                "--force-ocr",
+                "--optimize",
+                "0",
+                "--no-progress-bar",
+            ]
+
+            # Add other options
+            cmd.extend(_convert_options_to_cli_args(ocr_options))
+
+            logger.info(f"Running fallback command: {' '.join(cmd)}")
+
+            # Run the command
+            subprocess.run(cmd, check=True, capture_output=True, text=True)
+
+        # Handle sidecar cleanup if needed (best effort since this is separate process)
+        if sidecar_path and os.path.exists(sidecar_path):
+            _cleanup_temp_sidecar_static(sidecar_path)
+
+        logger.info(f"Completed OCR processing for {os.path.basename(input_file)}")
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f"OCR subprocess failed: {e.stderr}")
+        raise
+    except Exception as e:
+        logger.error(f"OCR processing failed for {os.path.basename(input_file)}: {str(e)}")
+        raise
+
+
+def _cleanup_temp_sidecar_static(sidecar_path: str) -> None:
+    """Clean up temporary sidecar files (static version)"""
+    if ".temp" in sidecar_path:
+        try:
+            os.remove(sidecar_path)
+            logger.info(f"Deleted temporary sidecar file: {sidecar_path}")
+        except Exception as e:
+            logger.warning(f"Failed to delete temporary sidecar file: {e}")
 
 
 class OcrQueue:

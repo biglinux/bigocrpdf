@@ -133,6 +133,11 @@ def parse_command_line() -> argparse.Namespace:
     )
     parser.add_argument("-d", "--debug", action="store_true", help=_("Enable debug mode"))
     parser.add_argument("--verbose", action="store_true", help=_("Enable verbose output"))
+    parser.add_argument(
+        "--image-mode",
+        action="store_true",
+        help=_("Start in image conversion mode"),
+    )
     parser.add_argument("files", nargs="*", help=_("PDF files to process"))
 
     return parser.parse_args()

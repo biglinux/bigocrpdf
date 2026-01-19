@@ -9,9 +9,40 @@ import locale
 import os
 import sys
 
+
+# Try to import ocrmypdf, and if it fails, look for it in other python versions
+# This is a resilience fix for when system python is updated but packages are still in old version folders
+try:
+    import ocrmypdf
+except ImportError:
+    import glob
+
+    # Common path pattern: /usr/lib/python3.*/site-packages/ocrmypdf
+    # Sort reverse to try newer versions first (works for 3.14 vs 3.13)
+    for path in sorted(
+        glob.glob("/usr/lib/python3.*/site-packages/ocrmypdf"), reverse=True
+    ):
+        site_pkg = os.path.dirname(path)
+        if site_pkg not in sys.path:
+            sys.path.append(site_pkg)
+            try:
+                import ocrmypdf
+
+                # If we are here, we found it
+                break
+            except ImportError:
+                # If import still fails (e.g. missing dependencies), remove path and continue
+                if site_pkg in sys.path:
+                    sys.path.remove(site_pkg)
+
 # After i18n is set up, import other modules that may use translations
 from bigocrpdf.application import BigOcrPdfApp
-from bigocrpdf.config import CONFIG_DIR, SELECTED_FILE_PATH, parse_command_line, setup_environment
+from bigocrpdf.config import (
+    CONFIG_DIR,
+    SELECTED_FILE_PATH,
+    parse_command_line,
+    setup_environment,
+)
 
 # Then import and initialize i18n before any other module that uses translations
 from bigocrpdf.utils.i18n import _
