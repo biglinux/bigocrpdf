@@ -74,7 +74,7 @@ Get your text out in the format you need.
 | Format | Description |
 |--------|-------------|
 | **Searchable PDF** | Original pages with invisible OCR text layer |
-| **PDF/A-2b** | ISO archival standard with JPEG 2000 compression |
+| **PDF/A-2b** | ISO archival standard with metadata injection (preserves original images) |
 | **Custom Quality PDF** | Choose JPEG quality: 30%, 50%, 70%, 85%, or 95% |
 | **Plain Text (.txt)** | Extracted text from all pages |
 | **ODF/ODT** | 4 modes: formatted + images, images + simple text, formatted text only, or plain text |
