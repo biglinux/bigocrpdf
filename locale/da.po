@@ -15,6 +15,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: attranslate\n"
 # 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
+msgid "Print version information and exit"
+msgstr "Udskriv versionsinformation og afslut"
+# 
+# File: bigocrpdf/src/bigocrpdf/image_application.py, line: 115
+msgid "Extract text from images using OCR"
+msgstr "Uddrag tekst fra billeder ved hjælp af OCR"
+# 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 85
 #, python-brace-format
 msgid "Started OCR processing for {0} files using RapidOCR"
@@ -194,6 +205,14 @@ msgstr "Engelsk (Optimeret)"
 # 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
 # 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+# 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 38
 msgid "Arabic Script (AR, FA, UR...)"
 msgstr "Arabisk skrift (AR, FA, UR...)"
@@ -220,9 +239,25 @@ msgstr "Østslavisk (RU, BY, UK)"
 # 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
 # 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+# 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 42
 msgid "Devanagari (Hindi, Marathi, Nepali)"
 msgstr "Devanagari (Hindi, Marathi, Nepali)"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
 # 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
 # 
@@ -481,9 +516,11 @@ msgstr "Erstat filer med det samme navn"
 msgid "Warning"
 msgstr "Advarsel"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1788
-msgid "If saving to the same folder as original, this will replace the original files"
-msgstr "Hvis du gemmer i den samme mappe som originalen, vil dette erstatte de originale filer."
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 212
+msgid "To replace original files, also enable 'Overwrite Existing Files' below and save to the same folder"
+msgstr ""
+"For at erstatte originale filer, skal du også aktivere 'Overskriv eksisterende filer' nedenfor og "
+"gemme i den samme mappe."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1821
 msgid "Text Extraction"
@@ -942,6 +979,10 @@ msgstr "Eksportformat"
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
 msgid "Custom Quality"
 msgstr "Brugerdefineret Kvalitet"
 # 
@@ -1198,6 +1239,10 @@ msgstr "Fejl ved sammensmeltning af billeder"
 msgid "Select Folder for Text Files"
 msgstr "Vælg mappe til tekstfiler"
 # 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_callbacks_mixin.py, line: 317
+msgid "PDF output settings saved"
+msgstr "PDF outputindstillinger gemt"
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 190
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 726
 msgid "Start"
@@ -1271,6 +1316,10 @@ msgstr "Der blev ikke registreret noget tekstindhold i denne fil under OCR-behan
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 708
 msgid "OCR processing was completed for this file, but the extracted text could not be found."
 msgstr "OCR-behandling blev afsluttet for denne fil, men den udtrukne tekst kunne ikke findes."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
 # 
@@ -1435,20 +1484,6 @@ msgstr "Størrelsesændring:"
 msgid "Generated Files"
 msgstr "Genererede filer"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
-msgid "Print version information and exit"
-msgstr "Udskriv versionsinformation og afslut"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 57
-# File: bigocrpdf/src/bigocrpdf/config.py, line: 139
-msgid "Start in image conversion mode"
-msgstr "Start i billedkonverteringsmode"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
 msgid "Application started successfully"
 msgstr "Applikationen blev startet med succes"
@@ -1513,6 +1548,13 @@ msgstr "Aktivér fejlsøgningsfunktion."
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 74
 msgid "Enable verbose output"
 msgstr "Aktivér detaljeret output"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 57
+# File: bigocrpdf/src/bigocrpdf/config.py, line: 139
+msgid "Start in image conversion mode"
+msgstr "Start i billedkonverteringsmode"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
 msgid "PDF files to process"

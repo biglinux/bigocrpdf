@@ -15,6 +15,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: attranslate\n"
 # 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
+msgid "Print version information and exit"
+msgstr "Vytiskněte informace o verzi a ukončete."
+# 
+# File: bigocrpdf/src/bigocrpdf/image_application.py, line: 115
+msgid "Extract text from images using OCR"
+msgstr "Extrahujte text z obrázků pomocí OCR"
+# 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 85
 #, python-brace-format
 msgid "Started OCR processing for {0} files using RapidOCR"
@@ -198,6 +209,14 @@ msgstr "Angličtina (Optimalizováno)"
 # 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
 # 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+# 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 38
 msgid "Arabic Script (AR, FA, UR...)"
 msgstr "Arabský skript (AR, FA, UR...)"
@@ -226,9 +245,25 @@ msgstr "Východní slovanský (RU, BY, UK)"
 # 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
 # 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+# 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 42
 msgid "Devanagari (Hindi, Marathi, Nepali)"
 msgstr "Devanagari (hindština, maráthština, nepálština)"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
 # 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
 # 
@@ -495,9 +530,11 @@ msgstr "Nahradit soubory se stejným názvem"
 msgid "Warning"
 msgstr "Upozornění"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1788
-msgid "If saving to the same folder as original, this will replace the original files"
-msgstr "Pokud ukládáte do stejné složky jako originál, dojde k přepsání původních souborů."
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 212
+msgid "To replace original files, also enable 'Overwrite Existing Files' below and save to the same folder"
+msgstr ""
+"Pro nahrazení původních souborů také povolte 'Přepsat existující soubory' níže a uložte do stejné "
+"složky."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1821
 msgid "Text Extraction"
@@ -959,6 +996,10 @@ msgstr "Formát exportu"
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
 msgid "Custom Quality"
 msgstr "Vlastní kvalita"
 # 
@@ -1214,6 +1255,10 @@ msgstr "Chyba při sloučení obrázků"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1898
 msgid "Select Folder for Text Files"
 msgstr "Vyberte složku pro textové soubory"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_callbacks_mixin.py, line: 317
+msgid "PDF output settings saved"
+msgstr "Nastavení výstupu PDF uloženo"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 190
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 726
@@ -1494,20 +1539,6 @@ msgstr "Změna velikosti:"
 msgid "Generated Files"
 msgstr "Vygenerované soubory"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
-msgid "Print version information and exit"
-msgstr "Vytiskněte informace o verzi a ukončete."
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 57
-# File: bigocrpdf/src/bigocrpdf/config.py, line: 139
-msgid "Start in image conversion mode"
-msgstr "Začněte v režimu konverze obrázků"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
 msgid "Application started successfully"
 msgstr "Aplikace byla úspěšně spuštěna"
@@ -1572,6 +1603,13 @@ msgstr "Povolit režim ladění"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 74
 msgid "Enable verbose output"
 msgstr "Povolit podrobné výstupy"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 57
+# File: bigocrpdf/src/bigocrpdf/config.py, line: 139
+msgid "Start in image conversion mode"
+msgstr "Začněte v režimu konverze obrázků"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
 msgid "PDF files to process"
