@@ -181,7 +181,44 @@ def main() -> int:
         return 1
 
 
-__all__ = ["main", "__version__", "__author__", "__license__", "setup_i18n"]
+def main_image() -> int:
+    """Entry point for the Image OCR application (standalone).
+
+    This uses a separate application_id for proper Wayland taskbar grouping.
+
+    Returns:
+        The application exit code.
+    """
+    # 1. Setup Python compatibility first
+    _setup_python_compatibility()
+
+    # 2. Setup Locale
+    setup_i18n()
+
+    # 3. Import the standalone image application
+    from bigocrpdf.image_application import ImageOcrApp
+    from bigocrpdf.utils.logger import logger
+
+    # 4. Check dependencies
+    if not _check_gtk_dependencies():
+        return 1
+
+    # Check OCR dependencies
+    ocr_ok, ocr_error = _check_ocr_dependencies()
+    if not ocr_ok:
+        logger.error(f"OCR Dependency Error: {ocr_error}")
+        print(f"\n*** OCR Dependency Error ***\n{ocr_error}\n", file=sys.stderr)
+
+    # 5. Run application with its own application_id
+    try:
+        app = ImageOcrApp()
+        return app.run(sys.argv)
+    except Exception as e:
+        logger.error(f"Critical error starting Image OCR: {e}")
+        return 1
+
+
+__all__ = ["main", "main_image", "__version__", "__author__", "__license__", "setup_i18n"]
 
 
 if __name__ == "__main__":

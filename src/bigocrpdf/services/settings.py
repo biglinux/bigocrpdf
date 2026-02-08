@@ -47,6 +47,7 @@ class OcrSettings:
 
         # Output filename settings
         self.pdf_suffix: str = DEFAULT_SUFFIX
+        self.use_original_filename: bool = False
         self.overwrite_existing: bool = False
 
         # Date inclusion settings
@@ -140,6 +141,7 @@ class OcrSettings:
 
         # Output settings
         self.pdf_suffix = self._config.get("output.suffix", DEFAULT_SUFFIX)
+        self.use_original_filename = self._config.get("output.use_original_filename", False)
         self.overwrite_existing = self._config.get("output.overwrite_existing", False)
         self.save_in_same_folder = self._config.get("output.save_in_same_folder", False)
         self.destination_folder = self._config.get("output.destination_folder", "")
@@ -421,6 +423,9 @@ class OcrSettings:
 
         # Output settings
         self._config.set("output.suffix", self.pdf_suffix, save_immediately=False)
+        self._config.set(
+            "output.use_original_filename", self.use_original_filename, save_immediately=False
+        )
         self._config.set(
             "output.overwrite_existing", self.overwrite_existing, save_immediately=False
         )

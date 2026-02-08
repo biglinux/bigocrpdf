@@ -54,9 +54,24 @@ class PDFOptionsUICreationMixin:
         header_bar = self._create_pdf_options_header(dialog, callback)
         toolbar_view.add_top_bar(header_bar)
 
-        # Create scrolled content with preferences page
+        # Create main vertical box to hold scrolled content + fixed preview
+        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+
+        # Create scrolled content with preferences page (without preview)
         scrolled_content, prefs_page = self._create_pdf_options_scrolled_content()
-        toolbar_view.set_content(scrolled_content)
+        main_box.append(scrolled_content)
+
+        # Create fixed preview group at bottom (outside scrolled area)
+        preview_group = self._create_preview_group()
+        preview_group.set_margin_start(12)
+        preview_group.set_margin_end(12)
+        preview_group.set_margin_bottom(12)
+        main_box.append(preview_group)
+
+        # Store preview group reference in prefs_page for callback access
+        prefs_page.preview_group = preview_group
+
+        toolbar_view.set_content(main_box)
 
         return toolbar_view, prefs_page, header_bar
 
@@ -114,25 +129,23 @@ class PDFOptionsUICreationMixin:
         """
         prefs_page = Adw.PreferencesPage()
 
-        # Add all preference groups
+        # Add all preference groups (preview is now added separately outside scroll)
         file_group = self._create_file_settings_group()
         text_group = self._create_text_extraction_group()
         odf_group = self._create_odf_extraction_group()
         date_group = self._create_date_time_group()
-        preview_group = self._create_preview_group()
 
         prefs_page.add(file_group)
         prefs_page.add(text_group)
         prefs_page.add(odf_group)
         prefs_page.add(date_group)
-        prefs_page.add(preview_group)
 
         # Store references for access in callbacks
         prefs_page.file_group = file_group
         prefs_page.text_group = text_group
         prefs_page.odf_group = odf_group
         prefs_page.date_group = date_group
-        prefs_page.preview_group = preview_group
+        # Note: preview_group is added in _create_pdf_options_content()
 
         return prefs_page
 
@@ -195,7 +208,10 @@ class PDFOptionsUICreationMixin:
         warning_row = Adw.ActionRow()
         warning_row.set_title(_("Warning"))
         warning_row.set_subtitle(
-            _("If saving to the same folder as original, this will replace the original files")
+            _(
+                "To replace original files, also enable 'Overwrite Existing Files' below "
+                "and save to the same folder"
+            )
         )
         warning_icon = Gtk.Image.new_from_icon_name("dialog-warning-symbolic")
         warning_icon.set_pixel_size(16)

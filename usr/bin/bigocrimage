@@ -1,5 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 
-# Wrapper to call bigocrpdf for image OCR
+# Search bigocrpdf package in Python site-packages or legacy share location
+for i in /usr/lib/python3.{6..25}/site-packages/bigocrpdf /usr/share/biglinux/bigocrpdf; do
+	if [ -e "$i/__init__.py" ]; then
+		cd "$i"
+		break
+	fi
+done
 
-bigocrpdf --image-mode "$@"
+# Run the Image OCR application with its own application_id for Wayland taskbar
+exec python3 -c "from bigocrpdf import main_image; main_image()" "$@"

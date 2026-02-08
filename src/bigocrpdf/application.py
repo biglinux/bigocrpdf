@@ -46,14 +46,6 @@ class BigOcrPdfApp(Adw.Application):
             _("Print version information and exit"),
             None,
         )
-        self.add_main_option(
-            "image-mode",
-            0,
-            GLib.OptionFlags.NONE,
-            GLib.OptionArg.NONE,
-            _("Start in image conversion mode"),
-            None,
-        )
 
         # Setup signals
         self.connect("activate", self.on_activate)
@@ -120,9 +112,6 @@ class BigOcrPdfApp(Adw.Application):
             print(f"{APP_NAME} {APP_VERSION}")
             return 0  # Exit successfully
 
-        if options.contains("image-mode"):
-            self.image_mode = True
-
         return -1  # Continue processing
 
     def on_activate(self, app: Adw.Application) -> None:
@@ -138,14 +127,8 @@ class BigOcrPdfApp(Adw.Application):
             # Check if we already have a window open
             win = self.get_active_window()
             if not win:
-                # Check for image mode
-                if getattr(self, "image_mode", False):
-                    # Launch ImageOcrWindow
-                    win = ImageOcrWindow(app)
-                    logger.info("Started in image mode")
-                else:
-                    # Create the main window
-                    win = BigOcrPdfWindow(app)
+                # Create the main window
+                win = BigOcrPdfWindow(app)
 
             # Show the window
             win.present()

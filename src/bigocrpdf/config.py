@@ -20,12 +20,14 @@ from bigocrpdf.utils.i18n import _
 
 APP_NAME: Final[str] = "Big OCR PDF"
 APP_ID: Final[str] = "br.com.biglinux.bigocrpdf"
+IMAGE_APP_ID: Final[str] = "br.com.biglinux.bigocrimage"
 APP_VERSION: Final[str] = "3.0.0"
 APP_DESCRIPTION: Final[str] = _("Add OCR to your PDF documents to make them searchable")
 APP_WEBSITE: Final[str] = "https://www.biglinux.com.br"
 APP_ISSUES: Final[str] = "https://github.com/biglinux/bigocrpdf/issues"
 APP_DEVELOPERS: Final[list[str]] = ["BigLinux https://github.com/biglinux/bigocrpdf"]
 APP_ICON_NAME: Final[str] = "bigocrpdf"
+IMAGE_APP_ICON_NAME: Final[str] = "bigocrimage"
 
 
 # ============================================================================

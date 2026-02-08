@@ -312,6 +312,10 @@ class PDFOptionsCallbacksMixin:
         else:  # YYYY-MM-DD
             self.window.settings.date_format_order = {"year": 1, "month": 2, "day": 3}
 
+        # Persist settings to disk
+        self.window.settings._save_all_settings()
+        logger.info(_("PDF output settings saved"))
+
         # Close dialog and call callback
         dialog.destroy()
         callback(True)
