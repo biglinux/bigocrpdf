@@ -20,12 +20,22 @@ from bigocrpdf.utils.i18n import _
 
 APP_NAME: Final[str] = "Big OCR PDF"
 APP_ID: Final[str] = "br.com.biglinux.bigocrpdf"
-APP_VERSION: Final[str] = "2.0.0"
+APP_VERSION: Final[str] = "3.0.0"
 APP_DESCRIPTION: Final[str] = _("Add OCR to your PDF documents to make them searchable")
 APP_WEBSITE: Final[str] = "https://www.biglinux.com.br"
 APP_ISSUES: Final[str] = "https://github.com/biglinux/bigocrpdf/issues"
-APP_DEVELOPERS: Final[list[str]] = ["BigLinux <biglinux.com.br>"]
+APP_DEVELOPERS: Final[list[str]] = ["BigLinux https://github.com/biglinux/bigocrpdf"]
 APP_ICON_NAME: Final[str] = "bigocrpdf"
+
+
+# ============================================================================
+# Processing Constants
+# ============================================================================
+
+# Re-export numeric constants from constants.py for backward compatibility
+
+# Time window (seconds) to consider a file as recently created
+FILE_RECENCY_THRESHOLD_SECONDS: Final[int] = 300  # 5 minutes
 
 
 # ============================================================================
@@ -56,11 +66,6 @@ else:
 
 CONFIG_DIR: Final[str] = os.path.expanduser("~/.config/bigocrpdf")
 SELECTED_FILE_PATH: Final[str] = os.path.join(CONFIG_DIR, "selected-file")
-LANG_FILE_PATH: Final[str] = os.path.join(CONFIG_DIR, "lang")
-QUALITY_FILE_PATH: Final[str] = os.path.join(CONFIG_DIR, "quality")
-ALIGN_FILE_PATH: Final[str] = os.path.join(CONFIG_DIR, "align")
-SAVEFILE_PATH: Final[str] = os.path.join(CONFIG_DIR, "savefile")
-SAME_FOLDER_PATH: Final[str] = os.path.join(CONFIG_DIR, "same-folder")
 
 # Ensure configuration directory exists
 os.makedirs(CONFIG_DIR, exist_ok=True)
@@ -79,8 +84,8 @@ LOGGER_NAME: Final[str] = "BigOcrPdf"
 # Window Configuration
 # ============================================================================
 
-DEFAULT_WINDOW_WIDTH: Final[int] = 820
-DEFAULT_WINDOW_HEIGHT: Final[int] = 600
+DEFAULT_WINDOW_WIDTH: Final[int] = 1100
+DEFAULT_WINDOW_HEIGHT: Final[int] = 680
 WINDOW_STATE_KEY: Final[str] = "window"
 IMAGE_WINDOW_STATE_KEY: Final[str] = "image_window"
 
@@ -88,12 +93,6 @@ IMAGE_WINDOW_STATE_KEY: Final[str] = "image_window"
 # ============================================================================
 # UI Constants
 # ============================================================================
-
-# Signal name constants
-SIGNAL_NOTIFY_ACTIVE: Final[str] = "notify::active"
-
-# Default label for unset values
-LABEL_NOT_SET: Final[str] = "Not set"
 
 
 # ============================================================================
@@ -108,14 +107,6 @@ SHORTCUTS: Final[dict[str, str]] = {
     "quit": "<Control>q",
     "about": "F1",
 }
-
-
-# ============================================================================
-# Global Settings (can be overridden via command line)
-# ============================================================================
-
-DEBUG_MODE: bool = False
-VERBOSE_MODE: bool = False
 
 
 def parse_command_line() -> argparse.Namespace:
@@ -143,9 +134,13 @@ def parse_command_line() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def setup_environment() -> None:
-    """Configure environment variables and settings."""
-    global DEBUG_MODE, VERBOSE_MODE, LOG_LEVEL
+def setup_environment() -> argparse.Namespace:
+    """Configure environment variables and settings.
+
+    Returns:
+        Parsed command line arguments.
+    """
+    global LOG_LEVEL
 
     # Parse command line arguments
     args = parse_command_line()
@@ -157,12 +152,9 @@ def setup_environment() -> None:
 
     # Set debug mode
     if args.debug:
-        DEBUG_MODE = True
         LOG_LEVEL = logging.DEBUG
-
-    # Set verbose mode
-    if args.verbose:
-        VERBOSE_MODE = True
 
     # Create config directory if it doesn't exist
     os.makedirs(CONFIG_DIR, exist_ok=True)
+
+    return args

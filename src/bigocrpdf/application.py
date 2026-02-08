@@ -23,11 +23,11 @@ from bigocrpdf.config import (
     APP_WEBSITE,
     SHORTCUTS,
 )
+from bigocrpdf.ui.image_ocr_window import ImageOcrWindow
 from bigocrpdf.ui.widgets import load_css
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.window import BigOcrPdfWindow
-from bigocrpdf.ui.image_ocr_window import ImageOcrWindow
 
 
 class BigOcrPdfApp(Adw.Application):
@@ -36,9 +36,6 @@ class BigOcrPdfApp(Adw.Application):
     def __init__(self) -> None:
         """Initialize the application."""
         super().__init__(application_id=APP_ID, flags=Gio.ApplicationFlags.HANDLES_OPEN)
-
-        # Store files to be opened
-        self._pending_files: list = []
 
         # Add command line handling
         self.add_main_option(
@@ -158,6 +155,10 @@ class BigOcrPdfApp(Adw.Application):
                 # Use a small delay to ensure the window is fully drawn
                 GLib.timeout_add(300, lambda: win.show_welcome_dialog())
 
+            # Check for resumable session (after welcome dialog)
+            if hasattr(win, "check_resumable_session"):
+                GLib.timeout_add(500, lambda: win.check_resumable_session())
+
             logger.info(_("Application started successfully"))
 
         except Exception as e:
@@ -167,14 +168,14 @@ class BigOcrPdfApp(Adw.Application):
             error_dialog.set_detail(str(e))
             error_dialog.show()
 
-    def on_open(self, app: Adw.Application, files: list, n_files: int, hint: str) -> None:
+    def on_open(self, app: Adw.Application, files: list, n_files: int, _hint: str) -> None:
         """Callback for opening files from command line or file manager.
 
         Args:
             app: The application instance
             files: List of GFile objects to open
             n_files: Number of files
-            hint: Hint string (usually empty)
+            _hint: Hint string (usually empty, prefixed with _ to indicate unused)
         """
         try:
             # Load custom CSS
@@ -260,11 +261,41 @@ class BigOcrPdfApp(Adw.Application):
         about.set_website(APP_WEBSITE)
         about.set_issue_url(APP_ISSUES)
 
+        # Legal information
+        about.add_legal_section(
+            _("Interface"),
+            None,
+            Gtk.License.GPL_3_0,
+            None,
+        )
+        about.add_legal_section(
+            _("Third-party Components"),
+            _(
+                "The OCR engine and other libraries used by this application "
+                "are independent projects, each distributed under its own license."
+            ),
+            Gtk.License.CUSTOM,
+            None,
+        )
+
         # Use app icon for the about dialog
         about.set_application_icon(APP_ICON_NAME)
 
         # Add credits
         about.add_credit_section(_("Developers"), APP_DEVELOPERS)
+
+        # Acknowledge base projects
+        about.add_credit_section(
+            _("Powered by"),
+            [
+                "RapidOCR https://github.com/RapidAI/RapidOCR",
+                "PaddleOCR (PP-OCRv5) https://github.com/PaddlePaddle/PaddleOCR",
+                "OpenCV https://opencv.org",
+                "OpenVINO https://github.com/openvinotoolkit/openvino",
+                "pikepdf https://github.com/pikepdf/pikepdf",
+                "Pillow https://python-pillow.org",
+            ],
+        )
 
         # Show the about dialog
         about.present()

@@ -50,10 +50,8 @@ class BigOcrPdfUI:
 
         # Settings page components
         self.lang_dropdown = None
-        self.quality_dropdown = None
-        self.alignment_dropdown = None
         self.dest_entry = None
-        self.same_folder_switch_row = None
+        self.folder_combo = None
         self.file_list_box = None
 
         # Terminal page components
@@ -104,10 +102,8 @@ class BigOcrPdfUI:
 
         # Update references so window can access them directly
         self.lang_dropdown = manager.lang_dropdown
-        self.quality_dropdown = manager.quality_dropdown
-        self.alignment_dropdown = manager.alignment_dropdown
         self.dest_entry = manager.dest_entry
-        self.same_folder_switch_row = manager.same_folder_switch_row
+        self.folder_combo = manager.folder_combo
         self.file_list_box = manager.file_list_box
 
     def _update_terminal_references(self) -> None:
@@ -184,10 +180,6 @@ class BigOcrPdfUI:
         """Update UI to show processing completion"""
         self.terminal_page_manager.show_completion_ui()
 
-    def reset_terminal_progress(self) -> None:
-        """Reset terminal progress to initial state"""
-        self.terminal_page_manager.reset_progress()
-
     # Cleanup and resource management
 
     def cleanup(self) -> None:
@@ -206,76 +198,4 @@ class BigOcrPdfUI:
 
     # Utility methods for window integration
 
-    def get_settings_components(self) -> dict:
-        """Get references to settings page components
-
-        Returns:
-            Dictionary of component references
-        """
-        return {
-            "lang_dropdown": self.lang_dropdown,
-            "quality_dropdown": self.quality_dropdown,
-            "alignment_dropdown": self.alignment_dropdown,
-            "dest_entry": self.dest_entry,
-            "same_folder_switch_row": self.same_folder_switch_row,
-            "file_list_box": self.file_list_box,
-        }
-
-    def get_terminal_components(self) -> dict:
-        """Get references to terminal page components
-
-        Returns:
-            Dictionary of component references
-        """
-        return {
-            "terminal_progress_bar": self.terminal_progress_bar,
-            "terminal_status_bar": self.terminal_status_bar,
-            "terminal_spinner": self.terminal_spinner,
-        }
-
-    def is_settings_page_ready(self) -> bool:
-        """Check if settings page components are initialized
-
-        Returns:
-            True if settings page is ready, False otherwise
-        """
-        return (
-            self.lang_dropdown is not None
-            and self.quality_dropdown is not None
-            and self.alignment_dropdown is not None
-        )
-
-    def is_terminal_page_ready(self) -> bool:
-        """Check if terminal page components are initialized
-
-        Returns:
-            True if terminal page is ready, False otherwise
-        """
-        return self.terminal_progress_bar is not None and self.terminal_status_bar is not None
-
     # Debug and logging methods
-
-    def log_manager_status(self) -> None:
-        """Log the status of all page managers for debugging"""
-        logger.debug("UI Manager Status:")
-        logger.debug(f"  Settings page ready: {self.is_settings_page_ready()}")
-        logger.debug(f"  Terminal page ready: {self.is_terminal_page_ready()}")
-        logger.debug(f"  File list box exists: {self.file_list_box is not None}")
-        logger.debug(f"  Progress bar exists: {self.terminal_progress_bar is not None}")
-
-    def get_manager_info(self) -> dict:
-        """Get information about all managers
-
-        Returns:
-            Dictionary with manager information
-        """
-        return {
-            "settings_manager": type(self.settings_page_manager).__name__,
-            "terminal_manager": type(self.terminal_page_manager).__name__,
-            "conclusion_manager": type(self.conclusion_page_manager).__name__,
-            "dialogs_manager": type(self.dialogs_manager).__name__,
-            "components_initialized": {
-                "settings": self.is_settings_page_ready(),
-                "terminal": self.is_terminal_page_ready(),
-            },
-        }

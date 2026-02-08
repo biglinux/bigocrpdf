@@ -9,34 +9,12 @@ Based on ashyterm FormWidgetBuilder pattern and BigLinux ARCHITECTURAL RULES.
 """
 
 from collections.abc import Callable
-from dataclasses import dataclass, field
 
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Adw, Gio, Gtk
-
-
-@dataclass(slots=True)
-class ButtonConfig:
-    """Configuration for button creation."""
-
-    label: str
-    icon_name: str | None = None
-    tooltip: str | None = None
-    css_classes: list[str] = field(default_factory=list)
-    on_click: Callable | None = None
-
-
-@dataclass(slots=True)
-class RowConfig:
-    """Configuration for action row creation."""
-
-    title: str
-    subtitle: str | None = None
-    icon_name: str | None = None
-    css_class: str = "action-row-config"
 
 
 class UIComponents:

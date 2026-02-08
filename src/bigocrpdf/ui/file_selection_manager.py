@@ -7,14 +7,16 @@ Handles all file and folder selection dialogs for the application.
 import gi
 
 gi.require_version("Gtk", "4.0")
+gi.require_version("Adw", "1")
 import os
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
-from gi.repository import Gio, Gtk
+from gi.repository import Adw, Gio, Gtk
 
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.pdf_utils import images_to_pdf, is_image_file
 
 if TYPE_CHECKING:
     from window import BigOcrPdfWindow
@@ -51,24 +53,29 @@ class FileSelectionManager:
 
     def show_open_files_dialog(self, callback: Callable[[list[str]], None] | None = None) -> None:
         """
-        Show dialog for selecting multiple PDF files.
+        Show dialog for selecting PDF and image files.
 
         Args:
             callback: Optional callback to call with list of selected file paths.
                      If None, files are added to settings directly.
         """
         file_chooser = Gtk.FileDialog.new()
-        file_chooser.set_title(_("Select PDF Files"))
+        file_chooser.set_title(_("Select Files"))
         file_chooser.set_modal(True)
 
-        # Create PDF filter
-        pdf_filter = Gtk.FileFilter()
-        pdf_filter.set_name(_("PDF Files"))
-        pdf_filter.add_mime_type("application/pdf")
-        pdf_filter.add_pattern("*.pdf")
+        # Create filter for PDFs and Images
+        file_filter = Gtk.FileFilter()
+        file_filter.set_name(_("PDFs and Images"))
+        file_filter.add_mime_type("application/pdf")
+        file_filter.add_pattern("*.pdf")
+
+        # Add image patterns
+        for pattern in ["*.jpg", "*.jpeg", "*.png", "*.webp", "*.tif", "*.tiff", "*.bmp", "*.avif"]:
+            file_filter.add_pattern(pattern)
+            file_filter.add_pattern(pattern.upper())
 
         filters = Gio.ListStore.new(Gtk.FileFilter)
-        filters.append(pdf_filter)
+        filters.append(file_filter)
         file_chooser.set_filters(filters)
 
         # Store callback for later use
@@ -135,16 +142,103 @@ class FileSelectionManager:
         """
         Add files to settings and update UI.
 
+        If multiple image files are provided, shows a dialog asking whether
+        to treat them as separate PDFs or merge them into one.
+
         Args:
             file_paths: List of file paths to add
         """
-        added = self.settings.add_files(file_paths)
+        # Separate images from PDFs
+        image_files = [p for p in file_paths if is_image_file(p)]
+        pdf_files = [p for p in file_paths if not is_image_file(p)]
 
-        if added > 0:
-            self.window.update_file_info()
+        # If multiple images selected, ask merge or separate
+        if len(image_files) > 1:
+            # Add PDFs immediately
+            if pdf_files:
+                self.settings.add_files(pdf_files)
+
+            # Show merge dialog for images
+            self._show_image_merge_dialog(image_files)
         else:
-            logger.warning(_("No valid files were selected"))
-            self.window.show_toast(_("No valid PDF files were selected"))
+            # Single image or only PDFs or mix with ≤1 image — convert images to PDF and add
+            converted_paths = list(pdf_files)
+            for img_path in image_files:
+                try:
+                    pdf_path = images_to_pdf([img_path])
+                    converted_paths.append(pdf_path)
+                    # Track original path for output naming
+                    self.settings.original_file_paths[pdf_path] = img_path
+                except Exception as e:
+                    logger.error(f"Failed to convert image to PDF: {e}")
+
+            added = self.settings.add_files(converted_paths)
+            if added > 0:
+                self.window.update_file_info()
+            else:
+                logger.warning(_("No valid files were selected"))
+                self.window.show_toast(_("No valid files were selected"))
+
+    def _show_image_merge_dialog(self, image_files: list[str]) -> None:
+        """Show dialog asking whether to merge images into one PDF or treat separately.
+
+        Args:
+            image_files: List of image file paths
+        """
+        dialog = Adw.AlertDialog()
+        dialog.set_heading(_("Multiple Images Selected"))
+        dialog.set_body(
+            _("You selected {} images. How would you like to add them?").format(len(image_files))
+        )
+
+        dialog.add_response("separate", _("Separate PDFs"))
+        dialog.add_response("merge", _("Merge into One PDF"))
+        dialog.set_response_appearance("merge", Adw.ResponseAppearance.SUGGESTED)
+        dialog.set_default_response("merge")
+
+        dialog.connect("response", self._on_image_merge_response, image_files)
+        dialog.present(self.window)
+
+    def _on_image_merge_response(
+        self, dialog: Adw.AlertDialog, response: str, image_files: list[str]
+    ) -> None:
+        """Handle the image merge dialog response.
+
+        Args:
+            dialog: The dialog
+            response: Response ID ("merge" or "separate")
+            image_files: List of image file paths
+        """
+        if response == "merge":
+            # Merge all images into a single PDF
+            try:
+                pdf_path = images_to_pdf(image_files)
+                self.settings.original_file_paths[pdf_path] = image_files[0]
+                added = self.settings.add_files([pdf_path])
+                if added > 0:
+                    self.window.update_file_info()
+                    self.window.show_toast(
+                        _("Merged {} images into one PDF").format(len(image_files))
+                    )
+            except Exception as e:
+                logger.error(f"Failed to merge images: {e}")
+                self.window.show_toast(_("Error merging images"))
+        elif response == "separate":
+            # Convert each image to a separate PDF
+            converted_paths = []
+            for img_path in image_files:
+                try:
+                    pdf_path = images_to_pdf([img_path])
+                    converted_paths.append(pdf_path)
+                    self.settings.original_file_paths[pdf_path] = img_path
+                except Exception as e:
+                    logger.error(f"Failed to convert image to PDF: {e}")
+
+            if converted_paths:
+                added = self.settings.add_files(converted_paths)
+                if added > 0:
+                    self.window.update_file_info()
+        # "close" (X button) does nothing
 
     def show_folder_selection_dialog(self, callback: Callable[[str], None] | None = None) -> None:
         """
