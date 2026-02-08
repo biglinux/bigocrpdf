@@ -15,10 +15,21 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: attranslate\n"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 75
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
+msgid "Print version information and exit"
+msgstr "打印版本信息并退出"
+# 
+# File: bigocrpdf/src/bigocrpdf/image_application.py, line: 115
+msgid "Extract text from images using OCR"
+msgstr "使用OCR从图像中提取文本"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 85
 #, python-brace-format
-msgid "Started OCR processing for {0} files using Python API"
-msgstr "使用 Python API 开始对 {0} 个文件进行 OCR 处理"
+msgid "Started OCR processing for {0} files using RapidOCR"
+msgstr "开始使用RapidOCR处理{0}个文件的OCR。"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 82
 #, python-brace-format
@@ -29,18 +40,34 @@ msgstr "启动OCR处理时出错：{0}"
 msgid "No files to process"
 msgstr "没有要处理的文件"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 120
-msgid "No file_complete callback registered"
-msgstr "未注册文件完成回调"
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 135
+msgid "Processing stopped by user"
+msgstr "处理已被用户停止"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 122
-msgid "No all_complete callback registered"
-msgstr "未注册所有完成回调"
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 158
+#, python-brace-format
+msgid "Processing cancelled by user during file: {0}"
+msgstr "用户在文件处理期间取消了操作: {0}"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 163
+#, python-brace-format
+msgid "Error processing {0}: {1}"
+msgstr "处理 {0} 时出错：{1}"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 178
+#, python-brace-format
+msgid "Processing thread error: {0}"
+msgstr "处理线程错误：{0}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 136
 #, python-brace-format
 msgid "Error: File not found or invalid: {0}"
 msgstr "错误：文件未找到或无效：{0}"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 223
+#, python-brace-format
+msgid "Processed {0}: {1} pages, {2} words"
+msgstr "处理了 {0}: {1} 页, {2} 字"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 172
 #, python-brace-format
@@ -52,14 +79,15 @@ msgstr "无法确定 {0} 的输出目录"
 msgid "Error creating output path for {0}: {1}"
 msgstr "创建输出路径时出错：{0}：{1}"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 365
-msgid "tesseract --list-langs returned empty output"
-msgstr "tesseract --list-langs 返回空输出"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 388
 #, python-brace-format
 msgid "Error getting OCR languages: {0}"
 msgstr "获取OCR语言时出错：{0}"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 481
+#, python-brace-format
+msgid "Cleared editor state for: {0}"
+msgstr "已清除编辑器状态：{0}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 508
 #, python-brace-format
@@ -70,11 +98,6 @@ msgstr "从队列中移除已处理的文件：{0}"
 #, python-brace-format
 msgid "Generated unique filename to avoid overwriting: {0}"
 msgstr "生成唯一文件名以避免覆盖：{0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 75
-#, python-brace-format
-msgid "Error creating alignment setting file: {0}"
-msgstr "创建对齐设置文件时出错：{0}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 105
 #, python-brace-format
@@ -146,6 +169,119 @@ msgstr "处理状态重置成功"
 msgid "Temporary files cleanup completed"
 msgstr "临时文件清理完成"
 # 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 34
+msgid "Latin Script (PT, EN, FR, DE, ES...)"
+msgstr "拉丁字母 (PT, EN, FR, DE, ES...)"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 35
+msgid "English (Optimized)"
+msgstr "英语（优化）"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 38
+msgid "Arabic Script (AR, FA, UR...)"
+msgstr "阿拉伯文（阿拉伯语、波斯语、乌尔都语等……）"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 39
+msgid "Cyrillic Script (RU, UK, BG...)"
+msgstr "西里尔字母（RU，UK，BG……）"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 40
+msgid "East Slavic (RU, BY, UK)"
+msgstr "东斯拉夫语（RU，BY，UK）"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 42
+msgid "Devanagari (Hindi, Marathi, Nepali)"
+msgstr "德瓦那加里文（印地语、马拉地语、尼泊尔语）"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 245
+msgid "Analyzing PDF..."
+msgstr "正在分析PDF..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 293
+msgid "Starting OCR..."
+msgstr "开始OCR..."
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 357
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_text_layer.py, line: 422
+#, python-brace-format
+msgid "Processing page {0}/{1}..."
+msgstr "正在处理页面 {0}/{1}..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 417
+msgid "Merging text layer..."
+msgstr "合并文本图层..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 464
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 715
+msgid "Done!"
+msgstr "完成！"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 610
+msgid "Analyzing PDF structure..."
+msgstr "分析PDF结构..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 633
+msgid "Extracting images..."
+msgstr "提取图像..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 655
+#, python-brace-format
+msgid "OCR page {0}..."
+msgstr "OCR 页面 {0}..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 687
+msgid "Saving PDF..."
+msgstr "正在保存PDF..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 698
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 758
+msgid "Splitting PDF by size limit..."
+msgstr "按大小限制拆分PDF..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 707
+msgid "Text extracted by OCR from images"
+msgstr "从图像中提取的文本"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 746
+msgid "Converting to PDF/A..."
+msgstr "正在转换为PDF/A..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/export_service.py, line: 42
+#, python-brace-format
+msgid "Saved extracted text to: {0}"
+msgstr "已将提取的文本保存到：{0}"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/export_service.py, line: 46
+#, python-brace-format
+msgid "Failed to save text file: {0}"
+msgstr "无法保存文本文件：{0}"
+# 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 118
 msgid "No screenshot tool available. Please install spectacle, gnome-screenshot, or flameshot."
 msgstr "没有可用的截图工具。请安装 spectacle、gnome-screenshot 或 flameshot。"
@@ -159,35 +295,26 @@ msgstr "截图已取消。"
 msgid "An unexpected error occurred during capture: {e}"
 msgstr "捕获过程中发生意外错误：{e}"
 # 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 245
-msgid "Tesseract OCR engine not found. Please install it."
-msgstr "未找到 Tesseract OCR 引擎。请安装它。"
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 277
+msgid "Could not load image file."
+msgstr "无法加载图像文件。"
 # 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 268
-msgid "No text found in the selected region"
-msgstr "在选定区域中未找到文本"
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 305
+msgid "OCR processing failed."
+msgstr "OCR处理失败。"
 # 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 283
-#, python-brace-format
-msgid "Language data for '{lang}' not found. Please install tesseract-data-{lang}."
-msgstr "未找到 '{lang}' 的语言数据。请安装 tesseract-data-{lang}。"
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 311
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 315
+msgid "No text found in the image"
+msgstr "未在图像中找到文本"
 # 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 287
-#, python-brace-format
-msgid "OCR failed: {err_msg}"
-msgstr "OCR失败：{err_msg}"
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 326
+msgid "OCR engine not available. Please check your installation."
+msgstr "OCR引擎不可用。请检查您的安装。"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 48
-msgid "Please make sure GTK4, libadwaita, and OCRmyPDF are installed"
-msgstr "请确保安装了GTK4、libadwaita和OCRmyPDF。"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 60
-msgid "Failed to set system locale, falling back to C locale"
-msgstr "无法设置系统区域，正在回退到 C 区域"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 88
-msgid "Cleared file queue at startup"
-msgstr "启动时清除文件队列"
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 331
+msgid "OCR processing timed out."
+msgstr "OCR处理超时。"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 380
 msgid "Processing PDF files..."
@@ -223,15 +350,15 @@ msgstr "<b>OCR处理完成！</b> 已处理 {total} 个文件"
 msgid "<b>OCR processing complete!</b> {total} file(s) processed • Total time: {time}"
 msgstr "<b>OCR处理完成！</b> 已处理 {total} 个文件 • 总时间：{time}"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 347
+# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 325
 #, python-brace-format
-msgid "Processing file {current}/{total}: {filename} (page {page}/{pages}) • Time: {time}"
-msgstr "处理文件 {current}/{total}: {filename} (页 {page}/{pages}) • 时间: {time}"
+msgid "File {current}/{total}: <b>{filename}</b> - {status} • Time: {time}"
+msgstr "文件 {current}/{total}: <b>{filename}</b> - {status} • 时间: {time}"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 356
+# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 335
 #, python-brace-format
-msgid "Processing file {current}/{total}: {filename} ({pages} pages) • Time: {time}"
-msgstr "处理文件 {current}/{total}: {filename} ({pages} 页) • 时间: {time}"
+msgid "Processing file {current}/{total}: <b>{filename}</b> • Time: {time}"
+msgstr "处理文件 {current}/{total}: <b>{filename}</b> • 时间: {time}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 370
 #, python-brace-format
@@ -242,6 +369,22 @@ msgstr "处理文件：{processed}/{total} 完成 • 时间：{time}"
 #, python-brace-format
 msgid "Starting processing of {total} files... • Time: {time}"
 msgstr "开始处理 {total} 个文件... • 时间: {time}"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 374
+msgid "Open the processed file"
+msgstr "打开处理后的文件"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 393
+msgid "Open in web browser — browsers usually display the recognized text directly over the page images"
+msgstr "在网页浏览器中打开 — 浏览器通常会直接在页面图像上显示识别的文本"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 410
+msgid "View the text found in this document"
+msgstr "查看此文档中找到的文本"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 425
+msgid "Save as a document for LibreOffice"
+msgstr "另存为LibreOffice文档"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1757
 msgid "PDF Output Options"
@@ -271,9 +414,9 @@ msgstr "使用与原始文件相同的名称"
 msgid "Filename Suffix"
 msgstr "文件名后缀"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1824
-msgid "Text added to the filename (e.g. document-ocr.pdf)"
-msgstr "文件名中添加的文本（例如：document-ocr.pdf）"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 176
+msgid "Text added to the end of the filename (e.g. document-ocr.pdf)"
+msgstr "文件名末尾添加的文本（例如：document-ocr.pdf）"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1833
 msgid "Overwrite Existing Files"
@@ -287,9 +430,9 @@ msgstr "替换同名文件"
 msgid "Warning"
 msgstr "警告"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1807
-msgid "If saving to the same folder as original, this will replace the original files"
-msgstr "如果保存到与原始文件相同的文件夹，这将替换原始文件。"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 212
+msgid "To replace original files, also enable 'Overwrite Existing Files' below and save to the same folder"
+msgstr "要替换原始文件，还需启用下面的“覆盖现有文件”选项，并保存到同一文件夹。"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1840
 msgid "Text Extraction"
@@ -323,9 +466,37 @@ msgstr "选择保存文本文件的位置"
 msgid "Not set"
 msgstr "未设置"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1881
-msgid "Select folder"
-msgstr "选择文件夹"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 287
+msgid "Choose where to save the text files"
+msgstr "选择保存文本文件的位置"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 306
+msgid "ODF Export"
+msgstr "ODF 导出"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 310
+msgid "Save ODF Files"
+msgstr "保存ODF文件"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 311
+msgid "Automatically save extracted text as .odt files"
+msgstr "自动将提取的文本保存为 .odt 文件"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 317
+msgid "Include Page Images"
+msgstr "包含页面图像"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 318
+msgid "Embed original page images in ODF"
+msgstr "在ODF中嵌入原始页面图像"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 325
+msgid "Use Structured Formatting"
+msgstr "使用结构化格式"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 326
+msgid "Apply detected layout and text styles"
+msgstr "应用检测到的布局和文本样式"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1938
 msgid "Date and Time"
@@ -394,90 +565,6 @@ msgstr "预览"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 2026
 msgid "Filename Example:"
 msgstr "文件名示例："
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1917
-msgid "Select Folder for Text Files"
-msgstr "选择文本文件的文件夹"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 708
-msgid "OCR processing was completed for this file, but the extracted text could not be found."
-msgstr "此文件的OCR处理已完成，但无法找到提取的文本。"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1343
-msgid "Search in text..."
-msgstr "在文本中搜索..."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1350
-msgid "Find previous match"
-msgstr "查找上一个匹配项"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1357
-msgid "Find next match"
-msgstr "查找下一个匹配项"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1496
-msgid "Copy to Clipboard"
-msgstr "复制到剪贴板"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1497
-msgid "Copy the entire text to clipboard"
-msgstr "将整个文本复制到剪贴板"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1504
-msgid "Save as TXT"
-msgstr "另存为TXT"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1505
-msgid "Save the extracted text to a .txt file"
-msgstr "将提取的文本保存为 .txt 文件"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1512
-msgid "Close"
-msgstr "关闭"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1439
-#, python-brace-format
-msgid "{0} matches found"
-msgstr "找到 {0} 个匹配项"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1462
-#, python-brace-format
-msgid "Match {0} of {1}"
-msgstr "匹配 {0} 的 {1}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1584
-msgid "Save Extracted Text"
-msgstr "保存提取的文本"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1635
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1745
-msgid "Save Failed"
-msgstr "保存失败"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1651
-msgid "File Already Exists"
-msgstr "文件已存在"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1652
-#, python-brace-format
-msgid "The file '{0}' already exists. What would you like to do?"
-msgstr "文件“{0}”已存在。您想怎么做？"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1658
-msgid "Overwrite"
-msgstr "覆盖"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1659
-msgid "Auto-Rename"
-msgstr "自动重命名"
 # 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
@@ -565,106 +652,56 @@ msgstr "自定义 CSS 样式加载成功"
 msgid "Error loading CSS styles: {0}"
 msgstr "加载CSS样式时出错：{0}"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 41
-msgid "Big OCR Image"
-msgstr "大OCR图像"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
+msgid "Image OCR"
+msgstr "图像OCR"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 144
-msgid "Processing extracted text..."
-msgstr "处理提取的文本..."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
-msgid "Apply"
-msgstr "应用"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
-msgid "Apply current settings and reprocess the image"
-msgstr "应用当前设置并重新处理图像"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
-msgid "Copy"
-msgstr "复制"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
-msgid "New Capture"
-msgstr "新建捕获"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
+msgid "Extract text from images or screen captures using OCR."
+msgstr "使用OCR从图像或屏幕截图中提取文本。"
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
 msgid "Open Image"
 msgstr "打开图像"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 252
-msgid "Select OCR language"
-msgstr "选择OCR语言"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 152
+msgid "Screen Capture"
+msgstr "屏幕截图"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 283
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 334
-msgid "Auto"
-msgstr "自动"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 167
+msgid "Extracting text…"
+msgstr "提取文本…"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 284
-msgid "Block"
-msgstr "块"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
+msgid "Copy"
+msgstr "复制"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 285
-msgid "Line"
-msgstr "线"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 286
-msgid "Word"
-msgstr "字"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
+msgid "Copy text to clipboard"
+msgstr "复制文本到剪贴板"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 287
-msgid "Sparse"
-msgstr "稀疏"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
+msgid "New Capture"
+msgstr "新建捕获"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 288
-msgid "Column"
-msgstr "列"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 216
+msgid "Capture a screen region"
+msgstr "捕获屏幕区域"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 289
-msgid "Char"
-msgstr "字符"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 224
+msgid "Open an image file"
+msgstr "打开图像文件"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 290
-msgid "Auto + OSD"
-msgstr "自动 + OSD"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 291
-msgid "OSD only"
-msgstr "仅限OSD"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 292
-msgid "Raw line"
-msgstr "原始行"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 306
-msgid "Page Segmentation Mode"
-msgstr "页面分割模式"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 335
-msgid "LSTM"
-msgstr "长短期记忆网络"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 336
-msgid "Legacy"
-msgstr "传统模式 (Legacy)"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 337
-msgid "Both"
-msgstr "两者都"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 351
-msgid "OCR Engine Mode"
-msgstr "OCR引擎模式"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 255
+msgid "Choose the language of the text in the image"
+msgstr "选择图像中文本的语言"
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
 msgid "No text extracted."
 msgstr "没有提取到文本。"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 451
-msgid "Copied!"
-msgstr "已复制！"
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
 msgid "Open Image to OCR"
@@ -674,142 +711,587 @@ msgstr "打开图像进行OCR"
 msgid "Images"
 msgstr "图像"
 # 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
+msgid "Copied to clipboard"
+msgstr "已复制到剪贴板"
+# 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
 msgid "Error"
 msgstr "错误"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 527
-msgid "Open an image or take a screenshot to extract text."
-msgstr "打开图像或截取屏幕以提取文本。"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 97
-msgid "Configuration"
-msgstr "配置"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 106
-msgid "Save in same folder as original file"
-msgstr "保存在与原文件相同的文件夹中"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 125
-msgid "Select the destination folder"
-msgstr "选择目标文件夹"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 150
-msgid "Browse"
-msgstr "浏览"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 428
+# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 170
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 119
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 685
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 445
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 363
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 163
-msgid "Output File Options"
-msgstr "输出文件选项"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 172
-msgid "Configure"
-msgstr "配置"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 428
+# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 170
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 119
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 685
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 445
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 363
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1584
+msgid "Save Extracted Text"
+msgstr "保存提取的文本"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1635
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1745
+msgid "Save Failed"
+msgstr "保存失败"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1651
+msgid "File Already Exists"
+msgstr "文件已存在"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1652
+#, python-brace-format
+msgid "The file '{0}' already exists. What would you like to do?"
+msgstr "文件“{0}”已存在。您想怎么做？"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1658
+msgid "Overwrite"
+msgstr "覆盖"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1659
+msgid "Auto-Rename"
+msgstr "自动重命名"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 189
+msgid "Resume Previous Session?"
+msgstr "恢复上一个会话？"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 191
+#, python-brace-format
+msgid ""
+"An incomplete processing session was found.\n"
+"\n"
+"Progress: {completed} of {total} files completed\n"
+"Remaining: {pending} files\n"
+"\n"
+"Would you like to resume processing the remaining files?"
+msgstr ""
+"发现未完成的处理会话。\n"
+"\n"
+"进度：{completed} 个文件已完成，共 {total} 个文件\n"
+"剩余：{pending} 个文件\n"
+"\n"
+"您想要继续处理剩余的文件吗？"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 197
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 629
+msgid "Discard"
+msgstr "丢弃"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 198
+msgid "Resume"
+msgstr "简历"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 131
+msgid "Excluded"
+msgstr "排除"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 153
+msgid "Include this page in the final document"
+msgstr "将此页面包含在最终文档中"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 169
+msgid "Rotate this page to the left"
+msgstr "将此页面向左旋转"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 178
+msgid "Rotate this page to the right"
+msgstr "将此页面向右旋转"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 72
+msgid "PDF Editor - {}"
+msgstr "PDF 编辑器 - {}"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 114
+msgid "Go back to the file list"
+msgstr "返回文件列表"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 121
+msgid "Save changes and go back"
+msgstr "保存更改并返回"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 126
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 474
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 95
+msgid "Add Files"
+msgstr "添加文件"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 128
+msgid "Add more files to this document"
+msgstr "将更多文件添加到此文档中"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 180
+msgid "Include All"
+msgstr "包含所有"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 182
+msgid "Select all pages for processing"
+msgstr "选择所有页面进行处理"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 186
+msgid "Exclude All"
+msgstr "排除所有"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 188
+msgid "Deselect all pages"
+msgstr "取消选择所有页面"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 201
+msgid "Rotate selected pages to the left"
+msgstr "将选定页面向左旋转"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 210
+msgid "Rotate selected pages to the right"
+msgstr "将选定页面向右旋转"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 224
+msgid "Change the size of page previews"
+msgstr "更改页面预览的大小"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 343
+msgid "Failed to add file {}: {}"
+msgstr "无法添加文件 {}: {}"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 397
+msgid "Could not open PDF file or file has no pages."
+msgstr "无法打开PDF文件或文件没有页面。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 428
+msgid "Failed to load PDF: {}"
+msgstr "无法加载PDF：{}"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 435
+msgid "Pages: {}"
+msgstr "页面：{}"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 436
+msgid "Included: {}"
+msgstr "包含：{}"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 478
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 68
+msgid "PDFs and Images"
+msgstr "PDF和图像"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
+msgid "Error saving changes."
+msgstr "保存更改时出错。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 604
+msgid "Failed to merge PDF pages."
+msgstr "合并PDF页面失败。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 626
+msgid "Unsaved Changes"
+msgstr "未保存的更改"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 627
+msgid "What would you like to do with your changes?"
+msgstr "您希望如何处理您的更改？"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
+msgid "Apply"
+msgstr "应用"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 184
 msgid "Text Language"
 msgstr "文本语言"
 # 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 159
+msgid ""
+"Choose the language of your document's text.\n"
+"The correct language helps recognize text more accurately."
+msgstr "选择文档文本的语言。正确的语言有助于更准确地识别文本。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 165
+msgid "OCR Precision"
+msgstr "OCR 精度"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 171
+msgid "Low Precision"
+msgstr "低精度"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 172
+msgid "Standard"
+msgstr "标准"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 173
+msgid "Precise"
+msgstr "精确"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 174
+msgid "Very Precise"
+msgstr "非常精确"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 184
+msgid ""
+"How carefully the program reads text from your documents.\n"
+"\n"
+"• Low Precision: Finds more text, good for blurry or faded pages.\n"
+"• Standard: Works well for most documents.\n"
+"• Precise: Fewer mistakes, may miss some faint text.\n"
+"• Very Precise: Only keeps text it is very sure about."
+msgstr ""
+"程序从您的文档中读取文本的准确性。\n"
+"\n"
+"• 低精度：找到更多文本，适用于模糊或褪色的页面。\n"
+"• 标准：适用于大多数文档。\n"
+"• 精确：错误较少，可能会遗漏一些微弱的文本。\n"
+"• 非常精确：仅保留它非常确定的文本。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 206
+msgid "Export Format"
+msgstr "导出格式"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+msgid "Custom Quality"
+msgstr "自定义质量"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 216
+msgid ""
+"Original: Keeps images unchanged (best quality, larger files)\n"
+"Custom Quality: Adjusts image quality to reduce file size"
+msgstr ""
+"保持图像不变（最佳质量，文件较大）  \n"
+"自定义质量：调整图像质量以减少文件大小"
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 194
 msgid "Quality"
 msgstr "质量"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 204
-msgid "Alignment"
-msgstr "对齐"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 227
+msgid "Very Low (30%)"
+msgstr "非常低 (30%)"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 234
-msgid "PDF Files Queue"
-msgstr "PDF 文件队列"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 228
+msgid "Low (50%)"
+msgstr "低 (50%)"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 261
-msgid "Add"
-msgstr "添加"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 229
+msgid "Medium (70%)"
+msgstr "中等 (70%)"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 269
-msgid "Remove All"
-msgstr "全部删除"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 230
+msgid "High (85%)"
+msgstr "高 (85%)"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 324
-msgid "Drop PDF files here"
-msgstr "将 PDF 文件拖放到此处"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 231
+msgid "Maximum (95%)"
+msgstr "最大值（95%）"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 305
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 967
-msgid "No files selected"
-msgstr "未选择任何文件"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 240
+msgid ""
+"Very Low: Smallest files, lower image quality\n"
+"Low: Small files, some quality loss\n"
+"Medium: Good balance between quality and file size\n"
+"High: Recommended for most documents\n"
+"Maximum: Best image quality, larger files"
+msgstr ""
+"非常低：最小的文件，较低的图像质量  \n"
+"低：小文件，部分质量损失  \n"
+"中：质量与文件大小之间的良好平衡  \n"
+"高：推荐用于大多数文档  \n"
+"最大：最佳图像质量，较大的文件"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 306
-msgid "Add PDF files for OCR processing"
-msgstr "添加 PDF 文件进行 OCR 处理"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 249
+msgid "Export as PDF/A"
+msgstr "导出为 PDF/A"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 257
+msgid ""
+"Creates a PDF designed for long-term storage.\n"
+"Recommended when you need the file to open\n"
+"correctly on any device, now and in the future."
+msgstr "创建一个用于长期存储的PDF。建议在您需要文件在任何设备上正确打开时使用，无论是现在还是将来。"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 918
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 38
-msgid "Don't change"
-msgstr "请勿更改"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 264
+msgid "Maximum Output Size"
+msgstr "最大输出大小"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 270
+msgid "No limit"
+msgstr "无限制"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 919
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 39
-msgid "Align"
-msgstr "对齐"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 286
+msgid ""
+"Sets a maximum size for the final file.\n"
+"If the result is too large, it is automatically split\n"
+"into smaller numbered files (e.g. document-01.pdf).\n"
+"\n"
+"Useful when sending by email or uploading online."
+msgstr ""
+"为最终文件设置最大大小。\n"
+"如果结果太大，它会自动拆分\n"
+"成较小的编号文件（例如 document-01.pdf）。\n"
+"\n"
+"在通过电子邮件发送或在线上传时很有用。"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 333
+msgid "No PDF Files"
+msgstr "没有PDF文件"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 920
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 40
-msgid "Auto rotate"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 334
+msgid "Drag files here or use the Add Files button"
+msgstr "将文件拖到此处或使用“添加文件”按钮"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 362
+msgid "Save in the same folder as the original file"
+msgstr "保存在与原始文件相同的文件夹中"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 363
+msgid "Custom folder"
+msgstr "自定义文件夹"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1881
+msgid "Select folder"
+msgstr "选择文件夹"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 401
+msgid "Output options"
+msgstr "输出选项"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 467
+msgid "Choose the model that matches the language of your documents for the best results."
+msgstr "选择与您的文档语言匹配的模型以获得最佳结果。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 493
+#, python-brace-format
+msgid "{count} languages"
+msgstr "{count} 种语言"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 546
+msgid "Supported Languages"
+msgstr "支持的语言"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 593
+msgid "Image Preprocessing"
+msgstr "图像预处理"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 596
+msgid "Auto Detect"
+msgstr "自动检测"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 604
+msgid ""
+"When ON: The program checks each page and only fixes\n"
+"problems it finds (recommended for most documents).\n"
+"When OFF: All corrections below are always applied."
+msgstr ""
+"开启时：程序检查每个页面，仅修复发现的问题（推荐用于大多数文档）。\n"
+"关闭时：始终应用以下所有更正。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 611
+msgid "Deskew"
+msgstr "去斜"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 618
+msgid "Straightens pages that were scanned at a slight angle."
+msgstr "将以轻微角度扫描的页面进行校正。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 622
+msgid "Perspective Correction"
+msgstr "透视校正"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 630
+msgid ""
+"Fixes pages that look tilted or warped, for example\n"
+"when a document was photographed instead of scanned."
+msgstr "修复看起来倾斜或扭曲的页面，例如当文档是拍照而不是扫描时。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 635
+msgid "Auto-rotate"
 msgstr "自动旋转"
 # 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 642
+msgid "Detects and fixes pages that are upside-down or sideways."
+msgstr "检测并修复翻转或侧向的页面。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 646
+msgid "Scanner Effect"
+msgstr "扫描仪效果"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 653
+msgid ""
+"Makes text darker and the background lighter,\n"
+"like a clean scanner copy."
+msgstr "使文本更暗，背景更亮，像干净的扫描副本。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 657
+msgid "Replace Existing OCR"
+msgstr "替换现有的OCR"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 665
+msgid ""
+"When ON: Redoes the text recognition even if the PDF\n"
+"already has searchable text. Use this when the existing\n"
+"text is incorrect or of poor quality.\n"
+"When OFF: Keeps existing text and only processes pages without it."
+msgstr ""
+"开启时：即使PDF已经有可搜索文本，也会重新进行文本识别。当现有文本不正确或质量较差时使用此选项。\n"
+"关闭时：保留现有文本，仅处理没有文本的页面。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 983
+msgid "Edit pages of this file"
+msgstr "编辑此文件的页面"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 991
+msgid "Open this file in your default application"
+msgstr "在默认应用程序中打开此文件"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 999
+msgid "Remove this file from the list"
+msgstr "从列表中删除此文件"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1023
+msgid "Failed to open file"
+msgstr "无法打开文件"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1094
+msgid "Changes saved"
+msgstr "更改已保存"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1114
+msgid "Failed to open PDF editor"
+msgstr "无法打开 PDF 编辑器"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1210
+msgid "Multiple Images Dropped"
+msgstr "多个图像已被拖放"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1212
+msgid "You dropped {} images. How would you like to add them?"
+msgstr "您丢失了 {} 张图片。您希望如何添加它们？"
+# 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 921
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 41
-msgid "Align + rotate"
-msgstr "对齐 + 旋转"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1215
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 194
+msgid "Separate PDFs"
+msgstr "分离PDF文件"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 937
-msgid "Choose how to handle page alignment and rotation during OCR processing"
-msgstr "选择在OCR处理期间如何处理页面对齐和旋转"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 632
-msgid "Remove from queue"
-msgstr "从队列中移除"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1216
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 195
+msgid "Merge into One PDF"
+msgstr "合并为一个PDF"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 424
-msgid "Processing Summary"
-msgstr "处理摘要"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 450
-msgid "Files processed:"
-msgstr "已处理文件："
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1227
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 221
+msgid "Merged {} images into one PDF"
+msgstr "将 {} 张图片合并为一个 PDF 文件"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 466
-msgid "Total pages:"
-msgstr "总页数："
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 488
-msgid "Processing time:"
-msgstr "处理时间："
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1231
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 225
+msgid "Error merging images"
+msgstr "合并图像时出错"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 504
-msgid "File size:"
-msgstr "文件大小："
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1917
+msgid "Select Folder for Text Files"
+msgstr "选择文本文件的文件夹"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 529
-msgid "Generated Files"
-msgstr "生成的文件"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_callbacks_mixin.py, line: 317
+msgid "PDF output settings saved"
+msgstr "PDF输出设置已保存"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 724
-msgid "Open file"
-msgstr "打开文件"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 197
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 733
+msgid "Start"
+msgstr "开始"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 786
-msgid "View extracted text"
-msgstr "查看提取的文本"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/navigation_manager.py, line: 109
+msgid "Process New Files"
+msgstr "处理新文件"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 27
+msgid "ODF Export Options"
+msgstr "ODF 导出选项"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 29
+msgid ""
+"Choose the export format:\n"
+"\n"
+"• Formatted + Images: Page images with structured text layout below\n"
+"• Images + Simple Text: Page images with plain text below\n"
+"• Formatted Text: Structured text layout only (no images)\n"
+"• Plain Text: Simple text without formatting"
+msgstr ""
+"选择导出格式：\n"
+"\n"
+"• 格式化 + 图片：带有结构化文本布局的页面图片\n"
+"• 图片 + 简单文本：带有纯文本的页面图片\n"
+"• 格式化文本：仅结构化文本布局（无图片）\n"
+"• 纯文本：无格式的简单文本"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 37
+msgid "Formatted + Images"
+msgstr "格式化 + 图片"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 38
+msgid "Images + Simple Text"
+msgstr "图像 + 简单文本"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 39
+msgid "Formatted Text"
+msgstr "格式化文本"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 40
+msgid "Plain Text"
+msgstr "纯文本"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 86
+msgid "No text to export"
+msgstr "没有要导出的文本"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 102
+msgid "Export to OpenDocument"
+msgstr "导出为开放文档"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 338
+msgid "Exported to {}"
+msgstr "导出到{}"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 340
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 350
+msgid "Export failed"
+msgstr "导出失败"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 610
 msgid "Extracted Text"
@@ -879,22 +1361,112 @@ msgstr "提取的文本"
 msgid "No text content was detected in this file during OCR processing."
 msgstr "在OCR处理过程中未在此文件中检测到文本内容。"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 197
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 733
-msgid "Start"
-msgstr "开始"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 708
+msgid "OCR processing was completed for this file, but the extracted text could not be found."
+msgstr "此文件的OCR处理已完成，但无法找到提取的文本。"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/navigation_manager.py, line: 109
-msgid "Process New Files"
-msgstr "处理新文件"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 478
-msgid "Select PDF Files"
-msgstr "选择PDF文件"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 485
-msgid "PDF Files"
-msgstr "PDF 文件"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
+msgid "characters"
+msgstr "字符"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1343
+msgid "Search in text..."
+msgstr "在文本中搜索..."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 233
+msgid "Go to previous match (Ctrl+Shift+G)"
+msgstr "转到上一个匹配项 (Ctrl+Shift+G)"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 240
+msgid "Go to next match (Ctrl+G)"
+msgstr "转到下一个匹配项 (Ctrl+G)"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 349
+msgid "Search in text (Ctrl+F)"
+msgstr "在文本中搜索 (Ctrl+F)"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 371
+msgid "Save TXT"
+msgstr "保存TXT"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1512
+msgid "Close"
+msgstr "关闭"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 507
+msgid "No matches"
+msgstr "没有匹配项"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 189
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 762
+msgid "Back"
+msgstr "返回"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 70
+msgid "Remove all files from the list"
+msgstr "从列表中删除所有文件"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 78
+msgid "0 files"
+msgstr "0 个文件"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 102
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 110
+msgid "Start OCR"
+msgstr "开始OCR"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 144
+msgid "Menu"
+msgstr "菜单"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 126
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 246
+msgid "Reset Settings"
+msgstr "重置设置"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 148
+msgid "Help"
+msgstr "帮助"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 128
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 248
+msgid "About"
+msgstr "关于"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 129
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 249
+msgid "Quit"
+msgstr "退出"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 183
+msgid "1 file"
+msgstr "1 个文件"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 185
+msgid "{} files"
+msgstr "{} 文件"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 63
+msgid "Select Files"
+msgstr "选择文件"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 532
 msgid "Error adding files"
@@ -904,9 +1476,13 @@ msgstr "添加文件时出错"
 msgid "No valid files were selected"
 msgstr "未选择有效文件"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 529
-msgid "No valid PDF files were selected"
-msgstr "未选择有效的PDF文件"
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 189
+msgid "Multiple Images Selected"
+msgstr "已选择多个图像"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 191
+msgid "You selected {} images. How would you like to add them?"
+msgstr "您选择了 {} 张图片。您希望如何添加它们？"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 553
 msgid "Select destination folder"
@@ -920,19 +1496,33 @@ msgstr "选择目标文件夹时出错"
 msgid "Destination folder selected"
 msgstr "已选择目标文件夹"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 424
+msgid "Processing Summary"
+msgstr "处理摘要"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
-msgid "Print version information and exit"
-msgstr "打印版本信息并退出"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 450
+msgid "Files processed:"
+msgstr "已处理文件："
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 466
+msgid "Total pages:"
+msgstr "总页数："
 # 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 57
-# File: bigocrpdf/src/bigocrpdf/config.py, line: 139
-msgid "Start in image conversion mode"
-msgstr "开始图像转换模式"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 488
+msgid "Processing time:"
+msgstr "处理时间："
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 140
+msgid "Output size:"
+msgstr "输出大小："
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 149
+msgid "Size change:"
+msgstr "大小更改："
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 529
+msgid "Generated Files"
+msgstr "生成的文件"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
 msgid "Application started successfully"
@@ -951,77 +1541,62 @@ msgstr "已打开 {n_files} 个文件"
 msgid "BigLinux Team"
 msgstr "BigLinux团队"
 # 
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 249
+msgid "Interface"
+msgstr "界面"
+# 
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 255
+msgid "Third-party Components"
+msgstr "第三方组件"
+# 
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 257
+msgid ""
+"The OCR engine and other libraries used by this application are independent projects, each "
+"distributed under its own license."
+msgstr "本应用程序使用的OCR引擎和其他库是独立项目，各自根据其许可证分发。"
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 139
 msgid "Developers"
 msgstr "开发者"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 32
-msgid "Normal"
-msgstr "正常"
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 272
+msgid "Powered by"
+msgstr "由...提供支持"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 33
-msgid "Economic"
-msgstr "经济"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 34
-msgid "More economic"
-msgstr "更经济"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 45
-msgid "Keep pages as they are without any modifications"
-msgstr "保持页面原样，不做任何修改"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 46
-msgid "Align page content to improve readability"
-msgstr "对齐页面内容以提高可读性"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 47
-msgid "Automatically rotate pages to correct orientation"
-msgstr "自动旋转页面以纠正方向"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 48
-msgid "Align page content and automatically rotate pages to correct orientation"
-msgstr "对齐页面内容并自动旋转页面以纠正方向"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 60
-msgid "Big OCR PDF"
-msgstr "大OCR PDF"
-# 
-# File: bigocrpdf/src/bigocrpdf/window.py, line: 108
-msgid "Settings"
-msgstr "设置"
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 42
+msgid "Main"
+msgstr "主菜单"
 # 
 # File: bigocrpdf/src/bigocrpdf/window.py, line: 108
 msgid "Processing"
 msgstr "处理"
 # 
-# File: bigocrpdf/src/bigocrpdf/window.py, line: 108
-msgid "Completed"
-msgstr "已完成"
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 203
+msgid "Results"
+msgstr "结果"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 138
-msgid "BigOcrPdf - Scanned PDFs with search support"
-msgstr "BigOcrPdf - 支持搜索的扫描PDF"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
+msgid "Add OCR to your PDF documents to make them searchable"
+msgstr "将OCR添加到您的PDF文档中，使其可搜索。"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 144
-msgid "Menu"
-msgstr "菜单"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 72
+msgid "Enable debug mode"
+msgstr "启用调试模式"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 148
-msgid "Help"
-msgstr "帮助"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 74
+msgid "Enable verbose output"
+msgstr "启用详细输出"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 149
-msgid "About the application"
-msgstr "关于应用程序"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 189
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 762
-msgid "Back"
-msgstr "返回"
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 57
+# File: bigocrpdf/src/bigocrpdf/config.py, line: 139
+msgid "Start in image conversion mode"
+msgstr "开始图像转换模式"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
+msgid "PDF files to process"
+msgstr "要处理的PDF文件"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 331
 msgid ""
@@ -1049,6 +1624,18 @@ msgstr "复制文本"
 msgid "Copy text from images and scanned documents"
 msgstr "从图像和扫描文档中复制文本"
 # 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 238
+msgid "Add image files and generate new PDFs from them"
+msgstr "添加图像文件并从中生成新的PDF。"
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 239
+msgid "Edit PDF"
+msgstr "编辑PDF"
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 239
+msgid "Rearrange, rotate or remove pages before processing"
+msgstr "在处理之前重新排列、旋转或删除页面"
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
 msgid "Batch processing"
 msgstr "批处理"
@@ -1072,6 +1659,43 @@ msgstr "在启动时显示此对话框"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 384
 msgid "Let's Get Started"
 msgstr "让我们开始吧"
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 319
+msgid "Reset All Settings?"
+msgstr "重置所有设置？"
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 321
+msgid "This will restore all options to their default values. Your file queue will not be affected."
+msgstr "这将把所有选项恢复为默认值。您的文件队列将不受影响。"
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 326
+msgid "Reset"
+msgstr "重置"
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 357
+msgid "Settings Reset"
+msgstr "设置重置"
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 359
+msgid ""
+"All settings have been restored to their default values.\n"
+"Please close and reopen the program for the changes to take full effect."
+msgstr ""
+"所有设置已恢复为默认值。  \n"
+"请关闭并重新打开程序以使更改完全生效。"
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 393
+#, python-brace-format
+msgid "Session resumed with {0} files"
+msgstr "会话已恢复，包含 {0} 个文件"
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 398
+msgid "Could not resume session"
+msgstr "无法恢复会话"
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 404
+msgid "Previous session discarded"
+msgstr "上一个会话已被丢弃。"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 618
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 619
@@ -1119,19 +1743,3 @@ msgstr "用户取消了OCR处理"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1129
 msgid "OCR processing cancelled"
 msgstr "OCR处理已取消"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
-msgid "Add OCR to your PDF documents to make them searchable"
-msgstr "将OCR添加到您的PDF文档中，使其可搜索。"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 72
-msgid "Enable debug mode"
-msgstr "启用调试模式"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 74
-msgid "Enable verbose output"
-msgstr "启用详细输出"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
-msgid "PDF files to process"
-msgstr "要处理的PDF文件"
