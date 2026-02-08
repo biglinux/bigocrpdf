@@ -68,6 +68,7 @@ def run_ocr_batch(
     if use_openvino:
         params["Det.engine_type"] = EngineType.OPENVINO
         params["Rec.engine_type"] = EngineType.OPENVINO
+        params["Cls.engine_type"] = EngineType.OPENVINO
 
     rapid = RapidOCR(params=params)
 
@@ -189,6 +190,8 @@ def run_ocr_full(
             "Rec.lang_type": lang_rec,
             "Rec.ocr_version": OCRVersion.PPOCRV5,
             "Rec.rec_batch_num": 8,
+            # Classifier settings (use same engine even if disabled)
+            "Cls.engine_type": engine_type,
             # Global settings
             "Global.use_cls": False,
             "Global.text_score": text_score,
@@ -255,10 +258,13 @@ def _create_ocr_engine(
     font_path: str = "",
     threads: int = 4,
 ) -> object:
-    """Create a RapidOCR engine with full parameters.
+    """Create a RapidOCR engine with full parameters and fallback support.
 
     This factory is shared by all OCR modes (single, batch, persistent)
     to ensure consistent parameter handling.
+
+    Includes fallback logic: if the primary engine fails to initialize,
+    it will try the alternative engine (OpenVINO ↔ ONNX Runtime).
     """
     try:
         from rapidocr import EngineType, LangRec, OCRVersion, RapidOCR
@@ -281,51 +287,93 @@ def _create_ocr_engine(
     }
     lang_rec = lang_map.get(language, LangRec.LATIN)
 
-    engine_type = EngineType.OPENVINO if use_openvino else EngineType.ONNXRUNTIME
+    def _build_params(engine_type, use_openvino_threads: bool):
+        """Build parameter dict for the given engine type."""
+        p = {
+            "Det.engine_type": engine_type,
+            "Det.box_thresh": box_thresh,
+            "Det.unclip_ratio": unclip_ratio,
+            "Det.score_mode": score_mode,
+            "Det.limit_side_len": limit_side_len,
+            "Det.limit_type": "max",
+            "Rec.engine_type": engine_type,
+            "Rec.lang_type": lang_rec,
+            "Rec.ocr_version": OCRVersion.PPOCRV5,
+            "Rec.rec_batch_num": 8,
+            # Classifier settings (use same engine even if disabled)
+            "Cls.engine_type": engine_type,
+            "Global.use_cls": False,
+            "Global.text_score": text_score,
+            "Global.max_side_len": limit_side_len,
+        }
 
-    params = {
-        "Det.engine_type": engine_type,
-        "Det.box_thresh": box_thresh,
-        "Det.unclip_ratio": unclip_ratio,
-        "Det.score_mode": score_mode,
-        "Det.limit_side_len": limit_side_len,
-        "Det.limit_type": "max",
-        "Rec.engine_type": engine_type,
-        "Rec.lang_type": lang_rec,
-        "Rec.ocr_version": OCRVersion.PPOCRV5,
-        "Rec.rec_batch_num": 8,
-        "Global.use_cls": False,
-        "Global.text_score": text_score,
-        "Global.max_side_len": limit_side_len,
-    }
+        if use_openvino_threads:
+            p.update(
+                {
+                    "Det.engine_cfg.inference_num_threads": threads,
+                    "Rec.engine_cfg.inference_num_threads": threads,
+                }
+            )
+        else:
+            p.update(
+                {
+                    "Det.engine_cfg.intra_op_num_threads": threads,
+                    "Det.engine_cfg.inter_op_num_threads": 2,
+                    "Rec.engine_cfg.intra_op_num_threads": threads,
+                    "Rec.engine_cfg.inter_op_num_threads": 2,
+                }
+            )
 
+        if rec_model_path:
+            p["Rec.model_path"] = rec_model_path
+        if rec_keys_path:
+            p["Rec.rec_keys_path"] = rec_keys_path
+        if det_model_path:
+            p["Det.model_path"] = det_model_path
+        if font_path and os.path.exists(font_path):
+            p["Global.font_path"] = font_path
+
+        return p
+
+    # Determine primary and fallback engine types
     if use_openvino:
-        params.update(
-            {
-                "Det.engine_cfg.inference_num_threads": threads,
-                "Rec.engine_cfg.inference_num_threads": threads,
-            }
-        )
+        primary_engine = EngineType.OPENVINO
+        fallback_engine = EngineType.ONNXRUNTIME
+        primary_name = "OpenVINO"
+        fallback_name = "ONNX Runtime"
     else:
-        params.update(
-            {
-                "Det.engine_cfg.intra_op_num_threads": threads,
-                "Det.engine_cfg.inter_op_num_threads": 2,
-                "Rec.engine_cfg.intra_op_num_threads": threads,
-                "Rec.engine_cfg.inter_op_num_threads": 2,
-            }
-        )
+        primary_engine = EngineType.ONNXRUNTIME
+        fallback_engine = EngineType.OPENVINO
+        primary_name = "ONNX Runtime"
+        fallback_name = "OpenVINO"
 
-    if rec_model_path:
-        params["Rec.model_path"] = rec_model_path
-    if rec_keys_path:
-        params["Rec.rec_keys_path"] = rec_keys_path
-    if det_model_path:
-        params["Det.model_path"] = det_model_path
-    if font_path and os.path.exists(font_path):
-        params["Global.font_path"] = font_path
+    # Try primary engine first
+    try:
+        params = _build_params(primary_engine, use_openvino)
+        return RapidOCR(params=params)
+    except Exception as primary_err:
+        primary_msg = str(primary_err).lower()
+        # Check if this is a "not installed" error that warrants fallback
+        if "not installed" in primary_msg or "no module" in primary_msg or "import" in primary_msg:
+            import sys
 
-    return RapidOCR(params=params)
+            print(f"[OCR Worker] {primary_name} failed: {primary_err}", file=sys.stderr)
+            print(f"[OCR Worker] Trying fallback to {fallback_name}...", file=sys.stderr)
+
+            # Try fallback engine
+            try:
+                params = _build_params(fallback_engine, not use_openvino)
+                return RapidOCR(params=params)
+            except Exception as fallback_err:
+                # Both engines failed
+                raise RuntimeError(
+                    f"Both OCR engines failed.\n"
+                    f"{primary_name}: {primary_err}\n"
+                    f"{fallback_name}: {fallback_err}"
+                ) from fallback_err
+        else:
+            # Not an installation error, re-raise
+            raise
 
 
 def _ocr_single_image(

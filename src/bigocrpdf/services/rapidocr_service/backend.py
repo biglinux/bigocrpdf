@@ -289,6 +289,8 @@ class ProfessionalPDFOCR(
             "Rec.model_path": str(rec_model) if rec_model else None,
             "Rec.rec_keys_path": str(rec_keys) if rec_keys else None,
             "Rec.rec_batch_num": 8,  # Batch more recognition requests for throughput
+            # === Classifier settings (use same engine even if disabled) ===
+            "Cls.engine_type": effective_engine_type,
             # === Global settings ===
             "Global.font_path": str(font_path) if font_path else None,
             "Global.use_cls": False,  # Disable classifier (causes alignment issues)
