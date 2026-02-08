@@ -1,48 +1,108 @@
+<div align="center">
+
 # BigOcrPDF
 
-Add OCR to your PDF documents to make them searchable — powered by **RapidOCR PP-OCRv5**.  
-Modern GTK4 + Libadwaita interface for BigLinux and Arch-based distributions.
+**The complete OCR toolkit for Linux — turn scanned PDFs and images into searchable, editable documents.**
 
-## Features
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg)](https://python.org)
+[![GTK4 + Libadwaita](https://img.shields.io/badge/GTK4-Libadwaita-4A86CF.svg)](https://gnome.org)
+
+</div>
+
+---
+
+BigOcrPDF is a powerful, all-in-one OCR application that adds searchable text layers to scanned PDFs, extracts text from images, and provides a full-featured PDF editor — all from a modern, native Linux interface.
+
+## Why BigOcrPDF?
+
+- **AI-Powered OCR** — Uses **RapidOCR PP-OCRv5** with OpenVINO hardware acceleration for fast, accurate text recognition across **130+ languages**
+- **Edit, Merge & Organize PDFs** — Reorder pages, rotate, delete, and combine multiple PDFs and images into a single document
+- **Smart Preprocessing** — Automatic perspective correction, deskew, dewarping, and illumination normalization — even photos of documents come out clean
+- **Multiple Export Formats** — Searchable PDF, PDF/A-2b archival, plain text, and ODF/ODT with layout-aware formatting
+- **Screen Capture OCR** — Select any region on screen and instantly extract text
+- **Batch Processing** — Process dozens of files at once with checkpoint/resume support
+- **File Manager Integration** — Right-click any PDF or image to OCR it directly
+
+---
+
+## Key Features
+
+### PDF Editor
+
+Manage your documents before and after OCR — no need for a separate tool.
+
+- **Drag-and-drop page reordering** with thumbnail previews
+- **Rotate pages** left or right in 90° increments
+- **Delete pages** you don't need
+- **Merge files** — combine pages from multiple PDFs and images into one document
+- **Create PDFs from images** — import JPEG, PNG, TIFF, WebP, RAW photos, and more
+- **EXIF-aware import** — automatically applies correct orientation from camera metadata
+- **Zoom control** — 50% to 200% thumbnail scaling
+- **Select pages for OCR** — choose exactly which pages to process
 
 ### OCR Engine
-- **RapidOCR PP-OCRv5** AI models for state-of-the-art text recognition
-- **27 languages** including Latin, Chinese, Japanese, Korean, Arabic, Cyrillic, Devanagari, and more
-- **Parallel processing** with multi-core CPU utilization for batch jobs
-- **BiDi text support** via `fribidi` for right-to-left scripts (Arabic, Hebrew)
 
-### Image Processing
-- **Auto deskew** — automatic rotation correction for scanned pages
-- **Orientation detection** — auto-detect and fix 90°/180°/270° rotations
-- **Perspective correction** — straighten photographed documents
-- **Quality preservation** — auto-detect original JPEG quality to avoid recompression
+State-of-the-art text recognition powered by deep learning.
 
-### Output Formats
-- **PDF with OCR layer** — searchable PDF preserving the original layout
-- **PDF/A-2b** — archival format with JPEG 2000 compression
-- **Text export** — auto-save extracted text to `.txt` files
-- **ODF export** — export to LibreOffice/OpenDocument format
+- **RapidOCR PP-OCRv5** models with OpenVINO inference (ONNX fallback)
+- **130+ languages** across 12 script families: Latin, Chinese, Japanese, Korean, Arabic, Cyrillic, Greek, Devanagari, Tamil, Telugu, Thai, and more
+- **4 precision levels** — from fast to very precise, tunable per job
+- **Parallel processing** — multi-core batch OCR with automatic worker scaling
+- **Invisible text layer** — preserves original page appearance while adding searchable text
+- **Smart detection** — auto-identifies image-only vs. mixed-content PDFs
+- **Re-OCR support** — replace existing text layers with improved recognition
+- **Right-to-left text** — full BiDi support for Arabic and Hebrew via `fribidi`
 
-### Image OCR Mode (bigocrimage)
-- **Screen capture** — select a region to extract text instantly
-- **Image file OCR** — open any image and extract text
-- **Drag and drop** support
+### Image Preprocessing
 
-### User Interface
-- **GTK4 + Libadwaita** — clean, accessible design following GNOME HIG
-- **Adw.StatusPage** welcome and loading screens
-- **Toast notifications** for non-intrusive feedback
-- **Before/After comparison** — track file size changes
-- **Processing history** — view statistics of processed files
-- **20+ languages** for the UI (translations via gettext)
+Automatically clean up scans and photos before OCR for maximum accuracy.
 
-## System Requirements
+- **Perspective correction** — 6-mode cascade that straightens photographed documents
+- **Auto deskew** — fixes tilted scans using morphological analysis + Hough transform
+- **Baseline dewarp** — per-line polynomial fitting to flatten curved text
+- **Orientation detection** — auto-correct 90°/180°/270° rotations
+- **Illumination normalization** — even out uneven lighting
+- **Scanner effect** — LAB-space background normalization
+- **Denoising** — bilateral filter and Non-Local Means
+- **All toggles individually controllable** from the settings page
 
-- **Python** 3.10+
-- **GTK4** and **Libadwaita**
-- **poppler-utils** — `pdfimages`, `pdftoppm`, `pdfinfo` for PDF image extraction
-- **ghostscript** — PDF/A-2b conversion
-- **fribidi** — BiDi text reordering for Arabic/Hebrew OCR
+### Export Options
+
+Get your text out in the format you need.
+
+| Format | Description |
+|--------|-------------|
+| **Searchable PDF** | Original pages with invisible OCR text layer |
+| **PDF/A-2b** | ISO archival standard with JPEG 2000 compression |
+| **Custom Quality PDF** | Choose JPEG quality: 30%, 50%, 70%, 85%, or 95% |
+| **Plain Text (.txt)** | Extracted text from all pages |
+| **ODF/ODT** | 4 modes: formatted + images, images + simple text, formatted text only, or plain text |
+
+ODF export includes **layout analysis**: automatic paragraph/heading detection, table detection, image embedding, and proper page breaks.
+
+### Screen Capture & Image OCR
+
+Extract text from anything on your screen.
+
+- **Region capture** — select an area and get the text instantly
+- **Works with**: Spectacle (KDE), GNOME Screenshot, Flameshot
+- **Open any image** — JPEG, PNG, WebP, TIFF, RAW formats (CR2, DNG, NEF, ARW, and more)
+- **Copy to clipboard** with one click
+- **Standalone mode** — run `bigocrimage` for a dedicated image OCR window
+
+### Batch Processing & Session Management
+
+Handle large workloads efficiently.
+
+- **Multi-file queue** — add files via drag-and-drop or file chooser
+- **Checkpoint/resume** — interrupted sessions automatically resume on next launch
+- **Processing history** — tracks file sizes, page counts, processing time, and success/failure
+- **Cancel anytime** with clean cleanup
+- **Auto-split output** — configurable maximum file size (10MB–100MB)
+- **Results page** with per-file statistics, text viewer, and export actions
+
+---
 
 ## Installation
 
@@ -60,13 +120,31 @@ cd bigocrpdf
 pip install -e .
 ```
 
+#### Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| `python >= 3.10` | Runtime |
+| `gtk4`, `libadwaita` | User interface |
+| `python-rapidocr-pp-ocrv5` | OCR engine |
+| `python-rapidocr-openvino` | Hardware-accelerated inference |
+| `poppler-utils` | PDF image extraction (`pdfimages`, `pdftoppm`, `pdfinfo`) |
+| `ghostscript` | PDF/A-2b conversion |
+| `python-opencv` | Image preprocessing |
+| `python-numpy` | Array operations |
+| `python-pillow` | Image format support |
+| `python-odfpy` | ODF/ODT export |
+| `fribidi` | BiDi text reordering (Arabic, Hebrew) |
+
+---
+
 ## Usage
 
-### GUI Application
+### GUI
 
 ```bash
-bigocrpdf                     # Start the main PDF OCR interface
-bigocrimage                   # Start the Image OCR window
+bigocrpdf                     # PDF OCR interface
+bigocrimage                   # Image OCR window
 ```
 
 ### Command Line
@@ -75,58 +153,72 @@ bigocrimage                   # Start the Image OCR window
 bigocrpdf [OPTIONS] [FILES...]
 
 Options:
-  -v, --version     Print version information and exit
-  -d, --debug       Enable debug mode
-  --verbose         Enable verbose output
-  --image-mode      Start in image OCR mode
-  FILES             PDF or image files to process
+  -v, --version     Show version and exit
+  -d, --debug       Enable debug logging
+  --verbose         Verbose output
+  --image-mode      Launch in image OCR mode
+  FILES             PDF or image files to open
 ```
 
-### Context Menu Integration
+### File Manager Integration
 
-Right-click on PDF files in your file manager and select **OCR PDF**.  
-Right-click on image files and select **Extract text from image (OCR)**.
+- **Right-click a PDF** → *Recognize text in scanned PDF (OCR)*
+- **Right-click an image** → *Extract text from image (OCR)*
+- **KDE Dolphin** context menu integration included
 
-### Screen Capture OCR
+### Screen Capture
 
-Press **Print Screen**, select a region, then export to **Extract text from image (OCR)**.
-
-## Project Structure
-
-```
-src/bigocrpdf/
-├── application.py          # Adw.Application entry point
-├── window.py               # Main PDF OCR window
-├── config.py               # Constants and configuration
-├── services/               # Business logic (OCR, capture, export)
-│   ├── processor.py        # OCR engine interface
-│   ├── screen_capture.py   # Screen capture + image OCR
-│   ├── export_service.py   # PDF/text/ODF export
-│   └── rapidocr_service/   # RapidOCR PP-OCRv5 integration
-├── ui/                     # Presentation layer (GTK4 widgets)
-│   ├── image_ocr_window.py # Standalone image OCR window
-│   ├── settings_page.py    # Settings page
-│   └── pdf_editor/         # PDF page editor
-└── utils/                  # Pure Python helpers
-    ├── i18n.py             # Internationalization
-    ├── odf_exporter.py     # ODF document generation
-    └── pdf_utils.py        # PDF manipulation utilities
-```
-
-## License
-
-GPL-3.0-or-later
+Press **Print Screen** → select a region → export to **Extract text from image (OCR)**.
 
 ---
 
-# PT-BR
+## Interface
 
-OCR para PDF e arquivos de imagem integrado no sistema.
+### UI Highlights
 
-Arquivos em formato PDF que foram digitalizados não possuem a opção de efetuar buscas ou copiar o texto. No BigLinux, basta clicar com o botão direito no arquivo e utilizar a opção de OCR — será criado um novo arquivo com esses recursos.
+- **GTK4 + Libadwaita** — clean, modern design following GNOME Human Interface Guidelines
+- **Multi-page wizard** — Settings → Processing → Results
+- **Toast notifications** — non-intrusive status feedback
+- **Before/After comparison** — track file size changes after OCR
+- **Window size persistence** — remembers your preferred dimensions
+- **28 UI languages** — Bulgarian, Chinese, Czech, Danish, Dutch, English, Estonian, Finnish, French, German, Greek, Hebrew, Croatian, Hungarian, Icelandic, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovak, Spanish, Swedish, Turkish, Ukrainian
 
-Se for necessário efetuar o procedimento em vários arquivos PDF, basta selecionar todos e utilizar a opção de OCR uma vez.
+---
 
-Também é possível extrair o texto de um arquivo de imagem, basta clicar com o botão direito e utilizar a opção: **"Extrair texto da imagem (OCR)"**.
+## Architecture
 
-E ainda é possível utilizar diretamente da ferramenta de captura de tela: aperte **Print Screen**, use a ferramenta de **"Região Retangular"**, selecione a região com o texto e depois clique em **"Exportar"** → **"Extrair o texto da imagem (OCR)"**.
+```
+src/bigocrpdf/
+├── application.py              # Adw.Application entry point
+├── window.py                   # Main PDF OCR window
+├── config.py                   # Constants and configuration
+├── services/
+│   ├── processor.py            # OCR engine interface
+│   ├── screen_capture.py       # Screen capture + image OCR
+│   ├── export_service.py       # PDF/text/ODF export
+│   ├── contour_analysis.py     # Document contour detection
+│   ├── perspective_correction.py
+│   └── rapidocr_service/      # RapidOCR PP-OCRv5 integration
+│       ├── engine.py           # Singleton OCR engine
+│       ├── ocr_worker.py       # Subprocess OCR worker
+│       ├── preprocessor.py     # Image preprocessing pipeline
+│       ├── rotation.py         # Orientation detection
+│       └── ...
+├── ui/
+│   ├── image_ocr_window.py     # Standalone image OCR
+│   ├── settings_page.py        # OCR settings
+│   ├── conclusion_page.py      # Results & export
+│   ├── pdf_editor/             # PDF page editor
+│   └── ...
+└── utils/
+    ├── odf_exporter.py         # ODF document generation
+    ├── layout_analyzer.py      # Document structure detection
+    ├── checkpoint_manager.py   # Session resume support
+    └── ...
+```
+
+---
+
+## License
+
+[GPL-3.0-or-later](LICENSE)
