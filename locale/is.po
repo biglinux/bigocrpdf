@@ -18,7 +18,7 @@ msgstr ""
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 75
 #, python-brace-format
 msgid "Started OCR processing for {0} files using Python API"
-msgstr "Hafið hafið OCR úrvinnslu fyrir {0} skrár með Python API"
+msgstr "OCR vinnsla hafin fyrir {0} skrár með Python API"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 82
 #, python-brace-format
@@ -27,11 +27,11 @@ msgstr "Villa við að hefja OCR úrvinnslu: {0}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 92
 msgid "No files to process"
-msgstr "Engin skrár til að vinna úr."
+msgstr "Engar skrár til að vinna úr"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 120
 msgid "No file_complete callback registered"
-msgstr "Engin ekki skráð skrá_fullkomin viðbragð."
+msgstr "Engin file_complete viðbrögð skráð"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 122
 msgid "No all_complete callback registered"
@@ -102,7 +102,7 @@ msgstr "Skjal er ekki til: {0}"
 # File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 258
 #, python-brace-format
 msgid "Unsupported file type: {0}"
-msgstr "Ógildur skráartegund: {0}"
+msgstr "Ógild skráartegund: {0}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 155
 #, python-brace-format
@@ -116,7 +116,7 @@ msgstr "Bætir við gildum skrá: {0}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 231
 msgid "Settings saved successfully"
-msgstr "Stillingum vistuð með góðum árangri"
+msgstr "Stillingar vistaðar með góðum árangri"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 234
 #, python-brace-format
@@ -148,7 +148,7 @@ msgstr "Tímabundin skráarhreinsun lokið"
 # 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 118
 msgid "No screenshot tool available. Please install spectacle, gnome-screenshot, or flameshot."
-msgstr "Engin skjámyndatæki til staðar. Vinsamlegast settu upp spectacle, gnome-screenshot eða flameshot."
+msgstr "Ekkert skjámyndatæki tiltækt. Vinsamlegast settu upp spectacle, gnome-screenshot eða flameshot."
 # 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 135
 msgid "Screenshot was cancelled"
@@ -170,7 +170,7 @@ msgstr "Engin text fannst í valda svæðinu."
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 283
 #, python-brace-format
 msgid "Language data for '{lang}' not found. Please install tesseract-data-{lang}."
-msgstr "Tungumálagögn fyrir '{lang}' fannst ekki. Vinsamlegast settu upp tesseract-data-{lang}."
+msgstr "Tungumálagögn fyrir '{lang}' fundust ekki. Vinsamlegast settu upp tesseract-data-{lang}."
 # 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 287
 #, python-brace-format
@@ -191,7 +191,7 @@ msgstr "Raða skráaröð við upphaf hreinsað."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 380
 msgid "Processing PDF files..."
-msgstr "Vinnsl á PDF skjalum..."
+msgstr "Vinnsla á PDF skjölum..."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 385
 msgid "Preparing processing..."
@@ -245,7 +245,7 @@ msgstr "Byrjar að vinna úr {total} skrám... • Tími: {time}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1738
 msgid "PDF Output Options"
-msgstr "PDF Útgangsvalkostir"
+msgstr "PDF Úttaksvalkostir"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1749
 msgid "PDF Output Settings"
@@ -450,7 +450,7 @@ msgstr "Lokaðu"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1420
 #, python-brace-format
 msgid "{0} matches found"
-msgstr "{0} samsvör found"
+msgstr "{0} samsvör fundust"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1443
 #, python-brace-format
@@ -464,7 +464,7 @@ msgstr "Vistaðu útdregna texta"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1616
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1726
 msgid "Save Failed"
-msgstr "Vista ekki tókst"
+msgstr "Vistun mistókst"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1632
 msgid "File Already Exists"
@@ -642,7 +642,7 @@ msgstr "OSD aðeins"
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 292
 msgid "Raw line"
-msgstr "Ós línu"
+msgstr "Hrá lína"
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 306
 msgid "Page Segmentation Mode"
@@ -654,7 +654,7 @@ msgstr "LSTM"
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 336
 msgid "Legacy"
-msgstr "Arfleifð"
+msgstr "Eldra (Legacy)"
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 337
 msgid "Both"
@@ -710,7 +710,7 @@ msgstr "Skoða"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 163
 msgid "Output File Options"
-msgstr "Úrgangsvalkostir"
+msgstr "Úttaksvalkostir"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 172
 msgid "Configure"
