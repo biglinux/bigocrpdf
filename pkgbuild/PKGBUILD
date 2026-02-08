@@ -11,10 +11,12 @@ depends=(
 	'python-cairo'
 	# RapidOCR core
 	'python-rapidocr'
-	'python-rapidocr-fonts'
+	'rapidocr-fonts'
 	# Default language models (Latin covers most Western languages)
-	'python-rapidocr-models-mobile-latin'
-	'python-rapidocr-models-mobile-base'
+	'rapidocr-models-mobile-latin'
+	'rapidocr-models-mobile-base'
+	# OCR inference backend
+	'python-openvino'
 	# PDF processing
 	'python-pikepdf'
 	'python-pillow'
@@ -46,16 +48,22 @@ url="https://github.com/biglinux/bigocrpdf"
 
 optdepends=(
 	# RapidOCR language models
-	'python-rapidocr-models-mobile-arabic: Arabic script OCR'
-	'python-rapidocr-models-mobile-korean: Korean OCR'
-	'python-rapidocr-models-mobile-cyrillic: Cyrillic script OCR (Russian, Ukrainian, etc.)'
-	'python-rapidocr-models-mobile-devanagari: Devanagari script OCR (Hindi, etc.)'
-	'python-rapidocr-models-mobile-english: English OCR (optimized)'
-	'python-rapidocr-models-mobile-greek: Greek OCR'
-	'python-rapidocr-models-mobile-slavic: Slavic languages OCR'
-	'python-rapidocr-models-mobile-tamil: Tamil OCR'
-	'python-rapidocr-models-mobile-telugu: Telugu OCR'
-	'python-rapidocr-models-mobile-thai: Thai OCR'
+	'rapidocr-models-mobile-arabic: Arabic script OCR'
+	'rapidocr-models-mobile-korean: Korean OCR'
+	'rapidocr-models-mobile-cyrillic: Cyrillic script OCR (Russian, Ukrainian, etc.)'
+	'rapidocr-models-mobile-devanagari: Devanagari script OCR (Hindi, etc.)'
+	'rapidocr-models-mobile-english: English OCR (optimized)'
+	'rapidocr-models-mobile-greek: Greek OCR'
+	'rapidocr-models-mobile-slavic: Slavic languages OCR'
+	'rapidocr-models-mobile-tamil: Tamil OCR'
+	'rapidocr-models-mobile-telugu: Telugu OCR'
+	'rapidocr-models-mobile-thai: Thai OCR'
+	# Server models for higher accuracy
+	'rapidocr-models-server: Server models for higher accuracy'
+	# Alternative inference backend
+	'python-onnxruntime: Alternative inference backend (fallback)'
+	# PDF/A ICC profile fallback
+	'ghostscript: sRGB ICC profile for PDF/A-2b conversion'
 )
 source=("git+https://github.com/biglinux/bigocrpdf.git")
 md5sums=('SKIP')
