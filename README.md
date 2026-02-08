@@ -47,7 +47,7 @@ State-of-the-art text recognition powered by deep learning.
 
 - **RapidOCR PP-OCRv5** models with OpenVINO inference (ONNX fallback)
 - **130+ languages** across 12 script families: Latin, Chinese, Japanese, Korean, Arabic, Cyrillic, Greek, Devanagari, Tamil, Telugu, Thai, and more
-- **4 precision levels** — from fast to very precise, tunable per job
+- **4 precision levels** — tune the trade-off between capturing hard-to-read text (tolerates more false positives) and strict recognition (avoids false positives but may miss low-legibility text)
 - **Parallel processing** — multi-core batch OCR with automatic worker scaling
 - **Invisible text layer** — preserves original page appearance while adding searchable text
 - **Smart detection** — auto-identifies image-only vs. mixed-content PDFs
@@ -77,9 +77,9 @@ Get your text out in the format you need.
 | **PDF/A-2b** | ISO archival standard with metadata injection (preserves original images) |
 | **Custom Quality PDF** | Choose JPEG quality: 30%, 50%, 70%, 85%, or 95% |
 | **Plain Text (.txt)** | Extracted text from all pages |
-| **ODF/ODT** | 4 modes: formatted + images, images + simple text, formatted text only, or plain text |
+| **ODF/ODT** ⚠️ | 4 modes: formatted + images, images + simple text, formatted text only, or plain text *(experimental — formatting quality may vary)* |
 
-ODF export includes **layout analysis**: automatic paragraph/heading detection, table detection, image embedding, and proper page breaks.
+ODF export includes **layout analysis**: automatic paragraph/heading detection, table detection, image embedding, and proper page breaks. Note: ODF/ODT export is experimental and formatting results may not always be accurate.
 
 ### Screen Capture & Image OCR
 
@@ -105,12 +105,6 @@ Handle large workloads efficiently.
 ---
 
 ## Installation
-
-### Arch Linux / BigLinux
-
-```bash
-pacman -S bigocrpdf
-```
 
 ### From Source
 
@@ -187,34 +181,40 @@ Press **Print Screen** → select a region → export to **Extract text from ima
 
 ## Architecture
 
-```
-src/bigocrpdf/
-├── application.py              # Adw.Application entry point
-├── window.py                   # Main PDF OCR window
-├── config.py                   # Constants and configuration
-├── services/
-│   ├── processor.py            # OCR engine interface
-│   ├── screen_capture.py       # Screen capture + image OCR
-│   ├── export_service.py       # PDF/text/ODF export
-│   ├── contour_analysis.py     # Document contour detection
-│   ├── perspective_correction.py
-│   └── rapidocr_service/      # RapidOCR PP-OCRv5 integration
-│       ├── engine.py           # Singleton OCR engine
-│       ├── ocr_worker.py       # Subprocess OCR worker
-│       ├── preprocessor.py     # Image preprocessing pipeline
-│       ├── rotation.py         # Orientation detection
-│       └── ...
-├── ui/
-│   ├── image_ocr_window.py     # Standalone image OCR
-│   ├── settings_page.py        # OCR settings
-│   ├── conclusion_page.py      # Results & export
-│   ├── pdf_editor/             # PDF page editor
-│   └── ...
-└── utils/
-    ├── odf_exporter.py         # ODF document generation
-    ├── layout_analyzer.py      # Document structure detection
-    ├── checkpoint_manager.py   # Session resume support
-    └── ...
+```mermaid
+graph TD
+    A[bigocrpdf] --> B[Application Layer]
+    A --> C[Services Layer]
+    A --> D[UI Layer]
+    A --> E[Utils Layer]
+
+    B --> B1[application.py<br/>Adw.Application entry point]
+    B --> B2[window.py<br/>Main PDF OCR window]
+    B --> B3[config.py<br/>Constants & configuration]
+
+    C --> C1[processor.py<br/>OCR engine interface]
+    C --> C2[screen_capture.py<br/>Screen capture & image OCR]
+    C --> C3[export_service.py<br/>PDF / Text / ODF export]
+    C --> C4[contour_analysis.py<br/>Document contour detection]
+    C --> C5[perspective_correction.py<br/>Geometric correction]
+    C --> C6[rapidocr_service/]
+
+    C6 --> C6a[engine.py — Singleton OCR engine]
+    C6 --> C6b[ocr_worker.py — Subprocess worker]
+    C6 --> C6c[preprocessor.py — Image pipeline]
+    C6 --> C6d[rotation.py — Orientation detection]
+
+    D --> D1[image_ocr_window.py<br/>Standalone image OCR]
+    D --> D2[settings_page.py<br/>OCR settings]
+    D --> D3[conclusion_page.py<br/>Results & export]
+    D --> D4[pdf_editor/<br/>PDF page editor]
+
+    E --> E1[odf_exporter.py<br/>ODF document generation]
+    E --> E2[layout_analyzer.py<br/>Document structure detection]
+    E --> E3[checkpoint_manager.py<br/>Session resume support]
+
+    style A fill:#4A86CF,color:#fff
+    style C6 fill:#3776AB,color:#fff
 ```
 
 ---
