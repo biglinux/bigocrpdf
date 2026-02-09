@@ -15,10 +15,21 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: attranslate\n"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 75
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
+msgid "Print version information and exit"
+msgstr "Sürüm bilgilerini yazdır ve çık."
+# 
+# File: bigocrpdf/src/bigocrpdf/image_application.py, line: 115
+msgid "Extract text from images using OCR"
+msgstr "Görüntülerden metin çıkarmak için OCR kullanın."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 85
 #, python-brace-format
-msgid "Started OCR processing for {0} files using Python API"
-msgstr "Python API kullanarak {0} dosyası için OCR işleme başlatıldı."
+msgid "Started OCR processing for {0} files using RapidOCR"
+msgstr "RapidOCR kullanarak {0} dosyası için OCR işleme başlatıldı."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 82
 #, python-brace-format
@@ -29,18 +40,34 @@ msgstr "OCR işleme başlatılırken hata: {0}"
 msgid "No files to process"
 msgstr "İşlenecek dosya yok"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 120
-msgid "No file_complete callback registered"
-msgstr "Tamamlanmış dosya geri çağrısı kaydedilmedi."
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 135
+msgid "Processing stopped by user"
+msgstr "Kullanıcı tarafından işlem durduruldu."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 122
-msgid "No all_complete callback registered"
-msgstr "Hiçbir all_complete geri çağrısı kaydedilmedi."
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 158
+#, python-brace-format
+msgid "Processing cancelled by user during file: {0}"
+msgstr "Kullanıcı tarafından {0} dosyası sırasında işlem iptal edildi."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 163
+#, python-brace-format
+msgid "Error processing {0}: {1}"
+msgstr "{0} işlenirken hata: {1}"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 178
+#, python-brace-format
+msgid "Processing thread error: {0}"
+msgstr "İşlem iş parçacığı hatası: {0}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 136
 #, python-brace-format
 msgid "Error: File not found or invalid: {0}"
 msgstr "Hata: Dosya bulunamadı veya geçersiz: {0}"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 223
+#, python-brace-format
+msgid "Processed {0}: {1} pages, {2} words"
+msgstr "İşlenmiş {0}: {1} sayfa, {2} kelime"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 172
 #, python-brace-format
@@ -52,14 +79,15 @@ msgstr "{0} için çıktı dizini belirlenemedi."
 msgid "Error creating output path for {0}: {1}"
 msgstr "{0} için çıktı yolu oluşturulurken hata: {1}"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 365
-msgid "tesseract --list-langs returned empty output"
-msgstr "tesseract --list-langs boş çıktı döndürdü"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 388
 #, python-brace-format
 msgid "Error getting OCR languages: {0}"
 msgstr "OCR dilleri alınırken hata: {0}"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 481
+#, python-brace-format
+msgid "Cleared editor state for: {0}"
+msgstr "{0} için düzenleyici durumu temizlendi."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 508
 #, python-brace-format
@@ -70,11 +98,6 @@ msgstr "Kuyruğundan işlenmiş dosya kaldırıldı: {0}"
 #, python-brace-format
 msgid "Generated unique filename to avoid overwriting: {0}"
 msgstr "Üzerine yazmayı önlemek için oluşturulan benzersiz dosya adı: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 75
-#, python-brace-format
-msgid "Error creating alignment setting file: {0}"
-msgstr "Hizalama ayar dosyası oluşturulurken hata: {0}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 105
 #, python-brace-format
@@ -146,6 +169,121 @@ msgstr "İşlem durumu başarıyla sıfırlandı."
 msgid "Temporary files cleanup completed"
 msgstr "Geçici dosya temizliği tamamlandı."
 # 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 34
+msgid "Latin Script (PT, EN, FR, DE, ES...)"
+msgstr "Latin Alfabesi (PT, EN, FR, DE, ES...)"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 35
+msgid "English (Optimized)"
+msgstr "İngilizce (Optimize Edilmiş)"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+msgid "Chinese Simplified"
+msgstr "Çince Basitleştirilmiş"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 38
+msgid "Arabic Script (AR, FA, UR...)"
+msgstr "Arap Alfabesi (AR, FA, UR...)"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 39
+msgid "Cyrillic Script (RU, UK, BG...)"
+msgstr "Kiril Alfabesi (RU, UK, BG...)"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 40
+msgid "East Slavic (RU, BY, UK)"
+msgstr "Doğu Slav (RU, BY, UK)"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 42
+msgid "Devanagari (Hindi, Marathi, Nepali)"
+msgstr "Devanagari (Hintçe, Marathi, Nepali)"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 245
+msgid "Analyzing PDF..."
+msgstr "PDF analiz ediliyor..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 293
+msgid "Starting OCR..."
+msgstr "OCR başlatılıyor..."
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 357
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_text_layer.py, line: 422
+#, python-brace-format
+msgid "Processing page {0}/{1}..."
+msgstr "Sayfa işleniyor {0}/{1}..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 417
+msgid "Merging text layer..."
+msgstr "Metin katmanı birleştiriliyor..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 464
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 715
+msgid "Done!"
+msgstr "Tamam!"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 610
+msgid "Analyzing PDF structure..."
+msgstr "PDF yapısı analiz ediliyor..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 633
+msgid "Extracting images..."
+msgstr "Görüntüler çıkarılıyor..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 655
+#, python-brace-format
+msgid "OCR page {0}..."
+msgstr "OCR sayfası {0}..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 687
+msgid "Saving PDF..."
+msgstr "PDF kaydediliyor..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 698
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 758
+msgid "Splitting PDF by size limit..."
+msgstr "PDF'yi boyut sınırına göre ayırma..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 707
+msgid "Text extracted by OCR from images"
+msgstr "Görüntülerden OCR ile çıkarılan metin"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 746
+msgid "Converting to PDF/A..."
+msgstr "PDF/A'ya dönüştürülüyor..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/export_service.py, line: 42
+#, python-brace-format
+msgid "Saved extracted text to: {0}"
+msgstr "Çıkarılan metin kaydedildi: {0}"
+# 
+# File: bigocrpdf/src/bigocrpdf/services/export_service.py, line: 46
+#, python-brace-format
+msgid "Failed to save text file: {0}"
+msgstr "Metin dosyası kaydedilemedi: {0}"
+# 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 118
 msgid "No screenshot tool available. Please install spectacle, gnome-screenshot, or flameshot."
 msgstr "Ekran görüntüsü aracı mevcut değil. Lütfen spectacle, gnome-screenshot veya flameshot'ı yükleyin."
@@ -159,35 +297,26 @@ msgstr "Ekran görüntüsü iptal edildi."
 msgid "An unexpected error occurred during capture: {e}"
 msgstr "Yakalama sırasında beklenmedik bir hata oluştu: {e}"
 # 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 245
-msgid "Tesseract OCR engine not found. Please install it."
-msgstr "Tesseract OCR motoru bulunamadı. Lütfen yükleyin."
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 277
+msgid "Could not load image file."
+msgstr "Görüntü dosyası yüklenemedi."
 # 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 268
-msgid "No text found in the selected region"
-msgstr "Seçilen bölgede metin bulunamadı."
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 305
+msgid "OCR processing failed."
+msgstr "OCR işleme başarısız oldu."
 # 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 283
-#, python-brace-format
-msgid "Language data for '{lang}' not found. Please install tesseract-data-{lang}."
-msgstr "'{lang}' için dil verisi bulunamadı. Lütfen tesseract-data-{lang} yükleyin."
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 311
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 315
+msgid "No text found in the image"
+msgstr "Görüntüde metin bulunamadı."
 # 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 287
-#, python-brace-format
-msgid "OCR failed: {err_msg}"
-msgstr "OCR başarısız: {err_msg}"
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 326
+msgid "OCR engine not available. Please check your installation."
+msgstr "OCR motoru mevcut değil. Lütfen kurulumunuzu kontrol edin."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 48
-msgid "Please make sure GTK4, libadwaita, and OCRmyPDF are installed"
-msgstr "Lütfen GTK4, libadwaita ve OCRmyPDF'nin yüklü olduğundan emin olun."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 60
-msgid "Failed to set system locale, falling back to C locale"
-msgstr "Sistem yerel ayarını ayarlama başarısız oldu, C yerel ayarına geri dönülüyor."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/main.py, line: 88
-msgid "Cleared file queue at startup"
-msgstr "Başlangıçta dosya kuyruğu temizlendi."
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 331
+msgid "OCR processing timed out."
+msgstr "OCR işleme süresi doldu."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 380
 msgid "Processing PDF files..."
@@ -223,15 +352,15 @@ msgstr "<b>OCR işleme tamamlandı!</b> {total} dosya işlendi"
 msgid "<b>OCR processing complete!</b> {total} file(s) processed • Total time: {time}"
 msgstr "<b>OCR işleme tamamlandı!</b> {total} dosya işlendi • Toplam süre: {time}"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 347
+# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 325
 #, python-brace-format
-msgid "Processing file {current}/{total}: {filename} (page {page}/{pages}) • Time: {time}"
-msgstr "İşleniyor dosya {current}/{total}: {filename} (sayfa {page}/{pages}) • Zaman: {time}"
+msgid "File {current}/{total}: <b>{filename}</b> - {status} • Time: {time}"
+msgstr "Dosya {current}/{total}: <b>{filename}</b> - {status} • Zaman: {time}"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 356
+# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 335
 #, python-brace-format
-msgid "Processing file {current}/{total}: {filename} ({pages} pages) • Time: {time}"
-msgstr "İşleniyor dosya {current}/{total}: {filename} ({pages} sayfa) • Zaman: {time}"
+msgid "Processing file {current}/{total}: <b>{filename}</b> • Time: {time}"
+msgstr "Dosya işleniyor {current}/{total}: <b>{filename}</b> • Zaman: {time}"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 370
 #, python-brace-format
@@ -242,6 +371,24 @@ msgstr "Dosyalar işleniyor: {işlenmiş}/{toplam} tamamlandı • Süre: {süre
 #, python-brace-format
 msgid "Starting processing of {total} files... • Time: {time}"
 msgstr "{total} dosyanın işlenmesine başlanıyor... • Zaman: {time}"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 374
+msgid "Open the processed file"
+msgstr "İşlenmiş dosyayı açın."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 393
+msgid "Open in web browser — browsers usually display the recognized text directly over the page images"
+msgstr ""
+"Web tarayıcısında aç — tarayıcılar genellikle tanınan metni sayfa görüntülerinin üzerine doğrudan "
+"gösterir."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 410
+msgid "View the text found in this document"
+msgstr "Bu belgede bulunan metni görüntüle."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 425
+msgid "Save as a document for LibreOffice"
+msgstr "LibreOffice için belge olarak kaydet"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1757
 msgid "PDF Output Options"
@@ -271,9 +418,9 @@ msgstr "Orijinal dosyayla aynı ismi kullanın."
 msgid "Filename Suffix"
 msgstr "Dosya Adı Uzantısı"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1824
-msgid "Text added to the filename (e.g. document-ocr.pdf)"
-msgstr "Dosya adına eklenen metin (örneğin, belge-ocr.pdf)"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 176
+msgid "Text added to the end of the filename (e.g. document-ocr.pdf)"
+msgstr "Dosya adının sonuna eklenen metin (örneğin, belge-ocr.pdf)"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1833
 msgid "Overwrite Existing Files"
@@ -287,9 +434,11 @@ msgstr "Aynı isimli dosyaları değiştir."
 msgid "Warning"
 msgstr "Uyarı"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1807
-msgid "If saving to the same folder as original, this will replace the original files"
-msgstr "Orijinal ile aynı klasöre kaydediyorsanız, bu orijinal dosyaları değiştirecektir."
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 212
+msgid "To replace original files, also enable 'Overwrite Existing Files' below and save to the same folder"
+msgstr ""
+"Orijinal dosyaları değiştirmek için aşağıdaki 'Mevcut Dosyaları Üzerine Yaz' seçeneğini de "
+"etkinleştirin ve aynı klasöre kaydedin."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1840
 msgid "Text Extraction"
@@ -323,9 +472,37 @@ msgstr "Metin dosyalarını kaydedeceğiniz yeri seçin."
 msgid "Not set"
 msgstr "Ayarlanmadı"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1881
-msgid "Select folder"
-msgstr "Klasör seçin"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 287
+msgid "Choose where to save the text files"
+msgstr "Metin dosyalarını kaydetmek için bir yer seçin."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 306
+msgid "ODF Export"
+msgstr "ODF Dışa Aktarma"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 310
+msgid "Save ODF Files"
+msgstr "ODF Dosyalarını Kaydet"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 311
+msgid "Automatically save extracted text as .odt files"
+msgstr "Çıkarılan metni otomatik olarak .odt dosyası olarak kaydet."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 317
+msgid "Include Page Images"
+msgstr "Sayfa Görsellerini Dahil Et"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 318
+msgid "Embed original page images in ODF"
+msgstr "ODF'de orijinal sayfa görsellerini göm."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 325
+msgid "Use Structured Formatting"
+msgstr "Yapılandırılmış Biçimlendirme Kullanın"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 326
+msgid "Apply detected layout and text styles"
+msgstr "Algılanan düzeni ve metin stillerini uygula"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1938
 msgid "Date and Time"
@@ -395,59 +572,93 @@ msgstr "Önizleme"
 msgid "Filename Example:"
 msgstr "Dosya Adı Örneği:"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1917
-msgid "Select Folder for Text Files"
-msgstr "Metin Dosyaları için Klasör Seçin"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 708
-msgid "OCR processing was completed for this file, but the extracted text could not be found."
-msgstr "Bu dosya için OCR işlemi tamamlandı, ancak çıkarılan metin bulunamadı."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1343
-msgid "Search in text..."
-msgstr "Metin içinde ara..."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1350
-msgid "Find previous match"
-msgstr "Önceki eşleşmeyi bul"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1357
-msgid "Find next match"
-msgstr "Sonraki eşleşmeyi bul"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1496
-msgid "Copy to Clipboard"
-msgstr "Pano Kopyala"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1497
-msgid "Copy the entire text to clipboard"
-msgstr "Tüm metni panoya kopyala"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1504
-msgid "Save as TXT"
-msgstr "TXT Olarak Kaydet"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1505
-msgid "Save the extracted text to a .txt file"
-msgstr "Çıkarılan metni .txt dosyasına kaydedin."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1512
-msgid "Close"
-msgstr "Kapat"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1439
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 34
 #, python-brace-format
-msgid "{0} matches found"
-msgstr "{0} eşleşme bulundu"
+msgid "CSS file not found: {0}"
+msgstr "CSS dosyası bulunamadı: {0}"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1462
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 43
+msgid "Custom CSS styles loaded successfully"
+msgstr "Özel CSS stilleri başarıyla yüklendi."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 46
 #, python-brace-format
-msgid "Match {0} of {1}"
-msgstr "{1} içindeki {0} eşleşmesi"
+msgid "Error loading CSS styles: {0}"
+msgstr "CSS stilleri yüklenirken hata: {0}"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
+msgid "Image OCR"
+msgstr "Görüntü OCR"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
+msgid "Extract text from images or screen captures using OCR."
+msgstr "Görüntülerden veya ekran görüntülerinden metin çıkarma işlemi için OCR kullanın."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
+msgid "Open Image"
+msgstr "Görüntüyü Aç"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 152
+msgid "Screen Capture"
+msgstr "Ekran Yakalama"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 167
+msgid "Extracting text…"
+msgstr "Metin çıkarılıyor…"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
+msgid "Copy"
+msgstr "Kopyala"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
+msgid "Copy text to clipboard"
+msgstr "Metni panoya kopyala"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
+msgid "New Capture"
+msgstr "Yeni Yakalama"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 216
+msgid "Capture a screen region"
+msgstr "Ekran bölgesini yakala"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 224
+msgid "Open an image file"
+msgstr "Bir resim dosyası açın"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 255
+msgid "Choose the language of the text in the image"
+msgstr "Görüntüdeki metnin dilini seçin."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
+msgid "No text extracted."
+msgstr "No text extracted."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
+msgid "Open Image to OCR"
+msgstr "OCR için Görüntü Aç"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 496
+msgid "Images"
+msgstr "Görüntüler"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
+msgid "Copied to clipboard"
+msgstr "Panoza kopyalandı"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
+msgid "Error"
+msgstr "Hata"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 612
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 1199
+msgid "OK"
+msgstr "Evet"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1584
 msgid "Save Extracted Text"
@@ -475,244 +686,672 @@ msgstr "Üzerine yazmak"
 msgid "Auto-Rename"
 msgstr "Otomatik Yeniden Adlandırma"
 # 
+# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 189
+msgid "Resume Previous Session?"
+msgstr "Önceki Oturumu Devam Ettir?"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 191
+#, python-brace-format
+msgid ""
+"An incomplete processing session was found.\n"
+"\n"
+"Progress: {completed} of {total} files completed\n"
+"Remaining: {pending} files\n"
+"\n"
+"Would you like to resume processing the remaining files?"
+msgstr ""
+"Tamamlanmamış bir işleme oturumu bulundu.\n"
+"\n"
+"İlerleme: {completed} / {total} dosya tamamlandı\n"
+"Kalan: {pending} dosya\n"
+"\n"
+"Kalan dosyaların işlenmesine devam etmek ister misiniz?"
+# 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 612
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 1199
-msgid "OK"
-msgstr "Evet"
+# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 197
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 629
+msgid "Discard"
+msgstr "Atla"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 34
-#, python-brace-format
-msgid "CSS file not found: {0}"
-msgstr "CSS dosyası bulunamadı: {0}"
+# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 198
+msgid "Resume"
+msgstr "Özgeçmiş"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 43
-msgid "Custom CSS styles loaded successfully"
-msgstr "Özel CSS stilleri başarıyla yüklendi."
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 131
+msgid "Excluded"
+msgstr "Hariç tutuldu"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 46
-#, python-brace-format
-msgid "Error loading CSS styles: {0}"
-msgstr "CSS stilleri yüklenirken hata: {0}"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 153
+msgid "Include this page in the final document"
+msgstr "Bu sayfayı son belgeye dahil et."
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 41
-msgid "Big OCR Image"
-msgstr "Büyük OCR Görüntüsü"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 169
+msgid "Rotate this page to the left"
+msgstr "Bu sayfayı sola döndür."
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 144
-msgid "Processing extracted text..."
-msgstr "İşlenmiş metin..."
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 178
+msgid "Rotate this page to the right"
+msgstr "Bu sayfayı sağa döndür."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 72
+msgid "PDF Editor - {}"
+msgstr "PDF Düzenleyici - {}"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 114
+msgid "Go back to the file list"
+msgstr "Dosya listesine geri dön"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 121
+msgid "Save changes and go back"
+msgstr "Değişiklikleri kaydet ve geri dön"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 126
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 474
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 95
+msgid "Add Files"
+msgstr "Dosya Ekle"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 128
+msgid "Add more files to this document"
+msgstr "Bu belgeye daha fazla dosya ekleyin."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 180
+msgid "Include All"
+msgstr "Hepsini Dahil Et"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 182
+msgid "Select all pages for processing"
+msgstr "İşleme için tüm sayfaları seçin"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 186
+msgid "Exclude All"
+msgstr "Tümünü Hariç Tut"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 188
+msgid "Deselect all pages"
+msgstr "Tüm sayfaları seçimi kaldır"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 201
+msgid "Rotate selected pages to the left"
+msgstr "Seçili sayfaları sola döndür"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 210
+msgid "Rotate selected pages to the right"
+msgstr "Seçili sayfaları sağa döndür"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 224
+msgid "Change the size of page previews"
+msgstr "Sayfa önizlemelerinin boyutunu değiştirin."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 343
+msgid "Failed to add file {}: {}"
+msgstr "Dosya eklenemedi {}: {}"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 397
+msgid "Could not open PDF file or file has no pages."
+msgstr "PDF dosyası açılamadı veya dosyada sayfa yok."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 428
+msgid "Failed to load PDF: {}"
+msgstr "PDF yüklenemedi: {}"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 435
+msgid "Pages: {}"
+msgstr "Sayfalar: {}"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 436
+msgid "Included: {}"
+msgstr "Dahil: {}"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 478
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 68
+msgid "PDFs and Images"
+msgstr "PDF'ler ve Görseller"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
+msgid "Error saving changes."
+msgstr "Değişiklikler kaydedilirken hata oluştu."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 604
+msgid "Failed to merge PDF pages."
+msgstr "PDF sayfalarını birleştirme işlemi başarısız oldu."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 626
+msgid "Unsaved Changes"
+msgstr "Kaydedilmemiş Değişiklikler"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 627
+msgid "What would you like to do with your changes?"
+msgstr "Değişikliklerinizle ne yapmak istersiniz?"
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
 msgid "Apply"
 msgstr "Uygula"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
-msgid "Apply current settings and reprocess the image"
-msgstr "Mevcut ayarları uygula ve görüntüyü yeniden işleme al."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
-msgid "Copy"
-msgstr "Kopyala"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
-msgid "New Capture"
-msgstr "Yeni Yakalama"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
-msgid "Open Image"
-msgstr "Görüntüyü Aç"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 252
-msgid "Select OCR language"
-msgstr "OCR dilini seçin"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 283
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 334
-msgid "Auto"
-msgstr "Otomatik"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 284
-msgid "Block"
-msgstr "Blok"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 285
-msgid "Line"
-msgstr "Satır"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 286
-msgid "Word"
-msgstr "Kelime"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 287
-msgid "Sparse"
-msgstr "Seyrek"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 288
-msgid "Column"
-msgstr "Sütun"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 289
-msgid "Char"
-msgstr "Karakter"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 290
-msgid "Auto + OSD"
-msgstr "Otomatik + OSD"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 291
-msgid "OSD only"
-msgstr "Sadece OSD"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 292
-msgid "Raw line"
-msgstr "Ham satır"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 292
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 292
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 306
-msgid "Page Segmentation Mode"
-msgstr "Sayfa Bölümleme Modu"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 335
-msgid "LSTM"
-msgstr "LSTM"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 336
-msgid "Legacy"
-msgstr "Eski (Legacy)"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 337
-msgid "Both"
-msgstr "İkisi de"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 351
-msgid "OCR Engine Mode"
-msgstr "OCR Motor Modu"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
-msgid "No text extracted."
-msgstr "No text extracted."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 451
-msgid "Copied!"
-msgstr "Kopyalandı!"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
-msgid "Open Image to OCR"
-msgstr "OCR için Görüntü Aç"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 496
-msgid "Images"
-msgstr "Görüntüler"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
-msgid "Error"
-msgstr "Hata"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 527
-msgid "Open an image or take a screenshot to extract text."
-msgstr "Bir görüntü açın veya metin çıkarmak için ekran görüntüsü alın."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 97
-msgid "Configuration"
-msgstr "Yapılandırma"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 106
-msgid "Save in same folder as original file"
-msgstr "Orijinal dosya ile aynı klasöre kaydet"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 125
-msgid "Select the destination folder"
-msgstr "Hedef klasörü seçin"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 150
-msgid "Browse"
-msgstr "Gözat"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 163
-msgid "Output File Options"
-msgstr "Çıktı Dosyası Seçenekleri"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 172
-msgid "Configure"
-msgstr "Yapılandır"
-# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 184
 msgid "Text Language"
 msgstr "Metin Dili"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 159
+msgid ""
+"Choose the language of your document's text.\n"
+"The correct language helps recognize text more accurately."
+msgstr "Belgenizin metninin dilini seçin. Doğru dil, metni daha doğru bir şekilde tanımaya yardımcı olur."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 165
+msgid "OCR Precision"
+msgstr "OCR Hassasiyeti"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 171
+msgid "Low Precision"
+msgstr "Düşük Hassasiyet"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 172
+msgid "Standard"
+msgstr "Standart"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 173
+msgid "Precise"
+msgstr "Kesin"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 174
+msgid "Very Precise"
+msgstr "Çok Hassas"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 184
+msgid ""
+"How carefully the program reads text from your documents.\n"
+"\n"
+"• Low Precision: Finds more text, good for blurry or faded pages.\n"
+"• Standard: Works well for most documents.\n"
+"• Precise: Fewer mistakes, may miss some faint text.\n"
+"• Very Precise: Only keeps text it is very sure about."
+msgstr ""
+"Programın belgelerinizden metni ne kadar dikkatli okuduğu.\n"
+"\n"
+"• Düşük Hassasiyet: Daha fazla metin bulur, bulanık veya solmuş sayfalar için iyidir.\n"
+"• Standart: Çoğu belge için iyi çalışır.\n"
+"• Hassas: Daha az hata yapar, bazı soluk metinleri atlayabilir.\n"
+"• Çok Hassas: Sadece kesin olarak emin olduğu metni saklar."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 206
+msgid "Export Format"
+msgstr "Dışa Aktarma Formatı"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+msgid "Custom Quality"
+msgstr "Özel Kalite"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 216
+msgid ""
+"Original: Keeps images unchanged (best quality, larger files)\n"
+"Custom Quality: Adjusts image quality to reduce file size"
+msgstr ""
+"Orijinal: Görüntüleri değiştirmeden korur (en iyi kalite, daha büyük dosyalar)  \n"
+"Özel Kalite: Dosya boyutunu azaltmak için görüntü kalitesini ayarlar"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 194
 msgid "Quality"
 msgstr "Kalite"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 204
-msgid "Alignment"
-msgstr "Hizalama"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 227
+msgid "Very Low (30%)"
+msgstr "Çok Düşük (30%)"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 234
-msgid "PDF Files Queue"
-msgstr "PDF Dosyaları Kuyruğu"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 228
+msgid "Low (50%)"
+msgstr "Düşük (50%)"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 261
-msgid "Add"
-msgstr "Ekle"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 229
+msgid "Medium (70%)"
+msgstr "Orta (70%)"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 269
-msgid "Remove All"
-msgstr "Tümünü Kaldır"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 230
+msgid "High (85%)"
+msgstr "Yüksek (85%)"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 324
-msgid "Drop PDF files here"
-msgstr "PDF dosyalarını buraya bırakın"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 231
+msgid "Maximum (95%)"
+msgstr "Maksimum (95%)"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 305
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 967
-msgid "No files selected"
-msgstr "Hiçbir dosya seçilmedi."
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 240
+msgid ""
+"Very Low: Smallest files, lower image quality\n"
+"Low: Small files, some quality loss\n"
+"Medium: Good balance between quality and file size\n"
+"High: Recommended for most documents\n"
+"Maximum: Best image quality, larger files"
+msgstr ""
+"Çok Düşük: En küçük dosyalar, daha düşük görüntü kalitesi  \n"
+"Düşük: Küçük dosyalar, bazı kalite kaybı  \n"
+"Orta: Kalite ve dosya boyutu arasında iyi denge  \n"
+"Yüksek: Çoğu belge için önerilir  \n"
+"Maksimum: En iyi görüntü kalitesi, daha büyük dosyalar"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 306
-msgid "Add PDF files for OCR processing"
-msgstr "OCR işleme için PDF dosyaları ekleyin."
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 249
+msgid "Export as PDF/A"
+msgstr "PDF/A olarak dışa aktar"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 257
+msgid ""
+"Creates a PDF designed for long-term storage.\n"
+"Recommended when you need the file to open\n"
+"correctly on any device, now and in the future."
+msgstr ""
+"Uzun vadeli depolama için tasarlanmış bir PDF oluşturur. Dosyanın, şimdi ve gelecekte herhangi bir "
+"cihazda doğru bir şekilde açılması gerektiğinde önerilir."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 918
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 38
-msgid "Don't change"
-msgstr "Değiştirmeyin"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 264
+msgid "Maximum Output Size"
+msgstr "Maksimum Çıktı Boyutu"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 270
+msgid "No limit"
+msgstr "Sınırsız"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 919
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 39
-msgid "Align"
-msgstr "Hizala"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 286
+msgid ""
+"Sets a maximum size for the final file.\n"
+"If the result is too large, it is automatically split\n"
+"into smaller numbered files (e.g. document-01.pdf).\n"
+"\n"
+"Useful when sending by email or uploading online."
+msgstr ""
+"Son dosya için maksimum boyut belirler. \n"
+"Sonuç çok büyükse, otomatik olarak daha küçük numaralı dosyalara (örneğin, belge-01.pdf) bölünür. \n"
+"\n"
+"E-posta ile gönderirken veya çevrimiçi yüklerken kullanışlıdır."
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 333
+msgid "No PDF Files"
+msgstr "PDF Dosyası Yok"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 920
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 40
-msgid "Auto rotate"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 334
+msgid "Drag files here or use the Add Files button"
+msgstr "Dosyaları buraya sürükleyin veya Dosya Ekle butonunu kullanın."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 362
+msgid "Save in the same folder as the original file"
+msgstr "Orijinal dosya ile aynı klasöre kaydet"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 363
+msgid "Custom folder"
+msgstr "Özel klasör"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1881
+msgid "Select folder"
+msgstr "Klasör seçin"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 401
+msgid "Output options"
+msgstr "Çıktı seçenekleri"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 467
+msgid "Choose the model that matches the language of your documents for the best results."
+msgstr "Belgelerinizin diline en uygun modeli seçin."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 493
+#, python-brace-format
+msgid "{count} languages"
+msgstr "{count} dil"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 546
+msgid "Supported Languages"
+msgstr "Desteklenen Diller"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 593
+msgid "Image Preprocessing"
+msgstr "Görüntü Ön İşleme"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 596
+msgid "Auto Detect"
+msgstr "Otomatik Algılama"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 604
+msgid ""
+"When ON: The program checks each page and only fixes\n"
+"problems it finds (recommended for most documents).\n"
+"When OFF: All corrections below are always applied."
+msgstr ""
+"Açık olduğunda: Program her sayfayı kontrol eder ve yalnızca bulduğu sorunları düzeltir (çoğu belge "
+"için önerilir).\n"
+"Kapalı olduğunda: Aşağıdaki tüm düzeltmeler her zaman uygulanır."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 611
+msgid "Deskew"
+msgstr "Eğik düzeltme"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 618
+msgid "Straightens pages that were scanned at a slight angle."
+msgstr "Eğik bir açıyla taranan sayfaları düzeltir."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 622
+msgid "Perspective Correction"
+msgstr "Perspektif Düzeltme"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 630
+msgid ""
+"Fixes pages that look tilted or warped, for example\n"
+"when a document was photographed instead of scanned."
+msgstr ""
+"Eğik veya bozulmuş görünen sayfaları düzeltir, örneğin bir belgenin taranmak yerine fotoğraflandığı "
+"durumlarda."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 635
+msgid "Auto-rotate"
 msgstr "Otomatik döndürme"
 # 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 642
+msgid "Detects and fixes pages that are upside-down or sideways."
+msgstr "Ters veya yan dönmüş sayfaları tespit eder ve düzeltir."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 646
+msgid "Scanner Effect"
+msgstr "Tarayıcı Efekti"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 653
+msgid ""
+"Makes text darker and the background lighter,\n"
+"like a clean scanner copy."
+msgstr "Metni daha koyu ve arka planı daha açık hale getirir, temiz bir tarayıcı kopyası gibi."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 657
+msgid "Replace Existing OCR"
+msgstr "Mevcut OCR'yi Değiştirin"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 665
+msgid ""
+"When ON: Redoes the text recognition even if the PDF\n"
+"already has searchable text. Use this when the existing\n"
+"text is incorrect or of poor quality.\n"
+"When OFF: Keeps existing text and only processes pages without it."
+msgstr ""
+"Açık olduğunda: PDF'de zaten aranabilir metin olsa bile metin tanımayı yeniden yapar. Mevcut metin "
+"yanlış veya kalitesiz olduğunda bunu kullanın. Kapalı olduğunda: Mevcut metni korur ve yalnızca "
+"metin olmayan sayfaları işler."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 983
+msgid "Edit pages of this file"
+msgstr "Bu dosyanın sayfalarını düzenle."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 991
+msgid "Open this file in your default application"
+msgstr "Bu dosyayı varsayılan uygulamanızda açın."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 999
+msgid "Remove this file from the list"
+msgstr "Bu dosyayı listeden kaldır."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1023
+msgid "Failed to open file"
+msgstr "Dosya açılamadı"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1094
+msgid "Changes saved"
+msgstr "Değişiklikler kaydedildi"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1114
+msgid "Failed to open PDF editor"
+msgstr "PDF düzenleyici açılamadı."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1210
+msgid "Multiple Images Dropped"
+msgstr "Birden Fazla Görüntü Bırakıldı"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1212
+msgid "You dropped {} images. How would you like to add them?"
+msgstr "{} görüntüyü bıraktınız. Onları nasıl eklemek istersiniz?"
+# 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 921
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 41
-msgid "Align + rotate"
-msgstr "Hizala + döndür"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1215
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 194
+msgid "Separate PDFs"
+msgstr "Ayrı PDF'ler"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 937
-msgid "Choose how to handle page alignment and rotation during OCR processing"
-msgstr "OCR işlemi sırasında sayfa hizalaması ve döndürme ile nasıl başa çıkılacağını seçin."
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 632
-msgid "Remove from queue"
-msgstr "Kuyruktan kaldır"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1216
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 195
+msgid "Merge into One PDF"
+msgstr "Bir PDF'ye Birleştir."
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1227
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 221
+msgid "Merged {} images into one PDF"
+msgstr "{} görüntü birleştirilerek tek bir PDF'ye dönüştürüldü."
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1231
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 225
+msgid "Error merging images"
+msgstr "Görüntüleri birleştirirken hata oluştu."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1917
+msgid "Select Folder for Text Files"
+msgstr "Metin Dosyaları için Klasör Seçin"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_callbacks_mixin.py, line: 317
+msgid "PDF output settings saved"
+msgstr "PDF çıktı ayarları kaydedildi"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 197
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 733
+msgid "Start"
+msgstr "Başla"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/navigation_manager.py, line: 109
+msgid "Process New Files"
+msgstr "Yeni Dosyaları İşle"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 27
+msgid "ODF Export Options"
+msgstr "ODF Dışa Aktarma Seçenekleri"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 29
+msgid ""
+"Choose the export format:\n"
+"\n"
+"• Formatted + Images: Page images with structured text layout below\n"
+"• Images + Simple Text: Page images with plain text below\n"
+"• Formatted Text: Structured text layout only (no images)\n"
+"• Plain Text: Simple text without formatting"
+msgstr ""
+"Dışa aktarma formatını seçin:\n"
+"\n"
+"• Biçimlendirilmiş + Görseller: Sayfa görselleri ile altında yapılandırılmış metin düzeni\n"
+"• Görseller + Basit Metin: Sayfa görselleri ile altında düz metin\n"
+"• Biçimlendirilmiş Metin: Sadece yapılandırılmış metin düzeni (görsel yok)\n"
+"• Düz Metin: Biçimlendirme olmadan basit metin"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 37
+msgid "Formatted + Images"
+msgstr "Biçimlendirilmiş + Görseller"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 38
+msgid "Images + Simple Text"
+msgstr "Görseller + Basit Metin"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 39
+msgid "Formatted Text"
+msgstr "Biçimlendirilmiş Metin"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 40
+msgid "Plain Text"
+msgstr "Düz Metin"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 86
+msgid "No text to export"
+msgstr "İhracat edilecek metin yok."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 102
+msgid "Export to OpenDocument"
+msgstr "Açık Belge Biçimi'ne Dışa Aktar"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 338
+msgid "Exported to {}"
+msgstr "{}'ye aktarıldı"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 340
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 350
+msgid "Export failed"
+msgstr "Dışa aktarma başarısız oldu."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 610
+msgid "Extracted Text"
+msgstr "Elde Edilen Metin"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 612
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 1199
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 639
+msgid "No text content was detected in this file during OCR processing."
+msgstr "Bu dosyada OCR işleme sırasında metin içeriği tespit edilmedi."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 708
+msgid "OCR processing was completed for this file, but the extracted text could not be found."
+msgstr "Bu dosya için OCR işlemi tamamlandı, ancak çıkarılan metin bulunamadı."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
+msgid "words"
+msgstr "kelimeler"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
+msgid "characters"
+msgstr "karakterler"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1343
+msgid "Search in text..."
+msgstr "Metin içinde ara..."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 233
+msgid "Go to previous match (Ctrl+Shift+G)"
+msgstr "Önceki eşleşmeye git (Ctrl+Shift+G)"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 240
+msgid "Go to next match (Ctrl+G)"
+msgstr "Sonraki eşleşmeye git (Ctrl+G)"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 349
+msgid "Search in text (Ctrl+F)"
+msgstr "Metin içinde ara (Ctrl+F)"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 371
+msgid "Save TXT"
+msgstr "TXT Kaydet"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1512
+msgid "Close"
+msgstr "Kapat"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 507
+msgid "No matches"
+msgstr "Eşleşme yok."
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 189
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 762
+msgid "Back"
+msgstr "Geri dön"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 70
+msgid "Remove all files from the list"
+msgstr "Listeden tüm dosyaları kaldır."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 78
+msgid "0 files"
+msgstr "0 dosya"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 102
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 110
+msgid "Start OCR"
+msgstr "OCR'yi Başlat"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 144
+msgid "Menu"
+msgstr "Menü"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 126
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 256
+msgid "Reset Settings"
+msgstr "Ayarları Sıfırla"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 148
+msgid "Help"
+msgstr "Yardım"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 128
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 258
+msgid "About"
+msgstr "Hakkında"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 129
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 259
+msgid "Quit"
+msgstr "Çıkış yap"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 183
+msgid "1 file"
+msgstr "1 dosya"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 185
+msgid "{} files"
+msgstr "{} dosyaları"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 63
+msgid "Select Files"
+msgstr "Dosyaları Seçin"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 532
+msgid "Error adding files"
+msgstr "Dosya eklerken hata oluştu"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 528
+msgid "No valid files were selected"
+msgstr "Geçerli dosya seçilmedi."
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 189
+msgid "Multiple Images Selected"
+msgstr "Birden Fazla Görüntü Seçildi"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 191
+msgid "You selected {} images. How would you like to add them?"
+msgstr "{} görüntüyü seçtiniz. Onları nasıl eklemek istersiniz?"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 553
+msgid "Select destination folder"
+msgstr "Hedef klasörü seçin"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 608
+msgid "Error selecting destination folder"
+msgstr "Hedef klasör seçerken hata"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 604
+msgid "Destination folder selected"
+msgstr "Hedef klasör seçildi"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 424
 msgid "Processing Summary"
@@ -730,89 +1369,17 @@ msgstr "Toplam sayfa:"
 msgid "Processing time:"
 msgstr "İşlem süresi:"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 504
-msgid "File size:"
-msgstr "Dosya boyutu:"
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 140
+msgid "Output size:"
+msgstr "Çıktı boyutu:"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 149
+msgid "Size change:"
+msgstr "Boyut değişikliği:"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 529
 msgid "Generated Files"
 msgstr "Oluşturulan Dosyalar"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 724
-msgid "Open file"
-msgstr "Dosya aç"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 786
-msgid "View extracted text"
-msgstr "Çıkarılan metni görüntüle"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 610
-msgid "Extracted Text"
-msgstr "Elde Edilen Metin"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 612
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 1199
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 639
-msgid "No text content was detected in this file during OCR processing."
-msgstr "Bu dosyada OCR işleme sırasında metin içeriği tespit edilmedi."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 197
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 733
-msgid "Start"
-msgstr "Başla"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/navigation_manager.py, line: 109
-msgid "Process New Files"
-msgstr "Yeni Dosyaları İşle"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 478
-msgid "Select PDF Files"
-msgstr "PDF Dosyalarını Seçin"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 485
-msgid "PDF Files"
-msgstr "PDF Dosyaları"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 532
-msgid "Error adding files"
-msgstr "Dosya eklerken hata oluştu"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 528
-msgid "No valid files were selected"
-msgstr "Geçerli dosya seçilmedi."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 529
-msgid "No valid PDF files were selected"
-msgstr "Geçerli PDF dosyaları seçilmedi."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 553
-msgid "Select destination folder"
-msgstr "Hedef klasörü seçin"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 608
-msgid "Error selecting destination folder"
-msgstr "Hedef klasör seçerken hata"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 604
-msgid "Destination folder selected"
-msgstr "Hedef klasör seçildi"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
-msgid "Print version information and exit"
-msgstr "Sürüm bilgilerini yazdır ve çık."
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 57
-# File: bigocrpdf/src/bigocrpdf/config.py, line: 139
-msgid "Start in image conversion mode"
-msgstr "Görüntü dönüştürme modunda başla"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
 msgid "Application started successfully"
@@ -831,77 +1398,64 @@ msgstr "{n_files} dosya açıldı"
 msgid "BigLinux Team"
 msgstr "BigLinux Ekibi"
 # 
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 249
+msgid "Interface"
+msgstr "Arayüz"
+# 
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 255
+msgid "Third-party Components"
+msgstr "Üçüncü Taraf Bileşenler"
+# 
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 257
+msgid ""
+"The OCR engine and other libraries used by this application are independent projects, each "
+"distributed under its own license."
+msgstr ""
+"Bu uygulama tarafından kullanılan OCR motoru ve diğer kütüphaneler bağımsız projelerdir ve her biri "
+"kendi lisansı altında dağıtılmaktadır."
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 139
 msgid "Developers"
 msgstr "Geliştiriciler"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 32
-msgid "Normal"
-msgstr "Normal"
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 272
+msgid "Powered by"
+msgstr "Tarafından desteklenmektedir"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 33
-msgid "Economic"
-msgstr "Ekonomik"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 34
-msgid "More economic"
-msgstr "Daha ekonomik"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 45
-msgid "Keep pages as they are without any modifications"
-msgstr "Sayfaları olduğu gibi, herhangi bir değişiklik yapmadan koruyun."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 46
-msgid "Align page content to improve readability"
-msgstr "Sayfa içeriğini okunabilirliği artırmak için hizalayın."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 47
-msgid "Automatically rotate pages to correct orientation"
-msgstr "Sayfaları doğru yönlendirme için otomatik olarak döndür."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 48
-msgid "Align page content and automatically rotate pages to correct orientation"
-msgstr "Sayfa içeriğini hizalayın ve sayfaları doğru yönlendirmeye otomatik olarak döndürün."
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 17
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 60
-msgid "Big OCR PDF"
-msgstr "Büyük OCR PDF"
-# 
-# File: bigocrpdf/src/bigocrpdf/window.py, line: 108
-msgid "Settings"
-msgstr "Ayarlar"
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 46
+msgid "Main"
+msgstr "Ana"
 # 
 # File: bigocrpdf/src/bigocrpdf/window.py, line: 108
 msgid "Processing"
 msgstr "İşleniyor"
 # 
-# File: bigocrpdf/src/bigocrpdf/window.py, line: 108
-msgid "Completed"
-msgstr "Tamamlandı"
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 213
+msgid "Results"
+msgstr "Sonuçlar"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 138
-msgid "BigOcrPdf - Scanned PDFs with search support"
-msgstr "BigOcrPdf - Arama desteği olan taranmış PDF'ler"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
+msgid "Add OCR to your PDF documents to make them searchable"
+msgstr "PDF belgelerinize arama yapılabilir hale getirmek için OCR ekleyin."
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 144
-msgid "Menu"
-msgstr "Menü"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 72
+msgid "Enable debug mode"
+msgstr "Hata ayıklama modunu etkinleştir"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 148
-msgid "Help"
-msgstr "Yardım"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 74
+msgid "Enable verbose output"
+msgstr "Ayrıntılı çıktıyı etkinleştir"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 149
-msgid "About the application"
-msgstr "Uygulama hakkında"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 189
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 762
-msgid "Back"
-msgstr "Geri dön"
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 57
+# File: bigocrpdf/src/bigocrpdf/config.py, line: 139
+msgid "Start in image conversion mode"
+msgstr "Görüntü dönüştürme modunda başla"
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
+msgid "PDF files to process"
+msgstr "İşlenecek PDF dosyaları"
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 331
 msgid ""
@@ -931,6 +1485,18 @@ msgstr "Metni kopyala"
 msgid "Copy text from images and scanned documents"
 msgstr "Görüntülerden ve taranmış belgelerden metin kopyalayın."
 # 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 238
+msgid "Add image files and generate new PDFs from them"
+msgstr "Görüntü dosyaları ekleyin ve bunlardan yeni PDF'ler oluşturun."
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 239
+msgid "Edit PDF"
+msgstr "PDF Düzenle"
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 239
+msgid "Rearrange, rotate or remove pages before processing"
+msgstr "İşlemden önce sayfaları yeniden düzenleyin, döndürün veya kaldırın."
+# 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
 msgid "Batch processing"
 msgstr "Toplu işleme"
@@ -954,6 +1520,43 @@ msgstr "Bu iletişimi başlangıçta göster."
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 384
 msgid "Let's Get Started"
 msgstr "Hadi Başlayalım"
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 319
+msgid "Reset All Settings?"
+msgstr "Tüm Ayarları Sıfırlamak mı?"
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 321
+msgid "This will restore all options to their default values. Your file queue will not be affected."
+msgstr "Bu, tüm seçenekleri varsayılan değerlerine geri yükleyecektir. Dosya kuyruğunuz etkilenmeyecektir."
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 326
+msgid "Reset"
+msgstr "Sıfırla"
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 357
+msgid "Settings Reset"
+msgstr "Ayarları Sıfırla"
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 359
+msgid ""
+"All settings have been restored to their default values.\n"
+"Please close and reopen the program for the changes to take full effect."
+msgstr ""
+"Tüm ayarlar varsayılan değerlerine geri yüklendi. Değişikliklerin tam olarak etkili olması için "
+"lütfen programı kapatıp yeniden açın."
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 393
+#, python-brace-format
+msgid "Session resumed with {0} files"
+msgstr "{0} dosyayla oturum yeniden başlatıldı."
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 398
+msgid "Could not resume session"
+msgstr "Oturum devam ettirilemedi."
+# 
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 404
+msgid "Previous session discarded"
+msgstr "Önceki oturum silindi."
 # 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 618
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 619
@@ -1001,19 +1604,3 @@ msgstr "Kullanıcı tarafından OCR işlemi iptal edildi."
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1129
 msgid "OCR processing cancelled"
 msgstr "OCR işleme iptal edildi"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
-msgid "Add OCR to your PDF documents to make them searchable"
-msgstr "PDF belgelerinize arama yapılabilir hale getirmek için OCR ekleyin."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 72
-msgid "Enable debug mode"
-msgstr "Hata ayıklama modunu etkinleştir"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 74
-msgid "Enable verbose output"
-msgstr "Ayrıntılı çıktıyı etkinleştir"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
-msgid "PDF files to process"
-msgstr "İşlenecek PDF dosyaları"
