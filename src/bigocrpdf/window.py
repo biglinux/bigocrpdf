@@ -60,6 +60,10 @@ class BigOcrPdfWindow(
             default_height=height,
         )
 
+        # Set minimum window size to prevent controls from being cut off
+        # Left sidebar (300px) + right content (620px) = 920px minimum width
+        self.set_size_request(920, 400)
+
         # Set up the window icon
         self.set_icon_name(APP_ICON_NAME)
 

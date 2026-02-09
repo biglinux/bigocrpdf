@@ -26,6 +26,10 @@ class WindowUISetupMixin:
         self.main_paned = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
         self.main_paned.set_vexpand(True)
 
+        # Prevent panes from shrinking below their minimum size
+        self.main_paned.set_shrink_start_child(False)
+        self.main_paned.set_shrink_end_child(False)
+
         # Create left sidebar pane
         self._create_left_sidebar()
 
@@ -126,6 +130,9 @@ class WindowUISetupMixin:
         sidebar_content = self._create_sidebar_settings()
         left_toolbar_view.set_content(sidebar_content)
 
+        # Set minimum width for left sidebar
+        left_toolbar_view.set_size_request(300, -1)
+
         self.main_paned.set_start_child(left_toolbar_view)
         self.left_toolbar_view = left_toolbar_view  # Store reference for later settings
 
@@ -178,6 +185,9 @@ class WindowUISetupMixin:
         content_scroll.set_child(self.stack)
 
         right_toolbar_view.set_content(content_scroll)
+
+        # Set minimum width for right content area
+        right_toolbar_view.set_size_request(620, -1)
 
         self.main_paned.set_end_child(right_toolbar_view)
 

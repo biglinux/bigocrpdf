@@ -76,7 +76,7 @@ class ImageOcrWindow(Adw.ApplicationWindow):
     def _load_window_size(self) -> tuple[int, int]:
         """Load window size from configuration."""
         config = get_config_manager()
-        width = config.get(f"{IMAGE_WINDOW_STATE_KEY}.width", 600)
+        width = config.get(f"{IMAGE_WINDOW_STATE_KEY}.width", 800)
         height = config.get(f"{IMAGE_WINDOW_STATE_KEY}.height", 500)
         return max(width, 400), max(height, 300)
 
@@ -415,6 +415,17 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         self._toast_overlay.add_toast(Adw.Toast(title=_("Copied to clipboard")))
 
     # ── Helpers ─────────────────────────────────────────────────────────
+
+    def open_image(self, file_path: str) -> None:
+        """Open and process an image file.
+
+        Public method called when a file is passed via command line.
+
+        Args:
+            file_path: Path to the image file to process
+        """
+        if file_path:
+            self._start_processing(file_path)
 
     def _show_error(self, message: str) -> None:
         """Show error dialog.

@@ -86,7 +86,7 @@ LOGGER_NAME: Final[str] = "BigOcrPdf"
 # Window Configuration
 # ============================================================================
 
-DEFAULT_WINDOW_WIDTH: Final[int] = 1100
+DEFAULT_WINDOW_WIDTH: Final[int] = 1300
 DEFAULT_WINDOW_HEIGHT: Final[int] = 680
 WINDOW_STATE_KEY: Final[str] = "window"
 IMAGE_WINDOW_STATE_KEY: Final[str] = "image_window"
