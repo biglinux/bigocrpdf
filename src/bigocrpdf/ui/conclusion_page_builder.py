@@ -6,6 +6,7 @@ gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Gtk
 
+from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.i18n import _
 
 
@@ -277,6 +278,7 @@ class ConclusionPageBuilderMixin:
         self.output_list_box.add_css_class("boxed-list")
         self.output_list_box.add_css_class("output-files-list")
         self.output_list_box.set_vexpand(True)
+        set_a11y_label(self.output_list_box, _("Output files"))
 
         scrolled.set_child(self.output_list_box)
         return scrolled

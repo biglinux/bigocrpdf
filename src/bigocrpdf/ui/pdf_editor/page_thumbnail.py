@@ -5,6 +5,8 @@ A GTK4 widget displaying a PDF page thumbnail with controls for
 selection, OCR checkbox, rotation indicator, and deletion overlay.
 """
 
+from collections.abc import Callable
+
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -34,7 +36,6 @@ class PageThumbnail(Gtk.Box):
         thumbnail-clicked: Emitted when the thumbnail is clicked
         rotate-left-clicked: Emitted when rotate left button is clicked
         rotate-right-clicked: Emitted when rotate right button is clicked
-        delete-clicked: Emitted when delete button is clicked
     """
 
     __gsignals__ = {
@@ -42,7 +43,6 @@ class PageThumbnail(Gtk.Box):
         "thumbnail-clicked": (GObject.SignalFlags.RUN_FIRST, None, ()),
         "rotate-left-clicked": (GObject.SignalFlags.RUN_FIRST, None, ()),
         "rotate-right-clicked": (GObject.SignalFlags.RUN_FIRST, None, ()),
-        "delete-clicked": (GObject.SignalFlags.RUN_FIRST, None, ()),
     }
 
     def __init__(
@@ -65,13 +65,20 @@ class PageThumbnail(Gtk.Box):
         self._size = size
         self._selected = False
         self._thumbnail_loaded = False
-        self._current_rotation = None
+        self._current_rotation: int | None = None
+        self.on_before_mutate: Callable[[], None] | None = None
 
         # Calculate height for A4 aspect ratio
         self._height = int(size * 1.414)
 
         self.add_css_class("page-thumbnail")
         self.set_size_request(size + 16, self._height + 50)
+
+        # Accessible name for screen readers
+        self.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [_("Page {}").format(page_state.page_number)],
+        )
 
         # Set Grab cursor
         self.set_cursor(Gdk.Cursor.new_from_name("grab", None))
@@ -140,10 +147,10 @@ class PageThumbnail(Gtk.Box):
 
         self.append(self._overlay)
 
-        # Bottom info bar with controls
+        # Bottom info bar: checkbox + page number + rotate buttons
         info_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         info_box.set_halign(Gtk.Align.CENTER)
-        info_box.set_margin_top(4)
+        info_box.set_margin_top(2)
 
         # OCR/Include checkbox
         self._ocr_check = Gtk.CheckButton()
@@ -151,6 +158,10 @@ class PageThumbnail(Gtk.Box):
         self._ocr_check.set_active(not self._page_state.deleted)
         get_tooltip_helper().add_tooltip(
             self._ocr_check, _("Include this page in the final document")
+        )
+        self._ocr_check.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [_("Include page {} in the final document").format(self._page_state.page_number)],
         )
         self._ocr_check.connect("toggled", self._on_ocr_toggled)
         info_box.append(self._ocr_check)
@@ -167,6 +178,10 @@ class PageThumbnail(Gtk.Box):
         self._rotate_left_btn.add_css_class("flat")
         self._rotate_left_btn.add_css_class("circular")
         get_tooltip_helper().add_tooltip(self._rotate_left_btn, _("Rotate this page to the left"))
+        self._rotate_left_btn.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [_("Rotate page {} to the left").format(self._page_state.page_number)],
+        )
         self._rotate_left_btn.connect("clicked", self._on_rotate_left_clicked)
         info_box.append(self._rotate_left_btn)
 
@@ -176,14 +191,18 @@ class PageThumbnail(Gtk.Box):
         self._rotate_right_btn.add_css_class("flat")
         self._rotate_right_btn.add_css_class("circular")
         get_tooltip_helper().add_tooltip(self._rotate_right_btn, _("Rotate this page to the right"))
+        self._rotate_right_btn.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [_("Rotate page {} to the right").format(self._page_state.page_number)],
+        )
         self._rotate_right_btn.connect("clicked", self._on_rotate_right_clicked)
         info_box.append(self._rotate_right_btn)
 
         self.append(info_box)
 
-        # Click gesture for selection
+        # Click gesture for selection (released so drags can claim the sequence first)
         click_gesture = Gtk.GestureClick()
-        click_gesture.connect("pressed", self._on_clicked)
+        click_gesture.connect("released", self._on_clicked)
         self.add_controller(click_gesture)
 
         # Drag source for reordering
@@ -239,6 +258,8 @@ class PageThumbnail(Gtk.Box):
         Args:
             check: The checkbox widget
         """
+        if self.on_before_mutate:
+            self.on_before_mutate()
         active = check.get_active()
         # Active = Included = Not Deleted
         self._page_state.deleted = not active
@@ -363,7 +384,7 @@ class PageThumbnail(Gtk.Box):
             texture = Gdk.Texture.new_for_pixbuf(new_pixbuf)
             self._image.set_paintable(texture)
             self._page_state.thumbnail_pixbuf = new_pixbuf
-            self._current_rotation = degrees
+            self._current_rotation = self._page_state.rotation
 
         except Exception:
             self.reload_thumbnail()

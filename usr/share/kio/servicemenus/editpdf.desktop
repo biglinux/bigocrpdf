@@ -1,0 +1,39 @@
+[Desktop Entry]
+ServiceTypes=KonqPopupMenu/Plugin
+Actions=EditPDF;
+Type=Service
+MimeType=application/pdf;
+X-KDE-Priority=TopLevel
+
+[Desktop Action EditPDF]
+Name=Edit PDF pages
+Name[bg]=Редактиране на PDF страници
+Name[cs]=Upravit stránky PDF
+Name[da]=Rediger PDF-sider
+Name[de]=PDF-Seiten bearbeiten
+Name[el]=Επεξεργασία σελίδων PDF
+Name[es]=Editar páginas del PDF
+Name[et]=Redigeeri PDF-i lehti
+Name[fi]=Muokkaa PDF-sivuja
+Name[fr]=Modifier les pages du PDF
+Name[he]=עריכת דפי PDF
+Name[hr]=Uredi stranice PDF-a
+Name[hu]=PDF oldalak szerkesztése
+Name[is]=Breyta PDF-síðum
+Name[it]=Modifica pagine PDF
+Name[ja]=PDFページを編集
+Name[ko]=PDF 페이지 편집
+Name[nl]=PDF-pagina's bewerken
+Name[no]=Rediger PDF-sider
+Name[pl]=Edytuj strony PDF
+Name[pt]=Editar páginas do PDF
+Name[pt_BR]=Editar páginas do PDF
+Name[ro]=Editează paginile PDF
+Name[ru]=Редактировать страницы PDF
+Name[sk]=Upraviť stránky PDF
+Name[sv]=Redigera PDF-sidor
+Name[tr]=PDF sayfalarını düzenle
+Name[uk]=Редагувати сторінки PDF
+Name[zh]=编辑 PDF 页面
+Icon=bigocrpdf
+Exec=bigocrpdf --edit %F

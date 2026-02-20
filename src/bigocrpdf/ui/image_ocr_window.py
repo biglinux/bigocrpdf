@@ -15,6 +15,7 @@ from bigocrpdf.config import IMAGE_WINDOW_STATE_KEY
 from bigocrpdf.services.processor import OcrProcessor
 from bigocrpdf.services.screen_capture import ScreenCaptureService
 from bigocrpdf.services.settings import OcrSettings
+from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.config_manager import get_config_manager
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
@@ -144,6 +145,7 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         open_btn = Gtk.Button()
         open_btn.set_child(open_content)
         open_btn.add_css_class("pill")
+        set_a11y_label(open_btn, _("Open Image"))
         open_btn.connect("clicked", self._on_open_image_clicked)
         btn_box.append(open_btn)
 
@@ -154,6 +156,7 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         capture_btn.set_child(capture_content)
         capture_btn.add_css_class("pill")
         capture_btn.add_css_class("suggested-action")
+        set_a11y_label(capture_btn, _("Screen Capture"))
         capture_btn.connect("clicked", self._on_new_capture_clicked)
         btn_box.append(capture_btn)
 
@@ -190,6 +193,7 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         self._text_view.set_right_margin(18)
         self._text_view.set_top_margin(12)
         self._text_view.set_bottom_margin(12)
+        set_a11y_label(self._text_view, _("Extracted text"))
 
         self._text_buffer = self._text_view.get_buffer()
         text_scroll.set_child(self._text_view)
@@ -204,6 +208,9 @@ class ImageOcrWindow(Adw.ApplicationWindow):
             label=_("Copy"),
         )
         self._copy_button.set_tooltip_text(_("Copy text to clipboard"))
+        self._copy_button.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Copy text to clipboard")]
+        )
         self._copy_button.connect("clicked", self._on_copy_clicked)
         action_bar.pack_start(self._copy_button)
 
@@ -214,6 +221,7 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         )
         capture_btn.add_css_class("suggested-action")
         capture_btn.set_tooltip_text(_("Capture a screen region"))
+        set_a11y_label(capture_btn, _("Capture a screen region"))
         capture_btn.connect("clicked", self._on_new_capture_clicked)
         action_bar.pack_end(capture_btn)
 
@@ -222,6 +230,7 @@ class ImageOcrWindow(Adw.ApplicationWindow):
             label=_("Open Image"),
         )
         open_btn.set_tooltip_text(_("Open an image file"))
+        set_a11y_label(open_btn, _("Open an image file"))
         open_btn.connect("clicked", self._on_open_image_clicked)
         action_bar.pack_end(open_btn)
 
@@ -253,6 +262,7 @@ class ImageOcrWindow(Adw.ApplicationWindow):
 
         dropdown.set_model(string_list)
         dropdown.set_tooltip_text(_("Choose the language of the text in the image"))
+        set_a11y_label(dropdown, _("OCR language"))
 
         # Defer selection and signal connection until widget is first mapped
         def on_map(_widget: Gtk.Widget) -> None:
@@ -389,7 +399,15 @@ class ImageOcrWindow(Adw.ApplicationWindow):
     # ── Copy & Clipboard ────────────────────────────────────────────────
 
     def _on_copy_clicked(self, _btn: Gtk.Button) -> None:
-        """Copy extracted text to clipboard."""
+        """Copy extracted text to clipboard.
+
+        Uses a triple-fallback chain due to inconsistent GDK4 clipboard API
+        across GTK versions and Wayland compositors:
+        1. set_text() — available in some GDK4 builds
+        2. ContentProvider.new_for_bytes() — standard GTK4 approach
+        3. ContentProvider.new_for_value() — last resort fallback
+        This workaround can be simplified once GTK >= 4.14 is the minimum.
+        """
         start_iter, end_iter = self._text_buffer.get_bounds()
         text = self._text_buffer.get_text(start_iter, end_iter, True)
 

@@ -12,6 +12,42 @@ from pathlib import Path
 DEFAULT_MODEL_PATH = Path("/usr/share/rapidocr/models")
 DEFAULT_FONT_PATH = Path("/usr/share/rapidocr/fonts")
 
+# --- OCR Processing Defaults (single source of truth) ---
+# Used by OCRConfig, PreprocessingConfig and OcrSettings to avoid drift.
+DEFAULT_LANGUAGE = "latin"
+DEFAULT_DPI = 300
+DEFAULT_BOX_THRESH = 0.5
+DEFAULT_UNCLIP_RATIO = 1.2
+DEFAULT_DETECTION_LIMIT_SIDE_LEN = 4096
+DEFAULT_SCORE_MODE = "slow"
+DEFAULT_TEXT_SCORE_THRESHOLD = 0.3
+DEFAULT_ENGINE_TYPE = "openvino"
+# Geometric corrections (ON by default)
+DEFAULT_ENABLE_PERSPECTIVE_CORRECTION = True
+DEFAULT_ENABLE_DESKEW = True
+DEFAULT_ENABLE_BASELINE_DEWARP = True
+DEFAULT_ENABLE_ORIENTATION_DETECTION = True
+# Color/enhancement (OFF by default – PP-OCRv5 works best without)
+DEFAULT_ENABLE_PREPROCESSING = False
+DEFAULT_ENABLE_AUTO_CONTRAST = False
+DEFAULT_ENABLE_AUTO_BRIGHTNESS = False
+DEFAULT_ENABLE_DENOISE = False
+DEFAULT_ENABLE_BORDER_CLEAN = False
+DEFAULT_ENABLE_SCANNER_EFFECT = True
+DEFAULT_SCANNER_EFFECT_STRENGTH = 1.0
+DEFAULT_ENABLE_VINTAGE_LOOK = False
+DEFAULT_VINTAGE_BW = False
+# Output
+DEFAULT_CONVERT_TO_PDFA = False
+DEFAULT_MAX_FILE_SIZE_MB = 0
+# Image export
+DEFAULT_IMAGE_EXPORT_FORMAT = "original"
+DEFAULT_IMAGE_EXPORT_QUALITY = 85
+DEFAULT_AUTO_DETECT_QUALITY = True
+# Execution
+DEFAULT_WORKERS = 0
+DEFAULT_REPLACE_EXISTING_OCR = False
+
 
 @dataclass
 class OCRConfig:
@@ -37,61 +73,56 @@ class OCRConfig:
     """
 
     # === Core Settings ===
-    language: str = "latin"
-    dpi: int = 300
+    language: str = DEFAULT_LANGUAGE
+    dpi: int = DEFAULT_DPI
 
     # === Detection Thresholds ===
-    box_thresh: float = 0.5
-    unclip_ratio: float = 1.2
-    detection_limit_side_len: int = 4096
-    score_mode: str = "slow"
-    text_score_threshold: float = 0.3  # Lower threshold to catch more text (reference: 0.3)
+    box_thresh: float = DEFAULT_BOX_THRESH
+    unclip_ratio: float = DEFAULT_UNCLIP_RATIO
+    detection_limit_side_len: int = DEFAULT_DETECTION_LIMIT_SIDE_LEN
+    score_mode: str = DEFAULT_SCORE_MODE
+    text_score_threshold: float = DEFAULT_TEXT_SCORE_THRESHOLD
 
     # === Model Settings ===
     use_server_models: bool = False
-    engine_type: str = "openvino"  # OpenVINO only (no ONNX fallback)
+    engine_type: str = DEFAULT_ENGINE_TYPE
 
     # === Paths (BigLinux standard) ===
     model_base_path: Path = field(default_factory=lambda: DEFAULT_MODEL_PATH)
     font_base_path: Path = field(default_factory=lambda: DEFAULT_FONT_PATH)
 
     # === Preprocessing Options ===
-    # Auto-detect: when ON, corrections only apply if detection indicates need
-    # When OFF, all enabled corrections always apply
-    enable_auto_detect: bool = True
     # Geometric corrections
-    enable_perspective_correction: bool = False  # Perspective correction for photographed documents
-    enable_deskew: bool = True  # Correct skewed documents
-    enable_orientation_detection: bool = True  # Detect and fix page rotation
+    enable_perspective_correction: bool = DEFAULT_ENABLE_PERSPECTIVE_CORRECTION
+    enable_deskew: bool = DEFAULT_ENABLE_DESKEW
+    enable_baseline_dewarp: bool = DEFAULT_ENABLE_BASELINE_DEWARP
+    enable_orientation_detection: bool = DEFAULT_ENABLE_ORIENTATION_DETECTION
     # Color/Enhancement: OFF by default (PP-OCRv5 works best without)
-    enable_preprocessing: bool = False  # Master switch for color enhancements
-    enable_auto_contrast: bool = False  # CLAHE (only if preprocessing enabled)
-    enable_auto_brightness: bool = False  # Brightness adjustment
-    enable_denoise: bool = False
-    enable_border_clean: bool = False
-    enable_scanner_effect: bool = False
-    scanner_effect_strength: float = 1.0
-    enable_vintage_look: bool = False
-    vintage_bw: bool = False
+    enable_preprocessing: bool = DEFAULT_ENABLE_PREPROCESSING
+    enable_auto_contrast: bool = DEFAULT_ENABLE_AUTO_CONTRAST
+    enable_auto_brightness: bool = DEFAULT_ENABLE_AUTO_BRIGHTNESS
+    enable_denoise: bool = DEFAULT_ENABLE_DENOISE
+    enable_border_clean: bool = DEFAULT_ENABLE_BORDER_CLEAN
+    enable_scanner_effect: bool = DEFAULT_ENABLE_SCANNER_EFFECT
+    scanner_effect_strength: float = DEFAULT_SCANNER_EFFECT_STRENGTH
+    enable_vintage_look: bool = DEFAULT_ENABLE_VINTAGE_LOOK
+    vintage_bw: bool = DEFAULT_VINTAGE_BW
 
     # === Output Options ===
-    convert_to_pdfa: bool = False
-    max_file_size_mb: int = 0  # 0 = no limit; split output into parts if exceeded
+    convert_to_pdfa: bool = DEFAULT_CONVERT_TO_PDFA
+    max_file_size_mb: int = DEFAULT_MAX_FILE_SIZE_MB
 
     # === Image Export Options ===
-    image_export_format: str = "original"  # original, jpeg, png, jp2
-    image_export_quality: int = 85  # Image quality (1-100) for lossy formats
-    auto_detect_quality: bool = True  # Auto-detect original image quality and format
+    image_export_format: str = DEFAULT_IMAGE_EXPORT_FORMAT
+    image_export_quality: int = DEFAULT_IMAGE_EXPORT_QUALITY
+    auto_detect_quality: bool = DEFAULT_AUTO_DETECT_QUALITY
 
     # === Execution Options ===
-    workers: int = 0  # 0 = Auto (all CPU cores, low priority), 1 = Single process
-    page_range: tuple[int, int] | None = None  # (start, end) 1-indexed, None for all pages
-    page_modifications: list[dict] | None = None  # List of page states from editor
-    force_full_ocr: bool = False  # Force image-only OCR mode (skip mixed content detection)
-    replace_existing_ocr: bool = False  # Replace existing OCR text in PDFs that already have it
-    render_full_pages: bool = (
-        False  # Use pdftoppm for full-page rendering (mixed-content + replace OCR)
-    )
+    workers: int = DEFAULT_WORKERS
+    page_range: tuple[int, int] | None = None
+    page_modifications: list[dict] | None = None
+    force_full_ocr: bool = False
+    replace_existing_ocr: bool = DEFAULT_REPLACE_EXISTING_OCR
 
     def get_font_path(self) -> Path:
         """Get correct font path based on language."""

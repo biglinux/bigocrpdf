@@ -9,6 +9,7 @@ gi.require_version("Adw", "1")
 from gi.repository import Adw, Gdk, Gio, Gtk
 
 from bigocrpdf.config import APP_ICON_NAME
+from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
@@ -178,18 +179,14 @@ class WindowActionsSignalsMixin:
 
     def show_welcome_dialog(self) -> None:
         """Show the welcome dialog as a centered modal."""
-        dialog = Adw.Window()
-        dialog.set_default_size(650, 430)
-        dialog.set_modal(True)
-        dialog.set_transient_for(self)
-        dialog.set_resizable(False)
-        dialog.set_hide_on_close(True)
-
-        overlay = Gtk.Overlay()
+        dialog = Adw.Dialog()
+        dialog.set_title("Big OCR PDF")
+        dialog.set_content_width(650)
+        dialog.set_content_height(500)
 
         content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        content_box.set_margin_top(16)
-        content_box.set_margin_bottom(20)
+        content_box.set_margin_top(24)
+        content_box.set_margin_bottom(24)
         content_box.set_margin_start(36)
         content_box.set_margin_end(36)
 
@@ -274,6 +271,7 @@ class WindowActionsSignalsMixin:
         show_at_startup_switch.set_active(self.should_show_welcome_dialog())
         show_at_startup_switch.set_valign(Gtk.Align.CENTER)
         show_at_startup_switch.set_halign(Gtk.Align.END)
+        set_a11y_label(show_at_startup_switch, _("Show this dialog at startup"))
 
         show_at_startup_box.append(show_at_startup_label)
         show_at_startup_box.append(show_at_startup_switch)
@@ -282,27 +280,17 @@ class WindowActionsSignalsMixin:
         start_button = Gtk.Button()
         start_button.set_label(_("Let's Get Started"))
         start_button.add_css_class("suggested-action")
+        start_button.add_css_class("pill")
         start_button.set_size_request(160, 36)
         start_button.set_halign(Gtk.Align.CENTER)
+        set_a11y_label(start_button, _("Let's Get Started"))
         bottom_section.append(start_button)
 
         content_box.append(bottom_section)
 
-        close_button = Gtk.Button()
-        close_button.set_icon_name("window-close-symbolic")
-        close_button.add_css_class("circular")
-        close_button.add_css_class("flat")
-        close_button.set_tooltip_text(_("Close"))
-        close_button.set_halign(Gtk.Align.END)
-        close_button.set_valign(Gtk.Align.START)
-        close_button.set_margin_top(8)
-        close_button.set_margin_end(8)
-        close_button.connect("clicked", lambda _: dialog.close())
-
-        overlay.set_child(content_box)
-        overlay.add_overlay(close_button)
-
-        dialog.set_content(overlay)
+        # Adw.Dialog provides its own header bar, just set content directly
+        dialog.set_child(content_box)
+        dialog.set_follows_content_size(True)
 
         def on_switch_toggle(switch, _param):
             self.set_show_welcome_dialog(switch.get_active())
@@ -310,8 +298,7 @@ class WindowActionsSignalsMixin:
         show_at_startup_switch.connect("notify::active", on_switch_toggle)
         start_button.connect("clicked", lambda _: dialog.close())
 
-        dialog.add_css_class("welcome-modal")
-        dialog.present()
+        dialog.present(self)
 
     def _confirm_reset_settings(self) -> None:
         """Show a confirmation dialog before resetting all settings to defaults."""
@@ -348,21 +335,10 @@ class WindowActionsSignalsMixin:
 
         # Refresh the UI to reflect new defaults
         if hasattr(self, "ui") and hasattr(self.ui, "settings_page"):
-            self.ui.settings_page._populate_file_list()
+            self.ui.settings_page.sync_ui_to_settings()
 
         logger.info("Settings reset to defaults via menu")
-
-        # Inform the user to restart the application
-        info_dialog = Adw.AlertDialog(
-            heading=_("Settings Reset"),
-            body=_(
-                "All settings have been restored to their default values.\n"
-                "Please close and reopen the program for the changes to take full effect."
-            ),
-        )
-        info_dialog.add_response("ok", _("OK"))
-        info_dialog.set_default_response("ok")
-        info_dialog.present(self)
+        self.show_toast(_("Settings restored to defaults"))
 
     def check_resumable_session(self) -> None:
         """Check for and offer to resume an incomplete processing session.
@@ -377,7 +353,7 @@ class WindowActionsSignalsMixin:
                     f"Found incomplete session with {session_info.get('pending_files', 0)} "
                     "pending files"
                 )
-                self.ui.dialogs.show_resume_session_dialog(
+                self.ui.dialogs_manager.show_resume_session_dialog(
                     session_info,
                     on_resume=self._on_resume_session,
                     on_discard=self._on_discard_session,
@@ -389,9 +365,11 @@ class WindowActionsSignalsMixin:
             # Update UI with the resumed files
             if hasattr(self.ui, "settings_page_manager") and self.ui.settings_page_manager:
                 self.ui.settings_page_manager._populate_file_list()
-            self.show_toast(
-                _("Session resumed with {0} files").format(len(self.settings.selected_files))
-            )
+            # Show Start OCR button by updating header bar queue count
+            file_count = len(self.settings.selected_files)
+            if hasattr(self, "custom_header_bar") and self.custom_header_bar:
+                self.custom_header_bar.update_queue_size(file_count)
+            self.show_toast(_("Session resumed with {0} files").format(file_count))
             logger.info("User chose to resume previous session")
         else:
             logger.warning("Failed to resume session")

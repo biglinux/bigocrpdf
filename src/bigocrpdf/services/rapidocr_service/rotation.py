@@ -12,12 +12,8 @@ This module provides a single source of truth for:
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import pikepdf
-
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 

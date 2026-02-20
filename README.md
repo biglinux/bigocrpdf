@@ -122,7 +122,7 @@ pip install -e .
 | `gtk4`, `libadwaita` | User interface |
 | `python-rapidocr-pp-ocrv5` | OCR engine |
 | `python-rapidocr-openvino` | Hardware-accelerated inference |
-| `poppler-utils` | PDF image extraction (`pdfimages`, `pdftoppm`, `pdfinfo`) |
+| `poppler-utils` | PDF image extraction (`pdfimages`, `pdfinfo`) |
 | `ghostscript` | PDF/A-2b conversion |
 | `python-opencv` | Image preprocessing |
 | `python-numpy` | Array operations |

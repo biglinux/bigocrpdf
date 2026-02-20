@@ -22,8 +22,7 @@ class ConclusionExportMixin:
         Args:
             file_path: Path to the source PDF file
         """
-        dialog = Adw.MessageDialog(
-            transient_for=self.window,
+        dialog = Adw.AlertDialog(
             heading=_("ODF Export Options"),
             body=_(
                 "Choose the export format:\n\n"
@@ -62,10 +61,10 @@ class ConclusionExportMixin:
             "response",
             lambda d, r: self._on_odf_options_response(d, r, file_path),
         )
-        dialog.present()
+        dialog.present(self.window)
 
     def _on_odf_options_response(
-        self, dialog: Adw.MessageDialog, response: str, file_path: str
+        self, dialog: Adw.AlertDialog, response: str, file_path: str
     ) -> None:
         """Handle ODF export options dialog response.
 
@@ -437,13 +436,12 @@ class ConclusionExportMixin:
         extracted_text = self._get_extracted_text_for_file(file_path)
 
         # Create simple dialog
-        dialog = Adw.MessageDialog(transient_for=self.window)
-        dialog.set_heading(_("Extracted Text"))
-        dialog.set_body(
-            extracted_text[:500] + "..." if len(extracted_text) > 500 else extracted_text
+        dialog = Adw.AlertDialog(
+            heading=_("Extracted Text"),
+            body=extracted_text[:500] + "..." if len(extracted_text) > 500 else extracted_text,
         )
         dialog.add_response("ok", _("OK"))
-        dialog.present()
+        dialog.present(self.window)
 
     def _get_extracted_text_for_file(self, file_path: str) -> str:
         """Get extracted text for a file

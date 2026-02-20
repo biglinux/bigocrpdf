@@ -237,7 +237,7 @@ class ODFStyleTableMixin:
         self.styles["title"] = title_style
 
         # Heading styles (H1-H3) - for numbered sections and headers
-        for level, size, margin_top, margin_bottom in [
+        for level, font_size, margin_top, margin_bottom in [
             (1, "14pt", "0.5cm", "0.3cm"),  # Main section headers
             (2, "13pt", "0.4cm", "0.2cm"),  # Sub-section headers
             (3, "12pt", "0.3cm", "0.2cm"),  # Minor headers
@@ -250,7 +250,7 @@ class ODFStyleTableMixin:
                     keepwithnext="always",
                 )
             )
-            h_style.addElement(TextProperties(fontsize=size, fontweight="bold"))
+            h_style.addElement(TextProperties(fontsize=font_size, fontweight="bold"))
             self.doc.styles.addElement(h_style)
             self.styles[f"h{level}"] = h_style
 
@@ -292,7 +292,7 @@ class ODFStyleTableMixin:
         # Large text styles for varying font sizes
         for size in [10, 14, 16, 18, 20, 24, 28, 32]:
             size_style = Style(name=f"Size{size}", family="paragraph")
-            size_style.addElement(TextProperties(fontsize=f"{size}pt"))
+            size_style.addElement(TextProperties(fontsize=f"{size}pt"))  # type: ignore[arg-type]
             self.doc.styles.addElement(size_style)
             self.styles[f"size{size}"] = size_style
 

@@ -7,11 +7,12 @@ Centralizes PDF-related functionality to avoid code duplication.
 
 import glob
 import os
-import shutil
 import subprocess
 import tempfile
 from typing import Any
 
+# Note: pdftoppm is no longer used. PDF rendering uses Poppler GI library directly.
+# Only pdfinfo and pdfimages are still used as subprocesses.
 from bigocrpdf.utils.logger import logger
 
 # Cache for PDF page counts to avoid repeated subprocess calls
@@ -76,69 +77,10 @@ def _get_page_count_uncached(file_path: str) -> int:
     return 0
 
 
-def extract_pdf_page_images(
-    file_path: str,
-    page_range: tuple[int, int] | None = None,
-) -> tuple[str | None, dict[int, str] | None]:
-    """Extract page images from PDF for visual analysis.
-
-    Args:
-        file_path: Path to PDF file
-        page_range: Optional (start, end) tuple for page range (1-indexed, inclusive)
-
-    Returns:
-        Tuple of (temp_dir_path, dict mapping page_num to image_path).
-        Caller is responsible for cleaning up temp_dir_path.
-    """
-    try:
-        temp_dir = tempfile.mkdtemp(prefix="bigocr_visual_")
-
-        # Use pdftoppm to extract images
-        # We assume pdftoppm is installed (poppler-utils)
-        cmd = ["pdftoppm", "-png"]
-
-        # Add page range options if specified
-        if page_range is not None:
-            start_page, end_page = page_range
-            if start_page > 0:
-                cmd.extend(["-f", str(start_page)])
-            if end_page > 0:
-                cmd.extend(["-l", str(end_page)])
-
-        cmd.extend([file_path, os.path.join(temp_dir, "page")])
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-        # Map images to page numbers
-        page_images = {}
-        for img_path in glob.glob(os.path.join(temp_dir, "page-*.png")):
-            # Extract page number from filename (pdftoppm uses 1-based indexing in filenames usually)
-            # Format: page-1.png or page-01.png
-            try:
-                basename = os.path.basename(img_path)
-                num_part = basename.replace("page-", "").replace(".png", "")
-                page_num = int(num_part)
-                page_images[page_num] = img_path
-            except ValueError:
-                continue
-
-        if not page_images:
-            logger.warning("No images extracted from PDF")
-            # Clean up empty temp dir
-            shutil.rmtree(temp_dir)
-            return None, None
-
-        return temp_dir, page_images
-
-    except Exception as e:
-        logger.error(f"Failed to extract page images: {e}")
-        # Use local temp_dir variable if it exists
-        if "temp_dir" in locals() and temp_dir and os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir)
-        return None, None
-
-
 def get_pdf_thumbnail(file_path: str, max_size: int = 200) -> bytes | None:
     """Get a thumbnail of the first page of a PDF.
+
+    Uses Poppler library directly for rendering, avoiding subprocess overhead.
 
     Args:
         file_path: Path to the PDF file
@@ -150,54 +92,7 @@ def get_pdf_thumbnail(file_path: str, max_size: int = 200) -> bytes | None:
     if not file_path or not os.path.exists(file_path):
         return None
 
-    temp_dir = None
-    try:
-        temp_dir = tempfile.mkdtemp(prefix="bigocr_thumb_")
-        temp_img = os.path.join(temp_dir, "thumb")
-
-        # Use pdftoppm to extract first page only as JPEG for smaller size
-        # -f 1 -l 1 = first page only
-        # -scale-to limits the larger dimension
-        cmd = [
-            "pdftoppm",
-            "-png",
-            "-f",
-            "1",
-            "-l",
-            "1",
-            "-scale-to",
-            str(max_size),
-            "-singlefile",
-            file_path,
-            temp_img,
-        ]
-
-        subprocess.run(
-            cmd,
-            check=True,
-            capture_output=True,
-            timeout=30,
-        )
-
-        # Read the generated image
-        img_path = temp_img + ".png"
-        if os.path.exists(img_path):
-            with open(img_path, "rb") as f:
-                return f.read()
-
-        return None
-
-    except subprocess.TimeoutExpired:
-        logger.warning(f"Timeout generating thumbnail for {os.path.basename(file_path)}")
-    except subprocess.CalledProcessError as e:
-        logger.warning(f"Failed to generate thumbnail: {e.stderr.decode() if e.stderr else e}")
-    except Exception as e:
-        logger.error(f"Error generating thumbnail: {e}")
-    finally:
-        if temp_dir and os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir)
-
-    return None
+    return render_pdf_page_to_png(file_path, page_num=0, size=max_size)
 
 
 def get_pdf_info(file_path: str) -> dict[str, Any]:
@@ -279,7 +174,10 @@ def extract_images_for_odf(
         return images, ocr_texts
 
     try:
-        temp_dir = tempfile.mkdtemp(prefix="odf_images_")
+        from bigocrpdf.utils.temp_manager import mkdtemp, track_dir
+
+        temp_dir = mkdtemp(prefix="odf_images_")
+        track_dir(temp_dir)
         image_prefix = os.path.join(temp_dir, "image")
 
         result = subprocess.run(
@@ -340,7 +238,10 @@ def render_pdf_page_to_png(
     page_num: int,
     size: int = 200,
 ) -> bytes | None:
-    """Render a single PDF page to PNG bytes using pdftoppm.
+    """Render a single PDF page to PNG bytes using Poppler.
+
+    Uses the Poppler GObject Introspection library directly instead of
+    spawning a subprocess, which is faster and avoids pdftoppm dependency.
 
     Args:
         pdf_path: Path to the PDF file
@@ -350,54 +251,48 @@ def render_pdf_page_to_png(
     Returns:
         PNG image bytes, or None if rendering failed
     """
-    temp_dir = None
     try:
-        temp_dir = tempfile.mkdtemp(prefix="bigocr_render_")
-        temp_prefix = os.path.join(temp_dir, "page")
+        import gi
 
-        # pdftoppm uses 1-based page numbers
-        page_1based = page_num + 1
+        gi.require_version("Poppler", "0.18")
+        from gi.repository import GLib, Poppler
 
-        cmd = [
-            "pdftoppm",
-            "-png",
-            "-singlefile",
-            "-f",
-            str(page_1based),
-            "-l",
-            str(page_1based),
-            "-scale-to",
-            str(size),
-            pdf_path,
-            temp_prefix,
-        ]
+        # Poppler requires absolute paths for filename_to_uri
+        abs_path = os.path.abspath(pdf_path)
+        uri = GLib.filename_to_uri(abs_path, None)
+        doc = Poppler.Document.new_from_file(uri, None)
+        if not doc or page_num >= doc.get_n_pages():
+            return None
 
-        subprocess.run(
-            cmd,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            check=True,
-            timeout=30,
-        )
+        page = doc.get_page(page_num)
+        if not page:
+            return None
 
-        output_file = f"{temp_prefix}.png"
-        if os.path.exists(output_file):
-            with open(output_file, "rb") as f:
-                return f.read()
+        pw, ph = page.get_size()
+        scale = size / max(pw, ph)
+        render_w = int(pw * scale)
+        render_h = int(ph * scale)
 
-        return None
+        import cairo
 
-    except subprocess.TimeoutExpired:
-        logger.warning(f"Timeout rendering page {page_num} of {os.path.basename(pdf_path)}")
-    except subprocess.CalledProcessError as e:
-        logger.debug(f"pdftoppm failed for page {page_num}: {e}")
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, render_w, render_h)
+        ctx = cairo.Context(surface)
+        ctx.scale(scale, scale)
+        # White background
+        ctx.set_source_rgb(1.0, 1.0, 1.0)
+        ctx.paint()
+        page.render(ctx)
+
+        # Convert to PNG bytes
+        import io
+
+        buf = io.BytesIO()
+        surface.write_to_png(buf)
+        return buf.getvalue()
+
     except Exception as e:
         logger.error(f"Error rendering PDF page: {e}")
-    finally:
-        if temp_dir and os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir)
-
-    return None
+        return None
 
 
 # --- Image extensions recognized as valid inputs ---
@@ -456,11 +351,13 @@ def images_to_pdf(image_paths: list[str], output_path: str | None = None) -> str
 
     if output_path is None:
         # Create a temp file with a descriptive name
+        from bigocrpdf.utils.temp_manager import mkstemp
+
         if len(image_paths) == 1:
             base = os.path.splitext(os.path.basename(image_paths[0]))[0]
         else:
             base = "merged_images"
-        fd, output_path = tempfile.mkstemp(prefix=f"bigocr_{base}_", suffix=".pdf", dir="/tmp")
+        fd, output_path = mkstemp(prefix=f"bigocr_{base}_", suffix=".pdf")
         os.close(fd)
 
     try:

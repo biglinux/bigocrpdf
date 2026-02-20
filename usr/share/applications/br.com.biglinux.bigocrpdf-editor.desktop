@@ -1,0 +1,47 @@
+[Desktop Entry]
+Name=PDF Editor (BigOCR)
+Name[pt]=Editor de PDF (BigOCR)
+Name[de]=PDF-Editor (BigOCR)
+Name[es]=Editor de PDF (BigOCR)
+Name[fr]=Éditeur PDF (BigOCR)
+Name[it]=Editor PDF (BigOCR)
+Name[ja]=PDFエディター (BigOCR)
+Name[ko]=PDF 편집기 (BigOCR)
+Name[ru]=Редактор PDF (BigOCR)
+Name[zh]=PDF 编辑器 (BigOCR)
+
+GenericName=PDF page editor
+GenericName[pt]=Editor de páginas PDF
+GenericName[de]=PDF-Seiteneditor
+GenericName[es]=Editor de páginas PDF
+GenericName[fr]=Éditeur de pages PDF
+GenericName[it]=Editor di pagine PDF
+GenericName[ja]=PDFページエディター
+GenericName[ko]=PDF 페이지 편집기
+GenericName[ru]=Редактор страниц PDF
+GenericName[zh]=PDF 页面编辑器
+
+Comment=Rotate, reorder, merge, split and compress PDF pages
+Comment[pt]=Gire, reordene, mescle, divida e comprima páginas PDF
+Comment[de]=PDF-Seiten drehen, neu ordnen, zusammenführen, teilen und komprimieren
+Comment[es]=Rote, reordene, combine, divida y comprima páginas PDF
+Comment[fr]=Pivoter, réorganiser, fusionner, diviser et compresser des pages PDF
+Comment[it]=Ruota, riordina, unisci, dividi e comprimi pagine PDF
+Comment[ja]=PDFページの回転、並べ替え、結合、分割、圧縮
+Comment[ko]=PDF 페이지 회전, 재정렬, 병합, 분할 및 압축
+Comment[ru]=Поворот, изменение порядка, объединение, разделение и сжатие страниц PDF
+Comment[zh]=旋转、重新排序、合并、拆分和压缩 PDF 页面
+
+Exec=bigocrpdf --edit %F
+Terminal=false
+Icon=bigocrpdf
+Type=Application
+Categories=Office;
+MimeType=application/pdf;application/x-bzpdf;application/x-gzpdf;image/png;image/jpeg;image/webp;image/bmp;image/tiff;
+
+Keywords=PDF;edit;rotate;merge;split;compress;reorder;pages;
+Keywords[pt]=PDF;editar;girar;mesclar;dividir;comprimir;reordenar;páginas;
+
+StartupNotify=true
+StartupWMClass=bigocrpdf
+NoDisplay=true

@@ -8,6 +8,7 @@ to keep memory usage under ~600 MB total.
 
 import logging
 import os
+import signal
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -20,6 +21,28 @@ from bigocrpdf.services.rapidocr_service.pdf_extractor import load_image_with_ex
 from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
 
 logger = logging.getLogger(__name__)
+
+
+def worker_init() -> None:
+    """Initializer for ProcessPoolExecutor worker processes.
+
+    Called once per worker process at startup. Performs:
+    - Ignore SIGINT so only the main process handles Ctrl+C
+    - Set low CPU priority (nice 19) to avoid impacting the desktop
+    - Configure logging for the worker process
+    """
+    # Let the main process handle keyboard interrupts
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+    # Lower CPU priority so OCR processing doesn't starve the UI
+    try:
+        os.nice(19)
+    except OSError:
+        pass  # nice() may fail in some containerised environments
+
+    # Suppress verbose library logging in workers
+    logging.getLogger("rapidocr").setLevel(logging.WARNING)
+    logging.getLogger("onnxruntime").setLevel(logging.WARNING)
 
 
 def detect_image_quality(img_path: str) -> int:
@@ -255,8 +278,15 @@ def process_page(args: dict[str, Any]) -> dict[str, Any]:
         # Instantiate preprocessor in worker
         preprocessor = ImagePreprocessor(config)
 
+        # Adaptive probmap resolution from resource manager (passed via config)
+        probmap_max_side = args.get("probmap_max_side", 0)
+        if probmap_max_side > 0:
+            preprocessor.probmap_max_side = probmap_max_side
+
         logger.info(
-            f"Page {page_num} config: perspective={config.enable_perspective_correction}, "
+            f"Page {page_num} config: "
+            f"scanner={config.enable_scanner_effect}, "
+            f"perspective={config.enable_perspective_correction}, "
             f"deskew={config.enable_deskew}, orientation={config.enable_orientation_detection}, "
             f"preprocessing={config.enable_preprocessing}"
         )

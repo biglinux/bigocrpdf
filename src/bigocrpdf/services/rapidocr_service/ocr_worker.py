@@ -20,6 +20,7 @@ import sys
 
 # Add parent paths for imports
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
@@ -27,8 +28,7 @@ from bigocrpdf.utils.python_compat import (
     setup_python_compatibility,
 )
 
-# Setup Python version compatibility before any rapidocr imports
-setup_python_compatibility()
+# Setup Python version compatibility moved to main() to avoid output pollution
 
 
 def run_ocr_batch(
@@ -377,7 +377,7 @@ def _create_ocr_engine(
 
 
 def _ocr_single_image(
-    engine: object, image_path: str, text_score: float = 0.3, box_thresh: float = 0.5
+    engine: Any, image_path: str, text_score: float = 0.3, box_thresh: float = 0.5
 ) -> dict:
     """Run OCR on a single image using a pre-created engine.
 
@@ -423,6 +423,9 @@ def run_persistent(args: argparse.Namespace) -> None:
     real_stdout = sys.stdout
     sys.stdout = sys.stderr
 
+    # Setup Python version compatibility AFTER redirecting stdout
+    setup_python_compatibility()
+
     use_openvino = not args.no_openvino
     threads = args.threads if args.threads > 0 else max(2, os.cpu_count() or 4)
 
@@ -464,13 +467,6 @@ def run_persistent(args: argparse.Namespace) -> None:
 
         # Prevent memory accumulation across pages
         gc.collect()
-        # Force glibc to return freed pages to OS (Linux-specific)
-        try:
-            import ctypes
-
-            ctypes.CDLL("libc.so.6").malloc_trim(0)
-        except Exception:
-            pass
 
 
 def main():
@@ -504,28 +500,32 @@ def main():
 
     if args.persistent:
         run_persistent(args)
-    elif args.batch:
-        results = run_ocr_batch(args.images, args.language, args.limit_side_len, use_openvino)
-        print(json.dumps({"batch": True, "results": results}))
-    elif args.images:
-        result = run_ocr_full(
-            image_path=args.images[0],
-            language=args.language,
-            limit_side_len=args.limit_side_len,
-            use_openvino=use_openvino,
-            box_thresh=args.box_thresh,
-            unclip_ratio=args.unclip_ratio,
-            text_score=args.text_score,
-            score_mode=args.score_mode,
-            rec_model_path=args.rec_model_path,
-            rec_keys_path=args.rec_keys_path,
-            det_model_path=args.det_model_path,
-            font_path=args.font_path,
-            threads=threads,
-        )
-        print(json.dumps(result))
     else:
-        print(json.dumps({"success": False, "error": "No image paths provided"}))
+        # For non-persistent modes, setup compatibility immediately
+        setup_python_compatibility()
+
+        if args.batch:
+            results = run_ocr_batch(args.images, args.language, args.limit_side_len, use_openvino)
+            print(json.dumps({"batch": True, "results": results}))
+        elif args.images:
+            result = run_ocr_full(
+                image_path=args.images[0],
+                language=args.language,
+                limit_side_len=args.limit_side_len,
+                use_openvino=use_openvino,
+                box_thresh=args.box_thresh,
+                unclip_ratio=args.unclip_ratio,
+                text_score=args.text_score,
+                score_mode=args.score_mode,
+                rec_model_path=args.rec_model_path,
+                rec_keys_path=args.rec_keys_path,
+                det_model_path=args.det_model_path,
+                font_path=args.font_path,
+                threads=threads,
+            )
+            print(json.dumps(result))
+        else:
+            print(json.dumps({"success": False, "error": "No image paths provided"}))
 
 
 if __name__ == "__main__":

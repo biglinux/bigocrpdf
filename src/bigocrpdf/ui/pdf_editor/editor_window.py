@@ -2,10 +2,12 @@
 BigOcrPdf - PDF Editor Window
 
 Main editor window for PDF page manipulation before OCR processing.
+Redesigned with a visible action bar for discoverability and accessibility.
 """
 
 import os
 from collections.abc import Callable
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import gi
@@ -17,6 +19,7 @@ from gi.repository import Adw, Gdk, Gio, GLib, GObject, Gtk
 from bigocrpdf.ui.pdf_editor.page_grid import PageGrid
 from bigocrpdf.ui.pdf_editor.page_model import PageState, PDFDocument
 from bigocrpdf.ui.pdf_editor.thumbnail_renderer import get_thumbnail_renderer
+from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.utils.tooltip_helper import get_tooltip_helper
@@ -34,6 +37,13 @@ class PDFEditorWindow(Adw.Window):
     - Rotating pages
     - Deleting pages
     - Zooming thumbnails
+
+    UI Layout:
+    - Header bar: Back + Title + Apply button
+    - Action bar: Add Files | Rotate L/R | Undo | Include/Exclude All | Zoom | Overflow menu
+    - Content: Page grid with thumbnails
+    - Status bar: Page/included counts
+    - Notification banner: Revealer-based inline feedback
 
     Attributes:
         document: The PDFDocument being edited
@@ -67,14 +77,13 @@ class PDFEditorWindow(Adw.Window):
         self._parent_window = parent_window
         self._initial_state = initial_state
         self._document: PDFDocument | None = None
+        self._undo_stack: list[list[dict]] = []
+        self._notification_timer_id: int | None = None
 
         # Window configuration
         self.set_title(_("PDF Editor - {}").format(os.path.basename(pdf_path)))
         self.set_default_size(900, 700)
         self.set_modal(False)
-
-        if parent_window:
-            self.set_transient_for(parent_window)
 
         self._setup_actions()
         self._setup_ui()
@@ -91,147 +100,240 @@ class PDFEditorWindow(Adw.Window):
         self._toolbar_view = Adw.ToolbarView()
         self.set_content(self._toolbar_view)
 
-        # Header bar
+        # --- Header Bar (all tools integrated per GTK4/GNOME HIG) ---
         self._header_bar = Adw.HeaderBar()
         self._header_bar.set_show_end_title_buttons(True)
         self._header_bar.set_show_start_title_buttons(True)
 
-        # Title Widget
-        title_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        title_box.set_valign(Gtk.Align.CENTER)
+        # Detect window button side (same logic as main window)
+        buttons_left = self._window_buttons_on_left()
+        if buttons_left:
+            self._header_bar.set_decoration_layout("close,maximize,minimize:")
+        else:
+            self._header_bar.set_decoration_layout("menu:minimize,maximize,close")
 
-        title_label = Gtk.Label(label=os.path.basename(self._pdf_path))
-        title_label.add_css_class("title")
-        title_box.append(title_label)
-
-        self._header_bar.set_title_widget(title_box)
-
-        # --- Header Bar Controls (Only Back and Main Actions) ---
-
-        # Back Button
-        self._back_btn = Gtk.Button()
-        self._back_btn.set_icon_name("go-previous-symbolic")
-        get_tooltip_helper().add_tooltip(self._back_btn, _("Go back to the file list"))
-        self._back_btn.connect("clicked", self._on_back_clicked)
-        self._header_bar.pack_start(self._back_btn)
-
-        # OK Button (Primary)
-        self._ok_button = Gtk.Button(label=_("OK"))
-        self._ok_button.add_css_class("suggested-action")
-        get_tooltip_helper().add_tooltip(self._ok_button, _("Save changes and go back"))
-        self._ok_button.connect("clicked", self._on_ok_clicked)
-        self._header_bar.pack_end(self._ok_button)
-
-        # Add Files button (simple button — no folder option)
-        self._add_button = Gtk.Button(label=_("Add Files"))
-        self._add_button.add_css_class("suggested-action")
-        get_tooltip_helper().add_tooltip(self._add_button, _("Add more files to this document"))
+        # Add Files (start)
+        self._add_button = Gtk.Button()
+        add_content = Adw.ButtonContent(icon_name="list-add-symbolic", label=_("Add"))
+        self._add_button.set_child(add_content)
+        get_tooltip_helper().add_tooltip(
+            self._add_button, _("Add PDF or image files to this document")
+        )
+        set_a11y_label(self._add_button, _("Add PDF or image files"))
         self._add_button.connect("clicked", self._on_add_files_clicked)
+        self._header_bar.pack_start(self._add_button)
 
-        self._header_bar.pack_end(self._add_button)
+        # Rotate Left (start)
+        self._rotate_left_btn = Gtk.Button()
+        self._rotate_left_btn.set_icon_name("object-rotate-left-symbolic")
+        get_tooltip_helper().add_tooltip(
+            self._rotate_left_btn, _("Rotate selected pages left (Ctrl+L)")
+        )
+        set_a11y_label(self._rotate_left_btn, _("Rotate selected pages left"))
+        self._rotate_left_btn.connect("clicked", self._on_rotate_left)
+        self._header_bar.pack_start(self._rotate_left_btn)
+
+        # Rotate Right (start)
+        self._rotate_right_btn = Gtk.Button()
+        self._rotate_right_btn.set_icon_name("object-rotate-right-symbolic")
+        get_tooltip_helper().add_tooltip(
+            self._rotate_right_btn, _("Rotate selected pages right (Ctrl+R)")
+        )
+        set_a11y_label(self._rotate_right_btn, _("Rotate selected pages right"))
+        self._rotate_right_btn.connect("clicked", self._on_rotate_right)
+        self._header_bar.pack_start(self._rotate_right_btn)
+
+        # Undo (start)
+        self._undo_btn = Gtk.Button()
+        self._undo_btn.set_icon_name("edit-undo-symbolic")
+        self._undo_btn.set_sensitive(False)
+        get_tooltip_helper().add_tooltip(self._undo_btn, _("Undo last change (Ctrl+Z)"))
+        set_a11y_label(self._undo_btn, _("Undo last change"))
+        self._undo_btn.connect("clicked", lambda _b: self._undo())
+        self._header_bar.pack_start(self._undo_btn)
+
+        # Include All (start)
+        self._select_all_btn = Gtk.Button()
+        self._select_all_btn.set_icon_name("edit-select-all-symbolic")
+        get_tooltip_helper().add_tooltip(
+            self._select_all_btn, _("Include all pages in the final document")
+        )
+        set_a11y_label(self._select_all_btn, _("Include all pages"))
+        self._select_all_btn.connect("clicked", self._on_select_all)
+        self._header_bar.pack_start(self._select_all_btn)
+
+        # Exclude All (start)
+        self._deselect_all_btn = Gtk.Button()
+        self._deselect_all_btn.set_icon_name("edit-clear-all-symbolic")
+        get_tooltip_helper().add_tooltip(
+            self._deselect_all_btn, _("Exclude all pages from the final document")
+        )
+        set_a11y_label(self._deselect_all_btn, _("Exclude all pages"))
+        self._deselect_all_btn.connect("clicked", self._on_deselect_all)
+        self._header_bar.pack_start(self._deselect_all_btn)
+
+        # Cancel + Apply centered in the title area
+        title_actions = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        title_actions.set_halign(Gtk.Align.CENTER)
+
+        self._cancel_button = Gtk.Button(label=_("Cancel"))
+        get_tooltip_helper().add_tooltip(self._cancel_button, _("Discard changes and close"))
+        set_a11y_label(self._cancel_button, _("Cancel and close"))
+        self._cancel_button.connect("clicked", self._on_back_clicked)
+        title_actions.append(self._cancel_button)
+
+        self._apply_button = Gtk.Button(label=_("Apply"))
+        self._apply_button.add_css_class("suggested-action")
+        get_tooltip_helper().add_tooltip(self._apply_button, _("Save changes and go back (Ctrl+S)"))
+        set_a11y_label(self._apply_button, _("Save changes and go back"))
+        self._apply_button.connect("clicked", self._on_ok_clicked)
+        title_actions.append(self._apply_button)
+
+        self._header_bar.set_title_widget(title_actions)
+
+        # Tools packed from end (first = rightmost after window controls)
+        self._reverse_btn = Gtk.Button()
+        self._reverse_btn.set_icon_name("view-sort-descending-symbolic")
+        get_tooltip_helper().add_tooltip(self._reverse_btn, _("Reverse the page order"))
+        set_a11y_label(self._reverse_btn, _("Reverse page order"))
+        self._reverse_btn.set_action_name("editor.reverse")
+        self._header_bar.pack_end(self._reverse_btn)
+
+        split_menu = Gio.Menu()
+        split_menu.append(_("Split by page count…"), "editor.split-pages")
+        split_menu.append(_("Split by file size…"), "editor.split-size")
+        self._split_btn = Gtk.MenuButton()
+        self._split_btn.set_icon_name("edit-cut-symbolic")
+        self._split_btn.set_menu_model(split_menu)
+        get_tooltip_helper().add_tooltip(self._split_btn, _("Split the document into parts"))
+        set_a11y_label(self._split_btn, _("Split document"))
+        self._header_bar.pack_end(self._split_btn)
+
+        self._compress_btn = Gtk.Button()
+        self._compress_btn.set_icon_name("image-resize-symbolic")
+        get_tooltip_helper().add_tooltip(
+            self._compress_btn, _("Compress the PDF to reduce file size")
+        )
+        set_a11y_label(self._compress_btn, _("Compress PDF"))
+        self._compress_btn.set_action_name("editor.compress")
+        self._header_bar.pack_end(self._compress_btn)
+
+        self._save_copy_btn = Gtk.Button()
+        self._save_copy_btn.set_icon_name("document-save-as-symbolic")
+        get_tooltip_helper().add_tooltip(self._save_copy_btn, _("Save a copy of the document"))
+        set_a11y_label(self._save_copy_btn, _("Save a copy"))
+        self._save_copy_btn.set_action_name("editor.save-copy")
+        self._header_bar.pack_end(self._save_copy_btn)
 
         self._toolbar_view.add_top_bar(self._header_bar)
 
-        # Main content: Page grid
+        # --- Content area: Overlay with PageGrid + Notification Banner ---
+        content_overlay = Gtk.Overlay()
+
         self._page_grid = PageGrid()
+        self._page_grid.on_before_mutate = self._push_undo
         self._page_grid.connect("selection-changed", self._on_selection_changed)
         self._page_grid.connect("page-ocr-toggled", self._on_page_ocr_toggled)
-        self._toolbar_view.set_content(self._page_grid)
+        content_overlay.set_child(self._page_grid)
 
-        # Status bar / Footer (Contains all other controls now)
+        # Notification banner
+        self._notification_revealer = Gtk.Revealer()
+        self._notification_revealer.set_transition_type(Gtk.RevealerTransitionType.SLIDE_DOWN)
+        self._notification_revealer.set_transition_duration(200)
+        self._notification_revealer.set_reveal_child(False)
+        self._notification_revealer.set_valign(Gtk.Align.START)
+        self._notification_revealer.set_halign(Gtk.Align.CENTER)
+        self._notification_revealer.set_can_target(False)
+
+        self._notification_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        self._notification_box.add_css_class("editor-notification")
+        self._notification_box.set_margin_top(8)
+
+        self._notification_icon = Gtk.Image()
+        self._notification_icon.set_icon_size(Gtk.IconSize.NORMAL)
+        self._notification_box.append(self._notification_icon)
+
+        self._notification_label = Gtk.Label()
+        self._notification_label.set_wrap(True)
+        self._notification_label.set_max_width_chars(60)
+        self._notification_box.append(self._notification_label)
+
+        self._notification_revealer.set_child(self._notification_box)
+        content_overlay.add_overlay(self._notification_revealer)
+
+        self._toolbar_view.set_content(content_overlay)
+
+        # --- Status Bar (bottom) ---
         self._status_bar = self._create_status_bar()
         self._toolbar_view.add_bottom_bar(self._status_bar)
 
     def _create_status_bar(self) -> Gtk.Box:
-        """Create the status bar with tools.
+        """Create the status bar with filename, page counts, and zoom.
 
         Returns:
-            Status bar widget
+            Status bar widget.
         """
         status_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        status_box.add_css_class("toolbar")
         status_box.add_css_class("editor-status-bar")
         status_box.set_margin_start(12)
         status_box.set_margin_end(12)
-        status_box.set_margin_top(6)
-        status_box.set_margin_bottom(6)
+        status_box.set_margin_top(4)
+        status_box.set_margin_bottom(4)
 
-        # --- Left Side: Stats ---
+        # Filename label (start)
+        self._filename_label = Gtk.Label(label=os.path.basename(self._pdf_path))
+        self._filename_label.add_css_class("dim-label")
+        self._filename_label.set_halign(Gtk.Align.START)
+        self._filename_label.set_ellipsize(3)  # PANGO_ELLIPSIZE_END
+        set_a11y_label(self._filename_label, _("Current file"))
+        status_box.append(self._filename_label)
 
-        # Page counts
-        self._pages_label = Gtk.Label()
-        self._pages_label.add_css_class("dim-label")
-        status_box.append(self._pages_label)
-
-        # Separator
-        sep1 = Gtk.Separator(orientation=Gtk.Orientation.VERTICAL)
-        status_box.append(sep1)
-
-        # Included count
-        self._selected_label = Gtk.Label()
-        self._selected_label.add_css_class("dim-label")
-        status_box.append(self._selected_label)
-
-        sep2 = Gtk.Separator(orientation=Gtk.Orientation.VERTICAL)
-        status_box.append(sep2)
-
-        # --- Center Left: Selection Tools ---
-
-        self._select_all_btn = Gtk.Button(label=_("Include All"))
-        self._select_all_btn.add_css_class("flat")
-        get_tooltip_helper().add_tooltip(self._select_all_btn, _("Select all pages for processing"))
-        self._select_all_btn.connect("clicked", self._on_select_all)
-        status_box.append(self._select_all_btn)
-
-        self._deselect_all_btn = Gtk.Button(label=_("Exclude All"))
-        self._deselect_all_btn.add_css_class("flat")
-        get_tooltip_helper().add_tooltip(self._deselect_all_btn, _("Deselect all pages"))
-        self._deselect_all_btn.connect("clicked", self._on_deselect_all)
-        status_box.append(self._deselect_all_btn)
-
-        # Separator
-        status_box.append(Gtk.Separator(orientation=Gtk.Orientation.VERTICAL))
-
-        # --- Center Right: Rotation Tools ---
-
-        self._rotate_left_btn = Gtk.Button()
-        self._rotate_left_btn.set_icon_name("object-rotate-left-symbolic")
-        self._rotate_left_btn.add_css_class("flat")
-        get_tooltip_helper().add_tooltip(
-            self._rotate_left_btn, _("Rotate selected pages to the left")
-        )
-        self._rotate_left_btn.connect("clicked", self._on_rotate_left)
-        status_box.append(self._rotate_left_btn)
-
-        self._rotate_right_btn = Gtk.Button()
-        self._rotate_right_btn.set_icon_name("object-rotate-right-symbolic")
-        self._rotate_right_btn.add_css_class("flat")
-        get_tooltip_helper().add_tooltip(
-            self._rotate_right_btn, _("Rotate selected pages to the right")
-        )
-        self._rotate_right_btn.connect("clicked", self._on_rotate_right)
-        status_box.append(self._rotate_right_btn)
-
-        # Expanding spacer to push Zoom to right
+        # Spacer
         filler = Gtk.Box()
         filler.set_hexpand(True)
         status_box.append(filler)
 
-        # --- Right Side: Zoom ---
-        zoom_levels = Gtk.StringList.new(["50%", "75%", "100%", "150%", "200%"])
+        # Page/included counts
+        self._status_label = Gtk.Label()
+        self._status_label.add_css_class("dim-label")
+        set_a11y_label(self._status_label, _("Document status"))
+        status_box.append(self._status_label)
+
+        # Selection info
+        self._selection_label = Gtk.Label()
+        self._selection_label.add_css_class("dim-label")
+        self._selection_label.set_halign(Gtk.Align.END)
+        status_box.append(self._selection_label)
+
+        # Zoom dropdown (end)
+        zoom_levels = Gtk.StringList.new(["50%", "75%", "100%", "150%", "200%", "300%", "400%"])
         self._zoom_dropdown = Gtk.DropDown(model=zoom_levels)
-        self._zoom_dropdown.set_selected(2)  # Default to 100%
+        self._zoom_dropdown.set_selected(2)  # Default 100%
         get_tooltip_helper().add_tooltip(self._zoom_dropdown, _("Change the size of page previews"))
+        set_a11y_label(self._zoom_dropdown, _("Zoom level"))
         self._zoom_dropdown.connect("notify::selected", self._on_zoom_dropdown_changed)
         status_box.append(self._zoom_dropdown)
 
         return status_box
 
     def _setup_actions(self) -> None:
-        """Set up window actions."""
-        # Create action group and insert it
+        """Set up window actions for the overflow menu."""
         action_group = Gio.SimpleActionGroup()
-        self.insert_action_group("win", action_group)
+
+        actions = {
+            "save-copy": self._on_save_copy,
+            "compress": self._on_tools_compress,
+            "split-pages": self._on_tools_split_pages,
+            "split-size": self._on_tools_split_size,
+            "reverse": self._on_tools_reverse,
+        }
+
+        for name, callback in actions.items():
+            action = Gio.SimpleAction.new(name, None)
+            action.connect("activate", callback)
+            action_group.add_action(action)
+
+        self.insert_action_group("editor", action_group)
 
     def _setup_keyboard_shortcuts(self) -> None:
         """Set up keyboard shortcuts."""
@@ -320,6 +422,7 @@ class PDFEditorWindow(Adw.Window):
         if not self._document:
             return
 
+        self._push_undo()
         added_count = 0
         current_total = self._document.total_pages
         renderer = get_thumbnail_renderer()
@@ -352,6 +455,31 @@ class PDFEditorWindow(Adw.Window):
                 f"Added {added_count} pages via drag-and-drop. Total: {self._document.total_pages}"
             )
 
+    # -- Undo stack ---------------------------------------------------------
+
+    _MAX_UNDO = 50
+
+    def _push_undo(self) -> None:
+        """Snapshot current page state before a mutating operation."""
+        if not self._document:
+            return
+        snapshot = [p.to_dict() for p in self._document.pages]
+        self._undo_stack.append(snapshot)
+        if len(self._undo_stack) > self._MAX_UNDO:
+            self._undo_stack.pop(0)
+
+    def _undo(self) -> None:
+        """Restore the most recent page state snapshot."""
+        if not self._undo_stack or not self._document:
+            return
+        snapshot = self._undo_stack.pop()
+        self._document.pages = [PageState.from_dict(d) for d in snapshot]
+        self._document.total_pages = len(self._document.pages)
+        self._document.update_positions()
+        self._page_grid.refresh()
+
+    # -- Keyboard handling -------------------------------------------------
+
     def _on_key_pressed(
         self,
         controller: Gtk.EventControllerKey,
@@ -380,9 +508,46 @@ class PDFEditorWindow(Adw.Window):
             # Ctrl+R: Rotate right
             self._on_rotate_right(None)
             return True
+        elif keyval == Gdk.KEY_z and ctrl:
+            # Ctrl+Z: Undo
+            self._undo()
+            return True
+        elif keyval == Gdk.KEY_a and ctrl:
+            # Ctrl+A: Select all
+            self._page_grid.select_all()
+            return True
+        elif keyval == Gdk.KEY_Up and ctrl:
+            # Ctrl+Up: Move selected pages up (accessible reorder)
+            self._move_selected_pages(-1)
+            return True
+        elif keyval == Gdk.KEY_Down and ctrl:
+            # Ctrl+Down: Move selected pages down (accessible reorder)
+            self._move_selected_pages(1)
+            return True
+        elif keyval == Gdk.KEY_s and ctrl:
+            # Ctrl+S: Save (OK)
+            self._on_ok_clicked(None)
+            return True
+        elif keyval == Gdk.KEY_Delete:
+            # Delete: Toggle exclude on selected pages
+            if self._page_grid._selected_indices:
+                self._push_undo()
+                self._page_grid.toggle_ocr_for_selected()
+            return True
         elif keyval == Gdk.KEY_Escape:
             # Escape: Close window
             self.close()
+            return True
+        elif keyval in (Gdk.KEY_Page_Up, Gdk.KEY_Page_Down):
+            # Page Up/Down: Scroll the page grid
+            vadj = self._page_grid.get_vadjustment()
+            step = vadj.get_page_size() * 0.8
+            if keyval == Gdk.KEY_Page_Up:
+                vadj.set_value(max(vadj.get_lower(), vadj.get_value() - step))
+            else:
+                vadj.set_value(
+                    min(vadj.get_upper() - vadj.get_page_size(), vadj.get_value() + step)
+                )
             return True
 
         return False
@@ -396,6 +561,9 @@ class PDFEditorWindow(Adw.Window):
             if page_count == 0:
                 self._show_error(_("Could not open PDF file or file has no pages."))
                 return
+
+            # Kick off fast batch thumbnail preload (pdftoppm) in background
+            renderer.batch_preload(self._pdf_path, page_count)
 
             # Load document if not already loaded
             if not self._document:
@@ -430,10 +598,21 @@ class PDFEditorWindow(Adw.Window):
     def _update_status_bar(self) -> None:
         """Update the status bar labels."""
         total = self._page_grid.get_total_pages()
-        ocr_count = self._page_grid.get_ocr_count()
+        included = self._page_grid.get_ocr_count()
+        selected_count = len(self._page_grid._selected_indices)
 
-        self._pages_label.set_text(_("Pages: {}").format(total))
-        self._selected_label.set_text(_("Included: {}").format(ocr_count))
+        self._status_label.set_text(
+            _("{total} pages · {included} included").format(total=total, included=included)
+        )
+
+        if selected_count > 0:
+            self._selection_label.set_text(_("{count} selected").format(count=selected_count))
+            self._selection_label.set_visible(True)
+        else:
+            self._selection_label.set_visible(False)
+
+        # Update undo button sensitivity
+        self._undo_btn.set_sensitive(len(self._undo_stack) > 0)
 
     def _on_selection_changed(self, grid: PageGrid) -> None:
         """Handle selection changes in the grid.
@@ -452,6 +631,368 @@ class PDFEditorWindow(Adw.Window):
             active: New OCR state
         """
         logger.debug(f"Page {page_num} OCR toggled to {active}")
+
+    # ------------------------------------------------------------------
+    # Overflow menu (advanced features)
+    # ------------------------------------------------------------------
+
+    def _on_save_copy(self, _action, _param) -> None:
+        """Save included pages as a new PDF file.
+
+        Unifies the old Save As and Extract Selected Pages into one action:
+        saves only the included (non-excluded) pages to a chosen location.
+        """
+        if not self._document:
+            return
+
+        dialog = Gtk.FileDialog()
+        dialog.set_title(_("Save a copy"))
+        dialog.set_initial_name(os.path.basename(self._pdf_path))
+
+        pdf_filter = Gtk.FileFilter()
+        pdf_filter.set_name(_("PDF Files"))
+        pdf_filter.add_pattern("*.pdf")
+        store = Gio.ListStore.new(Gtk.FileFilter)
+        store.append(pdf_filter)
+        dialog.set_filters(store)
+
+        dialog.save(self, None, self._on_save_copy_response)
+
+    def _on_save_copy_response(self, dialog: Gtk.FileDialog, result: Gio.AsyncResult) -> None:
+        """Handle Save Copy dialog response."""
+        try:
+            file = dialog.save_finish(result)
+            if file:
+                path = file.get_path()
+                if path:
+                    from bigocrpdf.ui.pdf_editor.page_operations import apply_changes_to_pdf
+
+                    if apply_changes_to_pdf(self._document, path):
+                        logger.info("Saved PDF copy to %s", path)
+                        self._show_info(_("Saved to {}").format(os.path.basename(path)))
+                    else:
+                        self._show_error(_("Failed to save PDF."))
+        except GLib.Error as e:
+            if "dismissed" not in str(e).lower():
+                logger.error("Save copy error: %s", e)
+
+    def _on_tools_compress(self, _action, _param) -> None:
+        """Show compress dialog and compress the document."""
+        if not self._document:
+            return
+
+        dialog = Adw.AlertDialog()
+        dialog.set_heading(_("Compress PDF"))
+        dialog.set_body(
+            _(
+                "Reduce the file size by compressing the images inside the PDF. "
+                "Lower values produce smaller files but with less image detail."
+            )
+        )
+
+        # Quality spin button with description
+        quality_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        quality_box.set_halign(Gtk.Align.CENTER)
+
+        quality_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        quality_row.set_halign(Gtk.Align.CENTER)
+        quality_label = Gtk.Label(label=_("Image Quality:"))
+        quality_spin = Gtk.SpinButton.new_with_range(10, 95, 5)
+        quality_spin.set_value(60)
+        quality_row.append(quality_label)
+        quality_row.append(quality_spin)
+        quality_box.append(quality_row)
+
+        quality_hint = Gtk.Label(
+            label=_("10 = smallest file, 95 = best quality. 60 is a good default.")
+        )
+        quality_hint.add_css_class("dim-label")
+        quality_hint.add_css_class("caption")
+        quality_box.append(quality_hint)
+
+        # DPI spin button with description
+        dpi_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        dpi_box.set_halign(Gtk.Align.CENTER)
+
+        dpi_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        dpi_row.set_halign(Gtk.Align.CENTER)
+        dpi_label = Gtk.Label(label=_("Image Resolution (DPI):"))
+        dpi_spin = Gtk.SpinButton.new_with_range(72, 600, 10)
+        dpi_spin.set_value(150)
+        dpi_row.append(dpi_label)
+        dpi_row.append(dpi_spin)
+        dpi_box.append(dpi_row)
+
+        dpi_hint = Gtk.Label(
+            label=_("72 = screen only, 150 = digital reading, 300 = print quality.")
+        )
+        dpi_hint.add_css_class("dim-label")
+        dpi_hint.add_css_class("caption")
+        dpi_box.append(dpi_hint)
+
+        content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16)
+        content_box.set_margin_start(24)
+        content_box.set_margin_end(24)
+        content_box.append(quality_box)
+        content_box.append(dpi_box)
+        dialog.set_extra_child(content_box)
+
+        dialog.add_response("cancel", _("Cancel"))
+        dialog.add_response("compress", _("Compress"))
+        dialog.set_response_appearance("compress", Adw.ResponseAppearance.SUGGESTED)
+
+        dialog.connect(
+            "response",
+            lambda d, r: (
+                self._do_compress(int(quality_spin.get_value()), int(dpi_spin.get_value()))
+                if r == "compress"
+                else None
+            ),
+        )
+        dialog.present(self)
+
+    def _do_compress(self, quality: int, dpi: int) -> None:
+        """Execute PDF compression."""
+        if not self._document:
+            return
+
+        import tempfile
+
+        from bigocrpdf.services.pdf_operations import compress_pdf
+
+        # First, apply current edits into a temp file
+        from bigocrpdf.ui.pdf_editor.page_operations import apply_changes_to_pdf
+
+        fd, tmp_edited = tempfile.mkstemp(suffix=".pdf", prefix="bigocr_edit_")
+        os.close(fd)
+
+        if not apply_changes_to_pdf(self._document, tmp_edited):
+            self._show_error(_("Failed to prepare document for compression."))
+            os.unlink(tmp_edited)
+            return
+
+        # Now compress
+        fd2, tmp_compressed = tempfile.mkstemp(suffix=".pdf", prefix="bigocr_cmp_")
+        os.close(fd2)
+
+        result = compress_pdf(tmp_edited, tmp_compressed, image_quality=quality, image_dpi=dpi)
+        os.unlink(tmp_edited)
+
+        if result.success:
+            # Prompt save location
+            dialog = Gtk.FileDialog()
+            dialog.set_title(_("Save Compressed PDF"))
+            dialog.set_initial_name("compressed_" + os.path.basename(self._pdf_path))
+
+            pdf_filter = Gtk.FileFilter()
+            pdf_filter.set_name(_("PDF Files"))
+            pdf_filter.add_pattern("*.pdf")
+            store = Gio.ListStore.new(Gtk.FileFilter)
+            store.append(pdf_filter)
+            dialog.set_filters(store)
+
+            dialog.save(
+                self,
+                None,
+                lambda d, r: self._finish_compress_save(d, r, tmp_compressed, result.message),
+            )
+        else:
+            os.unlink(tmp_compressed)
+            self._show_error(_("Compression failed: {}").format(result.message))
+
+    def _finish_compress_save(self, dialog, result, tmp_path, message) -> None:
+        """Finish saving the compressed file."""
+        import shutil
+
+        try:
+            file = dialog.save_finish(result)
+            if file:
+                path = file.get_path()
+                if path:
+                    shutil.move(tmp_path, path)
+                    self._show_info(message)
+                    return
+        except GLib.Error:
+            pass
+
+        # Cleanup on failure/cancel
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+
+    def _on_tools_split_pages(self, _action, _param) -> None:
+        """Show split-by-pages dialog."""
+        if not self._document:
+            return
+
+        dialog = Adw.AlertDialog()
+        dialog.set_heading(_("Split by Page Count"))
+        dialog.set_body(_("Split the document into parts with a fixed number of pages each."))
+
+        spin_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        spin_box.set_halign(Gtk.Align.CENTER)
+        spin_label = Gtk.Label(label=_("Pages per file:"))
+        spin = Gtk.SpinButton.new_with_range(1, 9999, 1)
+        spin.set_value(5)
+        spin_box.append(spin_label)
+        spin_box.append(spin)
+        dialog.set_extra_child(spin_box)
+
+        dialog.add_response("cancel", _("Cancel"))
+        dialog.add_response("split", _("Split"))
+        dialog.set_response_appearance("split", Adw.ResponseAppearance.SUGGESTED)
+
+        dialog.connect(
+            "response",
+            lambda d, r: self._do_split_by_pages(int(spin.get_value())) if r == "split" else None,
+        )
+        dialog.present(self)
+
+    def _do_split_by_pages(self, pages_per_file: int) -> None:
+        """Execute split by page count."""
+        self._pick_output_dir_and_split("pages", pages_per_file)
+
+    def _on_tools_split_size(self, _action, _param) -> None:
+        """Show split-by-size dialog."""
+        if not self._document:
+            return
+
+        dialog = Adw.AlertDialog()
+        dialog.set_heading(_("Split by File Size"))
+        dialog.set_body(_("Split the document so each part is at most the specified size."))
+
+        spin_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        spin_box.set_halign(Gtk.Align.CENTER)
+        spin_label = Gtk.Label(label=_("Max size (MB):"))
+        spin = Gtk.SpinButton.new_with_range(1, 500, 1)
+        spin.set_value(10)
+        spin_box.append(spin_label)
+        spin_box.append(spin)
+        dialog.set_extra_child(spin_box)
+
+        dialog.add_response("cancel", _("Cancel"))
+        dialog.add_response("split", _("Split"))
+        dialog.set_response_appearance("split", Adw.ResponseAppearance.SUGGESTED)
+
+        dialog.connect(
+            "response",
+            lambda d, r: self._do_split_by_size(float(spin.get_value())) if r == "split" else None,
+        )
+        dialog.present(self)
+
+    def _do_split_by_size(self, max_mb: float) -> None:
+        """Execute split by file size."""
+        self._pick_output_dir_and_split("size", max_mb)
+
+    def _pick_output_dir_and_split(self, mode: str, value: float) -> None:
+        """Let user pick an output directory, then run the split."""
+        dialog = Gtk.FileDialog()
+        dialog.set_title(_("Select Output Directory"))
+
+        dialog.select_folder(
+            self,
+            None,
+            lambda d, r: self._finish_split(d, r, mode, value),
+        )
+
+    def _finish_split(self, dialog, result, mode: str, value: float) -> None:
+        """Finish the split operation after directory selection."""
+        import tempfile
+
+        try:
+            folder = dialog.select_folder_finish(result)
+            if not folder:
+                return
+            output_dir = folder.get_path()
+            if not output_dir:
+                return
+        except GLib.Error:
+            return
+
+        # Apply current edits to a temp file first
+        from bigocrpdf.ui.pdf_editor.page_operations import apply_changes_to_pdf
+
+        fd, tmp_path = tempfile.mkstemp(suffix=".pdf", prefix="bigocr_split_")
+        os.close(fd)
+
+        if not apply_changes_to_pdf(self._document, tmp_path):
+            self._show_error(_("Failed to prepare document for splitting."))
+            os.unlink(tmp_path)
+            return
+
+        from bigocrpdf.services.pdf_operations import split_by_pages, split_by_size
+
+        original_stem = Path(self._document.path).stem
+        try:
+            if mode == "pages":
+                result_split = split_by_pages(
+                    tmp_path, output_dir, int(value), prefix=original_stem
+                )
+            else:
+                result_split = split_by_size(tmp_path, output_dir, value, prefix=original_stem)
+
+            self._show_info(
+                _("Split into {} parts ({} pages)").format(
+                    result_split.parts, result_split.total_pages
+                )
+            )
+        except Exception as e:
+            self._show_error(_("Split failed: {}").format(str(e)))
+        finally:
+            os.unlink(tmp_path)
+
+    def _on_tools_reverse(self, _action, _param) -> None:
+        """Reverse the page order."""
+        if not self._document:
+            return
+
+        self._push_undo()
+        active = self._document.get_active_pages()
+        total = len(active)
+        for i, page in enumerate(active):
+            page.position = total - 1 - i
+
+        self._document.mark_modified()
+        self._page_grid.refresh()
+        self._update_status_bar()
+        logger.info("Reversed page order")
+
+    def _show_info(self, message: str) -> None:
+        """Show a non-blocking inline notification.
+
+        Args:
+            message: Info message
+        """
+        self._show_notification(message, "emblem-ok-symbolic")
+
+    def _show_notification(self, message: str, icon_name: str, timeout: int = 3) -> None:
+        """Show or update the inline notification banner.
+
+        Args:
+            message: Message text
+            icon_name: Icon name for the notification
+            timeout: Seconds before auto-hide (0 = persistent)
+        """
+        # Cancel previous timer
+        if self._notification_timer_id is not None:
+            GLib.source_remove(self._notification_timer_id)
+            self._notification_timer_id = None
+
+        self._notification_icon.set_from_icon_name(icon_name)
+        self._notification_label.set_text(message)
+        self._notification_revealer.set_reveal_child(True)
+
+        if timeout > 0:
+            self._notification_timer_id = GLib.timeout_add_seconds(timeout, self._hide_notification)
+
+    def _hide_notification(self) -> bool:
+        """Hide the notification banner.
+
+        Returns:
+            False to stop the timer.
+        """
+        self._notification_revealer.set_reveal_child(False)
+        self._notification_timer_id = None
+        return False
 
     def _on_back_clicked(self, _button: Gtk.Button) -> None:
         """Handle back button click.
@@ -507,22 +1048,6 @@ class PDFEditorWindow(Adw.Window):
             if "dismissed" not in str(e).lower():
                 logger.error(f"Error selecting files: {e}")
 
-    def _on_zoom_combo_changed(self, combo: Gtk.ComboBoxText) -> None:
-        """Handle zoom combo change (legacy — kept for compatibility).
-
-        Args:
-            combo: The combo box
-        """
-        text = combo.get_active_text()
-        if not text:
-            return
-
-        try:
-            zoom_level = int(text.rstrip("%"))
-            self._page_grid.set_zoom_level(zoom_level)
-        except ValueError:
-            logger.error(f"Invalid zoom level text: {text}")
-
     def _on_zoom_dropdown_changed(self, dropdown: Gtk.DropDown, _param) -> None:
         """Handle zoom dropdown selection change.
 
@@ -530,7 +1055,7 @@ class PDFEditorWindow(Adw.Window):
             dropdown: The dropdown widget
             _param: GObject param spec (unused)
         """
-        zoom_levels = [50, 75, 100, 150, 200]
+        zoom_levels = [50, 75, 100, 150, 200, 300, 400]
         selected = dropdown.get_selected()
         if 0 <= selected < len(zoom_levels):
             self._page_grid.set_zoom_level(zoom_levels[selected])
@@ -587,14 +1112,15 @@ class PDFEditorWindow(Adw.Window):
         logger.info("Merging pages from multiple sources into new PDF...")
         from bigocrpdf.ui.pdf_editor.page_operations import apply_changes_to_pdf
 
-        if apply_changes_to_pdf(self._document, temp_path):
+        if self._document is not None and apply_changes_to_pdf(self._document, temp_path):
             active_count = len(self._document.get_active_pages())
             clean_doc = PDFDocument(path=temp_path, total_pages=active_count)
             for i in range(active_count):
                 clean_doc.pages[i].source_file = temp_path
                 clean_doc.pages[i].page_number = i + 1
 
-            self._on_save_callback(clean_doc)
+            if self._on_save_callback:
+                self._on_save_callback(clean_doc)
             self._document.clear_modifications()
             logger.info(f"Merged PDF saved to {temp_path}")
         else:
@@ -658,6 +1184,20 @@ class PDFEditorWindow(Adw.Window):
         if self._on_close_callback:
             self._on_close_callback()
         self.close()
+
+    @staticmethod
+    def _window_buttons_on_left() -> bool:
+        """Detect if window buttons (close/min/max) are on the left side."""
+        try:
+            settings = Gio.Settings.new("org.gnome.desktop.wm.preferences")
+            layout = settings.get_string("button-layout")
+            if layout and ":" in layout:
+                left, _right = layout.split(":", 1)
+                if "close" in left:
+                    return True
+        except Exception:
+            pass
+        return False
 
     def _on_close_request(self, window: Adw.Window) -> bool:
         """Handle window close request.
@@ -723,20 +1263,78 @@ class PDFEditorWindow(Adw.Window):
         self._rotate_selected_pages(90)
 
     def _rotate_selected_pages(self, degrees: int) -> None:
-        """Rotate all included (non-excluded) pages by degrees.
+        """Rotate selected pages by degrees. If none selected, rotate all included.
 
         Args:
             degrees: Rotation angle (90 or -90)
         """
+        self._push_undo()
         thumbnails = self._page_grid._thumbnails
+        selected = self._page_grid._selected_indices
         rotated = 0
-        for thumb in thumbnails:
-            if not thumb.page_state.deleted:
-                thumb.page_state.rotate(degrees)
-                rotated += 1
 
-        if rotated > 0:
+        if selected:
+            for idx in selected:
+                if idx < len(thumbnails) and not thumbnails[idx].page_state.deleted:
+                    thumbnails[idx].page_state.rotate(degrees)
+                    rotated += 1
+        else:
+            for thumb in thumbnails:
+                if not thumb.page_state.deleted:
+                    thumb.page_state.rotate(degrees)
+                    rotated += 1
+
+        if rotated > 0 and self._document is not None:
             self._document.mark_modified()
             self._page_grid.refresh()
             self._update_status_bar()
-            logger.info(f"Rotated {rotated} included page(s) by {degrees}°")
+            target = "selected" if selected else "included"
+            logger.info(f"Rotated {rotated} {target} page(s) by {degrees}°")
+
+    def _move_selected_pages(self, direction: int) -> None:
+        """Move selected pages up or down by one position.
+
+        Pushes undo before the move.
+
+        Provides keyboard-accessible alternative to drag-and-drop reordering.
+
+        Args:
+            direction: -1 to move up, +1 to move down
+        """
+        if not self._document:
+            return
+
+        selected = sorted(self._page_grid._selected_indices)
+        if not selected:
+            return
+
+        self._push_undo()
+        pages = self._document.pages
+        total = len(pages)
+
+        # Moving up: process from top; moving down: process from bottom
+        if direction == 1:
+            selected = list(reversed(selected))
+
+        swaps: list[tuple[int, int]] = []
+        for idx in selected:
+            new_idx = idx + direction
+            if new_idx < 0 or new_idx >= total:
+                return  # Cannot move beyond bounds
+            pages[idx], pages[new_idx] = pages[new_idx], pages[idx]
+            swaps.append((idx, new_idx))
+
+        # Update positions
+        for i, page in enumerate(pages):
+            page.position = i
+
+        # Update selection indices
+        self._page_grid._selected_indices = {
+            idx + direction for idx in self._page_grid._selected_indices
+        }
+
+        self._document.mark_modified()
+        # Swap thumbnails in FlowBox without remove/insert (preserves scroll)
+        self._page_grid.swap_pages_in_grid(swaps)
+        self._update_status_bar()
+        logger.info(f"Moved {len(selected)} page(s) {'up' if direction < 0 else 'down'}")

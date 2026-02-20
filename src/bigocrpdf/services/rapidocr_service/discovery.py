@@ -31,12 +31,12 @@ class ModelDiscovery:
 
     # Language display names — concise labels for the UI dropdown
     LANGUAGE_NAMES: dict[str, str] = {
-        "latin": _("Latin Script (PT, EN, FR, DE, ES...)"),
+        "latin": _("Latin (PT, EN, FR, DE, ES...)"),
         "en": _("English (Optimized)"),
         "ch": _("Chinese Simplified"),
         "korean": _("Korean"),
-        "arabic": _("Arabic Script (AR, FA, UR...)"),
-        "cyrillic": _("Cyrillic Script (RU, UK, BG...)"),
+        "arabic": _("Arabic (AR, FA, UR...)"),
+        "cyrillic": _("Cyrillic (RU, UK, BG...)"),
         "eslav": _("East Slavic (RU, BY, UK)"),
         "el": _("Greek"),
         "devanagari": _("Devanagari (Hindi, Marathi, Nepali)"),

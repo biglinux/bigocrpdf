@@ -5,6 +5,8 @@ A FlowBox-based widget for displaying and managing PDF page thumbnails
 with multi-select support, zoom control, and enhanced drag-and-drop.
 """
 
+from collections.abc import Callable
+
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -50,6 +52,7 @@ class PageGrid(Gtk.ScrolledWindow):
         self._last_selected_index: int | None = None
         self._zoom_level = 100  # Percentage
         self._thumbnail_size = self.DEFAULT_THUMBNAIL_SIZE
+        self.on_before_mutate: Callable[[], None] | None = None
 
         # Drag and Drop state
         self._drop_target_index: int | None = None
@@ -82,10 +85,10 @@ class PageGrid(Gtk.ScrolledWindow):
 
         # Main container inside overlay
         self._main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        self._main_box.set_margin_top(12)
-        self._main_box.set_margin_bottom(12)
-        self._main_box.set_margin_start(12)
-        self._main_box.set_margin_end(12)
+        self._main_box.set_margin_top(8)
+        self._main_box.set_margin_bottom(8)
+        self._main_box.set_margin_start(8)
+        self._main_box.set_margin_end(8)
         self._overlay.set_child(self._main_box)
 
         # FlowBox for page thumbnails
@@ -93,8 +96,8 @@ class PageGrid(Gtk.ScrolledWindow):
         self._flowbox.set_selection_mode(Gtk.SelectionMode.NONE)  # Manual selection
         self._flowbox.set_homogeneous(False)
 
-        self._flowbox.set_row_spacing(12)
-        self._flowbox.set_column_spacing(12)
+        self._flowbox.set_row_spacing(8)
+        self._flowbox.set_column_spacing(8)
         self._flowbox.set_min_children_per_line(1)
         self._flowbox.set_max_children_per_line(30)
         self._flowbox.set_valign(Gtk.Align.START)
@@ -242,7 +245,6 @@ class PageGrid(Gtk.ScrolledWindow):
             thumbnail = self._create_thumbnail(page)
             self._flowbox.append(thumbnail)
             self._thumbnails.append(thumbnail)
-            thumbnail.load_thumbnail()
 
         # Restore selection
         self._selected_indices.clear()
@@ -251,15 +253,186 @@ class PageGrid(Gtk.ScrolledWindow):
                 self._selected_indices.add(idx)
                 self._thumbnails[idx].selected = True
 
+        # Only load visible thumbnails (lazy loading)
         GLib.timeout_add(50, self._load_visible_thumbnails)
         self.emit("selection-changed")
 
+    def reorder_in_place(self) -> None:
+        """Re-sort existing thumbnails to match their page_state.position
+        without destroying/recreating widgets, preserving the scroll position.
+        """
+        if not self._document:
+            return
+
+        # Build new order from current page positions
+        indexed = [(t.page_state.position, i, t) for i, t in enumerate(self._thumbnails)]
+        indexed.sort(key=lambda x: x[0])
+        new_order = [t for _, _, t in indexed]
+
+        # Detach all thumbnails from their FlowBoxChild wrappers,
+        # then remove the empty FlowBoxChild from the FlowBox.
+        # This is necessary because FlowBox.append() creates a new
+        # FlowBoxChild wrapper and requires the widget to have no parent.
+        for thumb in self._thumbnails:
+            fb_child = thumb.get_parent()  # GtkFlowBoxChild
+            if fb_child:
+                fb_child.set_child(None)  # unparent thumbnail
+                self._flowbox.remove(fb_child)  # remove empty wrapper
+
+        # Re-append in new order (creates fresh FlowBoxChild wrappers)
+        for thumb in new_order:
+            self._flowbox.append(thumb)
+
+        # Rebuild internal list and remap selection indices
+        old_to_new = {}
+        for new_idx, (_, old_idx, _) in enumerate(indexed):
+            old_to_new[old_idx] = new_idx
+
+        new_selected = set()
+        for old_idx in self._selected_indices:
+            if old_idx in old_to_new:
+                new_selected.add(old_to_new[old_idx])
+        self._selected_indices = new_selected
+
+        self._thumbnails = new_order
+        if self._last_selected_index is not None and self._last_selected_index in old_to_new:
+            self._last_selected_index = old_to_new[self._last_selected_index]
+
+        self.emit("selection-changed")
+
+    def move_page_in_grid(self, source_pos: int, final_target: int) -> None:
+        """Move a single page from source to target in the FlowBox.
+
+        Only one widget is removed/re-inserted so the FlowBox never
+        becomes empty and the scroll position is preserved.
+
+        Args:
+            source_pos: Current index of the page to move.
+            final_target: Target index (after removal adjustment).
+        """
+        if source_pos < 0 or source_pos >= len(self._thumbnails):
+            return
+
+        thumb = self._thumbnails[source_pos]
+
+        # Remove the single widget from FlowBox
+        fb_child = thumb.get_parent()
+        if fb_child:
+            fb_child.set_child(None)
+            self._flowbox.remove(fb_child)
+
+        # Insert at the target position
+        self._flowbox.insert(thumb, final_target)
+
+        # Update internal list
+        self._thumbnails.pop(source_pos)
+        self._thumbnails.insert(final_target, thumb)
+
+        # Remap selection indices
+        new_selected: set[int] = set()
+        for idx in self._selected_indices:
+            if idx == source_pos:
+                new_selected.add(final_target)
+            elif source_pos < final_target:
+                # Moved forward: items in (source, target] shift back by 1
+                if source_pos < idx <= final_target:
+                    new_selected.add(idx - 1)
+                else:
+                    new_selected.add(idx)
+            else:
+                # Moved backward: items in [target, source) shift forward by 1
+                if final_target <= idx < source_pos:
+                    new_selected.add(idx + 1)
+                else:
+                    new_selected.add(idx)
+        self._selected_indices = new_selected
+
+        if self._last_selected_index == source_pos:
+            self._last_selected_index = final_target
+
+        self.emit("selection-changed")
+
+    def swap_pages_in_grid(self, swaps: list[tuple[int, int]]) -> None:
+        """Swap thumbnail content between FlowBoxChild wrappers.
+
+        No widgets are removed from or added to the FlowBox, so the
+        scroll position is completely unaffected.
+
+        Args:
+            swaps: List of (index_a, index_b) pairs to swap.
+        """
+        n = len(self._thumbnails)
+        for idx_a, idx_b in swaps:
+            if not (0 <= idx_a < n and 0 <= idx_b < n):
+                continue
+
+            fb_a = self._flowbox.get_child_at_index(idx_a)
+            fb_b = self._flowbox.get_child_at_index(idx_b)
+            if not fb_a or not fb_b:
+                continue
+
+            thumb_a = self._thumbnails[idx_a]
+            thumb_b = self._thumbnails[idx_b]
+
+            # Detach both thumbnails from their wrappers
+            fb_a.set_child(None)
+            fb_b.set_child(None)
+
+            # Cross-assign
+            fb_a.set_child(thumb_b)
+            fb_b.set_child(thumb_a)
+
+            # Update internal list
+            self._thumbnails[idx_a] = thumb_b
+            self._thumbnails[idx_b] = thumb_a
+
+        self.emit("selection-changed")
+
+    def move_pages_in_grid(self, source_indices: list[int], insert_at: int) -> None:
+        """Move multiple pages from source positions to a target position.
+
+        Removes source thumbnails from FlowBox and re-inserts them at the
+        target position. The FlowBox is never fully emptied (assuming there
+        are non-selected pages), so the scroll position is preserved.
+
+        Args:
+            source_indices: Sorted list of current indices of pages to move.
+            insert_at: Target index (after removal adjustment) for the first page.
+        """
+        source_set = set(source_indices)
+        moving = [self._thumbnails[i] for i in source_indices]
+
+        # Remove from FlowBox (reverse order to preserve indices)
+        for i in sorted(source_set, reverse=True):
+            thumb = self._thumbnails[i]
+            fb_child = thumb.get_parent()
+            if fb_child:
+                fb_child.set_child(None)
+                self._flowbox.remove(fb_child)
+
+        # Remove from internal list (reverse order)
+        for i in sorted(source_set, reverse=True):
+            self._thumbnails.pop(i)
+
+        # Re-insert at target position
+        for offset, thumb in enumerate(moving):
+            pos = insert_at + offset
+            self._flowbox.insert(thumb, pos)
+            self._thumbnails.insert(pos, thumb)
+
+        # Update selection to new positions
+        count = len(moving)
+        self._selected_indices = set(range(insert_at, insert_at + count))
+        self._last_selected_index = insert_at
+
+        self.emit("selection-changed")
+
     def _remove_all_children(self):
-        while True:
-            child = self._flowbox.get_child_at_index(0)
-            if child is None:
-                break
+        child = self._flowbox.get_first_child()
+        while child is not None:
+            next_child = child.get_next_sibling()
             self._flowbox.remove(child)
+            child = next_child
 
     def _create_thumbnail(self, page_state: PageState) -> PageThumbnail:
         thumbnail = PageThumbnail(
@@ -267,6 +440,7 @@ class PageGrid(Gtk.ScrolledWindow):
             pdf_path=page_state.source_file or (self._document.path if self._document else ""),
             size=self._thumbnail_size,
         )
+        thumbnail.on_before_mutate = self.on_before_mutate
         thumbnail.connect("thumbnail-clicked", self._on_thumbnail_clicked)
         thumbnail.connect("ocr-toggled", self._on_thumbnail_ocr_toggled, page_state)
         thumbnail.connect("rotate-left-clicked", self._on_thumbnail_rotate_left, page_state)
@@ -309,14 +483,20 @@ class PageGrid(Gtk.ScrolledWindow):
         self.emit("selection-changed")
 
     def _on_thumbnail_rotate_left(self, thumbnail: PageThumbnail, page_state: PageState) -> None:
+        if self.on_before_mutate:
+            self.on_before_mutate()
         page_state.rotate(-90)
         thumbnail.rotate_thumbnail_in_place(270)
+        thumbnail._update_appearance()
         if self._document:
             self._document.mark_modified()
 
     def _on_thumbnail_rotate_right(self, thumbnail: PageThumbnail, page_state: PageState) -> None:
+        if self.on_before_mutate:
+            self.on_before_mutate()
         page_state.rotate(90)
         thumbnail.rotate_thumbnail_in_place(90)
+        thumbnail._update_appearance()
         if self._document:
             self._document.mark_modified()
 
@@ -397,6 +577,8 @@ class PageGrid(Gtk.ScrolledWindow):
         self.set_ocr_for_all(False)
 
     def set_ocr_for_all(self, included: bool) -> None:
+        if self.on_before_mutate:
+            self.on_before_mutate()
         for thumbnail in self._thumbnails:
             thumbnail.page_state.deleted = not included
             thumbnail.page_state.included_for_ocr = included
@@ -408,7 +590,7 @@ class PageGrid(Gtk.ScrolledWindow):
     # --- Zoom ---
 
     def set_zoom_level(self, level: int) -> None:
-        level = max(50, min(250, level))
+        level = max(50, min(400, level))
         if level == self._zoom_level:
             return
         self._zoom_level = level
@@ -459,6 +641,8 @@ class PageGrid(Gtk.ScrolledWindow):
 
     def toggle_ocr_for_selected(self) -> None:
         """Toggle OCR inclusion for all selected pages."""
+        if self.on_before_mutate:
+            self.on_before_mutate()
         for idx in self._selected_indices:
             if 0 <= idx < len(self._thumbnails):
                 thumb = self._thumbnails[idx]
@@ -642,8 +826,39 @@ class PageGrid(Gtk.ScrolledWindow):
         if source_pos == target_pos or source_pos == target_pos - 1:
             return False
 
+        if self.on_before_mutate:
+            self.on_before_mutate()
+
         try:
             pages = self._document.pages
+
+            # Multi-page move: dragged page is part of a multi-selection
+            if source_pos in self._selected_indices and len(self._selected_indices) > 1:
+                selected = sorted(self._selected_indices)
+                moving_pages = [pages[i] for i in selected]
+
+                # Remove selected pages (reverse order to preserve indices)
+                for i in reversed(selected):
+                    pages.pop(i)
+
+                # Adjust target for removed pages that were before the target
+                adjusted_target = target_pos - sum(1 for i in selected if i < target_pos)
+                adjusted_target = max(0, min(adjusted_target, len(pages)))
+
+                # Insert all pages at target
+                for offset, page in enumerate(moving_pages):
+                    pages.insert(adjusted_target + offset, page)
+
+                # Re-index
+                for i, p in enumerate(pages):
+                    p.position = i
+
+                self._document.mark_modified()
+                self.move_pages_in_grid(selected, adjusted_target)
+                logger.info(f"Moved {len(selected)} pages to position {adjusted_target}")
+                return True
+
+            # Single page move
             if 0 <= source_pos < len(pages):
                 page = pages.pop(source_pos)
 
@@ -660,7 +875,7 @@ class PageGrid(Gtk.ScrolledWindow):
                     p.position = i
 
                 self._document.mark_modified()
-                self.refresh()
+                self.move_page_in_grid(source_pos, final_target)
                 logger.info(f"Page reordered from {source_pos} to {final_target}")
                 return True
 

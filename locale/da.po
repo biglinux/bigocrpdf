@@ -2,846 +2,1245 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the bigocrpdf package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf\n"
 "Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-20 05:20-0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: attranslate\n"
-# 
+
+#
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
+#: src/bigocrpdf/application.py:49 src/bigocrpdf/config.py:134
+#: src/bigocrpdf/image_application.py:45
 msgid "Print version information and exit"
 msgstr "Udskriv versionsinformation og afslut"
-# 
+
+#: src/bigocrpdf/application.py:57 src/bigocrpdf/config.py:146
+msgid "Open files directly in the PDF editor"
+msgstr "Åbn filer direkte i PDF-editoren"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
+#: src/bigocrpdf/application.py:162
+msgid "Application started successfully"
+msgstr "Applikationen blev startet med succes"
+
+#: src/bigocrpdf/application.py:165
+msgid "Error activating application"
+msgstr "Fejl ved aktivering af programmet"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 111
+#: src/bigocrpdf/application.py:167
+msgid "Error starting application"
+msgstr "Fejl ved opstart af applikation"
+
+#: src/bigocrpdf/application.py:270
+#, python-brace-format
+msgid "Opened {0} file(s)"
+msgstr "{0} fil(er) åbnet"
+
+#: src/bigocrpdf/application.py:273
+msgid "Error opening files"
+msgstr "Fejl ved åbning af filer"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 129
+#: src/bigocrpdf/application.py:370
+msgid "BigLinux Team"
+msgstr "BigLinux Team"
+
+#
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 266
+#: src/bigocrpdf/application.py:378
+msgid "Interface"
+msgstr "Grænseflade"
+
+#
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 272
+#: src/bigocrpdf/application.py:384
+msgid "Third-party Components"
+msgstr "Tredjeparts komponenter"
+
+#
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 274
+#: src/bigocrpdf/application.py:386
+msgid ""
+"The OCR engine and other libraries used by this application are independent "
+"projects, each distributed under its own license."
+msgstr ""
+"OCR-motoren og andre biblioteker, der bruges af denne applikation, er "
+"uafhængige projekter, hver distribueret under deres egen licens."
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 139
+#: src/bigocrpdf/application.py:397
+msgid "Developers"
+msgstr "Udviklere"
+
+#
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 289
+#: src/bigocrpdf/application.py:401
+msgid "Powered by"
+msgstr "Drevet af"
+
+#: src/bigocrpdf/cli.py:163
+msgid "Verbose logging (DEBUG)"
+msgstr "Detaljeret logning (DEBUG)"
+
+#: src/bigocrpdf/cli.py:165
+msgid "Available commands"
+msgstr "Tilgængelige kommandoer"
+
+#: src/bigocrpdf/cli.py:168
+msgid "OCR processing for PDF files"
+msgstr "OCR-behandling af PDF-filer"
+
+#: src/bigocrpdf/cli.py:169 src/bigocrpdf/cli.py:277 src/bigocrpdf/cli.py:307
+#: src/bigocrpdf/cli.py:326 src/bigocrpdf/cli.py:344 src/bigocrpdf/cli.py:355
+#: src/bigocrpdf/cli.py:392 src/bigocrpdf/cli.py:409
+msgid "Input PDF file"
+msgstr "PDF-inputfil"
+
+#: src/bigocrpdf/cli.py:170 src/bigocrpdf/cli.py:303 src/bigocrpdf/cli.py:308
+#: src/bigocrpdf/cli.py:327 src/bigocrpdf/cli.py:345 src/bigocrpdf/cli.py:356
+#: src/bigocrpdf/cli.py:367 src/bigocrpdf/cli.py:393
+msgid "Output PDF file"
+msgstr "PDF-outputfil"
+
+#: src/bigocrpdf/cli.py:175
+msgid "Pages to process (e.g. '7', '3-10', '1,3,7'). Default: all."
+msgstr "Sider at behandle (f.eks. '7', '3-10', '1,3,7'). Standard: alle."
+
+#: src/bigocrpdf/cli.py:181
+msgid "OCR language (latin, ch, japan, korean, etc.). Default: latin."
+msgstr "OCR-sprog (latin, ch, japan, korean osv.). Standard: latin."
+
+#: src/bigocrpdf/cli.py:187
+msgid "Parallel workers (0 = auto). Default: 0."
+msgstr "Parallelle processer (0 = auto). Standard: 0."
+
+#: src/bigocrpdf/cli.py:189
+msgid "DPI for extraction (default: 300)"
+msgstr "DPI til udtrækning (standard: 300)"
+
+#: src/bigocrpdf/cli.py:192
+msgid "OCR behavior"
+msgstr "OCR-adfærd"
+
+#: src/bigocrpdf/cli.py:197
+msgid "Re-OCR pages that already have text (default: skip them)."
+msgstr "Gentag OCR på sider med tekst (standard: spring over)."
+
+#: src/bigocrpdf/cli.py:203
+msgid "Process all pages as image-only (for editor-merged files)."
+msgstr "Behandl alle sider som billede (for filer sammensat i editoren)."
+
+#: src/bigocrpdf/cli.py:209
+msgid "Use high-quality server models if available."
+msgstr "Brug servermodeller i høj kvalitet, hvis tilgængelige."
+
+#: src/bigocrpdf/cli.py:213
+msgid "Geometric corrections"
+msgstr "Geometriske korrektioner"
+
+#: src/bigocrpdf/cli.py:214
+msgid "Disable curvature correction"
+msgstr "Deaktiver krumningskorrektion"
+
+#: src/bigocrpdf/cli.py:215
+msgid "Disable skew correction"
+msgstr "Deaktiver skævhedskorrektion"
+
+#: src/bigocrpdf/cli.py:217
+msgid "Disable perspective correction"
+msgstr "Deaktiver perspektivkorrektion"
+
+#: src/bigocrpdf/cli.py:220
+msgid "Disable orientation detection"
+msgstr "Deaktiver orienteringsregistrering"
+
+#: src/bigocrpdf/cli.py:224
+msgid "Image enhancements"
+msgstr "Billedforbedringer"
+
+#: src/bigocrpdf/cli.py:229
+msgid "Enable scanner effect (whitens background)."
+msgstr "Aktivér scannereffekt (gør baggrunden hvid)."
+
+#: src/bigocrpdf/cli.py:231
+msgid "Disable scanner effect."
+msgstr "Deaktiver scannereffekt."
+
+#: src/bigocrpdf/cli.py:232
+msgid "Enable CLAHE contrast"
+msgstr "Aktivér CLAHE-kontrast"
+
+#: src/bigocrpdf/cli.py:233
+msgid "Enable auto brightness"
+msgstr "Aktivér automatisk lysstyrke"
+
+#: src/bigocrpdf/cli.py:234
+msgid "Enable denoising"
+msgstr "Aktivér støjreduktion"
+
+#: src/bigocrpdf/cli.py:235
+msgid "Remove dark borders"
+msgstr "Fjern mørke kanter"
+
+#: src/bigocrpdf/cli.py:239
+msgid "Enable vintage look (sepia/BW)."
+msgstr "Aktivér vintage-look (sepia/S&H)."
+
+#: src/bigocrpdf/cli.py:241
+msgid "Vintage in black & white"
+msgstr "Vintage i sort-hvid"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 401
+#: src/bigocrpdf/cli.py:244 src/bigocrpdf/ui/settings_page.py:481
+#: src/bigocrpdf/ui/settings_page.py:483
+msgid "Output options"
+msgstr "Outputmuligheder"
+
+#: src/bigocrpdf/cli.py:245
+msgid "Convert output to PDF/A-2b"
+msgstr "Konverter output til PDF/A-2b"
+
+#: src/bigocrpdf/cli.py:251
+msgid "Image format in output PDF. Default: original."
+msgstr "Billedformat i output-PDF. Standard: original."
+
+#: src/bigocrpdf/cli.py:258
+msgid "Image quality for JPEG/WebP (1-95, default: 85)."
+msgstr "Billedkvalitet for JPEG/WebP (1-95, standard: 85)."
+
+#: src/bigocrpdf/cli.py:262
+msgid "Debugging"
+msgstr "Fejlsøgning"
+
+#: src/bigocrpdf/cli.py:267
+msgid "Save preprocessed images to this directory."
+msgstr "Gem forbehandlede billeder i denne mappe."
+
+#: src/bigocrpdf/cli.py:272
+msgid "Only run preprocessing (dewarp/deskew), save images, skip OCR."
+msgstr "Kør kun forbehandling (dewarp/deskew), gem billeder, spring OCR over."
+
+#: src/bigocrpdf/cli.py:276
+msgid "Split PDF into smaller files"
+msgstr "Opdel PDF i mindre filer"
+
+#: src/bigocrpdf/cli.py:278
+msgid "Output directory"
+msgstr "Outputmappe"
+
+#: src/bigocrpdf/cli.py:284
+msgid "Split every N pages"
+msgstr "Opdel for hver N sider"
+
+#: src/bigocrpdf/cli.py:290
+msgid "Maximum file size per part in megabytes"
+msgstr "Maksimal filstørrelse pr. del i megabytes"
+
+#: src/bigocrpdf/cli.py:296
+msgid "Explicit ranges (e.g. '1-5,6-10,11-15')"
+msgstr "Eksplicitte intervaller (f.eks. '1-5,6-10,11-15')"
+
+#: src/bigocrpdf/cli.py:298
+msgid "Filename prefix for output parts"
+msgstr "Filnavnspræfiks for outputdele"
+
+#: src/bigocrpdf/cli.py:301
+msgid "Merge multiple PDFs into one"
+msgstr "Flet flere PDF'er til én"
+
+#: src/bigocrpdf/cli.py:302
+msgid "Input PDF files (in order)"
+msgstr "PDF-inputfiler (i rækkefølge)"
+
+#: src/bigocrpdf/cli.py:306
+msgid "Compress PDF to reduce file size"
+msgstr "Komprimer PDF for at reducere filstørrelsen"
+
+#: src/bigocrpdf/cli.py:314
+msgid "JPEG quality for images (1-95, default: 60)"
+msgstr "JPEG-kvalitet for billeder (1-95, standard: 60)"
+
+#: src/bigocrpdf/cli.py:321
+msgid "Target DPI for images (default: 150)"
+msgstr "Mål-DPI for billeder (standard: 150)"
+
+#: src/bigocrpdf/cli.py:325
+msgid "Rotate pages in a PDF"
+msgstr "Roter sider i en PDF"
+
+#: src/bigocrpdf/cli.py:333
+msgid "Rotation angle in degrees (clockwise)"
+msgstr "Rotationsvinkel i grader (med uret)"
+
+#: src/bigocrpdf/cli.py:339
+msgid "Pages to rotate (e.g. '1,3,5' or '1-5'). Default: all."
+msgstr "Sider at rotere (f.eks. '1,3,5' eller '1-5'). Standard: alle."
+
+#: src/bigocrpdf/cli.py:343
+msgid "Remove pages from a PDF"
+msgstr "Fjern sider fra en PDF"
+
+#: src/bigocrpdf/cli.py:350
+msgid "Pages to delete (e.g. '3,5,7' or '2-4')"
+msgstr "Sider at slette (f.eks. '3,5,7' eller '2-4')"
+
+#: src/bigocrpdf/cli.py:354
+msgid "Extract pages to a new PDF"
+msgstr "Udtræk sider til en ny PDF"
+
+#: src/bigocrpdf/cli.py:361
+msgid "Pages to extract (e.g. '3-5' or '1,3,7')"
+msgstr "Sider at udtrække (f.eks. '3-5' eller '1,3,7')"
+
+#: src/bigocrpdf/cli.py:365
+msgid "Insert pages from another PDF"
+msgstr "Indsæt sider fra en anden PDF"
+
+#: src/bigocrpdf/cli.py:366
+msgid "Target PDF file"
+msgstr "Mål-PDF-fil"
+
+#: src/bigocrpdf/cli.py:374
+msgid "PDF file to insert pages from"
+msgstr "PDF-fil at indsætte sider fra"
+
+#: src/bigocrpdf/cli.py:381
+msgid "Insert at this page position (1-indexed, 0 = append). Default: append."
+msgstr "Indsæt ved denne position (fra 1, 0 = tilføj sidst). Standard: tilføj sidst."
+
+#: src/bigocrpdf/cli.py:387
+msgid "Pages to insert from the source (e.g. '1-3'). Default: all."
+msgstr "Sider at indsætte fra kilden (f.eks. '1-3'). Standard: alle."
+
+#: src/bigocrpdf/cli.py:391
+msgid "Reorder or reverse pages"
+msgstr "Omarranger eller vend sider"
+
+#: src/bigocrpdf/cli.py:399
+msgid "New page order (e.g. '3,1,2,5,4')"
+msgstr "Ny siderækkefølge (f.eks. '3,1,2,5,4')"
+
+#: src/bigocrpdf/cli.py:404 src/bigocrpdf/ui/pdf_editor/editor_window.py:197
+msgid "Reverse the page order"
+msgstr "Vend siderækkefølgen"
+
+#: src/bigocrpdf/cli.py:408
+msgid "Show PDF metadata and page count"
+msgstr "Vis PDF-metadata og sideantal"
+
+#: src/bigocrpdf/cli.py:412
+msgid "Open interactive GUI editor"
+msgstr "Åbn interaktiv grafisk editor"
+
+#: src/bigocrpdf/cli.py:413
+msgid "PDF file to edit"
+msgstr "PDF-fil at redigere"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 72
+#: src/bigocrpdf/config.py:136
+msgid "Enable debug mode"
+msgstr "Aktivér fejlsøgningstilstand"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 74
+#: src/bigocrpdf/config.py:137
+msgid "Enable verbose output"
+msgstr "Aktivér detaljeret output"
+
+#
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+#
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 57
+# File: bigocrpdf/src/bigocrpdf/config.py, line: 139
+#: src/bigocrpdf/config.py:141
+msgid "Start in image conversion mode"
+msgstr "Start i billedkonverteringstilstand"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
+#: src/bigocrpdf/config.py:148
+msgid "PDF files to process"
+msgstr "PDF-filer til behandling"
+
+#
 # File: bigocrpdf/src/bigocrpdf/image_application.py, line: 115
+#: src/bigocrpdf/image_application.py:115
 msgid "Extract text from images using OCR"
 msgstr "Uddrag tekst fra billeder ved hjælp af OCR"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 85
-#, python-brace-format
-msgid "Started OCR processing for {0} files using RapidOCR"
-msgstr "Startede OCR-behandling for {0} filer ved hjælp af RapidOCR"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 82
-#, python-brace-format
-msgid "Error starting OCR processing: {0}"
-msgstr "Fejl ved opstart af OCR-behandling: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 92
-msgid "No files to process"
-msgstr "Ingen filer at behandle"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 135
-msgid "Processing stopped by user"
-msgstr "Behandling stoppet af bruger"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 158
-#, python-brace-format
-msgid "Processing cancelled by user during file: {0}"
-msgstr "Behandling annulleret af bruger under fil: {0}"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 163
-#, python-brace-format
-msgid "Error processing {0}: {1}"
-msgstr "Fejl ved behandling af {0}: {1}"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 178
-#, python-brace-format
-msgid "Processing thread error: {0}"
-msgstr "Behandlingstrådfejl: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 136
-#, python-brace-format
-msgid "Error: File not found or invalid: {0}"
-msgstr "Fejl: Fil ikke fundet eller ugyldig: {0}"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 223
-#, python-brace-format
-msgid "Processed {0}: {1} pages, {2} words"
-msgstr "Behandlet {0}: {1} sider, {2} ord"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 172
-#, python-brace-format
-msgid "Could not determine output directory for {0}"
-msgstr "Kunne ikke bestemme output-mappe for {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 185
-#, python-brace-format
-msgid "Error creating output path for {0}: {1}"
-msgstr "Fejl ved oprettelse af outputsti for {0}: {1}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 388
-#, python-brace-format
-msgid "Error getting OCR languages: {0}"
-msgstr "Fejl ved hentning af OCR-sprog: {0}"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 481
-#, python-brace-format
-msgid "Cleared editor state for: {0}"
-msgstr "Rydde redigeringsstatus for: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 508
-#, python-brace-format
-msgid "Removed processed file from queue: {0}"
-msgstr "Fjernet behandlet fil fra køen: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 533
-#, python-brace-format
-msgid "Generated unique filename to avoid overwriting: {0}"
-msgstr "Genereret unikt filnavn for at undgå overskrivning: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 105
-#, python-brace-format
-msgid "Attempting to add {0} files"
-msgstr "Forsøger at tilføje {0} filer"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 120
-#, python-brace-format
-msgid "Successfully added {0} files"
-msgstr "Succesfuldt tilføjet {0} filer"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 229
-msgid "No valid files were found to add"
-msgstr "Ingen gyldige filer blev fundet til at tilføje."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 140
-msgid "Empty file path provided"
-msgstr "Tom filsti angivet"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 145
-#, python-brace-format
-msgid "File does not exist: {0}"
-msgstr "Filen findes ikke: {0}"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 258
-#, python-brace-format
-msgid "Unsupported file type: {0}"
-msgstr "Ikke understøttet filtype: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 155
-#, python-brace-format
-msgid "File already in list: {0}"
-msgstr "Fil allerede i listen: {0}"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 267
-#, python-brace-format
-msgid "Adding valid file: {0}"
-msgstr "Tilføjer gyldig fil: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 231
-msgid "Settings saved successfully"
-msgstr "Indstillinger gemt med succes"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 234
-#, python-brace-format
-msgid "Error saving settings: {0}"
-msgstr "Fejl ved gemning af indstillinger: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 404
-#, python-brace-format
-msgid "Saved {0} selected files"
-msgstr "Gemte {0} valgte filer"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 406
-#, python-brace-format
-msgid "Error saving selected files: {0}"
-msgstr "Fejl ved gemning af valgte filer: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 430
-#, python-brace-format
-msgid "Error loading selected files: {0}"
-msgstr "Fejl ved indlæsning af valgte filer: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 594
-msgid "Processing state reset successfully"
-msgstr "Behandlingsstatus nulstillet med succes"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 612
-msgid "Temporary files cleanup completed"
-msgstr "Rydning af midlertidige filer er fuldført"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 34
-msgid "Latin Script (PT, EN, FR, DE, ES...)"
-msgstr "Latinsk skrift (PT, EN, FR, DE, ES...)"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 35
-msgid "English (Optimized)"
-msgstr "Engelsk (Optimeret)"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 38
-msgid "Arabic Script (AR, FA, UR...)"
-msgstr "Arabisk skrift (AR, FA, UR...)"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 39
-msgid "Cyrillic Script (RU, UK, BG...)"
-msgstr "Kyrillisk skrift (RU, UK, BG...)"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 40
-msgid "East Slavic (RU, BY, UK)"
-msgstr "Østslavisk (RU, BY, UK)"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 42
-msgid "Devanagari (Hindi, Marathi, Nepali)"
-msgstr "Devanagari (Hindi, Marathi, Nepali)"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 245
-msgid "Analyzing PDF..."
-msgstr "Analyserer PDF..."
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 293
-msgid "Starting OCR..."
-msgstr "Starter OCR..."
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 357
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_text_layer.py, line: 422
-#, python-brace-format
-msgid "Processing page {0}/{1}..."
-msgstr "Behandler side {0}/{1}..."
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 417
-msgid "Merging text layer..."
-msgstr "Sammenfletter tekstlag..."
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 464
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 715
-msgid "Done!"
-msgstr "Færdig!"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 610
-msgid "Analyzing PDF structure..."
-msgstr "Analyserer PDF-struktur..."
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 633
-msgid "Extracting images..."
-msgstr "Udvinding af billeder..."
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 655
-#, python-brace-format
-msgid "OCR page {0}..."
-msgstr "OCR-side {0}..."
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 687
-msgid "Saving PDF..."
-msgstr "Gemmer PDF..."
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 698
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 758
-msgid "Splitting PDF by size limit..."
-msgstr "Opdeling af PDF efter størrelsesgrænse..."
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 707
-msgid "Text extracted by OCR from images"
-msgstr "Tekst udtrukket af OCR fra billeder"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 746
-msgid "Converting to PDF/A..."
-msgstr "Konverterer til PDF/A..."
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/services/export_service.py, line: 42
+#: src/bigocrpdf/services/export_service.py:42
 #, python-brace-format
 msgid "Saved extracted text to: {0}"
 msgstr "Gemte udtrukket tekst til: {0}"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/services/export_service.py, line: 46
+#: src/bigocrpdf/services/export_service.py:46
 #, python-brace-format
 msgid "Failed to save text file: {0}"
 msgstr "Kunne ikke gemme tekstfil: {0}"
-# 
+
+#: src/bigocrpdf/services/pdf_operations.py:34
+msgid "Could not find the file. Was it moved or deleted?"
+msgstr "Filen blev ikke fundet. Er den blevet flyttet eller slettet?"
+
+#: src/bigocrpdf/services/pdf_operations.py:36
+msgid "Cannot write to this folder. Choose a different location."
+msgstr "Kan ikke skrive til denne mappe. Vælg en anden placering."
+
+#: src/bigocrpdf/services/pdf_operations.py:38
+msgid "This PDF is password-protected. Remove the password first."
+msgstr "Denne PDF er beskyttet med adgangskode. Fjern adgangskoden først."
+
+#: src/bigocrpdf/services/pdf_operations.py:40
+#, python-brace-format
+msgid "The PDF file appears to be damaged or invalid: {error}"
+msgstr "PDF-filen ser ud til at være beskadiget eller ugyldig: {error}"
+
+#: src/bigocrpdf/services/pdf_operations.py:370
+msgid "No input files provided."
+msgstr "Ingen inputfiler angivet."
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 85
+#: src/bigocrpdf/services/processor.py:87
+#, python-brace-format
+msgid "Started OCR processing for {0} files using RapidOCR"
+msgstr "Startede OCR-behandling for {0} filer ved hjælp af RapidOCR"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 82
+#: src/bigocrpdf/services/processor.py:94
+#, python-brace-format
+msgid "Error starting OCR processing: {0}"
+msgstr "Fejl ved opstart af OCR-behandling: {0}"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 92
+#: src/bigocrpdf/services/processor.py:100
+msgid "No files to process"
+msgstr "Ingen filer at behandle"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 135
+#: src/bigocrpdf/services/processor.py:137
+msgid "Processing stopped by user"
+msgstr "Behandling stoppet af bruger"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 158
+#: src/bigocrpdf/services/processor.py:163
+#, python-brace-format
+msgid "Processing cancelled by user during file: {0}"
+msgstr "Behandling annulleret af bruger under fil: {0}"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 163
+#: src/bigocrpdf/services/processor.py:168
+#, python-brace-format
+msgid "Error processing {0}: {1}"
+msgstr "Fejl ved behandling af {0}: {1}"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 178
+#: src/bigocrpdf/services/processor.py:183
+#, python-brace-format
+msgid "Processing thread error: {0}"
+msgstr "Behandlingstrådfejl: {0}"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 136
+#: src/bigocrpdf/services/processor.py:193
+#, python-brace-format
+msgid "Error: File not found or invalid: {0}"
+msgstr "Fejl: Fil ikke fundet eller ugyldig: {0}"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 223
+#: src/bigocrpdf/services/processor.py:228
+#, python-brace-format
+msgid "Processed {0}: {1} pages, {2} words"
+msgstr "Behandlet {0}: {1} sider, {2} ord"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 172
+#: src/bigocrpdf/services/processor.py:358
+#, python-brace-format
+msgid "Could not determine output directory for {0}"
+msgstr "Kunne ikke bestemme output-mappe for {0}"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 185
+#: src/bigocrpdf/services/processor.py:368
+#, python-brace-format
+msgid "Error creating output path for {0}: {1}"
+msgstr "Fejl ved oprettelse af outputsti for {0}: {1}"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 388
+#: src/bigocrpdf/services/processor.py:406
+#, python-brace-format
+msgid "Error getting OCR languages: {0}"
+msgstr "Fejl ved hentning af OCR-sprog: {0}"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 481
+#: src/bigocrpdf/services/processor.py:482
+#, python-brace-format
+msgid "Cleared editor state for: {0}"
+msgstr "Rydde redigeringsstatus for: {0}"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 508
+#: src/bigocrpdf/services/processor.py:489
+#, python-brace-format
+msgid "Removed processed file from queue: {0}"
+msgstr "Fjernet behandlet fil fra køen: {0}"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py, line: 533
+#: src/bigocrpdf/services/processor.py:506
+#, python-brace-format
+msgid "Generated unique filename to avoid overwriting: {0}"
+msgstr "Genereret unikt filnavn for at undgå overskrivning: {0}"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 43
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 44
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 45
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 245
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:314
+msgid "Analyzing PDF..."
+msgstr "Analyserer PDF..."
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 293
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:388
+msgid "Starting OCR..."
+msgstr "Starter OCR..."
+
+#
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 357
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_text_layer.py, line: 422
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:495
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:742
+#: src/bigocrpdf/services/rapidocr_service/backend_text_layer.py:442
+#, python-brace-format
+msgid "Processing page {0}/{1}..."
+msgstr "Behandler side {0}/{1}..."
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 417
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:544
+msgid "Merging text layer..."
+msgstr "Sammenfletter tekstlag..."
+
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:564
+msgid "Processing text page images..."
+msgstr "Behandler tekstsidebilleder…"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 464
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 715
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:611
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:1222
+msgid "Done!"
+msgstr "Færdig!"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 610
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:1097
+msgid "Analyzing PDF structure..."
+msgstr "Analyserer PDF-struktur..."
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 633
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:1133
+msgid "Extracting images..."
+msgstr "Udvinding af billeder..."
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 655
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:1160
+#, python-brace-format
+msgid "OCR page {0}..."
+msgstr "OCR-side {0}..."
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 687
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:1193
+msgid "Saving PDF..."
+msgstr "Gemmer PDF..."
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 698
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 758
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:1206
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:1265
+msgid "Splitting PDF by size limit..."
+msgstr "Opdeling af PDF efter størrelsesgrænse..."
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 746
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:1253
+msgid "Converting to PDF/A..."
+msgstr "Konverterer til PDF/A..."
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 34
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:34
+msgid "Latin (PT, EN, FR, DE, ES...)"
+msgstr "Latinsk skrift (PT, EN, FR, DE, ES...)"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 35
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:35
+msgid "English (Optimized)"
+msgstr "Engelsk (Optimeret)"
+
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:36
+msgid "Chinese Simplified"
+msgstr "Forenklet kinesisk"
+
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:37
+msgid "Korean"
+msgstr "Koreansk"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 36
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 37
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 38
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:38
+msgid "Arabic (AR, FA, UR...)"
+msgstr "Arabisk skrift (AR, FA, UR...)"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 39
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:39
+msgid "Cyrillic (RU, UK, BG...)"
+msgstr "Kyrillisk skrift (RU, UK, BG...)"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 40
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:40
+msgid "East Slavic (RU, BY, UK)"
+msgstr "Østslavisk (RU, BY, UK)"
+
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:41
+msgid "Greek"
+msgstr "Græsk"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 41
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 42
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:42
+msgid "Devanagari (Hindi, Marathi, Nepali)"
+msgstr "Devanagari (Hindi, Marathi, Nepali)"
+
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:43
+msgid "Tamil"
+msgstr "Tamil"
+
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:44
+msgid "Telugu"
+msgstr "Telugu"
+
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:45
+msgid "Thai"
+msgstr "Thai"
+
+#
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 118
-msgid "No screenshot tool available. Please install spectacle, gnome-screenshot, or flameshot."
-msgstr ""
-"Ingen skærmbillede værktøj tilgængeligt. Installer venligst spectacle, gnome-screenshot eller "
+#: src/bigocrpdf/services/screen_capture.py:111
+msgid ""
+"No screenshot tool available. Please install spectacle, gnome-screenshot, or "
 "flameshot."
-# 
+msgstr ""
+"Ingen skærmbillede værktøj tilgængeligt. Installer venligst spectacle, gnome-"
+"screenshot eller flameshot."
+
+#
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 135
+#: src/bigocrpdf/services/screen_capture.py:126
 msgid "Screenshot was cancelled"
 msgstr "Screenshot blev annulleret"
-# 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 139
+
+#: src/bigocrpdf/services/screen_capture.py:133
 #, python-brace-format
-msgid "An unexpected error occurred during capture: {e}"
-msgstr "Der opstod en uventet fejl under optagelsen: {e}"
-# 
+msgid "An unexpected error occurred during capture: {0}"
+msgstr "Der opstod en uventet fejl under optagelsen: {0}"
+
+#
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 277
+#: src/bigocrpdf/services/screen_capture.py:282
 msgid "Could not load image file."
 msgstr "Kunne ikke indlæse billedfil."
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 305
+#: src/bigocrpdf/services/screen_capture.py:310
 msgid "OCR processing failed."
 msgstr "OCR-behandling mislykkedes."
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 311
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 315
+#: src/bigocrpdf/services/screen_capture.py:316
+#: src/bigocrpdf/services/screen_capture.py:320
 msgid "No text found in the image"
 msgstr "Ingen tekst fundet i billedet"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 326
+#: src/bigocrpdf/services/screen_capture.py:331
 msgid "OCR engine not available. Please check your installation."
 msgstr "OCR-motor ikke tilgængelig. Kontroller venligst din installation."
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 331
+#: src/bigocrpdf/services/screen_capture.py:336
 msgid "OCR processing timed out."
 msgstr "OCR-behandling er tidsbegrænset."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 380
-msgid "Processing PDF files..."
-msgstr "Behandler PDF-filer..."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 385
-msgid "Preparing processing..."
-msgstr "Forbereder behandling..."
-# 
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 105
+#: src/bigocrpdf/services/settings.py:335
+#, python-brace-format
+msgid "Attempting to add {0} files"
+msgstr "Forsøger at tilføje {0} filer"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 120
+#: src/bigocrpdf/services/settings.py:350
+#, python-brace-format
+msgid "Successfully added {0} files"
+msgstr "Succesfuldt tilføjet {0} filer"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 229
+#: src/bigocrpdf/services/settings.py:352
+msgid "No valid files were found to add"
+msgstr "Ingen gyldige filer blev fundet til at tilføje."
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 140
+#: src/bigocrpdf/services/settings.py:370
+msgid "Empty file path provided"
+msgstr "Tom filsti angivet"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 145
+#: src/bigocrpdf/services/settings.py:375
+#, python-brace-format
+msgid "File does not exist: {0}"
+msgstr "Filen findes ikke: {0}"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 258
+#: src/bigocrpdf/services/settings.py:391
+#, python-brace-format
+msgid "Unsupported file type: {0}"
+msgstr "Ikke understøttet filtype: {0}"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 155
+#: src/bigocrpdf/services/settings.py:396
+#, python-brace-format
+msgid "File already in list: {0}"
+msgstr "Fil allerede i listen: {0}"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 267
+#: src/bigocrpdf/services/settings.py:400
+#, python-brace-format
+msgid "Adding valid file: {0}"
+msgstr "Tilføjer gyldig fil: {0}"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 231
+#: src/bigocrpdf/services/settings.py:427
+msgid "Settings saved successfully"
+msgstr "Indstillinger gemt med succes"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 234
+#: src/bigocrpdf/services/settings.py:430
+#, python-brace-format
+msgid "Error saving settings: {0}"
+msgstr "Fejl ved gemning af indstillinger: {0}"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 404
+#: src/bigocrpdf/services/settings.py:630
+#, python-brace-format
+msgid "Saved {0} selected files"
+msgstr "Gemte {0} valgte filer"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 406
+#: src/bigocrpdf/services/settings.py:632
+#, python-brace-format
+msgid "Error saving selected files: {0}"
+msgstr "Fejl ved gemning af valgte filer: {0}"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 430
+#: src/bigocrpdf/services/settings.py:653
+#, python-brace-format
+msgid "Error loading selected files: {0}"
+msgstr "Fejl ved indlæsning af valgte filer: {0}"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 594
+#: src/bigocrpdf/services/settings.py:712
+msgid "Processing state reset successfully"
+msgstr "Behandlingsstatus nulstillet med succes"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py, line: 612
+#: src/bigocrpdf/services/settings.py:741
+msgid "Temporary files cleanup completed"
+msgstr "Rydning af midlertidige filer er fuldført"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 27
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:26
+msgid "ODF Export Options"
+msgstr "ODF eksportmuligheder"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 29
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:28
+msgid ""
+"Choose the export format:\n"
+"\n"
+"• Formatted + Images: Page images with structured text layout below\n"
+"• Images + Simple Text: Page images with plain text below\n"
+"• Formatted Text: Structured text layout only (no images)\n"
+"• Plain Text: Simple text without formatting"
+msgstr ""
+"Vælg eksportformat:\n"
+"\n"
+"• Formateret + Billeder: Sidebilleder med struktureret tekstlayout nedenfor\n"
+"• Billeder + Simpel Tekst: Sidebilleder med almindelig tekst nedenfor\n"
+"• Formateret Tekst: Kun struktureret tekstlayout (ingen billeder)\n"
+"• Almindelig Tekst: Simpel tekst uden formatering"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 37
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:36
+msgid "Formatted + Images"
+msgstr "Formateret + Billeder"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 38
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:37
+msgid "Images + Simple Text"
+msgstr "Billeder + Simpel tekst"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 39
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:38
+msgid "Formatted Text"
+msgstr "Formateret tekst"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 40
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:39
+msgid "Plain Text"
+msgstr "Ren tekst"
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 398
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1641
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1752
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:40
+#: src/bigocrpdf/ui/file_save_mixin.py:81
+#: src/bigocrpdf/ui/navigation_manager.py:101
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:179
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:740
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:840
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:872
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:93
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:95
+#: src/bigocrpdf/ui/terminal_page.py:232 src/bigocrpdf/window_actions.py:312
 msgid "Cancel"
 msgstr "Annuller"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 857
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 86
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:85
+msgid "No text to export"
+msgstr "Ingen tekst at eksportere"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 102
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:101
+msgid "Export to OpenDocument"
+msgstr "Eksporter til OpenDocument"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 338
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:337
 #, python-brace-format
-msgid "<b>Processing: {current}/{total}:</b> {completed} file(s) completed • <b>{remaining}</b> remaining"
-msgstr "<b>Behandling: {current}/{total}:</b> {completed} fil(er) færdiggjort • <b>{remaining}</b> tilbage"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 868
-#, python-brace-format
-msgid "Processed file {current}/{total}: {filename}"
-msgstr "Behandlet fil {current}/{total}: {filename}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 932
-#, python-brace-format
-msgid "<b>OCR processing complete!</b> {total} file(s) processed"
-msgstr "<b>OCR-behandling fuldført!</b> {total} fil(er) behandlet"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1050
-#, python-brace-format
-msgid "<b>OCR processing complete!</b> {total} file(s) processed • Total time: {time}"
-msgstr "<b>OCR-behandling fuldført!</b> {total} fil(er) behandlet • Total tid: {time}"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 325
-#, python-brace-format
-msgid "File {current}/{total}: <b>{filename}</b> - {status} • Time: {time}"
-msgstr "Fil {current}/{total}: <b>{filename}</b> - {status} • Tid: {time}"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 335
-#, python-brace-format
-msgid "Processing file {current}/{total}: <b>{filename}</b> • Time: {time}"
-msgstr "Behandler fil {current}/{total}: <b>{filename}</b> • Tid: {time}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 370
-#, python-brace-format
-msgid "Processing files: {processed}/{total} completed • Time: {time}"
-msgstr "Behandler filer: {processed}/{total} fuldført • Tid: {time}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 382
-#, python-brace-format
-msgid "Starting processing of {total} files... • Time: {time}"
-msgstr "Starter behandling af {total} filer... • Tid: {time}"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 374
-msgid "Open the processed file"
-msgstr "Åbn den behandlede fil"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 393
-msgid "Open in web browser — browsers usually display the recognized text directly over the page images"
-msgstr "Åbn i webbrowser — browsere viser normalt den genkendte tekst direkte over sidebillederne"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 410
-msgid "View the text found in this document"
-msgstr "Se teksten, der findes i dette dokument"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 425
-msgid "Save as a document for LibreOffice"
-msgstr "Gem som dokument til LibreOffice"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1738
-msgid "PDF Output Options"
-msgstr "PDF-outputmuligheder"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1749
-msgid "PDF Output Settings"
-msgstr "PDF-outputindstillinger"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1757
-msgid "Save"
-msgstr "Gem"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1772
-msgid "File Settings"
-msgstr "Filindstillinger"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1776
-msgid "Use Original Filename"
-msgstr "Brug original filnavn"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1777
-msgid "Use the same name as the original file"
-msgstr "Brug det samme navn som den originale fil."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1802
-msgid "Filename Suffix"
-msgstr "Filnavns-suffiks"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 163
-msgid "Text added to the end of the filename (e.g. document-ocr.pdf)"
-msgstr "Tekst tilføjet til slutningen af filnavnet (f.eks. dokument-ocr.pdf)"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1814
-msgid "Overwrite Existing Files"
-msgstr "Overskriv eksisterende filer"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1815
-msgid "Replace files with the same name"
-msgstr "Erstat filer med det samme navn"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1785
-msgid "Warning"
-msgstr "Advarsel"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 212
-msgid "To replace original files, also enable 'Overwrite Existing Files' below and save to the same folder"
-msgstr ""
-"For at erstatte originale filer, skal du også aktivere 'Overskriv eksisterende filer' nedenfor og "
-"gemme i den samme mappe."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1821
-msgid "Text Extraction"
-msgstr "Tekstudtrækning"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1825
-msgid "Save Text Files"
-msgstr "Gem tekstfiler"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1826
-msgid "Automatically save extracted text as .txt files"
-msgstr "Automatisk gem udtrukket tekst som .txt-filer"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1834
-msgid "Use Separate Folder for Text Files"
-msgstr "Brug separat mappe til tekstfiler"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1835
-msgid "Save text files to a different folder"
-msgstr "Gem tekstfiler til en anden mappe"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1846
-msgid "Text Files Folder"
-msgstr "Tekstfiler Mappe"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1847
-msgid "Select where to save text files"
-msgstr "Vælg hvor du vil gemme tekstfiler"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1852
-msgid "Not set"
-msgstr "Ikke indstillet"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 271
-msgid "Choose where to save the text files"
-msgstr "Vælg hvor du vil gemme tekstfilerne"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 290
-msgid "ODF Export"
-msgstr "ODF-eksport"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 294
-msgid "Save ODF Files"
-msgstr "Gem ODF-filer"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 295
-msgid "Automatically save extracted text as .odt files"
-msgstr "Automatisk gem ekstrakteret tekst som .odt-filer"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 301
-msgid "Include Page Images"
-msgstr "Inkluder sidebilleder"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 302
-msgid "Embed original page images in ODF"
-msgstr "Indsæt originale sidebilleder i ODF"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 309
-msgid "Use Structured Formatting"
-msgstr "Brug struktureret formatering"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 310
-msgid "Apply detected layout and text styles"
-msgstr "Anvendt detekteret layout og tekststile"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1919
-msgid "Date and Time"
-msgstr "Dato og Tid"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1923
-msgid "Add Date to Filename"
-msgstr "Tilføj dato til filnavn"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1924
-msgid "Include date elements in the filename"
-msgstr "Inkluder datoelementer i filnavnet"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1959
-msgid "Include Year"
-msgstr "Inkluder år"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1960
-msgid "Add YYYY to the date"
-msgstr "Tilføj ÅÅÅÅ til datoen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1970
-msgid "Include Month"
-msgstr "Inkluder måned"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1971
-msgid "Add MM to the date"
-msgstr "Tilføj MM til datoen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1981
-msgid "Include Day"
-msgstr "Inkluder dag"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1982
-msgid "Add DD to the date"
-msgstr "Tilføj DD til datoen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1992
-msgid "Include Time"
-msgstr "Inkluder tid"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1993
-msgid "Add HHMM to the filename"
-msgstr "Tilføj HHMM til filnavnet"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1930
-msgid "Date Format"
-msgstr "Datoformat"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1932
-msgid "YYYY-MM-DD (ISO)"
-msgstr "ÅÅÅÅ-MM-DD (ISO)"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1933
-msgid "DD-MM-YYYY (Europe)"
-msgstr "DD-MM-ÅÅÅÅ (Europa)"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1934
-msgid "MM-DD-YYYY (US)"
-msgstr "MM-DD-ÅÅÅÅ (US)"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 2003
-msgid "Preview"
-msgstr "Forhåndsvisning"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 2007
-msgid "Filename Example:"
-msgstr "Filnavn Eksempel:"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 34
-#, python-brace-format
-msgid "CSS file not found: {0}"
-msgstr "CSS-fil ikke fundet: {0}"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 43
-msgid "Custom CSS styles loaded successfully"
-msgstr "Egne CSS-stilar er indlæst med succes"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 46
-#, python-brace-format
-msgid "Error loading CSS styles: {0}"
-msgstr "Fejl ved indlæsning af CSS-stilarter: {0}"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
-msgid "Image OCR"
-msgstr "Billede OCR"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
-msgid "Extract text from images or screen captures using OCR."
-msgstr "Uddrag tekst fra billeder eller skærmbilleder ved hjælp af OCR."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
-msgid "Open Image"
-msgstr "Åbn billede"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 152
-msgid "Screen Capture"
-msgstr "Skærmoptagelse"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 167
-msgid "Extracting text…"
-msgstr "Uddrager tekst…"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
-msgid "Copy"
-msgstr "Kopier"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
-msgid "Copy text to clipboard"
-msgstr "Kopier tekst til udklipsholder"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
-msgid "New Capture"
-msgstr "Ny optagelse"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 216
-msgid "Capture a screen region"
-msgstr "Tag et skærmområde."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 224
-msgid "Open an image file"
-msgstr "Åbn en billedfil"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 255
-msgid "Choose the language of the text in the image"
-msgstr "Vælg sproget for teksten i billedet"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
-msgid "No text extracted."
-msgstr "Ingen tekst udtrukket."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
-msgid "Open Image to OCR"
-msgstr "Åbn billede til OCR"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 496
-msgid "Images"
-msgstr "Billeder"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
-msgid "Copied to clipboard"
-msgstr "Kopieret til udklipsholder"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
-msgid "Error"
-msgstr "Fejl"
-# 
+msgid "Exported to {}"
+msgstr "Eksporteret til {}"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 340
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 350
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:339
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:349
+msgid "Export failed"
+msgstr "Eksport mislykkedes"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 610
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:440
+msgid "Extracted Text"
+msgstr "Uddraget tekst"
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1272
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:443
+#: src/bigocrpdf/ui/file_save_mixin.py:167
+#: src/bigocrpdf/ui/image_ocr_window.py:457
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:1225
 msgid "OK"
 msgstr "OK"
-# 
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 639
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:472
+msgid "No text content was detected in this file during OCR processing."
+msgstr ""
+"Der blev ikke registreret noget tekstindhold i denne fil under OCR-"
+"behandling."
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 424
+#: src/bigocrpdf/ui/conclusion_page_builder.py:47
+msgid "Processing Summary"
+msgstr "Behandlingsoversigt"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 450
+#: src/bigocrpdf/ui/conclusion_page_builder.py:100
+msgid "Files processed:"
+msgstr "Behandlede filer:"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 466
+#: src/bigocrpdf/ui/conclusion_page_builder.py:109
+msgid "Total pages:"
+msgstr "Samlede sider:"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 488
+#: src/bigocrpdf/ui/conclusion_page_builder.py:132
+msgid "Processing time:"
+msgstr "Behandlingstid:"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 140
+#: src/bigocrpdf/ui/conclusion_page_builder.py:141
+msgid "Output size:"
+msgstr "Output størrelse:"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 149
+#: src/bigocrpdf/ui/conclusion_page_builder.py:150
+msgid "Size change:"
+msgstr "Størrelsesændring:"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 529
+#: src/bigocrpdf/ui/conclusion_page_builder.py:247
+msgid "Generated Files"
+msgstr "Genererede filer"
+
+#: src/bigocrpdf/ui/conclusion_page_builder.py:281
+msgid "Output files"
+msgstr "Outputfiler"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 374
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:370
+msgid "Open the processed file"
+msgstr "Åbn den behandlede fil"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 393
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:389
+msgid ""
+"Open in web browser — browsers usually display the recognized text directly "
+"over the page images"
+msgstr ""
+"Åbn i webbrowser — browsere viser normalt den genkendte tekst direkte over "
+"sidebillederne"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 410
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:406
+msgid "View the text found in this document"
+msgstr "Se teksten, der findes i dette dokument"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 425
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:421
+msgid "Save as a document for LibreOffice"
+msgstr "Gem som dokument til LibreOffice"
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1565
+#: src/bigocrpdf/ui/file_save_mixin.py:27
 msgid "Save Extracted Text"
 msgstr "Gem udtrukket tekst"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1616
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1726
+#: src/bigocrpdf/ui/file_save_mixin.py:63
+#: src/bigocrpdf/ui/file_save_mixin.py:146
 msgid "Save Failed"
 msgstr "Gemning mislykkedes"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1632
+#: src/bigocrpdf/ui/file_save_mixin.py:73
 msgid "File Already Exists"
 msgstr "Fil findes allerede"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1633
+#: src/bigocrpdf/ui/file_save_mixin.py:74
 #, python-brace-format
 msgid "The file '{0}' already exists. What would you like to do?"
 msgstr "Filen '{0}' findes allerede. Hvad vil du gerne gøre?"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1639
+#: src/bigocrpdf/ui/file_save_mixin.py:79
 msgid "Overwrite"
 msgstr "Overskriv"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1640
+#: src/bigocrpdf/ui/file_save_mixin.py:80
 msgid "Auto-Rename"
 msgstr "Auto-omdøb"
-# 
+
+#: src/bigocrpdf/ui/file_save_mixin.py:142
+#, python-brace-format
+msgid "Text saved to {filename}"
+msgstr "Tekst gemt i {filename}"
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 189
+#: src/bigocrpdf/ui/file_save_mixin.py:185
 msgid "Resume Previous Session?"
 msgstr "Genoptag tidligere session?"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 191
+#: src/bigocrpdf/ui/file_save_mixin.py:187
 #, python-brace-format
 msgid ""
 "An incomplete processing session was found.\n"
@@ -857,166 +1256,1211 @@ msgstr ""
 "Resterende: {pending} filer\n"
 "\n"
 "Vil du gerne genoptage behandlingen af de resterende filer?"
-# 
+
+#
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
+#
 # File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 197
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 629
+#: src/bigocrpdf/ui/file_save_mixin.py:193
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:1155
 msgid "Discard"
 msgstr "Forkast"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 198
+#: src/bigocrpdf/ui/file_save_mixin.py:194
 msgid "Resume"
 msgstr "Genoptag"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 131
-msgid "Excluded"
-msgstr "Udeladt"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 153
-msgid "Include this page in the final document"
-msgstr "Inkluder denne side i det endelige dokument"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 169
-msgid "Rotate this page to the left"
-msgstr "Rotér denne side til venstre"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 178
-msgid "Rotate this page to the right"
-msgstr "Drej denne side til højre"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 72
-msgid "PDF Editor - {}"
-msgstr "PDF-editor - {}"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 114
-msgid "Go back to the file list"
-msgstr "Gå tilbage til fillisten"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 121
-msgid "Save changes and go back"
-msgstr "Gem ændringer og gå tilbage"
-# 
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 63
+#: src/bigocrpdf/ui/file_selection_manager.py:63
+msgid "Select Files"
+msgstr "Vælg filer"
+
+#
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 478
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 68
+#: src/bigocrpdf/ui/file_selection_manager.py:68
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:1019
+msgid "PDFs and Images"
+msgstr "PDF-filer og billeder"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 525
+#: src/bigocrpdf/ui/file_selection_manager.py:118
+msgid "Error adding files"
+msgstr "Fejl ved tilføjelse af filer"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 521
+#: src/bigocrpdf/ui/file_selection_manager.py:179
+#: src/bigocrpdf/ui/file_selection_manager.py:180
+msgid "No valid files were selected"
+msgstr "Ingen gyldige filer blev valgt."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 189
+#: src/bigocrpdf/ui/file_selection_manager.py:189
+msgid "Multiple Images Selected"
+msgstr "Flere billeder valgt"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 191
+#: src/bigocrpdf/ui/file_selection_manager.py:191
+#, python-brace-format
+msgid "You selected {} images. How would you like to add them?"
+msgstr "Du har valgt {} billeder. Hvordan vil du gerne tilføje dem?"
+
+#
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1215
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 194
+#: src/bigocrpdf/ui/file_selection_manager.py:194
+#: src/bigocrpdf/ui/settings_page.py:1212
+msgid "Separate PDFs"
+msgstr "Adskilte PDF-filer"
+
+#
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1216
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 195
+#: src/bigocrpdf/ui/file_selection_manager.py:195
+#: src/bigocrpdf/ui/settings_page.py:1213
+msgid "Merge into One PDF"
+msgstr "Flet ind i én PDF"
+
+#
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1227
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 221
+#: src/bigocrpdf/ui/file_selection_manager.py:221
+#: src/bigocrpdf/ui/settings_page.py:1224
+#, python-brace-format
+msgid "Merged {} images into one PDF"
+msgstr "Sammenflettede {} billeder til én PDF"
+
+#
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1231
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 225
+#: src/bigocrpdf/ui/file_selection_manager.py:225
+#: src/bigocrpdf/ui/settings_page.py:1228
+msgid "Error merging images"
+msgstr "Fejl ved sammensmeltning af billeder"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 546
+#: src/bigocrpdf/ui/file_selection_manager.py:252
+msgid "Select destination folder"
+msgstr "Vælg destinationsmappe"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 601
+#: src/bigocrpdf/ui/file_selection_manager.py:329
+msgid "Error selecting destination folder"
+msgstr "Fejl ved valg af destinationsmappe"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 597
+#: src/bigocrpdf/ui/file_selection_manager.py:346
+msgid "Destination folder selected"
+msgstr "Destinationsmappe valgt"
+
+#: src/bigocrpdf/ui/header_bar.py:46 src/bigocrpdf/ui/header_bar.py:47
+msgid "Toggle sidebar"
+msgstr "Vis/skjul sidebjælke"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 182
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 755
+#: src/bigocrpdf/ui/header_bar.py:58 src/bigocrpdf/ui/header_bar.py:62
+#: src/bigocrpdf/window_ui_setup.py:235 src/bigocrpdf/window_ui_setup.py:240
+msgid "Back"
+msgstr "Tilbage"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 70
+#: src/bigocrpdf/ui/header_bar.py:72 src/bigocrpdf/ui/header_bar.py:73
+msgid "Remove all files from the list"
+msgstr "Fjern alle filer fra listen"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 78
+#: src/bigocrpdf/ui/header_bar.py:80
+msgid "0 files"
+msgstr "0 filer"
+
+#
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+#
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 126
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 474
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 95
+#: src/bigocrpdf/ui/header_bar.py:96 src/bigocrpdf/ui/header_bar.py:99
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:1015
 msgid "Add Files"
 msgstr "Tilføj filer"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 128
-msgid "Add more files to this document"
-msgstr "Tilføj flere filer til dette dokument"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 180
-msgid "Include All"
-msgstr "Inkluder alt"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 182
-msgid "Select all pages for processing"
-msgstr "Vælg alle sider til behandling"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 186
-msgid "Exclude All"
-msgstr "Ekskluder alle"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 188
-msgid "Deselect all pages"
-msgstr "Fjern markeringen af alle sider"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 201
-msgid "Rotate selected pages to the left"
-msgstr "Rotér valgte sider til venstre"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 210
-msgid "Rotate selected pages to the right"
-msgstr "Rotér valgte sider til højre"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 224
-msgid "Change the size of page previews"
-msgstr "Ændr størrelsen på sideforhåndsvisninger"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 343
-msgid "Failed to add file {}: {}"
-msgstr "Mislykkedes med at tilføje fil {}: {}"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 397
-msgid "Could not open PDF file or file has no pages."
-msgstr "Kunne ikke åbne PDF-fil eller filen har ingen sider."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 428
-msgid "Failed to load PDF: {}"
-msgstr "Mislykkedes med at indlæse PDF: {}"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 435
-msgid "Pages: {}"
-msgstr "Sider: {}"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 436
-msgid "Included: {}"
-msgstr "Inkluderet: {}"
-# 
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 102
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 110
+#: src/bigocrpdf/ui/header_bar.py:102 src/bigocrpdf/ui/header_bar.py:107
+#: src/bigocrpdf/ui/header_bar.py:110 src/bigocrpdf/ui/header_bar.py:114
+#: src/bigocrpdf/ui/header_bar.py:215 src/bigocrpdf/window_processing.py:182
+#: src/bigocrpdf/window_processing.py:218
+msgid "Start OCR"
+msgstr "Start OCR"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 137
+#: src/bigocrpdf/ui/header_bar.py:122 src/bigocrpdf/ui/header_bar.py:123
+#: src/bigocrpdf/window_ui_setup.py:250 src/bigocrpdf/window_ui_setup.py:251
+msgid "Menu"
+msgstr "Menu"
+
+#
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 478
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 68
-msgid "PDFs and Images"
-msgstr "PDF-filer og billeder"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
-msgid "Error saving changes."
-msgstr "Fejl ved gemning af ændringer."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 604
-msgid "Failed to merge PDF pages."
-msgstr "Mislykkedes at sammenflette PDF-sider."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 626
-msgid "Unsaved Changes"
-msgstr "Ikke gemte ændringer"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 627
-msgid "What would you like to do with your changes?"
-msgstr "Hvad vil du gerne gøre med dine ændringer?"
-# 
+#
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 126
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 246
+#: src/bigocrpdf/ui/header_bar.py:126 src/bigocrpdf/window_ui_setup.py:253
+msgid "Reset Settings"
+msgstr "Nulstil indstillinger"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 141
+#: src/bigocrpdf/ui/header_bar.py:127 src/bigocrpdf/window_ui_setup.py:254
+msgid "Help"
+msgstr "Hjælp"
+
+#
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+#
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 128
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 248
+#: src/bigocrpdf/ui/header_bar.py:128 src/bigocrpdf/window_ui_setup.py:255
+msgid "About"
+msgstr "Om"
+
+#
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+#
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 129
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 249
+#: src/bigocrpdf/ui/header_bar.py:129 src/bigocrpdf/window_ui_setup.py:256
+msgid "Quit"
+msgstr "Afslut"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 183
+#: src/bigocrpdf/ui/header_bar.py:184
+msgid "1 file"
+msgstr "1 fil"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 185
+#: src/bigocrpdf/ui/header_bar.py:186
+#, python-brace-format
+msgid "{} files"
+msgstr "{} filer"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
+#: src/bigocrpdf/ui/image_ocr_window.py:135
+msgid "Image OCR"
+msgstr "Billede OCR"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
+#: src/bigocrpdf/ui/image_ocr_window.py:136
+msgid "Extract text from images or screen captures using OCR."
+msgstr "Uddrag tekst fra billeder eller skærmbilleder ved hjælp af OCR."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
+#: src/bigocrpdf/ui/image_ocr_window.py:144
+#: src/bigocrpdf/ui/image_ocr_window.py:148
+#: src/bigocrpdf/ui/image_ocr_window.py:230
+msgid "Open Image"
+msgstr "Åbn billede"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 152
+#: src/bigocrpdf/ui/image_ocr_window.py:154
+#: src/bigocrpdf/ui/image_ocr_window.py:159
+msgid "Screen Capture"
+msgstr "Skærmoptagelse"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 167
+#: src/bigocrpdf/ui/image_ocr_window.py:170
+msgid "Extracting text…"
+msgstr "Uddrager tekst…"
+
+#: src/bigocrpdf/ui/image_ocr_window.py:196
+msgid "Extracted text"
+msgstr "Udtrukket tekst"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
+#: src/bigocrpdf/ui/image_ocr_window.py:208
+msgid "Copy"
+msgstr "Kopier"
+
+#
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
+#: src/bigocrpdf/ui/image_ocr_window.py:210
+#: src/bigocrpdf/ui/image_ocr_window.py:212
+#: src/bigocrpdf/ui/text_viewer_mixin.py:224
+#: src/bigocrpdf/ui/text_viewer_mixin.py:225
+msgid "Copy text to clipboard"
+msgstr "Kopier tekst til udklipsholder"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
+#: src/bigocrpdf/ui/image_ocr_window.py:220
+msgid "New Capture"
+msgstr "Ny optagelse"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 216
+#: src/bigocrpdf/ui/image_ocr_window.py:223
+#: src/bigocrpdf/ui/image_ocr_window.py:224
+msgid "Capture a screen region"
+msgstr "Tag et skærmområde."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 224
+#: src/bigocrpdf/ui/image_ocr_window.py:232
+#: src/bigocrpdf/ui/image_ocr_window.py:233
+msgid "Open an image file"
+msgstr "Åbn en billedfil"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 255
+#: src/bigocrpdf/ui/image_ocr_window.py:264
+msgid "Choose the language of the text in the image"
+msgstr "Vælg sproget for teksten i billedet"
+
+#: src/bigocrpdf/ui/image_ocr_window.py:265
+msgid "OCR language"
+msgstr "OCR-sprog"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
+#: src/bigocrpdf/ui/image_ocr_window.py:323
+msgid "No text extracted."
+msgstr "Ingen tekst udtrukket."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
+#: src/bigocrpdf/ui/image_ocr_window.py:377
+msgid "Open Image to OCR"
+msgstr "Åbn billede til OCR"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 496
+#: src/bigocrpdf/ui/image_ocr_window.py:380 src/bigocrpdf/window_actions.py:235
+msgid "Images"
+msgstr "Billeder"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
+#: src/bigocrpdf/ui/image_ocr_window.py:433
+msgid "Copied to clipboard"
+msgstr "Kopieret til udklipsholder"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
+#: src/bigocrpdf/ui/image_ocr_window.py:455
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:1223
+msgid "Error"
+msgstr "Fejl"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 190
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 726
+#: src/bigocrpdf/ui/navigation_manager.py:93
+msgid "Start"
+msgstr "Start"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/navigation_manager.py, line: 109
+#: src/bigocrpdf/ui/navigation_manager.py:109
+msgid "Process New Files"
+msgstr "Behandl nye filer"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 72
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:84
+#, python-brace-format
+msgid "PDF Editor - {}"
+msgstr "PDF-editor - {}"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:117
+msgid "Add"
+msgstr "Tilføj"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:120
+msgid "Add PDF or image files to this document"
+msgstr "Tilføj PDF- eller billedfiler til dette dokument"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:122
+msgid "Add PDF or image files"
+msgstr "Tilføj PDF- eller billedfiler"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:130
+msgid "Rotate selected pages left (Ctrl+L)"
+msgstr "Roter valgte sider til venstre (Ctrl+L)"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:132
+msgid "Rotate selected pages left"
+msgstr "Roter valgte sider til venstre"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:140
+msgid "Rotate selected pages right (Ctrl+R)"
+msgstr "Roter valgte sider til højre (Ctrl+R)"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:142
+msgid "Rotate selected pages right"
+msgstr "Roter valgte sider til højre"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:150
+msgid "Undo last change (Ctrl+Z)"
+msgstr "Fortryd sidste ændring (Ctrl+Z)"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:151
+msgid "Undo last change"
+msgstr "Fortryd sidste ændring"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:159
+msgid "Include all pages in the final document"
+msgstr "Medtag alle sider i det endelige dokument"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:161
+msgid "Include all pages"
+msgstr "Medtag alle sider"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:169
+msgid "Exclude all pages from the final document"
+msgstr "Udelad alle sider fra det endelige dokument"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:171
+msgid "Exclude all pages"
+msgstr "Udelad alle sider"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:180
+msgid "Discard changes and close"
+msgstr "Kassér ændringer og luk"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:181
+msgid "Cancel and close"
+msgstr "Annuller og luk"
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:185
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:1156
 msgid "Apply"
 msgstr "Anvend"
-# 
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:187
+msgid "Save changes and go back (Ctrl+S)"
+msgstr "Gem ændringer og gå tilbage (Ctrl+S)"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 121
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:188
+msgid "Save changes and go back"
+msgstr "Gem ændringer og gå tilbage"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:198
+msgid "Reverse page order"
+msgstr "Vend siderækkefølge"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:203
+msgid "Split by page count…"
+msgstr "Opdel efter sideantal…"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:204
+msgid "Split by file size…"
+msgstr "Opdel efter filstørrelse…"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:208
+msgid "Split the document into parts"
+msgstr "Opdel dokumentet i dele"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:209
+msgid "Split document"
+msgstr "Opdel dokument"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:215
+msgid "Compress the PDF to reduce file size"
+msgstr "Komprimer PDF for at reducere størrelsen"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:217
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:685
+msgid "Compress PDF"
+msgstr "Komprimer PDF"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:223
+msgid "Save a copy of the document"
+msgstr "Gem en kopi af dokumentet"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:224
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:649
+msgid "Save a copy"
+msgstr "Gem kopi"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:288
+msgid "Current file"
+msgstr "Aktuel fil"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:299
+msgid "Document status"
+msgstr "Dokumentstatus"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 224
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:312
+msgid "Change the size of page previews"
+msgstr "Ændr størrelsen på sideforhåndsvisninger"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:313
+msgid "Zoom level"
+msgstr "Zoomniveau"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 343
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:446
+#, python-brace-format
+msgid "Failed to add file {}: {}"
+msgstr "Mislykkedes med at tilføje fil {}: {}"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 397
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:562
+msgid "Could not open PDF file or file has no pages."
+msgstr "Kunne ikke åbne PDF-fil eller filen har ingen sider."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 428
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:596
+#, python-brace-format
+msgid "Failed to load PDF: {}"
+msgstr "Mislykkedes med at indlæse PDF: {}"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:605
+#, python-brace-format
+msgid "{total} pages · {included} included"
+msgstr "{total} sider · {included} medtaget"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:609
+#, python-brace-format
+msgid "{count} selected"
+msgstr "{count} valgt"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:653
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:788
+msgid "PDF Files"
+msgstr "PDF-filer"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:672
+#, python-brace-format
+msgid "Saved to {}"
+msgstr "Gemt i {}"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:674
+msgid "Failed to save PDF."
+msgstr "Kunne ikke gemme PDF."
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:688
+msgid ""
+"Reduce the file size by compressing the images inside the PDF. Lower values "
+"produce smaller files but with less image detail."
+msgstr "Reducer filstørrelsen ved at komprimere billederne i PDF'en. Lavere værdier giver mindre filer men med færre billeddetaljer."
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:699
+msgid "Image Quality:"
+msgstr "Billedkvalitet:"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:707
+msgid "10 = smallest file, 95 = best quality. 60 is a good default."
+msgstr "10 = mindste fil, 95 = bedste kvalitet. 60 er en god standard."
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:719
+msgid "Image Resolution (DPI):"
+msgstr "Billedopløsning (DPI):"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:727
+msgid "72 = screen only, 150 = digital reading, 300 = print quality."
+msgstr "72 = kun skærm, 150 = digital læsning, 300 = printkvalitet."
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:741
+msgid "Compress"
+msgstr "Komprimer"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:770
+msgid "Failed to prepare document for compression."
+msgstr "Kunne ikke forberede dokumentet til komprimering."
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:784
+msgid "Save Compressed PDF"
+msgstr "Gem komprimeret PDF"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:801
+#, python-brace-format
+msgid "Compression failed: {}"
+msgstr "Komprimering mislykkedes: {}"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:828
+msgid "Split by Page Count"
+msgstr "Opdel efter sideantal"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:829
+msgid "Split the document into parts with a fixed number of pages each."
+msgstr "Opdel dokumentet i dele med et fast antal sider hver."
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:833
+msgid "Pages per file:"
+msgstr "Sider pr. fil:"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:841
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:873
+msgid "Split"
+msgstr "Opdel"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:860
+msgid "Split by File Size"
+msgstr "Opdel efter filstørrelse"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:861
+msgid "Split the document so each part is at most the specified size."
+msgstr "Opdel dokumentet så hver del højst er den angivne størrelse."
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:865
+msgid "Max size (MB):"
+msgstr "Maks. størrelse (MB):"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:889
+msgid "Select Output Directory"
+msgstr "Vælg outputmappe"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:918
+msgid "Failed to prepare document for splitting."
+msgstr "Kunne ikke forberede dokumentet til opdeling."
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:934
+#, python-brace-format
+msgid "Split into {} parts ({} pages)"
+msgstr "Opdelt i {} dele ({} sider)"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:939
+#, python-brace-format
+msgid "Split failed: {}"
+msgstr "Opdeling mislykkedes: {}"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:1101
+msgid "Error saving changes."
+msgstr "Fejl ved gemning af ændringer."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 604
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:1130
+msgid "Failed to merge PDF pages."
+msgstr "Mislykkedes at sammenflette PDF-sider."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 626
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:1152
+msgid "Unsaved Changes"
+msgstr "Ikke gemte ændringer"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 627
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:1153
+msgid "What would you like to do with your changes?"
+msgstr "Hvad vil du gerne gøre med dine ændringer?"
+
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:80
+#, python-brace-format
+msgid "Page {}"
+msgstr "Side {}"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 131
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:138
+msgid "Excluded"
+msgstr "Udeladt"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 153
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:160
+msgid "Include this page in the final document"
+msgstr "Inkluder denne side i det endelige dokument"
+
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:164
+#, python-brace-format
+msgid "Include page {} in the final document"
+msgstr "Medtag side {} i det endelige dokument"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 169
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:180
+msgid "Rotate this page to the left"
+msgstr "Rotér denne side til venstre"
+
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:183
+#, python-brace-format
+msgid "Rotate page {} to the left"
+msgstr "Roter side {} til venstre"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 178
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:193
+msgid "Rotate this page to the right"
+msgstr "Drej denne side til højre"
+
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:196
+#, python-brace-format
+msgid "Rotate page {} to the right"
+msgstr "Roter side {} til højre"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1898
+#: src/bigocrpdf/ui/pdf_options_callbacks_mixin.py:253
+msgid "Select Folder for Text Files"
+msgstr "Vælg mappe til tekstfiler"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1852
+#: src/bigocrpdf/ui/pdf_options_callbacks_mixin.py:256
+#: src/bigocrpdf/ui/pdf_options_callbacks_mixin.py:289
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:279
+msgid "Not set"
+msgstr "Ikke indstillet"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_callbacks_mixin.py, line: 317
+#: src/bigocrpdf/ui/pdf_options_callbacks_mixin.py:317
+msgid "PDF output settings saved"
+msgstr "PDF outputindstillinger gemt"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1738
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:26
+msgid "PDF Output Options"
+msgstr "PDF-outputmuligheder"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1749
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:90
+msgid "PDF Output Settings"
+msgstr "PDF-outputindstillinger"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1757
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:99
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:101
+msgid "Save"
+msgstr "Gem"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1772
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:161
+msgid "File Settings"
+msgstr "Filindstillinger"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1776
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:165
+msgid "Use Original Filename"
+msgstr "Brug original filnavn"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1777
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:166
+msgid "Use the same name as the original file"
+msgstr "Brug det samme navn som den originale fil."
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1802
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:176
+msgid "Filename Suffix"
+msgstr "Filnavns-suffiks"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 163
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:178
+msgid "Text added to the end of the filename (e.g. document-ocr.pdf)"
+msgstr "Tekst tilføjet til slutningen af filnavnet (f.eks. dokument-ocr.pdf)"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1814
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:186
+msgid "Overwrite Existing Files"
+msgstr "Overskriv eksisterende filer"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1815
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:187
+msgid "Replace files with the same name"
+msgstr "Erstat filer med det samme navn"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1785
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:211
+msgid "Warning"
+msgstr "Advarsel"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 212
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:214
+msgid ""
+"To replace original files, also enable 'Overwrite Existing Files' below and "
+"save to the same folder"
+msgstr ""
+"For at erstatte originale filer, skal du også aktivere 'Overskriv "
+"eksisterende filer' nedenfor og gemme i den samme mappe."
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1821
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:231
+msgid "Text Extraction"
+msgstr "Tekstudtrækning"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1825
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:235
+msgid "Save Text Files"
+msgstr "Gem tekstfiler"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1826
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:236
+msgid "Automatically save extracted text as .txt files"
+msgstr "Automatisk gem udtrukket tekst som .txt-filer"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1834
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:242
+msgid "Use Separate Folder for Text Files"
+msgstr "Brug separat mappe til tekstfiler"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1835
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:243
+msgid "Save text files to a different folder"
+msgstr "Gem tekstfiler til en anden mappe"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1846
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:273
+msgid "Text Files Folder"
+msgstr "Tekstfiler Mappe"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1847
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:274
+msgid "Select where to save text files"
+msgstr "Vælg hvor du vil gemme tekstfiler"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 271
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:289
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:291
+msgid "Choose where to save the text files"
+msgstr "Vælg hvor du vil gemme tekstfilerne"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 290
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:311
+msgid "ODF Export"
+msgstr "ODF-eksport"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 294
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:315
+msgid "Save ODF Files"
+msgstr "Gem ODF-filer"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 295
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:316
+msgid "Automatically save extracted text as .odt files"
+msgstr "Automatisk gem ekstrakteret tekst som .odt-filer"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 301
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:322
+msgid "Include Page Images"
+msgstr "Inkluder sidebilleder"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 302
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:323
+msgid "Embed original page images in ODF"
+msgstr "Indsæt originale sidebilleder i ODF"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 309
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:330
+msgid "Use Structured Formatting"
+msgstr "Brug struktureret formatering"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 310
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:331
+msgid "Apply detected layout and text styles"
+msgstr "Anvendt detekteret layout og tekststile"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1919
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:355
+msgid "Date and Time"
+msgstr "Dato og Tid"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1923
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:359
+msgid "Add Date to Filename"
+msgstr "Tilføj dato til filnavn"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1924
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:360
+msgid "Include date elements in the filename"
+msgstr "Inkluder datoelementer i filnavnet"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1959
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:368
+msgid "Include Year"
+msgstr "Inkluder år"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1960
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:369
+msgid "Add YYYY to the date"
+msgstr "Tilføj ÅÅÅÅ til datoen"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1970
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:374
+msgid "Include Month"
+msgstr "Inkluder måned"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1971
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:375
+msgid "Add MM to the date"
+msgstr "Tilføj MM til datoen"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1981
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:380
+msgid "Include Day"
+msgstr "Inkluder dag"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1982
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:381
+msgid "Add DD to the date"
+msgstr "Tilføj DD til datoen"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1992
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:386
+msgid "Include Time"
+msgstr "Inkluder tid"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1993
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:387
+msgid "Add HHMM to the filename"
+msgstr "Tilføj HHMM til filnavnet"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1930
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:420
+msgid "Date Format"
+msgstr "Datoformat"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1932
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:422
+msgid "YYYY-MM-DD (ISO)"
+msgstr "ÅÅÅÅ-MM-DD (ISO)"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1933
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:423
+msgid "DD-MM-YYYY (Europe)"
+msgstr "DD-MM-ÅÅÅÅ (Europa)"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1934
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:424
+msgid "MM-DD-YYYY (US)"
+msgstr "MM-DD-ÅÅÅÅ (US)"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 2003
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:469
+msgid "Preview"
+msgstr "Forhåndsvisning"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 2007
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:473
+msgid "Filename Example:"
+msgstr "Filnavn Eksempel:"
+
+#: src/bigocrpdf/ui/settings_page.py:97
+msgid "Image Corrections"
+msgstr "Billedkorrektioner"
+
+#: src/bigocrpdf/ui/settings_page.py:105
+msgid "Output Settings"
+msgstr "Outputindstillinger"
+
+#: src/bigocrpdf/ui/settings_page.py:111
+msgid "Advanced"
+msgstr "Avanceret"
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 184
+#: src/bigocrpdf/ui/settings_page.py:132
 msgid "Text Language"
 msgstr "Tekst Sprog"
-# 
+
+#: src/bigocrpdf/ui/settings_page.py:142 src/bigocrpdf/ui/settings_page.py:143
+msgid "Language help"
+msgstr "Sproghjælp"
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 159
+#: src/bigocrpdf/ui/settings_page.py:163
 msgid ""
 "Choose the language of your document's text.\n"
 "The correct language helps recognize text more accurately."
 msgstr ""
-"Vælg sproget for din dokuments tekst. Det korrekte sprog hjælper med at genkende teksten mere "
-"præcist."
-# 
+"Vælg sproget for din dokuments tekst. Det korrekte sprog hjælper med at "
+"genkende teksten mere præcist."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 611
+#: src/bigocrpdf/ui/settings_page.py:174 src/bigocrpdf/ui/terminal_page.py:130
+msgid "Deskew"
+msgstr "Afretning"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 618
+#: src/bigocrpdf/ui/settings_page.py:181
+msgid "Straightens pages that were scanned at a slight angle."
+msgstr "Retter sider, der blev scannet i en let vinkel."
+
+#: src/bigocrpdf/ui/settings_page.py:184 src/bigocrpdf/ui/terminal_page.py:131
+msgid "Dewarp"
+msgstr "Dewarp"
+
+#: src/bigocrpdf/ui/settings_page.py:191
+msgid ""
+"Corrects curved text from photographed book pages\n"
+"or documents with spine warp."
+msgstr ""
+"Korrigerer buet tekst fra fotograferede bogsider\n"
+"eller dokumenter med rygdeformering."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 622
+#: src/bigocrpdf/ui/settings_page.py:194
+msgid "Perspective Correction"
+msgstr "Perspektivkorrektion"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 630
+#: src/bigocrpdf/ui/settings_page.py:202
+msgid ""
+"Fixes pages that look tilted or warped, for example\n"
+"when a document was photographed instead of scanned."
+msgstr ""
+"Retter sider, der ser skæve eller forvrængede ud, for eksempel når et "
+"dokument blev fotograferet i stedet for scannet."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 635
+#: src/bigocrpdf/ui/settings_page.py:206 src/bigocrpdf/ui/terminal_page.py:133
+msgid "Auto-rotate"
+msgstr "Auto-rotation"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 642
+#: src/bigocrpdf/ui/settings_page.py:213
+msgid "Detects and fixes pages that are upside-down or sideways."
+msgstr "Registrerer og retter sider, der er på hovedet eller på siden."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 646
+#: src/bigocrpdf/ui/settings_page.py:216 src/bigocrpdf/ui/terminal_page.py:134
+msgid "Scanner Effect"
+msgstr "Scanner Effekt"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 653
+#: src/bigocrpdf/ui/settings_page.py:223
+msgid ""
+"Makes text darker and the background lighter,\n"
+"like a clean scanner copy."
+msgstr "Gør teksten mørkere og baggrunden lysere, som en ren scanningskopi."
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 194
+#: src/bigocrpdf/ui/settings_page.py:236 src/bigocrpdf/ui/terminal_page.py:171
+msgid "Quality"
+msgstr "Kvalitet"
+
+#: src/bigocrpdf/ui/settings_page.py:240 src/bigocrpdf/ui/terminal_page.py:149
+msgid "Keep Original"
+msgstr "Behold original"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 227
+#: src/bigocrpdf/ui/settings_page.py:241
+msgid "Very Low (30%)"
+msgstr "Meget lav (30%)"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 228
+#: src/bigocrpdf/ui/settings_page.py:242
+msgid "Low (50%)"
+msgstr "Lav (50%)"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 229
+#: src/bigocrpdf/ui/settings_page.py:243
+msgid "Medium (70%)"
+msgstr "Medium (70%)"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 230
+#: src/bigocrpdf/ui/settings_page.py:244
+msgid "High (85%)"
+msgstr "Høj (85%)"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 231
+#: src/bigocrpdf/ui/settings_page.py:245
+msgid "Maximum (95%)"
+msgstr "Maksimum (95%)"
+
+#: src/bigocrpdf/ui/settings_page.py:253
+msgid ""
+"Keep Original: preserves images unchanged (best quality, larger files)\n"
+"Very Low: smallest files, lower image quality\n"
+"Low: small files, some quality loss\n"
+"Medium: good balance between quality and file size\n"
+"High: recommended for most documents\n"
+"Maximum: best image quality, larger files"
+msgstr ""
+"Behold original: bevarer billeder uændret (bedste kvalitet, større filer)\n"
+"Meget lav: mindste filer, lavere billedkvalitet\n"
+"Lav: små filer, noget kvalitetstab\n"
+"Middel: god balance mellem kvalitet og størrelse\n"
+"Høj: anbefalet til de fleste dokumenter\n"
+"Maksimal: bedste billedkvalitet, større filer"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 249
+#: src/bigocrpdf/ui/settings_page.py:263
+msgid "Export as PDF/A"
+msgstr "Eksporter som PDF/A"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 257
+#: src/bigocrpdf/ui/settings_page.py:271
+msgid ""
+"Creates a PDF designed for long-term storage.\n"
+"Recommended when you need the file to open\n"
+"correctly on any device, now and in the future."
+msgstr ""
+"Opretter en PDF designet til langtidsopbevaring. Anbefales, når du har brug "
+"for, at filen åbner korrekt på enhver enhed, nu og i fremtiden."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 264
+#: src/bigocrpdf/ui/settings_page.py:278
+msgid "Maximum Output Size"
+msgstr "Maksimal outputstørrelse"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 270
+#: src/bigocrpdf/ui/settings_page.py:283
+msgid "No limit"
+msgstr "Ingen grænse"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 286
+#: src/bigocrpdf/ui/settings_page.py:298
+msgid ""
+"Sets a maximum size for the final file.\n"
+"If the result is too large, it is automatically split\n"
+"into smaller numbered files (e.g. document-01.pdf).\n"
+"\n"
+"Useful when sending by email or uploading online."
+msgstr ""
+"Sætter en maksimal størrelse for den endelige fil.  \n"
+"Hvis resultatet er for stort, opdeles det automatisk  \n"
+"i mindre nummererede filer (f.eks. dokument-01.pdf).  \n"
+"\n"
+"Nyttig ved sending via e-mail eller upload online."
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 165
+#: src/bigocrpdf/ui/settings_page.py:317
 msgid "OCR Precision"
 msgstr "OCR Præcision"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 171
+#: src/bigocrpdf/ui/settings_page.py:321
 msgid "Low Precision"
 msgstr "Lav præcision"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 172
+#: src/bigocrpdf/ui/settings_page.py:322
 msgid "Standard"
 msgstr "Standard"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 173
+#: src/bigocrpdf/ui/settings_page.py:323
 msgid "Precise"
 msgstr "Præcis"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 174
+#: src/bigocrpdf/ui/settings_page.py:324
 msgid "Very Precise"
 msgstr "Meget præcist"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 184
+#: src/bigocrpdf/ui/settings_page.py:332
 msgid ""
 "How carefully the program reads text from your documents.\n"
 "\n"
@@ -1031,775 +2475,815 @@ msgstr ""
 "• Standard: Fungerer godt for de fleste dokumenter.\n"
 "• Præcis: Færre fejl, kan misse noget svag tekst.\n"
 "• Meget præcis: Beholder kun tekst, det er meget sikker på."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 206
-msgid "Export Format"
-msgstr "Eksportformat"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
-msgid "Custom Quality"
-msgstr "Brugerdefineret Kvalitet"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 216
-msgid ""
-"Original: Keeps images unchanged (best quality, larger files)\n"
-"Custom Quality: Adjusts image quality to reduce file size"
-msgstr ""
-"Beholder billeder uændrede (bedste kvalitet, større filer)  \n"
-"Tilpasset kvalitet: Justerer billedkvaliteten for at reducere filstørrelsen"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 194
-msgid "Quality"
-msgstr "Kvalitet"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 227
-msgid "Very Low (30%)"
-msgstr "Meget lav (30%)"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 228
-msgid "Low (50%)"
-msgstr "Lav (50%)"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 229
-msgid "Medium (70%)"
-msgstr "Medium (70%)"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 230
-msgid "High (85%)"
-msgstr "Høj (85%)"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 231
-msgid "Maximum (95%)"
-msgstr "Maksimum (95%)"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 240
-msgid ""
-"Very Low: Smallest files, lower image quality\n"
-"Low: Small files, some quality loss\n"
-"Medium: Good balance between quality and file size\n"
-"High: Recommended for most documents\n"
-"Maximum: Best image quality, larger files"
-msgstr ""
-"Meget lav: Mindste filer, lavere billedkvalitet  \n"
-"Lav: Små filer, noget kvalitetstab  \n"
-"Medium: God balance mellem kvalitet og filstørrelse  \n"
-"Høj: Anbefales til de fleste dokumenter  \n"
-"Maksimum: Bedste billedkvalitet, større filer"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 249
-msgid "Export as PDF/A"
-msgstr "Eksporter som PDF/A"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 257
-msgid ""
-"Creates a PDF designed for long-term storage.\n"
-"Recommended when you need the file to open\n"
-"correctly on any device, now and in the future."
-msgstr ""
-"Opretter en PDF designet til langtidsopbevaring. Anbefales, når du har brug for, at filen åbner "
-"korrekt på enhver enhed, nu og i fremtiden."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 264
-msgid "Maximum Output Size"
-msgstr "Maksimal outputstørrelse"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 270
-msgid "No limit"
-msgstr "Ingen grænse"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 286
-msgid ""
-"Sets a maximum size for the final file.\n"
-"If the result is too large, it is automatically split\n"
-"into smaller numbered files (e.g. document-01.pdf).\n"
-"\n"
-"Useful when sending by email or uploading online."
-msgstr ""
-"Sætter en maksimal størrelse for den endelige fil.  \n"
-"Hvis resultatet er for stort, opdeles det automatisk  \n"
-"i mindre nummererede filer (f.eks. dokument-01.pdf).  \n"
-"\n"
-"Nyttig ved sending via e-mail eller upload online."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 333
-msgid "No PDF Files"
-msgstr "Ingen PDF-filer"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 334
-msgid "Drag files here or use the Add Files button"
-msgstr "Træk filer her eller brug knappen Tilføj filer"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 362
-msgid "Save in the same folder as the original file"
-msgstr "Gem i den samme mappe som den originale fil"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 363
-msgid "Custom folder"
-msgstr "Brugerdefineret mappe"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1862
-msgid "Select folder"
-msgstr "Vælg mappe"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 401
-msgid "Output options"
-msgstr "Outputmuligheder"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 467
-msgid "Choose the model that matches the language of your documents for the best results."
-msgstr "Vælg den model, der matcher sproget i dine dokumenter for de bedste resultater."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 493
-#, python-brace-format
-msgid "{count} languages"
-msgstr "{count} sprog"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 546
-msgid "Supported Languages"
-msgstr "Understøttede sprog"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 593
-msgid "Image Preprocessing"
-msgstr "Billedeforbehandling"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 596
-msgid "Auto Detect"
-msgstr "Automatisk registrering"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 604
-msgid ""
-"When ON: The program checks each page and only fixes\n"
-"problems it finds (recommended for most documents).\n"
-"When OFF: All corrections below are always applied."
-msgstr ""
-"Når TIL: Programmet tjekker hver side og retter kun de problemer, det finder (anbefales til de "
-"fleste dokumenter).  \n"
-"Når FRA: Alle korrektioner nedenfor anvendes altid."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 611
-msgid "Deskew"
-msgstr "Afretning"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 618
-msgid "Straightens pages that were scanned at a slight angle."
-msgstr "Retter sider, der blev scannet i en let vinkel."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 622
-msgid "Perspective Correction"
-msgstr "Perspektivkorrektion"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 630
-msgid ""
-"Fixes pages that look tilted or warped, for example\n"
-"when a document was photographed instead of scanned."
-msgstr ""
-"Retter sider, der ser skæve eller forvrængede ud, for eksempel når et dokument blev fotograferet i "
-"stedet for scannet."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 635
-msgid "Auto-rotate"
-msgstr "Auto-rotation"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 642
-msgid "Detects and fixes pages that are upside-down or sideways."
-msgstr "Registrerer og retter sider, der er på hovedet eller på siden."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 646
-msgid "Scanner Effect"
-msgstr "Scanner Effekt"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 653
-msgid ""
-"Makes text darker and the background lighter,\n"
-"like a clean scanner copy."
-msgstr "Gør teksten mørkere og baggrunden lysere, som en ren scanningskopi."
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 657
+#: src/bigocrpdf/ui/settings_page.py:341
 msgid "Replace Existing OCR"
 msgstr "Erstat eksisterende OCR"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 665
+#: src/bigocrpdf/ui/settings_page.py:349
 msgid ""
 "When ON: Redoes the text recognition even if the PDF\n"
 "already has searchable text. Use this when the existing\n"
 "text is incorrect or of poor quality.\n"
 "When OFF: Keeps existing text and only processes pages without it."
 msgstr ""
-"Når TIL: Gør tekstgenkendelsen om, selvom PDF'en allerede har søgbar tekst. Brug dette, når den "
-"eksisterende tekst er forkert eller af dårlig kvalitet.  \n"
+"Når TIL: Gør tekstgenkendelsen om, selvom PDF'en allerede har søgbar tekst. "
+"Brug dette, når den eksisterende tekst er forkert eller af dårlig "
+"kvalitet.  \n"
 "Når FRA: Beholder eksisterende tekst og behandler kun sider uden den."
-# 
+
+#: src/bigocrpdf/ui/settings_page.py:400
+msgid "File queue"
+msgstr "Filkø"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 333
+#: src/bigocrpdf/ui/settings_page.py:405
+msgid "No PDF Files"
+msgstr "Ingen PDF-filer"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 334
+#: src/bigocrpdf/ui/settings_page.py:406
+msgid "Drag files here or use the Add Files button"
+msgstr "Træk filer her eller brug knappen Tilføj filer"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 362
+#: src/bigocrpdf/ui/settings_page.py:434
+msgid "Save in the same folder as the original file"
+msgstr "Gem i den samme mappe som den originale fil"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 363
+#: src/bigocrpdf/ui/settings_page.py:435
+msgid "Custom folder"
+msgstr "Brugerdefineret mappe"
+
+#: src/bigocrpdf/ui/settings_page.py:442
+msgid "Output folder location"
+msgstr "Outputmappeplacering"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1862
+#: src/bigocrpdf/ui/settings_page.py:455
+msgid "Select folder"
+msgstr "Vælg mappe"
+
+#: src/bigocrpdf/ui/settings_page.py:458
+msgid "Destination folder path"
+msgstr "Sti til destinationsmappe"
+
+#: src/bigocrpdf/ui/settings_page.py:465 src/bigocrpdf/ui/settings_page.py:466
+msgid "Browse for folder"
+msgstr "Gennemse mapper"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 467
+#: src/bigocrpdf/ui/settings_page.py:549
+msgid ""
+"Choose the model that matches the language of your documents for the best "
+"results."
+msgstr ""
+"Vælg den model, der matcher sproget i dine dokumenter for de bedste "
+"resultater."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 493
+#: src/bigocrpdf/ui/settings_page.py:575
+#, python-brace-format
+msgid "{count} languages"
+msgstr "{count} sprog"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 546
+#: src/bigocrpdf/ui/settings_page.py:628
+msgid "Supported Languages"
+msgstr "Understøttede sprog"
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 983
+#: src/bigocrpdf/ui/settings_page.py:946 src/bigocrpdf/ui/settings_page.py:947
 msgid "Edit pages of this file"
 msgstr "Rediger sider i denne fil"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 991
+#: src/bigocrpdf/ui/settings_page.py:955 src/bigocrpdf/ui/settings_page.py:957
 msgid "Open this file in your default application"
 msgstr "Åbn denne fil i din standardapplikation"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 999
+#: src/bigocrpdf/ui/settings_page.py:966 src/bigocrpdf/ui/settings_page.py:968
 msgid "Remove this file from the list"
 msgstr "Fjern denne fil fra listen"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1023
+#: src/bigocrpdf/ui/settings_page.py:993
 msgid "Failed to open file"
 msgstr "Kunne ikke åbne filen"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1094
+#: src/bigocrpdf/ui/settings_page.py:1064
 msgid "Changes saved"
 msgstr "Ændringer gemt"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1114
+#: src/bigocrpdf/ui/settings_page.py:1084
 msgid "Failed to open PDF editor"
 msgstr "Kunne ikke åbne PDF-editor."
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1210
+#: src/bigocrpdf/ui/settings_page.py:1207
 msgid "Multiple Images Dropped"
 msgstr "Flere billeder droppet"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1212
+#: src/bigocrpdf/ui/settings_page.py:1209
+#, python-brace-format
 msgid "You dropped {} images. How would you like to add them?"
 msgstr "Du har droppet {} billeder. Hvordan vil du gerne tilføje dem?"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1215
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 194
-msgid "Separate PDFs"
-msgstr "Adskilte PDF-filer"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1216
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 195
-msgid "Merge into One PDF"
-msgstr "Flet ind i én PDF"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1227
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 221
-msgid "Merged {} images into one PDF"
-msgstr "Sammenflettede {} billeder til én PDF"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1231
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 225
-msgid "Error merging images"
-msgstr "Fejl ved sammensmeltning af billeder"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1898
-msgid "Select Folder for Text Files"
-msgstr "Vælg mappe til tekstfiler"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_callbacks_mixin.py, line: 317
-msgid "PDF output settings saved"
-msgstr "PDF outputindstillinger gemt"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 190
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 726
-msgid "Start"
-msgstr "Start"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/navigation_manager.py, line: 109
-msgid "Process New Files"
-msgstr "Behandl nye filer"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 27
-msgid "ODF Export Options"
-msgstr "ODF eksportmuligheder"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 29
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 380
+#: src/bigocrpdf/ui/terminal_page.py:102
+msgid "Processing PDF files..."
+msgstr "Behandler PDF-filer..."
+
+#: src/bigocrpdf/ui/terminal_page.py:114
+msgid "OCR processing progress"
+msgstr "OCR-behandlingsfremskridt"
+
+#: src/bigocrpdf/ui/terminal_page.py:132
+msgid "Perspective"
+msgstr "Perspektiv"
+
+#: src/bigocrpdf/ui/terminal_page.py:170
+msgid "Language"
+msgstr "Sprog"
+
+#: src/bigocrpdf/ui/terminal_page.py:177
+#, python-brace-format
+msgid "<b>Max {mb} MB</b>"
+msgstr "<b>Maks. {mb} MB</b>"
+
+#: src/bigocrpdf/ui/terminal_page.py:179
+msgid "Replace OCR"
+msgstr "Erstat OCR"
+
+#: src/bigocrpdf/ui/terminal_page.py:193
+msgid "Active"
+msgstr "Aktiv"
+
+#: src/bigocrpdf/ui/terminal_page.py:208
+msgid "Inactive"
+msgstr "Inaktiv"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 385
+#: src/bigocrpdf/ui/terminal_page.py:223 src/bigocrpdf/ui/terminal_page.py:487
+msgid "Preparing processing..."
+msgstr "Forbereder behandling..."
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 857
+#: src/bigocrpdf/ui/terminal_page.py:274
+#, python-brace-format
 msgid ""
-"Choose the export format:\n"
-"\n"
-"• Formatted + Images: Page images with structured text layout below\n"
-"• Images + Simple Text: Page images with plain text below\n"
-"• Formatted Text: Structured text layout only (no images)\n"
-"• Plain Text: Simple text without formatting"
+"<b>Processing: {current}/{total}:</b> {completed} file(s) completed • "
+"<b>{remaining}</b> remaining"
 msgstr ""
-"Vælg eksportformat:\n"
-"\n"
-"• Formateret + Billeder: Sidebilleder med struktureret tekstlayout nedenfor\n"
-"• Billeder + Simpel Tekst: Sidebilleder med almindelig tekst nedenfor\n"
-"• Formateret Tekst: Kun struktureret tekstlayout (ingen billeder)\n"
-"• Almindelig Tekst: Simpel tekst uden formatering"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 37
-msgid "Formatted + Images"
-msgstr "Formateret + Billeder"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 38
-msgid "Images + Simple Text"
-msgstr "Billeder + Simpel tekst"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 39
-msgid "Formatted Text"
-msgstr "Formateret tekst"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 40
-msgid "Plain Text"
-msgstr "Ren tekst"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 86
-msgid "No text to export"
-msgstr "Ingen tekst at eksportere"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 102
-msgid "Export to OpenDocument"
-msgstr "Eksporter til OpenDocument"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 338
-msgid "Exported to {}"
-msgstr "Eksporteret til {}"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 340
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 350
-msgid "Export failed"
-msgstr "Eksport mislykkedes"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 610
-msgid "Extracted Text"
-msgstr "Uddraget tekst"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py, line: 639
-msgid "No text content was detected in this file during OCR processing."
-msgstr "Der blev ikke registreret noget tekstindhold i denne fil under OCR-behandling."
-# 
+"<b>Behandling: {current}/{total}:</b> {completed} fil(er) færdiggjort • "
+"<b>{remaining}</b> tilbage"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 868
+#: src/bigocrpdf/ui/terminal_page.py:285 src/bigocrpdf/window_processing.py:377
+#, python-brace-format
+msgid "Processed file {current}/{total}: {filename}"
+msgstr "Behandlet fil {current}/{total}: {filename}"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 932
+#: src/bigocrpdf/ui/terminal_page.py:309
+#, python-brace-format
+msgid "<b>OCR processing complete!</b> {total} file(s) processed"
+msgstr "<b>OCR-behandling fuldført!</b> {total} fil(er) behandlet"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1050
+#: src/bigocrpdf/ui/terminal_page.py:412
+#, python-brace-format
+msgid ""
+"<b>OCR processing complete!</b> {total} file(s) processed • Total time: "
+"{time}"
+msgstr ""
+"<b>OCR-behandling fuldført!</b> {total} fil(er) behandlet • Total tid: {time}"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 325
+#: src/bigocrpdf/ui/terminal_page.py:430
+#, python-brace-format
+msgid "File {current}/{total}: <b>{filename}</b> - {status} • Time: {time}"
+msgstr "Fil {current}/{total}: <b>{filename}</b> - {status} • Tid: {time}"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 335
+#: src/bigocrpdf/ui/terminal_page.py:440
+#, python-brace-format
+msgid "Processing file {current}/{total}: <b>{filename}</b> • Time: {time}"
+msgstr "Behandler fil {current}/{total}: <b>{filename}</b> • Tid: {time}"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 370
+#: src/bigocrpdf/ui/terminal_page.py:455
+#, python-brace-format
+msgid "Processing files: {processed}/{total} completed • Time: {time}"
+msgstr "Behandler filer: {processed}/{total} fuldført • Tid: {time}"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py, line: 382
+#: src/bigocrpdf/ui/terminal_page.py:464
+#, python-brace-format
+msgid "Starting processing of {total} files... • Time: {time}"
+msgstr "Starter behandling af {total} filer... • Tid: {time}"
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py, line: 708
-msgid "OCR processing was completed for this file, but the extracted text could not be found."
-msgstr "OCR-behandling blev afsluttet for denne fil, men den udtrukne tekst kunne ikke findes."
-# 
+#: src/bigocrpdf/ui/text_viewer_mixin.py:65
+msgid ""
+"OCR processing was completed for this file, but the extracted text could not "
+"be found."
+msgstr ""
+"OCR-behandling blev afsluttet for denne fil, men den udtrukne tekst kunne "
+"ikke findes."
+
+#: src/bigocrpdf/ui/text_viewer_mixin.py:134
+msgid "words"
+msgstr "ord"
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
+#: src/bigocrpdf/ui/text_viewer_mixin.py:136
 msgid "characters"
 msgstr "tegn"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1272
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1324
-msgid "Search in text..."
-msgstr "Søg i tekst..."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 233
-msgid "Go to previous match (Ctrl+Shift+G)"
-msgstr "Gå til forrige kamp (Ctrl+Shift+G)"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 240
-msgid "Go to next match (Ctrl+G)"
-msgstr "Gå til næste kamp (Ctrl+G)"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 349
-msgid "Search in text (Ctrl+F)"
-msgstr "Søg i tekst (Ctrl+F)"
-# 
+
+#: src/bigocrpdf/ui/text_viewer_mixin.py:203
+#: src/bigocrpdf/ui/text_viewer_mixin.py:204
+msgid "Decrease font size"
+msgstr "Formindsk skriftstørrelse"
+
+#: src/bigocrpdf/ui/text_viewer_mixin.py:209
+#: src/bigocrpdf/ui/text_viewer_mixin.py:210
+msgid "Increase font size"
+msgstr "Forøg skriftstørrelse"
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 371
+#: src/bigocrpdf/ui/text_viewer_mixin.py:230
+#: src/bigocrpdf/ui/text_viewer_mixin.py:233
 msgid "Save TXT"
 msgstr "Gem TXT"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1493
+#: src/bigocrpdf/ui/text_viewer_mixin.py:236
+#: src/bigocrpdf/ui/text_viewer_mixin.py:238
 msgid "Close"
 msgstr "Luk"
-# 
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1272
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 1324
+#: src/bigocrpdf/ui/text_viewer_mixin.py:285
+msgid "Search in text..."
+msgstr "Søg i tekst..."
+
+#: src/bigocrpdf/ui/text_viewer_mixin.py:287
+msgid "Search in text"
+msgstr "Søg i tekst"
+
+#: src/bigocrpdf/ui/text_viewer_mixin.py:294
+#: src/bigocrpdf/ui/text_viewer_mixin.py:295
+msgid "Previous match"
+msgstr "Forrige match"
+
+#: src/bigocrpdf/ui/text_viewer_mixin.py:301
+#: src/bigocrpdf/ui/text_viewer_mixin.py:302
+msgid "Next match"
+msgstr "Næste match"
+
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 507
+#: src/bigocrpdf/ui/text_viewer_mixin.py:447
 msgid "No matches"
 msgstr "Ingen match."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 182
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 755
-msgid "Back"
-msgstr "Tilbage"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 70
-msgid "Remove all files from the list"
-msgstr "Fjern alle filer fra listen"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 78
-msgid "0 files"
-msgstr "0 filer"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 102
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 110
-msgid "Start OCR"
-msgstr "Start OCR"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 137
-msgid "Menu"
-msgstr "Menu"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 126
-# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 246
-msgid "Reset Settings"
-msgstr "Nulstil indstillinger"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 141
-msgid "Help"
-msgstr ""
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 128
-# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 248
-msgid "About"
-msgstr "Om"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 129
-# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 249
-msgid "Quit"
-msgstr "Afslut"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 183
-msgid "1 file"
-msgstr "1 fil"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 185
-msgid "{} files"
-msgstr "{} filer"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 63
-msgid "Select Files"
-msgstr "Vælg filer"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 525
-msgid "Error adding files"
-msgstr "Fejl ved tilføjelse af filer"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 521
-msgid "No valid files were selected"
-msgstr "Ingen gyldige filer blev valgt."
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 189
-msgid "Multiple Images Selected"
-msgstr "Flere billeder valgt"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 191
-msgid "You selected {} images. How would you like to add them?"
-msgstr "Du har valgt {} billeder. Hvordan vil du gerne tilføje dem?"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 546
-msgid "Select destination folder"
-msgstr "Vælg destinationsmappe"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 601
-msgid "Error selecting destination folder"
-msgstr "Fejl ved valg af destinationsmappe"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 597
-msgid "Destination folder selected"
-msgstr "Destinationsmappe valgt"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 424
-msgid "Processing Summary"
-msgstr "Behandlingsoversigt"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 450
-msgid "Files processed:"
-msgstr "Behandlede filer:"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 466
-msgid "Total pages:"
-msgstr "Samlede sider:"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 488
-msgid "Processing time:"
-msgstr "Behandlingstid:"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 140
-msgid "Output size:"
-msgstr "Output størrelse:"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 149
-msgid "Size change:"
-msgstr "Størrelsesændring:"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py, line: 529
-msgid "Generated Files"
-msgstr "Genererede filer"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
-msgid "Application started successfully"
-msgstr "Applikationen blev startet med succes"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 111
-msgid "Error starting application"
-msgstr "Fejl ved opstart af applikation"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 168
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 34
+#: src/bigocrpdf/ui/widgets.py:32
 #, python-brace-format
-msgid "Opened {n_files} file(s)"
-msgstr "Åbnede {n_files} fil(er)"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 129
-msgid "BigLinux Team"
-msgstr "BigLinux Team"
-# 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 266
-msgid "Interface"
-msgstr "Grænseflade"
-# 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 272
-msgid "Third-party Components"
-msgstr "Tredjeparts komponenter"
-# 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 274
+msgid "CSS file not found: {0}"
+msgstr "CSS-fil ikke fundet: {0}"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 43
+#: src/bigocrpdf/ui/widgets.py:41
+msgid "Custom CSS styles loaded successfully"
+msgstr "Egne CSS-stilar er indlæst med succes"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line: 46
+#: src/bigocrpdf/ui/widgets.py:44
+#, python-brace-format
+msgid "Error loading CSS styles: {0}"
+msgstr "Fejl ved indlæsning af CSS-stilarter: {0}"
+
+#: src/bigocrpdf/utils/temp_manager.py:85
+#, python-brace-format
 msgid ""
-"The OCR engine and other libraries used by this application are independent projects, each "
-"distributed under its own license."
-msgstr ""
-"OCR-motoren og andre biblioteker, der bruges af denne applikation, er uafhængige projekter, hver "
-"distribueret under deres egen licens."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 139
-msgid "Developers"
-msgstr "Udviklere"
-# 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 289
-msgid "Powered by"
-msgstr "Drevet af"
-# 
-# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 42
-msgid "Main"
-msgstr "Hoved"
-# 
-# File: bigocrpdf/src/bigocrpdf/window.py, line: 108
-msgid "Processing"
-msgstr "Behandling"
-# 
-# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 203
-msgid "Results"
-msgstr "Resultater"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
-msgid "Add OCR to your PDF documents to make them searchable"
-msgstr "Tilføj OCR til dine PDF-dokumenter for at gøre dem søgbare."
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 72
-msgid "Enable debug mode"
-msgstr "Aktivér fejlsøgningstilstand"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 74
-msgid "Enable verbose output"
-msgstr "Aktivér detaljeret output"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 57
-# File: bigocrpdf/src/bigocrpdf/config.py, line: 139
-msgid "Start in image conversion mode"
-msgstr "Start i billedkonverteringstilstand"
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
-msgid "PDF files to process"
-msgstr "PDF-filer til behandling"
-# 
+"Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
+msgstr "Ikke nok diskplads. Behøver {needed:.0f} MB men kun {free:.0f} MB tilgængelig."
+
+#: src/bigocrpdf/utils/temp_manager.py:98
+#, python-brace-format
+msgid "No write permission for folder: {path}"
+msgstr "Ingen skrivetilladelse til mappe: {path}"
+
+#: src/bigocrpdf/window_actions.py:200
+msgid "What is"
+msgstr "Hvad er"
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 324
+#: src/bigocrpdf/window_actions.py:208
 msgid ""
-"Big OCR PDF adds optical character recognition to your PDF files, making them searchable and "
-"allowing you to select and copy text from scanned documents."
+"Big OCR PDF adds optical character recognition to your PDF files, making "
+"them searchable and allowing you to select and copy text from scanned "
+"documents."
 msgstr ""
-"Big OCR PDF tilføjer optisk tegngenkendelse til dine PDF-filer, hvilket gør dem søgbare og giver "
-"dig mulighed for at vælge og kopiere tekst fra scannede dokumenter."
-# 
+"Big OCR PDF tilføjer optisk tegngenkendelse til dine PDF-filer, hvilket gør "
+"dem søgbare og giver dig mulighed for at vælge og kopiere tekst fra scannede "
+"dokumenter."
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 335
+#: src/bigocrpdf/window_actions.py:222
 msgid "Benefits of using Big OCR PDF:"
 msgstr "Fordele ved at bruge Big OCR PDF:"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
+#: src/bigocrpdf/window_actions.py:233
 msgid "Search"
 msgstr "Søg"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
+#: src/bigocrpdf/window_actions.py:233
 msgid "Search through your scanned PDF documents"
 msgstr "Søg i dine scannede PDF-dokumenter"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
+#: src/bigocrpdf/window_actions.py:234
 msgid "Copy text"
 msgstr "Kopier tekst"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
+#: src/bigocrpdf/window_actions.py:234
 msgid "Copy text from images and scanned documents"
 msgstr "Kopier tekst fra billeder og scannede dokumenter"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 238
+#: src/bigocrpdf/window_actions.py:235
 msgid "Add image files and generate new PDFs from them"
 msgstr "Tilføj billedfiler og generer nye PDF-filer fra dem."
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 239
+#: src/bigocrpdf/window_actions.py:236
 msgid "Edit PDF"
 msgstr "Rediger PDF"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 239
+#: src/bigocrpdf/window_actions.py:236
 msgid "Rearrange, rotate or remove pages before processing"
 msgstr "Omarranger, roter eller fjern sider før behandling"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
+#: src/bigocrpdf/window_actions.py:237
 msgid "Batch processing"
 msgstr "Batchbehandling"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
+#: src/bigocrpdf/window_actions.py:237
 msgid "Process multiple files at once"
 msgstr "Behandl flere filer ad gangen"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
+#: src/bigocrpdf/window_actions.py:239
 msgid "Auto-correction"
 msgstr "Autokorrektur"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
+#: src/bigocrpdf/window_actions.py:240
 msgid "Automatically correct page alignment and rotation"
 msgstr "Automatisk korrigering af sidejustering og rotation"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 363
+#: src/bigocrpdf/window_actions.py:266 src/bigocrpdf/window_actions.py:274
 msgid "Show this dialog at startup"
 msgstr "Vis denne dialog ved opstart"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 377
+#: src/bigocrpdf/window_actions.py:281 src/bigocrpdf/window_actions.py:286
 msgid "Let's Get Started"
 msgstr "Lad os komme i gang"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 319
+#: src/bigocrpdf/window_actions.py:306
 msgid "Reset All Settings?"
 msgstr "Nulstil alle indstillinger?"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 321
-msgid "This will restore all options to their default values. Your file queue will not be affected."
-msgstr "Dette vil gendanne alle indstillinger til deres standardværdier. Din filkø vil ikke blive påvirket."
-# 
+#: src/bigocrpdf/window_actions.py:308
+msgid ""
+"This will restore all options to their default values. Your file queue will "
+"not be affected."
+msgstr ""
+"Dette vil gendanne alle indstillinger til deres standardværdier. Din filkø "
+"vil ikke blive påvirket."
+
+#
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 326
+#: src/bigocrpdf/window_actions.py:313
 msgid "Reset"
 msgstr "Nulstil"
-# 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 357
-msgid "Settings Reset"
-msgstr "Indstillinger nulstillet"
-# 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 359
-msgid ""
-"All settings have been restored to their default values.\n"
-"Please close and reopen the program for the changes to take full effect."
-msgstr ""
-"Alle indstillinger er blevet gendannet til deres standardværdier.  \n"
-"Luk venligst programmet, og åbn det igen for at ændringerne kan træde i kraft."
-# 
+
+#: src/bigocrpdf/window_actions.py:341
+msgid "Settings restored to defaults"
+msgstr "Indstillinger nulstillet til standard"
+
+#
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 393
+#: src/bigocrpdf/window_actions.py:372
 #, python-brace-format
 msgid "Session resumed with {0} files"
 msgstr "Session genoptaget med {0} filer"
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 398
+#: src/bigocrpdf/window_actions.py:376
 msgid "Could not resume session"
 msgstr "Kunne ikke genoptage session."
-# 
+
+#
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 404
+#: src/bigocrpdf/window_actions.py:382
 msgid "Previous session discarded"
 msgstr "Tidligere session forkastet"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 611
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 612
+#: src/bigocrpdf/window_processing.py:68 src/bigocrpdf/window_processing.py:69
 msgid "No files selected for processing"
 msgstr "Ingen filer valgt til behandling"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 620
+#: src/bigocrpdf/window_processing.py:75
 msgid "No destination folder selected"
 msgstr "Ingen destinationsmappe valgt"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 621
+#: src/bigocrpdf/window_processing.py:76
 msgid "Please select a destination folder"
 msgstr "Vælg en destinationsmappe"
-# 
+
+#: src/bigocrpdf/window_processing.py:161
+msgid "Starting…"
+msgstr "Starter…"
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 701
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 702
+#: src/bigocrpdf/window_processing.py:180
+#: src/bigocrpdf/window_processing.py:181
 msgid "Failed to start OCR processing"
 msgstr "Mislykkedes at starte OCR-behandling"
-# 
+
+#: src/bigocrpdf/window_processing.py:192
+msgid "OCR processing started"
+msgstr "OCR-behandling startet"
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 717
+#: src/bigocrpdf/window_processing.py:193
 msgid "OCR processing started using Python API"
 msgstr "OCR-behandling startet ved hjælp af Python API"
-# 
+
+#: src/bigocrpdf/window_processing.py:288
+#, python-brace-format
+msgid "{} files in queue"
+msgstr "{} filer i kø"
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 877
+#: src/bigocrpdf/window_processing.py:396
 msgid "OCR processing complete callback triggered"
 msgstr "OCR-behandling fuldført callback udløst"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 882
+#: src/bigocrpdf/window_processing.py:401
 msgid "Processing complete but no longer on terminal page, likely cancelled"
-msgstr "Behandling fuldført, men ikke længere på terminalside, sandsynligvis annulleret."
-# 
+msgstr ""
+"Behandling fuldført, men ikke længere på terminalside, sandsynligvis "
+"annulleret."
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 906
+#: src/bigocrpdf/window_processing.py:426
 #, python-brace-format
 msgid "OCR processing completed successfully for {count} files"
 msgstr "OCR-behandling afsluttet med succes for {count} filer"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 912
+#: src/bigocrpdf/window_processing.py:431
+#: src/bigocrpdf/window_processing.py:432
 msgid "OCR processing complete"
 msgstr "OCR-behandling fuldført"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1114
+#: src/bigocrpdf/window_processing.py:440
 msgid "OCR processing cancelled by user"
 msgstr "OCR-behandling annulleret af bruger"
-# 
+
+#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1122
+#: src/bigocrpdf/window_processing.py:450
 msgid "OCR processing cancelled"
 msgstr "OCR-behandling annulleret"
+
+#
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 42
+#: src/bigocrpdf/window_ui_setup.py:50
+msgid "Main"
+msgstr "Hoved"
+
+#
+# File: bigocrpdf/src/bigocrpdf/window.py, line: 108
+#: src/bigocrpdf/window_ui_setup.py:197
+msgid "Processing"
+msgstr "Behandling"
+
+#
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 203
+#: src/bigocrpdf/window_ui_setup.py:207
+msgid "Results"
+msgstr "Resultater"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 707
+#~ msgid "Text extracted by OCR from images"
+#~ msgstr "Tekst udtrukket af OCR fra billeder"
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 139
+#, python-brace-format
+#~ msgid "An unexpected error occurred during capture: {e}"
+#~ msgstr "Der opstod en uventet fejl under optagelsen: {e}"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 114
+#~ msgid "Go back to the file list"
+#~ msgstr "Gå tilbage til fillisten"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 128
+#~ msgid "Add more files to this document"
+#~ msgstr "Tilføj flere filer til dette dokument"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 180
+#~ msgid "Include All"
+#~ msgstr "Inkluder alt"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 182
+#~ msgid "Select all pages for processing"
+#~ msgstr "Vælg alle sider til behandling"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 186
+#~ msgid "Exclude All"
+#~ msgstr "Ekskluder alle"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 188
+#~ msgid "Deselect all pages"
+#~ msgstr "Fjern markeringen af alle sider"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 201
+#~ msgid "Rotate selected pages to the left"
+#~ msgstr "Rotér valgte sider til venstre"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 210
+#~ msgid "Rotate selected pages to the right"
+#~ msgstr "Rotér valgte sider til højre"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 435
+#~ msgid "Pages: {}"
+#~ msgstr "Sider: {}"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 436
+#~ msgid "Included: {}"
+#~ msgstr "Inkluderet: {}"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 206
+#~ msgid "Export Format"
+#~ msgstr "Eksportformat"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 209
+#~ msgid "Custom Quality"
+#~ msgstr "Brugerdefineret Kvalitet"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 216
+#~ msgid ""
+#~ "Original: Keeps images unchanged (best quality, larger files)\n"
+#~ "Custom Quality: Adjusts image quality to reduce file size"
+#~ msgstr ""
+#~ "Beholder billeder uændrede (bedste kvalitet, større filer)  \n"
+#~ "Tilpasset kvalitet: Justerer billedkvaliteten for at reducere "
+#~ "filstørrelsen"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 240
+#~ msgid ""
+#~ "Very Low: Smallest files, lower image quality\n"
+#~ "Low: Small files, some quality loss\n"
+#~ "Medium: Good balance between quality and file size\n"
+#~ "High: Recommended for most documents\n"
+#~ "Maximum: Best image quality, larger files"
+#~ msgstr ""
+#~ "Meget lav: Mindste filer, lavere billedkvalitet  \n"
+#~ "Lav: Små filer, noget kvalitetstab  \n"
+#~ "Medium: God balance mellem kvalitet og filstørrelse  \n"
+#~ "Høj: Anbefales til de fleste dokumenter  \n"
+#~ "Maksimum: Bedste billedkvalitet, større filer"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 593
+#~ msgid "Image Preprocessing"
+#~ msgstr "Billedeforbehandling"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 596
+#~ msgid "Auto Detect"
+#~ msgstr "Automatisk registrering"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 604
+#~ msgid ""
+#~ "When ON: The program checks each page and only fixes\n"
+#~ "problems it finds (recommended for most documents).\n"
+#~ "When OFF: All corrections below are always applied."
+#~ msgstr ""
+#~ "Når TIL: Programmet tjekker hver side og retter kun de problemer, det "
+#~ "finder (anbefales til de fleste dokumenter).  \n"
+#~ "Når FRA: Alle korrektioner nedenfor anvendes altid."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 233
+#~ msgid "Go to previous match (Ctrl+Shift+G)"
+#~ msgstr "Gå til forrige kamp (Ctrl+Shift+G)"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 240
+#~ msgid "Go to next match (Ctrl+G)"
+#~ msgstr "Gå til næste kamp (Ctrl+G)"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 349
+#~ msgid "Search in text (Ctrl+F)"
+#~ msgstr "Søg i tekst (Ctrl+F)"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 168
+#, python-brace-format
+#~ msgid "Opened {n_files} file(s)"
+#~ msgstr "Åbnede {n_files} fil(er)"
+
+#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 20
+#~ msgid "Add OCR to your PDF documents to make them searchable"
+#~ msgstr "Tilføj OCR til dine PDF-dokumenter for at gøre dem søgbare."
+
+#
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 357
+#~ msgid "Settings Reset"
+#~ msgstr "Indstillinger nulstillet"
+
+#
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 359
+#~ msgid ""
+#~ "All settings have been restored to their default values.\n"
+#~ "Please close and reopen the program for the changes to take full effect."
+#~ msgstr ""
+#~ "Alle indstillinger er blevet gendannet til deres standardværdier.  \n"
+#~ "Luk venligst programmet, og åbn det igen for at ændringerne kan træde i "
+#~ "kraft."

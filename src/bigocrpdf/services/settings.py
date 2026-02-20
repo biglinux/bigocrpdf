@@ -2,125 +2,113 @@
 BigOcrPdf - Settings Service
 
 This module handles configuration settings and file management for the application.
+The three sub-objects (FileQueueManager, OutputConfig, PreprocessingConfig) live
+in their own modules; OcrSettings acts as a transparent facade.
 """
+
+from __future__ import annotations
 
 import os
 import time
+from typing import Any
 
 from bigocrpdf.config import (
     CONFIG_DIR,
     SELECTED_FILE_PATH,
 )
+from bigocrpdf.services.file_queue import FileQueueManager
+from bigocrpdf.services.output_config import DEFAULT_DATE_FORMAT, DEFAULT_SUFFIX, OutputConfig
+from bigocrpdf.services.preprocessing_config import (
+    PreprocessingConfig,
+)
+from bigocrpdf.services.rapidocr_service.config import (
+    DEFAULT_AUTO_DETECT_QUALITY,
+    DEFAULT_BOX_THRESH,
+    DEFAULT_DPI,
+    DEFAULT_ENABLE_AUTO_BRIGHTNESS,
+    DEFAULT_ENABLE_AUTO_CONTRAST,
+    DEFAULT_ENABLE_BASELINE_DEWARP,
+    DEFAULT_ENABLE_BORDER_CLEAN,
+    DEFAULT_ENABLE_DENOISE,
+    DEFAULT_ENABLE_DESKEW,
+    DEFAULT_ENABLE_ORIENTATION_DETECTION,
+    DEFAULT_ENABLE_PERSPECTIVE_CORRECTION,
+    DEFAULT_ENABLE_PREPROCESSING,
+    DEFAULT_ENABLE_SCANNER_EFFECT,
+    DEFAULT_ENABLE_VINTAGE_LOOK,
+    DEFAULT_IMAGE_EXPORT_FORMAT,
+    DEFAULT_IMAGE_EXPORT_QUALITY,
+    DEFAULT_LANGUAGE,
+    DEFAULT_MAX_FILE_SIZE_MB,
+    DEFAULT_SCANNER_EFFECT_STRENGTH,
+    DEFAULT_TEXT_SCORE_THRESHOLD,
+    DEFAULT_UNCLIP_RATIO,
+    DEFAULT_VINTAGE_BW,
+)
 from bigocrpdf.utils.config_manager import get_config_manager
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
-# Default settings constants
-DEFAULT_LANGUAGE = "latin"  # RapidOCR uses script names, not tesseract codes
-DEFAULT_SUFFIX = "ocr"
-DEFAULT_DATE_FORMAT = {"year": 1, "month": 2, "day": 3}
-DEFAULT_DPI = 300
+# Sub-object attribute names used by OcrSettings delegation
+_SUB_OBJECTS = ("file_queue", "output", "preprocessing")
 
 
 class OcrSettings:
-    """Class to manage OCR settings and configuration files"""
+    """Facade over FileQueueManager, OutputConfig, and PreprocessingConfig.
+
+    All attribute reads/writes are transparently delegated to the
+    appropriate sub-object, so existing code that accesses
+    ``settings.enable_deskew`` or ``settings.selected_files`` continues
+    to work without any changes.
+    """
 
     def __init__(self) -> None:
-        """Initialize OCR settings with default values"""
-        # Get the centralized config manager
-        self._config = get_config_manager()
+        # Use object.__setattr__ during init to bypass delegation
+        sup = object.__setattr__.__get__(self)
+        sup("_config", get_config_manager())
+        sup("file_queue", FileQueueManager())
+        sup("output", OutputConfig())
+        sup("preprocessing", PreprocessingConfig())
 
-        # File management
-        self.selected_files: list[str] = []
-        self.page_ranges: dict[
-            str, tuple[int, int] | None
-        ] = {}  # {file: (start, end) or None for all}
-        self.destination_folder: str = ""
-        self.processed_files: list[str] = []
+        # Attributes that stay directly on OcrSettings (cross-cutting / transient)
+        sup("lang", DEFAULT_LANGUAGE)
+        sup("extracted_text", {})
+        sup("comparison_results", [])
+        sup("ocr_boxes", {})
 
-        # OCR processing settings
-        self.lang: str = DEFAULT_LANGUAGE
-        self.save_in_same_folder: bool = False
-        self.extracted_text: dict[str, str] = {}
-        self.file_modifications: dict[str, list[dict]] = {}  # Store page states for each file
-        self.original_file_paths: dict[str, str] = {}  # Map edited temp paths to original paths
-
-        # Output filename settings
-        self.pdf_suffix: str = DEFAULT_SUFFIX
-        self.use_original_filename: bool = False
-        self.overwrite_existing: bool = False
-
-        # Date inclusion settings
-        self.include_date: bool = False
-        self.include_year: bool = False
-        self.include_month: bool = False
-        self.include_day: bool = False
-        self.include_time: bool = False
-        self.date_format_order: dict[str, int] = DEFAULT_DATE_FORMAT.copy()
-
-        # Text extraction settings
-        self.save_txt: bool = False
-        self.separate_txt_folder: bool = False
-        self.txt_folder: str = ""
-
-        # RapidOCR preprocessing settings (match reference defaults)
-        self.dpi: int = DEFAULT_DPI
-        self.ocr_language: str = DEFAULT_LANGUAGE
-        # Color/Enhancement: OFF by default (PP-OCRv5 works best without)
-        self.enable_preprocessing: bool = False  # Master switch OFF
-        # Auto-detect: ON by default
-        self.enable_auto_detect: bool = True
-        # Geometric corrections: ON by default (reference CLI behavior)
-        self.enable_deskew: bool = True
-        self.enable_perspective_correction: bool = (
-            True  # Perspective correction for photographed documents
-        )
-        self.enable_orientation_detection: bool = True
-        # These only take effect if enable_preprocessing=True
-        self.enable_auto_contrast: bool = False
-        self.enable_auto_brightness: bool = False
-        self.enable_denoise: bool = False
-        self.enable_scanner_effect: bool = True
-        self.scanner_effect_strength: float = 1.0
-        self.enable_border_clean: bool = False
-        self.enable_vintage_look: bool = False
-        self.text_score_threshold: float = 0.3  # Lower threshold catches more text
-        self.box_thresh: float = 0.5  # Detection box threshold
-        self.unclip_ratio: float = (
-            1.2  # Control text box size (1.2-2.0, lower=tighter crop=better recognition)
-        )
-        self.ocr_profile: str = "balanced"  # "fast", "balanced", "precise"
-
-        # Image export settings
-        self.image_export_format: str = "original"  # "original" or "jpeg"
-        self.image_export_quality: int = 85  # JPEG quality (1-100)
-        self.image_export_preserve_original: bool = True  # Keep original quality if possible
-        self.auto_detect_quality: bool = True  # Auto-detect original image quality
-
-        # PDF output settings
-        self.convert_to_pdfa: bool = True  # Convert output to PDF/A-2b format
-        self.max_file_size_mb: int = 0  # 0 = no limit; split output if exceeded
-
-        # OCR behavior settings
-        self.replace_existing_ocr: bool = True  # Replace existing OCR in PDFs
-
-        # Parallel processing settings
-        self.parallel_workers: int = 0  # 0 = auto (all CPU cores, low priority), 1 = sequential
-
-        # Processing results (populated during OCR, cleared on reset)
-        self.comparison_results: list = []
-        self.ocr_boxes: dict[str, list] = {}
-
-        # ODF export settings (loaded from config in load_settings)
-        self.save_odf: bool = False
-        self.odf_include_images: bool = True
-        self.odf_use_formatting: bool = True
+        # Enable delegation for all subsequent attribute access
+        sup("_initialized", True)
 
         # Ensure config directory exists
         os.makedirs(CONFIG_DIR, exist_ok=True)
 
         # Load settings from JSON config manager
         self.load_settings()
+
+    # -- Delegation machinery --------------------------------------------------
+
+    def __getattr__(self, name: str) -> object:
+        """Delegate attribute reads to sub-objects for backward compatibility."""
+        for sub_name in _SUB_OBJECTS:
+            try:
+                sub = object.__getattribute__(self, sub_name)
+            except AttributeError:
+                continue
+            if hasattr(sub, name):
+                return getattr(sub, name)
+        raise AttributeError(f"'{type(self).__name__}' has no attribute '{name}'")
+
+    def __setattr__(self, name: str, value: object) -> None:
+        """Delegate attribute writes to the sub-object that owns *name*."""
+        if not self.__dict__.get("_initialized"):
+            object.__setattr__(self, name, value)
+            return
+        for sub_name in _SUB_OBJECTS:
+            sub = object.__getattribute__(self, sub_name)
+            if hasattr(sub, name):
+                setattr(sub, name, value)
+                return
+        object.__setattr__(self, name, value)
 
     def load_settings(self) -> None:
         """Load all settings from JSON configuration"""
@@ -159,7 +147,7 @@ class OcrSettings:
         self.separate_txt_folder = self._config.get("text_extraction.separate_folder", False)
         self.txt_folder = self._config.get("text_extraction.txt_folder", "")
 
-        self.file_modifications = {}
+        self.file_modifications: dict[str, dict[str, Any]] = {}
 
         # ODF export settings
         self.save_odf = self._config.get("odf_export.save_odf", False)
@@ -171,44 +159,73 @@ class OcrSettings:
         # Sync language: UI stores in self.lang (ocr.language), RapidOCR reads self.ocr_language
         self.ocr_language = self.lang
         # Color/Enhancement: OFF by default (PP-OCRv5 works best without)
-        self.enable_preprocessing = self._config.get("rapidocr.enable_preprocessing", False)
-        # Auto-detect: ON by default
-        self.enable_auto_detect = self._config.get("rapidocr.enable_auto_detect", True)
+        self.enable_preprocessing = self._config.get(
+            "rapidocr.enable_preprocessing", DEFAULT_ENABLE_PREPROCESSING
+        )
         # Geometric corrections: ON by default (reference CLI behavior)
-        self.enable_deskew = self._config.get("rapidocr.enable_deskew", True)
+        self.enable_deskew = self._config.get("rapidocr.enable_deskew", DEFAULT_ENABLE_DESKEW)
+        self.enable_baseline_dewarp = self._config.get(
+            "rapidocr.enable_baseline_dewarp", DEFAULT_ENABLE_BASELINE_DEWARP
+        )
         self.enable_perspective_correction = self._config.get(
-            "rapidocr.enable_perspective_correction", True
+            "rapidocr.enable_perspective_correction", DEFAULT_ENABLE_PERSPECTIVE_CORRECTION
         )
         self.enable_orientation_detection = self._config.get(
-            "rapidocr.enable_orientation_detection", True
+            "rapidocr.enable_orientation_detection", DEFAULT_ENABLE_ORIENTATION_DETECTION
         )
         # These only take effect if enable_preprocessing=True
-        self.enable_auto_contrast = self._config.get("rapidocr.enable_auto_contrast", False)
-        self.enable_auto_brightness = self._config.get("rapidocr.enable_auto_brightness", False)
-        self.enable_denoise = self._config.get("rapidocr.enable_denoise", False)
-        self.enable_scanner_effect = self._config.get("rapidocr.enable_scanner_effect", True)
-        self.scanner_effect_strength = self._config.get("rapidocr.scanner_effect_strength", 1.0)
-        self.enable_border_clean = self._config.get("rapidocr.enable_border_clean", False)
-        self.enable_vintage_look = self._config.get("rapidocr.enable_vintage_look", False)
-        self.text_score_threshold = self._config.get("rapidocr.text_score_threshold", 0.3)
-        self.box_thresh = self._config.get("rapidocr.box_thresh", 0.5)
-        self.unclip_ratio = self._config.get("rapidocr.unclip_ratio", 1.2)
+        self.enable_auto_contrast = self._config.get(
+            "rapidocr.enable_auto_contrast", DEFAULT_ENABLE_AUTO_CONTRAST
+        )
+        self.enable_auto_brightness = self._config.get(
+            "rapidocr.enable_auto_brightness", DEFAULT_ENABLE_AUTO_BRIGHTNESS
+        )
+        self.enable_denoise = self._config.get("rapidocr.enable_denoise", DEFAULT_ENABLE_DENOISE)
+        self.enable_scanner_effect = self._config.get(
+            "rapidocr.enable_scanner_effect", DEFAULT_ENABLE_SCANNER_EFFECT
+        )
+        self.scanner_effect_strength = self._config.get(
+            "rapidocr.scanner_effect_strength", DEFAULT_SCANNER_EFFECT_STRENGTH
+        )
+        self.enable_border_clean = self._config.get(
+            "rapidocr.enable_border_clean", DEFAULT_ENABLE_BORDER_CLEAN
+        )
+        self.enable_vintage_look = self._config.get(
+            "rapidocr.enable_vintage_look", DEFAULT_ENABLE_VINTAGE_LOOK
+        )
+        self.vintage_bw = self._config.get("rapidocr.vintage_bw", DEFAULT_VINTAGE_BW)
+        self.text_score_threshold = self._config.get(
+            "rapidocr.text_score_threshold", DEFAULT_TEXT_SCORE_THRESHOLD
+        )
+        self.box_thresh = self._config.get("rapidocr.box_thresh", DEFAULT_BOX_THRESH)
+        self.unclip_ratio = self._config.get("rapidocr.unclip_ratio", DEFAULT_UNCLIP_RATIO)
         self.ocr_profile = self._config.get("rapidocr.ocr_profile", "balanced")
 
         # Image export settings
-        self.image_export_format = self._config.get("image_export.format", "original")
-        self.image_export_quality = self._config.get("image_export.quality", 85)
+        self.image_export_format = self._config.get(
+            "image_export.format", DEFAULT_IMAGE_EXPORT_FORMAT
+        )
+        self.image_export_quality = self._config.get(
+            "image_export.quality", DEFAULT_IMAGE_EXPORT_QUALITY
+        )
         self.image_export_preserve_original = self._config.get(
             "image_export.preserve_original", True
         )
-        self.auto_detect_quality = self._config.get("image_export.auto_detect_quality", True)
+        self.auto_detect_quality = self._config.get(
+            "image_export.auto_detect_quality", DEFAULT_AUTO_DETECT_QUALITY
+        )
 
         # PDF output settings
         self.convert_to_pdfa = self._config.get("output.convert_to_pdfa", True)
-        self.max_file_size_mb = self._config.get("output.max_file_size_mb", 0)
+        self.max_file_size_mb = self._config.get(
+            "output.max_file_size_mb", DEFAULT_MAX_FILE_SIZE_MB
+        )
 
         # OCR behavior settings
         self.replace_existing_ocr = self._config.get("ocr.replace_existing_ocr", True)
+
+        # UI preference: Quick Start mode (simplified settings for new users)
+        self.quick_start_mode = self._config.get("ui.quick_start_mode", True)
 
         # Load selected files from legacy file (file list not stored in JSON)
         self._load_selected_files()
@@ -476,10 +493,12 @@ class OcrSettings:
         self._config.set(
             "rapidocr.enable_preprocessing", self.enable_preprocessing, save_immediately=False
         )
-        self._config.set(
-            "rapidocr.enable_auto_detect", self.enable_auto_detect, save_immediately=False
-        )
         self._config.set("rapidocr.enable_deskew", self.enable_deskew, save_immediately=False)
+        self._config.set(
+            "rapidocr.enable_baseline_dewarp",
+            self.enable_baseline_dewarp,
+            save_immediately=False,
+        )
         self._config.set(
             "rapidocr.enable_perspective_correction",
             self.enable_perspective_correction,
@@ -509,6 +528,7 @@ class OcrSettings:
         self._config.set(
             "rapidocr.enable_vintage_look", self.enable_vintage_look, save_immediately=False
         )
+        self._config.set("rapidocr.vintage_bw", self.vintage_bw, save_immediately=False)
         self._config.set(
             "rapidocr.text_score_threshold", self.text_score_threshold, save_immediately=False
         )
@@ -539,6 +559,9 @@ class OcrSettings:
             "ocr.replace_existing_ocr", self.replace_existing_ocr, save_immediately=False
         )
 
+        # UI preferences
+        self._config.set("ui.quick_start_mode", self.quick_start_mode, save_immediately=False)
+
         # Save everything at once
         self._config.save()
 
@@ -565,26 +588,20 @@ class OcrSettings:
 
         # Add date elements with their preferred order
         if self.include_year:
-            date_components.append(
-                (
-                    self.date_format_order.get("year", 1),
-                    f"{now.tm_year}",
-                )
-            )
+            date_components.append((
+                self.date_format_order.get("year", 1),
+                f"{now.tm_year}",
+            ))
         if self.include_month:
-            date_components.append(
-                (
-                    self.date_format_order.get("month", 2),
-                    f"{now.tm_mon:02d}",
-                )
-            )
+            date_components.append((
+                self.date_format_order.get("month", 2),
+                f"{now.tm_mon:02d}",
+            ))
         if self.include_day:
-            date_components.append(
-                (
-                    self.date_format_order.get("day", 3),
-                    f"{now.tm_mday:02d}",
-                )
-            )
+            date_components.append((
+                self.date_format_order.get("day", 3),
+                f"{now.tm_mday:02d}",
+            ))
 
         # Sort components by their position value
         date_components.sort(key=lambda x: x[0])
@@ -665,8 +682,8 @@ class OcrSettings:
                   settings page to start from scratch.
         """
         # Clear results
-        self.processed_files = []
-        self.comparison_results = []
+        self.processed_files: list[str] = []
+        self.comparison_results: list[Any] = []
 
         # Clear extracted text to free memory
         if hasattr(self, "extracted_text") and self.extracted_text:
@@ -677,7 +694,7 @@ class OcrSettings:
                 f"Cleared {text_count} extracted texts ({total_chars} characters) from memory"
             )
         else:
-            self.extracted_text = {}
+            self.extracted_text: dict[str, str] = {}
 
         # Clear OCR boxes data
         if hasattr(self, "ocr_boxes") and self.ocr_boxes:
@@ -685,12 +702,12 @@ class OcrSettings:
             self.ocr_boxes.clear()
             logger.info(f"Cleared {box_count} OCR boxes from memory")
         else:
-            self.ocr_boxes = {}
+            self.ocr_boxes: dict[str, list[Any]] = {}
 
         # Full reset also clears the input file queue
         if full:
             self.selected_files = []
-            self.original_file_paths = {}
+            self.original_file_paths: dict[str, str] = {}
 
         logger.info(_("Processing state reset successfully"))
 
@@ -768,7 +785,8 @@ class OcrSettings:
         self._config._config = self._config._get_default_config()
         self._config.save()
 
-        # Re-initialize all attributes with defaults
+        # Disable delegation during re-init
+        object.__setattr__(self, "_initialized", False)
         OcrSettings.__init__(self)
 
         logger.info("All settings have been reset to defaults")

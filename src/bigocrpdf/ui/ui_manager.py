@@ -57,7 +57,6 @@ class BigOcrPdfUI:
         # Terminal page components
         self.terminal_progress_bar = None
         self.terminal_status_bar = None
-        self.terminal_spinner = None
 
         # These will be populated when pages are created
 
@@ -113,7 +112,6 @@ class BigOcrPdfUI:
         # Update references so window can access them directly
         self.terminal_progress_bar = manager.terminal_progress_bar
         self.terminal_status_bar = manager.terminal_status_bar
-        self.terminal_spinner = manager.terminal_spinner
 
     # Public interface methods - these delegate to appropriate managers
 
@@ -151,7 +149,7 @@ class BigOcrPdfUI:
         """Stop monitoring OCR progress"""
         self.terminal_page_manager.stop_progress_monitor()
 
-    def update_processing_status(self, input_file: str = None) -> None:
+    def update_processing_status(self, input_file: str | None = None) -> None:
         """Update processing status display
 
         Args:
@@ -159,7 +157,7 @@ class BigOcrPdfUI:
         """
         self.terminal_page_manager.update_processing_status(input_file)
 
-    def update_terminal_progress(self, fraction: float, text: str = None) -> None:
+    def update_terminal_progress(self, fraction: float, text: str | None = None) -> None:
         """Update terminal progress bar
 
         Args:
@@ -171,10 +169,6 @@ class BigOcrPdfUI:
     def update_terminal_status_complete(self) -> None:
         """Update terminal status to show completion"""
         self.terminal_page_manager.update_terminal_status_complete()
-
-    def stop_terminal_spinner(self) -> None:
-        """Stop the terminal spinner"""
-        self.terminal_page_manager.stop_terminal_spinner()
 
     def show_completion_ui(self) -> None:
         """Update UI to show processing completion"""

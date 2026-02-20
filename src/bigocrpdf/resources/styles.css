@@ -5,6 +5,12 @@
 
 /* ---- Page Thumbnail ---- */
 
+/* ---- Sidebar ---- */
+
+.sidebar {
+    background-color: @sidebar_bg_color;
+}
+
 .page-thumbnail {
     padding: 6px;
     border-radius: 12px;
@@ -98,7 +104,16 @@
 
 .editor-status-bar {
     padding: 4px 12px;
-    border-top: 1px solid alpha(currentColor, 0.08);
+}
+
+/* ---- Inline Notification Banner ---- */
+
+.editor-notification {
+    background-color: alpha(@accent_bg_color, 0.92);
+    color: @accent_fg_color;
+    border-radius: 8px;
+    padding: 8px 16px;
+    box-shadow: 0 2px 8px alpha(black, 0.15);
 }
 
 /* ---- Wide separator (invisible spacer) ---- */

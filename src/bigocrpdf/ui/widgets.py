@@ -60,7 +60,7 @@ def format_markup(text: str) -> str:
     # Ensure bullet points have proper spacing
     text = text.replace("•", "• ")
 
-    # Process the text for Adw.MessageDialog and other GTK widgets
+    # Process the text for Adw.AlertDialog and other GTK widgets
     # that require explicit markup handling
 
     # Check if we need to wrap in markup tags

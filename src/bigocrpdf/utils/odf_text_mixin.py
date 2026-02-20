@@ -35,22 +35,13 @@ class ODFTextPipelineMixin:
         if text.count("\n") > 5:
             return text
 
-        # Patterns that indicate new sections/paragraphs
+        # Patterns that indicate new sections/paragraphs (language-agnostic)
         section_patterns = [
             r"(\d+\.\s+[A-Z][A-Za-zÀ-ú\s]+)",  # "1. SECTION TITLE"
             r"(\d+\.\d+\s+[A-Z])",  # "1.1 Subsection"
-            r"(Nome do paciente:)",  # Common form fields
-            r"(Data de nascimento:)",
-            r"(Sexo:|Idade:|Naturalidade:|Escolaridade:|Lateralidade:)",
-            r"(Estado:|Endereço:|Telefone:|Email:)",
-            r"(Dra?\.\s+[A-Z])",  # "Dr./Dra. Name"
-            r"(Autora?:)",
-            r"(Hipó?tese Diagnóstica:)",
-            r"(Datas?:)",
-            r"(RESULTADOS|PROCEDIMENTO|HISTÓRICO|CONCLUSÃO|RECOMENDAÇÕES)",
-            r"(O paciente)",  # Start of new paragraph
-            r"(Foram utilizados|Foram realizados)",
-            r"(Bruno,)",  # Common paragraph starters with names
+            r"([A-ZÀ-Ú][a-zà-ú]+(?: [a-zà-ú]+)*:)",  # "Field name:" form labels
+            r"(Dra?\.\s+[A-Z]|Mrs?\.\s+[A-Z]|Prof\.\s+[A-Z])",  # Titles: Dr./Dra./Mr./Mrs./Prof.
+            r"([A-Z]{4,}(?:\s+[A-Z]{4,})*)",  # ALL-CAPS SECTION HEADERS
         ]
 
         result = text
@@ -59,7 +50,6 @@ class ODFTextPipelineMixin:
 
         # Also add breaks after common endings
         result = re.sub(r"(\.\s+)(\d+\.)", r"\1\n\n\2", result)  # Period before numbered section
-        result = re.sub(r"(\.\s+)(O paciente|Bruno|Foram)", r"\1\n\n\2", result)
 
         # Clean up multiple newlines
         result = re.sub(r"\n{3,}", "\n\n", result)

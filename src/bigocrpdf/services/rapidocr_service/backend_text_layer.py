@@ -20,9 +20,6 @@ from bigocrpdf.services.rapidocr_service.pdf_assembly import (
     create_text_layer_commands,
     overlay_text_on_original,
 )
-from bigocrpdf.services.rapidocr_service.pdf_extractor import (
-    transform_ocr_coords_for_rotation,
-)
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
@@ -157,6 +154,7 @@ class BackendTextLayerMixin:
         else:
             ocr_results = self._run_ocr(ocr_image)
             logger.info(f"OCR page {page_num}: {len(ocr_results)} text regions")
+
         ocr_results = self._fix_vertical_overlaps(ocr_results)
 
         c.setPageSize((pdf_width, pdf_height))
@@ -167,24 +165,35 @@ class BackendTextLayerMixin:
 
         total_confidence = 0.0
         if ocr_results:
-            transformed_results = transform_ocr_coords_for_rotation(
-                ocr_results, ocr_img_size, (pdf_width, pdf_height), pdf_rotation
-            )
+            # Use raw OCR results (pixel coordinates) throughout.
+            # The renderer handles pixel→point conversion via DPI and
+            # rotation via canvas transforms — no pre-transformation needed.
+            # Previously, transform_ocr_coords_for_rotation() scaled coords
+            # to PDF points, and then create_text_layer() divided by DPI
+            # again, causing a double-conversion that pushed text to the
+            # bottom-left corner.
 
             # Accumulate text for stats
             try:
-                formatted_page_text = self._format_ocr_text(transformed_results, pdf_width)
+                formatted_page_text = self._format_ocr_text(ocr_results, float(ocr_img_size[0]))
                 stats.full_text += formatted_page_text + "\n\n"
             except Exception as e:
                 logger.error(f"Error formatting text: {e}")
-                stats.full_text += " ".join(r.text for r in transformed_results) + "\n\n"
+                stats.full_text += " ".join(r.text for r in ocr_results) + "\n\n"
 
-            # Collect structured OCR data
+            # Collect structured OCR data (pixel coords + pixel dimensions
+            # so that percentage calculations and height→point conversions
+            # are each applied exactly once)
             stats.ocr_boxes.extend(
-                self._collect_ocr_boxes(transformed_results, page_num, pdf_width, pdf_height)
+                self._collect_ocr_boxes(
+                    ocr_results,
+                    page_num,
+                    float(ocr_img_size[0]),
+                    float(ocr_img_size[1]),
+                )
             )
 
-            regions_added = self.renderer.render(c, transformed_results, (pdf_width, pdf_height))
+            regions_added = self.renderer.render(c, ocr_results, ocr_img_size, pdf_rotation)
             stats.total_text_regions += regions_added
 
             page_conf = sum(r.confidence for r in ocr_results) / len(ocr_results)
@@ -215,8 +224,14 @@ class BackendTextLayerMixin:
         page_rotations: list[dict],
         page_num: int,
         stats: ProcessingStats,
+        force_overlay: bool = False,
     ) -> tuple[float, bool]:
         """Process a single page result from the parallel worker.
+
+        Args:
+            force_overlay: When True, forces overlay mode even if
+                _determine_page_mode would choose standalone. Used for
+                pages with native text in editor-merged files.
 
         Returns:
             Tuple of (confidence_contribution, geometry_changed)
@@ -277,6 +292,11 @@ class BackendTextLayerMixin:
             use_processed_for_page, geometry_changed = self._determine_page_mode(
                 result, proc_w, proc_h
             )
+
+            # Force overlay mode for pages with native text (editor-merged files)
+            # so the original page content (text + layout) is preserved intact.
+            if force_overlay:
+                use_processed_for_page = False
 
             if use_processed_for_page:
                 # STANDALONE MODE: embed processed image in the PDF page.
@@ -378,7 +398,7 @@ class BackendTextLayerMixin:
         page_standalone_flags: list[bool] = []
 
         # Start persistent OCR subprocess (model loaded once)
-        ocr_proc = self._start_ocr_subprocess()
+        ocr_proc = self._launch_ocr_subprocess()
         logger.info(
             f"Text layer: {total_pages} pages, sequential preprocessing, "
             f"1 persistent OCR subprocess"
@@ -449,7 +469,7 @@ class BackendTextLayerMixin:
                 # Restart OCR subprocess every 3 pages to limit memory growth
                 if (i + 1) % 3 == 0 and i < len(image_paths) - 1:
                     self._stop_ocr_subprocess(ocr_proc)
-                    ocr_proc = self._start_ocr_subprocess()
+                    ocr_proc = self._launch_ocr_subprocess()
 
         finally:
             self._stop_ocr_subprocess(ocr_proc)

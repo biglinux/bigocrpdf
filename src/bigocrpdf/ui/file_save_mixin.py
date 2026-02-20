@@ -69,8 +69,7 @@ class FileSaveDialogMixin:
             file_path: Path to existing file
             text: Text to save
         """
-        dialog = Adw.MessageDialog(
-            transient_for=self.window,
+        dialog = Adw.AlertDialog(
             heading=_("File Already Exists"),
             body=_("The file '{0}' already exists. What would you like to do?").format(
                 os.path.basename(file_path)
@@ -85,10 +84,10 @@ class FileSaveDialogMixin:
         dialog.set_response_appearance("rename", Adw.ResponseAppearance.SUGGESTED)
 
         dialog.connect("response", self._on_file_exists_response, file_path, text)
-        dialog.present()
+        dialog.present(self.window)
 
     def _on_file_exists_response(
-        self, dialog: Adw.MessageDialog, response: str, file_path: str, text: str
+        self, dialog: Adw.AlertDialog, response: str, file_path: str, text: str
     ) -> None:
         """Handle file exists dialog response
 
@@ -140,7 +139,9 @@ class FileSaveDialogMixin:
                 f.write(text)
 
             logger.info(f"Text saved to {file_path}")
-            self._show_success_toast(f"Text saved to {os.path.basename(file_path)}")
+            self._show_success_toast(
+                _("Text saved to {filename}").format(filename=os.path.basename(file_path))
+            )
 
         except Exception as e:
             logger.error(f"Error writing text to file: {e}")
@@ -164,11 +165,9 @@ class FileSaveDialogMixin:
             title: Dialog title
             message: Error message
         """
-        error_dialog = Adw.MessageDialog(transient_for=self.window)
-        error_dialog.set_heading(title)
-        error_dialog.set_body(message)
+        error_dialog = Adw.AlertDialog(heading=title, body=message)
         error_dialog.add_response("ok", _("OK"))
-        error_dialog.present()
+        error_dialog.present(self.window)
 
     def show_resume_session_dialog(
         self, session_info: dict, on_resume: Callable[[], None], on_discard: Callable[[], None]
@@ -184,8 +183,7 @@ class FileSaveDialogMixin:
         completed = session_info.get("completed_files", 0)
         total = session_info.get("total_files", 0)
 
-        dialog = Adw.MessageDialog(
-            transient_for=self.window,
+        dialog = Adw.AlertDialog(
             heading=_("Resume Previous Session?"),
             body=_(
                 "An incomplete processing session was found.\n\n"
@@ -200,12 +198,11 @@ class FileSaveDialogMixin:
         dialog.set_response_appearance("resume", Adw.ResponseAppearance.SUGGESTED)
         dialog.set_default_response("resume")
 
-        def on_response(d: Adw.MessageDialog, response: str) -> None:
+        def on_response(d: Adw.AlertDialog, response: str) -> None:
             if response == "resume":
                 on_resume()
             else:
                 on_discard()
-            d.destroy()
 
         dialog.connect("response", on_response)
-        dialog.present()
+        dialog.present(self.window)

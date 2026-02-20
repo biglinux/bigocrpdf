@@ -13,6 +13,8 @@ from typing import TYPE_CHECKING
 
 from gi.repository import Adw, Gdk, Gio, GLib, Gtk
 
+from bigocrpdf.utils.a11y import set_a11y_label
+
 if TYPE_CHECKING:
     from window import BigOcrPdfWindow
 
@@ -41,6 +43,7 @@ class SettingsPageManager:
 
         # Preprocessing UI components
         self.deskew_switch = None
+        self.dewarp_switch = None
         self.perspective_switch = None
         self.orientation_switch = None
         self.scanner_switch = None
@@ -85,28 +88,45 @@ class SettingsPageManager:
         settings_box.set_margin_top(3)
         settings_box.set_margin_bottom(24)
 
-        # OCR Settings Group (includes Image Export options)
-        self._add_ocr_settings(settings_box)
+        group = Adw.PreferencesGroup()
 
-        # Preprocessing Group
-        self._add_preprocessing_options(settings_box)
+        # Language (always visible at top level)
+        self._create_language_widgets(group)
+
+        # Image Corrections (collapsible)
+        self._proc_expander = Adw.ExpanderRow(title=_("Image Corrections"))
+        self._proc_expander.add_prefix(
+            Gtk.Image.new_from_icon_name("applications-graphics-symbolic")
+        )
+        self._create_preprocessing_widgets(self._proc_expander)
+        group.add(self._proc_expander)
+
+        # Output Settings (collapsible)
+        self._out_expander = Adw.ExpanderRow(title=_("Output Settings"))
+        self._out_expander.add_prefix(Gtk.Image.new_from_icon_name("document-save-symbolic"))
+        self._create_output_widgets(self._out_expander)
+        group.add(self._out_expander)
+
+        # Advanced (collapsible)
+        self._adv_expander = Adw.ExpanderRow(title=_("Advanced"))
+        self._adv_expander.add_prefix(Gtk.Image.new_from_icon_name("preferences-system-symbolic"))
+        self._create_advanced_widgets(self._adv_expander)
+        group.add(self._adv_expander)
+
+        settings_box.append(group)
+
+        # Load all settings when panel becomes visible
+        group.connect("map", lambda _w: self._load_all_sidebar_settings())
 
         scrolled_window.set_child(settings_box)
 
         return scrolled_window
 
-    def _add_ocr_settings(self, container: Gtk.Box) -> None:
-        """Add OCR settings dropdowns to the container
-
-        Args:
-            container: Container to add the OCR settings to
-        """
+    def _create_language_widgets(self, group: Adw.PreferencesGroup) -> None:
+        """Create language selection widgets and add to group."""
         from bigocrpdf.utils.tooltip_helper import get_tooltip_helper
 
         tooltip = get_tooltip_helper()
-
-        # OCR settings group
-        ocr_group = Adw.PreferencesGroup()
 
         # Language selection as ComboRow
         self.lang_combo = Adw.ComboRow(title=_("Text Language"))
@@ -119,38 +139,22 @@ class SettingsPageManager:
             valign=Gtk.Align.CENTER,
             css_classes=["flat", "circular"],
         )
+        lang_help_btn.set_tooltip_text(_("Language help"))
+        set_a11y_label(lang_help_btn, _("Language help"))
         lang_help_btn.connect("clicked", self._on_language_help_clicked)
         self.lang_combo.add_suffix(lang_help_btn)
 
         # Populate language dropdown
         languages = self.window.ocr_processor.get_available_ocr_languages()
-        self._available_languages = languages  # Store for index lookups
+        self._available_languages = languages
         lang_model = Gtk.StringList()
         for _i, (_lang_code, lang_name) in enumerate(languages):
             lang_model.append(lang_name)
         self.lang_combo.set_model(lang_model)
         self.lang_combo.set_can_focus(False)
-
-        # Use a flag to ensure we only connect the signal once
         self._lang_signal_connected = False
 
-        def on_lang_map(_widget):
-            self.lang_combo.set_can_focus(True)
-            # Read CURRENT settings value on each map (not stale closure)
-            current_lang = self.window.settings.lang
-            for i, (code, _name) in enumerate(self._available_languages):
-                if code == current_lang:
-                    self.lang_combo.set_selected(i)
-                    break
-            # Only connect the change handler once
-            if not self._lang_signal_connected:
-                self._lang_signal_connected = True
-                self.lang_combo.connect("notify::selected", self._on_language_changed)
-
-        self.lang_combo.connect("map", on_lang_map)
-        ocr_group.add(self.lang_combo)
-
-        # Compatibility alias for lang_dropdown
+        group.add(self.lang_combo)
         self.lang_dropdown = self.lang_combo
 
         tooltip.add_tooltip(
@@ -161,87 +165,97 @@ class SettingsPageManager:
             ),
         )
 
-        # OCR Precision selector
-        self.ocr_precision_combo = Adw.ComboRow(title=_("OCR Precision"))
-        precision_icon = Gtk.Image.new_from_icon_name("speedometer-symbolic")
-        self.ocr_precision_combo.add_prefix(precision_icon)
+    def _create_preprocessing_widgets(self, expander: Adw.ExpanderRow) -> None:
+        """Create image preprocessing toggle widgets inside an expander."""
+        from bigocrpdf.utils.tooltip_helper import get_tooltip_helper
 
-        precision_model = Gtk.StringList.new(
-            [
-                _("Low Precision"),
-                _("Standard"),
-                _("Precise"),
-                _("Very Precise"),
-            ]
-        )
-        self.ocr_precision_combo.set_model(precision_model)
-        self.ocr_precision_combo.set_can_focus(False)
-        ocr_group.add(self.ocr_precision_combo)
+        tooltip = get_tooltip_helper()
 
+        self.deskew_switch = Adw.SwitchRow(title=_("Deskew"))
+        self.deskew_switch.set_can_focus(False)
+        deskew_icon = Gtk.Image.new_from_icon_name("object-rotate-right-symbolic")
+        self.deskew_switch.add_prefix(deskew_icon)
+        expander.add_row(self.deskew_switch)
         tooltip.add_tooltip(
-            self.ocr_precision_combo,
+            self.deskew_switch,
+            _("Straightens pages that were scanned at a slight angle."),
+        )
+
+        self.dewarp_switch = Adw.SwitchRow(title=_("Dewarp"))
+        self.dewarp_switch.set_can_focus(False)
+        dewarp_icon = Gtk.Image.new_from_icon_name("view-reveal-symbolic")
+        self.dewarp_switch.add_prefix(dewarp_icon)
+        expander.add_row(self.dewarp_switch)
+        tooltip.add_tooltip(
+            self.dewarp_switch,
+            _("Corrects curved text from photographed book pages\nor documents with spine warp."),
+        )
+
+        self.perspective_switch = Adw.SwitchRow(title=_("Perspective Correction"))
+        self.perspective_switch.set_can_focus(False)
+        perspective_icon = Gtk.Image.new_from_icon_name("view-wrapped-symbolic")
+        self.perspective_switch.add_prefix(perspective_icon)
+        expander.add_row(self.perspective_switch)
+        tooltip.add_tooltip(
+            self.perspective_switch,
             _(
-                "How carefully the program reads text from your documents.\n\n"
-                "• Low Precision: Finds more text, good for blurry or faded pages.\n"
-                "• Standard: Works well for most documents.\n"
-                "• Precise: Fewer mistakes, may miss some faint text.\n"
-                "• Very Precise: Only keeps text it is very sure about."
+                "Fixes pages that look tilted or warped, for example\nwhen a document was photographed instead of scanned."
             ),
         )
 
-        # Flags to avoid reconnecting signals on repeated map events
-        self._precision_signal_connected = False
-        self._format_signal_connected = False
+        self.orientation_switch = Adw.SwitchRow(title=_("Auto-rotate"))
+        self.orientation_switch.set_can_focus(False)
+        orientation_icon = Gtk.Image.new_from_icon_name("object-flip-horizontal-symbolic")
+        self.orientation_switch.add_prefix(orientation_icon)
+        expander.add_row(self.orientation_switch)
+        tooltip.add_tooltip(
+            self.orientation_switch,
+            _("Detects and fixes pages that are upside-down or sideways."),
+        )
+
+        self.scanner_switch = Adw.SwitchRow(title=_("Scanner Effect"))
+        self.scanner_switch.set_can_focus(False)
+        scanner_icon = Gtk.Image.new_from_icon_name("scanner-symbolic")
+        self.scanner_switch.add_prefix(scanner_icon)
+        expander.add_row(self.scanner_switch)
+        tooltip.add_tooltip(
+            self.scanner_switch,
+            _("Makes text darker and the background lighter,\nlike a clean scanner copy."),
+        )
+
+    def _create_output_widgets(self, expander: Adw.ExpanderRow) -> None:
+        """Create output settings widgets inside an expander."""
+        from bigocrpdf.utils.tooltip_helper import get_tooltip_helper
+
+        tooltip = get_tooltip_helper()
+
         self._quality_signal_connected = False
         self._pdfa_signal_connected = False
 
-        def on_precision_map(_widget):
-            self._load_advanced_ocr_settings()
-
-        self.ocr_precision_combo.connect("map", on_precision_map)
-
-        # --- Image Export options (merged into this group) ---
-
-        # Image format selector
-        self.image_format_combo = Adw.ComboRow(title=_("Export Format"))
-        format_icon = Gtk.Image.new_from_icon_name("image-x-generic-symbolic")
-        self.image_format_combo.add_prefix(format_icon)
-        format_model = Gtk.StringList.new([_("Original"), _("Custom Quality")])
-        self.image_format_combo.set_model(format_model)
-        self.image_format_combo.set_can_focus(False)
-        ocr_group.add(self.image_format_combo)
-        tooltip.add_tooltip(
-            self.image_format_combo,
-            _(
-                "Original: Keeps images unchanged (best quality, larger files)\n"
-                "Custom Quality: Adjusts image quality to reduce file size"
-            ),
-        )
-
-        # Quality preset
+        # Unified quality selector (includes "Keep Original" as first option)
         self.image_quality_combo = Adw.ComboRow(title=_("Quality"))
         quality_icon = Gtk.Image.new_from_icon_name("applications-graphics-symbolic")
         self.image_quality_combo.add_prefix(quality_icon)
-        quality_model = Gtk.StringList.new(
-            [
-                _("Very Low (30%)"),
-                _("Low (50%)"),
-                _("Medium (70%)"),
-                _("High (85%)"),
-                _("Maximum (95%)"),
-            ]
-        )
+        quality_model = Gtk.StringList.new([
+            _("Keep Original"),
+            _("Very Low (30%)"),
+            _("Low (50%)"),
+            _("Medium (70%)"),
+            _("High (85%)"),
+            _("Maximum (95%)"),
+        ])
         self.image_quality_combo.set_model(quality_model)
         self.image_quality_combo.set_can_focus(False)
-        ocr_group.add(self.image_quality_combo)
+        expander.add_row(self.image_quality_combo)
         tooltip.add_tooltip(
             self.image_quality_combo,
             _(
-                "Very Low: Smallest files, lower image quality\n"
-                "Low: Small files, some quality loss\n"
-                "Medium: Good balance between quality and file size\n"
-                "High: Recommended for most documents\n"
-                "Maximum: Best image quality, larger files"
+                "Keep Original: preserves images unchanged (best quality, larger files)\n"
+                "Very Low: smallest files, lower image quality\n"
+                "Low: small files, some quality loss\n"
+                "Medium: good balance between quality and file size\n"
+                "High: recommended for most documents\n"
+                "Maximum: best image quality, larger files"
             ),
         )
 
@@ -250,7 +264,7 @@ class SettingsPageManager:
         pdfa_icon = Gtk.Image.new_from_icon_name("document-save-symbolic")
         self.pdfa_switch_row.add_prefix(pdfa_icon)
         self.pdfa_switch_row.set_can_focus(False)
-        ocr_group.add(self.pdfa_switch_row)
+        expander.add_row(self.pdfa_switch_row)
         tooltip.add_tooltip(
             self.pdfa_switch_row,
             _(
@@ -265,21 +279,19 @@ class SettingsPageManager:
         max_size_icon = Gtk.Image.new_from_icon_name("drive-harddisk-symbolic")
         self.max_size_combo.add_prefix(max_size_icon)
         self._max_size_values = [0, 5, 10, 15, 20, 25, 50, 100]
-        max_size_model = Gtk.StringList.new(
-            [
-                _("No limit"),
-                "5 MB",
-                "10 MB",
-                "15 MB",
-                "20 MB",
-                "25 MB",
-                "50 MB",
-                "100 MB",
-            ]
-        )
+        max_size_model = Gtk.StringList.new([
+            _("No limit"),
+            "5 MB",
+            "10 MB",
+            "15 MB",
+            "20 MB",
+            "25 MB",
+            "50 MB",
+            "100 MB",
+        ])
         self.max_size_combo.set_model(max_size_model)
         self.max_size_combo.set_can_focus(False)
-        ocr_group.add(self.max_size_combo)
+        expander.add_row(self.max_size_combo)
         tooltip.add_tooltip(
             self.max_size_combo,
             _(
@@ -290,17 +302,76 @@ class SettingsPageManager:
             ),
         )
 
-        # Connect signal immediately (like other combos) to avoid map-timing issues
         self.max_size_combo.connect("notify::selected", self._on_max_size_changed)
 
-        container.append(ocr_group)
+    def _create_advanced_widgets(self, expander: Adw.ExpanderRow) -> None:
+        """Create advanced settings widgets inside an expander."""
+        from bigocrpdf.utils.tooltip_helper import get_tooltip_helper
 
-        # Load image export settings after widget map
-        def on_export_map(_widget):
-            self._load_image_export_settings()
-            self._load_max_size_setting()
+        tooltip = get_tooltip_helper()
 
-        ocr_group.connect("map", on_export_map)
+        self._precision_signal_connected = False
+        self._replace_ocr_signal_connected = False
+
+        # OCR Precision selector
+        self.ocr_precision_combo = Adw.ComboRow(title=_("OCR Precision"))
+        precision_icon = Gtk.Image.new_from_icon_name("speedometer-symbolic")
+        self.ocr_precision_combo.add_prefix(precision_icon)
+        precision_model = Gtk.StringList.new([
+            _("Low Precision"),
+            _("Standard"),
+            _("Precise"),
+            _("Very Precise"),
+        ])
+        self.ocr_precision_combo.set_model(precision_model)
+        self.ocr_precision_combo.set_can_focus(False)
+        expander.add_row(self.ocr_precision_combo)
+        tooltip.add_tooltip(
+            self.ocr_precision_combo,
+            _(
+                "How carefully the program reads text from your documents.\n\n"
+                "• Low Precision: Finds more text, good for blurry or faded pages.\n"
+                "• Standard: Works well for most documents.\n"
+                "• Precise: Fewer mistakes, may miss some faint text.\n"
+                "• Very Precise: Only keeps text it is very sure about."
+            ),
+        )
+
+        # Replace existing OCR
+        self.replace_ocr_switch = Adw.SwitchRow(title=_("Replace Existing OCR"))
+        self.replace_ocr_switch.set_can_focus(False)
+        replace_ocr_icon = Gtk.Image.new_from_icon_name("edit-clear-all-symbolic")
+        self.replace_ocr_switch.add_prefix(replace_ocr_icon)
+        expander.add_row(self.replace_ocr_switch)
+        tooltip.add_tooltip(
+            self.replace_ocr_switch,
+            _(
+                "When ON: Redoes the text recognition even if the PDF\n"
+                "already has searchable text. Use this when the existing\n"
+                "text is incorrect or of poor quality.\n"
+                "When OFF: Keeps existing text and only processes pages without it."
+            ),
+        )
+
+    def _load_all_sidebar_settings(self) -> None:
+        """Load all sidebar settings into UI widgets on map."""
+        # Language
+        if self.lang_combo:
+            self.lang_combo.set_can_focus(True)
+            current_lang = self.window.settings.lang
+            for i, (code, _name) in enumerate(self._available_languages):
+                if code == current_lang:
+                    self.lang_combo.set_selected(i)
+                    break
+            if not self._lang_signal_connected:
+                self._lang_signal_connected = True
+                self.lang_combo.connect("notify::selected", self._on_language_changed)
+
+        self._load_preprocessing_settings()
+        self._load_advanced_ocr_settings()
+        self._load_image_export_settings()
+        self._load_max_size_setting()
+        self._load_replace_ocr_setting()
 
     def _create_file_queue_panel(self) -> Gtk.Widget:
         """Create the file queue panel for the right side
@@ -326,6 +397,7 @@ class SettingsPageManager:
         self.file_list_box.set_margin_end(6)
         self.file_list_box.set_margin_top(3)
         self.file_list_box.set_margin_bottom(6)
+        set_a11y_label(self.file_list_box, _("File queue"))
 
         # Create placeholder for empty queue (video-converter style)
         self.placeholder = Adw.StatusPage()
@@ -366,6 +438,9 @@ class SettingsPageManager:
         self.folder_combo.set_model(folder_options_store)
         self.folder_combo.set_selected(0 if self.window.settings.save_in_same_folder else 1)
         self.folder_combo.set_valign(Gtk.Align.CENTER)
+        self.folder_combo.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Output folder location")]
+        )
         options_box.append(self.folder_combo)
 
         # Folder entry box (shown when custom folder is selected)
@@ -379,11 +454,16 @@ class SettingsPageManager:
         self.dest_entry.set_hexpand(True)
         self.dest_entry.set_placeholder_text(_("Select folder"))
         self.dest_entry.set_text(self.window.settings.destination_folder or "")
+        self.dest_entry.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Destination folder path")]
+        )
         self.folder_entry_box.append(self.dest_entry)
 
         # Browse folder button
         folder_button = Gtk.Button()
         folder_button.set_icon_name("folder-symbolic")
+        folder_button.set_tooltip_text(_("Browse for folder"))
+        set_a11y_label(folder_button, _("Browse for folder"))
         folder_button.connect("clicked", self.window.on_browse_clicked)
         folder_button.add_css_class("flat")
         folder_button.add_css_class("circular")
@@ -400,6 +480,7 @@ class SettingsPageManager:
         # Output options button
         options_button = Gtk.Button(label=_("Output options"))
         options_button.connect("clicked", lambda _: self._show_pdf_options_dialog())
+        set_a11y_label(options_button, _("Output options"))
         options_box.append(options_button)
 
         # Connect combo box signal
@@ -419,6 +500,7 @@ class SettingsPageManager:
 
         # Save setting
         self.window.settings.save_in_same_folder = not use_custom_folder
+        self.window.settings._save_all_settings()
 
     def _on_language_changed(self, combo, _param) -> None:
         """Handle language selection change"""
@@ -579,115 +661,17 @@ class SettingsPageManager:
         for idx, file_path in enumerate(self.window.settings.selected_files):
             self._create_file_row(file_path, idx)
 
-    def _add_preprocessing_options(self, container: Gtk.Box) -> None:
-        """Add image preprocessing options to the container.
-
-        Args:
-            container: Container to add the preprocessing options to
-        """
-        from bigocrpdf.utils.tooltip_helper import get_tooltip_helper
-
-        tooltip = get_tooltip_helper()
-
-        # Preprocessing group
-        preprocessing_group = Adw.PreferencesGroup(title=_("Image Preprocessing"))
-
-        # Auto Detect
-        self.auto_detect_switch = Adw.SwitchRow(title=_("Auto Detect"))
-        self.auto_detect_switch.set_can_focus(False)
-        auto_detect_icon = Gtk.Image.new_from_icon_name("system-search-symbolic")
-        self.auto_detect_switch.add_prefix(auto_detect_icon)
-        preprocessing_group.add(self.auto_detect_switch)
-        tooltip.add_tooltip(
-            self.auto_detect_switch,
-            _(
-                "When ON: The program checks each page and only fixes\n"
-                "problems it finds (recommended for most documents).\n"
-                "When OFF: All corrections below are always applied."
-            ),
-        )
-
-        # Deskew
-        self.deskew_switch = Adw.SwitchRow(title=_("Deskew"))
-        self.deskew_switch.set_can_focus(False)
-        deskew_icon = Gtk.Image.new_from_icon_name("object-rotate-right-symbolic")
-        self.deskew_switch.add_prefix(deskew_icon)
-        preprocessing_group.add(self.deskew_switch)
-        tooltip.add_tooltip(
-            self.deskew_switch,
-            _("Straightens pages that were scanned at a slight angle."),
-        )
-
-        # Perspective Correction
-        self.perspective_switch = Adw.SwitchRow(title=_("Perspective Correction"))
-        self.perspective_switch.set_can_focus(False)
-        perspective_icon = Gtk.Image.new_from_icon_name("view-wrapped-symbolic")
-        self.perspective_switch.add_prefix(perspective_icon)
-        preprocessing_group.add(self.perspective_switch)
-        tooltip.add_tooltip(
-            self.perspective_switch,
-            _(
-                "Fixes pages that look tilted or warped, for example\nwhen a document was photographed instead of scanned."
-            ),
-        )
-
-        # Auto-rotate
-        self.orientation_switch = Adw.SwitchRow(title=_("Auto-rotate"))
-        self.orientation_switch.set_can_focus(False)
-        orientation_icon = Gtk.Image.new_from_icon_name("object-flip-horizontal-symbolic")
-        self.orientation_switch.add_prefix(orientation_icon)
-        preprocessing_group.add(self.orientation_switch)
-        tooltip.add_tooltip(
-            self.orientation_switch,
-            _("Detects and fixes pages that are upside-down or sideways."),
-        )
-
-        # Scanner effect
-        self.scanner_switch = Adw.SwitchRow(title=_("Scanner Effect"))
-        self.scanner_switch.set_can_focus(False)
-        scanner_icon = Gtk.Image.new_from_icon_name("scanner-symbolic")
-        self.scanner_switch.add_prefix(scanner_icon)
-        preprocessing_group.add(self.scanner_switch)
-        tooltip.add_tooltip(
-            self.scanner_switch,
-            _("Makes text darker and the background lighter,\nlike a clean scanner copy."),
-        )
-
-        # Replace existing OCR
-        self.replace_ocr_switch = Adw.SwitchRow(title=_("Replace Existing OCR"))
-        self.replace_ocr_switch.set_can_focus(False)
-        replace_ocr_icon = Gtk.Image.new_from_icon_name("edit-clear-all-symbolic")
-        self.replace_ocr_switch.add_prefix(replace_ocr_icon)
-        preprocessing_group.add(self.replace_ocr_switch)
-        tooltip.add_tooltip(
-            self.replace_ocr_switch,
-            _(
-                "When ON: Redoes the text recognition even if the PDF\n"
-                "already has searchable text. Use this when the existing\n"
-                "text is incorrect or of poor quality.\n"
-                "When OFF: Keeps existing text and only processes pages without it."
-            ),
-        )
-
-        container.append(preprocessing_group)
-
-        # Load settings after widget map
-        def on_map(_widget):
-            self._load_preprocessing_settings()
-
-        preprocessing_group.connect("map", on_map)
-
     def _load_preprocessing_settings(self) -> None:
         """Load preprocessing settings from OcrSettings."""
         settings = self.window.settings
         try:
-            if hasattr(self, "auto_detect_switch"):
-                self.auto_detect_switch.set_can_focus(True)
-                self.auto_detect_switch.set_active(getattr(settings, "enable_auto_detect", True))
-
             if hasattr(self, "deskew_switch"):
                 self.deskew_switch.set_can_focus(True)
                 self.deskew_switch.set_active(settings.enable_deskew)
+
+            if hasattr(self, "dewarp_switch"):
+                self.dewarp_switch.set_can_focus(True)
+                self.dewarp_switch.set_active(getattr(settings, "enable_baseline_dewarp", True))
 
             if hasattr(self, "perspective_switch"):
                 self.perspective_switch.set_can_focus(True)
@@ -701,21 +685,15 @@ class SettingsPageManager:
 
             if hasattr(self, "scanner_switch"):
                 self.scanner_switch.set_can_focus(True)
-                self.scanner_switch.set_active(getattr(settings, "enable_scanner_effect", False))
-
-            if hasattr(self, "replace_ocr_switch"):
-                self.replace_ocr_switch.set_can_focus(True)
-                self.replace_ocr_switch.set_active(getattr(settings, "replace_existing_ocr", False))
+                self.scanner_switch.set_active(getattr(settings, "enable_scanner_effect", True))
 
             # Connect signals only once to avoid duplicate handlers on re-map
             if not self._preprocessing_signal_connected:
                 self._preprocessing_signal_connected = True
-                if hasattr(self, "auto_detect_switch"):
-                    self.auto_detect_switch.connect(
-                        "notify::active", self._on_preprocessing_changed
-                    )
                 if hasattr(self, "deskew_switch"):
                     self.deskew_switch.connect("notify::active", self._on_preprocessing_changed)
+                if hasattr(self, "dewarp_switch"):
+                    self.dewarp_switch.connect("notify::active", self._on_preprocessing_changed)
                 if hasattr(self, "perspective_switch"):
                     self.perspective_switch.connect(
                         "notify::active", self._on_preprocessing_changed
@@ -726,10 +704,6 @@ class SettingsPageManager:
                     )
                 if hasattr(self, "scanner_switch"):
                     self.scanner_switch.connect("notify::active", self._on_preprocessing_changed)
-                if hasattr(self, "replace_ocr_switch"):
-                    self.replace_ocr_switch.connect(
-                        "notify::active", self._on_preprocessing_changed
-                    )
 
         except Exception as e:
             logger.error(f"Error loading preprocessing settings: {e}")
@@ -801,25 +775,16 @@ class SettingsPageManager:
         """Load image export settings from OcrSettings."""
         settings = self.window.settings
         try:
-            if hasattr(self, "image_format_combo"):
-                self.image_format_combo.set_can_focus(True)
-                # Map format string to dropdown index
-                # Any non-"original" value maps to index 1 (Custom Quality)
-                fmt = getattr(settings, "image_export_format", "original").lower()
-                idx = 0 if fmt == "original" else 1
-                self.image_format_combo.set_selected(idx)
-                if not self._format_signal_connected:
-                    self.image_format_combo.connect(
-                        "notify::selected", self._on_image_format_changed
-                    )
-                    self._format_signal_connected = True
-
             if hasattr(self, "image_quality_combo"):
                 self.image_quality_combo.set_can_focus(True)
-                quality = getattr(settings, "image_export_quality", 85)
-                # Map quality value to dropdown index
-                idx = self._get_quality_index_from_value(quality)
-                self.image_quality_combo.set_selected(idx)
+                fmt = getattr(settings, "image_export_format", "original").lower()
+                if fmt == "original":
+                    # Index 0 = "Keep Original"
+                    self.image_quality_combo.set_selected(0)
+                else:
+                    quality = getattr(settings, "image_export_quality", 85)
+                    idx = self._get_quality_index_from_value(quality)
+                    self.image_quality_combo.set_selected(idx)
                 if not self._quality_signal_connected:
                     self.image_quality_combo.connect(
                         "notify::selected", self._on_image_quality_changed
@@ -835,36 +800,42 @@ class SettingsPageManager:
                     self.pdfa_switch_row.connect("notify::active", self._on_pdfa_changed)
                     self._pdfa_signal_connected = True
 
-            # Update quality dropdown sensitivity based on format selection
-            self._update_quality_sensitivity()
-
         except Exception as e:
             logger.error(f"Error loading image export settings: {e}")
 
     def _get_quality_index_from_value(self, quality: int) -> int:
-        """Map quality percentage to dropdown index."""
+        """Map quality percentage to dropdown index.
+
+        Index 0 is "Keep Original" (handled separately).
+        Indices 1-5 map to the quality presets.
+        """
         if quality <= 35:
-            return 0  # Very Low
+            return 1  # Very Low
         elif quality <= 55:
-            return 1  # Low
+            return 2  # Low
         elif quality <= 75:
-            return 2  # Medium
+            return 3  # Medium
         elif quality <= 90:
-            return 3  # High
+            return 4  # High
         else:
-            return 4  # Maximum
+            return 5  # Maximum
 
-    def _on_image_format_changed(self, combo: Adw.ComboRow, _pspec) -> None:
-        """Handle image export format changes."""
-        formats = ["original", "jpeg"]
+    def _on_image_quality_changed(self, combo: Adw.ComboRow, _pspec) -> None:
+        """Handle unified quality selector changes.
+
+        Index 0 = Keep Original (format="original").
+        Indices 1-5 = quality presets (format="jpeg").
+        """
         selected = combo.get_selected()
-        fmt = formats[selected] if selected < len(formats) else "original"
-
-        self.window.settings.image_export_format = fmt
-        logger.info(f"Image export format changed to: {fmt}")
-
-        # Update quality dropdown sensitivity
-        self._update_quality_sensitivity()
+        if selected == 0:
+            self.window.settings.image_export_format = "original"
+            logger.info("Image quality changed to: Keep Original")
+        else:
+            presets = [30, 50, 70, 85, 95]
+            quality = presets[selected - 1] if (selected - 1) < len(presets) else 85
+            self.window.settings.image_export_format = "jpeg"
+            self.window.settings.image_export_quality = quality
+            logger.info(f"Image quality changed to: {quality}%")
         self.window.settings._save_all_settings()
 
     def _on_pdfa_changed(self, switch_row: Adw.SwitchRow, _pspec) -> None:
@@ -900,48 +871,40 @@ class SettingsPageManager:
             logger.info(f"Maximum output size changed to: {size_mb} MB (0=no limit)")
             self.window.settings._save_all_settings()
 
-    def _on_image_quality_changed(self, combo: Adw.ComboRow, _pspec) -> None:
-        """Handle image quality preset changes."""
-        presets = [30, 50, 70, 85, 95]
-        selected = combo.get_selected()
-        quality = presets[selected] if selected < len(presets) else 85
-
-        self.window.settings.image_export_quality = quality
-        logger.info(f"Image export quality changed to: {quality}%")
-        self.window.settings._save_all_settings()
-
-    def _update_quality_sensitivity(self) -> None:
-        """Update quality dropdown visibility.
-
-        Format combo is always enabled (backend handles standalone mode
-        automatically when a non-original format is selected).
-        Quality is hidden when format is 'Original' since it has no effect.
-        """
-        if hasattr(self, "image_format_combo"):
-            self.image_format_combo.set_sensitive(True)
-
-        if hasattr(self, "image_quality_combo"):
-            is_original = (
-                hasattr(self, "image_format_combo") and self.image_format_combo.get_selected() == 0
+    def _load_replace_ocr_setting(self) -> None:
+        """Load replace existing OCR setting from OcrSettings."""
+        try:
+            if not hasattr(self, "replace_ocr_switch"):
+                return
+            self.replace_ocr_switch.set_can_focus(True)
+            self.replace_ocr_switch.set_active(
+                getattr(self.window.settings, "replace_existing_ocr", False)
             )
-            self.image_quality_combo.set_visible(not is_original)
+            if not self._replace_ocr_signal_connected:
+                self._replace_ocr_signal_connected = True
+                self.replace_ocr_switch.connect("notify::active", self._on_replace_ocr_changed)
+        except Exception as e:
+            logger.error(f"Error loading replace OCR setting: {e}")
+
+    def _on_replace_ocr_changed(self, switch_row: Adw.SwitchRow, _pspec) -> None:
+        """Handle replace existing OCR toggle."""
+        self.window.settings.replace_existing_ocr = switch_row.get_active()
+        self.window.settings._save_all_settings()
 
     def _on_preprocessing_changed(self, switch_row: Adw.SwitchRow, _pspec) -> None:
         """Handle preprocessing option changes."""
         settings = self.window.settings
         try:
-            if switch_row == self.auto_detect_switch:
-                settings.enable_auto_detect = switch_row.get_active()
-            elif switch_row == self.deskew_switch:
+            if switch_row == self.deskew_switch:
                 settings.enable_deskew = switch_row.get_active()
+            elif switch_row == self.dewarp_switch:
+                settings.enable_baseline_dewarp = switch_row.get_active()
             elif switch_row == self.perspective_switch:
                 settings.enable_perspective_correction = switch_row.get_active()
             elif switch_row == self.orientation_switch:
                 settings.enable_orientation_detection = switch_row.get_active()
             elif switch_row == self.scanner_switch:
                 settings.enable_scanner_effect = switch_row.get_active()
-            elif hasattr(self, "replace_ocr_switch") and switch_row == self.replace_ocr_switch:
-                settings.replace_existing_ocr = switch_row.get_active()
             settings._save_all_settings()
         except Exception as e:
             logger.error(f"Error saving preprocessing setting: {e}")
@@ -981,6 +944,7 @@ class SettingsPageManager:
         # Edit button (appears rightmost in prefix area)
         edit_button = Gtk.Button.new_from_icon_name("document-edit-symbolic")
         edit_button.set_tooltip_text(_("Edit pages of this file"))
+        set_a11y_label(edit_button, _("Edit pages of this file"))
         edit_button.add_css_class("flat")
         edit_button.set_valign(Gtk.Align.CENTER)
         edit_button.connect("clicked", lambda _b, fp=file_path: self._on_edit_file(fp))
@@ -989,6 +953,9 @@ class SettingsPageManager:
         # Open button (appears in middle of prefix area)
         open_button = Gtk.Button.new_from_icon_name("document-open-symbolic")
         open_button.set_tooltip_text(_("Open this file in your default application"))
+        open_button.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Open this file in your default application")]
+        )
         open_button.add_css_class("flat")
         open_button.set_valign(Gtk.Align.CENTER)
         open_button.connect("clicked", lambda _b, fp=file_path: self._on_open_file(fp))
@@ -997,6 +964,9 @@ class SettingsPageManager:
         # Remove button (appears leftmost in prefix area)
         remove_button = Gtk.Button.new_from_icon_name("trash-symbolic")
         remove_button.set_tooltip_text(_("Remove this file from the list"))
+        remove_button.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Remove this file from the list")]
+        )
         remove_button.add_css_class("flat")
         remove_button.set_valign(Gtk.Align.CENTER)
         remove_button.connect("clicked", lambda _b, i=idx: self._remove_single_file(i))
@@ -1122,6 +1092,33 @@ class SettingsPageManager:
             page_label = Gtk.Label()
             page_label.set_markup(f"<small>{pages} pg.</small>")
             row.add_suffix(page_label)
+
+    def sync_ui_to_settings(self) -> None:
+        """Re-sync all UI widgets to current OcrSettings values."""
+        settings = self.window.settings
+
+        # Language dropdown
+        if self.lang_dropdown:
+            languages = self.window.ocr_processor.get_available_ocr_languages()
+            for i, (code, _name) in enumerate(languages):
+                if code == settings.lang:
+                    self.lang_dropdown.set_selected(i)
+                    break
+
+        # Folder / destination
+        if self.folder_combo:
+            self.folder_combo.set_selected(0 if settings.save_in_same_folder else 1)
+        if self.dest_entry:
+            self.dest_entry.set_text(settings.destination_folder or "")
+
+        # Sidebar sections
+        self._load_preprocessing_settings()
+        self._load_advanced_ocr_settings()
+        self._load_image_export_settings()
+
+        # File list
+        if self.file_list_box:
+            self._populate_file_list()
 
     def refresh_queue_status(self) -> None:
         """Update the queue status without rebuilding the entire settings page"""

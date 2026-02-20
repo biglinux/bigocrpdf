@@ -22,7 +22,6 @@ from bigocrpdf.config import (
 from bigocrpdf.services.processor import OcrProcessor
 from bigocrpdf.services.settings import OcrSettings
 from bigocrpdf.ui.file_selection_manager import FileSelectionManager
-from bigocrpdf.ui.header_bar import HeaderBar
 from bigocrpdf.ui.navigation_manager import NavigationManager
 from bigocrpdf.ui.ui_manager import BigOcrPdfUI
 from bigocrpdf.utils.config_manager import get_config_manager
@@ -83,7 +82,7 @@ class BigOcrPdfWindow(
         # Initialize UI components
         self.stack: Adw.ViewStack | None = None
         self.toast_overlay: Adw.ToastOverlay | None = None
-        self.custom_header_bar: HeaderBar | None = None
+        self.custom_header_bar = None  # type: ignore[assignment]  # Set in setup_ui()
         self.toolbar_view: Adw.ToolbarView | None = None
 
         # Signal handler tracking
@@ -177,6 +176,8 @@ class BigOcrPdfWindow(
 
         except Exception as e:
             logger.error(f"Error during window cleanup: {e}")
+
+        super().do_destroy()
 
     def _cleanup_all_timers(self) -> None:
         """Clean up all GLib timers."""

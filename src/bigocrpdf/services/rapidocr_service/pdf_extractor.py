@@ -7,10 +7,7 @@ import cv2
 import numpy as np
 import pikepdf
 from PIL import Image
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfgen import canvas
 
-from bigocrpdf.constants import FONT_SIZE_SCALE_FACTOR
 from bigocrpdf.services.rapidocr_service.config import OCRResult
 from bigocrpdf.utils.logger import logger
 
@@ -63,12 +60,43 @@ def has_native_text(pdf_path: Path) -> bool:
         return False
 
 
-def extract_image_positions(pdf_path: Path) -> dict[int, list[ImagePosition]]:
-    """
-    Extract positions and metadata of all images in a PDF.
+def get_pages_with_native_text(pdf_path: Path, total_pages: int) -> set[int]:
+    """Detect which pages have native (non-OCR) text content.
 
-    Parses the PDF content stream to find image placement commands (cm/Do).
-    Returns a dictionary mapping page numbers to lists of ImagePosition.
+    Uses pdftotext per-page to identify pages that already contain
+    meaningful text, so they can be preserved as-is during OCR.
+
+    Args:
+        pdf_path: Path to the PDF file
+        total_pages: Total number of pages
+
+    Returns:
+        Set of 1-based page numbers that have native text
+    """
+    pages_with_text: set[int] = set()
+    for page_num in range(1, total_pages + 1):
+        try:
+            result = subprocess.run(
+                ["pdftotext", "-f", str(page_num), "-l", str(page_num), str(pdf_path), "-"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            if result.returncode == 0:
+                text = result.stdout.replace("\f", "").strip()
+                if len(text) > 10:
+                    pages_with_text.add(page_num)
+        except Exception:
+            pass
+    return pages_with_text
+
+
+def extract_image_positions(pdf_path: Path) -> dict[int, list[ImagePosition]]:
+    """Extract positions and metadata of all images in a PDF.
+
+    Uses pikepdf's content stream parser to track the current transformation
+    matrix (CTM) and find image draw commands (Do). Handles all PDF generators
+    including Chrome/Skia, which use complex multi-step CTM operations.
 
     Args:
         pdf_path: Path to the PDF file
@@ -76,23 +104,11 @@ def extract_image_positions(pdf_path: Path) -> dict[int, list[ImagePosition]]:
     Returns:
         Dictionary mapping page number (1-indexed) to list of ImagePosition
     """
-    import re
-
-    import pikepdf
-
     positions: dict[int, list[ImagePosition]] = {}
 
     with pikepdf.open(pdf_path) as pdf:
         for page_num, page in enumerate(pdf.pages, 1):
             page_positions = []
-
-            # 2026-01-20 fix: Handle rotated pages by checking /Rotate
-            # But here we are extracting raw placement coordinates.
-            # The coordinates in 'cm' are relative to the page's User Space.
-            # We store them as is, and adjust later if needed.
-
-            mediabox = page.mediabox
-            _ = float(mediabox[3]) - float(mediabox[1])  # page_height (reserved)
 
             # Get XObjects (images) metadata
             xobjects = {}
@@ -104,54 +120,76 @@ def extract_image_positions(pdf_path: Path) -> dict[int, list[ImagePosition]]:
                             "height": int(xobj.get("/Height", 0)),
                         }
 
-            # Parse content stream to find image placements
-            contents = page.get("/Contents")
-            if not contents:
+            if not xobjects:
                 continue
 
-            # Handle array of content streams
-            streams = []
-            if isinstance(contents, pikepdf.Array):
-                for item in contents:
-                    streams.append(bytes(item.get_stream_buffer()))
-            else:
-                streams.append(bytes(contents.get_stream_buffer()))
+            # Parse content stream with pikepdf (handles all PDF variants)
+            try:
+                commands = pikepdf.parse_content_stream(page)
+            except Exception as e:
+                logger.debug(f"Failed to parse content stream for page {page_num}: {e}")
+                continue
 
-            content_text = b"".join(streams).decode("latin-1", errors="replace")
+            # Track graphics state with a CTM stack
+            # CTM = [a, b, c, d, e, f] (2D affine transform)
+            identity = [1.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+            ctm_stack: list[list[float]] = []
+            ctm = list(identity)
 
-            # Pattern to find transformation matrix + image draw commands
-            # Format: [a 0 0 d tx ty] cm ... /ImageName Do
-            # where a=width, d=height, tx=x, ty=y
-            pattern = (
-                r"q\s+([0-9.]+)\s+0\s+0\s+([0-9.]+)\s+([0-9.]+)\s+([0-9.]+)\s+cm\s*/(\w+)\s+Do"
-            )
-            for match in re.finditer(pattern, content_text):
-                width = float(match.group(1))
-                height = float(match.group(2))
-                x = float(match.group(3))
-                y = float(match.group(4))
-                img_name = "/" + match.group(5)
+            def _multiply_ctm(current: list[float], m: list[float]) -> list[float]:
+                """Multiply two 3x3 affine matrices (stored as 6 elements)."""
+                a1, b1, c1, d1, e1, f1 = current
+                a2, b2, c2, d2, e2, f2 = m
+                return [
+                    a1 * a2 + b1 * c2,
+                    a1 * b2 + b1 * d2,
+                    c1 * a2 + d1 * c2,
+                    c1 * b2 + d1 * d2,
+                    e1 * a2 + f1 * c2 + e2,
+                    e1 * b2 + f1 * d2 + f2,
+                ]
 
-                # Get native dimensions from XObject
-                native_w = native_h = 0
-                if img_name in xobjects:
-                    native_w = xobjects[img_name]["width"]
-                    native_h = xobjects[img_name]["height"]
+            for operands, operator in commands:
+                op = str(operator)
 
-                pos = ImagePosition(
-                    name=img_name,
-                    page_num=page_num,
-                    x=x,
-                    y=y,
-                    width=width,
-                    height=height,
-                )
-                page_positions.append(pos)
-                logger.debug(
-                    f"Found image {img_name} on page {page_num}: "
-                    f"pos=({x:.1f}, {y:.1f}), size={width:.1f}x{height:.1f}, "
-                    f"native={native_w}x{native_h}"
-                )
+                if op == "q":
+                    ctm_stack.append(list(ctm))
+                elif op == "Q":
+                    if ctm_stack:
+                        ctm = ctm_stack.pop()
+                elif op == "cm" and len(operands) == 6:
+                    try:
+                        m = [float(x) for x in operands]
+                        ctm = _multiply_ctm(m, ctm)
+                    except (ValueError, TypeError):
+                        pass
+                elif op == "Do" and len(operands) == 1:
+                    img_name = str(operands[0])
+                    if img_name in xobjects:
+                        # CTM maps the unit square [0,0]-[1,1] to the image area.
+                        # Width = length of vector (a, b), Height = length of (c, d)
+                        a, b, c, d, e, f = ctm
+                        width = (a * a + b * b) ** 0.5
+                        height = (c * c + d * d) ** 0.5
+                        x = e
+                        # When d < 0 (y-axis flip, common in Chrome/Skia PDFs),
+                        # f is the TOP of the image; adjust to get the BOTTOM
+                        # (PDF convention: y=0 at bottom of page).
+                        y = f - height if d < 0 else f
+
+                        pos = ImagePosition(
+                            name=img_name,
+                            page_num=page_num,
+                            x=x,
+                            y=y,
+                            width=width,
+                            height=height,
+                        )
+                        page_positions.append(pos)
+                        logger.debug(
+                            f"Found image {img_name} on page {page_num}: "
+                            f"pos=({x:.1f}, {y:.1f}), size={width:.1f}x{height:.1f}"
+                        )
 
             if page_positions:
                 positions[page_num] = page_positions
@@ -160,89 +198,19 @@ def extract_image_positions(pdf_path: Path) -> dict[int, list[ImagePosition]]:
 
 
 class PDFImageExtractor:
-    """Native PDF image extraction without re-encoding."""
+    """Native PDF image extraction without re-encoding.
 
-    def __init__(self, dpi: int = None):
-        # DPI parameter kept for API compatibility but not used
+    Uses pdfimages -all to extract images directly from PDFs.
+    This is more efficient than rendering pages with pdftoppm because:
+    - No re-encoding of images (preserves original quality)
+    - No upscaling of low-DPI content
+    - Much faster and uses less memory
+    """
+
+    def __init__(self, dpi: int | None = None):
+        # DPI parameter kept for API compatibility but not used for extraction
+        # (pdfimages extracts at native resolution)
         self.dpi = dpi
-
-    def render_pages(
-        self,
-        pdf_path: Path,
-        output_dir: Path,
-        page_range: tuple[int, int] | None = None,
-    ) -> list[Path | None]:
-        """Render full PDF pages as images using pdftoppm.
-
-        Unlike extract(), which only pulls embedded image objects,
-        this renders the complete page (text + graphics + images)
-        at the configured DPI.  Use this when replacing existing
-        OCR on mixed-content PDFs.
-        """
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        # Clean output directory
-        for f in output_dir.glob("*"):
-            try:
-                f.unlink()
-            except OSError:
-                pass
-
-        with pikepdf.open(pdf_path) as pdf:
-            total_pages = len(pdf.pages)
-
-        start_page = 1
-        end_page = total_pages
-        if page_range:
-            start_page, end_page = page_range
-            start_page = max(1, start_page)
-            end_page = min(total_pages, end_page)
-
-        num_pages = end_page - start_page + 1
-        dpi = self.dpi or 300
-
-        prefix = str(output_dir / "page")
-        cmd = [
-            "pdftoppm",
-            "-r",
-            str(dpi),
-            "-jpeg",
-            "-f",
-            str(start_page),
-            "-l",
-            str(end_page),
-            str(pdf_path),
-            prefix,
-        ]
-
-        logger.info(f"Rendering pages {start_page}-{end_page} at {dpi} DPI using pdftoppm...")
-
-        try:
-            subprocess.run(cmd, check=True, capture_output=True, text=True)
-        except subprocess.CalledProcessError as e:
-            logger.error(f"pdftoppm failed: {e.stderr}")
-            raise RuntimeError(f"Failed to render pages: {e}") from e
-
-        # Collect rendered files and rename to page_N.jpg
-        results: list[Path | None] = [None] * num_pages
-        for i in range(num_pages):
-            page_num = start_page + i
-            # pdftoppm names files like: page-1.jpg, page-01.jpg, page-001.jpg
-            candidates = list(output_dir.glob(f"page-{page_num}.*"))
-            if not candidates:
-                # Try zero-padded variants
-                for width in (2, 3, 4, 6):
-                    candidates = list(output_dir.glob(f"page-{page_num:0>{width}}.*"))
-                    if candidates:
-                        break
-            if candidates:
-                src = candidates[0]
-                dest = output_dir / f"page_{page_num}{src.suffix}"
-                if src != dest:
-                    src.rename(dest)
-                results[i] = dest
-
-        return results
 
     def extract(
         self,
@@ -270,7 +238,7 @@ class PDFImageExtractor:
             end_page = min(total_pages, end_page)
 
         num_pages_to_process = end_page - start_page + 1
-        results = [None] * num_pages_to_process
+        results: list[Path | None] = [None] * num_pages_to_process
 
         # 2. Get Image Mapping (Page -> [ImageIndex, ...])
         # Use same page range so indices match extracted files
@@ -303,11 +271,11 @@ class PDFImageExtractor:
             if not img_indices:
                 continue
 
-            valid_img_path = None
+            valid_img_path: Path | None = None
             for idx in img_indices:
-                f = self._find_file_for_index(output_dir, idx)
-                if f:
-                    valid_img_path = f
+                found = self._find_file_for_index(output_dir, idx)
+                if found:
+                    valid_img_path = found
                     break
 
             if valid_img_path:
@@ -346,7 +314,7 @@ class PDFImageExtractor:
         except subprocess.CalledProcessError:
             return {}
 
-        mapping = {}
+        mapping: dict[int, list[int]] = {}
         lines = result.stdout.splitlines()
         start_parsing = False
         for line in lines:
@@ -377,111 +345,6 @@ class PDFImageExtractor:
             pattern = f"obj-{idx:04d}.*"
             matches = list(output_dir.glob(pattern))
         return matches[0] if matches else None
-
-
-class TextLayerRenderer:
-    """Renders invisible text layer on PDF for searchability."""
-
-    def __init__(self, dpi: int = 300):
-        self.dpi = dpi
-
-    def render(
-        self,
-        canvas_obj: canvas.Canvas,
-        ocr_results: list[OCRResult],
-        img_size: tuple[int, int],
-    ) -> int:
-        """Render invisible text layer. Returns number of text regions added."""
-        img_w, img_h = img_size
-        count = 0
-
-        # Sort results (top-to-bottom, left-to-right) simple approach
-        # A full reading-order sort is better but complex.
-        # Ideally import `_sort_for_reading_order` from backend if it wasn't tightly coupled relative to self
-        # For now, simplistic sort:
-        sorted_results = sorted(
-            ocr_results, key=lambda r: (min(p[1] for p in r.box), min(p[0] for p in r.box))
-        )
-
-        for result in sorted_results:
-            if not result.text.strip():
-                continue
-            try:
-                self._render_text_region(canvas_obj, result, img_h)
-                count += 1
-            except Exception as e:
-                logger.warning(f"Failed to render text region: {e}")
-        return count
-
-    def _sort_for_reading_order(self, results: list[OCRResult], *args) -> list[OCRResult]:
-        """Sort OCR results in reading order (top-to-bottom, left-to-right)."""
-        # Sort by vertical position (Top edge) then horizontal (Left edge)
-        # Using min(y) for top edge and min(x) for left edge
-        # Note: box is [[x1,y1], [x2,y2], [x3,y3], [x4,y4]]
-        return sorted(results, key=lambda r: (min(p[1] for p in r.box), min(p[0] for p in r.box)))
-
-    def _render_text_region(
-        self,
-        canvas_obj: canvas.Canvas,
-        result: OCRResult,
-        img_h: int,
-    ):
-        box = result.box
-        text = result.text
-
-        width = np.linalg.norm(np.array(box[1]) - np.array(box[0]))
-        height = np.linalg.norm(np.array(box[3]) - np.array(box[0]))
-
-        dx = box[1][0] - box[0][0]
-        dy = box[1][1] - box[0][1]
-        angle = np.degrees(np.arctan2(dy, dx))
-
-        if width <= 0 or height <= 0:
-            return
-
-        font_name = "Helvetica"
-        font_size = height * FONT_SIZE_SCALE_FACTOR
-
-        try:
-            text_width = pdfmetrics.stringWidth(text, font_name, font_size)
-        except Exception:
-            text_width = len(text) * font_size * 0.5
-
-        if text_width > 0:
-            h_scale = (width / text_width) * 100
-        else:
-            h_scale = 100
-
-        h_scale = max(50, min(200, h_scale))
-
-        left_x = min(p[0] for p in box)
-        top_y_img = min(p[1] for p in box)  # Image coords (0,0 top-left)
-
-        # PDF Coords (0,0 bottom-left)
-        pdf_x = left_x
-        pdf_y = img_h - top_y_img - height
-
-        canvas_obj.saveState()
-
-        if abs(angle) > 1:
-            center_x = np.mean([p[0] for p in box])
-            center_y = img_h - np.mean([p[1] for p in box])
-            canvas_obj.translate(center_x, center_y)
-            canvas_obj.rotate(-angle)
-            text_x = -width / 2
-            text_y = -height / 2 + (height * 0.15)
-        else:
-            text_x = pdf_x
-            text_y = pdf_y + (height * 0.15)
-
-        text_obj = canvas_obj.beginText()
-        text_obj.setTextRenderMode(3)  # Invisible
-        text_obj.setFont(font_name, font_size)
-        text_obj.setHorizScale(h_scale)
-        text_obj.setTextOrigin(text_x, text_y)
-        text_obj.textOut(text)
-        canvas_obj.drawText(text_obj)
-        canvas_obj.restoreState()
 
 
 def transform_ocr_coords_for_rotation(
@@ -587,7 +450,6 @@ def transform_ocr_coords_for_rotation(
 
 def extract_content_streams(
     contents: Any,
-    source_pdf: pikepdf.Pdf,
     target_pdf: pikepdf.Pdf,
     copy_foreign: bool = True,
 ) -> list:

@@ -52,33 +52,9 @@ def rotate_pages(doc: PDFDocument, page_indices: list[int], degrees: int) -> boo
         return False
 
 
-def rotate_pages_left(doc: PDFDocument, page_indices: list[int]) -> bool:
-    """Rotate pages 90° counter-clockwise.
-
-    Args:
-        doc: The PDFDocument to modify
-        page_indices: List of page indices to rotate
-
-    Returns:
-        True if successful
-    """
-    return rotate_pages(doc, page_indices, 270)
-
-
-def rotate_pages_right(doc: PDFDocument, page_indices: list[int]) -> bool:
-    """Rotate pages 90° clockwise.
-
-    Args:
-        doc: The PDFDocument to modify
-        page_indices: List of page indices to rotate
-
-    Returns:
-        True if successful
-    """
-    return rotate_pages(doc, page_indices, 90)
-
-
-def delete_pages(doc: PDFDocument, page_indices: list[int], hard_delete: bool = False) -> bool:
+def delete_pages(
+    doc: PDFDocument | None, page_indices: list[int], hard_delete: bool = False
+) -> bool:
     """Delete pages (soft delete by default).
 
     Soft delete marks pages as deleted but doesn't remove them.
@@ -92,7 +68,7 @@ def delete_pages(doc: PDFDocument, page_indices: list[int], hard_delete: bool = 
     Returns:
         True if successful
     """
-    if not page_indices:
+    if not page_indices or doc is None:
         return False
 
     try:
@@ -122,66 +98,6 @@ def delete_pages(doc: PDFDocument, page_indices: list[int], hard_delete: bool = 
 
     except Exception as e:
         logger.error(f"Failed to delete pages: {e}")
-        return False
-
-
-def reorder_pages(doc: PDFDocument, source_indices: list[int], target_position: int) -> bool:
-    """Reorder pages by moving source pages to target position.
-
-    Args:
-        doc: The PDFDocument to modify
-        source_indices: List of page indices to move
-        target_position: Target position (0-indexed)
-
-    Returns:
-        True if successful
-    """
-    if not source_indices:
-        return False
-
-    try:
-        active_pages = doc.get_active_pages()
-        if not active_pages:
-            return False
-
-        # Validate target position
-        target_position = max(0, min(target_position, len(active_pages)))
-
-        # Get pages to move
-        pages_to_move = []
-        for idx in sorted(source_indices):
-            if 0 <= idx < len(active_pages):
-                pages_to_move.append(active_pages[idx])
-
-        if not pages_to_move:
-            return False
-
-        # Remove pages from their current positions
-        remaining_pages = [p for p in active_pages if p not in pages_to_move]
-
-        # Adjust target position if needed (after removing pages)
-        adjusted_target = target_position
-        for idx in sorted(source_indices):
-            if idx < target_position:
-                adjusted_target -= 1
-
-        adjusted_target = max(0, min(adjusted_target, len(remaining_pages)))
-
-        # Insert pages at target position
-        new_order = (
-            remaining_pages[:adjusted_target] + pages_to_move + remaining_pages[adjusted_target:]
-        )
-
-        # Update positions
-        for i, page in enumerate(new_order):
-            page.position = i
-
-        doc.mark_modified()
-        logger.info(f"Reordered {len(pages_to_move)} page(s) to position {target_position}")
-        return True
-
-    except Exception as e:
-        logger.error(f"Failed to reorder pages: {e}")
         return False
 
 
@@ -259,7 +175,7 @@ def deselect_all_for_ocr(doc: PDFDocument) -> bool:
         return False
 
 
-def apply_changes_to_pdf(doc: PDFDocument, output_path: str) -> bool:
+def apply_changes_to_pdf(doc: PDFDocument | None, output_path: str) -> bool:
     """Apply all changes and save to a new PDF file.
 
     Merges pages from multiple source files (PDFs and Images).
@@ -272,6 +188,8 @@ def apply_changes_to_pdf(doc: PDFDocument, output_path: str) -> bool:
     Returns:
         True if successful
     """
+    if doc is None:
+        return False
     try:
         import io
 
@@ -302,9 +220,15 @@ def apply_changes_to_pdf(doc: PDFDocument, output_path: str) -> bool:
 
             # Check if source is an image
             lower_path = source_file.lower()
-            is_image = lower_path.endswith(
-                (".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff", ".bmp")
-            )
+            is_image = lower_path.endswith((
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".webp",
+                ".tif",
+                ".tiff",
+                ".bmp",
+            ))
 
             if is_image:
                 try:

@@ -1,1 +1,1 @@
-"""Scripts module for CLI automation tools."""
+"""Test suite for bigocrpdf."""

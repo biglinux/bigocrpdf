@@ -19,7 +19,7 @@ class PDFOptionsCallbacksMixin:
 
     def _setup_pdf_options_callbacks(
         self,
-        dialog: Adw.Window,
+        dialog: Adw.Dialog,
         prefs_page: Adw.PreferencesPage,
         header_bar: Adw.HeaderBar,
         callback: Callable,
@@ -173,9 +173,9 @@ class PDFOptionsCallbacksMixin:
         component_values = self._get_component_values(date_group, now)
 
         return [
-            component_values[component]
+            val
             for component in component_order
-            if component_values.get(component)
+            if (val := component_values.get(component)) is not None
         ]
 
     def _get_component_order(self, selected_format: int) -> tuple[str, ...]:
@@ -260,7 +260,7 @@ class PDFOptionsCallbacksMixin:
 
     def _save_pdf_options(
         self,
-        dialog: Adw.Window,
+        dialog: Adw.Dialog,
         file_group: Adw.PreferencesGroup,
         text_group: Adw.PreferencesGroup,
         odf_group: Adw.PreferencesGroup,
@@ -270,7 +270,7 @@ class PDFOptionsCallbacksMixin:
         """Save PDF options and close dialog
 
         Args:
-            dialog: The dialog window
+            dialog: The dialog
             file_group: File settings group
             text_group: Text extraction group
             odf_group: ODF export group
@@ -317,5 +317,5 @@ class PDFOptionsCallbacksMixin:
         logger.info(_("PDF output settings saved"))
 
         # Close dialog and call callback
-        dialog.destroy()
+        dialog.close()
         callback(True)

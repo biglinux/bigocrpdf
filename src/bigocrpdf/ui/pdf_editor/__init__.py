@@ -17,7 +17,6 @@ from bigocrpdf.ui.pdf_editor.page_grid import PageGrid
 from bigocrpdf.ui.pdf_editor.page_model import PageState, PDFDocument
 from bigocrpdf.ui.pdf_editor.page_operations import (
     delete_pages,
-    reorder_pages,
     rotate_pages,
     set_ocr_selection,
 )
@@ -33,6 +32,5 @@ __all__ = [
     "ThumbnailRenderer",
     "rotate_pages",
     "delete_pages",
-    "reorder_pages",
     "set_ocr_selection",
 ]

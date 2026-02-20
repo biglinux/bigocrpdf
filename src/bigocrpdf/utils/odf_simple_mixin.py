@@ -29,7 +29,7 @@ class ODFSimpleContentMixin:
 
         # Track consecutive blank lines to add spacing
         blank_count = 0
-        current_para_lines = []
+        current_para_lines: list[str] = []
 
         for line in lines:
             stripped = line.strip()

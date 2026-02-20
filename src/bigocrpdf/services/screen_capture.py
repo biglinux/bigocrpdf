@@ -94,6 +94,7 @@ class ScreenCaptureService:
 
     def _run_capture_thread(self, language: str) -> None:
         """Execute the capture and OCR process in a thread."""
+        temp_path = None
         try:
             # Generate a temporary file path
             fd, temp_path = tempfile.mkstemp(suffix=".png", prefix="bigocrpdf_capture_")
@@ -125,8 +126,12 @@ class ScreenCaptureService:
                 self._invoke_callback(None, _("Screenshot was cancelled"))
 
         except Exception as e:
+            if temp_path:
+                self._cleanup_temp_file(temp_path)
             logger.error(f"Screenshot capture error: {e}")
-            self._invoke_callback(None, _(f"An unexpected error occurred during capture: {e}"))
+            self._invoke_callback(
+                None, _("An unexpected error occurred during capture: {0}").format(e)
+            )
 
     # ── Screenshot Capture ──────────────────────────────────────────────
 

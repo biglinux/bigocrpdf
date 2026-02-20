@@ -1,8 +1,11 @@
 """Window Navigation and Processing Callbacks Mixin."""
 
+from __future__ import annotations
+
 import gc
 import os
 import time
+from typing import TYPE_CHECKING
 
 import gi
 
@@ -16,9 +19,19 @@ from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.utils.timer import safe_remove_source
 
+if TYPE_CHECKING:
+    from bigocrpdf.services.settings import OcrSettings
+
 
 class WindowProcessingMixin:
     """Mixin providing navigation callbacks and OCR processing management."""
+
+    # Type stubs for attributes provided by the main window class
+    settings: OcrSettings
+    ocr_processor: OcrProcessor
+    processed_files: list[str]
+    process_start_time: float
+    conclusion_timer_id: int | None
 
     def on_back_clicked(self, button: Gtk.Button) -> None:
         """Handle back button navigation - delegates to NavigationManager."""
@@ -46,6 +59,8 @@ class WindowProcessingMixin:
     def _validate_ocr_settings(self) -> bool:
         """Validate OCR settings before processing.
 
+        Checks: files selected, destination folder, disk space, write permissions.
+
         Returns:
             True if settings are valid
         """
@@ -60,6 +75,42 @@ class WindowProcessingMixin:
             logger.warning(_("No destination folder selected"))
             self.show_toast(_("Please select a destination folder"))
             return False
+
+        # Estimate output size (input size × 1.5 as safety margin)
+        from bigocrpdf.utils.temp_manager import check_disk_space, check_writable
+
+        total_input_bytes = 0
+        for f in self.settings.selected_files:
+            try:
+                total_input_bytes += os.path.getsize(f)
+            except OSError:
+                pass
+        needed_bytes = int(total_input_bytes * 1.5) if total_input_bytes else 0
+
+        # Validate destination writable + has enough space
+        if save_in_same_folder:
+            # Check each input file's directory
+            for f in self.settings.selected_files:
+                dest_dir = os.path.dirname(f)
+                ok, msg = check_writable(dest_dir)
+                if not ok:
+                    self.show_toast(msg)
+                    return False
+                ok, msg = check_disk_space(dest_dir, needed_bytes)
+                if not ok:
+                    self.show_toast(msg)
+                    return False
+                break  # All files likely on same filesystem
+        else:
+            dest_dir = self.settings.destination_folder
+            ok, msg = check_writable(dest_dir)
+            if not ok:
+                self.show_toast(msg)
+                return False
+            ok, msg = check_disk_space(dest_dir, needed_bytes)
+            if not ok:
+                self.show_toast(msg)
+                return False
 
         return True
 
@@ -104,6 +155,11 @@ class WindowProcessingMixin:
         if not self._validate_ocr_settings():
             return
 
+        # Immediate visual feedback (Doherty Threshold: respond within same frame)
+        start_btn = self.custom_header_bar.start_button
+        start_btn.set_sensitive(False)
+        start_btn.set_label(_("Starting…"))
+
         # Clean up any previous processing state
         self._cleanup_ocr_processor()
 
@@ -123,6 +179,8 @@ class WindowProcessingMixin:
         if not success:
             logger.error(_("Failed to start OCR processing"))
             self.show_toast(_("Failed to start OCR processing"))
+            self.custom_header_bar.start_button.set_label(_("Start OCR"))
+            self.custom_header_bar.start_button.set_sensitive(True)
             return
 
         # Switch to terminal page (in main_stack) and update UI
@@ -131,6 +189,7 @@ class WindowProcessingMixin:
         # Start progress updates - DELEGATE TO TERMINAL PAGE MANAGER
         self.ui.start_progress_monitor()
 
+        self.announce_status(_("OCR processing started"))
         logger.info(_("OCR processing started using Python API"))
 
     def reset_and_go_to_settings(self) -> None:
@@ -153,6 +212,12 @@ class WindowProcessingMixin:
         # Navigate back to settings page
         self.nav_manager.restore_next_button()
         self.nav_manager.navigate_to_settings()
+
+        # Restore Start OCR button state
+        start_btn = self.custom_header_bar.start_button
+        start_btn.set_label(_("Start OCR"))
+        start_btn.set_sensitive(True)
+
         self.update_file_info()
         logger.info("Application state reset - ready for new files")
 
@@ -181,39 +246,46 @@ class WindowProcessingMixin:
         """Show the conclusion page after OCR processing completes."""
         self.nav_manager.navigate_to_conclusion()
 
-    def _safe_show_conclusion_page(self, _retries: int = 0) -> bool:
+    def _safe_show_conclusion_page(self) -> bool:
         """Safely show conclusion page with allocation check.
 
-        Args:
-            _retries: Internal retry counter (max 50 retries = 5 seconds)
-
-        Returns:
-            False to stop the timer callback
+        Called via GLib.timeout_add(100, ...). Returns True to keep
+        polling until the widget is allocated (up to 5 s), then shows
+        the conclusion page and returns False to stop the timer.
         """
+        # Initialise the retry counter on first call
+        if not hasattr(self, "_conclusion_retries"):
+            self._conclusion_retries = 0
+
         try:
             # Terminal page is in main_stack, not stack
             if self.main_stack.get_visible_child_name() != "terminal":
+                del self._conclusion_retries
                 return False
 
             if not self.get_allocated_width() or not self.get_allocated_height():
-                if _retries < 50:
-                    GLib.timeout_add(100, self._safe_show_conclusion_page, _retries + 1)
-                else:
-                    logger.warning("Gave up waiting for allocation, showing conclusion anyway")
-                    self.show_conclusion_page()
-                return False
+                self._conclusion_retries += 1
+                if self._conclusion_retries < 50:
+                    return True  # GLib re-invokes after 100 ms
+                logger.warning("Gave up waiting for allocation, showing conclusion anyway")
 
             self.show_conclusion_page()
-            return False
 
         except Exception as e:
             logger.error(f"Error showing conclusion page safely: {e}")
             self.show_conclusion_page()
-            return False
+
+        # Cleanup and stop the timer
+        if hasattr(self, "_conclusion_retries"):
+            del self._conclusion_retries
+        return False
 
     def update_file_info(self) -> None:
         """Update the file information UI after files have been added or removed."""
         current_page = self.stack.get_visible_child_name()
+
+        file_count = len(self.settings.selected_files)
+        self.announce_status(_("{} files in queue").format(file_count))
 
         if current_page != "settings":
             return
@@ -231,7 +303,11 @@ class WindowProcessingMixin:
         logger.info(f"UI updated with {len(self.settings.selected_files)} files in queue")
 
     def _on_file_processed(
-        self, input_file: str, output_file: str, extracted_text: str = "", ocr_boxes: list = None
+        self,
+        input_file: str,
+        output_file: str,
+        extracted_text: str = "",
+        ocr_boxes: list | None = None,
     ) -> None:
         """Callback when a file is processed with OCR.
 
@@ -353,6 +429,7 @@ class WindowProcessingMixin:
             )
 
             self.show_toast(_("OCR processing complete"))
+            self.announce_status(_("OCR processing complete"))
 
             return False
 

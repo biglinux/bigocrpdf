@@ -1,0 +1,39 @@
+[Desktop Entry]
+ServiceTypes=KonqPopupMenu/Plugin
+Actions=CreatePDF;
+Type=Service
+MimeType=image/jpeg;image/png;image/bmp;image/webp;image/tiff;
+X-KDE-Priority=TopLevel
+
+[Desktop Action CreatePDF]
+Name=Create PDF from images
+Name[bg]=Създаване на PDF от изображения
+Name[cs]=Vytvořit PDF z obrázků
+Name[da]=Opret PDF fra billeder
+Name[de]=PDF aus Bildern erstellen
+Name[el]=Δημιουργία PDF από εικόνες
+Name[es]=Crear PDF a partir de imágenes
+Name[et]=Loo PDF piltidest
+Name[fi]=Luo PDF kuvista
+Name[fr]=Créer un PDF à partir d'images
+Name[he]=יצירת PDF מתמונות
+Name[hr]=Stvori PDF od slika
+Name[hu]=PDF létrehozása képekből
+Name[is]=Búa til PDF úr myndum
+Name[it]=Crea PDF da immagini
+Name[ja]=画像からPDFを作成
+Name[ko]=이미지로 PDF 만들기
+Name[nl]=PDF maken van afbeeldingen
+Name[no]=Lag PDF fra bilder
+Name[pl]=Utwórz PDF z obrazów
+Name[pt]=Criar PDF a partir de imagens
+Name[pt_BR]=Criar PDF a partir de imagens
+Name[ro]=Creează PDF din imagini
+Name[ru]=Создать PDF из изображений
+Name[sk]=Vytvoriť PDF z obrázkov
+Name[sv]=Skapa PDF från bilder
+Name[tr]=Görüntülerden PDF oluştur
+Name[uk]=Створити PDF із зображень
+Name[zh]=从图像创建 PDF
+Icon=bigocrpdf
+Exec=bigocrpdf --edit %F

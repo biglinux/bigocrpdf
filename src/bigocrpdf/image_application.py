@@ -9,7 +9,7 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, Gio, GLib
+from gi.repository import Adw, Gio, GLib, Gtk
 
 from bigocrpdf.ui.image_ocr_window import ImageOcrWindow
 from bigocrpdf.ui.widgets import load_css
@@ -93,7 +93,7 @@ class ImageOcrApp(Adw.Application):
         app: Adw.Application,
         files: list[Gio.File],
         n_files: int,
-        hint: str,
+        _hint: str,
     ) -> None:
         """Handle opening files."""
         self.on_activate(app)
@@ -106,7 +106,7 @@ class ImageOcrApp(Adw.Application):
                 win.open_image(file_path)
                 logger.info(f"Opened image: {file_path}")
 
-    def on_about_action(self, action: Gio.SimpleAction, param: None) -> None:
+    def on_about_action(self, _action: Gio.SimpleAction, _param: None) -> None:
         """Show the About dialog."""
         about = Adw.AboutDialog.new()
         about.set_application_name("Big Image OCR")
@@ -115,5 +115,5 @@ class ImageOcrApp(Adw.Application):
         about.set_comments(_("Extract text from images using OCR"))
         about.set_website("https://www.biglinux.com.br")
         about.set_developers(["BigLinux https://github.com/biglinux/bigocrpdf"])
-        about.set_license_type(Gio.License.GPL_3_0)
+        about.set_license_type(Gtk.License.GPL_3_0)
         about.present(self.get_active_window())

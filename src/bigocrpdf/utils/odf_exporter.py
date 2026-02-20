@@ -96,7 +96,10 @@ class ODFExporter(
             return False
 
     def export_structured_data(
-        self, ocr_data: list[OCRTextData], output_path: str, page_images: dict[int, str] = None
+        self,
+        ocr_data: list[OCRTextData],
+        output_path: str,
+        page_images: dict[int, str] | None = None,
     ) -> bool:
         """Export structured OCR data to ODF with simple, clean formatting.
 

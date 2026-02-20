@@ -8,6 +8,7 @@ gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Adw, Gtk, Pango
 
+from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.i18n import _
 
 
@@ -21,23 +22,22 @@ class PDFOptionsUICreationMixin:
             callback: Function to call with options when dialog is confirmed
         """
         # Create the options dialog
-        dialog = Adw.Window()
+        dialog = Adw.Dialog()
         dialog.set_title(_("PDF Output Options"))
-        dialog.set_default_size(550, 590)
-        dialog.set_modal(True)
-        dialog.set_transient_for(self.window)
+        dialog.set_content_width(550)
+        dialog.set_content_height(590)
 
         # Set up the main structure
         dialog_content, prefs_page, header_bar = self._create_pdf_options_content(dialog, callback)
-        dialog.set_content(dialog_content)
+        dialog.set_child(dialog_content)
 
         # Set up callbacks for all widgets
         self._setup_pdf_options_callbacks(dialog, prefs_page, header_bar, callback)
 
         # Show the dialog
-        dialog.present()
+        dialog.present(self.window)
 
-    def _create_pdf_options_content(self, dialog: Adw.Window, callback: Callable) -> tuple:
+    def _create_pdf_options_content(self, dialog: Adw.Dialog, callback: Callable) -> tuple:
         """Create the content for PDF options dialog
 
         Args:
@@ -75,7 +75,7 @@ class PDFOptionsUICreationMixin:
 
         return toolbar_view, prefs_page, header_bar
 
-    def _create_pdf_options_header(self, dialog: Adw.Window, _callback: Callable) -> Adw.HeaderBar:
+    def _create_pdf_options_header(self, dialog: Adw.Dialog, _callback: Callable) -> Adw.HeaderBar:
         """Create header bar for PDF options dialog
 
         Args:
@@ -91,12 +91,14 @@ class PDFOptionsUICreationMixin:
 
         # Add cancel button to header
         cancel_button = Gtk.Button(label=_("Cancel"))
-        cancel_button.connect("clicked", lambda _: dialog.destroy())
+        cancel_button.connect("clicked", lambda _: dialog.close())
+        set_a11y_label(cancel_button, _("Cancel"))
         header_bar.pack_start(cancel_button)
 
         # Add save button to header
         save_button = Gtk.Button(label=_("Save"))
         save_button.add_css_class("suggested-action")
+        set_a11y_label(save_button, _("Save"))
         header_bar.pack_end(save_button)
 
         # Store save button reference for later connection
@@ -285,6 +287,9 @@ class PDFOptionsUICreationMixin:
         folder_button.set_valign(Gtk.Align.CENTER)
         folder_button.add_css_class("flat")
         folder_button.set_tooltip_text(_("Choose where to save the text files"))
+        folder_button.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Choose where to save the text files")]
+        )
         folder_button.set_sensitive(initial_sensitivity)
 
         text_folder_row.add_suffix(folder_label)

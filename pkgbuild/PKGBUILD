@@ -91,7 +91,7 @@ package() {
 		install -Dm755 usr/bin/bigocrimage "${pkgdir}/usr/bin/bigocrimage"
 	fi
 	
-	# Manually install bigocrimage script
+	# Manually install bigocrpdf script (separate from wheel to preserve custom wrapper)
 	if [ -f "usr/bin/bigocrpdf" ]; then
 		install -Dm755 usr/bin/bigocrpdf "${pkgdir}/usr/bin/bigocrpdf"
 	fi

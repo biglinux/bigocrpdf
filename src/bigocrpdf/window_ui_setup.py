@@ -4,10 +4,11 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, Gdk, Gio, Gtk
+from gi.repository import Adw, Gio, Gtk
 
 from bigocrpdf.config import APP_ICON_NAME
 from bigocrpdf.ui.header_bar import HeaderBar
+from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
@@ -15,20 +16,26 @@ from bigocrpdf.utils.logger import logger
 class WindowUISetupMixin:
     """Mixin providing UI setup and layout creation for the main window."""
 
-    def setup_ui(self) -> None:
-        """Set up the main user interface with video-converter style layout."""
-        # Setup CSS for sidebar styling
-        self._setup_sidebar_css()
+    # Type stubs for attributes initialized by the concrete window class
+    custom_header_bar: HeaderBar
 
+    def setup_ui(self) -> None:
+        """Set up the main user interface with responsive split view layout."""
         self.toast_overlay = Adw.ToastOverlay()
 
-        # Create main paned layout (like video-converter)
-        self.main_paned = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
-        self.main_paned.set_vexpand(True)
+        # Hidden live-region label for screen reader announcements.
+        # AccessibleRole.STATUS means Orca reads updates automatically.
+        self._a11y_status = Gtk.Label(accessible_role=Gtk.AccessibleRole.STATUS)
+        self._a11y_status.set_visible(False)
 
-        # Prevent panes from shrinking below their minimum size
-        self.main_paned.set_shrink_start_child(False)
-        self.main_paned.set_shrink_end_child(False)
+        # Create responsive split view layout (sidebar + content)
+        self.split_view = Adw.OverlaySplitView()
+        self.split_view.set_sidebar_position(Gtk.PackType.START)
+        self.split_view.set_min_sidebar_width(300)
+        self.split_view.set_max_sidebar_width(420)
+        self.split_view.set_sidebar_width_fraction(0.35)
+        self.split_view.set_enable_hide_gesture(True)
+        self.split_view.set_enable_show_gesture(True)
 
         # Create left sidebar pane
         self._create_left_sidebar()
@@ -36,17 +43,11 @@ class WindowUISetupMixin:
         # Create right content pane with header bar
         self._create_right_content_area()
 
-        # Set initial paned position
-        self.main_paned.set_position(380)
-
         # Create master ViewStack for main view and other pages
         self.main_stack = Adw.ViewStack()
 
-        # Add main_paned as primary view
-        self.main_stack.add_titled(self.main_paned, "main_view", _("Main"))
-
-        # Create terminal and conclusion pages
-        self._create_non_settings_pages()
+        # Add split_view as primary view
+        self.main_stack.add_titled(self.split_view, "main_view", _("Main"))
 
         # Set up window-level actions for keyboard shortcuts
         self._setup_window_actions()
@@ -54,9 +55,20 @@ class WindowUISetupMixin:
         # Set up global drag and drop
         self._setup_global_drag_drop()
 
+        # Set up responsive breakpoint — collapse sidebar when window is narrow
+        breakpoint = Adw.Breakpoint.new(Adw.BreakpointCondition.parse("max-width: 700sp"))
+        breakpoint.add_setter(self.split_view, "collapsed", True)
+        self.add_breakpoint(breakpoint)
+
         self.main_stack.connect("notify::visible-child", self._on_main_stack_changed)
 
-        self.toast_overlay.set_child(self.main_stack)
+        # Wrap main_stack and the hidden a11y status label together
+        content_wrapper = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        content_wrapper.append(self._a11y_status)
+        content_wrapper.append(self.main_stack)
+        self.main_stack.set_vexpand(True)
+
+        self.toast_overlay.set_child(content_wrapper)
         self.set_content(self.toast_overlay)
 
         # Set up pages (must be after UI structure is created)
@@ -65,21 +77,8 @@ class WindowUISetupMixin:
         # Initialize header bar view for settings page
         self.custom_header_bar.set_view("queue")
 
-    def _setup_sidebar_css(self) -> None:
-        """Setup CSS for sidebar styling to match video-converter."""
-        css_provider = Gtk.CssProvider()
-        css_provider.load_from_string(
-            """
-        .sidebar {
-            background-color: @sidebar_bg_color;
-        }
-        """
-        )
-        Gtk.StyleContext.add_provider_for_display(
-            Gdk.Display.get_default(),
-            css_provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
-        )
+        # Bind sidebar toggle to split view for responsive collapse
+        self.custom_header_bar.bind_split_view(self.split_view)
 
     def _create_left_sidebar(self) -> None:
         """Create the left sidebar with header bar (video-converter style)."""
@@ -130,10 +129,7 @@ class WindowUISetupMixin:
         sidebar_content = self._create_sidebar_settings()
         left_toolbar_view.set_content(sidebar_content)
 
-        # Set minimum width for left sidebar
-        left_toolbar_view.set_size_request(300, -1)
-
-        self.main_paned.set_start_child(left_toolbar_view)
+        self.split_view.set_sidebar(left_toolbar_view)
         self.left_toolbar_view = left_toolbar_view  # Store reference for later settings
 
     def _create_sidebar_settings(self) -> Gtk.Widget:
@@ -186,13 +182,7 @@ class WindowUISetupMixin:
 
         right_toolbar_view.set_content(content_scroll)
 
-        # Set minimum width for right content area
-        right_toolbar_view.set_size_request(620, -1)
-
-        self.main_paned.set_end_child(right_toolbar_view)
-
-    def _create_non_settings_pages(self) -> None:
-        """Create terminal and conclusion pages as separate full-width views."""
+        self.split_view.set_content(right_toolbar_view)
 
     def setup_pages(self) -> None:
         """Set up the application pages."""
@@ -209,7 +199,11 @@ class WindowUISetupMixin:
         # Conclusion page goes into main_stack (full-width) - with Back button
         conclusion_toolbar = self._create_full_width_page_with_header("complete")
         conclusion_content = self.ui.create_conclusion_page()
-        conclusion_toolbar.set_content(conclusion_content)
+        conclusion_clamp = Adw.Clamp()
+        conclusion_clamp.set_maximum_size(800)
+        conclusion_clamp.set_tightening_threshold(600)
+        conclusion_clamp.set_child(conclusion_content)
+        conclusion_toolbar.set_content(conclusion_clamp)
         self.main_stack.add_titled(conclusion_toolbar, "conclusion", _("Results"))
 
         # Populate sidebar settings
@@ -243,6 +237,7 @@ class WindowUISetupMixin:
             back_box.append(back_label)
             back_button.set_child(back_box)
             back_button.add_css_class("suggested-action")
+            set_a11y_label(back_button, _("Back"))
             back_button.connect("clicked", lambda _: self._return_to_main_view())
             header.pack_start(back_button)
 
@@ -252,6 +247,8 @@ class WindowUISetupMixin:
         # Menu button
         menu_button = Gtk.MenuButton()
         menu_button.set_icon_name("open-menu-symbolic")
+        menu_button.set_tooltip_text(_("Menu"))
+        set_a11y_label(menu_button, _("Menu"))
         menu = Gio.Menu.new()
         menu.append(_("Reset Settings"), "win.reset_settings")
         menu.append(_("Help"), "win.help")
@@ -291,3 +288,14 @@ class WindowUISetupMixin:
         """Handle main stack page changes."""
         current_page = stack.get_visible_child_name()
         logger.debug(f"Main stack changed to: {current_page}")
+
+    def announce_status(self, message: str) -> None:
+        """Announce a status message via the accessible live region.
+
+        Screen readers (Orca) will read the text automatically because
+        ``_a11y_status`` has ``Gtk.AccessibleRole.STATUS``.
+
+        Args:
+            message: Text to announce
+        """
+        self._a11y_status.set_text(message)

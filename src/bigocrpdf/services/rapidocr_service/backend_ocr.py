@@ -11,6 +11,7 @@ import numpy as np
 from bigocrpdf.services.rapidocr_service.config import OCRResult
 from bigocrpdf.services.rapidocr_service.ocr_postprocess import (
     fix_vertical_overlaps,
+    refine_ocr_results,
 )
 from bigocrpdf.services.rapidocr_service.pdf_assembly import convert_to_pdfa
 from bigocrpdf.utils.logger import logger
@@ -65,42 +66,6 @@ class BackendOCRMixin:
 
         return cmd
 
-    @staticmethod
-    def _parse_ocr_results(stdout: str, padding: tuple = (0, 0, 0, 0)) -> list[OCRResult]:
-        """Parse JSON output from OCR subprocess into OCRResult list."""
-        import json
-
-        try:
-            raw_result = json.loads(stdout.strip())
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse OCR result: {e}")
-            return []
-
-        if raw_result.get("error"):
-            logger.error(f"OCR worker error: {raw_result['error']}")
-            return []
-
-        if not raw_result or not raw_result.get("boxes"):
-            logger.debug("RapidOCR subprocess returned no results")
-            return []
-
-        boxes = raw_result["boxes"]
-        txts = raw_result["txts"]
-        scores = raw_result["scores"]
-        logger.info(f"RapidOCR found {len(boxes)} text regions")
-
-        ocr_results = []
-        pad_top, pad_left = padding[0], padding[3]
-
-        for i in range(len(boxes)):
-            box = np.array(boxes[i])
-            if pad_top > 0 or pad_left > 0:
-                box[:, 0] -= pad_left
-                box[:, 1] -= pad_top
-            ocr_results.append(OCRResult(txts[i], box.tolist(), scores[i]))
-
-        return ocr_results
-
     def _run_ocr(self, image: np.ndarray, padding: tuple = (0, 0, 0, 0)) -> list[OCRResult]:
         """Run OCR on an image via subprocess for GTK isolation.
 
@@ -116,16 +81,53 @@ class BackendOCRMixin:
             cmd = self._build_ocr_command(temp_img_path)
             proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
 
-            try:
-                os.unlink(temp_img_path)
-            except Exception:
-                pass
-
             if proc.returncode != 0:
                 logger.error(f"OCR subprocess failed: {proc.stderr}")
                 return []
 
-            results = self._parse_ocr_results(proc.stdout, padding)
+            # Parse the raw JSON result for refinement before converting
+            import json as _json
+
+            try:
+                raw_result = _json.loads(proc.stdout.strip())
+            except _json.JSONDecodeError:
+                return []
+
+            if raw_result.get("error") or not raw_result.get("boxes"):
+                if raw_result.get("error"):
+                    logger.error(f"OCR worker error: {raw_result['error']}")
+                else:
+                    logger.debug("RapidOCR subprocess returned no results")
+                return []
+
+            # Refine low-confidence oversized detections before parsing
+            def _subprocess_ocr(crop_path: str) -> dict | None:
+                crop_cmd = self._build_ocr_command(crop_path)
+                crop_proc = subprocess.run(crop_cmd, capture_output=True, text=True, timeout=120)
+                if crop_proc.returncode != 0:
+                    return None
+                try:
+                    return _json.loads(crop_proc.stdout.strip())
+                except _json.JSONDecodeError:
+                    return None
+
+            raw_result = refine_ocr_results(raw_result, temp_img_path, _subprocess_ocr)
+
+            # Convert refined raw result to OCRResult list
+            results = []
+            pad_top, pad_left = padding[0], padding[3]
+            for i in range(len(raw_result["boxes"])):
+                box = np.array(raw_result["boxes"][i])
+                if pad_top > 0 or pad_left > 0:
+                    box[:, 0] -= pad_left
+                    box[:, 1] -= pad_top
+                results.append(
+                    OCRResult(
+                        raw_result["txts"][i],
+                        box.tolist(),
+                        raw_result["scores"][i],
+                    )
+                )
 
             # Post-processing confidence filter — additional safety net
             # RapidOCR applies text_score internally, but we double-check here
@@ -145,6 +147,11 @@ class BackendOCRMixin:
         except Exception as e:
             logger.error(f"OCR failed: {e}")
             return []
+        finally:
+            try:
+                os.unlink(temp_img_path)
+            except (OSError, UnboundLocalError):
+                pass
 
     def _convert_to_pdfa(self, input_pdf: Path, output_pdf: Path) -> None:
         """Convert PDF to PDF/A-2b format using Ghostscript."""

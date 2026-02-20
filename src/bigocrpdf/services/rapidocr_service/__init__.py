@@ -24,7 +24,7 @@ from bigocrpdf.services.rapidocr_service.engine import (
     ProgressCallback,
     RapidOCREngine,
 )
-from bigocrpdf.services.rapidocr_service.extractor import ExtractedImage, PDFImageExtractor
+from bigocrpdf.services.rapidocr_service.pdf_extractor import PDFImageExtractor
 from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
 from bigocrpdf.services.rapidocr_service.renderer import (
     PageTextLayer,
@@ -45,7 +45,6 @@ __all__ = [
     "ProgressCallback",
     # Extractor
     "PDFImageExtractor",
-    "ExtractedImage",
     # Preprocessor
     "ImagePreprocessor",
     # Renderer

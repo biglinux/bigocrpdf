@@ -307,27 +307,23 @@ class ConclusionStatsFileListMixin:
         page_label.set_markup(f"<small>{pages} pg.</small>")
         row.add_suffix(page_label)
 
-        # Add size with optional change indicator
+        # Add size label
+        size_label = Gtk.Label()
+        size_label.set_markup(f"<small>{format_file_size(file_size)}</small>")
+        row.add_suffix(size_label)
+
+        # Add size change indicator with theme-aware CSS classes
         if comparison and comparison.input_size_bytes > 0:
-            # Show size change: "X MB (±Y%)"
             change_pct = comparison.size_change_percent
             sign = "+" if change_pct >= 0 else ""
+            change_label = Gtk.Label()
+            change_label.set_markup(f"<small>({sign}{change_pct:.0f}%)</small>")
+            change_label.add_css_class("caption")
             if change_pct < 0:
-                color = "#4caf50"  # Green for smaller
+                change_label.add_css_class("success")
             elif change_pct > 50:
-                color = "#ff9800"  # Orange for much bigger
-            else:
-                color = None
-            change_str = f"({sign}{change_pct:.0f}%)"
-            if color:
-                change_str = f'<span foreground="{color}">{change_str}</span>'
-            size_text = f"<small>{format_file_size(file_size)} {change_str}</small>"
-        else:
-            size_text = f"<small>{format_file_size(file_size)}</small>"
-
-        size_label = Gtk.Label()
-        size_label.set_markup(size_text)
-        row.add_suffix(size_label)
+                change_label.add_css_class("warning")
+            row.add_suffix(change_label)
 
     def _create_file_action_buttons(self, output_file: str) -> Gtk.Box:
         """Create action buttons for a file row

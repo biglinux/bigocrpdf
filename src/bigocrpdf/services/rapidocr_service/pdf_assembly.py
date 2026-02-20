@@ -181,14 +181,12 @@ def append_text_to_page(pdf: pikepdf.Pdf, page: pikepdf.Page, text_commands: lis
 
     # Add OCR font with unique name to avoid conflicts
     if "/FOcr" not in page.Resources.Font:
-        page.Resources.Font["/FOcr"] = pikepdf.Dictionary(
-            {
-                "/Type": pikepdf.Name("/Font"),
-                "/Subtype": pikepdf.Name("/Type1"),
-                "/BaseFont": pikepdf.Name("/Helvetica"),
-                "/Encoding": pikepdf.Name("/WinAnsiEncoding"),
-            }
-        )
+        page.Resources.Font["/FOcr"] = pikepdf.Dictionary({
+            "/Type": pikepdf.Name("/Font"),
+            "/Subtype": pikepdf.Name("/Type1"),
+            "/BaseFont": pikepdf.Name("/Helvetica"),
+            "/Encoding": pikepdf.Name("/WinAnsiEncoding"),
+        })
 
     # Create new content stream with text layer
     text_content = "\n".join(text_commands)
@@ -206,6 +204,114 @@ def append_text_to_page(pdf: pikepdf.Pdf, page: pikepdf.Page, text_commands: lis
         page["/Contents"] = pikepdf.Array([contents, new_stream])
 
 
+def _strip_invisible_text(page: pikepdf.Page, pdf: pikepdf.Pdf) -> int:
+    """Remove invisible text (render mode 3) from page content stream.
+
+    Parses the content stream and removes q/Q groups or standalone
+    BT/ET blocks whose only purpose is invisible text overlay (from
+    a previous OCR pass).  Image display commands (cm + Do) and
+    visible text are preserved.
+
+    Args:
+        page: PDF page to clean.
+        pdf: Owner PDF (for creating new stream objects).
+
+    Returns:
+        Number of operator groups removed.
+    """
+    try:
+        ops = list(pikepdf.parse_content_stream(page))
+    except Exception:
+        return 0
+
+    if not ops:
+        return 0
+
+    filtered: list[tuple] = []
+    removed = 0
+    i = 0
+
+    while i < len(ops):
+        operands, operator = ops[i]
+        op = str(operator)
+
+        if op == "q":
+            # Collect the full q...Q group
+            group: list[tuple] = [(operands, operator)]
+            depth = 1
+            j = i + 1
+            while j < len(ops) and depth > 0:
+                g_operands, g_operator = ops[j]
+                group.append((g_operands, g_operator))
+                g_op = str(g_operator)
+                if g_op == "q":
+                    depth += 1
+                elif g_op == "Q":
+                    depth -= 1
+                j += 1
+
+            # Check if this group is purely invisible text
+            has_invisible_bt = False
+            has_image_or_visible = False
+            in_bt = False
+            bt_has_3tr = False
+
+            for g_operands, g_operator in group:
+                g_op = str(g_operator)
+                if g_op == "BT":
+                    in_bt = True
+                    bt_has_3tr = False
+                elif g_op == "ET":
+                    if bt_has_3tr:
+                        has_invisible_bt = True
+                    in_bt = False
+                elif g_op == "Tr" and in_bt and g_operands:
+                    if int(g_operands[0]) == 3:
+                        bt_has_3tr = True
+                elif g_op == "Do":
+                    has_image_or_visible = True
+
+            if has_invisible_bt and not has_image_or_visible:
+                removed += 1
+                i = j
+                continue
+
+            filtered.extend(group)
+            i = j
+
+        elif op == "BT":
+            # Top-level BT (not in q/Q) — collect until ET
+            group = [(operands, operator)]
+            j = i + 1
+            while j < len(ops) and str(ops[j][1]) != "ET":
+                group.append(ops[j])
+                j += 1
+            if j < len(ops):
+                group.append(ops[j])
+                j += 1
+
+            bt_has_3tr = any(
+                str(g_op) == "Tr" and g_ops and int(g_ops[0]) == 3 for g_ops, g_op in group
+            )
+            if bt_has_3tr:
+                removed += 1
+                i = j
+                continue
+
+            filtered.extend(group)
+            i = j
+
+        else:
+            filtered.append((operands, operator))
+            i += 1
+
+    if removed > 0:
+        new_content = pikepdf.unparse_content_stream(filtered)
+        page["/Contents"] = pikepdf.Stream(pdf, new_content)
+
+    return removed
+
+
 def merge_single_page(
     orig_page: pikepdf.Page,
     text_page: pikepdf.Page,
@@ -216,6 +322,8 @@ def merge_single_page(
 
     Directly prepends the text content stream to the original page's
     content streams, preserving all original XObjects (images) intact.
+    Any existing invisible text (from a previous OCR pass) is stripped
+    first to prevent duplicate overlapping text layers.
 
     Args:
         orig_page: Original PDF page
@@ -229,14 +337,17 @@ def merge_single_page(
     if "/Contents" not in text_page:
         return True  # No content to merge is not an error
 
+    # Strip existing invisible OCR text from original page
+    stripped = _strip_invisible_text(orig_page, original_pdf)
+    if stripped:
+        logger.debug(f"Page {page_num + 1}: stripped {stripped} old OCR text blocks")
+
     # Extract text layer content streams and copy as foreign objects
-    text_streams = extract_content_streams(
-        text_page["/Contents"], text_page, original_pdf, copy_foreign=True
-    )
+    text_streams = extract_content_streams(text_page["/Contents"], original_pdf, copy_foreign=True)
 
     # Get original content streams (don't copy, they're already in this PDF)
     orig_streams = extract_content_streams(
-        orig_page.get("/Contents", []), orig_page, original_pdf, copy_foreign=False
+        orig_page.get("/Contents", []), original_pdf, copy_foreign=False
     )
 
     # Prepend text layer streams (text goes underneath original content)
@@ -288,7 +399,7 @@ def overlay_text_on_original(
             logger.warning(f"Failed to merge text layer for page {page_num + 1}: {e}")
             import traceback
 
-            traceback.print_exc()
+            logger.debug(traceback.format_exc())
 
     original.save(
         output_pdf_path,

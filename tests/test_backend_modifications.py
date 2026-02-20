@@ -91,7 +91,8 @@ class TestBackendModifications(unittest.TestCase):
         from bigocrpdf.services.rapidocr_service.rotation import PageRotation
 
         original_rotations = [
-            PageRotation(page_number=i, original_pdf_rotation=0) for i in range(1, 5)
+            PageRotation(page_number=i, original_pdf_rotation=0, mediabox=(0, 0, 595, 842))
+            for i in range(1, 5)
         ]
 
         with (

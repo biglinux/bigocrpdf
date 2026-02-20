@@ -22,12 +22,21 @@ APP_NAME: Final[str] = "Big OCR PDF"
 APP_ID: Final[str] = "br.com.biglinux.bigocrpdf"
 IMAGE_APP_ID: Final[str] = "br.com.biglinux.bigocrimage"
 APP_VERSION: Final[str] = "3.0.0"
-APP_DESCRIPTION: Final[str] = _("Add OCR to your PDF documents to make them searchable")
+APP_DESCRIPTION_KEY: Final[str] = "Add OCR to your PDF documents to make them searchable"
 APP_WEBSITE: Final[str] = "https://www.biglinux.com.br"
 APP_ISSUES: Final[str] = "https://github.com/biglinux/bigocrpdf/issues"
 APP_DEVELOPERS: Final[list[str]] = ["BigLinux https://github.com/biglinux/bigocrpdf"]
 APP_ICON_NAME: Final[str] = "bigocrpdf"
 IMAGE_APP_ICON_NAME: Final[str] = "bigocrimage"
+
+
+def get_app_description() -> str:
+    """Return translated app description (deferred to avoid early _() call)."""
+    return _(APP_DESCRIPTION_KEY)
+
+
+# Backward-compatible alias
+APP_DESCRIPTION = APP_DESCRIPTION_KEY
 
 
 # ============================================================================
@@ -52,14 +61,12 @@ IS_DEVELOPMENT: Final[bool] = not getattr(sys, "frozen", False)
 # ============================================================================
 
 if IS_DEVELOPMENT:
-    BASE_DIR: Final[str] = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    RESOURCES_DIR: Final[str] = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "resources"
-    )
+    BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    RESOURCES_DIR: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources")
 else:
     # When running as installed application
-    BASE_DIR: Final[str] = os.path.join(sys.prefix, "share", "bigocrpdf")
-    RESOURCES_DIR: Final[str] = os.path.join(BASE_DIR, "resources")
+    BASE_DIR = os.path.join(sys.prefix, "share", "bigocrpdf")
+    RESOURCES_DIR = os.path.join(BASE_DIR, "resources")
 
 
 # ============================================================================
@@ -69,8 +76,10 @@ else:
 CONFIG_DIR: Final[str] = os.path.expanduser("~/.config/bigocrpdf")
 SELECTED_FILE_PATH: Final[str] = os.path.join(CONFIG_DIR, "selected-file")
 
-# Ensure configuration directory exists
-os.makedirs(CONFIG_DIR, exist_ok=True)
+
+def init_config() -> None:
+    """Ensure configuration directory exists (call once at startup)."""
+    os.makedirs(CONFIG_DIR, exist_ok=True)
 
 
 # ============================================================================
@@ -130,6 +139,11 @@ def parse_command_line() -> argparse.Namespace:
         "--image-mode",
         action="store_true",
         help=_("Start in image conversion mode"),
+    )
+    parser.add_argument(
+        "--edit",
+        action="store_true",
+        help=_("Open files directly in the PDF editor"),
     )
     parser.add_argument("files", nargs="*", help=_("PDF files to process"))
 

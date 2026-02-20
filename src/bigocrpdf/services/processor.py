@@ -7,6 +7,7 @@ This module handles the OCR processing of PDF files using RapidOCR with PP-OCRv5
 import os
 import threading
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 
 from bigocrpdf.services.rapidocr_service import (
@@ -54,6 +55,7 @@ class OcrProcessor:
         self._file_progress = 0.0  # Progress within current file (0.0-1.0)
         self._current_status = ""  # Status message from backend
         self._current_filename = ""  # Current file being processed
+        self._current_engine: RapidOCREngine | None = None
 
         # Model discovery
         self._discovery = ModelDiscovery()
@@ -140,6 +142,9 @@ class OcrProcessor:
 
                 try:
                     success, extracted_text, ocr_boxes = self._process_single_file(file_path, i)
+                    # Reset immediately to avoid progress spike to 100%
+                    # between files (processed_files already incremented)
+                    self._file_progress = 0.0
 
                     if success and self.on_file_complete:
                         output_file = (
@@ -210,7 +215,7 @@ class OcrProcessor:
             if self.on_progress:
                 self.on_progress(current, total, message)
 
-        stats = engine.process(file_path, output_file, progress_callback)
+        stats = engine.process(Path(file_path), Path(output_file), progress_callback)
 
         # Update global stats
         self._stats.pages_processed += stats.pages_processed
@@ -227,12 +232,12 @@ class OcrProcessor:
             )
         )
 
-        extracted_text = getattr(stats, "extracted_text", "")
-        ocr_boxes = getattr(stats, "ocr_boxes", [])
+        extracted_text = stats.full_text or ""
+        ocr_boxes = stats.ocr_boxes
 
         # Track output file only AFTER successful processing
         success = stats.pages_processed > 0
-        split_files = getattr(stats, "split_output_files", [])
+        split_files = stats.split_output_files
 
         if success:
             if split_files:
@@ -297,37 +302,33 @@ class OcrProcessor:
         return OCRConfig(
             language=language,
             dpi=dpi,
-            # Preprocessing options from settings (reference defaults)
-            # Color/Enhancement: OFF by default (PP-OCRv5 works best without)
-            enable_preprocessing=getattr(self.settings, "enable_preprocessing", False),
-            # Auto-detect controls whether detection gates corrections
-            enable_auto_detect=getattr(self.settings, "enable_auto_detect", True),
-            # Geometric corrections: ON by default (reference CLI behavior)
-            enable_perspective_correction=getattr(
-                self.settings, "enable_perspective_correction", False
-            ),
-            enable_deskew=getattr(self.settings, "enable_deskew", True),
-            enable_orientation_detection=getattr(
-                self.settings, "enable_orientation_detection", True
-            ),
-            # These only take effect if enable_preprocessing=True
-            enable_auto_contrast=getattr(self.settings, "enable_auto_contrast", False),
-            enable_auto_brightness=getattr(self.settings, "enable_auto_brightness", False),
-            enable_denoise=getattr(self.settings, "enable_denoise", False),
-            enable_scanner_effect=getattr(self.settings, "enable_scanner_effect", False),
-            scanner_effect_strength=getattr(self.settings, "scanner_effect_strength", 1.0),
+            # Preprocessing options from settings
+            enable_preprocessing=self.settings.enable_preprocessing,
+            enable_perspective_correction=self.settings.enable_perspective_correction,
+            enable_deskew=self.settings.enable_deskew,
+            enable_baseline_dewarp=self.settings.enable_baseline_dewarp,
+            enable_orientation_detection=self.settings.enable_orientation_detection,
+            enable_auto_contrast=self.settings.enable_auto_contrast,
+            enable_auto_brightness=self.settings.enable_auto_brightness,
+            enable_denoise=self.settings.enable_denoise,
+            enable_scanner_effect=self.settings.enable_scanner_effect,
+            scanner_effect_strength=self.settings.scanner_effect_strength,
+            enable_border_clean=self.settings.enable_border_clean,
+            enable_vintage_look=self.settings.enable_vintage_look,
+            vintage_bw=self.settings.vintage_bw,
             # OCR options
-            text_score_threshold=getattr(self.settings, "text_score_threshold", 0.3),
-            box_thresh=getattr(self.settings, "box_thresh", 0.5),
+            text_score_threshold=self.settings.text_score_threshold,
+            box_thresh=self.settings.box_thresh,
+            unclip_ratio=self.settings.unclip_ratio,
             # Output options
-            convert_to_pdfa=getattr(self.settings, "convert_to_pdfa", False),
-            max_file_size_mb=getattr(self.settings, "max_file_size_mb", 0),
+            convert_to_pdfa=self.settings.convert_to_pdfa,
+            max_file_size_mb=self.settings.max_file_size_mb,
             # Image export options
-            image_export_format=getattr(self.settings, "image_export_format", "original"),
-            image_export_quality=getattr(self.settings, "image_export_quality", 85),
-            auto_detect_quality=getattr(self.settings, "auto_detect_quality", True),
+            image_export_format=self.settings.image_export_format,
+            image_export_quality=self.settings.image_export_quality,
+            auto_detect_quality=self.settings.auto_detect_quality,
             # Parallel processing
-            workers=getattr(self.settings, "parallel_workers", 0),
+            workers=self.settings.parallel_workers,
             # Page range (file-specific)
             page_range=page_range,
             page_modifications=page_modifications,
@@ -337,7 +338,7 @@ class OcrProcessor:
                 and hasattr(self.settings, "original_file_paths")
                 and file_path in self.settings.original_file_paths
             ),
-            replace_existing_ocr=getattr(self.settings, "replace_existing_ocr", False),
+            replace_existing_ocr=self.settings.replace_existing_ocr,
         )
 
     def _get_output_file_path(self, file_path: str, index: int) -> str | None:
