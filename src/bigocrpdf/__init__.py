@@ -51,6 +51,19 @@ def _setup_python_compatibility() -> bool:
         return False
 
 
+def _get_install_cmd(package: str) -> str:
+    """Return a distro-appropriate install command for the given package."""
+    import shutil
+
+    if shutil.which("pacman"):
+        return f"sudo pacman -S {package}"
+    if shutil.which("apt"):
+        return f"sudo apt install {package}"
+    if shutil.which("dnf"):
+        return f"sudo dnf install {package}"
+    return f"pip install {package}"
+
+
 def _check_ocr_dependencies() -> tuple[bool, str]:
     """Check if OCR dependencies are available and compatible.
 
@@ -69,22 +82,26 @@ def _check_ocr_dependencies() -> tuple[bool, str]:
 
         # Check for common compatibility errors
         if "openvino" in error_msg.lower() or "_pyopenvino" in error_msg:
+            cuda_cmd = _get_install_cmd("python-onnxruntime-cuda")
+            cpu_cmd = _get_install_cmd("python-onnxruntime-cpu")
             return False, (
                 f"OpenVINO is not compatible with Python {python_version}.\n"
                 f"The OCR packages were compiled for a different Python version.\n\n"
                 f"Solution:\n"
                 f"  Install ONNX Runtime as fallback engine:\n"
-                f"    sudo pacman -S python-onnxruntime-cuda\n"
+                f"    {cuda_cmd}\n"
                 f"  Or for CPU-only:\n"
-                f"    sudo pacman -S python-onnxruntime-cpu"
+                f"    {cpu_cmd}"
             )
         elif "onnxruntime" in error_msg.lower():
+            cuda_cmd = _get_install_cmd("python-onnxruntime-cuda")
+            cpu_cmd = _get_install_cmd("python-onnxruntime-cpu")
             return False, (
                 f"ONNX Runtime is not compatible with Python {python_version}.\n\n"
                 f"Solution:\n"
-                f"  sudo pacman -S python-onnxruntime-cuda\n"
+                f"  {cuda_cmd}\n"
                 f"  Or for CPU-only:\n"
-                f"    sudo pacman -S python-onnxruntime-cpu"
+                f"    {cpu_cmd}"
             )
         else:
             return False, (
@@ -146,6 +163,14 @@ def main() -> int:
     # Check GTK first as we need it for UI
     if not _check_gtk_dependencies():
         return 1
+
+    # Check for image mode flag
+    if getattr(args, "image_mode", False):
+        if "--image-mode" in sys.argv:
+            sys.argv.remove("--image-mode")
+        from bigocrpdf.__init__ import main_image
+
+        return main_image()
 
     # Check OCR dependencies next
     ocr_ok, ocr_error = _check_ocr_dependencies()

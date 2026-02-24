@@ -90,7 +90,8 @@ class BackendOCRMixin:
 
             try:
                 raw_result = _json.loads(proc.stdout.strip())
-            except _json.JSONDecodeError:
+            except _json.JSONDecodeError as jde:
+                logger.error(f"OCR subprocess returned invalid JSON for {temp_img_path}: {jde}")
                 return []
 
             if raw_result.get("error") or not raw_result.get("boxes"):
@@ -144,8 +145,14 @@ class BackendOCRMixin:
 
             return results
 
+        except FileNotFoundError:
+            logger.error(f"OCR failed: image file not found: {temp_img_path}")
+            return []
+        except PermissionError:
+            logger.error(f"OCR failed: permission denied reading: {temp_img_path}")
+            return []
         except Exception as e:
-            logger.error(f"OCR failed: {e}")
+            logger.error(f"OCR failed for {temp_img_path}: {type(e).__name__}: {e}")
             return []
         finally:
             try:

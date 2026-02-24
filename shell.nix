@@ -8,18 +8,26 @@ pkgs.mkShell {
     python3
     python3Packages.pygobject3
     python3Packages.pycairo
-    python3Packages.ocrmypdf
-    
+    python3Packages.rapidocr
+    python3Packages.pikepdf
+    python3Packages.reportlab
+    python3Packages.opencv4
+    python3Packages.pillow
+    python3Packages.numpy
+    python3Packages.scipy
+    python3Packages.odfpy
+    python3Packages.pytest
+
     # GTK4 and Adwaita
     gtk4
     libadwaita
     gobject-introspection
-    
-    # OCR dependencies
-    tesseract
-    ocrmypdf
+
+    # Runtime tools
     poppler_utils
-    
+    ghostscript
+    fribidi
+
     # Development tools
     ruff
     pkg-config

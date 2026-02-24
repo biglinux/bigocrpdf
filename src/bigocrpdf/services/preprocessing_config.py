@@ -53,5 +53,6 @@ class PreprocessingConfig:
         self.unclip_ratio: float = DEFAULT_UNCLIP_RATIO
         self.ocr_profile: str = "balanced"
         # Behavior
-        self.replace_existing_ocr: bool = True
+        self.replace_existing_ocr: bool = False
+        self.enhance_embedded_images: bool = False
         self.parallel_workers: int = DEFAULT_WORKERS

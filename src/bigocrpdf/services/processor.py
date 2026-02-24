@@ -4,6 +4,7 @@ BigOcrPdf - OCR Processor Module
 This module handles the OCR processing of PDF files using RapidOCR with PP-OCRv5 models.
 """
 
+import atexit
 import os
 import threading
 from collections.abc import Callable
@@ -56,9 +57,13 @@ class OcrProcessor:
         self._current_status = ""  # Status message from backend
         self._current_filename = ""  # Current file being processed
         self._current_engine: RapidOCREngine | None = None
+        self._engine_lock = threading.Lock()  # Protects _current_engine
 
         # Model discovery
         self._discovery = ModelDiscovery()
+
+        # Register cleanup for abnormal termination
+        atexit.register(self._atexit_cleanup)
 
     def process_with_api(self) -> bool:
         """Process selected files using RapidOCR.
@@ -72,14 +77,10 @@ class OcrProcessor:
 
             self._setup_processing()
 
-            # Set processing flags BEFORE starting thread to avoid race condition
-            self._is_processing = True
-            self._processing_started = True
-
-            # Start processing in a background thread
+            # Start processing in a background thread (non-daemon so
+            # cleanup runs on exit instead of abrupt kill)
             self._processing_thread = threading.Thread(
                 target=self._process_all_files,
-                daemon=True,
             )
             self._processing_thread.start()
 
@@ -102,11 +103,12 @@ class OcrProcessor:
         return True
 
     def _setup_processing(self) -> None:
-        """Set up the OCR processing environment."""
-        self._is_processing = False
-        self._processing_started = False
+        """Reset state and prepare for a new processing run."""
+        self._is_processing = True
+        self._processing_started = True
         self._stop_requested = False
-        self._current_engine = None  # Reference to current engine for cancellation
+        with self._engine_lock:
+            self._current_engine = None
         self._stats = ProcessingStats()
         self._file_progress = 0.0
         self._current_status = ""
@@ -137,7 +139,7 @@ class OcrProcessor:
                     logger.info(_("Processing stopped by user"))
                     break
 
-                self._current_filename = os.path.basename(file_path)
+                self._current_filename = self.settings.display_name(file_path)
                 self._file_progress = 0.0
 
                 try:
@@ -206,7 +208,8 @@ class OcrProcessor:
 
         # Create engine and process
         engine = RapidOCREngine(config)
-        self._current_engine = engine  # Store reference for cancellation
+        with self._engine_lock:
+            self._current_engine = engine
 
         def progress_callback(current: int, total: int, message: str) -> None:
             # Backend reports progress as percentage (0-100)
@@ -320,9 +323,12 @@ class OcrProcessor:
             text_score_threshold=self.settings.text_score_threshold,
             box_thresh=self.settings.box_thresh,
             unclip_ratio=self.settings.unclip_ratio,
+            detection_full_resolution=getattr(self.settings, "detection_full_resolution", False),
             # Output options
             convert_to_pdfa=self.settings.convert_to_pdfa,
             max_file_size_mb=self.settings.max_file_size_mb,
+            enable_bilevel_compression=self.settings.enable_bilevel_compression,
+            force_bilevel_compression=self.settings.force_bilevel_compression,
             # Image export options
             image_export_format=self.settings.image_export_format,
             image_export_quality=self.settings.image_export_quality,
@@ -339,6 +345,7 @@ class OcrProcessor:
                 and file_path in self.settings.original_file_paths
             ),
             replace_existing_ocr=self.settings.replace_existing_ocr,
+            enhance_embedded_images=self.settings.enhance_embedded_images,
         )
 
     def _get_output_file_path(self, file_path: str, index: int) -> str | None:
@@ -498,9 +505,14 @@ class OcrProcessor:
         counter = 1
         new_path = file_path
 
-        while os.path.exists(new_path):
-            new_path = os.path.join(dir_name, f"{name}-{counter}{ext}")
-            counter += 1
+        while True:
+            try:
+                fd = os.open(new_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+                os.close(fd)
+                break
+            except FileExistsError:
+                new_path = os.path.join(dir_name, f"{name}-{counter}{ext}")
+                counter += 1
 
         logger.info(
             _("Generated unique filename to avoid overwriting: {0}").format(
@@ -521,9 +533,10 @@ class OcrProcessor:
             self._stop_requested = True
 
             # Signal the backend to stop between pages
-            if hasattr(self, "_current_engine") and self._current_engine is not None:
-                self._current_engine.cancel_event.set()
-                logger.info("Cancel event set on current OCR engine")
+            with self._engine_lock:
+                if self._current_engine is not None:
+                    self._current_engine.cancel_event.set()
+                    logger.info("Cancel event set on current OCR engine")
 
             self._is_processing = False
             self._processing_started = False
@@ -534,14 +547,24 @@ class OcrProcessor:
             self.on_all_complete = None
             self.on_progress = None
 
-            # Don't join() the thread — it blocks the UI. The daemon thread
-            # will exit on its own after the current page finishes processing.
+            # Don't join() — the non-daemon thread will finish its current
+            # page and exit on its own when it sees _stop_requested.
             self._processing_thread = None
 
             logger.info("OCR processor cleanup completed (non-blocking)")
 
         except Exception as e:
             logger.error(f"Error in cleanup: {e}")
+
+    def _atexit_cleanup(self) -> None:
+        """Cleanup handler for abnormal termination (atexit)."""
+        self._stop_requested = True
+        with self._engine_lock:
+            if self._current_engine is not None:
+                self._current_engine.cancel_event.set()
+        t = self._processing_thread
+        if t is not None and t.is_alive():
+            t.join(timeout=5)
 
     def is_processing(self) -> bool:
         """Check if processing is currently active."""

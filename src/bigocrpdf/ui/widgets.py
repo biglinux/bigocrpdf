@@ -43,31 +43,3 @@ def load_css() -> bool:
     except Exception as e:
         logger.error(_("Error loading CSS styles: {0}").format(e))
         return False
-
-
-def format_markup(text: str) -> str:
-    """Convert HTML-like markup to properly displayed markup
-
-    Args:
-        text: Text with HTML-like markup
-
-    Returns:
-        Text with proper markup for GTK widgets
-    """
-    if not text:
-        return ""
-
-    # Ensure bullet points have proper spacing
-    text = text.replace("•", "• ")
-
-    # Process the text for Adw.AlertDialog and other GTK widgets
-    # that require explicit markup handling
-
-    # Check if we need to wrap in markup tags
-    if "<b>" in text or "<i>" in text or "<u>" in text:
-        # Text already contains markup tags
-        # For MessageDialog, we might need to explicitly tell it to use markup
-        return f"{text}"
-
-    # No markup found, return as is
-    return text

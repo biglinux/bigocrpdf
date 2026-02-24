@@ -23,8 +23,18 @@ reportlab.pdfbase.ttfonts.TTFont = MagicMock()
 # Attributes
 reportlab.lib.pagesizes.A4 = (595.27, 841.89)  # A4 size in points
 
-sys.modules["cv2"] = MagicMock()
-sys.modules["numpy"] = MagicMock()
+# Save originals before mocking
+_MOCKED_MODULES = [
+    "PIL",
+    "reportlab",
+    "reportlab.lib",
+    "reportlab.lib.pagesizes",
+    "reportlab.pdfgen",
+    "reportlab.pdfbase",
+    "reportlab.pdfbase.ttfonts",
+]
+_saved_modules = {m: sys.modules.get(m) for m in _MOCKED_MODULES}
+
 sys.modules["PIL"] = MagicMock()
 sys.modules["reportlab"] = reportlab
 sys.modules["reportlab.lib"] = reportlab.lib
@@ -33,10 +43,16 @@ sys.modules["reportlab.pdfgen"] = reportlab.pdfgen
 sys.modules["reportlab.pdfbase"] = reportlab.pdfbase
 # We must inject the submodule into sys.modules explicitly
 sys.modules["reportlab.pdfbase.ttfonts"] = reportlab.pdfbase.ttfonts
-sys.modules["pikepdf"] = MagicMock()
-sys.modules["rapidocr"] = MagicMock()
 
 from bigocrpdf.services.rapidocr_service.backend import OCRConfig, ProfessionalPDFOCR
+
+# Restore original modules to avoid contaminating other test files
+for _mod_name, _original in _saved_modules.items():
+    if _original is not None:
+        sys.modules[_mod_name] = _original
+    else:
+        sys.modules.pop(_mod_name, None)
+del _saved_modules, _MOCKED_MODULES
 
 
 class TestBackendModifications(unittest.TestCase):
@@ -57,9 +73,8 @@ class TestBackendModifications(unittest.TestCase):
             {"page_number": 4, "deleted": False, "rotation": 180},
         ]
 
-        # Patch _init_engine to avoid loading real OCR engine/OpenVINO during test
-        with patch.object(ProfessionalPDFOCR, "_init_engine"):
-            self.backend = ProfessionalPDFOCR(self.config)
+        # Create backend instance (no heavy OCR engine to init)
+        self.backend = ProfessionalPDFOCR(self.config)
 
         # Mock dependencies
         self.backend.extractor = MagicMock()

@@ -11,6 +11,7 @@ import re
 from odf.draw import Frame, Image
 from odf.text import P
 
+from bigocrpdf.constants import MIN_IMAGE_FILE_SIZE_BYTES
 from bigocrpdf.utils.logger import logger
 
 
@@ -166,7 +167,7 @@ class ODFSimpleContentMixin:
         from PIL import Image as PILImage
 
         # Filter out small images (likely alpha masks, < 2KB)
-        MIN_IMAGE_SIZE = 2048  # 2KB minimum
+        MIN_IMAGE_SIZE = MIN_IMAGE_FILE_SIZE_BYTES
         real_images = []
         largest_image_idx = -1
         largest_image_size = 0

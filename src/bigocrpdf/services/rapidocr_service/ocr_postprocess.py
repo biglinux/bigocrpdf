@@ -108,6 +108,92 @@ def fix_vertical_overlaps(results: list[OCRResult]) -> list[OCRResult]:
     return sorted_res
 
 
+def _find_refine_candidates(
+    boxes: list, txts: list[str], scores: list[float]
+) -> tuple[list[int], float] | None:
+    """Return (problem_indices, height_threshold) or None if nothing to refine."""
+    n = len(boxes)
+    if n == 0:
+        return None
+
+    heights = np.empty(n, dtype=np.float64)
+    widths = np.empty(n, dtype=np.float64)
+    for i, box in enumerate(boxes):
+        pts = np.asarray(box)
+        heights[i] = pts[:, 1].max() - pts[:, 1].min()
+        widths[i] = pts[:, 0].max() - pts[:, 0].min()
+
+    median_h = float(np.median(heights))
+    if median_h <= 0:
+        return None
+
+    height_threshold = median_h * _REFINE_HEIGHT_RATIO
+    problem_indices = []
+    for i in range(n):
+        if scores[i] >= _REFINE_CONFIDENCE_THRESHOLD:
+            continue
+        if widths[i] < _REFINE_MIN_BOX_WIDTH:
+            continue
+        if heights[i] > height_threshold or len(txts[i]) < widths[i] / 30:
+            problem_indices.append(i)
+
+    return (problem_indices, height_threshold) if problem_indices else None
+
+
+def _reocr_region(
+    img: np.ndarray,
+    box: list,
+    orig_txt: str,
+    orig_score: float,
+    ocr_fn: Callable[[str], dict | None],
+) -> dict | None:
+    """Re-OCR a single problem region; return replacement dict or None."""
+    img_h, img_w = img.shape[:2]
+    pts = np.asarray(box)
+    x_min, y_min = pts.min(axis=0).astype(int)
+    x_max, y_max = pts.max(axis=0).astype(int)
+
+    pad = _REFINE_CROP_PADDING
+    cy1, cy2 = max(0, y_min - pad), min(img_h, y_max + pad)
+    cx1, cx2 = max(0, x_min - pad), min(img_w, x_max + pad)
+
+    crop = img[cy1:cy2, cx1:cx2]
+    fd, crop_path = tempfile.mkstemp(suffix=".jpg")
+    os.close(fd)
+    try:
+        cv2.imwrite(crop_path, crop)
+        crop_result = ocr_fn(crop_path)
+    finally:
+        try:
+            os.unlink(crop_path)
+        except OSError:
+            pass
+
+    if not crop_result or not crop_result.get("boxes"):
+        return None
+
+    new_chars = sum(len(t) for t in crop_result["txts"])
+    orig_chars = len(orig_txt)
+    new_avg = float(np.mean(crop_result["scores"]))
+
+    if new_chars <= orig_chars or new_avg < _REFINE_MIN_REPLACEMENT_SCORE:
+        logger.debug(f"  Region kept original (re-OCR: {new_chars} chars, {new_avg:.3f})")
+        return None
+
+    adjusted_boxes = [
+        [[p[0] + cx1, p[1] + cy1] for p in crop_box] for crop_box in crop_result["boxes"]
+    ]
+    logger.debug(
+        f"  Region replaced ({orig_chars} chars, {orig_score:.3f}) "
+        f"→ ({new_chars} chars, {new_avg:.3f})"
+    )
+    return {
+        "boxes": adjusted_boxes,
+        "txts": list(crop_result["txts"]),
+        "scores": list(crop_result["scores"]),
+    }
+
+
 def refine_ocr_results(
     ocr_raw: dict,
     image_path: str,
@@ -152,128 +238,32 @@ def refine_ocr_results(
     if not boxes or not txts or not scores:
         return ocr_raw
 
-    n = len(boxes)
-    if n == 0:
+    candidates = _find_refine_candidates(boxes, txts, scores)
+    if candidates is None:
         return ocr_raw
 
-    # --- Compute box dimensions ---
-    heights = np.empty(n, dtype=np.float64)
-    widths = np.empty(n, dtype=np.float64)
-    for i, box in enumerate(boxes):
-        pts = np.asarray(box)
-        heights[i] = pts[:, 1].max() - pts[:, 1].min()
-        widths[i] = pts[:, 0].max() - pts[:, 0].min()
-
-    median_h = float(np.median(heights))
-    if median_h <= 0:
-        return ocr_raw
-
-    height_threshold = median_h * _REFINE_HEIGHT_RATIO
-
-    # --- Identify candidates ---
-    # Two independent criteria, both requiring low confidence:
-    #
-    # 1. OVERSIZED: box height exceeds 1.5× the median line height.
-    #    These typically span multiple text lines, causing garbled
-    #    recognition output.
-    #
-    # 2. GARBLED TEXT: the box is wide (≥ _REFINE_MIN_BOX_WIDTH px) but
-    #    recognition produced suspiciously few characters.  This catches
-    #    cases where the detection box has normal height but recognition
-    #    still failed (e.g., near the book spine with curvature or blur).
-    #    "Suspiciously few" = fewer than 1 char per 30 px of box width.
-    problem_indices = []
-    for i in range(n):
-        if scores[i] >= _REFINE_CONFIDENCE_THRESHOLD:
-            continue
-        if widths[i] < _REFINE_MIN_BOX_WIDTH:
-            continue
-
-        is_oversized = heights[i] > height_threshold
-        is_garbled = len(txts[i]) < widths[i] / 30
-
-        if is_oversized or is_garbled:
-            problem_indices.append(i)
-
-    if not problem_indices:
-        return ocr_raw
-
+    problem_indices, height_threshold = candidates
     logger.info(
         f"OCR refinement: {len(problem_indices)} candidate region(s) "
         f"(conf<{_REFINE_CONFIDENCE_THRESHOLD}, height>{height_threshold:.0f}px)"
     )
 
-    # --- Load the image once ---
     img = cv2.imread(image_path)
     if img is None:
         logger.warning(f"OCR refinement: could not read image {image_path}")
         return ocr_raw
-    img_h, img_w = img.shape[:2]
 
-    # --- Re-OCR each problem region ---
     replacements: dict[int, dict] = {}
-
     for idx in problem_indices:
-        pts = np.asarray(boxes[idx])
-        x_min, y_min = pts.min(axis=0).astype(int)
-        x_max, y_max = pts.max(axis=0).astype(int)
-
-        # Crop with padding
-        pad = _REFINE_CROP_PADDING
-        cy1 = max(0, y_min - pad)
-        cy2 = min(img_h, y_max + pad)
-        cx1 = max(0, x_min - pad)
-        cx2 = min(img_w, x_max + pad)
-
-        crop = img[cy1:cy2, cx1:cx2]
-
-        # Save crop to temp file
-        fd, crop_path = tempfile.mkstemp(suffix=".jpg")
-        os.close(fd)
-        try:
-            cv2.imwrite(crop_path, crop)
-            crop_result = ocr_fn(crop_path)
-        finally:
-            try:
-                os.unlink(crop_path)
-            except OSError:
-                pass
-
-        if not crop_result or not crop_result.get("boxes"):
-            continue
-
-        # Accept replacement only if it recovered MORE text with reasonable
-        # average confidence.
-        new_chars = sum(len(t) for t in crop_result["txts"])
-        orig_chars = len(txts[idx])
-        new_avg = float(np.mean(crop_result["scores"]))
-
-        if new_chars > orig_chars and new_avg >= _REFINE_MIN_REPLACEMENT_SCORE:
-            # Translate crop-relative coordinates to full-image coordinates
-            adjusted_boxes = []
-            for crop_box in crop_result["boxes"]:
-                adjusted = [[p[0] + cx1, p[1] + cy1] for p in crop_box]
-                adjusted_boxes.append(adjusted)
-
-            replacements[idx] = {
-                "boxes": adjusted_boxes,
-                "txts": list(crop_result["txts"]),
-                "scores": list(crop_result["scores"]),
-            }
-            logger.debug(
-                f"  Region {idx}: replaced ({orig_chars} chars, "
-                f"{scores[idx]:.3f}) → ({new_chars} chars, {new_avg:.3f})"
-            )
-        else:
-            logger.debug(
-                f"  Region {idx}: kept original (re-OCR: {new_chars} chars, {new_avg:.3f})"
-            )
+        repl = _reocr_region(img, boxes[idx], txts[idx], scores[idx], ocr_fn)
+        if repl is not None:
+            replacements[idx] = repl
 
     if not replacements:
         logger.info("OCR refinement: no regions improved, keeping original results")
         return ocr_raw
 
-    # --- Build refined result by splicing replacements ---
+    n = len(boxes)
     final_boxes: list = []
     final_txts: list[str] = []
     final_scores: list[float] = []

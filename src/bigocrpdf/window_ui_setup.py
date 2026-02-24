@@ -12,6 +12,17 @@ from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
+# ── UI Layout Constants ────────────────────────────────────────────
+_MIN_SIDEBAR_WIDTH = 300  # pixels
+_MAX_SIDEBAR_WIDTH = 420  # pixels
+_SIDEBAR_WIDTH_FRACTION = 0.35
+_VIEWSTACK_TRANSITION_MS = 250
+_RESPONSIVE_BREAKPOINT = 700  # scaled pixels — collapse sidebar below this
+_MIN_CONTENT_HEIGHT = 450  # pixels
+_CONCLUSION_CLAMP_MAX = 800  # pixels
+_CONCLUSION_CLAMP_TIGHT = 600  # pixels
+_APP_ICON_SIZE = 20  # pixels
+
 
 class WindowUISetupMixin:
     """Mixin providing UI setup and layout creation for the main window."""
@@ -31,9 +42,9 @@ class WindowUISetupMixin:
         # Create responsive split view layout (sidebar + content)
         self.split_view = Adw.OverlaySplitView()
         self.split_view.set_sidebar_position(Gtk.PackType.START)
-        self.split_view.set_min_sidebar_width(300)
-        self.split_view.set_max_sidebar_width(420)
-        self.split_view.set_sidebar_width_fraction(0.35)
+        self.split_view.set_min_sidebar_width(_MIN_SIDEBAR_WIDTH)
+        self.split_view.set_max_sidebar_width(_MAX_SIDEBAR_WIDTH)
+        self.split_view.set_sidebar_width_fraction(_SIDEBAR_WIDTH_FRACTION)
         self.split_view.set_enable_hide_gesture(True)
         self.split_view.set_enable_show_gesture(True)
 
@@ -45,6 +56,8 @@ class WindowUISetupMixin:
 
         # Create master ViewStack for main view and other pages
         self.main_stack = Adw.ViewStack()
+        self.main_stack.set_enable_transitions(True)
+        self.main_stack.set_transition_duration(_VIEWSTACK_TRANSITION_MS)
 
         # Add split_view as primary view
         self.main_stack.add_titled(self.split_view, "main_view", _("Main"))
@@ -56,7 +69,9 @@ class WindowUISetupMixin:
         self._setup_global_drag_drop()
 
         # Set up responsive breakpoint — collapse sidebar when window is narrow
-        breakpoint = Adw.Breakpoint.new(Adw.BreakpointCondition.parse("max-width: 700sp"))
+        breakpoint = Adw.Breakpoint.new(
+            Adw.BreakpointCondition.parse(f"max-width: {_RESPONSIVE_BREAKPOINT}sp")
+        )
         breakpoint.add_setter(self.split_view, "collapsed", True)
         self.add_breakpoint(breakpoint)
 
@@ -103,10 +118,11 @@ class WindowUISetupMixin:
             center_box = Gtk.CenterBox()
             center_box.set_hexpand(True)
             app_icon = Gtk.Image.new_from_icon_name(APP_ICON_NAME)
-            app_icon.set_pixel_size(20)
+            app_icon.set_pixel_size(_APP_ICON_SIZE)
             app_icon.set_halign(Gtk.Align.START)
             app_icon.set_valign(Gtk.Align.CENTER)
             app_icon.set_hexpand(False)
+            app_icon.set_accessible_role(Gtk.AccessibleRole.PRESENTATION)
             center_box.set_start_widget(app_icon)
             title_label = Gtk.Label(label="Big OCR PDF")
             title_label.set_halign(Gtk.Align.CENTER)
@@ -170,13 +186,13 @@ class WindowUISetupMixin:
         # Create stack for right content (file queue only for now)
         self.stack = Adw.ViewStack()
         self.stack.set_vexpand(True)
-        self.stack.set_transition_duration(300)
+        self.stack.set_transition_duration(_VIEWSTACK_TRANSITION_MS)
 
         # Content scroll for the file queue
         content_scroll = Gtk.ScrolledWindow()
         content_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         content_scroll.set_propagate_natural_height(True)
-        content_scroll.set_min_content_height(450)
+        content_scroll.set_min_content_height(_MIN_CONTENT_HEIGHT)
         content_scroll.set_vexpand(True)
         content_scroll.set_child(self.stack)
 
@@ -200,8 +216,8 @@ class WindowUISetupMixin:
         conclusion_toolbar = self._create_full_width_page_with_header("complete")
         conclusion_content = self.ui.create_conclusion_page()
         conclusion_clamp = Adw.Clamp()
-        conclusion_clamp.set_maximum_size(800)
-        conclusion_clamp.set_tightening_threshold(600)
+        conclusion_clamp.set_maximum_size(_CONCLUSION_CLAMP_MAX)
+        conclusion_clamp.set_tightening_threshold(_CONCLUSION_CLAMP_TIGHT)
         conclusion_clamp.set_child(conclusion_content)
         conclusion_toolbar.set_content(conclusion_clamp)
         self.main_stack.add_titled(conclusion_toolbar, "conclusion", _("Results"))

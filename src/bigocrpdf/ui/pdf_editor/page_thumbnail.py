@@ -11,7 +11,7 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Gdk, GdkPixbuf, GObject, Gtk
+from gi.repository import Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk
 
 from bigocrpdf.ui.pdf_editor.page_model import PageState
 from bigocrpdf.ui.pdf_editor.thumbnail_renderer import get_thumbnail_renderer
@@ -43,6 +43,8 @@ class PageThumbnail(Gtk.Box):
         "thumbnail-clicked": (GObject.SignalFlags.RUN_FIRST, None, ()),
         "rotate-left-clicked": (GObject.SignalFlags.RUN_FIRST, None, ()),
         "rotate-right-clicked": (GObject.SignalFlags.RUN_FIRST, None, ()),
+        "flip-horizontal-clicked": (GObject.SignalFlags.RUN_FIRST, None, ()),
+        "flip-vertical-clicked": (GObject.SignalFlags.RUN_FIRST, None, ()),
     }
 
     def __init__(
@@ -198,12 +200,71 @@ class PageThumbnail(Gtk.Box):
         self._rotate_right_btn.connect("clicked", self._on_rotate_right_clicked)
         info_box.append(self._rotate_right_btn)
 
+        # Flip (Mirror) button using a MenuButton
+        self._flip_btn = Gtk.MenuButton()
+        self._flip_btn.set_icon_name("object-flip-horizontal-symbolic")
+        self._flip_btn.add_css_class("flat")
+        self._flip_btn.add_css_class("circular")
+
+        # Actions for flip menu inside the thumbnail (using simple callbacks since it's inside the widget)
+        flip_menu = Gio.Menu()
+        flip_menu.append(_("Horizontal Flip"), "thumbnail.flip-h")
+        flip_menu.append(_("Vertical Flip"), "thumbnail.flip-v")
+        self._flip_btn.set_menu_model(flip_menu)
+
+        # Create action group for the menu button
+        action_group = Gio.SimpleActionGroup()
+
+        # Horizontal action
+        flip_h_action = Gio.SimpleAction.new("flip-h", None)
+        flip_h_action.connect("activate", self._on_flip_horizontal_clicked)
+        action_group.add_action(flip_h_action)
+
+        # Vertical action
+        flip_v_action = Gio.SimpleAction.new("flip-v", None)
+        flip_v_action.connect("activate", self._on_flip_vertical_clicked)
+        action_group.add_action(flip_v_action)
+
+        self.insert_action_group("thumbnail", action_group)
+
+        get_tooltip_helper().add_tooltip(
+            self._flip_btn, _("Mirror this page (Horizontal/Vertical)")
+        )
+        self._flip_btn.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [_("Mirror page {}").format(self._page_state.page_number)],
+        )
+        info_box.append(self._flip_btn)
+
         self.append(info_box)
 
         # Click gesture for selection (released so drags can claim the sequence first)
         click_gesture = Gtk.GestureClick()
         click_gesture.connect("released", self._on_clicked)
         self.add_controller(click_gesture)
+
+        # Right-click gesture for context menu
+        right_click = Gtk.GestureClick()
+        right_click.set_button(3)  # secondary button
+        right_click.connect("released", self._on_right_clicked)
+        self.add_controller(right_click)
+
+        # Save page actions
+        save_img_action = Gio.SimpleAction.new("save-image", None)
+        save_img_action.connect("activate", lambda *_: self._save_page_as_image())
+        action_group.add_action(save_img_action)
+
+        save_pdf_action = Gio.SimpleAction.new("save-pdf", None)
+        save_pdf_action.connect("activate", lambda *_: self._save_page_as_pdf())
+        action_group.add_action(save_pdf_action)
+
+        # Context menu model
+        ctx_menu = Gio.Menu()
+        ctx_menu.append(_("Save page as image"), "thumbnail.save-image")
+        ctx_menu.append(_("Save page as PDF"), "thumbnail.save-pdf")
+        self._ctx_popover = Gtk.PopoverMenu.new_from_model(ctx_menu)
+        self._ctx_popover.set_parent(self._overlay)
+        self._ctx_popover.set_has_arrow(True)
 
         # Drag source for reordering
         drag_source = Gtk.DragSource()
@@ -252,6 +313,182 @@ class PageThumbnail(Gtk.Box):
         """
         self.emit("thumbnail-clicked")
 
+    def _on_right_clicked(
+        self, gesture: Gtk.GestureClick, _n_press: int, x: float, y: float
+    ) -> None:
+        """Show context menu on right-click."""
+        rect = Gdk.Rectangle()
+        rect.x = int(x)
+        rect.y = int(y)
+        rect.width = 1
+        rect.height = 1
+        self._ctx_popover.set_pointing_to(rect)
+        self._ctx_popover.popup()
+
+    _COMMON_IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp"}
+
+    def _save_page_as_image(self) -> None:
+        """Save the current page as an image.
+
+        Single-image pages: extracts original if common format, else renders.
+        Multi-content pages: renders the full page at 300 DPI.
+        """
+        import glob
+        import os
+        import shutil
+        import subprocess
+        import tempfile
+
+        from bigocrpdf.utils.logger import logger
+
+        source = self._page_state.source_file or self._pdf_path
+        page_num = self._page_state.page_number
+        tmpdir = tempfile.mkdtemp(prefix="bigocrpdf_save_")
+        use_render = True
+
+        # Check if single-image page with a common format
+        img_count = 0
+        try:
+            result = subprocess.run(
+                ["pdfimages", "-list", "-f", str(page_num), "-l", str(page_num), source],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=10,
+            )
+            for line in result.stdout.splitlines()[2:]:
+                if line.split():
+                    img_count += 1
+        except Exception:
+            pass
+
+        extracted = None
+        ext = ".png"
+
+        if img_count == 1:
+            prefix = os.path.join(tmpdir, "img")
+            try:
+                subprocess.run(
+                    [
+                        "pdfimages",
+                        "-all",
+                        "-f",
+                        str(page_num),
+                        "-l",
+                        str(page_num),
+                        source,
+                        prefix,
+                    ],
+                    check=True,
+                    timeout=30,
+                    capture_output=True,
+                )
+                files = sorted(glob.glob(f"{prefix}-*"))
+                if files:
+                    candidate_ext = os.path.splitext(files[0])[1].lower()
+                    if candidate_ext in self._COMMON_IMAGE_EXTS:
+                        extracted = files[0]
+                        ext = candidate_ext
+                        use_render = False
+            except Exception as e:
+                logger.error(f"pdfimages failed: {e}")
+
+        if use_render:
+            # Render page at 300 DPI (multi-content or exotic format)
+            prefix = os.path.join(tmpdir, "page")
+            try:
+                subprocess.run(
+                    [
+                        "pdftoppm",
+                        "-png",
+                        "-r",
+                        "300",
+                        "-f",
+                        str(page_num),
+                        "-l",
+                        str(page_num),
+                        source,
+                        prefix,
+                    ],
+                    check=True,
+                    timeout=30,
+                    capture_output=True,
+                )
+                files = sorted(glob.glob(f"{prefix}-*"))
+                if files:
+                    extracted = files[0]
+                    ext = ".png"
+            except Exception as e:
+                logger.error(f"pdftoppm failed: {e}")
+
+        if not extracted:
+            shutil.rmtree(tmpdir, ignore_errors=True)
+            return
+
+        base = os.path.splitext(os.path.basename(source))[0]
+        default_name = f"{base}_page{page_num}{ext}"
+
+        file_dialog = Gtk.FileDialog()
+        file_dialog.set_initial_name(default_name)
+        window = self.get_root()
+
+        def _on_save(_dialog, result):
+            try:
+                gfile = _dialog.save_finish(result)
+            except GLib.Error:
+                shutil.rmtree(tmpdir, ignore_errors=True)
+                return
+            if gfile is None:
+                shutil.rmtree(tmpdir, ignore_errors=True)
+                return
+            try:
+                shutil.copy2(extracted, gfile.get_path())
+                logger.info(f"Saved page image: {gfile.get_path()}")
+            finally:
+                shutil.rmtree(tmpdir, ignore_errors=True)
+
+        file_dialog.save(window, None, _on_save)
+
+    def _save_page_as_pdf(self) -> None:
+        """Save the current page as a single-page PDF (original, unmodified)."""
+        import os
+
+        source = self._page_state.source_file or self._pdf_path
+        page_num = self._page_state.page_number
+        base = os.path.splitext(os.path.basename(source))[0]
+        default_name = f"{base}_page{page_num}.pdf"
+
+        file_dialog = Gtk.FileDialog()
+        file_dialog.set_initial_name(default_name)
+        window = self.get_root()
+
+        def _on_save(_dialog, result):
+            try:
+                gfile = _dialog.save_finish(result)
+            except GLib.Error:
+                return
+            if gfile is None:
+                return
+            self._extract_page_pdf(source, page_num, gfile.get_path())
+
+        file_dialog.save(window, None, _on_save)
+
+    @staticmethod
+    def _extract_page_pdf(source: str, page_num: int, save_path: str) -> None:
+        """Extract a single page from a PDF and save as a new PDF."""
+        import pikepdf
+
+        from bigocrpdf.utils.logger import logger
+
+        try:
+            with pikepdf.open(source) as pdf:
+                new_pdf = pikepdf.Pdf.new()
+                new_pdf.pages.append(pdf.pages[page_num - 1])
+                new_pdf.save(save_path)
+            logger.info(f"Saved page {page_num} as PDF: {save_path}")
+        except Exception as e:
+            logger.error(f"Failed to extract page as PDF: {e}")
+
     def _on_ocr_toggled(self, check: Gtk.CheckButton) -> None:
         """Handle Include checkbox toggle.
 
@@ -277,15 +514,31 @@ class PageThumbnail(Gtk.Box):
         """Handle rotate right button click."""
         self.emit("rotate-right-clicked")
 
+    def _on_flip_horizontal_clicked(self, _action, _param) -> None:
+        """Handle flip horizontal click."""
+        self.emit("flip-horizontal-clicked")
+
+    def _on_flip_vertical_clicked(self, _action, _param) -> None:
+        """Handle flip vertical click."""
+        self.emit("flip-vertical-clicked")
+
     def _update_page_label(self) -> None:
         """Update the page number label text."""
         self._page_label.set_text(str(self._page_state.page_number))
 
     def _update_appearance(self) -> None:
         """Update widget appearance based on current state."""
-        # Update rotation badge
+        # Update rotation & flip badge
+        badge_text = []
         if self._page_state.rotation != 0:
-            self._rotation_badge.set_text(f"↻{self._page_state.rotation}°")
+            badge_text.append(f"↻{self._page_state.rotation}°")
+        if self._page_state.flip_horizontal:
+            badge_text.append("↔")
+        if self._page_state.flip_vertical:
+            badge_text.append("↕")
+
+        if badge_text:
+            self._rotation_badge.set_text(" ".join(badge_text))
             self._rotation_badge.set_visible(True)
         else:
             self._rotation_badge.set_visible(False)
@@ -380,6 +633,28 @@ class PageThumbnail(Gtk.Box):
                 new_pixbuf = pixbuf.rotate_simple(GdkPixbuf.PixbufRotation.COUNTERCLOCKWISE)
             else:
                 return
+
+            texture = Gdk.Texture.new_for_pixbuf(new_pixbuf)
+            self._image.set_paintable(texture)
+            self._page_state.thumbnail_pixbuf = new_pixbuf
+            self._current_rotation = self._page_state.rotation
+
+        except Exception:
+            self.reload_thumbnail()
+
+    def flip_thumbnail_in_place(self, horizontal: bool = True) -> None:
+        """Flip the existing thumbnail image in memory.
+
+        Args:
+            horizontal: True for horizontal flip, False for vertical flip
+        """
+        if self._page_state.thumbnail_pixbuf is None:
+            self.reload_thumbnail()
+            return
+
+        try:
+            pixbuf = self._page_state.thumbnail_pixbuf
+            new_pixbuf = pixbuf.flip(horizontal)
 
             texture = Gdk.Texture.new_for_pixbuf(new_pixbuf)
             self._image.set_paintable(texture)

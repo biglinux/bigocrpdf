@@ -5,25 +5,33 @@
   pkg-config,
   wrapGAppsHook4,
   gobject-introspection,
-  tesseract,
-  ocrmypdf,
   poppler_utils,
+  ghostscript,
+  fribidi,
+  jbig2enc ? null,
 }:
 
 python3Packages.buildPythonApplication {
   pname = "bigocrpdf";
-  version = "2.0.0";
+  version = "3.0.0";
 
   src = ./.;
 
   pyproject = true;
 
   build-system = with python3Packages; [ setuptools wheel ];
-  
+
   dependencies = with python3Packages; [
     pygobject3
     pycairo
-    ocrmypdf
+    rapidocr
+    pikepdf
+    reportlab
+    opencv4
+    pillow
+    numpy
+    scipy
+    odfpy
   ];
 
   nativeBuildInputs = [
@@ -31,35 +39,41 @@ python3Packages.buildPythonApplication {
     wrapGAppsHook4
     gobject-introspection
   ];
-  
+
   buildInputs = [
     gtk4
     libadwaita
-    tesseract
-    ocrmypdf
-    poppler_utils  # For pdfinfo
-  ];
+    poppler_utils
+    ghostscript
+    fribidi
+  ] ++ (if jbig2enc != null then [ jbig2enc ] else []);
 
   postInstall = ''
-    # Install desktop file and icons
+    # Install desktop files
     mkdir -p $out/share/applications
-    mkdir -p $out/share/icons/hicolor/scalable/apps
-    
-    cp $src/bigocrpdf/usr/share/applications/*.desktop $out/share/applications/ || true
-    cp -r $src/bigocrpdf/usr/share/icons/hicolor/* $out/share/icons/hicolor/ || true
-    
-    # Install KDE service menu
+    cp $src/usr/share/applications/*.desktop $out/share/applications/ || true
+
+    # Install icons
+    mkdir -p $out/share/icons
+    cp -r $src/usr/share/icons/* $out/share/icons/ || true
+
+    # Install service menus
     mkdir -p $out/share/kio/servicemenus
-    cp $src/bigocrpdf/usr/share/kio/servicemenus/*.desktop $out/share/kio/servicemenus/ || true
-    
+    cp $src/usr/share/kio/servicemenus/*.desktop $out/share/kio/servicemenus/ || true
+
     # Install locale files
-    cp -r $src/bigocrpdf/usr/share/locale $out/share/ || true
+    mkdir -p $out/share/locale
+    cp -r $src/usr/share/locale/* $out/share/locale/ || true
+
+    # Install bin wrappers
+    mkdir -p $out/bin
+    cp $src/usr/bin/* $out/bin/ || true
   '';
 
   meta = {
-    description = "Add OCR to your PDF documents to make them searchable";
+    description = "OCR toolkit for Linux — searchable PDFs, image OCR, PDF editor";
     homepage = "https://github.com/biglinux/bigocrpdf";
-    license = "GPL-3.0";
+    license = "GPL-3.0-or-later";
     mainProgram = "bigocrpdf";
   };
 }

@@ -24,10 +24,12 @@ from bigocrpdf.services.preprocessing_config import (
 from bigocrpdf.services.rapidocr_service.config import (
     DEFAULT_AUTO_DETECT_QUALITY,
     DEFAULT_BOX_THRESH,
+    DEFAULT_DETECTION_FULL_RESOLUTION,
     DEFAULT_DPI,
     DEFAULT_ENABLE_AUTO_BRIGHTNESS,
     DEFAULT_ENABLE_AUTO_CONTRAST,
     DEFAULT_ENABLE_BASELINE_DEWARP,
+    DEFAULT_ENABLE_BILEVEL_COMPRESSION,
     DEFAULT_ENABLE_BORDER_CLEAN,
     DEFAULT_ENABLE_DENOISE,
     DEFAULT_ENABLE_DESKEW,
@@ -36,6 +38,7 @@ from bigocrpdf.services.rapidocr_service.config import (
     DEFAULT_ENABLE_PREPROCESSING,
     DEFAULT_ENABLE_SCANNER_EFFECT,
     DEFAULT_ENABLE_VINTAGE_LOOK,
+    DEFAULT_FORCE_BILEVEL_COMPRESSION,
     DEFAULT_IMAGE_EXPORT_FORMAT,
     DEFAULT_IMAGE_EXPORT_QUALITY,
     DEFAULT_LANGUAGE,
@@ -53,6 +56,20 @@ from bigocrpdf.utils.logger import logger
 _SUB_OBJECTS = ("file_queue", "output", "preprocessing")
 
 
+def _build_delegation_map(*sub_instances: object) -> dict[str, str]:
+    """Build a static {attr_name: sub_object_field} map once at init time."""
+    mapping: dict[str, str] = {}
+    for sub, name in zip(sub_instances, _SUB_OBJECTS):
+        for attr in vars(sub):
+            if not attr.startswith("_"):
+                mapping[attr] = name
+        # Also include public methods
+        for attr in dir(type(sub)):
+            if not attr.startswith("_") and callable(getattr(sub, attr, None)):
+                mapping.setdefault(attr, name)
+    return mapping
+
+
 class OcrSettings:
     """Facade over FileQueueManager, OutputConfig, and PreprocessingConfig.
 
@@ -66,9 +83,15 @@ class OcrSettings:
         # Use object.__setattr__ during init to bypass delegation
         sup = object.__setattr__.__get__(self)
         sup("_config", get_config_manager())
-        sup("file_queue", FileQueueManager())
-        sup("output", OutputConfig())
-        sup("preprocessing", PreprocessingConfig())
+        fq = FileQueueManager()
+        out = OutputConfig()
+        pre = PreprocessingConfig()
+        sup("file_queue", fq)
+        sup("output", out)
+        sup("preprocessing", pre)
+
+        # Static delegation map: {attr_name: sub_object_field} — O(1) lookup
+        sup("_delegation_map", _build_delegation_map(fq, out, pre))
 
         # Attributes that stay directly on OcrSettings (cross-cutting / transient)
         sup("lang", DEFAULT_LANGUAGE)
@@ -88,53 +111,73 @@ class OcrSettings:
     # -- Delegation machinery --------------------------------------------------
 
     def __getattr__(self, name: str) -> object:
-        """Delegate attribute reads to sub-objects for backward compatibility."""
-        for sub_name in _SUB_OBJECTS:
-            try:
-                sub = object.__getattribute__(self, sub_name)
-            except AttributeError:
-                continue
-            if hasattr(sub, name):
-                return getattr(sub, name)
+        """Delegate attribute reads to sub-objects via static map (O(1) lookup)."""
+        try:
+            dmap = object.__getattribute__(self, "_delegation_map")
+        except AttributeError:
+            raise AttributeError(f"'{type(self).__name__}' has no attribute '{name}'")
+        sub_name = dmap.get(name)
+        if sub_name is not None:
+            sub = object.__getattribute__(self, sub_name)
+            return getattr(sub, name)
         raise AttributeError(f"'{type(self).__name__}' has no attribute '{name}'")
 
     def __setattr__(self, name: str, value: object) -> None:
-        """Delegate attribute writes to the sub-object that owns *name*."""
+        """Delegate attribute writes to the sub-object that owns *name* (O(1) lookup)."""
         if not self.__dict__.get("_initialized"):
             object.__setattr__(self, name, value)
             return
-        for sub_name in _SUB_OBJECTS:
+        dmap = object.__getattribute__(self, "_delegation_map")
+        sub_name = dmap.get(name)
+        if sub_name is not None:
             sub = object.__getattribute__(self, sub_name)
-            if hasattr(sub, name):
-                setattr(sub, name, value)
-                return
+            setattr(sub, name, value)
+            return
         object.__setattr__(self, name, value)
 
     def load_settings(self) -> None:
         """Load all settings from JSON configuration"""
-        # Load from JSON config manager
-        # If language is not set (None), try to detect system language
-        config_lang = self._config.get("ocr.language")
+        self._load_language_settings()
+        self._load_output_settings()
+        self._load_date_settings()
+        self._load_text_extraction_settings()
+        self._load_odf_settings()
+        self._load_preprocessing_settings()
+        self._load_image_export_settings()
+        self._load_pdf_output_settings()
+        self._load_bilevel_settings()
+        self.quick_start_mode = self._config.get("ui.quick_start_mode", True)
 
+        # Load selected files from legacy file (file list not stored in JSON)
+        self._load_selected_files()
+
+        # Only initialize destination folder if it isn't already set
+        if not self.destination_folder:
+            self._initialize_destination_folder()
+
+        logger.info("Settings loaded from JSON configuration")
+
+    def _load_language_settings(self) -> None:
+        config_lang = self._config.get("ocr.language")
         if config_lang:
-            # User has explicitly set a language
             self.lang = config_lang
         else:
-            # No user setting - detect and save system language
             detected_lang = self._detect_default_language()
             self.lang = detected_lang
-            # Save the detected language so it persists and is used by UI
             self._config.set("ocr.language", detected_lang, save_immediately=True)
             logger.info(f"Saved detected language to config: {detected_lang}")
+        self.ocr_language = self.lang
+        self.replace_existing_ocr = self._config.get("ocr.replace_existing_ocr", False)
+        self.enhance_embedded_images = self._config.get("ocr.enhance_embedded_images", False)
 
-        # Output settings
+    def _load_output_settings(self) -> None:
         self.pdf_suffix = self._config.get("output.suffix", DEFAULT_SUFFIX)
         self.use_original_filename = self._config.get("output.use_original_filename", False)
         self.overwrite_existing = self._config.get("output.overwrite_existing", False)
         self.save_in_same_folder = self._config.get("output.save_in_same_folder", False)
         self.destination_folder = self._config.get("output.destination_folder", "")
 
-        # Date settings
+    def _load_date_settings(self) -> None:
         self.include_date = self._config.get("date.include_date", False)
         self.include_year = self._config.get("date.include_year", False)
         self.include_month = self._config.get("date.include_month", False)
@@ -142,27 +185,23 @@ class OcrSettings:
         self.include_time = self._config.get("date.include_time", False)
         self.date_format_order = self._config.get("date.format_order", DEFAULT_DATE_FORMAT.copy())
 
-        # Text extraction settings
+    def _load_text_extraction_settings(self) -> None:
         self.save_txt = self._config.get("text_extraction.save_txt", False)
         self.separate_txt_folder = self._config.get("text_extraction.separate_folder", False)
         self.txt_folder = self._config.get("text_extraction.txt_folder", "")
-
         self.file_modifications: dict[str, dict[str, Any]] = {}
 
-        # ODF export settings
+    def _load_odf_settings(self) -> None:
         self.save_odf = self._config.get("odf_export.save_odf", False)
         self.odf_include_images = self._config.get("odf_export.include_images", True)
         self.odf_use_formatting = self._config.get("odf_export.use_formatting", True)
+        self.odf_open_after_export = self._config.get("odf_export.open_after_export", False)
 
-        # RapidOCR preprocessing settings (from JSON config, with reference defaults)
+    def _load_preprocessing_settings(self) -> None:
         self.dpi = self._config.get("rapidocr.dpi", DEFAULT_DPI)
-        # Sync language: UI stores in self.lang (ocr.language), RapidOCR reads self.ocr_language
-        self.ocr_language = self.lang
-        # Color/Enhancement: OFF by default (PP-OCRv5 works best without)
         self.enable_preprocessing = self._config.get(
             "rapidocr.enable_preprocessing", DEFAULT_ENABLE_PREPROCESSING
         )
-        # Geometric corrections: ON by default (reference CLI behavior)
         self.enable_deskew = self._config.get("rapidocr.enable_deskew", DEFAULT_ENABLE_DESKEW)
         self.enable_baseline_dewarp = self._config.get(
             "rapidocr.enable_baseline_dewarp", DEFAULT_ENABLE_BASELINE_DEWARP
@@ -173,7 +212,6 @@ class OcrSettings:
         self.enable_orientation_detection = self._config.get(
             "rapidocr.enable_orientation_detection", DEFAULT_ENABLE_ORIENTATION_DETECTION
         )
-        # These only take effect if enable_preprocessing=True
         self.enable_auto_contrast = self._config.get(
             "rapidocr.enable_auto_contrast", DEFAULT_ENABLE_AUTO_CONTRAST
         )
@@ -200,8 +238,11 @@ class OcrSettings:
         self.box_thresh = self._config.get("rapidocr.box_thresh", DEFAULT_BOX_THRESH)
         self.unclip_ratio = self._config.get("rapidocr.unclip_ratio", DEFAULT_UNCLIP_RATIO)
         self.ocr_profile = self._config.get("rapidocr.ocr_profile", "balanced")
+        self.detection_full_resolution = self._config.get(
+            "rapidocr.detection_full_resolution", DEFAULT_DETECTION_FULL_RESOLUTION
+        )
 
-        # Image export settings
+    def _load_image_export_settings(self) -> None:
         self.image_export_format = self._config.get(
             "image_export.format", DEFAULT_IMAGE_EXPORT_FORMAT
         )
@@ -215,26 +256,19 @@ class OcrSettings:
             "image_export.auto_detect_quality", DEFAULT_AUTO_DETECT_QUALITY
         )
 
-        # PDF output settings
+    def _load_pdf_output_settings(self) -> None:
         self.convert_to_pdfa = self._config.get("output.convert_to_pdfa", True)
         self.max_file_size_mb = self._config.get(
             "output.max_file_size_mb", DEFAULT_MAX_FILE_SIZE_MB
         )
 
-        # OCR behavior settings
-        self.replace_existing_ocr = self._config.get("ocr.replace_existing_ocr", True)
-
-        # UI preference: Quick Start mode (simplified settings for new users)
-        self.quick_start_mode = self._config.get("ui.quick_start_mode", True)
-
-        # Load selected files from legacy file (file list not stored in JSON)
-        self._load_selected_files()
-
-        # Only initialize destination folder if it isn't already set
-        if not self.destination_folder:
-            self._initialize_destination_folder()
-
-        logger.info("Settings loaded from JSON configuration")
+    def _load_bilevel_settings(self) -> None:
+        self.enable_bilevel_compression = self._config.get(
+            "output.enable_bilevel_compression", DEFAULT_ENABLE_BILEVEL_COMPRESSION
+        )
+        self.force_bilevel_compression = self._config.get(
+            "output.force_bilevel_compression", DEFAULT_FORCE_BILEVEL_COMPRESSION
+        )
 
     def _detect_default_language(self) -> str:
         """Detect system language and find best match in RapidOCR models.
@@ -432,13 +466,31 @@ class OcrSettings:
 
     def _save_all_settings(self) -> None:
         """Save all settings to JSON configuration"""
-        # Sync language: UI uses self.lang, RapidOCR uses self.ocr_language
         self.ocr_language = self.lang
+        self._save_language_settings()
+        self._save_output_settings()
+        self._save_date_settings()
+        self._save_text_extraction_settings()
+        self._save_editor_settings()
+        self._save_odf_settings()
+        self._save_preprocessing_settings()
+        self._save_image_export_settings()
+        self._save_pdf_output_settings()
+        self._save_bilevel_settings()
+        self._config.set("ui.quick_start_mode", self.quick_start_mode, save_immediately=False)
+        self._config.save()
+        logger.debug("All settings saved to JSON configuration")
 
-        # OCR settings
+    def _save_language_settings(self) -> None:
         self._config.set("ocr.language", self.lang, save_immediately=False)
+        self._config.set(
+            "ocr.replace_existing_ocr", self.replace_existing_ocr, save_immediately=False
+        )
+        self._config.set(
+            "ocr.enhance_embedded_images", self.enhance_embedded_images, save_immediately=False
+        )
 
-        # Output settings
+    def _save_output_settings(self) -> None:
         self._config.set("output.suffix", self.pdf_suffix, save_immediately=False)
         self._config.set(
             "output.use_original_filename", self.use_original_filename, save_immediately=False
@@ -447,15 +499,13 @@ class OcrSettings:
             "output.overwrite_existing", self.overwrite_existing, save_immediately=False
         )
         self._config.set(
-            "output.save_in_same_folder",
-            self.save_in_same_folder,
-            save_immediately=False,
+            "output.save_in_same_folder", self.save_in_same_folder, save_immediately=False
         )
         self._config.set(
             "output.destination_folder", self.destination_folder, save_immediately=False
         )
 
-        # Date settings
+    def _save_date_settings(self) -> None:
         self._config.set("date.include_date", self.include_date, save_immediately=False)
         self._config.set("date.include_year", self.include_year, save_immediately=False)
         self._config.set("date.include_month", self.include_month, save_immediately=False)
@@ -463,22 +513,18 @@ class OcrSettings:
         self._config.set("date.include_time", self.include_time, save_immediately=False)
         self._config.set("date.format_order", self.date_format_order, save_immediately=False)
 
-        # Text extraction settings
+    def _save_text_extraction_settings(self) -> None:
         self._config.set("text_extraction.save_txt", self.save_txt, save_immediately=False)
         self._config.set(
-            "text_extraction.separate_folder",
-            self.separate_txt_folder,
-            save_immediately=False,
+            "text_extraction.separate_folder", self.separate_txt_folder, save_immediately=False
         )
         self._config.set("text_extraction.txt_folder", self.txt_folder, save_immediately=False)
 
-        # Editor modifications
+    def _save_editor_settings(self) -> None:
         if self.page_ranges:
             self._config.set("editor.page_ranges", self.page_ranges, save_immediately=False)
 
-        # Don't save editor.modifications (modifications are transient)
-
-        # ODF export settings
+    def _save_odf_settings(self) -> None:
         self._config.set("odf_export.save_odf", self.save_odf, save_immediately=False)
         self._config.set(
             "odf_export.include_images", self.odf_include_images, save_immediately=False
@@ -486,8 +532,11 @@ class OcrSettings:
         self._config.set(
             "odf_export.use_formatting", self.odf_use_formatting, save_immediately=False
         )
+        self._config.set(
+            "odf_export.open_after_export", self.odf_open_after_export, save_immediately=False
+        )
 
-        # RapidOCR preprocessing settings
+    def _save_preprocessing_settings(self) -> None:
         self._config.set("rapidocr.dpi", self.dpi, save_immediately=False)
         self._config.set("rapidocr.language", self.ocr_language, save_immediately=False)
         self._config.set(
@@ -520,7 +569,9 @@ class OcrSettings:
             "rapidocr.enable_scanner_effect", self.enable_scanner_effect, save_immediately=False
         )
         self._config.set(
-            "rapidocr.scanner_effect_strength", self.scanner_effect_strength, save_immediately=False
+            "rapidocr.scanner_effect_strength",
+            self.scanner_effect_strength,
+            save_immediately=False,
         )
         self._config.set(
             "rapidocr.enable_border_clean", self.enable_border_clean, save_immediately=False
@@ -535,8 +586,13 @@ class OcrSettings:
         self._config.set("rapidocr.box_thresh", self.box_thresh, save_immediately=False)
         self._config.set("rapidocr.unclip_ratio", self.unclip_ratio, save_immediately=False)
         self._config.set("rapidocr.ocr_profile", self.ocr_profile, save_immediately=False)
+        self._config.set(
+            "rapidocr.detection_full_resolution",
+            self.detection_full_resolution,
+            save_immediately=False,
+        )
 
-        # Image export settings
+    def _save_image_export_settings(self) -> None:
         self._config.set("image_export.format", self.image_export_format, save_immediately=False)
         self._config.set("image_export.quality", self.image_export_quality, save_immediately=False)
         self._config.set(
@@ -545,27 +601,24 @@ class OcrSettings:
             save_immediately=False,
         )
         self._config.set(
-            "image_export.auto_detect_quality",
-            self.auto_detect_quality,
-            save_immediately=False,
+            "image_export.auto_detect_quality", self.auto_detect_quality, save_immediately=False
         )
 
-        # PDF output settings
+    def _save_pdf_output_settings(self) -> None:
         self._config.set("output.convert_to_pdfa", self.convert_to_pdfa, save_immediately=False)
         self._config.set("output.max_file_size_mb", self.max_file_size_mb, save_immediately=False)
 
-        # OCR behavior settings
+    def _save_bilevel_settings(self) -> None:
         self._config.set(
-            "ocr.replace_existing_ocr", self.replace_existing_ocr, save_immediately=False
+            "output.enable_bilevel_compression",
+            self.enable_bilevel_compression,
+            save_immediately=False,
         )
-
-        # UI preferences
-        self._config.set("ui.quick_start_mode", self.quick_start_mode, save_immediately=False)
-
-        # Save everything at once
-        self._config.save()
-
-        logger.debug("All settings saved to JSON configuration")
+        self._config.set(
+            "output.force_bilevel_compression",
+            self.force_bilevel_compression,
+            save_immediately=False,
+        )
 
     def get_pdf_suffix(self) -> str:
         """Get the formatted PDF suffix with date elements if enabled
@@ -711,6 +764,11 @@ class OcrSettings:
 
         logger.info(_("Processing state reset successfully"))
 
+    def display_name(self, file_path: str) -> str:
+        """Return a user-friendly display name for a queued file."""
+        original = self.original_file_paths.get(file_path)
+        return os.path.basename(original or file_path)
+
     def cleanup_temp_files(self, processed_files: list[str]) -> None:
         """Clean up temporary files after OCR processing
 
@@ -773,8 +831,8 @@ class OcrSettings:
                 if os.path.exists(temp_dir) and not os.listdir(temp_dir):
                     os.rmdir(temp_dir)
                     logger.info("Removed empty temporary directory")
-            except Exception:
-                pass  # Directory not empty or other issue, ignore
+            except OSError as e:
+                logger.debug("Could not remove temp directory: %s", e)
 
         except Exception as e:
             logger.error(f"Error cleaning temp directory {temp_dir}: {e}")

@@ -304,7 +304,7 @@ class ConclusionStatsFileListMixin:
         """
         # Add page count
         page_label = Gtk.Label()
-        page_label.set_markup(f"<small>{pages} pg.</small>")
+        page_label.set_markup(f"<small>{_('{pages} pg.').format(pages=pages)}</small>")
         row.add_suffix(page_label)
 
         # Add size label
@@ -342,9 +342,13 @@ class ConclusionStatsFileListMixin:
         open_button = self._create_open_button(output_file)
         button_container.append(open_button)
 
-        # Add open in browser button
-        browser_button = self._create_browser_button(output_file)
-        button_container.append(browser_button)
+        # Add reveal in file manager button
+        reveal_button = create_icon_button(
+            icon_name="folder-open-symbolic",
+            tooltip=_("Show in file manager"),
+            on_click=lambda: self._reveal_in_file_manager(output_file),
+        )
+        button_container.append(reveal_button)
 
         # Add view text button
         text_button = self._create_text_button(output_file)
@@ -373,24 +377,6 @@ class ConclusionStatsFileListMixin:
         button.set_margin_end(12)
         button.set_margin_start(12)
         return button
-
-    def _create_browser_button(self, output_file: str) -> Gtk.Button:
-        """Create an open in browser button
-
-        Args:
-            output_file: Path to the file to open
-
-        Returns:
-            A Gtk.Button for opening the file in the browser
-        """
-        return create_icon_button(
-            icon_name="web-browser-symbolic",
-            tooltip=_(
-                "Open in web browser — browsers usually display "
-                "the recognized text directly over the page images"
-            ),
-            on_click=lambda: self._open_in_browser(output_file),
-        )
 
     def _create_text_button(self, output_file: str) -> Gtk.Button:
         """Create a view text button

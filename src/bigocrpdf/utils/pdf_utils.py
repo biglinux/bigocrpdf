@@ -8,7 +8,6 @@ Centralizes PDF-related functionality to avoid code duplication.
 import glob
 import os
 import subprocess
-import tempfile
 from typing import Any
 
 # Note: pdftoppm is no longer used. PDF rendering uses Poppler GI library directly.
@@ -184,6 +183,7 @@ def extract_images_for_odf(
             ["pdfimages", "-all", pdf_path, image_prefix],
             capture_output=True,
             text=True,
+            timeout=120,
         )
 
         if result.returncode == 0:
@@ -206,28 +206,32 @@ def extract_images_for_odf(
 
 
 def open_file_with_default_app(file_path: str) -> bool:
-    """Open a file using the system's default application (xdg-open).
+    """Open a file using the system's default application via Gtk.FileLauncher.
+
+    Uses the GTK4 portal-aware launcher instead of raw subprocess calls,
+    which is non-blocking on the UI thread and Flatpak-compatible.
 
     Args:
         file_path: Path to the file to open
 
     Returns:
-        True if the command was launched successfully
+        True if the launch was requested successfully
     """
     if not file_path or not os.path.exists(file_path):
         logger.warning(f"Cannot open file: path does not exist: {file_path}")
         return False
 
     try:
-        subprocess.Popen(
-            ["xdg-open", file_path],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
+        import gi
+
+        gi.require_version("Gtk", "4.0")
+        gi.require_version("Gio", "2.0")
+        from gi.repository import Gio, Gtk
+
+        gfile = Gio.File.new_for_path(file_path)
+        launcher = Gtk.FileLauncher.new(gfile)
+        launcher.launch(None, None, None)
         return True
-    except FileNotFoundError:
-        logger.error("xdg-open not found. Cannot open file with default application.")
-        return False
     except Exception as e:
         logger.error(f"Failed to open file {file_path}: {e}")
         return False
@@ -353,10 +357,9 @@ def images_to_pdf(image_paths: list[str], output_path: str | None = None) -> str
         # Create a temp file with a descriptive name
         from bigocrpdf.utils.temp_manager import mkstemp
 
-        if len(image_paths) == 1:
-            base = os.path.splitext(os.path.basename(image_paths[0]))[0]
-        else:
-            base = "merged_images"
+        base = os.path.splitext(os.path.basename(image_paths[0]))[0]
+        if len(image_paths) > 1:
+            base = f"{base}_+{len(image_paths) - 1}"
         fd, output_path = mkstemp(prefix=f"bigocr_{base}_", suffix=".pdf")
         os.close(fd)
 

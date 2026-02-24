@@ -1,0 +1,39 @@
+[Desktop Entry]
+ServiceTypes=KonqPopupMenu/Plugin
+Actions=OCRPDF;
+Type=Service
+MimeType=application/pdf;
+X-KDE-Priority=TopLevel
+
+[Desktop Action OCRPDF]
+Name=Text recognition (OCR)
+Name[bg]=Разпознаване на текст (OCR)
+Name[cs]=Rozpoznávání textu (OCR)
+Name[da]=Tekstgenkendelse (OCR)
+Name[de]=Texterkennung (OCR)
+Name[el]=Αναγνώριση κειμένου (OCR)
+Name[es]=Reconocimiento de texto (OCR)
+Name[et]=Tekstituvastus (OCR)
+Name[fi]=Tekstintunnistus (OCR)
+Name[fr]=Reconnaissance de texte (OCR)
+Name[he]=זיהוי טקסט (OCR)
+Name[hr]=Prepoznavanje teksta (OCR)
+Name[hu]=Szövegfelismerés (OCR)
+Name[is]=Textagreining (OCR)
+Name[it]=Riconoscimento testo (OCR)
+Name[ja]=テキスト認識 (OCR)
+Name[ko]=텍스트 인식 (OCR)
+Name[nl]=Tekstherkenning (OCR)
+Name[no]=Tekstgjenkjenning (OCR)
+Name[pl]=Rozpoznawanie tekstu (OCR)
+Name[pt]=Reconhecimento de texto (OCR)
+Name[pt_BR]=Reconhecimento de texto (OCR)
+Name[ro]=Recunoaștere text (OCR)
+Name[ru]=Распознавание текста (OCR)
+Name[sk]=Rozpoznávanie textu (OCR)
+Name[sv]=Textigenkänning (OCR)
+Name[tr]=Metin tanıma (OCR)
+Name[uk]=Розпізнавання тексту (OCR)
+Name[zh]=文字识别（OCR）
+Icon=bigocrpdf
+Exec=bigocrpdf %F

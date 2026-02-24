@@ -22,10 +22,12 @@ def _create_test_pdf(path: str, num_pages: int = 3) -> str:
     """Create a simple test PDF with the given number of pages."""
     pdf = pikepdf.Pdf.new()
     for i in range(num_pages):
-        page = pikepdf.Dictionary(
-            Type=pikepdf.Name.Page,
-            MediaBox=[0, 0, 612, 792],
-            Contents=pdf.make_stream(f"BT /F1 12 Tf 100 700 Td (Page {i + 1}) Tj ET".encode()),
+        page = pikepdf.Page(
+            pikepdf.Dictionary(
+                Type=pikepdf.Name.Page,
+                MediaBox=[0, 0, 612, 792],
+                Contents=pdf.make_stream(f"BT /F1 12 Tf 100 700 Td (Page {i + 1}) Tj ET".encode()),
+            )
         )
         pdf.pages.append(page)
     pdf.save(path)

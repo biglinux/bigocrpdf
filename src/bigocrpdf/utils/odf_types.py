@@ -45,6 +45,8 @@ class OCRTextData:
     height: float = 12.0  # estimated font height in points
     confidence: float = 1.0
     page_num: int = 1
+    is_bold: bool = False
+    is_underlined: bool = False
 
 
 @dataclass

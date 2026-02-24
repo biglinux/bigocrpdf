@@ -44,9 +44,15 @@ DEFAULT_MAX_FILE_SIZE_MB = 0
 DEFAULT_IMAGE_EXPORT_FORMAT = "original"
 DEFAULT_IMAGE_EXPORT_QUALITY = 85
 DEFAULT_AUTO_DETECT_QUALITY = True
+# Bilevel compression (JBIG2/CCITT)
+DEFAULT_ENABLE_BILEVEL_COMPRESSION = True
+DEFAULT_FORCE_BILEVEL_COMPRESSION = False
+# Detection resolution: False = capped at 2000px (faster), True = full resolution (more accurate)
+DEFAULT_DETECTION_FULL_RESOLUTION = False
 # Execution
 DEFAULT_WORKERS = 0
 DEFAULT_REPLACE_EXISTING_OCR = False
+DEFAULT_ENHANCE_EMBEDDED_IMAGES = False
 
 
 @dataclass
@@ -80,6 +86,7 @@ class OCRConfig:
     box_thresh: float = DEFAULT_BOX_THRESH
     unclip_ratio: float = DEFAULT_UNCLIP_RATIO
     detection_limit_side_len: int = DEFAULT_DETECTION_LIMIT_SIDE_LEN
+    detection_full_resolution: bool = DEFAULT_DETECTION_FULL_RESOLUTION
     score_mode: str = DEFAULT_SCORE_MODE
     text_score_threshold: float = DEFAULT_TEXT_SCORE_THRESHOLD
 
@@ -111,6 +118,8 @@ class OCRConfig:
     # === Output Options ===
     convert_to_pdfa: bool = DEFAULT_CONVERT_TO_PDFA
     max_file_size_mb: int = DEFAULT_MAX_FILE_SIZE_MB
+    enable_bilevel_compression: bool = DEFAULT_ENABLE_BILEVEL_COMPRESSION
+    force_bilevel_compression: bool = DEFAULT_FORCE_BILEVEL_COMPRESSION
 
     # === Image Export Options ===
     image_export_format: str = DEFAULT_IMAGE_EXPORT_FORMAT
@@ -123,6 +132,7 @@ class OCRConfig:
     page_modifications: list[dict] | None = None
     force_full_ocr: bool = False
     replace_existing_ocr: bool = DEFAULT_REPLACE_EXISTING_OCR
+    enhance_embedded_images: bool = DEFAULT_ENHANCE_EMBEDDED_IMAGES
 
     def get_font_path(self) -> Path:
         """Get correct font path based on language."""
@@ -230,6 +240,8 @@ class OCRBoxData:
     height: float  # Height in points (estimated font size)
     confidence: float = 0.0
     page_num: int = 0
+    is_bold: bool = False
+    is_underlined: bool = False
 
 
 @dataclass

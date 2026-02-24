@@ -19,13 +19,42 @@ import logging
 import math
 import os
 from dataclasses import dataclass, field
+from enum import Enum, auto
 from pathlib import Path
 
 import pikepdf
 
+from bigocrpdf.constants import MIN_IMAGE_DIMENSION_PX
 from bigocrpdf.utils.i18n import _
 
 logger = logging.getLogger(__name__)
+
+
+class ErrorCode(Enum):
+    """Error classification for PDF operations."""
+
+    NONE = auto()
+    FILE_NOT_FOUND = auto()
+    PERMISSION_DENIED = auto()
+    CORRUPT_PDF = auto()
+    PASSWORD_PROTECTED = auto()
+    DISK_FULL = auto()
+    UNKNOWN = auto()
+
+
+def _classify_error(e: Exception) -> ErrorCode:
+    """Classify an exception into an ErrorCode."""
+    if isinstance(e, FileNotFoundError):
+        return ErrorCode.FILE_NOT_FOUND
+    if isinstance(e, PermissionError):
+        return ErrorCode.PERMISSION_DENIED
+    if isinstance(e, pikepdf.PasswordError):
+        return ErrorCode.PASSWORD_PROTECTED
+    if isinstance(e, pikepdf.PdfError):
+        return ErrorCode.CORRUPT_PDF
+    if isinstance(e, OSError) and e.errno == 28:
+        return ErrorCode.DISK_FULL
+    return ErrorCode.UNKNOWN
 
 
 def _friendly_error(e: Exception) -> str:
@@ -39,6 +68,15 @@ def _friendly_error(e: Exception) -> str:
     if isinstance(e, pikepdf.PdfError):
         return _("The PDF file appears to be damaged or invalid: {error}").format(error=e)
     return str(e)
+
+
+def _fail(e: Exception) -> "OperationResult":
+    """Create a failed OperationResult from an exception."""
+    return OperationResult(
+        success=False,
+        message=_friendly_error(e),
+        error_code=_classify_error(e),
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -81,6 +119,7 @@ class OperationResult:
     message: str = ""
     output_path: str = ""
     pages_affected: int = 0
+    error_code: ErrorCode = ErrorCode.NONE
 
 
 # ---------------------------------------------------------------------------
@@ -400,9 +439,9 @@ def merge_pdfs(
             output_path=str(output_path),
             pages_affected=total_pages,
         )
-    except Exception as e:
+    except (OSError, pikepdf.PdfError, ValueError) as e:
         logger.error("Merge failed: %s", e)
-        return OperationResult(success=False, message=_friendly_error(e))
+        return _fail(e)
     finally:
         for src in open_sources:
             src.close()
@@ -458,9 +497,9 @@ def extract_pages(
                 output_path=str(output_path),
                 pages_affected=len(valid),
             )
-    except Exception as e:
+    except (OSError, pikepdf.PdfError, ValueError) as e:
         logger.error("Extract failed: %s", e)
-        return OperationResult(success=False, message=_friendly_error(e))
+        return _fail(e)
 
 
 # ---------------------------------------------------------------------------
@@ -526,9 +565,9 @@ def delete_pages(
                 output_path=str(output_path),
                 pages_affected=len(pages_to_delete),
             )
-    except Exception as e:
+    except (OSError, pikepdf.PdfError, ValueError) as e:
         logger.error("Delete pages failed: %s", e)
-        return OperationResult(success=False, message=_friendly_error(e))
+        return _fail(e)
 
 
 # ---------------------------------------------------------------------------
@@ -614,9 +653,9 @@ def insert_pages(
                 output_path=str(output_path),
                 pages_affected=len(insert_indices),
             )
-    except Exception as e:
+    except (OSError, pikepdf.PdfError, ValueError) as e:
         logger.error("Insert pages failed: %s", e)
-        return OperationResult(success=False, message=_friendly_error(e))
+        return _fail(e)
 
 
 # ---------------------------------------------------------------------------
@@ -679,9 +718,9 @@ def rotate_pages(
                 output_path=str(output_path),
                 pages_affected=rotated,
             )
-    except Exception as e:
+    except (OSError, pikepdf.PdfError, ValueError) as e:
         logger.error("Rotate failed: %s", e)
-        return OperationResult(success=False, message=_friendly_error(e))
+        return _fail(e)
 
 
 # ---------------------------------------------------------------------------
@@ -719,6 +758,7 @@ def compress_pdf(
     try:
         with pikepdf.open(pdf_path) as pdf:
             images_compressed = 0
+            seen_objgen: set = set()
 
             for page in pdf.pages:
                 images_compressed += _compress_page_images(
@@ -726,6 +766,7 @@ def compress_pdf(
                     page,
                     image_quality,
                     image_dpi,
+                    seen_objgen,
                 )
 
             # Remove unreferenced objects and enable stream compression
@@ -755,9 +796,9 @@ def compress_pdf(
             output_path=str(output_path),
             pages_affected=images_compressed,
         )
-    except Exception as e:
+    except (OSError, pikepdf.PdfError, ValueError) as e:
         logger.error("Compress failed: %s", e)
-        return OperationResult(success=False, message=_friendly_error(e))
+        return _fail(e)
 
 
 def _compress_page_images(
@@ -765,12 +806,19 @@ def _compress_page_images(
     page: pikepdf.Page,
     quality: int,
     target_dpi: int,
+    seen_objgen: set | None = None,
 ) -> int:
     """Compress images in a single page.
+
+    Args:
+        seen_objgen: Set of (objgen) tuples already processed. Shared across pages
+                     to avoid re-processing the same XObject stream reference.
 
     Returns:
         Number of images compressed.
     """
+    if seen_objgen is None:
+        seen_objgen = set()
     import io
 
     try:
@@ -784,7 +832,7 @@ def _compress_page_images(
     try:
         resources = page.get("/Resources", {})
         xobjects = resources.get("/XObject", {})
-    except Exception:
+    except (AttributeError, TypeError):
         return 0
 
     for key in list(xobjects.keys()):
@@ -795,23 +843,29 @@ def _compress_page_images(
             if obj.get("/Subtype") != pikepdf.Name.Image:
                 continue
 
+            # Skip already-processed shared XObjects
+            objgen = obj.objgen
+            if objgen in seen_objgen:
+                continue
+            seen_objgen.add(objgen)
+
             width = int(obj.get("/Width", 0))
             height = int(obj.get("/Height", 0))
 
-            if width < 64 or height < 64:
+            if width < MIN_IMAGE_DIMENSION_PX or height < MIN_IMAGE_DIMENSION_PX:
                 continue
 
             # Use pikepdf.PdfImage for reliable decoding
             try:
                 pdf_image = pikepdf.PdfImage(obj)
                 pil_img = pdf_image.as_pil_image()
-            except Exception:
+            except (pikepdf.PdfError, OSError, ValueError):
                 continue
 
             # Determine original data size for comparison
             try:
                 original_size = len(obj.read_raw_bytes())
-            except Exception:
+            except (pikepdf.PdfError, OSError):
                 original_size = width * height * 3  # rough estimate
 
             # Determine current effective DPI from page media box
@@ -826,14 +880,14 @@ def _compress_page_images(
                     )
                 else:
                     current_dpi = 300
-            except Exception:
+            except (AttributeError, TypeError, ValueError, ZeroDivisionError):
                 current_dpi = 300
 
             # Downsample if current DPI is significantly higher than target
             if current_dpi > target_dpi * 1.2:
                 scale = target_dpi / current_dpi
-                new_w = max(64, int(width * scale))
-                new_h = max(64, int(height * scale))
+                new_w = max(MIN_IMAGE_DIMENSION_PX, int(width * scale))
+                new_h = max(MIN_IMAGE_DIMENSION_PX, int(height * scale))
                 pil_img = pil_img.resize((new_w, new_h), Image.LANCZOS)
 
             # Re-encode as JPEG
@@ -863,7 +917,7 @@ def _compress_page_images(
                 xobjects[key] = new_img
                 count += 1
 
-        except Exception as e:
+        except (pikepdf.PdfError, OSError, ValueError) as e:
             logger.debug("Skipping image %s: %s", key, e)
             continue
 
@@ -920,9 +974,9 @@ def reorder_pages(
                 output_path=str(output_path),
                 pages_affected=len(valid),
             )
-    except Exception as e:
+    except (OSError, pikepdf.PdfError, ValueError) as e:
         logger.error("Reorder failed: %s", e)
-        return OperationResult(success=False, message=_friendly_error(e))
+        return _fail(e)
 
 
 # ---------------------------------------------------------------------------
@@ -948,6 +1002,6 @@ def reverse_pages(
             total = len(src.pages)
             order = list(range(total, 0, -1))
         return reorder_pages(pdf_path, output_path, order)
-    except Exception as e:
+    except (OSError, pikepdf.PdfError, ValueError) as e:
         logger.error("Reverse failed: %s", e)
-        return OperationResult(success=False, message=_friendly_error(e))
+        return _fail(e)

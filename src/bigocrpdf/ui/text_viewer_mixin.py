@@ -1,18 +1,28 @@
 """Text Viewer Dialog Mixin for DialogsManager."""
 
 import os
-from typing import Any
+from dataclasses import dataclass, field
 
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, Gdk, Gtk
+from gi.repository import Adw, Gdk, GLib, Gtk
 
 from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.utils.text_utils import read_text_from_sidecar
+
+
+@dataclass
+class SearchState:
+    """Holds state for the text search feature."""
+
+    positions: list[int] = field(default_factory=list)
+    current: int = -1
+    debounce_id: int = 0
+
 
 # Font size range in points
 _MIN_FONT_SIZE = 8
@@ -36,12 +46,26 @@ class TextViewerDialogMixin:
     def _get_extracted_text_for_file(self, file_path: str) -> str:
         """Get extracted text for a file with fallback options.
 
+        Tries the structured TSV pipeline first (preserving layout), then
+        falls back to cached text, sidecar files, and temp files.
+
         Args:
             file_path: Path to the PDF file
 
         Returns:
             Extracted text content
         """
+        # Try structured pipeline for PDFs with text layer
+        if os.path.isfile(file_path) and file_path.lower().endswith(".pdf"):
+            try:
+                from bigocrpdf.utils.tsv_odf_converter import convert_pdf_to_text
+
+                structured = convert_pdf_to_text(file_path)
+                if structured.strip():
+                    return structured
+            except Exception as e:
+                logger.debug("Structured text extraction failed: %s", e)
+
         if not hasattr(self.window.settings, "extracted_text"):
             self.window.settings.extracted_text = {}
 
@@ -369,15 +393,15 @@ class TextViewerDialogMixin:
             text_view: Text view widget
         """
         buf = text_view.get_buffer()
-        search_state: dict[str, Any] = {"positions": [], "current": -1}
+        state = SearchState()
 
         def _highlight_matches(search_text: str) -> int:
             start = buf.get_start_iter()
             end = buf.get_end_iter()
             buf.remove_tag_by_name("search_highlight", start, end)
             buf.remove_tag_by_name("current_match", start, end)
-            search_state["positions"] = []
-            search_state["current"] = -1
+            state.positions = []
+            state.current = -1
 
             if not search_text:
                 return 0
@@ -389,29 +413,28 @@ class TextViewerDialogMixin:
                 pos = full_text.find(needle, pos)
                 if pos == -1:
                     break
-                search_state["positions"].append(pos)
+                state.positions.append(pos)
                 m_start = buf.get_iter_at_offset(pos)
                 m_end = buf.get_iter_at_offset(pos + len(search_text))
                 buf.apply_tag_by_name("search_highlight", m_start, m_end)
                 pos += 1
-            return len(search_state["positions"])
+            return len(state.positions)
 
         def _goto_match(index: int) -> None:
-            positions = search_state["positions"]
-            if not positions or index < 0 or index >= len(positions):
+            if not state.positions or index < 0 or index >= len(state.positions):
                 return
             text_len = len(search_entry.get_text())
 
             # Remove previous current highlight
-            if search_state["current"] >= 0:
-                old = positions[search_state["current"]]
+            if state.current >= 0:
+                old = state.positions[state.current]
                 o_s = buf.get_iter_at_offset(old)
                 o_e = buf.get_iter_at_offset(old + text_len)
                 buf.remove_tag_by_name("current_match", o_s, o_e)
                 buf.apply_tag_by_name("search_highlight", o_s, o_e)
 
-            search_state["current"] = index
-            p = positions[index]
+            state.current = index
+            p = state.positions[index]
             m_s = buf.get_iter_at_offset(p)
             m_e = buf.get_iter_at_offset(p + text_len)
             buf.remove_tag_by_name("search_highlight", m_s, m_e)
@@ -421,32 +444,49 @@ class TextViewerDialogMixin:
             buf.place_cursor(m_s)
             text_view.scroll_to_iter(m_s, 0.2, True, 0.0, 0.5)
 
-            match_label.set_text(f"{index + 1}/{len(positions)}")
+            match_label.set_text(
+                _("{current}/{total}").format(current=index + 1, total=len(state.positions))
+            )
 
         def _go_next() -> None:
-            if not search_state["positions"]:
+            if not state.positions:
                 return
-            nxt = (search_state["current"] + 1) % len(search_state["positions"])
+            nxt = (state.current + 1) % len(state.positions)
+            if nxt == 0 and state.current == len(state.positions) - 1:
+                if hasattr(self, "window") and hasattr(self.window, "show_toast"):
+                    self.window.show_toast(_("Wrapped to first match"))
             _goto_match(nxt)
 
         def _go_prev() -> None:
-            if not search_state["positions"]:
+            if not state.positions:
                 return
-            prv = (search_state["current"] - 1) % len(search_state["positions"])
+            prv = (state.current - 1) % len(state.positions)
+            if prv == len(state.positions) - 1 and state.current == 0:
+                if hasattr(self, "window") and hasattr(self.window, "show_toast"):
+                    self.window.show_toast(_("Wrapped to last match"))
             _goto_match(prv)
 
         def _on_search_changed(entry: Gtk.SearchEntry) -> None:
-            text = entry.get_text()
-            count = _highlight_matches(text)
-            has = count > 0
-            prev_btn.set_sensitive(has)
-            next_btn.set_sensitive(has)
-            if not text:
-                match_label.set_text("")
-            elif count == 0:
-                match_label.set_text(_("No matches"))
-            else:
-                _goto_match(0)
+            if state.debounce_id:
+                GLib.source_remove(state.debounce_id)
+                state.debounce_id = 0
+
+            def _do_search() -> bool:
+                state.debounce_id = 0
+                text = entry.get_text()
+                count = _highlight_matches(text)
+                has = count > 0
+                prev_btn.set_sensitive(has)
+                next_btn.set_sensitive(has)
+                if not text:
+                    match_label.set_text("")
+                elif count == 0:
+                    match_label.set_text(_("No matches"))
+                else:
+                    _goto_match(0)
+                return False  # Don't repeat
+
+            state.debounce_id = GLib.timeout_add(150, _do_search)
 
         def _on_activate(_entry: Gtk.SearchEntry) -> None:
             """Enter → go to next match."""

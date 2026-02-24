@@ -62,7 +62,7 @@ from bigocrpdf.utils.i18n import _
 # ---------------------------------------------------------------------------
 
 
-def _setup_environment():
+def _setup_environment() -> None:
     """Minimal setup without GTK dependencies."""
     parent_dir = Path(__file__).parent.parent
     if str(parent_dir) not in sys.path:
@@ -410,6 +410,28 @@ def build_parser() -> argparse.ArgumentParser:
     info_p = sub.add_parser("info", help=_("Show PDF metadata and page count"))
     info_p.add_argument("input", type=Path, help=_("Input PDF file"))
 
+    # --- export-odf ---
+    odf_p = sub.add_parser("export-odf", help=_("Export OCR'd PDF as ODF document"))
+    odf_p.add_argument("input", type=Path, help=_("Input PDF file (must have text layer)"))
+    odf_p.add_argument(
+        "-o",
+        "--output",
+        type=Path,
+        default=None,
+        help=_("Output ODF file (default: same name as input with .odt)"),
+    )
+
+    # --- export-txt ---
+    txt_p = sub.add_parser("export-txt", help=_("Export OCR'd PDF as formatted text"))
+    txt_p.add_argument("input", type=Path, help=_("Input PDF file (must have text layer)"))
+    txt_p.add_argument(
+        "-o",
+        "--output",
+        type=Path,
+        default=None,
+        help=_("Output text file (default: same name as input with .txt)"),
+    )
+
     # --- edit ---
     edit_p = sub.add_parser("edit", help=_("Open interactive GUI editor"))
     edit_p.add_argument("input", type=Path, help=_("PDF file to edit"))
@@ -422,7 +444,7 @@ def build_parser() -> argparse.ArgumentParser:
 # ---------------------------------------------------------------------------
 
 
-def _cmd_ocr(args, logger) -> int:
+def _cmd_ocr(args: argparse.Namespace, logger: logging.Logger) -> int:
     """Handle the 'ocr' command."""
     from bigocrpdf.services.rapidocr_service.config import OCRConfig
 
@@ -489,7 +511,7 @@ def _cmd_ocr(args, logger) -> int:
     return _run_full_ocr(args, config, page_range, logger)
 
 
-def _cmd_split(args, logger) -> int:
+def _cmd_split(args: argparse.Namespace, logger: logging.Logger) -> int:
     """Handle the 'split' command."""
     from bigocrpdf.services.pdf_operations import split_by_pages, split_by_ranges, split_by_size
 
@@ -516,7 +538,7 @@ def _cmd_split(args, logger) -> int:
     return 0
 
 
-def _cmd_merge(args, logger) -> int:
+def _cmd_merge(args: argparse.Namespace, logger: logging.Logger) -> int:
     """Handle the 'merge' command."""
     from bigocrpdf.services.pdf_operations import merge_pdfs
 
@@ -534,7 +556,7 @@ def _cmd_merge(args, logger) -> int:
         return 1
 
 
-def _cmd_compress(args, logger) -> int:
+def _cmd_compress(args: argparse.Namespace, logger: logging.Logger) -> int:
     """Handle the 'compress' command."""
     from bigocrpdf.services.pdf_operations import compress_pdf
 
@@ -552,7 +574,7 @@ def _cmd_compress(args, logger) -> int:
         return 1
 
 
-def _cmd_rotate(args, logger) -> int:
+def _cmd_rotate(args: argparse.Namespace, logger: logging.Logger) -> int:
     """Handle the 'rotate' command."""
     from bigocrpdf.services.pdf_operations import get_pdf_info, rotate_pages
 
@@ -571,7 +593,7 @@ def _cmd_rotate(args, logger) -> int:
         return 1
 
 
-def _cmd_delete(args, logger) -> int:
+def _cmd_delete(args: argparse.Namespace, logger: logging.Logger) -> int:
     """Handle the 'delete' command."""
     from bigocrpdf.services.pdf_operations import delete_pages
 
@@ -585,7 +607,7 @@ def _cmd_delete(args, logger) -> int:
         return 1
 
 
-def _cmd_extract(args, logger) -> int:
+def _cmd_extract(args: argparse.Namespace, logger: logging.Logger) -> int:
     """Handle the 'extract' command."""
     from bigocrpdf.services.pdf_operations import extract_pages
 
@@ -599,7 +621,7 @@ def _cmd_extract(args, logger) -> int:
         return 1
 
 
-def _cmd_insert(args, logger) -> int:
+def _cmd_insert(args: argparse.Namespace, logger: logging.Logger) -> int:
     """Handle the 'insert' command."""
     from bigocrpdf.services.pdf_operations import insert_pages
 
@@ -623,7 +645,7 @@ def _cmd_insert(args, logger) -> int:
         return 1
 
 
-def _cmd_reorder(args, logger) -> int:
+def _cmd_reorder(args: argparse.Namespace, logger: logging.Logger) -> int:
     """Handle the 'reorder' command."""
     from bigocrpdf.services.pdf_operations import reorder_pages, reverse_pages
 
@@ -641,7 +663,7 @@ def _cmd_reorder(args, logger) -> int:
         return 1
 
 
-def _cmd_info(args, _logger) -> int:
+def _cmd_info(args: argparse.Namespace, _logger: logging.Logger) -> int:
     """Handle the 'info' command."""
     from bigocrpdf.services.pdf_operations import get_pdf_info
 
@@ -660,7 +682,39 @@ def _cmd_info(args, _logger) -> int:
     return 0
 
 
-def _cmd_edit(args, logger) -> int:
+def _cmd_export_odf(args: argparse.Namespace, logger: logging.Logger) -> int:
+    """Handle the 'export-odf' command."""
+    from bigocrpdf.utils.tsv_odf_converter import convert_pdf_to_odf
+
+    if args.output:
+        odf_path = str(args.output)
+    else:
+        odf_path = str(args.input.with_suffix(".odt"))
+
+    logger.info(f"Converting {args.input} → {odf_path}")
+    result = convert_pdf_to_odf(str(args.input), odf_path)
+    print(f"Saved: {result}")
+    return 0
+
+
+def _cmd_export_txt(args: argparse.Namespace, logger: logging.Logger) -> int:
+    """Handle the 'export-txt' command."""
+    from bigocrpdf.utils.tsv_odf_converter import convert_pdf_to_text
+
+    if args.output:
+        txt_path = str(args.output)
+    else:
+        txt_path = str(args.input.with_suffix(".txt"))
+
+    logger.info(f"Converting {args.input} → {txt_path}")
+    text = convert_pdf_to_text(str(args.input))
+    with open(txt_path, "w", encoding="utf-8") as f:
+        f.write(text)
+    print(f"Saved: {txt_path}")
+    return 0
+
+
+def _cmd_edit(args: argparse.Namespace, logger: logging.Logger) -> int:
     """Handle the 'edit' command — launch GUI editor directly."""
     try:
         import gi
@@ -690,7 +744,7 @@ def _cmd_edit(args, logger) -> int:
         return 1
 
 
-def _standalone_save(doc, original_path, logger):
+def _standalone_save(doc: object, original_path: Path, logger: logging.Logger) -> None:
     """Save callback for standalone editor mode."""
     import os
     import shutil
@@ -719,7 +773,13 @@ def _standalone_save(doc, original_path, logger):
 # ---------------------------------------------------------------------------
 
 
-def _run_dewarp_only(args, config, page_range, logger, page_set=None) -> int:
+def _run_dewarp_only(
+    args: argparse.Namespace,
+    config: "OCRConfig",
+    page_range: tuple[int, int] | None,
+    logger: logging.Logger,
+    page_set: set[int] | None = None,
+) -> int:
     """Run only preprocessing (dewarp/deskew) and save images."""
     import cv2
     import numpy as np
@@ -763,6 +823,18 @@ def _run_dewarp_only(args, config, page_range, logger, page_set=None) -> int:
             from PIL import Image as PILImage
 
             pil_img = PILImage.open(img_path)
+
+            # Guard against OOM on extremely large images (e.g. 1200 DPI A3)
+            MAX_PIXELS = 200_000_000  # ~200 MP ≈ ~600 MB at 3 bytes/px
+            w, h = pil_img.size
+            if w * h > MAX_PIXELS:
+                scale = (MAX_PIXELS / (w * h)) ** 0.5
+                new_w, new_h = int(w * scale), int(h * scale)
+                logger.warning(
+                    f"Page {page_num}: image {w}×{h} too large, downsampling to {new_w}×{new_h}"
+                )
+                pil_img = pil_img.resize((new_w, new_h), PILImage.LANCZOS)
+
             if pil_img.mode != "RGB":
                 pil_img = pil_img.convert("RGB")
             img = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
@@ -802,7 +874,12 @@ def _run_dewarp_only(args, config, page_range, logger, page_set=None) -> int:
     return 0
 
 
-def _run_full_ocr(args, config, page_range, logger) -> int:
+def _run_full_ocr(
+    args: argparse.Namespace,
+    config: "OCRConfig",
+    page_range: tuple[int, int] | None,
+    logger: logging.Logger,
+) -> int:
     """Run the full OCR pipeline."""
     from bigocrpdf.services.rapidocr_service.backend import ProfessionalPDFOCR
 
@@ -811,7 +888,7 @@ def _run_full_ocr(args, config, page_range, logger) -> int:
 
     ocr = ProfessionalPDFOCR(config)
 
-    def progress_cb(current, total, message):
+    def progress_cb(current: int, total: int, message: str) -> None:
         print(f"\r[{current}/{total}] {message}", end="", flush=True)
 
     logger.info(f"Processing {args.input} → {args.output}")
@@ -895,6 +972,8 @@ def main(argv: list[str] | None = None) -> int:
         "insert": _cmd_insert,
         "reorder": _cmd_reorder,
         "info": _cmd_info,
+        "export-odf": _cmd_export_odf,
+        "export-txt": _cmd_export_txt,
         "edit": _cmd_edit,
     }
 

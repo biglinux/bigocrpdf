@@ -52,6 +52,95 @@ from bigocrpdf.services.rapidocr_service.backend_pipeline import BackendPipeline
 from bigocrpdf.services.rapidocr_service.backend_text_layer import BackendTextLayerMixin
 
 
+def _compute_fill_threshold(ratios: list[float]) -> float:
+    """Compute dynamic fill threshold from the 90th percentile of content ratios."""
+    content_ratios = sorted(r for r in ratios if r > 0.1)
+    if not content_ratios:
+        return 0.75
+    p90_idx = min(int(len(content_ratios) * 0.90), len(content_ratios) - 1)
+    return max(content_ratios[p90_idx] * 0.88, 0.55)
+
+
+def _should_break_before(
+    next_stripped: str,
+    next_indent: int,
+    para_start_indent: int,
+) -> bool:
+    """Return True if the next line should start a new paragraph."""
+    if _is_structural_line(next_stripped):
+        return True
+    if next_indent > 8 and next_indent > para_start_indent + 4:
+        return True
+    if next_indent > 15 and para_start_indent < 8:
+        return True
+    return False
+
+
+def _classify_join(
+    para_end: str,
+    next_stripped: str,
+    next_indent: int,
+    para_start_indent: int,
+    last_fill_ratio: float,
+    fill_threshold: float,
+) -> str:
+    """Classify how two lines should be joined: 'hyphen', 'continuation', or 'break'."""
+    if (
+        para_end.endswith("-")
+        and len(para_end) > 1
+        and para_end[-2].isalpha()
+        and next_stripped
+        and next_stripped[0].islower()
+    ):
+        return "hyphen"
+
+    is_last_full_width = last_fill_ratio > fill_threshold
+    no_terminal_punct = not para_end.endswith((".", "!", "?", ":"))
+    indent_ok = abs(next_indent - para_start_indent) <= 2 or (
+        para_start_indent > 0 and next_indent <= 2
+    )
+
+    if is_last_full_width and no_terminal_punct and indent_ok:
+        return "continuation"
+    return "break"
+
+
+def _build_ref_centers(table_lines: list, modal_cols: int) -> list[float]:
+    """Compute reference x-centers for each column from rows matching modal count."""
+    ref_x: list[list[float]] = [[] for _ in range(modal_cols)]
+    for line in table_lines:
+        if len(line) == modal_cols:
+            for ci, r in enumerate(line):
+                xs = [p[0] for p in r.box]
+                ref_x[ci].append((min(xs) + max(xs)) / 2)
+    return [sum(xs) / len(xs) if xs else 0 for xs in ref_x]
+
+
+def _build_cell_grid(
+    table_lines: list, modal_cols: int, ref_centers: list[float]
+) -> list[list[str]]:
+    """Map each table row's cells into a fixed-width grid by column proximity."""
+    grid: list[list[str]] = []
+    for line in table_lines:
+        row = [""] * modal_cols
+        if len(line) == modal_cols:
+            for ci, r in enumerate(line):
+                row[ci] = r.text
+        else:
+            for r in line:
+                xs = [p[0] for p in r.box]
+                x_center = (min(xs) + max(xs)) / 2
+                best_col = min(
+                    range(len(ref_centers)), key=lambda ci: abs(x_center - ref_centers[ci])
+                )
+                if row[best_col]:
+                    row[best_col] += " " + r.text
+                else:
+                    row[best_col] = r.text
+        grid.append(row)
+    return grid
+
+
 def _is_structural_line(text: str) -> bool:
     """Check if a line is a structural element (heading, list, section)."""
     s = text.strip()
@@ -66,6 +155,20 @@ def _is_structural_line(text: str) -> bool:
     # ALL CAPS heading (> 4 chars, single or multi-word)
     if s.isupper() and len(s) > 4:
         return True
+    # Legal document section pattern: "A1 - HEADING(S):" at the start of a line
+    # Even if followed by body text, the start is a structural marker
+    m = re.match(r"^[A-Z]{1,3}\d*\s*[-–\.]\s+", s)
+    if m:
+        # Check if the label portion (up to first ":") is mostly uppercase
+        colon_pos = s.find(":")
+        if colon_pos > 0:
+            label = s[:colon_pos]
+            alpha_chars = [c for c in label if c.isalpha()]
+            if alpha_chars and sum(1 for c in alpha_chars if c.isupper()) / len(alpha_chars) > 0.7:
+                return True
+        elif s[m.end() :].strip().isupper():
+            # No colon but rest is ALL CAPS (e.g., "A- QUALIFICACAO DAS PARTES")
+            return True
     return False
 
 
@@ -87,109 +190,145 @@ class ProfessionalPDFOCR(
         self.renderer = TextLayerRenderer(self.config.dpi)
 
     def _format_ocr_text(self, ocr_results: list[OCRResult], page_width: float) -> str:
-        """Format OCR results into readable text preserving spatial layout.
-
-        Performs full layout analysis: line grouping, page margin detection,
-        centering detection, indentation, table alignment, and paragraph breaks.
-        """
+        """Format OCR results into readable text preserving spatial layout."""
         if not ocr_results:
             return ""
 
-        # Sort by y, then x
         sorted_results = sorted(
             ocr_results,
             key=lambda r: (min(p[1] for p in r.box), min(p[0] for p in r.box)),
         )
 
-        # --- Phase 1: Group into visual lines by y-proximity ---
         lines = self._group_into_lines(sorted_results)
-
-        # --- Phase 2: Compute page metrics ---
         metrics = self._compute_page_metrics(lines, page_width)
 
-        # --- Phase 3: Classify lines and detect table regions ---
         table_ranges = self._detect_table_ranges(lines, page_width)
-        table_line_set: set[int] = set()
-        for start, end in table_ranges:
-            for idx in range(start, end):
-                table_line_set.add(idx)
+        table_line_set: set[int] = {idx for start, end in table_ranges for idx in range(start, end)}
 
-        line_props = []
-        for i, line in enumerate(lines):
-            in_table = i in table_line_set
-            props = self._classify_line_layout(line, metrics, in_table)
-            line_props.append(props)
+        line_props = [
+            self._classify_line_layout(line, metrics, i in table_line_set)
+            for i, line in enumerate(lines)
+        ]
 
-        # --- Phase 4: Build formatted text ---
+        parts, line_fill_ratios = self._build_formatted_lines(
+            lines,
+            line_props,
+            table_ranges,
+            metrics,
+            page_width,
+        )
+
+        raw = "\n".join(parts)
+        return self._reflow_paragraphs(raw, line_props, table_line_set, line_fill_ratios)
+
+    def _build_formatted_lines(
+        self,
+        lines: list[list],
+        line_props: list[dict],
+        table_ranges: list[tuple[int, int]],
+        metrics: dict,
+        page_width: float,
+    ) -> tuple[list[str], list[float]]:
+        """Build formatted text lines with paragraph breaks and table handling."""
         parts: list[str] = []
+        line_fill_ratios: list[float] = []
         prev_bottom = -1.0
+        prev_raw_text = ""
+        table_start_map = {tr[0]: tr for tr in table_ranges}
         i = 0
 
         while i < len(lines):
             line = lines[i]
             props = line_props[i]
-            line_top = props["top"]
-            line_bottom = props["bottom"]
-            line_h = max(line_bottom - line_top, 1.0)
 
-            # Check if this line starts a table
-            table_range = None
-            for tr in table_ranges:
-                if tr[0] == i:
-                    table_range = tr
-                    break
-
+            table_range = table_start_map.get(i)
             if table_range:
                 start, end = table_range
                 if prev_bottom >= 0:
                     parts.append("")
+                    line_fill_ratios.append(0.0)
                 table_text = self._format_table_region(lines[start:end], metrics)
+                for _ in table_text.split("\n"):
+                    line_fill_ratios.append(0.0)
                 parts.append(table_text)
                 last = lines[end - 1]
                 prev_bottom = max(max(p[1] for p in r.box) for r in last)
+                prev_raw_text = ""
                 i = end
                 continue
 
-            # Paragraph break detection
-            if prev_bottom >= 0:
-                gap = line_top - prev_bottom
-                is_gap_break = gap > line_h * 0.6
-                # Also break if previous line was non-indented and this one is indented
-                prev_props = line_props[i - 1] if i > 0 else None
-                is_indent_break = (
-                    prev_props is not None
-                    and props["indent_chars"] > 0
-                    and prev_props["indent_chars"] == 0
-                    and not prev_props["is_centered"]
-                )
-                if is_gap_break or is_indent_break:
-                    parts.append("")
+            line_top = props["top"]
+            line_bottom = props["bottom"]
+            line_h = max(line_bottom - line_top, 1.0)
 
-            # Format the line based on classification
+            if prev_bottom >= 0 and self._is_paragraph_break(
+                prev_bottom,
+                line_top,
+                line_h,
+                props,
+                line_props[i - 1] if i > 0 else None,
+                prev_raw_text,
+                line,
+                metrics,
+            ):
+                parts.append("")
+                line_fill_ratios.append(0.0)
+
             raw_text = self._format_text_line(line, metrics)
+            line_width_px = props["right_x"] - props["left_x"]
+            fill_ratio = line_width_px / page_width if page_width > 0 else 0.0
 
-            if props["is_centered"]:
-                pad = max(0, (metrics["output_width"] - len(raw_text)) // 2)
-                parts.append(" " * pad + raw_text)
-            elif props["indent_chars"] > 0:
-                parts.append(" " * props["indent_chars"] + raw_text)
-            else:
-                parts.append(raw_text)
+            parts.append(self._apply_line_alignment(raw_text, props, metrics))
+            line_fill_ratios.append(fill_ratio)
 
+            prev_raw_text = raw_text
             prev_bottom = line_bottom
             i += 1
 
-        raw = "\n".join(parts)
+        return parts, line_fill_ratios
 
-        # --- Phase 5: Post-process text ---
-        raw = self._reflow_paragraphs(raw, line_props, table_line_set)
-        return raw
+    def _is_paragraph_break(
+        self,
+        prev_bottom: float,
+        line_top: float,
+        line_h: float,
+        props: dict,
+        prev_props: dict | None,
+        prev_raw_text: str,
+        line: list,
+        metrics: dict,
+    ) -> bool:
+        """Detect whether a paragraph break should be inserted before this line."""
+        gap = line_top - prev_bottom
+        if gap > line_h * 0.6:
+            return True
+        prev_ends_sentence = prev_raw_text.rstrip().endswith((".", "!", "?"))
+        if (
+            prev_props is not None
+            and props["indent_chars"] > 0
+            and prev_props["indent_chars"] == 0
+            and not prev_props["is_centered"]
+            and prev_ends_sentence
+        ):
+            return True
+        raw_preview = self._format_text_line(line, metrics)
+        return _is_structural_line(raw_preview.strip())
+
+    @staticmethod
+    def _apply_line_alignment(raw_text: str, props: dict, metrics: dict) -> str:
+        """Apply centering or indentation to a formatted text line."""
+        if props["is_centered"]:
+            pad = max(0, (metrics["output_width"] - len(raw_text)) // 2)
+            return " " * pad + raw_text
+        if props["indent_chars"] > 0:
+            return " " * props["indent_chars"] + raw_text
+        return raw_text
 
     @staticmethod
     def _group_into_lines(sorted_results: list["OCRResult"]) -> list[list["OCRResult"]]:
         """Group sorted OCR results into visual lines by y-proximity."""
-        lines: list[list["OCRResult"]] = []
-        current_line: list["OCRResult"] = [sorted_results[0]]
+        lines: list[list[OCRResult]] = []
+        current_line: list[OCRResult] = [sorted_results[0]]
 
         for r in sorted_results[1:]:
             ref = current_line[0]
@@ -363,12 +502,7 @@ class ProfessionalPDFOCR(
 
     @staticmethod
     def _format_table_region(table_lines: list[list["OCRResult"]], metrics: dict) -> str:
-        """Format a table region with aligned columns.
-
-        Uses ordinal box position for rows with the modal box count,
-        and x-position fallback for rows with different counts.
-        Adds indentation if the table is offset from body margin.
-        """
+        """Format a table region with aligned columns."""
         if not table_lines:
             return ""
 
@@ -377,47 +511,14 @@ class ProfessionalPDFOCR(
         counts = Counter(len(line) for line in table_lines)
         modal_cols = counts.most_common(1)[0][0]
 
-        # Collect reference column x-centers from ordinal rows
-        ref_x: list[list[float]] = [[] for _ in range(modal_cols)]
-        for line in table_lines:
-            if len(line) == modal_cols:
-                for ci, r in enumerate(line):
-                    xs = [p[0] for p in r.box]
-                    ref_x[ci].append((min(xs) + max(xs)) / 2)
+        ref_centers = _build_ref_centers(table_lines, modal_cols)
+        grid = _build_cell_grid(table_lines, modal_cols, ref_centers)
 
-        ref_centers = [sum(xs) / len(xs) if xs else 0 for xs in ref_x]
-
-        # Build cell grid
-        grid: list[list[str]] = []
-        for line in table_lines:
-            row = [""] * modal_cols
-            if len(line) == modal_cols:
-                for ci, r in enumerate(line):
-                    row[ci] = r.text
-            else:
-                for r in line:
-                    xs = [p[0] for p in r.box]
-                    x_center = (min(xs) + max(xs)) / 2
-                    best_col = 0
-                    best_dist = float("inf")
-                    for ci, cx in enumerate(ref_centers):
-                        d = abs(x_center - cx)
-                        if d < best_dist:
-                            best_dist = d
-                            best_col = ci
-                    if row[best_col]:
-                        row[best_col] += " " + r.text
-                    else:
-                        row[best_col] = r.text
-            grid.append(row)
-
-        # Column widths
         col_widths = [0] * modal_cols
         for row in grid:
             for ci, cell in enumerate(row):
                 col_widths[ci] = max(col_widths[ci], len(cell))
 
-        # Table indentation from body margin
         table_left = min(min(min(p[0] for p in r.box) for r in line) for line in table_lines)
         body_left = metrics["body_left_margin"]
         avg_cw = metrics["avg_char_width"]
@@ -425,7 +526,6 @@ class ProfessionalPDFOCR(
         indent_chars = max(0, round(indent_px / avg_cw)) if indent_px > avg_cw * 1.5 else 0
         indent_str = " " * indent_chars
 
-        # Format rows
         formatted_rows: list[str] = []
         for row in grid:
             cells = [cell.ljust(col_widths[ci]) for ci, cell in enumerate(row)]
@@ -460,89 +560,58 @@ class ProfessionalPDFOCR(
         text: str,
         line_props: list[dict],
         table_line_set: set[int],
+        line_fill_ratios: list[float] | None = None,
     ) -> str:
-        """Join continuation lines to form flowing paragraphs.
-
-        Detects lines that are continuations of the previous line (word
-        wrapping in the original document) and joins them, eliminating
-        unnecessary line breaks within paragraphs.
-        """
-        import re
-
+        """Join continuation lines to form flowing paragraphs."""
         lines = text.split("\n")
         result: list[str] = []
-        i = 0
+        ratios = line_fill_ratios or [0.0] * len(lines)
+        fill_threshold = _compute_fill_threshold(ratios)
 
+        i = 0
         while i < len(lines):
             line = lines[i]
             stripped = line.rstrip()
-
-            # Keep empty lines (paragraph breaks)
             if not stripped:
                 result.append("")
                 i += 1
                 continue
 
-            # Accumulate paragraph lines
             para = stripped
+            para_start_indent = len(stripped) - len(stripped.lstrip())
+            last_fill_ratio = ratios[i] if i < len(ratios) else 0.0
             i += 1
 
             while i < len(lines):
                 next_line = lines[i].rstrip()
-
-                # Stop at empty line (paragraph break)
                 if not next_line:
                     break
 
                 next_stripped = next_line.lstrip()
-
-                # Stop at lines that look like new structural elements
-                if _is_structural_line(next_stripped):
-                    break
-
-                # Stop if indentation changes significantly (new paragraph/section)
-                cur_indent = len(para) - len(para.lstrip())
                 next_indent = len(next_line) - len(next_line.lstrip())
-                # Centered lines have leading spaces — don't join them
-                if next_indent > cur_indent + 4 and next_indent > 8:
+
+                if _should_break_before(next_stripped, next_indent, para_start_indent):
                     break
 
-                # Stop if next line looks centered (many leading spaces)
-                # vs current line that isn't centered
-                if next_indent > 15 and cur_indent < 8:
-                    break
-
-                # Check if this is a continuation
                 para_end = para.rstrip()
                 if not para_end:
                     break
 
-                last_char = para_end[-1]
-
-                # Full-width line continuation: line fills the width
-                # and next line starts at left margin
-                is_continuation = (
-                    len(para_end.lstrip()) > 50
-                    and not para_end.rstrip().endswith((".", "!", "?", ":"))
-                    and abs(next_indent - cur_indent) <= 2
+                join = _classify_join(
+                    para_end,
+                    next_stripped,
+                    next_indent,
+                    para_start_indent,
+                    last_fill_ratio,
+                    fill_threshold,
                 )
-
-                # Explicit hyphenated word break: "word-\n" + "continuation"
-                is_hyphen_break = (
-                    para_end.endswith("-")
-                    and len(para_end) > 1
-                    and para_end[-2].isalpha()
-                    and next_stripped
-                    and next_stripped[0].islower()
-                )
-
-                if is_hyphen_break:
-                    # Join removing hyphen (word was split with hyphen)
+                if join == "hyphen":
                     para = para_end[:-1] + next_stripped
+                    last_fill_ratio = ratios[i] if i < len(ratios) else 0.0
                     i += 1
-                elif is_continuation:
-                    # Join with space (paragraph continuation)
+                elif join == "continuation":
                     para = para_end + " " + next_stripped
+                    last_fill_ratio = ratios[i] if i < len(ratios) else 0.0
                     i += 1
                 else:
                     break
@@ -642,19 +711,17 @@ class ProfessionalPDFOCR(
         logger.info(f"Processing: {input_pdf}")
         logger.info(f"Output: {output_pdf}")
 
-        # Check if PDF has native text (mixed content)
-        if (
-            not self.config.force_full_ocr
-            and not self.config.replace_existing_ocr
-            and has_native_text(input_pdf)
-        ):
+        # Choose pipeline: mixed content (text + images) vs image-only.
+        # force_full_ocr is the ONLY flag that bypasses mixed content detection
+        # (used for editor-merged files that must be fully re-processed).
+        # replace_existing_ocr does NOT affect pipeline selection — it only
+        # controls whether existing OCR text is re-processed within each pipeline.
+        if not self.config.force_full_ocr and has_native_text(input_pdf):
             logger.info("Detected mixed content PDF (text + images). Using preservation mode.")
             return self._process_mixed_content_pdf(input_pdf, output_pdf, progress_callback)
         else:
             if self.config.force_full_ocr:
                 logger.info("Force full OCR mode (editor-merged file). Using full OCR mode.")
-            elif self.config.replace_existing_ocr:
-                logger.info("Replace existing OCR mode. Using full OCR mode.")
             else:
                 logger.info("Detected image-only PDF. Using full OCR mode.")
             return self._process_image_only_pdf(input_pdf, output_pdf, progress_callback)

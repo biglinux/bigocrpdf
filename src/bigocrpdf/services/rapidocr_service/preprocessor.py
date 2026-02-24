@@ -23,8 +23,6 @@ from bigocrpdf.services.rapidocr_service.preprocess_deskew import (
 from bigocrpdf.services.rapidocr_service.preprocess_enhance import (
     apply_color_enhancements,
     apply_independent_effects,
-    auto_normalize_illumination,
-    sharpen_text,
 )
 from bigocrpdf.services.rapidocr_service.preprocess_orientation import (
     correct_orientation,
@@ -156,18 +154,6 @@ class ImagePreprocessor:
         #   b) Uniform skew (R² ≤ 0.4): simple rotation correction.
         if self.config.enable_deskew:
             result = probmap_angle_deskew(result, self.probmap_max_side)
-
-        # Step 5: Normalize illumination + sharpen (scanner effect pipeline)
-        # Only runs when scanner effect is explicitly enabled.
-        # Previously ran with auto-detect by default, which made scanned
-        # pages look like the scanner effect was applied even when disabled.
-        if self.config.enable_scanner_effect:
-            result = auto_normalize_illumination(result, force=True)
-
-        # Step 6: Sharpen text after illumination normalization
-        # Only applied when scanner effect is enabled.
-        if self.config.enable_scanner_effect:
-            result = sharpen_text(result)
 
         return result
 

@@ -122,6 +122,7 @@ def run_ocr_full(
     det_model_path: str = "",
     font_path: str = "",
     threads: int = 4,
+    full_resolution: bool = False,
 ) -> dict:
     """Run OCR on a single image with full parameter control.
 
@@ -177,6 +178,11 @@ def run_ocr_full(
 
         engine_type = EngineType.OPENVINO if use_openvino else EngineType.ONNXRUNTIME
 
+        # Detection limit_type: "min" bypasses the 2000px hardcoded cap in
+        # TextDetector.get_preprocess(), enabling full-resolution detection.
+        # "max" (default) uses the adaptive cap (faster, less accurate for large images).
+        limit_type = "min" if full_resolution else "max"
+
         params = {
             # Detection settings
             "Det.engine_type": engine_type,
@@ -184,12 +190,12 @@ def run_ocr_full(
             "Det.unclip_ratio": unclip_ratio,
             "Det.score_mode": score_mode,
             "Det.limit_side_len": limit_side_len,
-            "Det.limit_type": "max",
+            "Det.limit_type": limit_type,
             # Recognition settings
             "Rec.engine_type": engine_type,
             "Rec.lang_type": lang_rec,
             "Rec.ocr_version": OCRVersion.PPOCRV5,
-            "Rec.rec_batch_num": 8,
+            "Rec.rec_batch_num": 1,
             # Classifier settings (use same engine even if disabled)
             "Cls.engine_type": engine_type,
             # Global settings
@@ -199,22 +205,13 @@ def run_ocr_full(
         }
 
         # Engine-specific threading configuration
+        # NOTE: Must use EngineConfig.<engine> path, not Det/Rec.engine_cfg,
+        # because RapidOCR._initialize() overwrites engine_cfg from EngineConfig.
         if use_openvino:
-            params.update(
-                {
-                    "Det.engine_cfg.inference_num_threads": threads,
-                    "Rec.engine_cfg.inference_num_threads": threads,
-                }
-            )
+            params["EngineConfig.openvino.inference_num_threads"] = threads
         else:
-            params.update(
-                {
-                    "Det.engine_cfg.intra_op_num_threads": threads,
-                    "Det.engine_cfg.inter_op_num_threads": 2,
-                    "Rec.engine_cfg.intra_op_num_threads": threads,
-                    "Rec.engine_cfg.inter_op_num_threads": 2,
-                }
-            )
+            params["EngineConfig.onnxruntime.intra_op_num_threads"] = threads
+            params["EngineConfig.onnxruntime.inter_op_num_threads"] = 2
 
         # Add model paths if provided
         if rec_model_path:
@@ -257,6 +254,7 @@ def _create_ocr_engine(
     det_model_path: str = "",
     font_path: str = "",
     threads: int = 4,
+    full_resolution: bool = False,
 ) -> object:
     """Create a RapidOCR engine with full parameters and fallback support.
 
@@ -289,17 +287,18 @@ def _create_ocr_engine(
 
     def _build_params(engine_type, use_openvino_threads: bool):
         """Build parameter dict for the given engine type."""
+        limit_type = "min" if full_resolution else "max"
         p = {
             "Det.engine_type": engine_type,
             "Det.box_thresh": box_thresh,
             "Det.unclip_ratio": unclip_ratio,
             "Det.score_mode": score_mode,
             "Det.limit_side_len": limit_side_len,
-            "Det.limit_type": "max",
+            "Det.limit_type": limit_type,
             "Rec.engine_type": engine_type,
             "Rec.lang_type": lang_rec,
             "Rec.ocr_version": OCRVersion.PPOCRV5,
-            "Rec.rec_batch_num": 8,
+            "Rec.rec_batch_num": 1,
             # Classifier settings (use same engine even if disabled)
             "Cls.engine_type": engine_type,
             "Global.use_cls": False,
@@ -308,21 +307,10 @@ def _create_ocr_engine(
         }
 
         if use_openvino_threads:
-            p.update(
-                {
-                    "Det.engine_cfg.inference_num_threads": threads,
-                    "Rec.engine_cfg.inference_num_threads": threads,
-                }
-            )
+            p["EngineConfig.openvino.inference_num_threads"] = threads
         else:
-            p.update(
-                {
-                    "Det.engine_cfg.intra_op_num_threads": threads,
-                    "Det.engine_cfg.inter_op_num_threads": 2,
-                    "Rec.engine_cfg.intra_op_num_threads": threads,
-                    "Rec.engine_cfg.inter_op_num_threads": 2,
-                }
-            )
+            p["EngineConfig.onnxruntime.intra_op_num_threads"] = threads
+            p["EngineConfig.onnxruntime.inter_op_num_threads"] = 2
 
         if rec_model_path:
             p["Rec.model_path"] = rec_model_path
@@ -443,6 +431,7 @@ def run_persistent(args: argparse.Namespace) -> None:
             det_model_path=args.det_model_path,
             font_path=args.font_path,
             threads=threads,
+            full_resolution=args.full_resolution,
         )
     except Exception as e:
         real_stdout.write(json.dumps({"fatal": str(e)}) + "\n")
@@ -492,6 +481,11 @@ def main():
     parser.add_argument("--det-model-path", default="", help="Detection model path")
     parser.add_argument("--font-path", default="", help="Font path")
     parser.add_argument("--threads", type=int, default=0, help="Number of threads (0=auto)")
+    parser.add_argument(
+        "--full-resolution",
+        action="store_true",
+        help="Use full resolution for detection (limit_type=min instead of max)",
+    )
 
     args = parser.parse_args()
 
@@ -522,6 +516,7 @@ def main():
                 det_model_path=args.det_model_path,
                 font_path=args.font_path,
                 threads=threads,
+                full_resolution=args.full_resolution,
             )
             print(json.dumps(result))
         else:

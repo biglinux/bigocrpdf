@@ -108,7 +108,7 @@ class TerminalPageManager:
         """Add the progress bar"""
         self.terminal_progress_bar = Gtk.ProgressBar()
         self.terminal_progress_bar.set_show_text(True)
-        self.terminal_progress_bar.set_text("0%")
+        self.terminal_progress_bar.set_text(_("0%"))
         self.terminal_progress_bar.set_fraction(0)
         self.terminal_progress_bar.set_margin_bottom(8)
         set_a11y_label(self.terminal_progress_bar, _("OCR processing progress"))
@@ -148,7 +148,7 @@ class TerminalPageManager:
         quality_label = (
             _("Keep Original")
             if fmt == "original"
-            else f"JPEG {getattr(settings, 'image_export_quality', 85)}%"
+            else _("JPEG {quality}%").format(quality=getattr(settings, "image_export_quality", 85))
         )
 
         # --- Build bottom summary ---
@@ -165,58 +165,51 @@ class TerminalPageManager:
         sep.set_margin_bottom(4)
         summary.append(sep)
 
-        # Line 1: Language • Quality (+ extras)
-        parts = [
-            f"{_('Language')}: <b>{GLib.markup_escape_text(lang_name)}</b>",
-            f"{_('Quality')}: <b>{GLib.markup_escape_text(quality_label)}</b>",
-        ]
+        grid = Gtk.Grid()
+        grid.set_column_spacing(12)
+        grid.set_row_spacing(2)
+        grid.set_halign(Gtk.Align.CENTER)
+
+        row_idx = 0
+
+        def _add_row(label_text: str, value_text: str) -> None:
+            nonlocal row_idx
+            lbl = Gtk.Label(label=label_text)
+            lbl.set_halign(Gtk.Align.END)
+            lbl.add_css_class("dim-label")
+            lbl.add_css_class("caption")
+            val = Gtk.Label(label=value_text)
+            val.set_halign(Gtk.Align.START)
+            val.add_css_class("dim-label")
+            val.add_css_class("caption")
+            grid.attach(lbl, 0, row_idx, 1, 1)
+            grid.attach(val, 1, row_idx, 1, 1)
+            row_idx += 1
+
+        _add_row(_("Language"), lang_name)
+        _add_row(_("Quality"), quality_label)
+
         if getattr(settings, "convert_to_pdfa", False):
-            parts.append("<b>PDF/A</b>")
+            _add_row(_("Format"), "PDF/A")
         max_mb = getattr(settings, "max_file_size_mb", 0)
         if max_mb > 0:
-            parts.append(_("<b>Max {mb} MB</b>").format(mb=max_mb))
+            _add_row(_("Max Size"), _("{mb} MB").format(mb=max_mb))
         if getattr(settings, "replace_existing_ocr", False):
-            parts.append(f"<b>{GLib.markup_escape_text(_('Replace OCR'))}</b>")
+            _add_row(_("Mode"), _("Replace OCR"))
 
-        meta_label = Gtk.Label()
-        meta_label.set_markup("<small>" + "   •   ".join(parts) + "</small>")
-        meta_label.set_halign(Gtk.Align.CENTER)
-        meta_label.set_wrap(True)
-        meta_label.add_css_class("dim-label")
-        summary.append(meta_label)
-
-        # Line 2: Active corrections (always show names)
         if active:
-            on_label = Gtk.Label()
-            on_label.set_markup(
-                "<small>"
-                + _("Active")
-                + ": <b>"
-                + ", ".join(GLib.markup_escape_text(n) for n in active)
-                + "</b></small>"
-            )
-            on_label.set_halign(Gtk.Align.CENTER)
-            on_label.set_wrap(True)
-            on_label.add_css_class("dim-label")
-            summary.append(on_label)
-
-        # Line 3: Inactive corrections (always show names, bold for consistency)
+            _add_row(_("Active"), ", ".join(active))
         if inactive:
-            off_label = Gtk.Label()
-            off_label.set_markup(
-                "<small>"
-                + _("Inactive")
-                + ": <b>"
-                + ", ".join(GLib.markup_escape_text(n) for n in inactive)
-                + "</b></small>"
-            )
-            off_label.set_halign(Gtk.Align.CENTER)
-            off_label.set_wrap(True)
-            off_label.add_css_class("dim-label")
-            summary.append(off_label)
+            _add_row(_("Inactive"), ", ".join(inactive))
+
+        summary.append(grid)
 
         self._summary_box = summary
         container.append(summary)
+
+    def update_file_status(self, filename: str, status: str) -> None:
+        """No-op: per-file status list removed from UI."""
+        pass
 
     def _add_status_label(self, container: Gtk.Box) -> None:
         """Add the status label"""
@@ -224,6 +217,7 @@ class TerminalPageManager:
         self.terminal_status_bar.add_css_class("body")
         self.terminal_status_bar.set_halign(Gtk.Align.CENTER)
         self.terminal_status_bar.set_margin_bottom(8)
+        self.terminal_status_bar.set_accessible_role(Gtk.AccessibleRole.STATUS)
         container.append(self.terminal_status_bar)
 
     def _add_cancel_button(self, container: Gtk.Box) -> None:
@@ -285,7 +279,7 @@ class TerminalPageManager:
                 _("Processed file {current}/{total}: {filename}").format(
                     current=file_count,
                     total=total_files,
-                    filename=os.path.basename(input_file),
+                    filename=self.window.settings.display_name(input_file),
                 )
             )
 
@@ -367,8 +361,7 @@ class TerminalPageManager:
         if not self.terminal_progress_bar:
             return
 
-        # Ensure progress is within bounds, never below endowed start
-        progress = max(self._INITIAL_FRACTION, min(1.0, progress))
+        progress = max(0.0, min(1.0, progress))
 
         # Update with 1% precision for smooth experience
         if self._progress_state.update_fraction(progress):
@@ -414,6 +407,9 @@ class TerminalPageManager:
 
         if self._progress_state.update_status(status_text):
             self.terminal_status_bar.set_markup(status_text)
+            self.window.announce_status(
+                _("OCR processing complete. {total} files processed.").format(total=total_files)
+            )
 
         self.stop_progress_monitor()
 
@@ -447,6 +443,11 @@ class TerminalPageManager:
 
         if self._progress_state.update_status(status_text):
             self.terminal_status_bar.set_markup(status_text)
+            self.window.announce_status(
+                _("Processing file {current} of {total}: {filename}").format(
+                    current=file_number, total=total_files, filename=filename
+                )
+            )
 
     def _show_simple_progress_status(
         self, processed_files: int, total_files: int, time_str: str
@@ -474,14 +475,13 @@ class TerminalPageManager:
         self.update_terminal_status_complete()
         self.stop_progress_monitor()
 
-    # Endowed progress: start at 5% so users feel "already underway"
-    _INITIAL_FRACTION = 0.05
+    _INITIAL_FRACTION = 0.0
 
     def reset_progress(self) -> None:
-        """Reset progress indicators to initial state with endowed progress"""
+        """Reset progress indicators to initial state"""
         if self.terminal_progress_bar:
-            self.terminal_progress_bar.set_fraction(self._INITIAL_FRACTION)
-            self.terminal_progress_bar.set_text("5%")
+            self.terminal_progress_bar.set_fraction(0.0)
+            self.terminal_progress_bar.set_text(_("{percent}%").format(percent=0))
 
         if self.terminal_status_bar:
             self.terminal_status_bar.set_text(_("Preparing processing..."))

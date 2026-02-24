@@ -9,10 +9,14 @@ headings from OCR data.
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from bigocrpdf.utils.odf_types import OCRTextData
+
+if TYPE_CHECKING:
+    from bigocrpdf.utils.visual_analyzer import VisualAnalysisResult
 
 
 class LayoutAnalyzer:
@@ -23,19 +27,43 @@ class LayoutAnalyzer:
     - Table columns (via X-coordinate binning)
     - Paragraphs (via vertical spacing analysis)
     - Headings (via font size and text pattern analysis)
+
+    Optionally enhanced with OpenCV visual analysis data for:
+    - More accurate table detection via line detection
+    - Multi-column layout detection
+    - Decorative separator detection
     """
 
-    def __init__(self, page_data: list[OCRTextData]):
+    def __init__(
+        self,
+        page_data: list[OCRTextData],
+        visual_data: VisualAnalysisResult | None = None,
+    ):
         """Initialize with OCR data for one page.
 
         Args:
             page_data: List of OCR text items for the page (coordinates as percentages 0-100)
+            visual_data: Optional OpenCV visual analysis result for this page
         """
         self.items = page_data
         self.lines: list[dict] = []
         self.blocks: list[dict] = []  # Final blocks: 'paragraph', 'table', 'heading'
-        self.footer_y_threshold: float | None = None  # No visual footer detection
-        self.vertical_lines: list[float] = []  # No visual column detection
+        self.visual_data = visual_data
+
+        # Extract visual hints from OpenCV analysis
+        if visual_data:
+            self.footer_y_threshold = None
+            # Convert table vertical line positions to percentage
+            self.vertical_lines = visual_data.v_separators
+            self.h_separators = visual_data.h_separators
+            self.visual_tables = visual_data.tables
+            self.column_layout = visual_data.columns
+        else:
+            self.footer_y_threshold = None
+            self.vertical_lines = []
+            self.h_separators = []
+            self.visual_tables = []
+            self.column_layout = None
 
         # Estimate page dimensions from data (all coordinates are 0-100%)
         if self.items:
@@ -127,7 +155,6 @@ class LayoutAnalyzer:
 
     def _create_line(self, items: list[OCRTextData]) -> dict:
         """Create a line dictionary from OCR items."""
-        # Sort by X position
         items.sort(key=lambda d: d.x)
 
         y_position = np.mean([d.y for d in items])
@@ -135,62 +162,20 @@ class LayoutAnalyzer:
         min_x = min(d.x for d in items)
         max_x = max(d.x + d.width for d in items)
 
-        # Build columns data for potential table detection
         columns = [
             {"x": d.x + d.width / 2, "text": d.text.strip(), "width": d.width} for d in items
         ]
 
-        # Combine text with smart spacing
-        text_parts: list[str] = []
-        for i, item in enumerate(items):
-            text_parts.append(item.text)
-            if i < len(items) - 1:
-                gap = items[i + 1].x - (item.x + item.width)
-                text_parts.append("  " if gap > 1.5 else " ")
+        combined_text = self._combine_line_text(items)
+        is_centered, is_right_aligned = self._detect_alignment(min_x, max_x)
+        is_table_row = self._detect_table_row(items, y_position)
+        is_after_separator = self._detect_after_separator(y_position)
 
-        combined_text = "".join(text_parts).strip()
-
-        # Detect alignment based on position and margin symmetry
-        is_right_aligned = max_x > 80 and min_x > 30
-
-        # STRICT centering detection
-        left_margin = min_x
-        right_margin = 100 - max_x
-        width = max_x - min_x
-
-        margins_symmetric = abs(left_margin - right_margin) < 10
-        both_margins_large = left_margin > 20 and right_margin > 20
-        is_narrow = width < 60
-
-        is_centered = (
-            not is_right_aligned and is_narrow and both_margins_large and margins_symmetric
-        )
-
-        # Detect header: content in the top 10% of the page
-        is_header = y_position < 10
-
-        # Detect footer: content in the bottom 12% of the page
         is_footer = y_position > (self.page_height * 0.88)
-
         if self.footer_y_threshold is not None:
             threshold_px = (self.footer_y_threshold / 100.0) * self.page_height
             if y_position > threshold_px:
                 is_footer = True
-
-        # Detect characteristics
-        is_heading = self._is_heading(combined_text, avg_height, min_x, max_x, y_position)
-
-        # Determine table row status
-        is_table_row = False
-
-        # Priority 1: Visual columns presence
-        if self.vertical_lines and len(items) >= 2:
-            if self._matches_visual_columns(items):
-                is_table_row = True
-
-        # Priority 2: Statistical pattern (fallback)
-        if not is_table_row:
-            is_table_row = len(items) >= 3 and self._has_table_pattern(items)
 
         return {
             "text": combined_text,
@@ -199,14 +184,81 @@ class LayoutAnalyzer:
             "min_x": min_x,
             "max_x": max_x,
             "columns": columns,
-            "is_heading": is_heading,
+            "is_heading": self._is_heading(combined_text, avg_height, min_x, max_x, y_position),
             "is_centered": is_centered,
             "is_right_aligned": is_right_aligned,
-            "is_header": is_header,
+            "is_header": y_position < 10,
             "is_footer": is_footer,
             "is_table_row": is_table_row,
+            "is_after_separator": is_after_separator,
             "items": items,
         }
+
+    @staticmethod
+    def _combine_line_text(items: list[OCRTextData]) -> str:
+        """Combine OCR item texts with smart gap-based spacing."""
+        parts: list[str] = []
+        for i, item in enumerate(items):
+            parts.append(item.text)
+            if i < len(items) - 1:
+                gap = items[i + 1].x - (item.x + item.width)
+                parts.append("  " if gap > 1.5 else " ")
+        return "".join(parts).strip()
+
+    @staticmethod
+    def _detect_alignment(min_x: float, max_x: float) -> tuple[bool, bool]:
+        """Return (is_centered, is_right_aligned) based on margin analysis."""
+        is_right_aligned = max_x > 80 and min_x > 30
+        left_margin = min_x
+        right_margin = 100 - max_x
+        width = max_x - min_x
+        is_centered = (
+            not is_right_aligned
+            and width < 60
+            and left_margin > 20
+            and right_margin > 20
+            and abs(left_margin - right_margin) < 10
+        )
+        return is_centered, is_right_aligned
+
+    def _detect_table_row(self, items: list[OCRTextData], y_position: float) -> bool:
+        """Determine if a line is a table row using visual + statistical detection."""
+        if self.visual_tables and len(items) >= 2 and self._in_visual_table_region(y_position):
+            return True
+        if self.vertical_lines and len(items) >= 2 and self._matches_visual_columns(items):
+            return True
+        return len(items) >= 3 and self._has_table_pattern(items)
+
+    def _detect_after_separator(self, y_position: float) -> bool:
+        """Check if line is just below a visual horizontal separator."""
+        if not self.h_separators:
+            return False
+        return any(0 < y_position - sep_y < 3 for sep_y in self.h_separators)
+
+    def _in_visual_table_region(self, y_position: float) -> bool:
+        """Check if a Y position falls within any OpenCV-detected table region.
+
+        Args:
+            y_position: Y position as percentage (0-100)
+
+        Returns:
+            True if the position is inside a detected table
+        """
+        if not self.visual_tables or not self.visual_data:
+            return False
+
+        page_h = self.visual_data.page_height
+        if page_h <= 0:
+            return False
+
+        for table in self.visual_tables:
+            table_y_pct = (table.y / page_h) * 100
+            table_end_pct = ((table.y + table.height) / page_h) * 100
+            # Add small tolerance
+            if table_y_pct - 2 <= y_position <= table_end_pct + 2:
+                return True
+
+        return False
 
     def _matches_visual_columns(self, items: list[OCRTextData]) -> bool:
         """Check if items align with detected visual vertical lines."""
@@ -414,14 +466,12 @@ class LayoutAnalyzer:
         if len(lines) == 1:
             width_pct = lines[0].get("max_x", 100) - lines[0].get("min_x", 0)
             indent = detect_first_line_indent(lines[0], None)
-            self.blocks.append(
-                {
-                    "type": "paragraph",
-                    "lines": lines,
-                    "alignment": get_alignment(lines[0], width_pct),
-                    "first_line_indent": indent,
-                }
-            )
+            self.blocks.append({
+                "type": "paragraph",
+                "lines": lines,
+                "alignment": get_alignment(lines[0], width_pct),
+                "first_line_indent": indent,
+            })
             return
 
         spacings = []
@@ -431,13 +481,11 @@ class LayoutAnalyzer:
 
         if not spacings:
             width_pct = lines[0].get("max_x", 100) - lines[0].get("min_x", 0)
-            self.blocks.append(
-                {
-                    "type": "paragraph",
-                    "lines": lines,
-                    "alignment": get_alignment(lines[0], width_pct),
-                }
-            )
+            self.blocks.append({
+                "type": "paragraph",
+                "lines": lines,
+                "alignment": get_alignment(lines[0], width_pct),
+            })
             return
 
         median_spacing = np.median(spacings)
@@ -460,24 +508,24 @@ class LayoutAnalyzer:
             is_alignment_break = line_alignment != current_alignment
             is_indent_break = detect_paragraph_start(curr_line, prev_line)
             is_prev_short = is_short_line(prev_line)
+            is_separator_break = curr_line.get("is_after_separator", False)
 
             should_break = (
                 is_spacing_break
                 or is_heading_break
                 or is_alignment_break
+                or is_separator_break
                 or (is_indent_break and spacing >= median_spacing * 0.7)
                 or (is_prev_short and not is_centered_line(curr_line))
             )
 
             if should_break:
-                self.blocks.append(
-                    {
-                        "type": "paragraph",
-                        "lines": current_para,
-                        "alignment": current_alignment,
-                        "first_line_indent": current_indent,
-                    }
-                )
+                self.blocks.append({
+                    "type": "paragraph",
+                    "lines": current_para,
+                    "alignment": current_alignment,
+                    "first_line_indent": current_indent,
+                })
                 current_para = [curr_line]
                 current_alignment = line_alignment
                 current_indent = detect_first_line_indent(curr_line, prev_line)
@@ -485,14 +533,12 @@ class LayoutAnalyzer:
                 current_para.append(curr_line)
 
         if current_para:
-            self.blocks.append(
-                {
-                    "type": "paragraph",
-                    "lines": current_para,
-                    "alignment": current_alignment,
-                    "first_line_indent": current_indent,
-                }
-            )
+            self.blocks.append({
+                "type": "paragraph",
+                "lines": current_para,
+                "alignment": current_alignment,
+                "first_line_indent": current_indent,
+            })
 
     def _cluster_items_by_vertical_lines(
         self, all_items: list[dict], vertical_lines: list[float]
@@ -588,7 +634,11 @@ class LayoutAnalyzer:
         return rows
 
     def _process_table_block(self, lines: list[dict]) -> dict | None:
-        """Process lines as a table using X-coordinate clustering."""
+        """Process lines as a table using X-coordinate clustering.
+
+        When OpenCV visual data is available, uses detected table grid lines
+        for more precise column identification.
+        """
         all_items = [
             {"x": col["x"], "text": col["text"], "line_idx": line_idx}
             for line_idx, line in enumerate(lines)
@@ -598,7 +648,11 @@ class LayoutAnalyzer:
         if len(all_items) < 4:
             return None
 
-        if self.vertical_lines:
+        # Try OpenCV-detected table grid lines first
+        visual_v_lines = self._get_visual_table_columns_for_lines(lines)
+        if visual_v_lines and len(visual_v_lines) >= 2:
+            _, column_centers = self._cluster_items_by_vertical_lines(all_items, visual_v_lines)
+        elif self.vertical_lines:
             _, column_centers = self._cluster_items_by_vertical_lines(
                 all_items, self.vertical_lines
             )
@@ -626,3 +680,33 @@ class LayoutAnalyzer:
             "rows": rows,
             "lines": lines,
         }
+
+    def _get_visual_table_columns_for_lines(self, lines: list[dict]) -> list[float] | None:
+        """Get OpenCV-detected vertical column positions for lines within a table region.
+
+        Args:
+            lines: Lines to check
+
+        Returns:
+            List of column X positions as percentages, or None
+        """
+        if not self.visual_tables or not self.visual_data:
+            return None
+
+        page_w = self.visual_data.page_width
+        page_h = self.visual_data.page_height
+        if page_w <= 0 or page_h <= 0:
+            return None
+
+        # Find the visual table region that overlaps with these lines
+        avg_y = np.mean([ln["y"] for ln in lines])
+
+        for table in self.visual_tables:
+            table_y_pct = (table.y / page_h) * 100
+            table_end_pct = ((table.y + table.height) / page_h) * 100
+
+            if table_y_pct - 2 <= avg_y <= table_end_pct + 2:
+                # Convert table's vertical line pixel positions to percentages
+                return [(vx / page_w) * 100 for vx in table.v_lines]
+
+        return None

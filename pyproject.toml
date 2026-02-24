@@ -39,7 +39,13 @@ dependencies = [
     "odfpy>=1.4.0",
 ]
 
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov", "ruff"]
 
+
+
+[project.scripts]
+bigocrpdf-cli = "bigocrpdf.cli:main"
 
 [project.gui-scripts]
 bigocrpdf = "bigocrpdf:main"
@@ -79,3 +85,4 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+pythonpath = ["src"]

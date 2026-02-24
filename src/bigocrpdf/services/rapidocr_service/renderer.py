@@ -371,46 +371,49 @@ class TextLayerRenderer:
             try:
                 canvas.saveState()
 
+                # Build a single text string for the entire line by
+                # joining all boxes with proportional spacing.  This
+                # produces ONE Tf + ONE Tz + ONE Tj per BT/ET block,
+                # which PDF extractors (Okular, pdfgrep, pdftotext)
+                # reliably treat as a single line.  Multiple Td/Tf/Tz
+                # changes within a BT/ET (the previous approach) caused
+                # extractors to insert spurious line breaks.
+                line_font_size = sum(b.font_size for b in line_boxes) / len(line_boxes)
+                space_w = pdfmetrics.stringWidth(" ", font_name, line_font_size)
+                if space_w <= 0:
+                    space_w = line_font_size * 0.25
+
+                # Assemble text with proportional spaces between boxes
+                parts: list[str] = []
+                for i, box in enumerate(line_boxes):
+                    parts.append(box.text)
+                    if i < len(line_boxes) - 1:
+                        nxt = line_boxes[i + 1]
+                        gap = nxt.x - (box.x + box.width)
+                        if gap > 0:
+                            num_spaces = max(1, round(gap / space_w))
+                        else:
+                            num_spaces = 1
+                        parts.append(" " * num_spaces)
+
+                line_text = "".join(parts)
+                line_x = line_boxes[0].x
+                line_y = line_boxes[0].y
+                line_width = (line_boxes[-1].x + line_boxes[-1].width) - line_boxes[0].x
+
+                natural_w = pdfmetrics.stringWidth(line_text, font_name, line_font_size)
+                if natural_w > 0 and line_width > 0:
+                    h_scale = line_width / natural_w * 100.0
+                else:
+                    h_scale = 100.0
+
                 text_obj = canvas.beginText()
-                # Invisible text render mode — must be inside BT/ET
                 text_obj._code.append("3 Tr")
-
-                first = True
-                line_start_x = 0.0
-                line_start_y = 0.0
-
-                for box in line_boxes:
-                    natural_w = pdfmetrics.stringWidth(box.text, font_name, box.font_size)
-                    if natural_w > 0 and box.width > 0:
-                        h_scale = box.width / natural_w * 100.0
-                    else:
-                        h_scale = 100.0
-
-                    if first:
-                        text_obj.setTextOrigin(box.x, box.y)
-                        line_start_x = box.x
-                        line_start_y = box.y
-                        first = False
-                    else:
-                        # Td is relative to the text line matrix (set by
-                        # the last Td/Tm), NOT the text matrix cursor
-                        # (which textOut advances).
-                        dx = box.x - line_start_x
-                        dy = box.y - line_start_y
-                        text_obj._code.append(f"{dx:.2f} {dy:.2f} Td")
-                        line_start_x = box.x
-                        line_start_y = box.y
-
-                    # setFont for TTFonts defers Tf emission — the
-                    # actual /Subset Tf operator is emitted later by
-                    # textOut() via _formatText(), which handles font
-                    # subsetting correctly.
-                    text_obj.setFont(font_name, box.font_size)
-                    text_obj.setHorizScale(h_scale)
-                    # textOut handles TTFont subset encoding and emits
-                    # the correct Tf + Tj operators.
-                    text_obj.textOut(box.text)
-                    count += 1
+                text_obj.setTextOrigin(line_x, line_y)
+                text_obj.setFont(font_name, line_font_size)
+                text_obj.setHorizScale(h_scale)
+                text_obj.textOut(line_text)
+                count += len(line_boxes)
 
                 canvas.drawText(text_obj)
                 canvas.restoreState()

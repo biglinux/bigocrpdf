@@ -68,6 +68,10 @@ class BigOcrPdfUI:
         """
         page = self.settings_page_manager.create_settings_page()
 
+        # Connect view toggle buttons in header bar to queue panel
+        if hasattr(self.window, "custom_header_bar") and self.window.custom_header_bar:
+            self.settings_page_manager._connect_view_toggles()
+
         # Update component references for backward compatibility
         self._update_settings_references()
 

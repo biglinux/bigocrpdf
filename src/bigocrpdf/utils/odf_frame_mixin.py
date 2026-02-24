@@ -45,20 +45,40 @@ class ODFFrameRendererMixin:
         self,
         page_data: list[OCRTextData],
         page_num: int,
+        page_image_path: str | None = None,
     ) -> None:
         """Process page data using layout analysis.
 
         Args:
             page_data: OCR data for one page
             page_num: Page number (1-indexed)
+            page_image_path: Optional path to page image for OpenCV visual analysis
         """
         if not page_data:
             return
 
         logger.debug(f"Page {page_num}: Processing {len(page_data)} OCR boxes with LayoutAnalyzer")
 
+        # Try OpenCV visual analysis if a page image is available
+        visual_data = None
+        if page_image_path:
+            try:
+                from bigocrpdf.utils.visual_analyzer import analyze_page_image
+
+                visual_data = analyze_page_image(page_image_path)
+                if visual_data:
+                    logger.debug(
+                        f"Page {page_num}: OpenCV detected "
+                        f"{len(visual_data.tables)} tables, "
+                        f"{len(visual_data.h_separators)} separators"
+                    )
+            except ImportError:
+                logger.debug("OpenCV not available, skipping visual analysis")
+            except Exception as e:
+                logger.debug(f"Visual analysis skipped: {e}")
+
         # Use the LayoutAnalyzer for statistical layout analysis
-        analyzer = LayoutAnalyzer(page_data)
+        analyzer = LayoutAnalyzer(page_data, visual_data=visual_data)
         blocks = analyzer.analyze()
 
         logger.debug(f"Page {page_num}: LayoutAnalyzer detected {len(blocks)} blocks")

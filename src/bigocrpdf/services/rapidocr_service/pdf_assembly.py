@@ -75,6 +75,108 @@ def escape_pdf_text(text: str) -> str:
     return "".join(result)
 
 
+def _build_text_boxes(
+    ocr_results: list[OCRResult],
+    img_x: float,
+    img_y: float,
+    img_height: float,
+    scale_x: float,
+    scale_y: float,
+) -> list[dict]:
+    """Convert OCR results to PDF-coordinate text boxes."""
+    boxes: list[dict] = []
+    for r in ocr_results:
+        text = r.text.strip()
+        if not text:
+            continue
+        box = r.box
+        min_x = min(p[0] for p in box)
+        max_x = max(p[0] for p in box)
+        min_y = min(p[1] for p in box)
+        max_y = max(p[1] for p in box)
+
+        width_pts = (max_x - min_x) * scale_x
+        height_pts = (max_y - min_y) * scale_y
+        font_size = max(MIN_FONT_SIZE, min(MAX_FONT_SIZE, height_pts * FONT_SIZE_SCALE_FACTOR))
+
+        descent_pts = 0.207 * font_size
+        boxes.append({
+            "text": text,
+            "x": img_x + min_x * scale_x,
+            "y": img_y + img_height - (max_y * scale_y) + descent_pts,
+            "width": width_pts,
+            "height": height_pts,
+            "font_size": font_size,
+        })
+    return boxes
+
+
+def _snap_baselines(boxes: list[dict]) -> None:
+    """Cluster boxes by y-proximity and snap each cluster to its median y."""
+    sorted_boxes = sorted(boxes, key=lambda b: -b["y"])
+    clusters: list[list[dict]] = []
+    current: list[dict] = [sorted_boxes[0]]
+
+    for bx in sorted_boxes[1:]:
+        cluster_y = sum(b["y"] for b in current) / len(current)
+        cluster_min_h = min(b["height"] for b in current)
+        threshold = min(cluster_min_h, bx["height"]) * 0.35
+        if abs(cluster_y - bx["y"]) <= threshold:
+            current.append(bx)
+        else:
+            clusters.append(current)
+            current = [bx]
+    clusters.append(current)
+
+    for cluster in clusters:
+        if len(cluster) < 2:
+            continue
+        ys = sorted(b["y"] for b in cluster)
+        median_y = ys[len(ys) // 2]
+        for b in cluster:
+            b["y"] = median_y
+
+
+def _emit_line_commands(line_boxes: list[dict]) -> list[str]:
+    """Build BT/ET PDF commands for one text line."""
+    line_boxes.sort(key=lambda b: b["x"])
+    line_font = sum(b["font_size"] for b in line_boxes) / len(line_boxes)
+
+    space_w = pdfmetrics.stringWidth(" ", "Helvetica", line_font)
+    if space_w <= 0:
+        space_w = line_font * 0.25
+
+    parts: list[str] = []
+    for i, bx in enumerate(line_boxes):
+        parts.append(bx["text"])
+        if i < len(line_boxes) - 1:
+            gap = line_boxes[i + 1]["x"] - (bx["x"] + bx["width"])
+            num_spaces = max(1, round(gap / space_w)) if gap > 0 else 1
+            parts.append(" " * num_spaces)
+
+    line_text = "".join(parts)
+    line_x = line_boxes[0]["x"]
+    line_y = line_boxes[0]["y"]
+    line_width = (line_boxes[-1]["x"] + line_boxes[-1]["width"]) - line_boxes[0]["x"]
+
+    natural_w = pdfmetrics.stringWidth(line_text, "Helvetica", line_font)
+    if natural_w > 0 and line_width > 0:
+        h_scale = line_width / natural_w * 100.0
+    else:
+        h_scale = 100.0
+    h_scale = max(30.0, min(300.0, h_scale))
+
+    return [
+        "BT",
+        "3 Tr",
+        f"1 0 0 1 {line_x:.2f} {line_y:.2f} Tm",
+        f"/FOcr {line_font:.1f} Tf",
+        f"{h_scale:.1f} Tz",
+        f"({escape_pdf_text(line_text)}) Tj",
+        "ET",
+    ]
+
+
 def create_text_layer_commands(
     ocr_results: list[OCRResult],
     img_x: float,
@@ -84,81 +186,23 @@ def create_text_layer_commands(
     scale_x: float,
     scale_y: float,
 ) -> list[str]:
-    """Create PDF text layer commands for OCR results.
+    """Create PDF text layer commands for OCR results."""
+    boxes = _build_text_boxes(ocr_results, img_x, img_y, img_height, scale_x, scale_y)
+    if not boxes:
+        return []
 
-    Args:
-        ocr_results: List of OCR results with text and box coordinates
-        img_x: X position of image in PDF points (from left)
-        img_y: Y position of image in PDF points (from bottom)
-        img_width: Width of image in PDF points
-        img_height: Height of image in PDF points
-        scale_x: Scale factor from image pixels to PDF points (X)
-        scale_y: Scale factor from image pixels to PDF points (Y)
+    _snap_baselines(boxes)
 
-    Returns:
-        List of PDF content stream commands to add invisible text
-    """
-    commands: list[str] = []
-    commands.append("q")  # Save graphics state
-    # Use render mode 3 for truly invisible text (searchable but not visible)
-    commands.append("3 Tr")
+    from collections import defaultdict
 
-    for result in ocr_results:
-        if not result.text.strip():
-            continue
+    lines: dict[float, list[dict]] = defaultdict(list)
+    for bx in boxes:
+        lines[bx["y"]].append(bx)
 
-        # Get bounding box (4 points)
-        box = result.box
-        min_x = min(p[0] for p in box)
-        max_x = max(p[0] for p in box)
-        min_y = min(p[1] for p in box)
-        max_y = max(p[1] for p in box)
-
-        # Calculate text dimensions in PDF points
-        text_width_pts = (max_x - min_x) * scale_x
-        text_height_pts = (max_y - min_y) * scale_y
-
-        # Calculate font size based on height (85% to match TextLayerRenderer)
-        font_size = max(MIN_FONT_SIZE, min(MAX_FONT_SIZE, text_height_pts * FONT_SIZE_SCALE_FACTOR))
-
-        # Calculate horizontal scale to make text fit the width
-        try:
-            actual_text_width = pdfmetrics.stringWidth(result.text, "Helvetica", font_size)
-            if actual_text_width > 0:
-                h_scale = (text_width_pts / actual_text_width) * 100
-            else:
-                h_scale = 100
-        except Exception:
-            # Fallback: estimate based on average character width
-            estimated_char_width = font_size * 0.55
-            estimated_text_width = len(result.text) * estimated_char_width
-            if estimated_text_width > 0:
-                h_scale = (text_width_pts / estimated_text_width) * 100
-            else:
-                h_scale = 100
-
-        # Clamp horizontal scale to reasonable range (50% - 200%)
-        h_scale = max(50, min(200, h_scale))
-
-        # Transform to PDF coordinates
-        pdf_x = img_x + min_x * scale_x
-
-        # Position at bottom of OCR box with baseline adjustment
-        baseline_offset = text_height_pts * 0.15
-        pdf_y = img_y + img_height - (max_y * scale_y) + baseline_offset
-
-        # Escape text for PDF
-        escaped_text = escape_pdf_text(result.text)
-
-        # Add text command with horizontal scaling
-        commands.append("BT")
-        commands.append(f"/FOcr {font_size:.1f} Tf")
-        commands.append(f"{h_scale:.1f} Tz")
-        commands.append(f"{pdf_x:.2f} {pdf_y:.2f} Td")
-        commands.append(f"({escaped_text}) Tj")
-        commands.append("ET")
-
-    commands.append("Q")  # Restore graphics state
+    commands: list[str] = ["q"]
+    for _y_val, line_boxes in sorted(lines.items(), reverse=True):
+        commands.extend(_emit_line_commands(line_boxes))
+    commands.append("Q")
     return commands
 
 
@@ -204,7 +248,74 @@ def append_text_to_page(pdf: pikepdf.Pdf, page: pikepdf.Page, text_commands: lis
         page["/Contents"] = pikepdf.Array([contents, new_stream])
 
 
-def _strip_invisible_text(page: pikepdf.Page, pdf: pikepdf.Pdf) -> int:
+def _collect_q_group(ops: list[tuple], start: int) -> tuple[list[tuple], int]:
+    """Collect a full q...Q graphics state group from the ops list.
+
+    Returns:
+        (group_ops, end_index) where end_index is the position after the group.
+    """
+    group: list[tuple] = [ops[start]]
+    depth = 1
+    j = start + 1
+    while j < len(ops) and depth > 0:
+        group.append(ops[j])
+        g_op = str(ops[j][1])
+        if g_op == "q":
+            depth += 1
+        elif g_op == "Q":
+            depth -= 1
+        j += 1
+    return group, j
+
+
+def _is_invisible_text_group(group: list[tuple]) -> bool:
+    """Check if a q/Q group contains only invisible text (render mode 3)."""
+    has_invisible_bt = False
+    has_image_or_visible = False
+    in_bt = False
+    bt_has_3tr = False
+
+    for g_operands, g_operator in group:
+        g_op = str(g_operator)
+        if g_op == "BT":
+            in_bt = True
+            bt_has_3tr = False
+        elif g_op == "ET":
+            if bt_has_3tr:
+                has_invisible_bt = True
+            in_bt = False
+        elif g_op == "Tr" and in_bt and g_operands:
+            if int(g_operands[0]) == 3:
+                bt_has_3tr = True
+        elif g_op == "Do":
+            has_image_or_visible = True
+
+    return has_invisible_bt and not has_image_or_visible
+
+
+def _collect_bt_block(ops: list[tuple], start: int) -> tuple[list[tuple], int]:
+    """Collect a top-level BT...ET text block.
+
+    Returns:
+        (block_ops, end_index) where end_index is the position after the block.
+    """
+    group: list[tuple] = [ops[start]]
+    j = start + 1
+    while j < len(ops) and str(ops[j][1]) != "ET":
+        group.append(ops[j])
+        j += 1
+    if j < len(ops):
+        group.append(ops[j])
+        j += 1
+    return group, j
+
+
+def _bt_block_is_invisible(group: list[tuple]) -> bool:
+    """Check if a BT/ET block uses render mode 3 (invisible text)."""
+    return any(str(g_op) == "Tr" and g_ops and int(g_ops[0]) == 3 for g_ops, g_op in group)
+
+
+def strip_invisible_text(page: pikepdf.Page, pdf: pikepdf.Pdf) -> int:
     """Remove invisible text (render mode 3) from page content stream.
 
     Parses the content stream and removes q/Q groups or standalone
@@ -232,77 +343,28 @@ def _strip_invisible_text(page: pikepdf.Page, pdf: pikepdf.Pdf) -> int:
     i = 0
 
     while i < len(ops):
-        operands, operator = ops[i]
-        op = str(operator)
+        op = str(ops[i][1])
 
         if op == "q":
-            # Collect the full q...Q group
-            group: list[tuple] = [(operands, operator)]
-            depth = 1
-            j = i + 1
-            while j < len(ops) and depth > 0:
-                g_operands, g_operator = ops[j]
-                group.append((g_operands, g_operator))
-                g_op = str(g_operator)
-                if g_op == "q":
-                    depth += 1
-                elif g_op == "Q":
-                    depth -= 1
-                j += 1
-
-            # Check if this group is purely invisible text
-            has_invisible_bt = False
-            has_image_or_visible = False
-            in_bt = False
-            bt_has_3tr = False
-
-            for g_operands, g_operator in group:
-                g_op = str(g_operator)
-                if g_op == "BT":
-                    in_bt = True
-                    bt_has_3tr = False
-                elif g_op == "ET":
-                    if bt_has_3tr:
-                        has_invisible_bt = True
-                    in_bt = False
-                elif g_op == "Tr" and in_bt and g_operands:
-                    if int(g_operands[0]) == 3:
-                        bt_has_3tr = True
-                elif g_op == "Do":
-                    has_image_or_visible = True
-
-            if has_invisible_bt and not has_image_or_visible:
+            group, j = _collect_q_group(ops, i)
+            if _is_invisible_text_group(group):
                 removed += 1
                 i = j
                 continue
-
             filtered.extend(group)
             i = j
 
         elif op == "BT":
-            # Top-level BT (not in q/Q) — collect until ET
-            group = [(operands, operator)]
-            j = i + 1
-            while j < len(ops) and str(ops[j][1]) != "ET":
-                group.append(ops[j])
-                j += 1
-            if j < len(ops):
-                group.append(ops[j])
-                j += 1
-
-            bt_has_3tr = any(
-                str(g_op) == "Tr" and g_ops and int(g_ops[0]) == 3 for g_ops, g_op in group
-            )
-            if bt_has_3tr:
+            group, j = _collect_bt_block(ops, i)
+            if _bt_block_is_invisible(group):
                 removed += 1
                 i = j
                 continue
-
             filtered.extend(group)
             i = j
 
         else:
-            filtered.append((operands, operator))
+            filtered.append(ops[i])
             i += 1
 
     if removed > 0:
@@ -338,7 +400,7 @@ def merge_single_page(
         return True  # No content to merge is not an error
 
     # Strip existing invisible OCR text from original page
-    stripped = _strip_invisible_text(orig_page, original_pdf)
+    stripped = strip_invisible_text(orig_page, original_pdf)
     if stripped:
         logger.debug(f"Page {page_num + 1}: stripped {stripped} old OCR text blocks")
 
@@ -381,34 +443,34 @@ def overlay_text_on_original(
     """
     logger.info("Merging text layer with original PDF...")
 
-    original = pikepdf.open(original_pdf_path)
-    text_layer = pikepdf.open(text_layer_pdf_path)
+    with (
+        pikepdf.open(original_pdf_path) as original,
+        pikepdf.open(text_layer_pdf_path) as text_layer,
+    ):
+        if len(original.pages) != len(text_layer.pages):
+            logger.warning(
+                f"Page count mismatch: original={len(original.pages)}, "
+                f"text_layer={len(text_layer.pages)}"
+            )
 
-    if len(original.pages) != len(text_layer.pages):
-        logger.warning(
-            f"Page count mismatch: original={len(original.pages)}, "
-            f"text_layer={len(text_layer.pages)}"
+        for page_num, (orig_page, text_page) in enumerate(
+            zip(original.pages, text_layer.pages, strict=False)
+        ):
+            try:
+                merge_single_page(orig_page, text_page, original, page_num)
+            except Exception as e:
+                logger.warning(f"Failed to merge text layer for page {page_num + 1}: {e}")
+                import traceback
+
+                logger.debug(traceback.format_exc())
+
+        original.save(
+            output_pdf_path,
+            object_stream_mode=pikepdf.ObjectStreamMode.preserve,
+            stream_decode_level=pikepdf.StreamDecodeLevel.none,
+            compress_streams=True,
         )
 
-    for page_num, (orig_page, text_page) in enumerate(
-        zip(original.pages, text_layer.pages, strict=False)
-    ):
-        try:
-            merge_single_page(orig_page, text_page, original, page_num)
-        except Exception as e:
-            logger.warning(f"Failed to merge text layer for page {page_num + 1}: {e}")
-            import traceback
-
-            logger.debug(traceback.format_exc())
-
-    original.save(
-        output_pdf_path,
-        object_stream_mode=pikepdf.ObjectStreamMode.preserve,
-        stream_decode_level=pikepdf.StreamDecodeLevel.none,
-        compress_streams=True,
-    )
-    original.close()
-    text_layer.close()
     logger.info(f"Merged PDF saved: {output_pdf_path}")
 
 
@@ -433,39 +495,38 @@ def smart_merge_pdfs(
     """
     logger.info("Smart merging text layer with per-page strategy...")
 
-    original = pikepdf.open(original_pdf_path)
-    text_layer = pikepdf.open(text_layer_pdf_path)
+    with (
+        pikepdf.open(original_pdf_path) as original,
+        pikepdf.open(text_layer_pdf_path) as text_layer,
+    ):
+        page_count = min(len(original.pages), len(text_layer.pages))
+        standalone_count = 0
+        overlay_count = 0
 
-    page_count = min(len(original.pages), len(text_layer.pages))
-    standalone_count = 0
-    overlay_count = 0
+        for i in range(page_count):
+            needs_standalone = page_standalone_flags[i] if i < len(page_standalone_flags) else False
 
-    for i in range(page_count):
-        needs_standalone = page_standalone_flags[i] if i < len(page_standalone_flags) else False
+            if needs_standalone:
+                original.pages[i] = text_layer.pages[i]
+                standalone_count += 1
+            else:
+                try:
+                    merge_single_page(original.pages[i], text_layer.pages[i], original, i)
+                except Exception as e:
+                    logger.warning(f"Failed to merge text layer for page {i + 1}: {e}")
+                overlay_count += 1
 
-        if needs_standalone:
-            # Standalone: replace original page with text_layer page
-            # (text_layer page has processed image + invisible text)
-            original.pages[i] = text_layer.pages[i]
-            standalone_count += 1
-        else:
-            # No changes needed: overlay text onto original page
-            try:
-                merge_single_page(original.pages[i], text_layer.pages[i], original, i)
-            except Exception as e:
-                logger.warning(f"Failed to merge text layer for page {i + 1}: {e}")
-            overlay_count += 1
+        logger.info(
+            f"Smart merge: {overlay_count} overlay pages, {standalone_count} standalone pages"
+        )
 
-    logger.info(f"Smart merge: {overlay_count} overlay pages, {standalone_count} standalone pages")
+        original.save(
+            output_pdf_path,
+            object_stream_mode=pikepdf.ObjectStreamMode.preserve,
+            stream_decode_level=pikepdf.StreamDecodeLevel.none,
+            compress_streams=True,
+        )
 
-    original.save(
-        output_pdf_path,
-        object_stream_mode=pikepdf.ObjectStreamMode.preserve,
-        stream_decode_level=pikepdf.StreamDecodeLevel.none,
-        compress_streams=True,
-    )
-    original.close()
-    text_layer.close()
     logger.info(f"Smart merged PDF saved: {output_pdf_path}")
 
 

@@ -42,6 +42,14 @@ from bigocrpdf.services.perspective_skew import (
 
 logger = logging.getLogger(__name__)
 
+# Binarization threshold for projection profile analysis
+_BINARIZATION_THRESHOLD = 128
+# Area ratio bounds for contour correction sanity check
+_MIN_AREA_RATIO = 0.5
+_MAX_AREA_RATIO = 1.5
+# Number of horizontal regions for regional skew detection
+_N_SKEW_REGIONS = 5
+
 
 class PerspectiveCorrector:
     """
@@ -106,8 +114,8 @@ class PerspectiveCorrector:
             gray_corr = cv2.cvtColor(corrected, cv2.COLOR_BGR2GRAY)
 
             # Horizontal projection: sum of pixel values per row
-            proj_orig = np.sum(gray_orig < 128, axis=1).astype(float)
-            proj_corr = np.sum(gray_corr < 128, axis=1).astype(float)
+            proj_orig = np.sum(gray_orig < _BINARIZATION_THRESHOLD, axis=1).astype(float)
+            proj_corr = np.sum(gray_corr < _BINARIZATION_THRESHOLD, axis=1).astype(float)
 
             # Profile "sharpness": standard deviation of the derivative
             # Higher values = sharper peaks = better text line alignment
@@ -127,116 +135,99 @@ class PerspectiveCorrector:
             logger.debug(f"{method} validation failed: {e}")
             return True  # On error, accept the correction
 
+    def _try_contour_correction(self, image: np.ndarray) -> np.ndarray | None:
+        """Try perspective correction from document contour.
+
+        Returns corrected image, or None to fall through.
+        """
+        contour = detect_document_contour(image)
+        if contour is None:
+            return None
+
+        if self.skew_threshold > 0:
+            if not needs_perspective_correction(image, np.radians(self.skew_threshold)):
+                logger.debug("Document appears flat. Skipping perspective correction.")
+                return image
+
+        logger.info("Applying perspective correction from document boundary...")
+        corrected = four_point_transform(image, contour)
+
+        orig_area = image.shape[0] * image.shape[1]
+        new_area = corrected.shape[0] * corrected.shape[1]
+        if new_area < orig_area * _MIN_AREA_RATIO or new_area > orig_area * _MAX_AREA_RATIO:
+            logger.warning("Perspective correction produced unexpected results.")
+            return None
+
+        logger.info("Perspective correction applied successfully.")
+        return corrected
+
+    def _try_regional_skew(self, image: np.ndarray) -> np.ndarray | None:
+        """Try mesh dewarping for varying regional skew. Returns corrected or None."""
+        regional_skew = detect_regional_skew(image, n_regions=_N_SKEW_REGIONS)
+        if regional_skew is None or len(regional_skew) < 3:
+            return None
+
+        angles = [a for _, a in regional_skew]
+        angle_range = max(angles) - min(angles)
+        logger.debug(f"Regional angles: {[f'{a:.1f}°' for _, a in regional_skew]}")
+
+        if angle_range <= self.variance_threshold:
+            return None
+        if max(abs(a) for a in angles) <= self.skew_threshold:
+            return None
+
+        logger.info(
+            f"Detected varying skew (range: {angle_range:.1f}°). Applying mesh dewarping..."
+        )
+        corrected = mesh_perspective_correction(image, regional_skew)
+        if self._validate_correction(image, corrected, "mesh_perspective_correction"):
+            logger.info("Mesh perspective correction applied successfully.")
+            return corrected
+
+        logger.info("Mesh perspective correction rejected (did not improve alignment).")
+        return None
+
     def __call__(self, image: np.ndarray) -> np.ndarray:
-        """
-        Correct perspective or skew distortion in a document image.
-
-        Args:
-            image: Input BGR image (numpy array, uint8)
-
-        Returns:
-            Corrected image, or original if no correction needed
-        """
-        # 0. First priority: Check if this is a photo of a document
-        # (document on dark background, photographed at angle)
+        """Correct perspective or skew distortion in a document image."""
+        # Priority 0: Photo of document on dark background
         photo_corners = detect_photo_document_borders(image)
-
         if photo_corners is not None:
             logger.info("Detected photo of document, applying perspective correction...")
-            corrected = correct_photo_perspective(image, photo_corners)
-            return corrected
+            return correct_photo_perspective(image, photo_corners)
 
-        # 1. Second priority: Check for perspective distortion from margin analysis
-        # This catches keystone/trapezoid distortion even when document fills the page
+        # Priority 1: Keystone/trapezoid from margin analysis
         perspective_distortion = detect_perspective_distortion(image)
-
         if perspective_distortion is not None:
             logger.info("Applying perspective correction from margin analysis...")
-            corrected = correct_perspective_from_margins(image, perspective_distortion)
-            return corrected
+            return correct_perspective_from_margins(image, perspective_distortion)
 
-        # 2. Third priority: Try to detect document contour for perspective correction
-        contour = detect_document_contour(image)
+        # Priority 2: Document contour
+        contour_result = self._try_contour_correction(image)
+        if contour_result is not None:
+            return contour_result
 
-        if contour is not None:
-            # Check if perspective correction is needed
-            if self.skew_threshold > 0:
-                threshold_rad = np.radians(self.skew_threshold)
-                if not needs_perspective_correction(image, threshold_rad):
-                    logger.debug("Document appears flat. Skipping perspective correction.")
-                    return image
-
-            logger.info("Applying perspective correction from document boundary...")
-            corrected = four_point_transform(image, contour)
-
-            # Validate result
-            orig_area = image.shape[0] * image.shape[1]
-            new_area = corrected.shape[0] * corrected.shape[1]
-            if new_area < orig_area * 0.5 or new_area > orig_area * 1.5:
-                logger.warning("Perspective correction produced unexpected results.")
-                # Fall through to try other methods
-            else:
-                logger.info("Perspective correction applied successfully.")
-                return corrected
-
-        # 3. Fourth priority: Gentle margin-based perspective correction
-        # Catches mild perspective distortion (converging text margins) that
-        # heavier detectors miss. Works best in combination with baseline
-        # dewarp which runs later in the preprocessor pipeline.
+        # Priority 3: Gentle margin-based
         gentle_result = gentle_margin_perspective_correction(image)
         if gentle_result is not None:
             return gentle_result
 
-        # 4. Fifth priority: Check for regional skew (varying skew across page)
         if not self.skip_skew:
-            logger.debug("Checking for regional skew variation...")
-            regional_skew = detect_regional_skew(image, n_regions=5)
+            # Priority 4: Regional skew (mesh dewarping)
+            regional_result = self._try_regional_skew(image)
+            if regional_result is not None:
+                return regional_result
 
-            if regional_skew is not None and len(regional_skew) >= 3:
-                angles = [a for _, a in regional_skew]
-                angle_range = max(angles) - min(angles)
-
-                logger.debug(f"Regional angles: {[f'{a:.1f}°' for _, a in regional_skew]}")
-                logger.debug(f"Angle range: {angle_range:.2f}°")
-
-                # Check if skew varies significantly across page
-                if angle_range > self.variance_threshold:
-                    max_skew = max(abs(a) for a in angles)
-                    if max_skew > self.skew_threshold:
-                        logger.info(
-                            f"Detected varying skew (range: {angle_range:.1f}°). "
-                            f"Applying mesh dewarping..."
-                        )
-                        corrected = mesh_perspective_correction(image, regional_skew)
-                        if self._validate_correction(
-                            image, corrected, "mesh_perspective_correction"
-                        ):
-                            logger.info("Mesh perspective correction applied successfully.")
-                            return corrected
-                        else:
-                            logger.info(
-                                "Mesh perspective correction rejected (did not improve alignment)."
-                            )
-
-        # 5. Sixth priority: Fall back to simple rotation for uniform skew
-        if not self.skip_skew:
+            # Priority 5: Simple rotation for uniform skew
             skew_angle = detect_skew_angle(image)
-
             if skew_angle is None:
                 logger.debug("Could not detect any distortion. Returning original image.")
                 return image
-
             if abs(skew_angle) < self.skew_threshold:
                 logger.debug(f"Skew angle ({skew_angle:.2f}°) below threshold. Skipping.")
                 return image
 
             logger.info(f"Applying simple skew correction: {skew_angle:.2f}°")
-            corrected = correct_skew(image, skew_angle)
-
-            logger.info("Skew correction applied successfully.")
-            return corrected
-        else:
-            logger.debug("Skipping skew correction steps (handled by caller).")
+            return correct_skew(image, skew_angle)
 
         logger.debug("No perspective distortion detected.")
         return image

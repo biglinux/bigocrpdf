@@ -33,7 +33,16 @@ class DummyWindow:
         pass
 
 
-# Mock Gtk and Adw before importing modules that use them
+# Save originals and mock Gtk/Adw before importing modules
+_MOCKED_MODULES = [
+    "gi",
+    "gi.repository",
+    "bigocrpdf.utils.logger",
+    "bigocrpdf.utils.i18n",
+    "bigocrpdf.ui.pdf_editor.thumbnail_renderer",
+]
+_saved_modules = {m: sys.modules.get(m) for m in _MOCKED_MODULES}
+
 mock_gi = MagicMock()
 mock_adw = MagicMock()
 mock_adw.Window = DummyWindow
@@ -61,6 +70,14 @@ sys.modules["bigocrpdf.ui.pdf_editor.thumbnail_renderer"] = MagicMock()
 
 # Now import the modules to test
 from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
+
+# Restore original modules to avoid contaminating other test files
+for _mod_name, _original in _saved_modules.items():
+    if _original is not None:
+        sys.modules[_mod_name] = _original
+    else:
+        sys.modules.pop(_mod_name, None)
+del _saved_modules, _MOCKED_MODULES
 
 
 class TestStateRestoration(unittest.TestCase):

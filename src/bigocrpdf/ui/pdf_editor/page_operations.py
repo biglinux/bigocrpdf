@@ -175,6 +175,87 @@ def deselect_all_for_ocr(doc: PDFDocument) -> bool:
         return False
 
 
+def _add_image_page(source_file, page_state, new_pdf, opened_pdfs, opened_streams):
+    """Convert an image file to a PDF page and append it to new_pdf."""
+    import io
+
+    import pikepdf
+    from PIL import Image, ImageOps
+
+    img = Image.open(source_file)
+    img = ImageOps.exif_transpose(img)
+    if img.mode in ("RGBA", "LA"):
+        img = img.convert("RGB")
+
+    pdf_bytes = io.BytesIO()
+    img.save(pdf_bytes, format="PDF")
+    pdf_bytes.seek(0)
+    opened_streams.append(pdf_bytes)
+
+    temp_pdf = pikepdf.Pdf.open(pdf_bytes)
+    page = temp_pdf.pages[0]
+    if page_state.rotation != 0:
+        page.Rotate = page_state.rotation
+    new_pdf.pages.append(page)
+
+    if "temp_images" not in opened_pdfs:
+        opened_pdfs["temp_images"] = []  # type: ignore
+    opened_pdfs["temp_images"].append(temp_pdf)  # type: ignore
+
+
+def _resolve_source_rotation(src_page) -> int:
+    """Resolve the effective /Rotate from a page, including inherited values."""
+    try:
+        if "/Rotate" in src_page:
+            return int(src_page["/Rotate"])
+        node = src_page.obj if hasattr(src_page, "obj") else src_page
+        while node is not None:
+            if "/Rotate" in node:
+                return int(node["/Rotate"])
+            parent = node.get("/Parent")
+            node = parent if parent is not None else None
+    except Exception:
+        pass
+    return 0
+
+
+def _add_pdf_page(source_file, page_state, new_pdf, opened_pdfs):
+    """Copy a PDF page to new_pdf with rotation handling."""
+    import pikepdf
+
+    if source_file not in opened_pdfs:
+        opened_pdfs[source_file] = pikepdf.open(source_file)
+
+    src_pdf = opened_pdfs[source_file]
+    original_idx = page_state.page_number - 1
+
+    if original_idx < 0 or original_idx >= len(src_pdf.pages):
+        logger.warning(f"Invalid page index {original_idx} for {source_file}")
+        return
+
+    src_page = src_pdf.pages[original_idx]
+    source_rotation = _resolve_source_rotation(src_page)
+
+    new_pdf.pages.append(src_page)
+    new_page = new_pdf.pages[-1]
+
+    final_rotation = (source_rotation + page_state.rotation) % 360
+    if final_rotation != 0:
+        new_page.Rotate = final_rotation
+    elif "/Rotate" in new_page:
+        del new_page["/Rotate"]
+
+    if page_state.rotation != 0 or source_rotation != 0:
+        logger.info(
+            f"Page {page_state.source_file}:{page_state.page_number} "
+            f"rotation: source={source_rotation} + editor={page_state.rotation} "
+            f"= {final_rotation}"
+        )
+
+
+_IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff", ".bmp")
+
+
 def apply_changes_to_pdf(doc: PDFDocument | None, output_path: str) -> bool:
     """Apply all changes and save to a new PDF file.
 
@@ -194,159 +275,31 @@ def apply_changes_to_pdf(doc: PDFDocument | None, output_path: str) -> bool:
         import io
 
         import pikepdf
-        from PIL import Image, ImageOps
 
-        # Cache for opened PDF documents to avoid re-opening
-        # Map: filename -> pikepdf.Pdf
         opened_pdfs: dict[str, pikepdf.Pdf] = {}
-        # Keep references to streams to prevent GC while pikepdf needs them
         opened_streams: list[io.BytesIO] = []
-
-        # Create destination PDF
         new_pdf = pikepdf.Pdf.new()
-
-        # Get pages in their new order
         active_pages = doc.get_active_pages()
 
         for page_state in active_pages:
-            source_file = page_state.source_file
-            if not source_file:
-                # Fallback to main doc path if source not set
-                source_file = doc.path
-
+            source_file = page_state.source_file or doc.path
             if not source_file:
                 logger.warning(f"Skipping page with no source file: {page_state}")
                 continue
 
-            # Check if source is an image
-            lower_path = source_file.lower()
-            is_image = lower_path.endswith((
-                ".jpg",
-                ".jpeg",
-                ".png",
-                ".webp",
-                ".tif",
-                ".tiff",
-                ".bmp",
-            ))
+            is_image = source_file.lower().endswith(_IMAGE_EXTENSIONS)
 
-            if is_image:
-                try:
-                    # Convert image to a single-page PDF in memory
-                    img = Image.open(source_file)
+            try:
+                if is_image:
+                    _add_image_page(source_file, page_state, new_pdf, opened_pdfs, opened_streams)
+                else:
+                    _add_pdf_page(source_file, page_state, new_pdf, opened_pdfs)
+            except Exception as e:
+                logger.error(f"Failed to process {source_file}: {e}")
+                continue
 
-                    # Apply EXIF rotation so the image is stored upright
-                    # Without this, images from cameras may appear sideways
-                    img = ImageOps.exif_transpose(img)
-
-                    # Convert to RGB (remove alpha) to avoid issues
-                    if img.mode in ("RGBA", "LA"):
-                        img = img.convert("RGB")
-
-                    pdf_bytes = io.BytesIO()
-                    img.save(pdf_bytes, format="PDF")
-                    pdf_bytes.seek(0)
-
-                    # Store stream reference
-                    opened_streams.append(pdf_bytes)
-
-                    # Open this temp PDF with pikepdf
-                    temp_pdf = pikepdf.Pdf.open(pdf_bytes)
-
-                    # Take the first (only) page
-                    page = temp_pdf.pages[0]
-
-                    # Apply editor rotation directly on the page
-                    if page_state.rotation != 0:
-                        page.Rotate = page_state.rotation
-
-                    new_pdf.pages.append(page)
-
-                    # Keep reference alive until save
-                    if "temp_images" not in opened_pdfs:
-                        opened_pdfs["temp_images"] = []  # type: ignore
-                    opened_pdfs["temp_images"].append(temp_pdf)  # type: ignore
-
-                except Exception as e:
-                    logger.error(f"Failed to process image {source_file}: {e}")
-                    continue
-
-            else:
-                # It's a PDF
-                if source_file not in opened_pdfs:
-                    try:
-                        opened_pdfs[source_file] = pikepdf.open(source_file)
-                    except Exception as e:
-                        logger.error(f"Failed to open source PDF {source_file}: {e}")
-                        continue
-
-                src_pdf = opened_pdfs[source_file]
-
-                # PageState.page_number is 1-indexed relative to the source file
-                original_idx = page_state.page_number - 1
-
-                if original_idx < 0 or original_idx >= len(src_pdf.pages):
-                    logger.warning(f"Invalid page index {original_idx} for {source_file}")
-                    continue
-
-                src_page = src_pdf.pages[original_idx]
-
-                # Resolve the EFFECTIVE rotation from the source page.
-                # /Rotate can be inherited from parent Pages nodes and would
-                # be lost when copying to a new PDF. We must read it BEFORE
-                # appending and explicitly set it on the destination page.
-                source_rotation = 0
-                try:
-                    # Try direct key first (most common case)
-                    if "/Rotate" in src_page:
-                        source_rotation = int(src_page["/Rotate"])
-                    else:
-                        # Check inherited rotation via pikepdf property
-                        # Walk up the page tree to find inherited /Rotate
-                        node = src_page.obj if hasattr(src_page, "obj") else src_page
-                        while node is not None:
-                            if "/Rotate" in node:
-                                source_rotation = int(node["/Rotate"])
-                                break
-                            parent = node.get("/Parent")
-                            node = parent if parent is not None else None
-                except Exception:
-                    source_rotation = 0
-
-                # Copy page to new PDF
-                new_pdf.pages.append(src_page)
-                new_page = new_pdf.pages[-1]
-
-                # Compute final rotation: source + editor
-                final_rotation = (source_rotation + page_state.rotation) % 360
-
-                # Always set /Rotate explicitly (ensures inherited values are
-                # materialized and editor rotation is applied)
-                if final_rotation != 0:
-                    new_page.Rotate = final_rotation
-                elif "/Rotate" in new_page:
-                    # Remove stale direct /Rotate if final rotation is 0
-                    del new_page["/Rotate"]
-
-                if page_state.rotation != 0 or source_rotation != 0:
-                    logger.info(
-                        f"Page {page_state.source_file}:{page_state.page_number} "
-                        f"rotation: source={source_rotation} + editor={page_state.rotation} "
-                        f"= {final_rotation}"
-                    )
-
-        # Save the new PDF
         new_pdf.save(output_path)
         logger.info(f"Saved modified PDF to {output_path}")
-
-        # Close all handles
-        for key, handle in opened_pdfs.items():
-            if key == "temp_images":
-                for tmp in handle:  # type: ignore
-                    tmp.close()
-            else:
-                handle.close()
-
         return True
 
     except ImportError:
@@ -355,3 +308,14 @@ def apply_changes_to_pdf(doc: PDFDocument | None, output_path: str) -> bool:
     except Exception as e:
         logger.error(f"Failed to save PDF: {e}")
         return False
+    finally:
+        # Always close all opened PDF handles
+        for key, handle in opened_pdfs.items():
+            try:
+                if key == "temp_images":
+                    for tmp in handle:  # type: ignore
+                        tmp.close()
+                else:
+                    handle.close()
+            except Exception:
+                pass

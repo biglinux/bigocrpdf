@@ -1,6 +1,5 @@
 """PDF Processing Pipeline Mixin for ProfessionalPDFOCR."""
 
-import gc
 import json
 import os
 import subprocess
@@ -14,13 +13,13 @@ import cv2
 import numpy as np
 import pikepdf
 
+from bigocrpdf.constants import MIN_IMAGE_BOX_SIZE_PX, MIN_TEXT_BOX_HEIGHT_PX, MIN_TEXT_BOX_WIDTH_PX
 from bigocrpdf.services.rapidocr_service.config import OCRBoxData, OCRResult, ProcessingStats
 from bigocrpdf.services.rapidocr_service.ocr_postprocess import refine_ocr_results
-from bigocrpdf.services.rapidocr_service.pdf_assembly import (
-    smart_merge_pdfs,
-)
+from bigocrpdf.services.rapidocr_service.pdf_assembly import smart_merge_pdfs
 from bigocrpdf.services.rapidocr_service.pdf_extractor import (
     extract_image_positions,
+    get_page_image_encodings,
     get_pages_with_native_text,
     load_image_with_exif_rotation,
 )
@@ -32,18 +31,20 @@ from bigocrpdf.services.rapidocr_service.rotation import (
 from bigocrpdf.services.rapidocr_service.rotation import (
     apply_editor_modifications as apply_editor_mods_to_rotations,
 )
+from bigocrpdf.services.rapidocr_service.pipeline_chunked_ocr import ChunkedOCRMixin
+from bigocrpdf.services.rapidocr_service.pipeline_mixed_content import MixedContentMixin
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
 
-class BackendPipelineMixin:
+class BackendPipelineMixin(ChunkedOCRMixin, MixedContentMixin):
     """Mixin providing PDF processing pipeline methods."""
 
     def _build_ocr_subprocess_cmd(self, ocr_threads: int = 0) -> list[str]:
         """Build command-line args for persistent OCR subprocess.
 
         Args:
-            ocr_threads: Number of inference threads. 0 = auto (cpu_count / 2).
+            ocr_threads: Number of inference threads. 0 = auto (physical cores).
 
         Returns:
             Command list ready for subprocess.Popen.
@@ -54,7 +55,8 @@ class BackendPipelineMixin:
         cpu_count = multiprocessing.cpu_count()
 
         if ocr_threads <= 0:
-            ocr_threads = max(2, cpu_count // 2)
+            # Use all logical cores; OpenVINO handles HT internally.
+            ocr_threads = max(2, cpu_count)
 
         cmd = [
             "python3",
@@ -76,10 +78,13 @@ class BackendPipelineMixin:
             str(ocr_threads),
         ]
 
+        if self.config.detection_full_resolution:
+            cmd.append("--full-resolution")
+
         try:
             if not self._check_openvino_available():
                 cmd.append("--no-openvino")
-        except Exception:
+        except (ImportError, OSError, AttributeError):
             cmd.append("--no-openvino")
 
         for flag, getter in [
@@ -106,7 +111,7 @@ class BackendPipelineMixin:
             import subprocess as _sp
 
             _sp.run(["ionice", "-c", "3", "-p", str(os.getpid())], capture_output=True, timeout=2)
-        except Exception:
+        except (FileNotFoundError, subprocess.SubprocessError, OSError):
             pass
 
     def _launch_ocr_subprocess(self, ocr_threads: int = 0) -> subprocess.Popen:
@@ -168,14 +173,12 @@ class BackendPipelineMixin:
             return None
 
         try:
-            # Send image path
-            # logger.debug(f"Sending path to subprocess: {image_path}")
             assert proc.stdin is not None
             assert proc.stdout is not None
+
             proc.stdin.write(f"{image_path}\n")
             proc.stdin.flush()
 
-            # Wait for response
             line = proc.stdout.readline()
 
             if not line:
@@ -208,7 +211,7 @@ class BackendPipelineMixin:
             logger.debug("Waiting for subprocess to exit...")
             proc.wait(timeout=10)
             logger.debug("Subprocess exited gracefully")
-        except Exception as e:
+        except (ProcessLookupError, subprocess.TimeoutExpired, OSError) as e:
             logger.debug(f"Error stopping subprocess: {e}, killing...")
             proc.kill()
             proc.wait(timeout=5)
@@ -278,20 +281,16 @@ class BackendPipelineMixin:
             detect_resources,
         )
 
-        # Detect available resources and compute adaptive configuration
         res_profile = detect_resources()
         pipe_cfg = compute_pipeline_config(res_profile)
 
-        CHUNK_SIZE = pipe_cfg.chunk_size
-
         logger.info(f"Processing image-only PDF: {input_pdf}")
 
-        # Set low priority for the main process (desktop responsiveness)
         try:
             os.nice(19)
             logger.debug("Main process priority set to nice=19")
         except OSError:
-            pass  # Already at max niceness or no permission
+            pass
 
         stats = ProcessingStats()
         start_time = time.time()
@@ -299,293 +298,35 @@ class BackendPipelineMixin:
         output_dir = output_pdf.parent
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Images go to /tmp (RAM on Linux) for faster I/O
         images_temp_dir = tempfile.TemporaryDirectory(prefix="rapidocr_imgs_")
         images_dir = Path(images_temp_dir.name) / "chunk_imgs"
         images_dir.mkdir()
 
-        # Temporary PDFs stay in the output directory (same filesystem = fast rename)
-        # Use descriptive names so the user knows what they are
         merged_pdf = output_dir / f".{output_pdf.stem}_processing.pdf"
         text_layer_pdf = output_dir / f".{output_pdf.stem}_textlayer.pdf"
 
         try:
-            if progress_callback:
-                progress_callback(0, 100, _("Analyzing PDF..."))
-
-            # 1. Metadata pass (fast, no images extracted)
-            page_rotations = extract_page_rotations(input_pdf)
-            if self.config.page_modifications:
-                page_rotations = apply_editor_mods_to_rotations(
-                    page_rotations, self.config.page_modifications
-                )
-
-            total_pages = len(page_rotations)
-            stats.pages_total = total_pages
-
-            if total_pages == 0:
-                logger.warning("No pages found in PDF!")
+            # Phase 1: Analyze PDF metadata
+            ctx = self._analyze_pdf_metadata(input_pdf, stats, pipe_cfg, progress_callback)
+            if ctx["total_pages"] == 0:
                 return stats
 
-            # Build rotation dicts for all pages (metadata only)
-            all_rotation_dicts = []
-            for rot in page_rotations:
-                all_rotation_dicts.append({
-                    "rotation": rot.original_pdf_rotation,
-                    "mediabox": rot.mediabox,
-                    "page_rotation": rot,
-                })
-
-            # Detect pages with native text so they can be preserved as-is
-            # (skip image extraction + OCR). Without this, native text pages
-            # would have their background images extracted and used as
-            # standalone pages, losing all text content.
-            # Only for force_full_ocr (editor-merged files). For
-            # replace_existing_ocr, all pages go through the normal
-            # pipeline — old invisible text is stripped during merge by
-            # _strip_invisible_text().
-            native_text_pages: set[int] = set()
-            if self.config.force_full_ocr:
-                native_text_pages = get_pages_with_native_text(input_pdf, total_pages)
-                if native_text_pages:
-                    logger.info(
-                        f"PDF has {len(native_text_pages)} page(s) with native text "
-                        f"that will be preserved: {sorted(native_text_pages)}"
-                    )
-
-            # 2. Setup persistent OCR subprocess (start launching in background)
-            from concurrent.futures import ProcessPoolExecutor
-
-            from reportlab.pdfgen import canvas
-
-            from bigocrpdf.services.rapidocr_service.page_worker import (
-                process_page,
-                worker_init,
+            # Phase 2: Chunked extraction + preprocessing + OCR
+            self._run_chunked_ocr_pipeline(
+                input_pdf,
+                text_layer_pdf,
+                images_dir,
+                ctx,
+                pipe_cfg,
+                res_profile,
+                stats,
+                progress_callback,
             )
 
-            # Launch persistent OCR subprocess (stays alive for the entire PDF)
-            # This avoids ~2s model-loading penalty per chunk
-            ocr_proc = self._launch_ocr_subprocess(ocr_threads=pipe_cfg.ocr_threads)
-
-            # Use ProcessPoolExecutor for CPU-bound preprocessing (rotation, deskew, etc)
-            # Worker count and chunk size are determined by resource_manager
-            # based on available RAM and CPU cores.
-            max_workers = pipe_cfg.max_workers
-
-            logger.info(
-                f"Chunked processing: {total_pages} pages in chunks of "
-                f"{CHUNK_SIZE}, parallel preprocessing ({max_workers} workers, nice=19), "
-                f"1 persistent OCR subprocess (nice=19)"
+            # Phase 3: Merge, post-process, finalize
+            self._post_process_pdf(
+                input_pdf, output_pdf, merged_pdf, text_layer_pdf, ctx, stats, progress_callback
             )
-
-            # 3. Chunked extraction + preprocessing + OCR loop
-            c = canvas.Canvas(str(text_layer_pdf))
-            page_standalone_flags: list[bool] = []
-            total_confidence = 0.0
-            num_chunks = (total_pages + CHUNK_SIZE - 1) // CHUNK_SIZE
-
-            if progress_callback:
-                progress_callback(5, 100, _("Starting OCR..."))
-
-            # Create executor once for the whole process
-            # Workers run with low priority (nice=19 + ionice idle)
-            with ProcessPoolExecutor(
-                max_workers=max_workers,
-                initializer=worker_init,
-            ) as executor:
-                try:
-                    # Wait for OCR model to finish loading before first use
-                    self._wait_for_ocr_ready(ocr_proc)
-
-                    for chunk_idx in range(num_chunks):
-                        chunk_start = chunk_idx * CHUNK_SIZE  # 0-based
-                        chunk_end = min(chunk_start + CHUNK_SIZE, total_pages)
-                        chunk_page_range = (chunk_start + 1, chunk_end)  # 1-based
-
-                        # Clean images dir for this chunk
-                        for f in images_dir.glob("*"):
-                            try:
-                                f.unlink()
-                            except OSError:
-                                pass
-
-                        # Extract images directly using pdfimages -all (no re-encoding)
-                        chunk_images = self.extractor.extract(
-                            input_pdf,
-                            output_dir=images_dir,
-                            page_range=chunk_page_range,
-                        )
-
-                        # Prepare work items for parallel preprocessing
-                        work_items = []
-                        for i, img_path in enumerate(chunk_images):
-                            abs_idx = chunk_start + i
-                            page_num = abs_idx + 1
-                            rot = page_rotations[abs_idx]
-
-                            # Skip native text pages — their images will be
-                            # OCR'd in a separate pass that processes ALL images
-                            # per page (not just the first one).
-                            if page_num in native_text_pages:
-                                effective_path = None
-                            elif rot.deleted:
-                                effective_path = None
-                            else:
-                                effective_path = img_path
-
-                            work_items.append({
-                                "page_num": page_num,
-                                "img_path": (str(effective_path) if effective_path else None),
-                                "config": self.config,
-                                "pdf_rotation": rot.original_pdf_rotation,
-                                "run_ocr": False,
-                                "probmap_max_side": pipe_cfg.downscale_probmap,
-                            })
-
-                        # Step 1: Preprocess images in PARALLEL (workers at nice=19)
-                        chunk_results = list(executor.map(process_page, work_items))
-
-                        # Step 3: Sequential OCR (subprocess) and Rendering (canvas not thread-safe)
-                        for i, result in enumerate(chunk_results):
-                            if hasattr(self, "cancel_event") and self.cancel_event.is_set():
-                                raise InterruptedError("Processing cancelled by user")
-
-                            page_num = result["page_num"]
-                            # logger.debug(f"OCR and Rendering page {page_num}")
-                            abs_idx = page_num - 1  # 0-based for rotation dicts
-
-                            # Get page dimensions for canvas (must be done sequentially for canvas)
-                            if abs_idx < len(all_rotation_dicts):
-                                mb = all_rotation_dicts[abs_idx]["mediabox"]
-                                w_pt = mb[2] - mb[0]
-                                h_pt = mb[3] - mb[1]
-                                c.setPageSize((w_pt, h_pt))
-                            else:
-                                c.setPageSize((595, 842))
-
-                            # Step 2: OCR via persistent subprocess
-                            if result.get("success") and result.get("temp_out_path"):
-                                ocr_raw = self._ocr_image_via_subprocess(
-                                    ocr_proc, result["temp_out_path"]
-                                )
-
-                                # Step 2.5: Refine low-confidence oversized detections.
-                                # Re-OCR cropped regions where the detector merged
-                                # multiple text lines into one box (common on
-                                # photographed pages with spine curvature).
-                                if ocr_raw and ocr_raw.get("boxes"):
-
-                                    def _ocr_crop(path, _proc=ocr_proc):
-                                        return self._ocr_image_via_subprocess(_proc, path)
-
-                                    ocr_raw = refine_ocr_results(
-                                        ocr_raw,
-                                        result["temp_out_path"],
-                                        _ocr_crop,
-                                    )
-
-                                result["ocr_raw"] = ocr_raw
-
-                            # Step 3: Render text layer
-                            progress_pct = 5 + int((page_num / total_pages) * 75)
-                            if progress_callback:
-                                progress_callback(
-                                    progress_pct,
-                                    100,
-                                    _("Processing page {0}/{1}...").format(page_num, total_pages),
-                                )
-
-                            try:
-                                confidence, needs_standalone = self._process_page_result(
-                                    c,
-                                    result,
-                                    work_items[i],
-                                    all_rotation_dicts,
-                                    page_num,
-                                    stats,
-                                )
-                                total_confidence += confidence
-                                page_standalone_flags.append(needs_standalone)
-                            except Exception as page_err:
-                                logger.error(f"Error processing page {page_num}: {page_err}")
-                                stats.warnings.append(f"Page {page_num} failed: {page_err}")
-                                c.setPageSize((595, 842))
-                                c.showPage()
-                                page_standalone_flags.append(False)
-
-                            # Free page data immediately
-                            del result
-
-                            # Adaptive GC: on constrained systems, collect after
-                            # every page to keep peak memory low.
-                            if pipe_cfg.gc_after_page:
-                                gc.collect()
-
-                        # OCR subprocess stays alive for next chunk (no restart penalty)
-
-                        logger.info(
-                            f"Chunk {chunk_idx + 1}/{num_chunks} done "
-                            f"(pages {chunk_start + 1}-{chunk_end})"
-                        )
-
-                        # Free accumulated memory between chunks
-                        if pipe_cfg.gc_after_chunk:
-                            gc.collect()
-
-                finally:
-                    self._stop_ocr_subprocess(ocr_proc)
-
-            c.save()
-            stats.average_confidence = total_confidence
-            self._page_standalone_flags = page_standalone_flags
-
-            # 4. Merge text layer with original
-            if progress_callback:
-                progress_callback(85, 100, _("Merging text layer..."))
-
-            any_standalone = any(page_standalone_flags) if page_standalone_flags else False
-            format_changed = self.config.image_export_format not in ("original", "")
-
-            if format_changed:
-                import shutil
-
-                shutil.copy2(text_layer_pdf, merged_pdf)
-            elif any_standalone:
-                smart_merge_pdfs(input_pdf, text_layer_pdf, merged_pdf, page_standalone_flags)
-            else:
-                self._overlay_text_on_original(input_pdf, text_layer_pdf, merged_pdf)
-
-            # 5. OCR images within native text pages (editor-merged files)
-            # These pages were skipped by the image-only pipeline to preserve
-            # their original text content. Now run OCR on their embedded images
-            # (logos, graphics with text) and add invisible text overlays.
-            if native_text_pages and merged_pdf.exists():
-                if progress_callback:
-                    progress_callback(87, 100, _("Processing text page images..."))
-                self._ocr_native_text_page_images(
-                    merged_pdf, native_text_pages, stats, progress_callback
-                )
-
-                # Extract native text from the output PDF so the text
-                # viewer has content to display for native text pages.
-                native_text = self._extract_native_text(merged_pdf)
-                if native_text.strip():
-                    if stats.full_text:
-                        stats.full_text = native_text.strip() + "\n\n" + stats.full_text
-                    else:
-                        stats.full_text = native_text.strip()
-
-            # 6. Apply editor modifications
-            start_page = 1
-            if self.config.page_range:
-                start_page = self.config.page_range[0]
-
-            if self.config.page_modifications:
-                apply_final_rotation_to_pdf(merged_pdf, page_rotations, start_page)
-
-            split_parts = self._finalize_output(merged_pdf, output_pdf, progress_callback)
-            if split_parts:
-                stats.split_output_files = [str(p) for p in split_parts]
 
         except InterruptedError:
             logger.info("Processing cancelled by user")
@@ -597,7 +338,6 @@ class BackendPipelineMixin:
         finally:
             if "images_temp_dir" in locals():
                 images_temp_dir.cleanup()
-            # Clean up temporary PDFs in the output directory
             for temp_pdf in (merged_pdf, text_layer_pdf):
                 try:
                     if temp_pdf.exists():
@@ -618,6 +358,133 @@ class BackendPipelineMixin:
         )
 
         return stats
+
+    def _analyze_pdf_metadata(
+        self,
+        input_pdf: Path,
+        stats: ProcessingStats,
+        pipe_cfg: Any,
+        progress_callback: Callable[[int, int, str], None] | None,
+    ) -> dict[str, Any]:
+        """Phase 1: Extract rotations, detect native text, and image encodings."""
+        if progress_callback:
+            progress_callback(0, 100, _("Analyzing PDF..."))
+
+        page_rotations = extract_page_rotations(input_pdf)
+        if self.config.page_modifications:
+            page_rotations = apply_editor_mods_to_rotations(
+                page_rotations, self.config.page_modifications
+            )
+
+        total_pages = len(page_rotations)
+        stats.pages_total = total_pages
+
+        all_rotation_dicts = []
+        for rot in page_rotations:
+            all_rotation_dicts.append({
+                "rotation": rot.original_pdf_rotation,
+                "mediabox": rot.mediabox,
+                "page_rotation": rot,
+            })
+
+        native_text_pages: set[int] = set()
+        if self.config.force_full_ocr:
+            native_text_pages = get_pages_with_native_text(input_pdf, total_pages)
+            if native_text_pages:
+                logger.info(
+                    f"PDF has {len(native_text_pages)} page(s) with native text "
+                    f"that will be preserved: {sorted(native_text_pages)}"
+                )
+
+        page_encodings = get_page_image_encodings(input_pdf)
+        bilevel_encs = {p for p, e in page_encodings.items() if e in ("jbig2", "ccitt")}
+        if bilevel_encs:
+            logger.info(
+                f"Detected bilevel encoding on {len(bilevel_encs)} page(s): {sorted(bilevel_encs)}"
+            )
+
+        return {
+            "total_pages": total_pages,
+            "page_rotations": page_rotations,
+            "all_rotation_dicts": all_rotation_dicts,
+            "native_text_pages": native_text_pages,
+            "page_encodings": page_encodings,
+        }
+
+    def _post_process_pdf(
+        self,
+        input_pdf: Path,
+        output_pdf: Path,
+        merged_pdf: Path,
+        text_layer_pdf: Path,
+        ctx: dict[str, Any],
+        stats: ProcessingStats,
+        progress_callback: Callable[[int, int, str], None] | None,
+    ) -> None:
+        """Phase 3: Merge text layer, apply editor mods, bilevel optimize, finalize."""
+        page_rotations = ctx["page_rotations"]
+        native_text_pages = ctx["native_text_pages"]
+        page_standalone_flags = self._page_standalone_flags
+        page_result_encodings = self._page_original_encodings
+
+        # Merge text layer with original
+        if progress_callback:
+            progress_callback(85, 100, _("Merging text layer..."))
+
+        any_standalone = any(page_standalone_flags) if page_standalone_flags else False
+        format_changed = self.config.image_export_format not in ("original", "")
+
+        if format_changed:
+            import shutil
+
+            shutil.copy2(text_layer_pdf, merged_pdf)
+        elif any_standalone:
+            smart_merge_pdfs(input_pdf, text_layer_pdf, merged_pdf, page_standalone_flags)
+        else:
+            self._overlay_text_on_original(input_pdf, text_layer_pdf, merged_pdf)
+
+        # OCR images within native text pages (editor-merged files)
+        if native_text_pages and merged_pdf.exists():
+            if progress_callback:
+                progress_callback(87, 100, _("Processing text page images..."))
+            self._ocr_native_text_page_images(
+                merged_pdf, native_text_pages, stats, progress_callback
+            )
+
+            native_text = self._extract_native_text(merged_pdf)
+            if native_text.strip():
+                if stats.full_text:
+                    stats.full_text = native_text.strip() + "\n\n" + stats.full_text
+                else:
+                    stats.full_text = native_text.strip()
+
+        # Apply editor modifications
+        start_page = 1
+        if self.config.page_range:
+            start_page = self.config.page_range[0]
+
+        if self.config.page_modifications:
+            apply_final_rotation_to_pdf(merged_pdf, page_rotations, start_page)
+
+        # Optimize bilevel images (JBIG2/CCITT re-encoding)
+        if self.config.enable_bilevel_compression and page_result_encodings:
+            if progress_callback:
+                progress_callback(88, 100, _("Optimizing image compression..."))
+            from bigocrpdf.services.rapidocr_service.bilevel_optimizer import (
+                optimize_bilevel_images,
+            )
+
+            n_opt = optimize_bilevel_images(
+                merged_pdf,
+                page_result_encodings,
+                force_bilevel=self.config.force_bilevel_compression,
+            )
+            if n_opt:
+                stats.warnings.append(_("{0} pages re-encoded with JBIG2").format(n_opt))
+
+        split_parts = self._finalize_output(merged_pdf, output_pdf, progress_callback)
+        if split_parts:
+            stats.split_output_files = [str(p) for p in split_parts]
 
     @staticmethod
     def _get_page_end_ctm(page) -> tuple[float, ...]:
@@ -689,6 +556,64 @@ class BackendPipelineMixin:
             (b * e - a * f) / det,
         )
 
+    def _extract_xobj_image(self, xobj, xobj_name: str, PdfImage):
+        """Extract a numpy RGB array from a PDF XObject, or None."""
+        if not hasattr(xobj, "Width"):
+            return None
+        px_w, px_h = int(xobj.Width), int(xobj.Height)
+        if px_w < MIN_TEXT_BOX_WIDTH_PX or px_h < MIN_TEXT_BOX_HEIGHT_PX:
+            return None
+        try:
+            return np.array(PdfImage(xobj).as_pil_image().convert("RGB"))
+        except Exception as e:
+            logger.debug(f"Could not extract {xobj_name}: {e}")
+            return None
+
+    def _ocr_page_embedded_images(
+        self,
+        img_positions,
+        xobjects,
+        ocr_proc,
+        stats,
+        page_num,
+        PdfImage,
+    ) -> list[str]:
+        """OCR all embedded images in one page; return text overlay commands."""
+        text_commands: list[str] = []
+        for img_pos in img_positions:
+            if img_pos.width < 15 or img_pos.height < 15:
+                continue
+            if img_pos.name not in xobjects:
+                continue
+            img_array = self._extract_xobj_image(
+                xobjects[img_pos.name],
+                img_pos.name,
+                PdfImage,
+            )
+            if img_array is None:
+                continue
+            ocr_results = self._ocr_via_persistent(img_array, ocr_proc)
+            if not ocr_results:
+                continue
+            img_h, img_w = img_array.shape[:2]
+            scale_x = img_pos.width / img_w if img_w else 1
+            scale_y = img_pos.height / img_h if img_h else 1
+            cmds = self._create_text_layer_commands(
+                ocr_results,
+                img_pos.x,
+                img_pos.y,
+                img_pos.width,
+                img_pos.height,
+                scale_x,
+                scale_y,
+            )
+            for cmd in cmds:
+                if cmd not in ("q", "Q"):
+                    text_commands.append(cmd)
+            stats.total_text_regions += len(ocr_results)
+            logger.debug(f"Page {page_num}: OCR'd {img_pos.name} ({len(ocr_results)} text regions)")
+        return text_commands
+
     def _ocr_native_text_page_images(
         self,
         merged_pdf_path: Path,
@@ -727,7 +652,6 @@ class BackendPipelineMixin:
             self._wait_for_ocr_ready(ocr_proc)
 
             with pikepdf.open(merged_pdf_path, allow_overwriting_input=True) as pdf:
-                ocr_count = 0
                 pages_done = 0
                 total_native = len(pages_to_process)
                 for page_num, img_positions in sorted(pages_to_process.items()):
@@ -744,79 +668,21 @@ class BackendPipelineMixin:
                     pages_done += 1
 
                     page = pdf.pages[page_num - 1]
-                    mediabox = page.mediabox
-                    page_width = float(mediabox[2]) - float(mediabox[0])
-                    page_height = float(mediabox[3]) - float(mediabox[1])
-
                     xobjects = {}
                     if "/Resources" in page and "/XObject" in page.Resources:
                         xobjects = page.Resources.XObject
 
-                    # Compute the active CTM at end of existing content stream
-                    # so we can undo it before our text overlay commands.
-                    end_ctm = self._get_page_end_ctm(page)
-
-                    page_text_commands: list[str] = []
-
-                    for img_pos in img_positions:
-                        # Skip very small images (icons, spacers).
-                        # Threshold in PDF points: 15pt ≈ 5mm.
-                        if img_pos.width < 15 or img_pos.height < 15:
-                            continue
-
-                        # Extract image directly from PDF via pikepdf
-                        xobj_name = img_pos.name
-                        if xobj_name not in xobjects:
-                            continue
-
-                        xobj = xobjects[xobj_name]
-                        if not hasattr(xobj, "Width"):
-                            continue
-
-                        # Also skip if pixel dimensions are too small for OCR
-                        px_w, px_h = int(xobj.Width), int(xobj.Height)
-                        if px_w < 50 or px_h < 30:
-                            continue
-
-                        try:
-                            pil_img = PdfImage(xobj).as_pil_image().convert("RGB")
-                            img_array = np.array(pil_img)
-                        except Exception as e:
-                            logger.debug(f"Could not extract {xobj_name}: {e}")
-                            continue
-
-                        # OCR directly without preprocessing (these are web
-                        # graphics, not scanned documents)
-                        ocr_results = self._ocr_via_persistent(img_array, ocr_proc)
-                        if not ocr_results:
-                            continue
-
-                        img_h, img_w = img_array.shape[:2]
-                        scale_x = img_pos.width / img_w if img_w else 1
-                        scale_y = img_pos.height / img_h if img_h else 1
-
-                        text_commands = self._create_text_layer_commands(
-                            ocr_results,
-                            img_pos.x,
-                            img_pos.y,
-                            img_pos.width,
-                            img_pos.height,
-                            scale_x,
-                            scale_y,
-                        )
-                        # Collect text commands (skip the leading q and trailing Q)
-                        for cmd in text_commands:
-                            if cmd not in ("q", "Q"):
-                                page_text_commands.append(cmd)
-
-                        stats.total_text_regions += len(ocr_results)
-                        ocr_count += len(ocr_results)
-                        logger.debug(
-                            f"Page {page_num}: OCR'd {xobj_name} ({len(ocr_results)} text regions)"
-                        )
+                    page_text_commands = self._ocr_page_embedded_images(
+                        img_positions,
+                        xobjects,
+                        ocr_proc,
+                        stats,
+                        page_num,
+                        PdfImage,
+                    )
 
                     if page_text_commands:
-                        # Wrap in q/Q with CTM reset to page coordinates
+                        end_ctm = self._get_page_end_ctm(page)
                         wrapped = ["q"]
                         inv = self._invert_ctm(end_ctm)
                         if inv:
@@ -881,18 +747,21 @@ class BackendPipelineMixin:
         page_height: float,
         stats: ProcessingStats,
         ocr_proc: subprocess.Popen | None = None,
+        skip_preprocessing: bool = False,
     ) -> list[str]:
         """OCR a single image within a page and overlay invisible text.
 
         Args:
             ocr_proc: Optional persistent OCR subprocess.  When provided,
                 images are sent over stdin instead of spawning a new process.
+            skip_preprocessing: Skip geometric preprocessing (for mixed content
+                images that are already properly aligned).
 
         Returns:
             List of OCR text strings found in the image.
         """
         # Skip very small images (likely icons or decorations)
-        if img_pos.width < 50 or img_pos.height < 50:
+        if img_pos.width < MIN_IMAGE_BOX_SIZE_PX or img_pos.height < MIN_IMAGE_BOX_SIZE_PX:
             logger.debug(f"Skipping small image: {img_pos.width}x{img_pos.height}")
             return []
 
@@ -901,7 +770,11 @@ class BackendPipelineMixin:
             logger.warning(f"Could not load image: {img_path}")
             return []
 
-        processed_img = self.preprocessor.process(img)
+        if skip_preprocessing:
+            processed_img = img
+        else:
+            processed_img = self.preprocessor.process(img)
+            self._replace_pdf_image(page, img_pos.name, processed_img)
 
         if ocr_proc is not None:
             ocr_results = self._ocr_via_persistent(processed_img, ocr_proc)
@@ -963,268 +836,40 @@ class BackendPipelineMixin:
         return [formatted_text] if formatted_text else []
 
     @staticmethod
-    def _extract_native_text(input_pdf: Path, pages: set[int] | None = None) -> str:
-        """Extract existing text from PDF using pdftotext.
+    def _replace_pdf_image(page, img_name: str, img_array: np.ndarray) -> None:
+        """Replace a PDF image XObject with a preprocessed image."""
+        import io
 
-        Uses plain mode (no -layout) for cleaner text flow, then
-        post-processes with conservative reflow for mid-sentence joins.
-
-        Args:
-            input_pdf: Path to PDF file.
-            pages: If given, extract only these page numbers (1-based).
-        """
-        import re
+        from PIL import Image
 
         try:
-            result = subprocess.run(
-                ["pdftotext", str(input_pdf), "-"],
-                capture_output=True,
-                text=True,
-                timeout=60,
-            )
-            if result.returncode != 0:
-                return ""
-        except Exception as e:
-            logger.warning(f"Could not extract native text: {e}")
-            return ""
+            xobj = page.Resources.XObject[img_name]
+        except (AttributeError, KeyError):
+            logger.warning(f"Could not find image {img_name} to replace")
+            return
 
-        text = result.stdout
+        h, w = img_array.shape[:2]
+        is_gray = len(img_array.shape) == 2
 
-        # Filter to specific pages if requested
-        if pages is not None:
-            page_texts = text.split("\f")
-            selected = []
-            for i, page_text in enumerate(page_texts):
-                if (i + 1) in pages and page_text.strip():
-                    selected.append(page_text)
-            if not selected:
-                return ""
-            text = "\f".join(selected)
-
-        # Remove form-feed characters (page breaks)
-        text = text.replace("\f", "\n\n")
-
-        # Conservative reflow: only join mid-sentence continuations
-        lines = text.split("\n")
-        reflowed: list[str] = []
-        i = 0
-        while i < len(lines):
-            line = lines[i]
-            if not line.strip():
-                reflowed.append("")
-                i += 1
-                continue
-
-            para = line.rstrip()
-            i += 1
-            while i < len(lines):
-                next_line = lines[i]
-                if not next_line.strip():
-                    break
-                stripped_next = next_line.strip()
-                para_end = para.rstrip()
-                if not para_end:
-                    break
-
-                # Hyphenated word break: "word-\ncontinuation" → join
-                if (
-                    para_end.endswith("-")
-                    and len(para_end) > 1
-                    and para_end[-2].isalpha()
-                    and stripped_next
-                    and stripped_next[0].islower()
-                ):
-                    para = para_end[:-1] + stripped_next
-                    i += 1
-                    continue
-
-                # Mid-sentence continuation: prev ends with letter/comma,
-                # next starts with lowercase → clearly same sentence
-                last_ch = para_end[-1]
-                if (last_ch.isalpha() or last_ch == ",") and stripped_next[0].islower():
-                    para = para_end + " " + stripped_next
-                    i += 1
-                    continue
-
-                # Otherwise, keep as separate lines
-                break
-
-            reflowed.append(para)
-
-        text = "\n".join(reflowed)
-
-        # Collapse multiple blank lines into max 2
-        text = re.sub(r"\n{4,}", "\n\n\n", text)
-
-        return text
-
-    @staticmethod
-    def _extract_and_filter_images(input_pdf: Path, images_dir: Path) -> list[Path]:
-        """Extract images from PDF and filter out masks/small icons."""
-        cmd = ["pdfimages", "-all", str(input_pdf), str(images_dir / "img")]
-        try:
-            subprocess.run(cmd, check=True, capture_output=True, text=True)
-        except subprocess.CalledProcessError as e:
-            logger.error(f"pdfimages failed: {e.stderr}")
-            raise RuntimeError(f"Failed to extract images: {e}") from e
-
-        extracted = sorted(images_dir.glob("img-*"))
-        filtered = [
-            img
-            for img in extracted
-            if not (img.stat().st_size < 5000 and img.suffix.lower() == ".png")
-        ]
-        logger.info(f"Extracted {len(filtered)} images (after filtering masks)")
-        return filtered
-
-    def _process_mixed_content_pdf(
-        self,
-        input_pdf: Path,
-        output_pdf: Path,
-        progress_callback: Callable[[int, int, str], None] | None = None,
-    ) -> ProcessingStats:
-        """Process mixed content PDF (text + images).
-
-        Preserves original PDF structure and adds invisible OCR text layers
-        at image positions.
-        """
-        import shutil
-
-        start_time = time.time()
-        stats = ProcessingStats()
-
-        if progress_callback:
-            progress_callback(0, 100, _("Analyzing PDF structure..."))
-
-        image_positions = extract_image_positions(input_pdf)
-
-        if not image_positions:
-            logger.info("No images found in PDF. Copying original.")
-            shutil.copy2(input_pdf, output_pdf)
-            stats.warnings.append("No images found to OCR in mixed content PDF")
-            self._calculate_final_stats(stats, start_time)
-            return stats
-
-        total_images = sum(len(imgs) for imgs in image_positions.values())
-        logger.info(f"Found {total_images} image(s) across {len(image_positions)} page(s)")
-
-        # Count total pages to determine which are text-only
-        with pikepdf.open(input_pdf) as pdf_count:
-            total_pages = len(pdf_count.pages)
-        stats.pages_total = total_pages
-
-        # Extract native text ONLY for pages without images (avoids
-        # duplicating OCR content with worse table formatting)
-        pages_with_images = set(image_positions.keys())
-        text_only_pages = set(range(1, total_pages + 1)) - pages_with_images
-        if text_only_pages:
-            native_text = self._extract_native_text(input_pdf, text_only_pages)
-            logger.info(f"Extracted native text for {len(text_only_pages)} text-only page(s)")
+        if is_gray:
+            pil_img = Image.fromarray(img_array, mode="L")
+            colorspace = pikepdf.Name.DeviceGray
         else:
-            native_text = ""
-            logger.info("All pages have images; skipping native text extraction")
-        ocr_texts = []
+            pil_img = Image.fromarray(cv2.cvtColor(img_array, cv2.COLOR_BGR2RGB))
+            colorspace = pikepdf.Name.DeviceRGB
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            images_dir = Path(temp_dir) / "images"
-            images_dir.mkdir()
+        buf = io.BytesIO()
+        pil_img.save(buf, format="JPEG", quality=95)
 
-            if progress_callback:
-                progress_callback(5, 100, _("Extracting images..."))
+        xobj.write(buf.getvalue(), filter=pikepdf.Name.DCTDecode)
+        xobj[pikepdf.Name.Width] = w
+        xobj[pikepdf.Name.Height] = h
+        xobj[pikepdf.Name.ColorSpace] = colorspace
+        xobj[pikepdf.Name.BitsPerComponent] = 8
 
-            extracted_images = self._extract_and_filter_images(input_pdf, images_dir)
-
-            # Launch persistent subprocess once (avoids model reload per image)
-            ocr_proc = self._launch_ocr_subprocess()
-            try:
-                self._wait_for_ocr_ready(ocr_proc)
-
-                with pikepdf.open(input_pdf, allow_overwriting_input=True) as pdf:
-                    processed_images = 0
-                    current_img_idx = 0
-
-                    for page_num in sorted(image_positions.keys()):
-                        # Check for cancellation between pages
-                        if hasattr(self, "cancel_event") and self.cancel_event.is_set():
-                            logger.info("Processing cancelled by user in mixed content mode")
-                            raise InterruptedError("Processing cancelled by user")
-
-                        page_imgs = image_positions[page_num]
-                        page = pdf.pages[page_num - 1]
-                        mediabox = page.mediabox
-                        page_height = float(mediabox[3]) - float(mediabox[1])
-                        page_width = float(mediabox[2]) - float(mediabox[0])
-
-                        if progress_callback:
-                            pct = 10 + int(80 * processed_images / total_images)
-                            progress_callback(pct, 100, _("OCR page {0}...").format(page_num))
-
-                        for img_pos in page_imgs:
-                            if current_img_idx >= len(extracted_images):
-                                logger.warning(
-                                    f"Image index {current_img_idx} exceeds extracted images"
-                                )
-                                break
-
-                            img_path = extracted_images[current_img_idx]
-                            current_img_idx += 1
-
-                            try:
-                                texts = self._ocr_image_in_page(
-                                    img_path,
-                                    img_pos,
-                                    pdf,
-                                    page,
-                                    page_num,
-                                    page_width,
-                                    page_height,
-                                    stats,
-                                    ocr_proc=ocr_proc,
-                                )
-                                ocr_texts.extend(texts)
-                                if texts:
-                                    processed_images += 1
-                            except Exception as e:
-                                logger.error(f"Error processing image {img_path}: {e}")
-                                stats.warnings.append(f"Failed to OCR image: {e}")
-                                continue
-
-                    if progress_callback:
-                        progress_callback(90, 100, _("Saving PDF..."))
-
-                    stats.pages_processed = len(image_positions)
-                    pdf.save(output_pdf)
-            finally:
-                self._stop_ocr_subprocess(ocr_proc)
-
-        # Split by file size if limit is configured
-        max_mb = self.config.max_file_size_mb
-        if max_mb > 0:
-            file_size_mb = output_pdf.stat().st_size / (1024 * 1024)
-            if file_size_mb > max_mb:
-                if progress_callback:
-                    progress_callback(92, 100, _("Splitting PDF by size limit..."))
-                split_parts = self._split_pdf_by_size(output_pdf, max_mb)
-                if split_parts:
-                    stats.split_output_files = [str(p) for p in split_parts]
-
-        # Combine native text (text-only pages) with OCR text (image pages)
-        parts = []
-        if native_text and native_text.strip():
-            parts.append(native_text.strip())
-        if ocr_texts:
-            parts.append("\n".join(ocr_texts))
-        stats.full_text = "\n\n".join(parts)
-
-        self._calculate_final_stats(stats, start_time)
-
-        if progress_callback:
-            progress_callback(100, 100, _("Done!"))
-
-        logger.info(f"Mixed content processing complete in {stats.processing_time_seconds:.1f}s")
-        logger.info(f"Pages: {stats.pages_processed}, Text regions: {stats.total_text_regions}")
-
-        return stats
+        # Remove transparency mask — JPEG does not support alpha
+        if pikepdf.Name.SMask in xobj:
+            del xobj[pikepdf.Name.SMask]
 
     def _finalize_output(
         self,

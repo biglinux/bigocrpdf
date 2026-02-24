@@ -116,6 +116,16 @@ class HeaderBar(Gtk.Box):
 
         self.header_bar.set_title_widget(self.action_box)
 
+        # View toggle button (single icon, switches between list/grid)
+        self._is_grid_view = False
+        self.view_toggle_button = Gtk.Button()
+        self.view_toggle_button.set_icon_name("view-list-symbolic")
+        self.view_toggle_button.set_tooltip_text(_("List view (click for grid)"))
+        set_a11y_label(self.view_toggle_button, _("List view (click for grid)"))
+        self.view_toggle_button.add_css_class("flat")
+        self.view_toggle_button.set_visible(False)
+        self.view_toggle_button.connect("clicked", self._on_view_toggle_clicked)
+
         # Menu button
         self.menu_button = Gtk.MenuButton()
         self.menu_button.set_icon_name("open-menu-symbolic")
@@ -124,6 +134,7 @@ class HeaderBar(Gtk.Box):
 
         menu = Gio.Menu.new()
         menu.append(_("Reset Settings"), "win.reset_settings")
+        menu.append(_("Keyboard Shortcuts"), "app.shortcuts")
         menu.append(_("Help"), "win.help")
         menu.append(_("About"), "app.about")
         menu.append(_("Quit"), "app.quit")
@@ -143,6 +154,9 @@ class HeaderBar(Gtk.Box):
         else:
             self.header_bar.pack_end(self.menu_button)
 
+        # Pack view toggle next to menu (pack_end adds right-to-left)
+        self.header_bar.pack_end(self.view_toggle_button)
+
     # --- Event Handlers ---
 
     def _on_add_files_clicked(self, button: Gtk.Button) -> None:
@@ -159,6 +173,20 @@ class HeaderBar(Gtk.Box):
         """Handle Clear Queue button click."""
         if hasattr(self.window, "clear_file_queue"):
             self.window.clear_file_queue()
+
+    def _on_view_toggle_clicked(self, button: Gtk.Button) -> None:
+        """Toggle between list and grid view."""
+        self._is_grid_view = not self._is_grid_view
+        if self._is_grid_view:
+            button.set_icon_name("view-grid-symbolic")
+            button.set_tooltip_text(_("Grid view (click for list)"))
+        else:
+            button.set_icon_name("view-list-symbolic")
+            button.set_tooltip_text(_("List view (click for grid)"))
+
+        # Notify the queue panel
+        if hasattr(self.window, "ui") and hasattr(self.window.ui, "settings_page_manager"):
+            self.window.ui.settings_page_manager._on_view_mode_toggled(self._is_grid_view)
 
     def _on_start_clicked(self, button: Gtk.Button) -> None:
         """Handle Start OCR button click."""
@@ -189,6 +217,9 @@ class HeaderBar(Gtk.Box):
         has_multiple_files = count >= 2
         self.clear_queue_button.set_visible(has_multiple_files)
         self.queue_size_label.set_visible(has_multiple_files)
+
+        has_files = count > 0
+        self.view_toggle_button.set_visible(has_files)
 
         has_files = count > 0
         self.start_button.set_visible(has_files)

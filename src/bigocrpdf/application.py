@@ -83,6 +83,11 @@ class BigOcrPdfApp(Adw.Application):
         image_ocr_action.connect("activate", self.on_image_ocr_action)
         self.add_action(image_ocr_action)
 
+        # Keyboard Shortcuts dialog action
+        shortcuts_action = Gio.SimpleAction.new("shortcuts", None)
+        shortcuts_action.connect("activate", self._on_shortcuts_action)
+        self.add_action(shortcuts_action)
+
         # Set up keyboard shortcuts
         self._setup_keyboard_shortcuts()
 
@@ -92,6 +97,7 @@ class BigOcrPdfApp(Adw.Application):
             # Application-level shortcuts
             self.set_accels_for_action("app.quit", [SHORTCUTS.get("quit", "<Control>q")])
             self.set_accels_for_action("app.about", [SHORTCUTS.get("about", "F1")])
+            self.set_accels_for_action("app.shortcuts", ["<Control>question"])
 
             # Window-level shortcuts (win. prefix)
             self.set_accels_for_action("win.add-files", [SHORTCUTS.get("add-files", "<Control>o")])
@@ -103,6 +109,9 @@ class BigOcrPdfApp(Adw.Application):
             )
             self.set_accels_for_action(
                 "win.remove-all-files", [SHORTCUTS.get("remove-all-files", "<Control>r")]
+            )
+            self.set_accels_for_action(
+                "win.paste-clipboard", [SHORTCUTS.get("paste-clipboard", "<Control>v")]
             )
 
             logger.info("Keyboard shortcuts configured successfully")
@@ -141,6 +150,18 @@ class BigOcrPdfApp(Adw.Application):
             # Load custom CSS
             load_css()
 
+            # --edit mode without files: open standalone editor
+            if self._edit_mode:
+                from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
+
+                win = PDFEditorWindow(
+                    application=app,
+                    standalone=True,
+                )
+                win.present()
+                logger.info("Opened standalone PDF editor (no file)")
+                return
+
             # Check if we already have a window open
             win = self.get_active_window()
             if not win:
@@ -168,104 +189,83 @@ class BigOcrPdfApp(Adw.Application):
             error_dialog.set_detail(str(e))
             error_dialog.show()
 
-    def on_open(self, app: Adw.Application, files: list, n_files: int, _hint: str) -> None:
-        """Callback for opening files from command line or file manager.
+    _IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"}
 
-        Args:
-            app: The application instance
-            files: List of GFile objects to open
-            n_files: Number of files
-            _hint: Hint string (usually empty, prefixed with _ to indicate unused)
-        """
-        try:
-            # Load custom CSS
-            load_css()
+    @staticmethod
+    def _categorize_files(files) -> tuple[list[str], list[str]]:
+        """Split GFile objects into (pdf_paths, image_paths)."""
+        import os
 
-            # Extract file paths from GFile objects and categorize
-            image_extensions = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"}
-            pdf_paths = []
-            image_paths = []
+        pdf_paths: list[str] = []
+        image_paths: list[str] = []
+        for gfile in files:
+            path = gfile.get_path()
+            if path:
+                ext = os.path.splitext(path)[1].lower()
+                if ext in BigOcrPdfApp._IMAGE_EXTENSIONS:
+                    image_paths.append(path)
+                else:
+                    pdf_paths.append(path)
+        return pdf_paths, image_paths
 
-            for gfile in files:
-                path = gfile.get_path()
-                if path:
-                    import os
+    def _open_edit_mode(self, app, pdf_paths, image_paths):
+        """Handle --edit mode file opening."""
+        if pdf_paths:
+            from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
 
-                    ext = os.path.splitext(path)[1].lower()
-                    if ext in image_extensions:
-                        image_paths.append(path)
-                    else:
-                        pdf_paths.append(path)
-
-            # --edit mode: open PDFs directly in the editor window
-            if self._edit_mode and pdf_paths:
-                from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
-
-                for pdf_path in pdf_paths:
-                    win = PDFEditorWindow(
-                        application=app,
-                        pdf_path=pdf_path,
-                        on_save_callback=lambda doc, p=pdf_path: self._standalone_editor_save(
-                            doc, p
-                        ),
-                    )
-                    win.present()
-                    logger.info(f"Opened PDF editor for: {pdf_path}")
-
-                # Also open images in the editor if provided alongside PDFs
-                if image_paths and pdf_paths:
-                    # Add images to the first editor window
-                    win = self.get_active_window()
-                    if win and hasattr(win, "_add_files_to_document"):
-                        GLib.timeout_add(
-                            200, lambda: win._add_files_to_document(image_paths) or False
-                        )
-
-                return
-
-            # --edit mode with only images: create new PDF from images
-            if self._edit_mode and image_paths and not pdf_paths:
-                self._open_images_in_editor(app, image_paths)
-                return
-
-            # Normal mode: categorize and route to appropriate window
-            if image_paths and not pdf_paths:
-                # Image-only mode: Launch ImageOcrWindow
-                first_image = image_paths[0]
-                win = ImageOcrWindow(app, image_path=first_image)
+            for pdf_path in pdf_paths:
+                win = PDFEditorWindow(application=app, pdf_path=pdf_path, standalone=True)
                 win.present()
-                logger.info(f"Opened image OCR window with: {first_image}")
+                logger.info(f"Opened PDF editor for: {pdf_path}")
 
-            elif pdf_paths or not image_paths:
-                # Normal PDF mode or mixed (prioritize PDF window)
-                # Check if we already have a window open
+            if image_paths:
                 win = self.get_active_window()
+                if win and hasattr(win, "_add_files_to_document"):
+                    GLib.timeout_add(200, lambda: win._add_files_to_document(image_paths) or False)
+            return
 
-                # If active window is ImageOcrWindow, create new BigOcrPdfWindow
-                if not win or isinstance(win, ImageOcrWindow):
-                    win = BigOcrPdfWindow(app)
+        if image_paths:
+            self._open_images_in_editor(app, image_paths)
 
-                # Show the window
-                win.present()
+    def _open_normal_mode(self, app, pdf_paths, image_paths):
+        """Handle normal mode file opening."""
+        if image_paths and not pdf_paths:
+            win = ImageOcrWindow(app, image_path=image_paths[0])
+            win.present()
+            logger.info(f"Opened image OCR window with: {image_paths[0]}")
+            return
 
-                # Add PDF files to the application queue
-                if pdf_paths:
+        win = self.get_active_window()
+        if not win or isinstance(win, ImageOcrWindow):
+            win = BigOcrPdfWindow(app)
+        win.present()
 
-                    def add_files_when_ready():
-                        try:
-                            if hasattr(win, "settings"):
-                                added = win.settings.add_files(pdf_paths)
-                                if added > 0:
-                                    logger.info(f"Added {added} file(s) from command line")
-                                    # Refresh the file list UI
-                                    if hasattr(win, "update_file_info"):
-                                        win.update_file_info()
-                        except Exception as e:
-                            logger.error(f"Error adding files: {e}")
-                        return False  # Don't repeat
+        if pdf_paths:
 
-                    # Use a small delay to ensure the window is fully initialized
-                    GLib.timeout_add(100, add_files_when_ready)
+            def add_files_when_ready():
+                try:
+                    if hasattr(win, "settings"):
+                        added = win.settings.add_files(pdf_paths)
+                        if added > 0:
+                            logger.info(f"Added {added} file(s) from command line")
+                            if hasattr(win, "update_file_info"):
+                                win.update_file_info()
+                except Exception as e:
+                    logger.error(f"Error adding files: {e}")
+                return False
+
+            GLib.timeout_add(100, add_files_when_ready)
+
+    def on_open(self, app: Adw.Application, files: list, n_files: int, _hint: str) -> None:
+        """Callback for opening files from command line or file manager."""
+        try:
+            load_css()
+            pdf_paths, image_paths = self._categorize_files(files)
+
+            if self._edit_mode:
+                self._open_edit_mode(app, pdf_paths, image_paths)
+            else:
+                self._open_normal_mode(app, pdf_paths, image_paths)
 
             logger.info(_("Opened {0} file(s)").format(n_files))
 
@@ -308,7 +308,7 @@ class BigOcrPdfApp(Adw.Application):
             win = PDFEditorWindow(
                 application=app,
                 pdf_path=tmp_pdf,
-                on_save_callback=lambda doc: self._standalone_editor_save(doc, tmp_pdf),
+                standalone=True,
             )
             win.present()
 
@@ -352,6 +352,74 @@ class BigOcrPdfApp(Adw.Application):
         finally:
             if os.path.exists(tmp):
                 os.remove(tmp)
+
+    def _on_shortcuts_action(self, _action: Gio.SimpleAction, _param: Any) -> None:
+        """Show the keyboard shortcuts dialog."""
+        win = self.get_active_window()
+        shortcuts_win = self._build_shortcuts_window()
+        shortcuts_win.set_transient_for(win)
+        shortcuts_win.present()
+
+    def _build_shortcuts_window(self) -> Gtk.ShortcutsWindow:
+        """Build a Gtk.ShortcutsWindow with categorized shortcut descriptions."""
+        window = Gtk.ShortcutsWindow()
+
+        # Main section
+        section = Gtk.ShortcutsSection(section_name="main", title=_("Shortcuts"))
+        section.set_visible(True)
+
+        # File group
+        file_group = Gtk.ShortcutsGroup(title=_("File"))
+        file_group.set_visible(True)
+        for accel, title in [
+            (SHORTCUTS.get("add-files", "<Control>o"), _("Add files")),
+            (SHORTCUTS.get("paste-clipboard", "<Control>v"), _("Paste from clipboard")),
+            (SHORTCUTS.get("quit", "<Control>q"), _("Quit")),
+        ]:
+            sc = Gtk.ShortcutsShortcut(
+                shortcut_type=Gtk.ShortcutType.ACCELERATOR,
+                accelerator=accel,
+                title=title,
+            )
+            sc.set_visible(True)
+            file_group.append(sc)
+        section.append(file_group)
+
+        # Processing group
+        proc_group = Gtk.ShortcutsGroup(title=_("Processing"))
+        proc_group.set_visible(True)
+        for accel, title in [
+            (SHORTCUTS.get("start-processing", "<Control>Return"), _("Start OCR")),
+            (SHORTCUTS.get("cancel-processing", "Escape"), _("Cancel processing")),
+            (SHORTCUTS.get("remove-all-files", "<Control>r"), _("Clear file queue")),
+        ]:
+            sc = Gtk.ShortcutsShortcut(
+                shortcut_type=Gtk.ShortcutType.ACCELERATOR,
+                accelerator=accel,
+                title=title,
+            )
+            sc.set_visible(True)
+            proc_group.append(sc)
+        section.append(proc_group)
+
+        # General group
+        gen_group = Gtk.ShortcutsGroup(title=_("General"))
+        gen_group.set_visible(True)
+        for accel, title in [
+            ("<Control>question", _("Keyboard shortcuts")),
+            (SHORTCUTS.get("about", "F1"), _("About")),
+        ]:
+            sc = Gtk.ShortcutsShortcut(
+                shortcut_type=Gtk.ShortcutType.ACCELERATOR,
+                accelerator=accel,
+                title=title,
+            )
+            sc.set_visible(True)
+            gen_group.append(sc)
+        section.append(gen_group)
+
+        window.set_child(section)
+        return window
 
     def on_about_action(self, _action: Gio.SimpleAction, _param: Any) -> None:
         """Show about dialog.

@@ -7,12 +7,11 @@ Handles all file and folder selection dialogs for the application.
 import gi
 
 gi.require_version("Gtk", "4.0")
-gi.require_version("Adw", "1")
 import os
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
-from gi.repository import Adw, Gio, Gtk
+from gi.repository import Gio, Gtk
 
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
@@ -67,12 +66,15 @@ class FileSelectionManager:
         file_filter = Gtk.FileFilter()
         file_filter.set_name(_("PDFs and Images"))
         file_filter.add_mime_type("application/pdf")
-        file_filter.add_pattern("*.pdf")
-
-        # Add image patterns
-        for pattern in ["*.jpg", "*.jpeg", "*.png", "*.webp", "*.tif", "*.tiff", "*.bmp", "*.avif"]:
-            file_filter.add_pattern(pattern)
-            file_filter.add_pattern(pattern.upper())
+        for mime in [
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "image/tiff",
+            "image/bmp",
+            "image/avif",
+        ]:
+            file_filter.add_mime_type(mime)
 
         filters = Gio.ListStore.new(Gtk.FileFilter)
         filters.append(file_filter)
@@ -185,60 +187,15 @@ class FileSelectionManager:
         Args:
             image_files: List of image file paths
         """
-        dialog = Adw.AlertDialog()
-        dialog.set_heading(_("Multiple Images Selected"))
-        dialog.set_body(
-            _("You selected {} images. How would you like to add them?").format(len(image_files))
+        self.window.ui.dialogs_manager.show_image_merge_dialog(
+            image_files,
+            self.settings,
+            heading=_("Multiple Images Selected"),
+            body=_("You selected {} images. How would you like to add them?").format(
+                len(image_files)
+            ),
+            on_complete=lambda: self.window.update_file_info(),
         )
-
-        dialog.add_response("separate", _("Separate PDFs"))
-        dialog.add_response("merge", _("Merge into One PDF"))
-        dialog.set_response_appearance("merge", Adw.ResponseAppearance.SUGGESTED)
-        dialog.set_default_response("merge")
-
-        dialog.connect("response", self._on_image_merge_response, image_files)
-        dialog.present(self.window)
-
-    def _on_image_merge_response(
-        self, dialog: Adw.AlertDialog, response: str, image_files: list[str]
-    ) -> None:
-        """Handle the image merge dialog response.
-
-        Args:
-            dialog: The dialog
-            response: Response ID ("merge" or "separate")
-            image_files: List of image file paths
-        """
-        if response == "merge":
-            # Merge all images into a single PDF
-            try:
-                pdf_path = images_to_pdf(image_files)
-                self.settings.original_file_paths[pdf_path] = image_files[0]
-                added = self.settings.add_files([pdf_path])
-                if added > 0:
-                    self.window.update_file_info()
-                    self.window.show_toast(
-                        _("Merged {} images into one PDF").format(len(image_files))
-                    )
-            except Exception as e:
-                logger.error(f"Failed to merge images: {e}")
-                self.window.show_toast(_("Error merging images"))
-        elif response == "separate":
-            # Convert each image to a separate PDF
-            converted_paths = []
-            for img_path in image_files:
-                try:
-                    pdf_path = images_to_pdf([img_path])
-                    converted_paths.append(pdf_path)
-                    self.settings.original_file_paths[pdf_path] = img_path
-                except Exception as e:
-                    logger.error(f"Failed to convert image to PDF: {e}")
-
-            if converted_paths:
-                added = self.settings.add_files(converted_paths)
-                if added > 0:
-                    self.window.update_file_info()
-        # "close" (X button) does nothing
 
     def show_folder_selection_dialog(self, callback: Callable[[str], None] | None = None) -> None:
         """

@@ -87,21 +87,20 @@ def _get_inprocess_detector(language: str, limit_side_len: int):
         # Try detection-only params first (much less memory: ~100 MB vs ~400 MB)
         det_only_params = {
             "Det.engine_type": EngineType.OPENVINO,
-            "Det.engine_cfg.inference_num_threads": 2,
             "Det.limit_side_len": limit_side_len,
             "Det.limit_type": "max",
             "Global.use_cls": False,
             "Global.text_score": 0.3,
+            "EngineConfig.openvino.inference_num_threads": 2,
         }
 
         # Full params as fallback (loads all models)
         full_params = {
             **det_only_params,
             "Rec.engine_type": EngineType.OPENVINO,
-            "Rec.engine_cfg.inference_num_threads": 2,
             "Rec.lang_type": lang_map.get(language, LangRec.LATIN),
             "Rec.ocr_version": OCRVersion.PPOCRV5,
-            "Rec.rec_batch_num": 16,
+            "Rec.rec_batch_num": 1,
             "Cls.engine_type": EngineType.OPENVINO,
         }
 
