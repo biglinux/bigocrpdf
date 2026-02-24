@@ -11,6 +11,8 @@ gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Adw, Gdk, Gio, GLib, Gtk
 
+import tempfile
+
 from bigocrpdf.config import IMAGE_WINDOW_STATE_KEY
 from bigocrpdf.services.processor import OcrProcessor
 from bigocrpdf.services.screen_capture import ScreenCaptureService
@@ -127,6 +129,111 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         self._build_welcome_page()
         self._build_loading_page()
         self._build_results_page()
+
+        # Enable drag-and-drop for image files
+        self._setup_drop_target()
+
+    _SUPPORTED_IMAGE_EXTENSIONS = frozenset((
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".bmp",
+        ".tiff",
+        ".tif",
+        ".webp",
+        ".gif",
+        ".avif",
+        ".heif",
+        ".heic",
+        ".jxl",
+        ".ico",
+        ".psd",
+        ".eps",
+        ".tga",
+        ".pbm",
+        ".pgm",
+        ".ppm",
+        ".xbm",
+        ".xpm",
+    ))
+
+    def _setup_drop_target(self) -> None:
+        """Set up drag-and-drop target for image files."""
+        drop = Gtk.DropTarget.new(Gio.File, Gdk.DragAction.COPY)
+        drop.connect("drop", self._on_drop)
+        self.add_controller(drop)
+
+    def _on_drop(self, _target: Gtk.DropTarget, value: Gio.File, _x: float, _y: float) -> bool:
+        """Handle dropped file."""
+        path = value.get_path()
+        if path:
+            import os
+
+            ext = os.path.splitext(path)[1].lower()
+            if ext in self._SUPPORTED_IMAGE_EXTENSIONS:
+                self._start_processing(path)
+                return True
+            else:
+                self._toast_overlay.add_toast(Adw.Toast(title=_("Unsupported file format")))
+        return False
+
+    # ── Clipboard Paste ─────────────────────────────────────────────────
+
+    def paste_from_clipboard(self) -> None:
+        """Paste image from clipboard (Ctrl+V)."""
+        clipboard = Gdk.Display.get_default().get_clipboard()
+        formats = clipboard.get_formats()
+        if formats.contain_gtype(Gdk.Texture):
+            clipboard.read_texture_async(None, self._on_clipboard_texture_ready)
+        elif formats.contain_mime_type("text/uri-list"):
+            clipboard.read_async(
+                ["text/uri-list"],
+                GLib.PRIORITY_DEFAULT,
+                None,
+                self._on_clipboard_uri_ready,
+            )
+        else:
+            self._toast_overlay.add_toast(Adw.Toast(title=_("No image found in clipboard")))
+
+    def _on_clipboard_texture_ready(
+        self, clipboard: Gdk.Clipboard, result: Gio.AsyncResult
+    ) -> None:
+        """Handle clipboard texture read completion."""
+        try:
+            texture = clipboard.read_texture_finish(result)
+            if not texture:
+                return
+            fd, tmp_path = tempfile.mkstemp(suffix=".png", prefix="bigocrimage_paste_")
+            import os
+
+            os.close(fd)
+            texture.save_to_png(tmp_path)
+            self._start_processing(tmp_path)
+        except Exception as e:
+            logger.error(f"Clipboard paste error: {e}")
+
+    def _on_clipboard_uri_ready(self, clipboard: Gdk.Clipboard, result: Gio.AsyncResult) -> None:
+        """Handle clipboard URI read completion."""
+        try:
+            stream = clipboard.read_finish(result)[0]
+            if not stream:
+                return
+            data = stream.read_bytes(65536, None).get_data().decode("utf-8", errors="replace")
+            stream.close(None)
+            import os
+            from urllib.parse import unquote, urlparse
+
+            for line in data.splitlines():
+                line = line.strip()
+                if line.startswith("file://"):
+                    path = unquote(urlparse(line).path)
+                    ext = os.path.splitext(path)[1].lower()
+                    if ext in self._SUPPORTED_IMAGE_EXTENSIONS and os.path.isfile(path):
+                        self._start_processing(path)
+                        return
+            self._toast_overlay.add_toast(Adw.Toast(title=_("No image found in clipboard")))
+        except Exception as e:
+            logger.error(f"Clipboard URI paste error: {e}")
 
     def _build_welcome_page(self) -> None:
         """Build the welcome page with Adw.StatusPage and action buttons."""

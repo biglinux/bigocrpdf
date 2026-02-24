@@ -65,9 +65,21 @@ class ImageOcrApp(Adw.Application):
         quit_action.connect("activate", lambda *_: self.quit())
         self.add_action(quit_action)
 
+        # Paste from clipboard action
+        paste_action = Gio.SimpleAction.new("paste-clipboard", None)
+        paste_action.connect("activate", self._on_paste_action)
+        self.add_action(paste_action)
+
         # Set keyboard shortcuts
         self.set_accels_for_action("app.quit", ["<Control>q"])
         self.set_accels_for_action("app.about", ["F1"])
+        self.set_accels_for_action("app.paste-clipboard", ["<Control>v"])
+
+    def _on_paste_action(self, _action: Gio.SimpleAction, _param: None) -> None:
+        """Handle paste from clipboard action."""
+        win = self.get_active_window()
+        if win and hasattr(win, "paste_from_clipboard"):
+            win.paste_from_clipboard()
 
     def on_handle_local_options(self, app: Adw.Application, options: GLib.VariantDict) -> int:
         """Handle command line options."""
@@ -96,15 +108,20 @@ class ImageOcrApp(Adw.Application):
         _hint: str,
     ) -> None:
         """Handle opening files."""
+        logger.info(f"on_open called with {n_files} files")
         self.on_activate(app)
         win = self.get_active_window()
 
         if win and files:
-            # Open the first image file
             file_path = files[0].get_path()
+            logger.info(f"on_open: file_path={file_path}, uri={files[0].get_uri()}")
             if file_path and hasattr(win, "open_image"):
                 win.open_image(file_path)
                 logger.info(f"Opened image: {file_path}")
+            else:
+                logger.warning(f"Could not open: path={file_path}, has_open_image={hasattr(win, 'open_image')}")
+        else:
+            logger.warning(f"on_open: win={win}, files={files}")
 
     def on_about_action(self, _action: Gio.SimpleAction, _param: None) -> None:
         """Show the About dialog."""

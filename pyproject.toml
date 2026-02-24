@@ -63,7 +63,7 @@ build-backend = "setuptools.build_meta"
 where = ["src"]
 
 [tool.setuptools.package-data]
-bigocrpdf = ["resources/*.css"]
+bigocrpdf = ["resources/*.css", "resources/illustrations/*.svg"]
 
 [tool.ruff]
 target-version = "py310"
