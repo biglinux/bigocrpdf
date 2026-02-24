@@ -26,7 +26,7 @@ msgid "Print version information and exit"
 msgstr "Print version information and exit"
 
 #
-# File: bigocrpdf/src/bigocrpdf/image_application.py, line: 115
+# File: bigocrpdf/src/bigocrpdf/image_application.py, line: 132
 msgid "Extract text from images using OCR"
 msgstr "Extract text from images using OCR"
 
@@ -1431,87 +1431,98 @@ msgid "Error loading CSS styles: {0}"
 msgstr "Error loading CSS styles: {0}"
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 177
+msgid "Unsupported file format"
+msgstr "Unsupported file format"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 196
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 234
+msgid "No image found in clipboard"
+msgstr "No image found in clipboard"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 242
 msgid "Image OCR"
 msgstr "Image OCR"
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 136
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 243
 msgid "Extract text from images or screen captures using OCR."
 msgstr "Extract text from images or screen captures using OCR."
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 144
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 148
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 230
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 251
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 255
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 337
 msgid "Open Image"
 msgstr "Open Image"
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 154
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 159
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 261
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 266
 msgid "Screen Capture"
 msgstr "Screen Capture"
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 170
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 277
 msgid "Extracting text…"
 msgstr "Extracting text…"
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 196
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 303
 msgid "Extracted text"
 msgstr "Extracted text"
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 208
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 315
 msgid "Copy"
 msgstr "Copy"
 
 #
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 210
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 317
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 319
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 248
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 249
 msgid "Copy text to clipboard"
 msgstr "Copy text to clipboard"
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 220
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 327
 msgid "New Capture"
 msgstr "New Capture"
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 224
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 330
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 331
 msgid "Capture a screen region"
 msgstr "Capture a screen region"
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 232
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 233
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 339
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 340
 msgid "Open an image file"
 msgstr "Open an image file"
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 264
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 371
 msgid "Choose the language of the text in the image"
 msgstr "Choose the language of the text in the image"
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 265
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 372
 msgid "OCR language"
 msgstr "OCR language"
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 323
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 430
 msgid "No text extracted."
 msgstr "No text extracted."
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 377
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 484
 msgid "Open Image to OCR"
 msgstr "Open Image to OCR"
 
@@ -1520,7 +1531,7 @@ msgstr "Open Image to OCR"
 #
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 380
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 706
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 709
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 770
@@ -1529,14 +1540,14 @@ msgid "Images"
 msgstr "Images"
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 433
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 540
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
 
 #
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 455
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 562
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1006
 msgid "Error"
 msgstr "Error"
@@ -1548,7 +1559,7 @@ msgstr "Error"
 #
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 #
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 457
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 564
 # File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 163
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1008
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 372
