@@ -9,15 +9,15 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 import os
-import subprocess
 from typing import TYPE_CHECKING
 
 from gi.repository import Adw, Gdk, Gio, GLib, Gtk
 
+from bigocrpdf.utils.a11y import set_a11y_label
+
 if TYPE_CHECKING:
     from window import BigOcrPdfWindow
 
-from bigocrpdf.ui.components import create_action_button, create_icon_button
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
@@ -35,43 +35,39 @@ class SettingsPageManager:
 
         # UI component references
         self.lang_dropdown = None
-        self.quality_dropdown = None
-        self.alignment_dropdown = None
         self.dest_entry = None
-        self.dest_container = None
-        self.same_folder_switch_row = None
+        self.folder_combo = None
+        self.folder_entry_box = None
         self.file_list_box = None
-        self.remove_button = None
-        self.drop_label = None
-        self.status_label = None
+        self.placeholder = None
+
+        # Preprocessing UI components
+        self.deskew_switch = None
+        self.dewarp_switch = None
+        self.perspective_switch = None
+        self.orientation_switch = None
+        self.scanner_switch = None
+        self.replace_ocr_switch = None
+        self._preprocessing_signal_connected = False
 
     def create_settings_page(self) -> Gtk.Widget:
-        """Create the settings page for the application using a horizontal box layout
+        """Create the settings page (file queue only).
+
+        The sidebar with OCR settings is created separately
+        via create_sidebar_content() for the window's left pane.
 
         Returns:
-            A widget containing the settings UI with side-by-side layout
+            A widget containing the file queue UI
         """
-        # Create a horizontal box layout for a unified appearance
-        main_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        return self._create_file_queue_panel()
 
-        # Create the configuration panel (left side)
-        config_panel = self._create_config_panel()
-        config_panel.set_size_request(400, -1)  # Set minimum width for config panel
-        config_panel.set_margin_start(8)
-        config_panel.set_hexpand(False)
+    def create_sidebar_content(self) -> Gtk.Widget:
+        """Create the sidebar content with OCR settings.
 
-        # Create the file queue panel (right side)
-        file_queue_panel = self._create_file_queue_panel()
-        file_queue_panel.set_hexpand(True)  # Allow file queue to expand horizontally
-
-        # Add some spacing between the panels instead of a separator
-        file_queue_panel.set_margin_end(8)
-
-        # Add panels to the box without separator between them
-        main_box.append(config_panel)
-        main_box.append(file_queue_panel)
-
-        return main_box
+        Returns:
+            A widget containing OCR configuration options
+        """
+        return self._create_config_panel()
 
     def _create_config_panel(self) -> Gtk.Widget:
         """Create the configuration panel for the left sidebar
@@ -79,482 +75,839 @@ class SettingsPageManager:
         Returns:
             A widget containing OCR settings and destination configuration
         """
-        # OCR Settings section with outer container
-        settings_card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
-        settings_card.set_margin_top(8)
-        settings_card.set_margin_bottom(8)
-        settings_card.set_margin_start(8)
-        settings_card.set_margin_end(8)
-        settings_card.add_css_class("card")
-
-        # Add header for configuration
-        dest_header = Gtk.Label(label=_("Configuration"))
-        dest_header.add_css_class("heading")
-        dest_header.set_margin_top(12)
-        dest_header.set_margin_start(12)
-        dest_header.set_halign(Gtk.Align.START)
-        settings_card.append(dest_header)
-
-        # Add configuration options
-        self._add_same_folder_option(settings_card)
-        self._add_destination_folder(settings_card)
-        self._add_output_options(settings_card)
-        self._add_ocr_settings(settings_card)
-
-        # Wrap in a scrolled window for better handling of different screen sizes
+        # Scrolled content - no frame wrapper to keep clean sidebar look
         scrolled_window = Gtk.ScrolledWindow()
         scrolled_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        scrolled_window.set_child(settings_card)
+        scrolled_window.set_vexpand(True)
+
+        # Main settings container
+        settings_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        settings_box.set_spacing(24)
+        settings_box.set_margin_start(12)
+        settings_box.set_margin_end(12)
+        settings_box.set_margin_top(3)
+        settings_box.set_margin_bottom(24)
+
+        group = Adw.PreferencesGroup()
+
+        # Language (always visible at top level)
+        self._create_language_widgets(group)
+
+        # Image Corrections (collapsible)
+        self._proc_expander = Adw.ExpanderRow(title=_("Image Corrections"))
+        self._proc_expander.add_prefix(
+            Gtk.Image.new_from_icon_name("applications-graphics-symbolic")
+        )
+        self._create_preprocessing_widgets(self._proc_expander)
+        group.add(self._proc_expander)
+
+        # Output Settings (collapsible)
+        self._out_expander = Adw.ExpanderRow(title=_("Output Settings"))
+        self._out_expander.add_prefix(Gtk.Image.new_from_icon_name("document-save-symbolic"))
+        self._create_output_widgets(self._out_expander)
+        group.add(self._out_expander)
+
+        # Advanced (collapsible)
+        self._adv_expander = Adw.ExpanderRow(title=_("Advanced"))
+        self._adv_expander.add_prefix(Gtk.Image.new_from_icon_name("preferences-system-symbolic"))
+        self._create_advanced_widgets(self._adv_expander)
+        group.add(self._adv_expander)
+
+        settings_box.append(group)
+
+        # Load all settings when panel becomes visible
+        group.connect("map", lambda _w: self._load_all_sidebar_settings())
+
+        scrolled_window.set_child(settings_box)
 
         return scrolled_window
 
-    def _add_same_folder_option(self, container: Gtk.Box) -> None:
-        """Add the 'save in same folder' switch to the container
+    def _create_language_widgets(self, group: Adw.PreferencesGroup) -> None:
+        """Create language selection widgets and add to group."""
+        from bigocrpdf.utils.tooltip_helper import get_tooltip_helper
 
-        Args:
-            container: Container to add the switch to
-        """
-        # Add "Save in same folder" using SwitchRow for better appearance
-        self.same_folder_switch_row = Adw.SwitchRow(title=_("Save in same folder as original file"))
-        self.same_folder_switch_row.add_css_class("action-row-config")
-        self.same_folder_switch_row.set_margin_top(8)
-        self.same_folder_switch_row.set_can_focus(False)  # Prevent focus during construction
+        tooltip = get_tooltip_helper()
 
-        # Defer set_active to after widget is mapped to avoid GTK-CRITICAL
-        save_in_same = self.window.settings.save_in_same_folder
-
-        def on_map(_widget):
-            self.same_folder_switch_row.set_can_focus(True)
-            self.same_folder_switch_row.set_active(save_in_same)
-            self.same_folder_switch_row.connect("notify::active", self._on_same_folder_toggled)
-
-        self.same_folder_switch_row.connect("map", on_map)
-
-        # Add a folder icon
-        same_folder_icon = Gtk.Image.new_from_icon_name("folder-symbolic")
-        self.same_folder_switch_row.add_prefix(same_folder_icon)
-
-        container.append(self.same_folder_switch_row)
-
-    def _add_destination_folder(self, container: Gtk.Box) -> None:
-        """Add destination folder selection to the container
-
-        Args:
-            container: Container to add the destination folder UI to
-        """
-        # Create a container for the destination input - will be shown/hidden based on switch state
-        self.dest_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-
-        # Add a subtitle for the destination folder
-        dest_subtitle = Gtk.Label(label=_("Select the destination folder"))
-        dest_subtitle.add_css_class("caption")
-        dest_subtitle.add_css_class("dim-label")
-        dest_subtitle.set_margin_top(8)
-        dest_subtitle.set_margin_start(12)
-        dest_subtitle.set_margin_end(12)
-        self.dest_container.append(dest_subtitle)
-
-        # Create a container for the file chooser
-        dest_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        dest_box.set_margin_bottom(12)
-        dest_box.set_margin_start(12)
-        dest_box.set_margin_end(12)
-
-        # Create an entry with modern styling
-        self.dest_entry = Gtk.Entry()
-        self.dest_entry.set_text(self.window.settings.destination_folder)
-        self.dest_entry.set_hexpand(True)
-
-        # Add a folder icon to the entry using the correct method for GTK4
-        folder_icon = Gio.ThemedIcon.new("folder-symbolic")
-        self.dest_entry.set_icon_from_gicon(Gtk.EntryIconPosition.PRIMARY, folder_icon)
-
-        # Add entry and button to container
-        dest_box.append(self.dest_entry)
-
-        # Browse button with text
-        browse_button = create_action_button(
-            label=_("Browse"),
-            halign=Gtk.Align.END,
-        )
-        browse_button.connect("clicked", self.window.on_browse_clicked)
-        dest_box.append(browse_button)
-        self.dest_container.append(dest_box)
-        container.append(self.dest_container)
-
-        # Initially hide or show the destination input based on switch state
-        self.dest_container.set_visible(not self.window.settings.save_in_same_folder)
-
-    def _add_output_options(self, container: Gtk.Box) -> None:
-        """Add output options button to the container
-
-        Args:
-            container: Container to add the output options to
-        """
-        # Add a button to configure PDF output options
-        output_options_row = Adw.ActionRow(title=_("Output File Options"))
-        output_options_row.add_css_class("action-row-config")
-
-        # Add an icon for visual clarity
-        options_icon = Gtk.Image.new_from_icon_name("document-edit-symbolic")
-        output_options_row.add_prefix(options_icon)
-
-        # Add a button to open the options dialog
-        options_button = Gtk.Button()
-        options_button.set_label(_("Configure"))
-        options_button.connect("clicked", lambda _: self._show_pdf_options_dialog())
-        options_button.set_valign(Gtk.Align.CENTER)
-        output_options_row.add_suffix(options_button)
-        output_options_row.set_activatable_widget(options_button)
-
-        container.append(output_options_row)
-
-    def _add_ocr_settings(self, container: Gtk.Box) -> None:
-        """Add OCR settings dropdowns to the container
-
-        Args:
-            container: Container to add the OCR settings to
-        """
-        # Language selection with icon
-        self.lang_dropdown = self._create_language_dropdown()
-        lang_row = Adw.ActionRow(title=_("Text Language"))
-        lang_row.add_css_class("action-row-config")
+        # Language selection as ComboRow
+        self.lang_combo = Adw.ComboRow(title=_("Text Language"))
         lang_icon = Gtk.Image.new_from_icon_name("preferences-desktop-locale-symbolic")
-        lang_row.add_prefix(lang_icon)
-        lang_row.add_suffix(self.lang_dropdown)
-        lang_row.set_activatable_widget(self.lang_dropdown)
-        container.append(lang_row)
+        self.lang_combo.add_prefix(lang_icon)
 
-        # Quality selection with icon
-        self.quality_dropdown = self._create_quality_dropdown()
-        quality_row = Adw.ActionRow(title=_("Quality"))
-        quality_row.add_css_class("action-row-config")
-        quality_icon = Gtk.Image.new_from_icon_name("preferences-system-symbolic")
-        quality_row.add_prefix(quality_icon)
-        quality_row.add_suffix(self.quality_dropdown)
-        quality_row.set_activatable_widget(self.quality_dropdown)
-        container.append(quality_row)
+        # Help button for language details
+        lang_help_btn = Gtk.Button(
+            icon_name="help-about-symbolic",
+            valign=Gtk.Align.CENTER,
+            css_classes=["flat", "circular"],
+        )
+        lang_help_btn.set_tooltip_text(_("Language help"))
+        set_a11y_label(lang_help_btn, _("Language help"))
+        lang_help_btn.connect("clicked", self._on_language_help_clicked)
+        self.lang_combo.add_suffix(lang_help_btn)
 
-        # Alignment selection with icon
-        self.alignment_dropdown = self._create_alignment_dropdown()
-        align_row = Adw.ActionRow(title=_("Alignment"))
-        align_row.add_css_class("action-row-config-last")
-        align_icon = Gtk.Image.new_from_icon_name("format-justify-fill-symbolic")
-        align_row.add_prefix(align_icon)
-        align_row.add_suffix(self.alignment_dropdown)
-        align_row.set_activatable_widget(self.alignment_dropdown)
-        container.append(align_row)
+        # Populate language dropdown
+        languages = self.window.ocr_processor.get_available_ocr_languages()
+        self._available_languages = languages
+        lang_model = Gtk.StringList()
+        for _i, (_lang_code, lang_name) in enumerate(languages):
+            lang_model.append(lang_name)
+        self.lang_combo.set_model(lang_model)
+        self.lang_combo.set_can_focus(False)
+        self._lang_signal_connected = False
+
+        group.add(self.lang_combo)
+        self.lang_dropdown = self.lang_combo
+
+        tooltip.add_tooltip(
+            self.lang_combo,
+            _(
+                "Choose the language of your document's text.\n"
+                "The correct language helps recognize text more accurately."
+            ),
+        )
+
+    def _create_preprocessing_widgets(self, expander: Adw.ExpanderRow) -> None:
+        """Create image preprocessing toggle widgets inside an expander."""
+        from bigocrpdf.utils.tooltip_helper import get_tooltip_helper
+
+        tooltip = get_tooltip_helper()
+
+        self.deskew_switch = Adw.SwitchRow(title=_("Deskew"))
+        self.deskew_switch.set_can_focus(False)
+        deskew_icon = Gtk.Image.new_from_icon_name("object-rotate-right-symbolic")
+        self.deskew_switch.add_prefix(deskew_icon)
+        expander.add_row(self.deskew_switch)
+        tooltip.add_tooltip(
+            self.deskew_switch,
+            _("Straightens pages that were scanned at a slight angle."),
+        )
+
+        self.dewarp_switch = Adw.SwitchRow(title=_("Dewarp"))
+        self.dewarp_switch.set_can_focus(False)
+        dewarp_icon = Gtk.Image.new_from_icon_name("view-reveal-symbolic")
+        self.dewarp_switch.add_prefix(dewarp_icon)
+        expander.add_row(self.dewarp_switch)
+        tooltip.add_tooltip(
+            self.dewarp_switch,
+            _("Corrects curved text from photographed book pages\nor documents with spine warp."),
+        )
+
+        self.perspective_switch = Adw.SwitchRow(title=_("Perspective Correction"))
+        self.perspective_switch.set_can_focus(False)
+        perspective_icon = Gtk.Image.new_from_icon_name("view-wrapped-symbolic")
+        self.perspective_switch.add_prefix(perspective_icon)
+        expander.add_row(self.perspective_switch)
+        tooltip.add_tooltip(
+            self.perspective_switch,
+            _(
+                "Fixes pages that look tilted or warped, for example\nwhen a document was photographed instead of scanned."
+            ),
+        )
+
+        self.orientation_switch = Adw.SwitchRow(title=_("Auto-rotate"))
+        self.orientation_switch.set_can_focus(False)
+        orientation_icon = Gtk.Image.new_from_icon_name("object-flip-horizontal-symbolic")
+        self.orientation_switch.add_prefix(orientation_icon)
+        expander.add_row(self.orientation_switch)
+        tooltip.add_tooltip(
+            self.orientation_switch,
+            _("Detects and fixes pages that are upside-down or sideways."),
+        )
+
+        self.scanner_switch = Adw.SwitchRow(title=_("Scanner Effect"))
+        self.scanner_switch.set_can_focus(False)
+        scanner_icon = Gtk.Image.new_from_icon_name("scanner-symbolic")
+        self.scanner_switch.add_prefix(scanner_icon)
+        expander.add_row(self.scanner_switch)
+        tooltip.add_tooltip(
+            self.scanner_switch,
+            _("Makes text darker and the background lighter,\nlike a clean scanner copy."),
+        )
+
+    def _create_output_widgets(self, expander: Adw.ExpanderRow) -> None:
+        """Create output settings widgets inside an expander."""
+        from bigocrpdf.utils.tooltip_helper import get_tooltip_helper
+
+        tooltip = get_tooltip_helper()
+
+        self._quality_signal_connected = False
+        self._pdfa_signal_connected = False
+
+        # Unified quality selector (includes "Keep Original" as first option)
+        self.image_quality_combo = Adw.ComboRow(title=_("Quality"))
+        quality_icon = Gtk.Image.new_from_icon_name("applications-graphics-symbolic")
+        self.image_quality_combo.add_prefix(quality_icon)
+        quality_model = Gtk.StringList.new([
+            _("Keep Original"),
+            _("Very Low (30%)"),
+            _("Low (50%)"),
+            _("Medium (70%)"),
+            _("High (85%)"),
+            _("Maximum (95%)"),
+        ])
+        self.image_quality_combo.set_model(quality_model)
+        self.image_quality_combo.set_can_focus(False)
+        expander.add_row(self.image_quality_combo)
+        tooltip.add_tooltip(
+            self.image_quality_combo,
+            _(
+                "Keep Original: preserves images unchanged (best quality, larger files)\n"
+                "Very Low: smallest files, lower image quality\n"
+                "Low: small files, some quality loss\n"
+                "Medium: good balance between quality and file size\n"
+                "High: recommended for most documents\n"
+                "Maximum: best image quality, larger files"
+            ),
+        )
+
+        # PDF/A toggle
+        self.pdfa_switch_row = Adw.SwitchRow(title=_("Export as PDF/A"))
+        pdfa_icon = Gtk.Image.new_from_icon_name("document-save-symbolic")
+        self.pdfa_switch_row.add_prefix(pdfa_icon)
+        self.pdfa_switch_row.set_can_focus(False)
+        expander.add_row(self.pdfa_switch_row)
+        tooltip.add_tooltip(
+            self.pdfa_switch_row,
+            _(
+                "Creates a PDF designed for long-term storage.\n"
+                "Recommended when you need the file to open\n"
+                "correctly on any device, now and in the future."
+            ),
+        )
+
+        # Maximum output file size selector
+        self.max_size_combo = Adw.ComboRow(title=_("Maximum Output Size"))
+        max_size_icon = Gtk.Image.new_from_icon_name("drive-harddisk-symbolic")
+        self.max_size_combo.add_prefix(max_size_icon)
+        self._max_size_values = [0, 5, 10, 15, 20, 25, 50, 100]
+        max_size_model = Gtk.StringList.new([
+            _("No limit"),
+            "5 MB",
+            "10 MB",
+            "15 MB",
+            "20 MB",
+            "25 MB",
+            "50 MB",
+            "100 MB",
+        ])
+        self.max_size_combo.set_model(max_size_model)
+        self.max_size_combo.set_can_focus(False)
+        expander.add_row(self.max_size_combo)
+        tooltip.add_tooltip(
+            self.max_size_combo,
+            _(
+                "Sets a maximum size for the final file.\n"
+                "If the result is too large, it is automatically split\n"
+                "into smaller numbered files (e.g. document-01.pdf).\n\n"
+                "Useful when sending by email or uploading online."
+            ),
+        )
+
+        self.max_size_combo.connect("notify::selected", self._on_max_size_changed)
+
+    def _create_advanced_widgets(self, expander: Adw.ExpanderRow) -> None:
+        """Create advanced settings widgets inside an expander."""
+        from bigocrpdf.utils.tooltip_helper import get_tooltip_helper
+
+        tooltip = get_tooltip_helper()
+
+        self._precision_signal_connected = False
+        self._replace_ocr_signal_connected = False
+
+        # OCR Precision selector
+        self.ocr_precision_combo = Adw.ComboRow(title=_("OCR Precision"))
+        precision_icon = Gtk.Image.new_from_icon_name("speedometer-symbolic")
+        self.ocr_precision_combo.add_prefix(precision_icon)
+        precision_model = Gtk.StringList.new([
+            _("Low Precision"),
+            _("Standard"),
+            _("Precise"),
+            _("Very Precise"),
+        ])
+        self.ocr_precision_combo.set_model(precision_model)
+        self.ocr_precision_combo.set_can_focus(False)
+        expander.add_row(self.ocr_precision_combo)
+        tooltip.add_tooltip(
+            self.ocr_precision_combo,
+            _(
+                "How carefully the program reads text from your documents.\n\n"
+                "• Low Precision: Finds more text, good for blurry or faded pages.\n"
+                "• Standard: Works well for most documents.\n"
+                "• Precise: Fewer mistakes, may miss some faint text.\n"
+                "• Very Precise: Only keeps text it is very sure about."
+            ),
+        )
+
+        # Replace existing OCR
+        self.replace_ocr_switch = Adw.SwitchRow(title=_("Replace Existing OCR"))
+        self.replace_ocr_switch.set_can_focus(False)
+        replace_ocr_icon = Gtk.Image.new_from_icon_name("edit-clear-all-symbolic")
+        self.replace_ocr_switch.add_prefix(replace_ocr_icon)
+        expander.add_row(self.replace_ocr_switch)
+        tooltip.add_tooltip(
+            self.replace_ocr_switch,
+            _(
+                "When ON: Redoes the text recognition even if the PDF\n"
+                "already has searchable text. Use this when the existing\n"
+                "text is incorrect or of poor quality.\n"
+                "When OFF: Keeps existing text and only processes pages without it."
+            ),
+        )
+
+    def _load_all_sidebar_settings(self) -> None:
+        """Load all sidebar settings into UI widgets on map."""
+        # Language
+        if self.lang_combo:
+            self.lang_combo.set_can_focus(True)
+            current_lang = self.window.settings.lang
+            for i, (code, _name) in enumerate(self._available_languages):
+                if code == current_lang:
+                    self.lang_combo.set_selected(i)
+                    break
+            if not self._lang_signal_connected:
+                self._lang_signal_connected = True
+                self.lang_combo.connect("notify::selected", self._on_language_changed)
+
+        self._load_preprocessing_settings()
+        self._load_advanced_ocr_settings()
+        self._load_image_export_settings()
+        self._load_max_size_setting()
+        self._load_replace_ocr_setting()
 
     def _create_file_queue_panel(self) -> Gtk.Widget:
         """Create the file queue panel for the right side
 
         Returns:
-            A widget containing the file queue UI using card-style layout
+            A widget containing the file queue UI matching video-converter style
         """
-        # Create a container for the file queue
-        queue_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
-        queue_box.set_margin_top(8)
-        queue_box.set_margin_bottom(8)
-        queue_box.set_margin_start(8)
-        queue_box.set_margin_end(8)
-        queue_box.add_css_class("card")
+        # Create main container
+        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        main_box.set_vexpand(True)
+        main_box.add_css_class("view")
 
-        # Add header and controls
-        self._add_queue_header(queue_box)
-        self._add_queue_controls(queue_box)
-        self._add_file_list(queue_box)
+        # Queue scroll area
+        queue_scroll = Gtk.ScrolledWindow()
+        queue_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        queue_scroll.set_vexpand(True)
 
-        # Wrap in a scrolled window for better handling of different screen sizes
-        queue_scrolled = Gtk.ScrolledWindow()
-        queue_scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        queue_scrolled.set_child(queue_box)
-
-        return queue_scrolled
-
-    def _add_queue_header(self, container: Gtk.Box) -> None:
-        """Add queue header to the container
-
-        Args:
-            container: Container to add the header to
-        """
-        # Add a header for PDF Files Queue
-        queue_header = Gtk.Label(label=_("PDF Files Queue"))
-        queue_header.add_css_class("heading")
-        queue_header.set_margin_top(12)
-        queue_header.set_margin_start(12)
-        queue_header.set_halign(Gtk.Align.START)
-        container.append(queue_header)
-
-    def _add_queue_controls(self, container: Gtk.Box) -> None:
-        """Add queue controls (status, add button, remove button)
-
-        Args:
-            container: Container to add the controls to
-        """
-        # File info and controls in a consistent layout
-        info_controls_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        info_controls_box.set_margin_start(12)
-        info_controls_box.set_margin_end(12)
-        info_controls_box.set_margin_top(8)
-
-        # Display document counts and page information
-        # Create status label (will be updated by _update_queue_status)
-        self.status_label = Gtk.Label()
-        self.status_label.add_css_class("caption")
-        self.status_label.add_css_class("dim-label")
-        self.status_label.set_halign(Gtk.Align.START)
-        self.status_label.set_hexpand(True)
-        info_controls_box.append(self.status_label)
-
-        # Initialize with current data
-        self._update_queue_status()
-
-        # Add Files button
-        add_button = create_action_button(
-            label=_("Add"),
-            css_classes=["suggested-action"],
-            halign=Gtk.Align.END,
-        )
-        add_button.connect("clicked", self.window.on_add_file_clicked)
-        info_controls_box.append(add_button)
-
-        # Remove All Files button
-        self.remove_button = create_action_button(
-            label=_("Remove All"),
-            halign=Gtk.Align.END,
-        )
-        self.remove_button.connect("clicked", lambda _b: self._remove_all_files())
-        self.remove_button.set_sensitive(len(self.window.settings.selected_files) > 0)
-        info_controls_box.append(self.remove_button)
-
-        container.append(info_controls_box)
-
-    def _add_file_list(self, container: Gtk.Box) -> None:
-        """Add file list to the container
-
-        Args:
-            container: Container to add the file list to
-        """
-        # Container for the files list
-        file_list_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        file_list_container.set_margin_start(12)
-        file_list_container.set_margin_end(12)
-        file_list_container.set_margin_top(8)
-        file_list_container.set_margin_bottom(12)
-
-        # Create the list box with queue styling
+        # Create the list box for queue items
         self.file_list_box = Gtk.ListBox()
-        self.file_list_box.set_selection_mode(Gtk.SelectionMode.MULTIPLE)
+        self.file_list_box.set_selection_mode(Gtk.SelectionMode.NONE)
         self.file_list_box.add_css_class("boxed-list")
-        self.file_list_box.set_can_focus(False)
+        self.file_list_box.set_margin_start(6)
+        self.file_list_box.set_margin_end(6)
+        self.file_list_box.set_margin_top(3)
+        self.file_list_box.set_margin_bottom(6)
+        set_a11y_label(self.file_list_box, _("File queue"))
 
-        # Enable focus after a short delay to ensure the list box is ready
-        def enable_focus():
-            if self.file_list_box:
-                self.file_list_box.set_can_focus(True)
-            return False
+        # Create placeholder for empty queue (video-converter style)
+        self.placeholder = Adw.StatusPage()
+        self.placeholder.set_icon_name("document-open-symbolic")
+        self.placeholder.set_title(_("No PDF Files"))
+        self.placeholder.set_description(_("Drag files here or use the Add Files button"))
+        self.placeholder.set_vexpand(True)
+        self.placeholder.set_hexpand(True)
+        self.placeholder.set_margin_top(3)
+        self.placeholder.set_margin_bottom(6)
+        self.file_list_box.set_placeholder(self.placeholder)
 
-        GLib.timeout_add(500, enable_focus)
-
-        # Set up drag-and-drop target
+        # Setup drag and drop
         self._setup_drag_and_drop()
 
-        # Add files to the list box if there are any
+        # Add files if there are any
         if self.window.settings.selected_files:
             self._populate_file_list()
-        else:
-            self._add_placeholder_row()
 
-        # Create a scrolled window for the file list
-        scrolled = Gtk.ScrolledWindow()
-        scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        scrolled.set_vexpand(True)  # Allow vertical expansion to fill space
+        queue_scroll.set_child(self.file_list_box)
+        main_box.append(queue_scroll)
 
-        # Add list box to scrolled window
-        scrolled.set_child(self.file_list_box)
-        file_list_container.append(scrolled)
+        # Bottom options bar
+        options_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        options_box.set_spacing(12)
+        options_box.set_margin_start(12)
+        options_box.set_margin_end(12)
+        options_box.set_margin_top(12)
+        options_box.set_margin_bottom(12)
+        options_box.set_vexpand(False)
 
-        # Add the file list container to the queue box
-        container.append(file_list_container)
+        # Folder selection combo
+        folder_options_store = Gtk.StringList()
+        folder_options_store.append(_("Save in the same folder as the original file"))
+        folder_options_store.append(_("Custom folder"))
 
-        # Add drop indicator label (hidden by default)
-        self.drop_label = Gtk.Label(label=_("Drop PDF files here"))
-        self.drop_label.add_css_class("drop-target")
-        self.drop_label.add_css_class("dim-label")
-        self.drop_label.set_margin_start(12)
-        self.drop_label.set_margin_end(12)
-        self.drop_label.set_margin_bottom(12)
-        self.drop_label.set_visible(False)
-        container.append(self.drop_label)
+        self.folder_combo = Gtk.DropDown()
+        self.folder_combo.set_model(folder_options_store)
+        self.folder_combo.set_selected(0 if self.window.settings.save_in_same_folder else 1)
+        self.folder_combo.set_valign(Gtk.Align.CENTER)
+        self.folder_combo.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Output folder location")]
+        )
+        options_box.append(self.folder_combo)
+
+        # Folder entry box (shown when custom folder is selected)
+        self.folder_entry_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        self.folder_entry_box.set_spacing(4)
+        self.folder_entry_box.set_visible(not self.window.settings.save_in_same_folder)
+        self.folder_entry_box.set_hexpand(True)
+
+        # Output folder entry
+        self.dest_entry = Gtk.Entry()
+        self.dest_entry.set_hexpand(True)
+        self.dest_entry.set_placeholder_text(_("Select folder"))
+        self.dest_entry.set_text(self.window.settings.destination_folder or "")
+        self.dest_entry.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Destination folder path")]
+        )
+        self.folder_entry_box.append(self.dest_entry)
+
+        # Browse folder button
+        folder_button = Gtk.Button()
+        folder_button.set_icon_name("folder-symbolic")
+        folder_button.set_tooltip_text(_("Browse for folder"))
+        set_a11y_label(folder_button, _("Browse for folder"))
+        folder_button.connect("clicked", self.window.on_browse_clicked)
+        folder_button.add_css_class("flat")
+        folder_button.add_css_class("circular")
+        folder_button.set_valign(Gtk.Align.CENTER)
+        self.folder_entry_box.append(folder_button)
+
+        options_box.append(self.folder_entry_box)
+
+        # Flexible spacer to push button right
+        spacer = Gtk.Box()
+        spacer.set_hexpand(True)
+        options_box.append(spacer)
+
+        # Output options button
+        options_button = Gtk.Button(label=_("Output options"))
+        options_button.connect("clicked", lambda _: self._show_pdf_options_dialog())
+        set_a11y_label(options_button, _("Output options"))
+        options_box.append(options_button)
+
+        # Connect combo box signal
+        self.folder_combo.connect("notify::selected", self._on_folder_type_changed)
+
+        main_box.append(options_box)
+
+        return main_box
+
+    def _on_folder_type_changed(self, combo, _param) -> None:
+        """Handle folder type combo change"""
+        selected = combo.get_selected()
+        use_custom_folder = selected == 1  # "Custom folder" option
+
+        # Show/hide folder entry when selection changes
+        self.folder_entry_box.set_visible(use_custom_folder)
+
+        # Save setting
+        self.window.settings.save_in_same_folder = not use_custom_folder
+        self.window.settings._save_all_settings()
+
+    def _on_language_changed(self, combo, _param) -> None:
+        """Handle language selection change"""
+        selected = combo.get_selected()
+        languages = self.window.ocr_processor.get_available_ocr_languages()
+        if selected < len(languages):
+            lang_code, _ = languages[selected]
+            self.window.settings.lang = lang_code
+            logger.info(f"Language changed to: {lang_code}")
+            self.window.settings._save_all_settings()
+
+    def _on_language_help_clicked(self, _button: Gtk.Button) -> None:
+        """Show a modern dialog with supported languages for each OCR model."""
+        from bigocrpdf.services.rapidocr_service.discovery import ModelDiscovery
+
+        available_languages = self.window.ocr_processor.get_available_ocr_languages()
+
+        # Main container
+        content_box = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL,
+            spacing=16,
+            margin_top=12,
+            margin_bottom=24,
+            margin_start=16,
+            margin_end=16,
+        )
+
+        # Description banner
+        desc_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL,
+            spacing=12,
+        )
+        desc_box.add_css_class("card")
+
+        info_icon = Gtk.Image.new_from_icon_name("dialog-information-symbolic")
+        info_icon.set_pixel_size(24)
+        info_icon.set_margin_start(16)
+        info_icon.set_margin_top(12)
+        info_icon.set_margin_bottom(12)
+        info_icon.set_valign(Gtk.Align.CENTER)
+        info_icon.add_css_class("accent")
+        desc_box.append(info_icon)
+
+        desc_label = Gtk.Label(
+            label=_(
+                "Choose the model that matches the language of your documents for the best results."
+            ),
+            wrap=True,
+            wrap_mode=2,
+            xalign=0,
+        )
+        desc_label.set_margin_top(12)
+        desc_label.set_margin_bottom(12)
+        desc_label.set_margin_end(16)
+        desc_box.append(desc_label)
+
+        content_box.append(desc_box)
+
+        # Build a section for each model
+        for lang_code, lang_name in available_languages:
+            details = ModelDiscovery.LANGUAGE_DETAILS.get(lang_code, "")
+            if not details:
+                continue
+
+            # Parse and sort languages alphabetically
+            languages = sorted([lang.strip() for lang in details.split(",") if lang.strip()])
+            lang_count = len(languages)
+
+            # Model section header
+            section_group = Adw.PreferencesGroup(
+                title=f"{lang_name}",
+                description=_("{count} languages").format(count=lang_count),
+            )
+
+            # Create a grid-style layout with 3 columns
+            num_cols = 3
+            grid = Gtk.Grid()
+            grid.set_row_spacing(2)
+            grid.set_column_spacing(8)
+            grid.set_column_homogeneous(True)
+            grid.set_margin_start(12)
+            grid.set_margin_end(12)
+            grid.set_margin_top(8)
+            grid.set_margin_bottom(8)
+
+            for idx, language in enumerate(languages):
+                row_idx = idx // num_cols
+                col_idx = idx % num_cols
+
+                label = Gtk.Label(label=language)
+                label.set_xalign(0)
+                label.set_margin_top(4)
+                label.set_margin_bottom(4)
+                label.set_margin_start(8)
+                grid.attach(label, col_idx, row_idx, 1, 1)
+
+            # Wrap grid in a listbox-style row
+            grid_row = Gtk.ListBoxRow()
+            grid_row.set_activatable(False)
+            grid_row.set_child(grid)
+
+            grid_listbox = Gtk.ListBox()
+            grid_listbox.set_selection_mode(Gtk.SelectionMode.NONE)
+            grid_listbox.add_css_class("boxed-list")
+            grid_listbox.append(grid_row)
+
+            section_group.add(grid_listbox)
+            content_box.append(section_group)
+
+        scrolled = Gtk.ScrolledWindow(
+            hscrollbar_policy=Gtk.PolicyType.NEVER,
+            vscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
+            vexpand=True,
+        )
+        scrolled.set_child(content_box)
+
+        # Dialog with toolbar view
+        header = Adw.HeaderBar()
+
+        toolbar_view = Adw.ToolbarView()
+        toolbar_view.add_top_bar(header)
+        toolbar_view.set_content(scrolled)
+
+        dialog = Adw.Dialog(
+            title=_("Supported Languages"),
+            content_width=550,
+            content_height=600,
+        )
+        dialog.set_child(toolbar_view)
+        dialog.present(self.window)
 
     def _setup_drag_and_drop(self) -> None:
         """Set up drag and drop functionality for the file list"""
         drop_target = Gtk.DropTarget.new(Gdk.FileList, Gdk.DragAction.COPY)
         drop_target.set_gtypes([Gdk.FileList])
         drop_target.connect("drop", self._on_drop)
-        drop_target.connect("enter", self._on_drop_enter)
-        drop_target.connect("leave", self._on_drop_leave)
         self.file_list_box.add_controller(drop_target)
-
-    def _add_placeholder_row(self) -> None:
-        """Add a placeholder row when no files are selected"""
-        placeholder_row = Adw.ActionRow()
-        placeholder_row.set_title(_("No files selected"))
-        placeholder_row.set_subtitle(_("Add PDF files for OCR processing"))
-        placeholder_icon = Gtk.Image.new_from_icon_name("document-open-symbolic")
-        placeholder_row.add_prefix(placeholder_icon)
-
-        # Disable focus and activatable to prevent GTK-CRITICAL error
-        placeholder_row.set_can_focus(False)
-        placeholder_row.set_activatable(False)
-
-        self.file_list_box.append(placeholder_row)
-
-        # Re-enable focus after widget is mapped
-        def enable_row_focus():
-            if placeholder_row.get_parent():  # Check if row is still in the widget tree
-                placeholder_row.set_can_focus(True)
-            return False
-
-        GLib.timeout_add(100, enable_row_focus)
-
-    def _create_language_dropdown(self) -> Gtk.DropDown:
-        """Create the language dropdown with available OCR languages
-
-        Returns:
-            A Gtk.DropDown widget configured with available languages
-        """
-        dropdown = Gtk.DropDown()
-        dropdown.set_can_focus(False)  # Prevent focus during construction
-        string_list = Gtk.StringList()
-
-        # Get available languages
-        languages = self.window.ocr_processor.get_available_ocr_languages()
-        default_index = 0
-
-        for i, (lang_code, lang_name) in enumerate(languages):
-            string_list.append(lang_name)
-            # Set default based on current setting
-            if lang_code == self.window.settings.lang:
-                default_index = i
-
-        dropdown.set_model(string_list)
-        dropdown.set_valign(Gtk.Align.CENTER)
-
-        # Defer set_selected and re-enable focus after widget is mapped
-        def on_map(_widget):
-            dropdown.set_can_focus(True)
-            dropdown.set_selected(default_index)
-
-        dropdown.connect("map", on_map)
-        return dropdown
-
-    def _create_quality_dropdown(self) -> Gtk.DropDown:
-        """Create the quality dropdown
-
-        Returns:
-            A Gtk.DropDown widget configured with quality options
-        """
-        dropdown = Gtk.DropDown()
-        dropdown.set_can_focus(False)  # Prevent focus during construction
-        string_list = Gtk.StringList()
-
-        qualities = [
-            ("normal", "Normal"),
-            ("economic", "Economic"),
-            ("economicplus", "More economic"),
-        ]
-
-        default_index = 0
-        for i, (quality_code, quality_name) in enumerate(qualities):
-            string_list.append(quality_name)
-            if quality_code == self.window.settings.quality:
-                default_index = i
-
-        dropdown.set_model(string_list)
-        dropdown.set_valign(Gtk.Align.CENTER)
-
-        # Defer set_selected and re-enable focus after widget is mapped
-        def on_map(_widget):
-            dropdown.set_can_focus(True)
-            dropdown.set_selected(default_index)
-
-        dropdown.connect("map", on_map)
-        return dropdown
-
-    def _create_alignment_dropdown(self) -> Gtk.DropDown:
-        """Create the alignment dropdown with tooltips
-
-        Returns:
-            A Gtk.DropDown widget configured with alignment options and tooltips
-        """
-        dropdown = Gtk.DropDown()
-        dropdown.set_can_focus(False)  # Prevent focus during construction
-        string_list = Gtk.StringList()
-
-        alignments = [
-            ("none", _("Don't change")),
-            ("align", _("Align")),
-            ("rotate", _("Auto rotate")),
-            ("alignrotate", _("Align + rotate")),
-        ]
-
-        # Default to "Align + rotate" (index 3) unless another setting is found
-        default_index = 3  # Index of "Align + rotate"
-        for i, (align_code, align_name) in enumerate(alignments):
-            string_list.append(align_name)
-            if align_code == self.window.settings.align:
-                default_index = i
-
-        dropdown.set_model(string_list)
-        dropdown.set_valign(Gtk.Align.CENTER)
-
-        # Set initial tooltip
-        dropdown.set_tooltip_text(
-            _("Choose how to handle page alignment and rotation during OCR processing")
-        )
-
-        # Connect signal to update tooltip based on selection
-        def on_alignment_selection_changed(dropdown_widget, _param):
-            selected_index = dropdown_widget.get_selected()
-            if 0 <= selected_index < len(self.window.ALIGNMENT_TOOLTIPS):
-                tooltip_text = self.window.ALIGNMENT_TOOLTIPS[selected_index]
-                dropdown_widget.set_tooltip_text(tooltip_text)
-
-        dropdown.connect("notify::selected", on_alignment_selection_changed)
-
-        # Defer set_selected and re-enable focus after widget is mapped
-        def on_map(_widget):
-            dropdown.set_can_focus(True)
-            dropdown.set_selected(default_index)
-            # Set initial detailed tooltip
-            if len(self.window.ALIGNMENT_TOOLTIPS) > default_index:
-                dropdown.set_tooltip_text(self.window.ALIGNMENT_TOOLTIPS[default_index])
-
-        dropdown.connect("map", on_map)
-
-        return dropdown
 
     def _populate_file_list(self) -> None:
         """Populate the file list box with the selected files"""
         # Check if the file list box is ready
-        if not self.file_list_box or not self.file_list_box.get_realized():
+        if not self.file_list_box:
             return
 
         # Remove existing items
-        while self.file_list_box and self.file_list_box.get_mapped():
+        while True:
             child = self.file_list_box.get_first_child()
             if child:
                 self.file_list_box.remove(child)
             else:
                 break
 
+        # Re-set placeholder after clearing
+        if hasattr(self, "placeholder") and self.placeholder:
+            self.file_list_box.set_placeholder(self.placeholder)
+
         # Add each file as a row
         for idx, file_path in enumerate(self.window.settings.selected_files):
             self._create_file_row(file_path, idx)
 
-        # Update remove button sensitivity
-        self.remove_button.set_sensitive(len(self.window.settings.selected_files) > 0)
+    def _load_preprocessing_settings(self) -> None:
+        """Load preprocessing settings from OcrSettings."""
+        settings = self.window.settings
+        try:
+            if hasattr(self, "deskew_switch"):
+                self.deskew_switch.set_can_focus(True)
+                self.deskew_switch.set_active(settings.enable_deskew)
+
+            if hasattr(self, "dewarp_switch"):
+                self.dewarp_switch.set_can_focus(True)
+                self.dewarp_switch.set_active(getattr(settings, "enable_baseline_dewarp", True))
+
+            if hasattr(self, "perspective_switch"):
+                self.perspective_switch.set_can_focus(True)
+                self.perspective_switch.set_active(
+                    getattr(settings, "enable_perspective_correction", False)
+                )
+
+            if hasattr(self, "orientation_switch"):
+                self.orientation_switch.set_can_focus(True)
+                self.orientation_switch.set_active(settings.enable_orientation_detection)
+
+            if hasattr(self, "scanner_switch"):
+                self.scanner_switch.set_can_focus(True)
+                self.scanner_switch.set_active(getattr(settings, "enable_scanner_effect", True))
+
+            # Connect signals only once to avoid duplicate handlers on re-map
+            if not self._preprocessing_signal_connected:
+                self._preprocessing_signal_connected = True
+                if hasattr(self, "deskew_switch"):
+                    self.deskew_switch.connect("notify::active", self._on_preprocessing_changed)
+                if hasattr(self, "dewarp_switch"):
+                    self.dewarp_switch.connect("notify::active", self._on_preprocessing_changed)
+                if hasattr(self, "perspective_switch"):
+                    self.perspective_switch.connect(
+                        "notify::active", self._on_preprocessing_changed
+                    )
+                if hasattr(self, "orientation_switch"):
+                    self.orientation_switch.connect(
+                        "notify::active", self._on_preprocessing_changed
+                    )
+                if hasattr(self, "scanner_switch"):
+                    self.scanner_switch.connect("notify::active", self._on_preprocessing_changed)
+
+        except Exception as e:
+            logger.error(f"Error loading preprocessing settings: {e}")
+
+    # Precision presets: (text_score, box_thresh)
+    # Wider range ensures visible differences in OCR filtering behavior.
+    # - text_score: RapidOCR discards recognized text regions below this confidence
+    # - box_thresh: detection model discards regions with detection score below this
+    PRECISION_PRESETS: list[tuple[float, float]] = [
+        (0.1, 0.3),  # Low Precision — catches faded/degraded text
+        (0.3, 0.5),  # Standard — balanced (default)
+        (0.5, 0.6),  # Precise — selective, reduces noise
+        (0.7, 0.7),  # Very Precise — strict, only high-confidence text
+    ]
+
+    def _get_precision_index_from_settings(self, settings) -> int:
+        """Get dropdown index based on current text_score and box_thresh values.
+
+        Returns:
+            int: Index for the dropdown (0=Low, 1=Standard, 2=Precise, 3=Very Precise)
+        """
+        text_score = getattr(settings, "text_score_threshold", 0.3)
+        box_thresh = getattr(settings, "box_thresh", 0.5)
+
+        for idx, (ts, bt) in enumerate(self.PRECISION_PRESETS):
+            if abs(text_score - ts) < 0.05 and abs(box_thresh - bt) < 0.05:
+                return idx
+
+        # Default to Standard if no match
+        return 1
+
+    def _load_advanced_ocr_settings(self) -> None:
+        """Load advanced OCR settings from OcrSettings."""
+        settings = self.window.settings
+        try:
+            if hasattr(self, "ocr_precision_combo"):
+                self.ocr_precision_combo.set_can_focus(True)
+                # Map stored values to dropdown index
+                precision_idx = self._get_precision_index_from_settings(settings)
+                self.ocr_precision_combo.set_selected(precision_idx)
+                # Connect signal only once to avoid duplicate handlers
+                if not self._precision_signal_connected:
+                    self.ocr_precision_combo.connect(
+                        "notify::selected", self._on_ocr_precision_changed
+                    )
+                    self._precision_signal_connected = True
+
+        except Exception as e:
+            logger.error(f"Error loading advanced OCR settings: {e}")
+
+    def _on_ocr_precision_changed(self, combo: Adw.ComboRow, _pspec) -> None:
+        """Handle OCR precision preset changes."""
+        selected = combo.get_selected()
+        if selected < 0 or selected >= len(self.PRECISION_PRESETS):
+            return
+        text_score, box_thresh = self.PRECISION_PRESETS[selected]
+
+        self.window.settings.text_score_threshold = text_score
+        self.window.settings.box_thresh = box_thresh
+
+        precision_names = ["low", "standard", "precise", "very_precise"]
+        logger.info(
+            f"OCR precision changed to: {precision_names[selected]} "
+            f"(text_score={text_score}, box_thresh={box_thresh})"
+        )
+        self.window.settings._save_all_settings()
+
+    def _load_image_export_settings(self) -> None:
+        """Load image export settings from OcrSettings."""
+        settings = self.window.settings
+        try:
+            if hasattr(self, "image_quality_combo"):
+                self.image_quality_combo.set_can_focus(True)
+                fmt = getattr(settings, "image_export_format", "original").lower()
+                if fmt == "original":
+                    # Index 0 = "Keep Original"
+                    self.image_quality_combo.set_selected(0)
+                else:
+                    quality = getattr(settings, "image_export_quality", 85)
+                    idx = self._get_quality_index_from_value(quality)
+                    self.image_quality_combo.set_selected(idx)
+                if not self._quality_signal_connected:
+                    self.image_quality_combo.connect(
+                        "notify::selected", self._on_image_quality_changed
+                    )
+                    self._quality_signal_connected = True
+
+            # Load PDF/A setting
+            if hasattr(self, "pdfa_switch_row"):
+                self.pdfa_switch_row.set_can_focus(True)
+                pdfa_enabled = getattr(settings, "convert_to_pdfa", False)
+                self.pdfa_switch_row.set_active(pdfa_enabled)
+                if not self._pdfa_signal_connected:
+                    self.pdfa_switch_row.connect("notify::active", self._on_pdfa_changed)
+                    self._pdfa_signal_connected = True
+
+        except Exception as e:
+            logger.error(f"Error loading image export settings: {e}")
+
+    def _get_quality_index_from_value(self, quality: int) -> int:
+        """Map quality percentage to dropdown index.
+
+        Index 0 is "Keep Original" (handled separately).
+        Indices 1-5 map to the quality presets.
+        """
+        if quality <= 35:
+            return 1  # Very Low
+        elif quality <= 55:
+            return 2  # Low
+        elif quality <= 75:
+            return 3  # Medium
+        elif quality <= 90:
+            return 4  # High
+        else:
+            return 5  # Maximum
+
+    def _on_image_quality_changed(self, combo: Adw.ComboRow, _pspec) -> None:
+        """Handle unified quality selector changes.
+
+        Index 0 = Keep Original (format="original").
+        Indices 1-5 = quality presets (format="jpeg").
+        """
+        selected = combo.get_selected()
+        if selected == 0:
+            self.window.settings.image_export_format = "original"
+            logger.info("Image quality changed to: Keep Original")
+        else:
+            presets = [30, 50, 70, 85, 95]
+            quality = presets[selected - 1] if (selected - 1) < len(presets) else 85
+            self.window.settings.image_export_format = "jpeg"
+            self.window.settings.image_export_quality = quality
+            logger.info(f"Image quality changed to: {quality}%")
+        self.window.settings._save_all_settings()
+
+    def _on_pdfa_changed(self, switch_row: Adw.SwitchRow, _pspec) -> None:
+        """Handle PDF/A toggle changes."""
+        pdfa_enabled = switch_row.get_active()
+        self.window.settings.convert_to_pdfa = pdfa_enabled
+        logger.info(f"PDF/A export changed to: {pdfa_enabled}")
+        self.window.settings._save_all_settings()
+
+    def _load_max_size_setting(self) -> None:
+        """Load maximum output size setting from OcrSettings."""
+        try:
+            if not hasattr(self, "max_size_combo"):
+                return
+
+            self.max_size_combo.set_can_focus(True)
+            current_val = getattr(self.window.settings, "max_file_size_mb", 0)
+            selected_idx = 0
+            for idx, val in enumerate(self._max_size_values):
+                if val == current_val:
+                    selected_idx = idx
+                    break
+            self.max_size_combo.set_selected(selected_idx)
+        except Exception as e:
+            logger.error(f"Error loading max size setting: {e}")
+
+    def _on_max_size_changed(self, combo: Adw.ComboRow, _pspec) -> None:
+        """Handle maximum output size changes."""
+        selected = combo.get_selected()
+        if 0 <= selected < len(self._max_size_values):
+            size_mb = self._max_size_values[selected]
+            self.window.settings.max_file_size_mb = size_mb
+            logger.info(f"Maximum output size changed to: {size_mb} MB (0=no limit)")
+            self.window.settings._save_all_settings()
+
+    def _load_replace_ocr_setting(self) -> None:
+        """Load replace existing OCR setting from OcrSettings."""
+        try:
+            if not hasattr(self, "replace_ocr_switch"):
+                return
+            self.replace_ocr_switch.set_can_focus(True)
+            self.replace_ocr_switch.set_active(
+                getattr(self.window.settings, "replace_existing_ocr", False)
+            )
+            if not self._replace_ocr_signal_connected:
+                self._replace_ocr_signal_connected = True
+                self.replace_ocr_switch.connect("notify::active", self._on_replace_ocr_changed)
+        except Exception as e:
+            logger.error(f"Error loading replace OCR setting: {e}")
+
+    def _on_replace_ocr_changed(self, switch_row: Adw.SwitchRow, _pspec) -> None:
+        """Handle replace existing OCR toggle."""
+        self.window.settings.replace_existing_ocr = switch_row.get_active()
+        self.window.settings._save_all_settings()
+
+    def _on_preprocessing_changed(self, switch_row: Adw.SwitchRow, _pspec) -> None:
+        """Handle preprocessing option changes."""
+        settings = self.window.settings
+        try:
+            if switch_row == self.deskew_switch:
+                settings.enable_deskew = switch_row.get_active()
+            elif switch_row == self.dewarp_switch:
+                settings.enable_baseline_dewarp = switch_row.get_active()
+            elif switch_row == self.perspective_switch:
+                settings.enable_perspective_correction = switch_row.get_active()
+            elif switch_row == self.orientation_switch:
+                settings.enable_orientation_detection = switch_row.get_active()
+            elif switch_row == self.scanner_switch:
+                settings.enable_scanner_effect = switch_row.get_active()
+            settings._save_all_settings()
+        except Exception as e:
+            logger.error(f"Error saving preprocessing setting: {e}")
 
     def _create_file_row(self, file_path: str, idx: int) -> None:
         """Create a row for a single file in the list
@@ -564,124 +917,225 @@ class SettingsPageManager:
             idx: Index of the file in the list
         """
         row = Adw.ActionRow()
-
-        # Temporarily disable focus to prevent GTK-CRITICAL error
         row.set_can_focus(False)
+        row.set_activatable(False)
 
         # Set file name as title
         file_name = os.path.basename(file_path)
         row.set_title(file_name)
 
-        # Add directory as subtitle
-        dir_name = os.path.dirname(file_path)
-        row.set_subtitle(dir_name)
+        # Add directory and size as subtitle
+        try:
+            dir_name = os.path.dirname(file_path)
+            from bigocrpdf.constants import BYTES_PER_MB
 
-        # Add page count if available
+            file_size = os.path.getsize(file_path) / BYTES_PER_MB
+            subtitle = f"{dir_name}  •  {file_size:.1f} MB"
+            row.set_subtitle(subtitle)
+        except (OSError, FileNotFoundError):
+            row.set_subtitle(os.path.dirname(file_path))
+
+        # Add page count if available (suffix)
         self._add_page_count_to_row(row, file_path)
 
-        # Add file icon
-        file_icon = Gtk.Image.new_from_icon_name("x-office-document-symbolic")
-        row.add_prefix(file_icon)
+        # Action buttons as prefix (left side) - order: remove, open, edit
+        # Note: prefix buttons appear in reverse order (last added = first)
 
-        # Add remove button
-        self._add_remove_button_to_row(row, idx)
+        # Edit button (appears rightmost in prefix area)
+        edit_button = Gtk.Button.new_from_icon_name("document-edit-symbolic")
+        edit_button.set_tooltip_text(_("Edit pages of this file"))
+        set_a11y_label(edit_button, _("Edit pages of this file"))
+        edit_button.add_css_class("flat")
+        edit_button.set_valign(Gtk.Align.CENTER)
+        edit_button.connect("clicked", lambda _b, fp=file_path: self._on_edit_file(fp))
+        row.add_prefix(edit_button)
+
+        # Open button (appears in middle of prefix area)
+        open_button = Gtk.Button.new_from_icon_name("document-open-symbolic")
+        open_button.set_tooltip_text(_("Open this file in your default application"))
+        open_button.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Open this file in your default application")]
+        )
+        open_button.add_css_class("flat")
+        open_button.set_valign(Gtk.Align.CENTER)
+        open_button.connect("clicked", lambda _b, fp=file_path: self._on_open_file(fp))
+        row.add_prefix(open_button)
+
+        # Remove button (appears leftmost in prefix area)
+        remove_button = Gtk.Button.new_from_icon_name("trash-symbolic")
+        remove_button.set_tooltip_text(_("Remove this file from the list"))
+        remove_button.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Remove this file from the list")]
+        )
+        remove_button.add_css_class("flat")
+        remove_button.set_valign(Gtk.Align.CENTER)
+        remove_button.connect("clicked", lambda _b, i=idx: self._remove_single_file(i))
+        row.add_prefix(remove_button)
 
         self.file_list_box.append(row)
 
-        # Re-enable focus after a short delay
         def enable_row_focus():
-            if row.get_parent():  # Check if row is still in the widget tree
+            if row.get_parent():
                 row.set_can_focus(True)
             return False
 
         GLib.timeout_add(100, enable_row_focus)
 
-    def _add_page_count_to_row(self, row: Adw.ActionRow, file_path: str) -> None:
-        """Add page count to a file row if available
+    def _on_open_file(self, file_path: str) -> None:
+        """Open file with the default application.
 
         Args:
-            row: The row to add page count to
-            file_path: Path to the PDF file
+            file_path: Path to the file to open
+        """
+        from bigocrpdf.utils.pdf_utils import open_file_with_default_app
+
+        if not open_file_with_default_app(file_path):
+            self.window.show_toast(_("Failed to open file"))
+
+    def _on_edit_file(self, file_path: str) -> None:
+        """Open the PDF editor for the file.
+
+        Args:
+            file_path: Path to the file to edit
         """
         try:
-            result = subprocess.run(
-                ["pdfinfo", file_path],
-                capture_output=True,
-                text=True,
-                check=False,
+            from bigocrpdf.ui.pdf_editor import PDFEditorWindow
+
+            def on_editor_save(document):
+                """Handle editor save callback.
+
+                Two modes:
+                1. Same file (rotation/deletion only) — saves state as metadata
+                   to file_modifications for the OCR processor to apply.
+                2. Different file (merge from multiple sources) — replaces the
+                   file path and cleans up old temp files.
+                """
+                # Check if file path changed (merged output)
+                if document.path != file_path:
+                    try:
+                        if file_path in self.window.settings.selected_files:
+                            idx = self.window.settings.selected_files.index(file_path)
+                            self.window.settings.selected_files[idx] = document.path
+
+                            # Resolve chained temp paths to the true original
+                            # On re-edit, file_path may be a previous temp path
+                            true_original = self.window.settings.original_file_paths.get(
+                                file_path, file_path
+                            )
+                            self.window.settings.original_file_paths[document.path] = true_original
+
+                            # Clean up stale mapping for previous temp path
+                            if file_path in self.window.settings.original_file_paths:
+                                del self.window.settings.original_file_paths[file_path]
+
+                            # Clean up old modification entries — the merged file
+                            # already incorporates all editor changes
+                            if file_path in self.window.settings.file_modifications:
+                                del self.window.settings.file_modifications[file_path]
+
+                            # Clean up previous temp file from disk
+                            if file_path != true_original and os.path.exists(file_path):
+                                try:
+                                    os.remove(file_path)
+                                    logger.info(f"Removed previous temp file: {file_path}")
+                                except OSError as rm_err:
+                                    logger.warning(f"Could not remove temp file: {rm_err}")
+
+                            logger.info(
+                                f"Replaced original file with merged output: {document.path}"
+                            )
+                    except ValueError:
+                        pass
+                else:
+                    # Same file — save modification state for OCR processor
+                    state = document.to_dict()
+                    self.window.settings.file_modifications[document.path] = state
+
+                # Do NOT save page_modifications for merged files — they are
+                # already baked in. Only save for same-file edits above.
+
+                # Refresh the file queue display
+                self._populate_file_list()
+                self.window.update_file_info()
+
+                if hasattr(self, "refresh_queue_status"):
+                    self.refresh_queue_status()
+
+                self.window.show_toast(_("Changes saved"))
+                logger.info(f"Editor saved changes to: {document.path}")
+
+            # Retrieve saved state if available (use original path to load state)
+            # If we replaced the file, logic above would have cleared state for old path
+            # and new path has "clean" state.
+            initial_state = self.window.settings.file_modifications.get(file_path)
+
+            editor = PDFEditorWindow(
+                application=self.window.get_application(),
+                pdf_path=file_path,
+                on_save_callback=on_editor_save,
+                parent_window=self.window,
+                initial_state=initial_state,
             )
-            for line in result.stdout.split("\n"):
-                if line.startswith("Pages:"):
-                    pages = int(line.split(":")[1].strip())
-                    page_label = Gtk.Label()
-                    page_label.set_markup(f"<small>{pages} pg.</small>")
-                    row.add_suffix(page_label)
+            editor.present()
+
+            logger.info(f"Opened PDF editor for: {file_path}")
+        except Exception as e:
+            logger.error(f"Failed to open PDF editor: {e}")
+            self.window.show_toast(_("Failed to open PDF editor"))
+
+    def _add_page_count_to_row(self, row: Adw.ActionRow, file_path: str) -> None:
+        """Add page count to a file row if available"""
+        from bigocrpdf.utils.pdf_utils import get_pdf_page_count
+
+        pages = get_pdf_page_count(file_path)
+        if pages > 0:
+            page_label = Gtk.Label()
+            page_label.set_markup(f"<small>{pages} pg.</small>")
+            row.add_suffix(page_label)
+
+    def sync_ui_to_settings(self) -> None:
+        """Re-sync all UI widgets to current OcrSettings values."""
+        settings = self.window.settings
+
+        # Language dropdown
+        if self.lang_dropdown:
+            languages = self.window.ocr_processor.get_available_ocr_languages()
+            for i, (code, _name) in enumerate(languages):
+                if code == settings.lang:
+                    self.lang_dropdown.set_selected(i)
                     break
-        except Exception:
-            pass  # Silently handle pdfinfo failures
 
-    def _add_remove_button_to_row(self, row: Adw.ActionRow, idx: int) -> None:
-        """Add remove button to a file row
+        # Folder / destination
+        if self.folder_combo:
+            self.folder_combo.set_selected(0 if settings.save_in_same_folder else 1)
+        if self.dest_entry:
+            self.dest_entry.set_text(settings.destination_folder or "")
 
-        Args:
-            row: The row to add the button to
-            idx: Index of the file
-        """
-        trash_button = create_icon_button(
-            icon_name="user-trash-symbolic",
-            tooltip=_("Remove from queue"),
-        )
-        trash_button.connect("clicked", lambda _b, idx=idx: self._remove_single_file(idx))
-        row.add_suffix(trash_button)
+        # Sidebar sections
+        self._load_preprocessing_settings()
+        self._load_advanced_ocr_settings()
+        self._load_image_export_settings()
 
-    def _update_queue_status(self) -> None:
-        """Update the status label with current file and page information"""
-        if not hasattr(self, "status_label") or not self.status_label:
-            return
-
-        file_count = len(self.window.settings.selected_files)
-        if file_count > 0:
-            status_info = f"{file_count} {'file' if file_count == 1 else 'files'} selected"
-            status_info += f" • {self.window.settings.pages_count} {'page' if self.window.settings.pages_count == 1 else 'pages'} in total"
-        else:
-            status_info = _("No files selected")
-
-        self.status_label.set_text(status_info)
-
-    def refresh_queue_status(self) -> None:
-        """Update the queue status without rebuilding the entire settings page"""
-        self._update_queue_status()
-
-        if self.remove_button:
-            self.remove_button.set_sensitive(len(self.window.settings.selected_files) > 0)
-
-        # Update destination container visibility based on switch row state
-        if self.same_folder_switch_row and self.dest_container:
-            switch_state = self.same_folder_switch_row.get_active()
-            self.dest_container.set_visible(not switch_state)
-
-        # Also update the file list if needed
+        # File list
         if self.file_list_box:
             self._populate_file_list()
 
-    # Event handlers
-    def _on_same_folder_toggled(self, switch_row: Adw.SwitchRow, _param_spec) -> None:
-        """Handle toggling of the 'save in same folder' switch row
+    def refresh_queue_status(self) -> None:
+        """Update the queue status without rebuilding the entire settings page"""
+        file_count = len(self.window.settings.selected_files)
 
-        Args:
-            switch_row: The switch row that was toggled
-            _param_spec: The parameter specification (unused)
-        """
-        # Get the active state from the switch row
-        is_active = switch_row.get_active()
+        # Update folder entry visibility based on combo
+        if self.folder_combo and self.folder_entry_box:
+            use_custom = self.folder_combo.get_selected() == 1
+            self.folder_entry_box.set_visible(use_custom)
 
-        # Show/hide the destination entry container based on switch state
-        if self.dest_container:
-            # If save in same folder is enabled, hide the destination entry
-            self.dest_container.set_visible(not is_active)
+        # Update header bar queue size
+        if hasattr(self.window, "custom_header_bar") and self.window.custom_header_bar:
+            self.window.custom_header_bar.update_queue_size(file_count)
 
-        # Store the setting in the window's settings object
-        self.window.settings.save_in_same_folder = is_active
+        # Update the file list
+        if self.file_list_box:
+            self._populate_file_list()
 
     def _on_drop(self, drop_target: Gtk.DropTarget, value, _x: float, _y: float) -> bool:
         """Handle file drop events for both single and multiple files
@@ -695,37 +1149,100 @@ class SettingsPageManager:
         Returns:
             True if the drop was handled successfully, False otherwise
         """
+        from bigocrpdf.utils.pdf_utils import images_to_pdf, is_image_file
+
         try:
             file_paths = self._extract_file_paths_from_drop(value)
             if not file_paths:
                 return False
 
-            # Filter for PDF files only
-            pdf_file_paths = self._filter_pdf_files(file_paths)
-            if not pdf_file_paths:
-                logger.warning("No valid PDF files in drop data")
+            # Filter for supported files (PDF and images)
+            valid_file_paths = self._filter_supported_files(file_paths)
+            if not valid_file_paths:
+                logger.warning("No valid files in drop data")
                 return False
 
-            logger.info(f"{len(pdf_file_paths)} PDF files dropped")
+            logger.info(f"{len(valid_file_paths)} files dropped")
 
-            # Add all valid PDF files to the queue
-            added = self.window.settings.add_files(pdf_file_paths)
+            # Separate images from PDFs
+            image_files = [p for p in valid_file_paths if is_image_file(p)]
+            pdf_files = [p for p in valid_file_paths if not is_image_file(p)]
 
-            if added > 0:
-                # Update the UI
-                self._populate_file_list()
-                self._update_queue_status()
+            # Add PDFs directly
+            if pdf_files:
+                self.window.settings.add_files(pdf_files)
 
-                # Hide the drop indicator
-                if self.drop_label:
-                    self.drop_label.set_visible(False)
+            if len(image_files) > 1:
+                # Multiple images: show merge dialog
+                self._show_drop_image_merge_dialog(image_files)
+            elif len(image_files) == 1:
+                # Single image: convert to PDF and add
+                try:
+                    pdf_path = images_to_pdf(image_files)
+                    self.window.settings.original_file_paths[pdf_path] = image_files[0]
+                    self.window.settings.add_files([pdf_path])
+                except Exception as e:
+                    logger.error(f"Failed to convert dropped image to PDF: {e}")
 
-                return True
+            # Update UI
+            self._populate_file_list()
+            file_count = len(self.window.settings.selected_files)
+            if hasattr(self.window, "custom_header_bar") and self.window.custom_header_bar:
+                self.window.custom_header_bar.update_queue_size(file_count)
 
-            return False
+            return True
         except Exception as e:
             logger.error(f"Error handling dropped file(s): {e}")
             return False
+
+    def _show_drop_image_merge_dialog(self, image_files: list[str]) -> None:
+        """Show merge dialog for dropped images.
+
+        Args:
+            image_files: List of image file paths
+        """
+        from bigocrpdf.utils.pdf_utils import images_to_pdf
+
+        dialog = Adw.AlertDialog()
+        dialog.set_heading(_("Multiple Images Dropped"))
+        dialog.set_body(
+            _("You dropped {} images. How would you like to add them?").format(len(image_files))
+        )
+
+        dialog.add_response("separate", _("Separate PDFs"))
+        dialog.add_response("merge", _("Merge into One PDF"))
+        dialog.set_response_appearance("merge", Adw.ResponseAppearance.SUGGESTED)
+        dialog.set_default_response("merge")
+
+        def on_response(_dialog: Adw.AlertDialog, response: str) -> None:
+            if response == "merge":
+                try:
+                    pdf_path = images_to_pdf(image_files)
+                    self.window.settings.original_file_paths[pdf_path] = image_files[0]
+                    self.window.settings.add_files([pdf_path])
+                    self.window.show_toast(
+                        _("Merged {} images into one PDF").format(len(image_files))
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to merge dropped images: {e}")
+                    self.window.show_toast(_("Error merging images"))
+            elif response == "separate":
+                for img_path in image_files:
+                    try:
+                        pdf_path = images_to_pdf([img_path])
+                        self.window.settings.original_file_paths[pdf_path] = img_path
+                        self.window.settings.add_files([pdf_path])
+                    except Exception as e:
+                        logger.error(f"Failed to convert dropped image to PDF: {e}")
+
+            # Update UI after dialog response
+            self._populate_file_list()
+            file_count = len(self.window.settings.selected_files)
+            if hasattr(self.window, "custom_header_bar") and self.window.custom_header_bar:
+                self.window.custom_header_bar.update_queue_size(file_count)
+
+        dialog.connect("response", on_response)
+        dialog.present(self.window)
 
     def _extract_file_paths_from_drop(self, value) -> list[str]:
         """Extract file paths from drop value
@@ -756,55 +1273,39 @@ class SettingsPageManager:
 
         return file_paths
 
-    def _filter_pdf_files(self, file_paths: list[str]) -> list[str]:
-        """Filter file paths to only include valid PDF files
+    def _filter_supported_files(self, file_paths: list[str]) -> list[str]:
+        """Filter file paths to only include valid PDF and image files.
 
         Args:
             file_paths: List of file paths to filter
 
         Returns:
-            List of valid PDF file paths
+            List of valid file paths (PDFs and supported images)
         """
-        pdf_file_paths = []
+        supported_extensions = (
+            ".pdf",
+            ".png",
+            ".jpg",
+            ".jpeg",
+            ".tiff",
+            ".tif",
+            ".bmp",
+            ".webp",
+            ".avif",
+        )
+        valid_paths = []
         for file_path in file_paths:
-            if not file_path.lower().endswith(".pdf"):
-                logger.warning(f"Ignoring non-PDF file: {file_path}")
+            if not file_path.lower().endswith(supported_extensions):
+                logger.warning(f"Ignoring unsupported file: {file_path}")
                 continue
 
             if not os.path.exists(file_path):
                 logger.warning(f"Ignoring nonexistent file: {file_path}")
                 continue
 
-            pdf_file_paths.append(file_path)
+            valid_paths.append(file_path)
 
-        return pdf_file_paths
-
-    def _on_drop_enter(self, drop_target: Gtk.DropTarget, _x: float, _y: float) -> Gdk.DragAction:
-        """Handle when files are dragged over the drop area
-
-        Args:
-            drop_target: The drop target widget
-            _x: X coordinate
-            _y: Y coordinate
-
-        Returns:
-            The drag action to perform (COPY)
-        """
-        # Show the drop indicator
-        if self.drop_label:
-            self.drop_label.set_visible(True)
-
-        return Gdk.DragAction.COPY
-
-    def _on_drop_leave(self, drop_target: Gtk.DropTarget) -> None:
-        """Handle when files are dragged away from the drop area
-
-        Args:
-            drop_target: The drop target widget
-        """
-        # Hide the drop indicator
-        if self.drop_label:
-            self.drop_label.set_visible(False)
+        return valid_paths
 
     def _remove_single_file(self, idx: int) -> None:
         """Remove a single file from the list
@@ -820,38 +1321,11 @@ class SettingsPageManager:
         file_path = self.window.settings.selected_files.pop(idx)
         logger.info(f"Removed file: {file_path}")
 
-        # Update pages count (if available)
-        self._update_page_count_after_removal(file_path)
-
         # Refresh the list
         self._populate_file_list()
 
         # Update the status information with the new file and page counts
-        self._update_queue_status()
-
-        # Update the remove all button sensitivity
-        self.remove_button.set_sensitive(len(self.window.settings.selected_files) > 0)
-
-    def _update_page_count_after_removal(self, file_path: str) -> None:
-        """Update page count after removing a file
-
-        Args:
-            file_path: Path to the removed file
-        """
-        try:
-            result = subprocess.run(
-                ["pdfinfo", file_path],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-            for line in result.stdout.split("\n"):
-                if line.startswith("Pages:"):
-                    pages = int(line.split(":")[1].strip())
-                    self.window.settings.pages_count -= pages
-                    break
-        except Exception:
-            pass  # Silently handle pdfinfo failures
+        self.refresh_queue_status()
 
     def _remove_all_files(self) -> None:
         """Remove all files from the queue"""
@@ -865,17 +1339,11 @@ class SettingsPageManager:
         # Clear all files
         self.window.settings.selected_files.clear()
 
-        # Reset page count
-        self.window.settings.pages_count = 0
-
         # Refresh the list
         self._populate_file_list()
 
         # Update the status information with the new file and page counts
-        self._update_queue_status()
-
-        # Update the remove all button sensitivity
-        self.remove_button.set_sensitive(False)
+        self.refresh_queue_status()
 
     def _show_pdf_options_dialog(self) -> None:
         """Show PDF options dialog - placeholder for now"""

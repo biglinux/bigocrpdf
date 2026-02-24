@@ -9,7 +9,6 @@ Based on ashyterm FormWidgetBuilder pattern and BigLinux ARCHITECTURAL RULES.
 """
 
 from collections.abc import Callable
-from dataclasses import dataclass, field
 
 import gi
 
@@ -17,26 +16,7 @@ gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Adw, Gio, Gtk
 
-
-@dataclass(slots=True)
-class ButtonConfig:
-    """Configuration for button creation."""
-
-    label: str
-    icon_name: str | None = None
-    tooltip: str | None = None
-    css_classes: list[str] = field(default_factory=list)
-    on_click: Callable | None = None
-
-
-@dataclass(slots=True)
-class RowConfig:
-    """Configuration for action row creation."""
-
-    title: str
-    subtitle: str | None = None
-    icon_name: str | None = None
-    css_class: str = "action-row-config"
+from bigocrpdf.utils.a11y import set_a11y_label
 
 
 class UIComponents:
@@ -91,6 +71,8 @@ class UIComponents:
             for css_class in css_classes:
                 button.add_css_class(css_class)
 
+        set_a11y_label(button, tooltip or label)
+
         return button
 
     @staticmethod
@@ -128,6 +110,8 @@ class UIComponents:
         if on_click:
             button.connect("clicked", lambda _: on_click())
 
+        set_a11y_label(button, label)
+
         return button
 
     @staticmethod
@@ -158,6 +142,7 @@ class UIComponents:
 
         if tooltip:
             button.set_tooltip_text(tooltip)
+            set_a11y_label(button, tooltip)
 
         if circular:
             button.add_css_class("circular")
@@ -289,6 +274,7 @@ class UIComponents:
 
         if tooltip:
             dropdown.set_tooltip_text(tooltip)
+            dropdown.update_property([Gtk.AccessibleProperty.LABEL], [tooltip])
 
         if on_change:
 

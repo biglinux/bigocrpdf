@@ -134,14 +134,9 @@ class NavigationManager:
         return self.window.stack
 
     @property
-    def back_button(self) -> Gtk.Button:
-        """Get the back button widget."""
-        return self.window.back_button
-
-    @property
-    def next_button(self) -> Gtk.Button:
-        """Get the next button widget."""
-        return self.window.next_button
+    def main_stack(self) -> Gtk.Stack:
+        """Get the main stack from the window (for terminal/conclusion pages)."""
+        return self.window.main_stack
 
     def get_current_page(self) -> str:
         """
@@ -150,7 +145,11 @@ class NavigationManager:
         Returns:
             Name of the current page
         """
-        return self.stack.get_visible_child_name()
+        # Check main_stack first for terminal/conclusion
+        main_page = self.main_stack.get_visible_child_name()
+        if main_page in (self.PAGE_TERMINAL, self.PAGE_CONCLUSION):
+            return main_page
+        return self.PAGE_SETTINGS  # Default to settings when on main_view
 
     def navigate_to(self, page_name: str) -> None:
         """
@@ -163,51 +162,33 @@ class NavigationManager:
             logger.warning(f"Unknown page: {page_name}")
             return
 
-        self.stack.set_visible_child_name(page_name)
-        self._apply_page_state(page_name)
-        self._update_step_indicator(page_name)
+        if page_name == self.PAGE_SETTINGS:
+            # Navigate to main view (which shows settings)
+            self.main_stack.set_visible_child_name("main_view")
+            self.stack.set_visible_child_name("settings")
+        elif page_name in (self.PAGE_TERMINAL, self.PAGE_CONCLUSION):
+            # Navigate to full-width pages in main_stack
+            self.main_stack.set_visible_child_name(page_name)
 
+        self._update_header_bar_for_page(page_name)
         logger.debug(f"Navigated to page: {page_name}")
 
-    def _apply_page_state(self, page_name: str) -> None:
+    def _update_header_bar_for_page(self, page_name: str) -> None:
         """
-        Apply the navigation state for a page.
-
-        Args:
-            page_name: Name of the page
-        """
-        state = self._page_states.get(page_name)
-        if not state:
-            return
-
-        # Update back button
-        self.back_button.set_sensitive(state.back_enabled)
-        self.back_button.set_visible(state.back_visible)
-
-        # Update next button
-        self.next_button.set_sensitive(state.next_enabled)
-        self.next_button.set_visible(state.next_visible)
-        self.next_button.set_label(state.next_label)
-
-    def _update_step_indicator(self, page_name: str) -> None:
-        """
-        Update the step indicator based on the current page.
+        Update header bar buttons for the current page.
 
         Args:
             page_name: Name of the current page
         """
-        # Map page names to step indices
-        step_mapping = {
-            self.PAGE_SETTINGS: 0,
-            self.PAGE_TERMINAL: 1,
-            self.PAGE_CONCLUSION: 2,
-        }
+        if not hasattr(self.window, "custom_header_bar") or not self.window.custom_header_bar:
+            return
 
-        current_step = step_mapping.get(page_name, 0)
-        completed_steps = list(range(current_step))
-
-        # Call window's set_current_step method
-        self.window.set_current_step(current_step, completed_steps)
+        if page_name == self.PAGE_SETTINGS:
+            self.window.custom_header_bar.set_view("queue")
+        elif page_name == self.PAGE_TERMINAL:
+            self.window.custom_header_bar.set_view("processing")
+        elif page_name == self.PAGE_CONCLUSION:
+            self.window.custom_header_bar.set_view("complete")
 
     def handle_back_clicked(self, _button: Gtk.Button = None) -> None:
         """
@@ -220,20 +201,6 @@ class NavigationManager:
 
         if current_page == self.PAGE_TERMINAL:
             self._navigate_from_terminal_to_settings()
-        elif current_page == self.PAGE_CONCLUSION:
-            self._reset_to_settings()
-
-    def handle_next_clicked(self, button: Gtk.Button = None) -> None:
-        """
-        Handle next button click.
-
-        Args:
-            button: The button that was clicked
-        """
-        current_page = self.get_current_page()
-
-        if current_page == self.PAGE_SETTINGS:
-            self._start_processing(button)
         elif current_page == self.PAGE_CONCLUSION:
             self._reset_to_settings()
 
@@ -269,60 +236,6 @@ class NavigationManager:
         """Navigate to the settings page."""
         self.navigate_to(self.PAGE_SETTINGS)
 
-    def update_processing_buttons(self, is_processing: bool) -> None:
-        """
-        Update button states during processing.
-
-        Args:
-            is_processing: Whether processing is active
-        """
-        if is_processing:
-            self.back_button.set_sensitive(False)
-            self.next_button.set_sensitive(False)
-            self.next_button.set_visible(False)
-        else:
-            state = self._page_states.get(self.get_current_page())
-            if state:
-                self.back_button.set_sensitive(state.back_enabled)
-                self.next_button.set_sensitive(state.next_enabled)
-                self.next_button.set_visible(state.next_visible)
-
-    def show_cancel_button(self, on_cancel_callback: Callable) -> None:
-        """
-        Show and configure the cancel button during processing.
-
-        Args:
-            on_cancel_callback: Callback for when cancel is clicked
-        """
-        self.window.disconnect_signal(self.next_button, "clicked")
-        self.window.connect_signal(self.next_button, "clicked", on_cancel_callback)
-
-        self.next_button.set_label(_("Cancel"))
-        self.next_button.set_sensitive(True)
-        self.next_button.set_visible(True)
-
     def restore_next_button(self) -> None:
-        """Restore the next button to its default state for the current page."""
-        self.window.disconnect_signal(self.next_button, "clicked")
-        self.window.connect_signal(self.next_button, "clicked", self.handle_next_clicked)
-
-        state = self._page_states.get(self.get_current_page())
-        if state:
-            self.next_button.set_label(state.next_label)
-            self.next_button.set_sensitive(state.next_enabled)
-            self.next_button.set_visible(state.next_visible)
-
-    def on_page_changed(self, stack: Gtk.Stack, _param) -> None:
-        """
-        Handle page change events.
-
-        Args:
-            stack: The stack widget
-            _param: The parameter that changed (unused)
-        """
-        current_page = stack.get_visible_child_name()
-
-        if current_page == self.PAGE_SETTINGS:
-            self.window._apply_headerbar_sidebar_style()
-        else:
-            self.window._remove_headerbar_sidebar_style()
+        """Restore the header bar to its default state for the current page."""
+        self._update_header_bar_for_page(self.get_current_page())

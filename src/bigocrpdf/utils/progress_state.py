@@ -104,49 +104,12 @@ class ProgressState:
             return True
         return False
 
-    def update_all(
-        self,
-        fraction: float | None = None,
-        text: str | None = None,
-        status: str | None = None,
-    ) -> dict:
-        """Update multiple values at once.
-
-        Args:
-            fraction: Optional new progress value
-            text: Optional new text value
-            status: Optional new status value
-
-        Returns:
-            Dictionary with keys 'fraction', 'text', 'status' indicating what was updated
-        """
-        result = {"fraction": False, "text": False, "status": False}
-
-        if fraction is not None:
-            result["fraction"] = self.update_fraction(fraction)
-
-        if text is not None:
-            result["text"] = self.update_text(text)
-
-        if status is not None:
-            result["status"] = self.update_status(status)
-
-        return result
-
     def reset(self) -> None:
         """Reset all state to initial values."""
         self.fraction = 0.0
         self.text = ""
         self.status = ""
         self.start_time = 0.0
-
-    def set_start_time(self, timestamp: float) -> None:
-        """Set the processing start time.
-
-        Args:
-            timestamp: Unix timestamp when processing started
-        """
-        self.start_time = timestamp
 
     def get_percentage(self) -> int:
         """Get current progress as integer percentage.

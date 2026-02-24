@@ -8,6 +8,8 @@ It handles loading, saving, and migrating settings from legacy file format.
 import copy
 import json
 import os
+from collections.abc import Callable
+from dataclasses import dataclass
 from typing import Any, Final
 
 from bigocrpdf.utils.logger import logger
@@ -66,6 +68,38 @@ DEFAULT_CONFIG: Final[dict[str, Any]] = {
 }
 
 
+@dataclass(frozen=True)
+class _MigrationRule:
+    """Configuration for migrating a single legacy setting.
+
+    Attributes:
+        legacy_key: Key in LEGACY_PATHS dict identifying the legacy file.
+        section: Target section in the config (e.g., "ocr", "output").
+        target_key: Target key within the section.
+        transformer: Function to transform raw string to proper type.
+    """
+
+    legacy_key: str
+    section: str
+    target_key: str
+    transformer: Callable[[str], Any]
+
+
+def _transform_string(value: str) -> str | None:
+    """Transform string value, returning None if empty."""
+    return value if value else None
+
+
+def _transform_boolean(value: str) -> bool:
+    """Transform string to boolean (case-insensitive 'true' check)."""
+    return value.lower() == "true"
+
+
+def _transform_directory(value: str) -> str | None:
+    """Transform directory path, validating it exists."""
+    return value if value and os.path.isdir(value) else None
+
+
 class ConfigManager:
     """Manages application configuration in JSON format.
 
@@ -83,7 +117,6 @@ class ConfigManager:
         """
         self.config_path = config_path or CONFIG_FILE_PATH
         self._config: dict[str, Any] = {}
-        self._dirty = False
 
         # Ensure config directory exists
         os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
@@ -128,7 +161,6 @@ class ConfigManager:
             # Add any missing keys from default config
             self._merge_defaults(self._config, DEFAULT_CONFIG)
             self._config["version"] = DEFAULT_CONFIG["version"]
-            self._dirty = True
             logger.info(f"Configuration upgraded to version {DEFAULT_CONFIG['version']}")
 
     def _merge_defaults(self, config: dict, defaults: dict) -> None:
@@ -145,66 +177,62 @@ class ConfigManager:
                 self._merge_defaults(config[key], value)
 
     def _migrate_from_legacy(self) -> None:
-        """Migrate settings from legacy individual files."""
-        migrated = False
+        """Migrate settings from legacy individual files to JSON format.
 
-        # Migrate language setting
-        if os.path.exists(LEGACY_PATHS["lang"]):
-            try:
-                with open(LEGACY_PATHS["lang"], encoding="utf-8") as f:
-                    lang = f.read().strip()
-                    if lang:
-                        self._config["ocr"]["language"] = lang
-                        migrated = True
-            except OSError:
-                pass
+        Uses a data-driven approach with migration rules to reduce complexity.
+        Each rule specifies the legacy key, target config path, and value transformer.
+        """
+        migration_rules: list[_MigrationRule] = [
+            _MigrationRule("lang", "ocr", "language", _transform_string),
+            _MigrationRule("quality", "ocr", "quality", _transform_string),
+            _MigrationRule("align", "ocr", "alignment", _transform_string),
+            _MigrationRule("same_folder", "output", "save_in_same_folder", _transform_boolean),
+            _MigrationRule("savefile", "output", "destination_folder", _transform_directory),
+        ]
 
-        # Migrate quality setting
-        if os.path.exists(LEGACY_PATHS["quality"]):
-            try:
-                with open(LEGACY_PATHS["quality"], encoding="utf-8") as f:
-                    quality = f.read().strip()
-                    if quality:
-                        self._config["ocr"]["quality"] = quality
-                        migrated = True
-            except OSError:
-                pass
+        migrated_count = sum(self._apply_migration_rule(rule) for rule in migration_rules)
 
-        # Migrate alignment setting
-        if os.path.exists(LEGACY_PATHS["align"]):
-            try:
-                with open(LEGACY_PATHS["align"], encoding="utf-8") as f:
-                    align = f.read().strip()
-                    if align:
-                        self._config["ocr"]["alignment"] = align
-                        migrated = True
-            except OSError:
-                pass
+        if migrated_count > 0:
+            logger.info(f"Migrated {migrated_count} settings from legacy files to JSON")
 
-        # Migrate same folder setting
-        if os.path.exists(LEGACY_PATHS["same_folder"]):
-            try:
-                with open(LEGACY_PATHS["same_folder"], encoding="utf-8") as f:
-                    value = f.read().strip().lower()
-                    self._config["output"]["save_in_same_folder"] = value == "true"
-                    migrated = True
-            except OSError:
-                pass
+    def _apply_migration_rule(self, rule: "_MigrationRule") -> bool:
+        """Apply a single migration rule.
 
-        # Migrate destination folder
-        if os.path.exists(LEGACY_PATHS["savefile"]):
-            try:
-                with open(LEGACY_PATHS["savefile"], encoding="utf-8") as f:
-                    folder = f.read().strip()
-                    if folder and os.path.isdir(folder):
-                        self._config["output"]["destination_folder"] = folder
-                        migrated = True
-            except OSError:
-                pass
+        Args:
+            rule: The migration rule to apply.
 
-        if migrated:
-            logger.info("Migrated settings from legacy files to JSON")
-            self._dirty = True
+        Returns:
+            True if the migration was successful, False otherwise.
+        """
+        legacy_path = LEGACY_PATHS.get(rule.legacy_key)
+        if not legacy_path or not os.path.exists(legacy_path):
+            return False
+
+        raw_value = self._read_legacy_file(legacy_path)
+        if raw_value is None:
+            return False
+
+        transformed = rule.transformer(raw_value)
+        if transformed is None:
+            return False
+
+        self._config[rule.section][rule.target_key] = transformed
+        return True
+
+    def _read_legacy_file(self, path: str) -> str | None:
+        """Read and return stripped content from a legacy file.
+
+        Args:
+            path: Path to the legacy file.
+
+        Returns:
+            Stripped file content, or None if read fails.
+        """
+        try:
+            with open(path, encoding="utf-8") as f:
+                return f.read().strip()
+        except OSError:
+            return None
 
     def save(self) -> bool:
         """Save configuration to file.
@@ -215,7 +243,6 @@ class ConfigManager:
         try:
             with open(self.config_path, "w", encoding="utf-8") as f:
                 json.dump(self._config, f, indent=2, ensure_ascii=False)
-            self._dirty = False
             logger.debug("Configuration saved to JSON")
             return True
         except OSError as e:
@@ -262,74 +289,6 @@ class ConfigManager:
 
         # Set the value
         config[keys[-1]] = value
-        self._dirty = True
-
-        if save_immediately:
-            self.save()
-
-    def get_section(self, section: str) -> dict[str, Any]:
-        """Get an entire configuration section.
-
-        Args:
-            section: Section name (e.g., "ocr", "output")
-
-        Returns:
-            Dictionary of section settings
-        """
-        return self._config.get(section, {}).copy()
-
-    def set_section(
-        self, section: str, values: dict[str, Any], save_immediately: bool = True
-    ) -> None:
-        """Set an entire configuration section.
-
-        Args:
-            section: Section name
-            values: Dictionary of settings to set
-            save_immediately: Whether to save to file immediately
-        """
-        self._config[section] = values
-        self._dirty = True
-
-        if save_immediately:
-            self.save()
-
-    @property
-    def is_dirty(self) -> bool:
-        """Check if there are unsaved changes."""
-        return self._dirty
-
-    def reset_to_defaults(self, save_immediately: bool = True) -> None:
-        """Reset all settings to default values.
-
-        Args:
-            save_immediately: Whether to save to file immediately
-        """
-        self._config = self._get_default_config()
-        self._dirty = True
-
-        if save_immediately:
-            self.save()
-
-        logger.info("Configuration reset to defaults")
-
-    def export_to_dict(self) -> dict[str, Any]:
-        """Export configuration as a dictionary.
-
-        Returns:
-            Copy of the current configuration
-        """
-        return copy.deepcopy(self._config)
-
-    def import_from_dict(self, data: dict[str, Any], save_immediately: bool = True) -> None:
-        """Import configuration from a dictionary.
-
-        Args:
-            data: Configuration dictionary to import
-            save_immediately: Whether to save to file immediately
-        """
-        self._config = data
-        self._dirty = True
 
         if save_immediately:
             self.save()
@@ -349,27 +308,3 @@ def get_config_manager() -> ConfigManager:
     if _config_manager is None:
         _config_manager = ConfigManager()
     return _config_manager
-
-
-def get_config(key_path: str, default: Any = None) -> Any:
-    """Convenience function to get a configuration value.
-
-    Args:
-        key_path: Dot-separated path to the config value
-        default: Default value if key not found
-
-    Returns:
-        Configuration value or default
-    """
-    return get_config_manager().get(key_path, default)
-
-
-def set_config(key_path: str, value: Any, save_immediately: bool = True) -> None:
-    """Convenience function to set a configuration value.
-
-    Args:
-        key_path: Dot-separated path to the config value
-        value: Value to set
-        save_immediately: Whether to save to file immediately
-    """
-    get_config_manager().set(key_path, value, save_immediately)

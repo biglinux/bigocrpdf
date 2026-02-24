@@ -1,160 +1,124 @@
-.action-row-config
-{
-    border-top: 1px solid var(--card-shade-color);
-    padding-top: 10px;
-}
-.action-row-config:hover {
-    background-color: transparent;
+/* ============================================================
+   BigOcrPdf – Custom Styles
+   Modern, clean design following Adwaita / GNOME HIG principles.
+   ============================================================ */
+
+/* ---- Page Thumbnail ---- */
+
+/* ---- Sidebar ---- */
+
+.sidebar {
+    background-color: @sidebar_bg_color;
 }
 
-.action-row-config-last
-{
-    border-top: 1px solid var(--card-shade-color);
-    border-bottom: 1px solid var(--card-shade-color);
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-.action-row-config-last:hover {
-    background-color: transparent;
-}
-
-/* Style for pill-shaped labels */
-.pill {
-    padding: 2px 6px;
+.page-thumbnail {
+    padding: 6px;
     border-radius: 12px;
-    background-color: rgba(53, 132, 228, 0.2); /* Light blue background */
-    color: #3584e4; /* Blue text color */
+    transition: background-color 200ms ease;
 }
 
-/* Add hover effect for listbox items in the output files list */
-.output-files-list row {
-    transition: all 0.15s ease;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    padding: 2px 0;
+.page-thumbnail:hover {
+    background-color: alpha(@accent_bg_color, 0.08);
 }
 
-.output-files-list row:hover {
-    background-color: rgba(53, 132, 228, 0.1);
-    transform: translateY(-1px);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+/* ---- Thumbnail Frame ---- */
+
+.thumbnail-frame {
+    border-radius: 8px;
+    border: 1px solid alpha(currentColor, 0.08);
+    background-color: @card_bg_color;
+    box-shadow: 0 1px 3px alpha(black, 0.08),
+                0 1px 2px alpha(black, 0.06);
+    transition: box-shadow 200ms ease, border-color 200ms ease;
 }
 
-/* Button hover effects in list rows */
-.output-files-list row button.flat {
-    transition: background-color 0.2s ease;
+.thumbnail-frame:hover {
+    box-shadow: 0 2px 8px alpha(black, 0.12),
+                0 1px 3px alpha(black, 0.08);
 }
 
-.output-files-list row:hover button.flat:hover {
-    background-color: rgba(53, 132, 228, 0.2);
+.page-thumbnail .thumbnail-frame.selected {
+    border: 2px solid @accent_bg_color;
+    box-shadow: 0 0 0 2px alpha(@accent_bg_color, 0.25),
+                0 2px 8px alpha(black, 0.10);
 }
 
-/* Accent button styles */
-button.accent-button {
-    color: #3584e4;
+/* ---- Thumbnail Image Box ---- */
+
+.thumbnail-image-box {
+    border-radius: 6px;
+    background-color: @card_bg_color;
+    overflow: hidden;
 }
 
-button.accent-button:hover {
-    color: #1c71d8;
-}
+/* ---- Excluded (deleted) pages ---- */
 
-/* Make accent elements more visible */
-.accent {
-    color: #3584e4; /* Blue accent color */
-}
-
-.accent:hover {
-    color: #1c71d8; /* Darker blue on hover */
-}
-
-/* Modal window styling */
-.welcome-modal {
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-}
-
-/* Remove header bar background for cleaner look */
-.welcome-modal headerbar {
-    background: transparent;
-    box-shadow: none;
-    border: none;
-    min-height: 32px;
-}
-
-/* Style the close button only */
-.welcome-modal headerbar button.circular {
-    min-width: 28px;
-    min-height: 28px;
-    margin: 6px;
-    opacity: 0.7;
+.page-thumbnail.excluded {
+    opacity: 0.45;
     transition: opacity 200ms ease;
 }
 
-.welcome-modal headerbar button.circular:hover {
-    opacity: 1.0;
+.page-thumbnail.excluded:hover {
+    opacity: 0.65;
 }
 
-/* Smooth animations for the modal */
-.welcome-modal {
-    transition: all 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+/* ---- Excluded overlay ---- */
+
+.excluded-overlay {
+    background-color: alpha(@window_bg_color, 0.50);
+    border-radius: 6px;
 }
 
-/* Style the switch to match modern design */
-.welcome-modal switch {
-    transition: all 200ms ease;
+.excluded-label {
+    font-weight: bold;
+    font-size: 11pt;
+    color: @error_color;
 }
 
-.welcome-modal switch:checked {
-    background: #3584e4; /* Fallback blue color */
+/* ---- Rotation Badge ---- */
+
+.rotation-badge {
+    background-color: alpha(@accent_bg_color, 0.85);
+    color: @accent_fg_color;
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 9pt;
+    font-weight: 600;
 }
 
-/* Icon styling for better prominence */
-.welcome-modal image {
-    transition: all 200ms ease;
-}
+/* ---- Page Number Label ---- */
 
-.welcome-modal image:hover {
-    transform: scale(1.05);
-}
-
-/* Step Indicator Styles (breadcrumbs navigation) */
-.step-indicator {
+.page-number-label {
+    font-size: 11pt;
+    font-weight: 500;
     min-width: 24px;
-    min-height: 24px;
-    border-radius: 50%;
-    padding: 2px;
-    font-weight: bold;
-    font-size: 0.85em;
-    transition: all 200ms ease;
 }
 
-.step-current {
-    background-color: @accent_bg_color;
+/* ---- FlowBox Grid ---- */
+
+.page-flowbox {
+    padding: 4px;
+}
+
+/* ---- Status / Bottom Toolbar ---- */
+
+.editor-status-bar {
+    padding: 4px 12px;
+}
+
+/* ---- Inline Notification Banner ---- */
+
+.editor-notification {
+    background-color: alpha(@accent_bg_color, 0.92);
     color: @accent_fg_color;
+    border-radius: 8px;
+    padding: 8px 16px;
+    box-shadow: 0 2px 8px alpha(black, 0.15);
 }
 
-.step-done {
-    background-color: alpha(@accent_bg_color, 0.4);
-    color: @accent_fg_color;
-}
+/* ---- Wide separator (invisible spacer) ---- */
 
-.step-pending {
-    background-color: alpha(@card_shade_color, 0.3);
-    color: @dimmed_fg_color;
-}
-
-.step-completed {
-    color: @success_color;
-}
-
-.step-label {
-    font-size: 0.9em;
-}
-
-.step-label-current {
-    font-weight: bold;
-}
-
-.step-separator {
-    font-size: 1.2em;
-    font-weight: bold;
+.wide-separator {
+    min-width: 12px;
+    opacity: 0;
 }

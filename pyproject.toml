@@ -1,7 +1,7 @@
 [project]
 name = "bigocrpdf"
-version = "2.0.0"
-description = "Add OCR to your PDF documents to make them searchable"
+version = "3.0.0"
+description = "Add OCR to your PDF documents to make them searchable - Powered by RapidOCR"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "GPL-3.0-or-later"
@@ -24,7 +24,19 @@ classifiers = [
 dependencies = [
     "PyGObject>=3.42.0",
     "pycairo>=1.20.0",
-    "ocrmypdf>=14.0.0",
+    # RapidOCR engine
+    "rapidocr>=3.5.0",
+    # PDF processing
+    "pikepdf>=8.0.0",
+    "reportlab>=4.0.0",
+    # Image processing
+    "opencv-python>=4.8.0",
+    "Pillow>=10.0.0",
+    "numpy>=1.24.0",
+    # Dewarp dependencies
+    "scipy>=1.11.0",
+    # ODF export
+    "odfpy>=1.4.0",
 ]
 
 

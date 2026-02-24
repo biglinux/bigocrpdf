@@ -32,6 +32,10 @@ try:
     # Try to set the system locale
     try:
         locale.setlocale(locale.LC_ALL, "")
+        # Keep LC_NUMERIC as C to avoid breaking libraries that expect
+        # dot as decimal separator (e.g., onnxruntime used by RapidOCR).
+        # Locales like pt_BR use comma, which causes ONNX model parsing failures.
+        locale.setlocale(locale.LC_NUMERIC, "C")
     except Exception:
         # Fallback to C locale
         locale.setlocale(locale.LC_ALL, "C")

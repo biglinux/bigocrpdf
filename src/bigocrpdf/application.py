@@ -13,7 +13,6 @@ gi.require_version("Adw", "1")
 from gi.repository import Adw, Gio, GLib, Gtk
 
 from bigocrpdf.config import (
-    APP_DESCRIPTION,
     APP_DEVELOPERS,
     APP_ICON_NAME,
     APP_ID,
@@ -22,12 +21,14 @@ from bigocrpdf.config import (
     APP_VERSION,
     APP_WEBSITE,
     SHORTCUTS,
+    get_app_description,
+    init_config,
 )
+from bigocrpdf.ui.image_ocr_window import ImageOcrWindow
 from bigocrpdf.ui.widgets import load_css
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.window import BigOcrPdfWindow
-from bigocrpdf.ui.image_ocr_window import ImageOcrWindow
 
 
 class BigOcrPdfApp(Adw.Application):
@@ -37,8 +38,7 @@ class BigOcrPdfApp(Adw.Application):
         """Initialize the application."""
         super().__init__(application_id=APP_ID, flags=Gio.ApplicationFlags.HANDLES_OPEN)
 
-        # Store files to be opened
-        self._pending_files: list = []
+        self._edit_mode = False
 
         # Add command line handling
         self.add_main_option(
@@ -47,6 +47,14 @@ class BigOcrPdfApp(Adw.Application):
             GLib.OptionFlags.NONE,
             GLib.OptionArg.NONE,
             _("Print version information and exit"),
+            None,
+        )
+        self.add_main_option(
+            "edit",
+            ord("e"),
+            GLib.OptionFlags.NONE,
+            GLib.OptionArg.NONE,
+            _("Open files directly in the PDF editor"),
             None,
         )
 
@@ -115,6 +123,9 @@ class BigOcrPdfApp(Adw.Application):
             print(f"{APP_NAME} {APP_VERSION}")
             return 0  # Exit successfully
 
+        if options.contains("edit"):
+            self._edit_mode = True
+
         return -1  # Continue processing
 
     def on_activate(self, app: Adw.Application) -> None:
@@ -124,6 +135,9 @@ class BigOcrPdfApp(Adw.Application):
             app: The application instance
         """
         try:
+            # Ensure configuration directory exists
+            init_config()
+
             # Load custom CSS
             load_css()
 
@@ -141,6 +155,10 @@ class BigOcrPdfApp(Adw.Application):
                 # Use a small delay to ensure the window is fully drawn
                 GLib.timeout_add(300, lambda: win.show_welcome_dialog())
 
+            # Check for resumable session (after welcome dialog)
+            if hasattr(win, "check_resumable_session"):
+                GLib.timeout_add(500, lambda: win.check_resumable_session())
+
             logger.info(_("Application started successfully"))
 
         except Exception as e:
@@ -150,14 +168,14 @@ class BigOcrPdfApp(Adw.Application):
             error_dialog.set_detail(str(e))
             error_dialog.show()
 
-    def on_open(self, app: Adw.Application, files: list, n_files: int, hint: str) -> None:
+    def on_open(self, app: Adw.Application, files: list, n_files: int, _hint: str) -> None:
         """Callback for opening files from command line or file manager.
 
         Args:
             app: The application instance
             files: List of GFile objects to open
             n_files: Number of files
-            hint: Hint string (usually empty)
+            _hint: Hint string (usually empty, prefixed with _ to indicate unused)
         """
         try:
             # Load custom CSS
@@ -179,7 +197,38 @@ class BigOcrPdfApp(Adw.Application):
                     else:
                         pdf_paths.append(path)
 
-            # Determine mode and launch appropriate window
+            # --edit mode: open PDFs directly in the editor window
+            if self._edit_mode and pdf_paths:
+                from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
+
+                for pdf_path in pdf_paths:
+                    win = PDFEditorWindow(
+                        application=app,
+                        pdf_path=pdf_path,
+                        on_save_callback=lambda doc, p=pdf_path: self._standalone_editor_save(
+                            doc, p
+                        ),
+                    )
+                    win.present()
+                    logger.info(f"Opened PDF editor for: {pdf_path}")
+
+                # Also open images in the editor if provided alongside PDFs
+                if image_paths and pdf_paths:
+                    # Add images to the first editor window
+                    win = self.get_active_window()
+                    if win and hasattr(win, "_add_files_to_document"):
+                        GLib.timeout_add(
+                            200, lambda: win._add_files_to_document(image_paths) or False
+                        )
+
+                return
+
+            # --edit mode with only images: create new PDF from images
+            if self._edit_mode and image_paths and not pdf_paths:
+                self._open_images_in_editor(app, image_paths)
+                return
+
+            # Normal mode: categorize and route to appropriate window
             if image_paths and not pdf_paths:
                 # Image-only mode: Launch ImageOcrWindow
                 first_image = image_paths[0]
@@ -218,10 +267,91 @@ class BigOcrPdfApp(Adw.Application):
                     # Use a small delay to ensure the window is fully initialized
                     GLib.timeout_add(100, add_files_when_ready)
 
-            logger.info(_(f"Opened {n_files} file(s)"))
+            logger.info(_("Opened {0} file(s)").format(n_files))
 
         except Exception as e:
             logger.error(f"{_('Error opening files')}: {e}")
+
+    def _open_images_in_editor(self, app: Adw.Application, image_paths: list[str]) -> None:
+        """Open images in the PDF editor to create a new PDF.
+
+        Converts images to a temporary PDF and opens the editor.
+
+        Args:
+            app: The application instance
+            image_paths: List of image file paths
+        """
+        import os
+        import tempfile
+
+        try:
+            from bigocrpdf.ui.pdf_editor.thumbnail_renderer import get_thumbnail_renderer
+
+            renderer = get_thumbnail_renderer()
+
+            # Create a temporary PDF from the first image to bootstrap the editor
+            first_path = image_paths[0]
+            fd, tmp_pdf = tempfile.mkstemp(suffix=".pdf", prefix="bigocr_images_")
+            os.close(fd)
+
+            # Use pikepdf + Pillow to create a minimal PDF from the first image
+            from PIL import Image as PILImage
+
+            img = PILImage.open(first_path)
+            if img.mode in ("RGBA", "LA", "P"):
+                img = img.convert("RGB")
+            img.save(tmp_pdf, "PDF", resolution=150)
+            img.close()
+
+            from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
+
+            win = PDFEditorWindow(
+                application=app,
+                pdf_path=tmp_pdf,
+                on_save_callback=lambda doc: self._standalone_editor_save(doc, tmp_pdf),
+            )
+            win.present()
+
+            # If there are additional images, add them after the window is ready
+            if len(image_paths) > 1:
+                remaining = image_paths[1:]
+
+                def add_remaining():
+                    win._add_files_to_document(remaining)
+                    return False
+
+                GLib.timeout_add(500, add_remaining)
+
+            logger.info(f"Opened PDF editor with {len(image_paths)} image(s)")
+
+        except Exception as e:
+            logger.error(f"Failed to open images in editor: {e}")
+
+    def _standalone_editor_save(self, doc, original_path: str) -> None:
+        """Save callback when editor is used in standalone mode.
+
+        Args:
+            doc: The PDFDocument with changes
+            original_path: Original file path
+        """
+        import os
+        import shutil
+        import tempfile
+
+        from bigocrpdf.ui.pdf_editor.page_operations import apply_changes_to_pdf
+
+        fd, tmp = tempfile.mkstemp(suffix=".pdf", prefix="bigocr_edit_")
+        os.close(fd)
+
+        try:
+            if apply_changes_to_pdf(doc, tmp):
+                shutil.move(tmp, original_path)
+                logger.info("Saved edited PDF: %s", original_path)
+            else:
+                logger.error("Failed to save PDF in standalone editor mode")
+        finally:
+            if os.path.exists(tmp):
+                os.remove(tmp)
 
     def on_about_action(self, _action: Gio.SimpleAction, _param: Any) -> None:
         """Show about dialog.
@@ -234,14 +364,31 @@ class BigOcrPdfApp(Adw.Application):
         win = self.get_active_window()
 
         # Create an about dialog following GNOME guidelines
-        about = Adw.AboutWindow(transient_for=win)
+        about = Adw.AboutDialog()
         about.set_application_name(APP_NAME)
         about.set_version(APP_VERSION)
         about.set_developer_name(_("BigLinux Team"))
         about.set_license_type(Gtk.License.GPL_3_0)
-        about.set_comments(APP_DESCRIPTION)
+        about.set_comments(get_app_description())
         about.set_website(APP_WEBSITE)
         about.set_issue_url(APP_ISSUES)
+
+        # Legal information
+        about.add_legal_section(
+            _("Interface"),
+            None,
+            Gtk.License.GPL_3_0,
+            None,
+        )
+        about.add_legal_section(
+            _("Third-party Components"),
+            _(
+                "The OCR engine and other libraries used by this application "
+                "are independent projects, each distributed under its own license."
+            ),
+            Gtk.License.CUSTOM,
+            None,
+        )
 
         # Use app icon for the about dialog
         about.set_application_icon(APP_ICON_NAME)
@@ -249,8 +396,21 @@ class BigOcrPdfApp(Adw.Application):
         # Add credits
         about.add_credit_section(_("Developers"), APP_DEVELOPERS)
 
+        # Acknowledge base projects
+        about.add_credit_section(
+            _("Powered by"),
+            [
+                "RapidOCR https://github.com/RapidAI/RapidOCR",
+                "PaddleOCR (PP-OCRv5) https://github.com/PaddlePaddle/PaddleOCR",
+                "OpenCV https://opencv.org",
+                "OpenVINO https://github.com/openvinotoolkit/openvino",
+                "pikepdf https://github.com/pikepdf/pikepdf",
+                "Pillow https://python-pillow.org",
+            ],
+        )
+
         # Show the about dialog
-        about.present()
+        about.present(win)
 
     def on_image_ocr_action(self, _action: Gio.SimpleAction, _param: Any) -> None:
         """Open the independent Image OCR window.
