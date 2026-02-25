@@ -436,6 +436,10 @@ def build_parser() -> argparse.ArgumentParser:
         help=_("Output text file (default: same name as input with .txt)"),
     )
 
+    # --- export-dialog ---
+    xdlg_p = sub.add_parser("export-dialog", help=_("Interactive export dialog (used by file managers)"))
+    xdlg_p.add_argument("input", type=Path, help=_("Input PDF file"))
+
     # --- edit ---
     edit_p = sub.add_parser("edit", help=_("Open interactive GUI editor"))
     edit_p.add_argument("input", type=Path, help=_("PDF file to edit"))
@@ -718,6 +722,14 @@ def _cmd_export_txt(args: argparse.Namespace, logger: logging.Logger) -> int:
     return 0
 
 
+def _cmd_export_dialog(args: argparse.Namespace, logger: logging.Logger) -> int:
+    """Handle the 'export-dialog' command — show interactive export chooser."""
+    from bigocrpdf.ui.export_dialog import run_export_dialog
+
+    logger.info(f"Opening export dialog for {args.input}")
+    return run_export_dialog(args.input)
+
+
 def _cmd_edit(args: argparse.Namespace, logger: logging.Logger) -> int:
     """Handle the 'edit' command — launch GUI editor directly."""
     try:
@@ -978,6 +990,7 @@ def main(argv: list[str] | None = None) -> int:
         "info": _cmd_info,
         "export-odf": _cmd_export_odf,
         "export-txt": _cmd_export_txt,
+        "export-dialog": _cmd_export_dialog,
         "edit": _cmd_edit,
     }
 

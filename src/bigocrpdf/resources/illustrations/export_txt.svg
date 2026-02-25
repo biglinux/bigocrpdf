@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="0 0 120 80">
+  <!-- PDF page (source) -->
+  <g transform="translate(10,10)">
+    <rect x="5" y="5" width="35" height="48" rx="2" fill="#e8e8e8" stroke="#999" stroke-width="1.2"/>
+    <text x="12" y="18" font-size="7" font-weight="bold" fill="#c00">PDF</text>
+    <line x1="12" y1="24" x2="32" y2="24" stroke="#bbb" stroke-width="1.5"/>
+    <line x1="12" y1="30" x2="32" y2="30" stroke="#bbb" stroke-width="1.5"/>
+    <line x1="12" y1="36" x2="28" y2="36" stroke="#bbb" stroke-width="1.5"/>
+  </g>
+  <!-- Arrow -->
+  <path d="M56,38 L68,38" stroke="#3584e4" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+  <defs><marker id="arr" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3584e4"/></marker></defs>
+  <!-- TXT file (result) -->
+  <g transform="translate(72,10)">
+    <rect x="5" y="5" width="35" height="48" rx="2" fill="#fff" stroke="#3584e4" stroke-width="1.5"/>
+    <text x="10" y="18" font-size="6.5" font-weight="bold" fill="#3584e4">TXT</text>
+    <text x="12" y="28" font-size="5" font-family="monospace" fill="#555">Abc def</text>
+    <text x="12" y="35" font-size="5" font-family="monospace" fill="#555">ghi jkl</text>
+    <text x="12" y="42" font-size="5" font-family="monospace" fill="#555">mno</text>
+  </g>
+</svg>

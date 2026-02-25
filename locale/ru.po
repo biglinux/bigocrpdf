@@ -3521,3 +3521,71 @@ msgstr "Обработка OCR отменена пользователем"
 #: src/bigocrpdf/window_processing.py:446
 msgid "OCR processing cancelled"
 msgstr "Обработка OCR отменена"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export to ODT or TXT"
+msgstr "Экспорт в ODT или TXT"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export format"
+msgstr "Формат экспорта"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Choose the output format for the extracted text."
+msgstr "Выберите формат вывода для извлечённого текста."
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "ODF Document (.odt)"
+msgstr "Документ ODF (.odt)"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Preserves text formatting, paragraphs and layout. Editable in LibreOffice, Google Docs and Microsoft Word."
+msgstr "Сохраняет форматирование текста, абзацы и макет. Редактируется в LibreOffice, Google Docs и Microsoft Word."
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export ODF"
+msgstr "Экспорт ODF"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Plain Text (.txt)"
+msgstr "Обычный текст (.txt)"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Raw text without any formatting. Lightweight and universal — works everywhere."
+msgstr "Необработанный текст без форматирования. Лёгкий и универсальный — работает везде."
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export TXT"
+msgstr "Экспорт TXT"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "This PDF contains %d image(s)"
+msgstr "Этот PDF содержит %d изображений"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "PDF content analysis"
+msgstr "Анализ содержимого PDF"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Apply OCR first"
+msgstr "Сначала примените OCR"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "If the images contain text (scanned pages or photos), applying OCR first will produce much better export results."
+msgstr "Если изображения содержат текст (отсканированные страницы или фотографии), предварительное применение OCR значительно улучшит результаты экспорта."
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Open OCR"
+msgstr "Открыть OCR"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export as ODF document"
+msgstr "Экспортировать как документ ODF"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export as plain text"
+msgstr "Экспортировать как простой текст"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Open OCR application to recognize text in images"
+msgstr "Открыть приложение OCR для распознавания текста на изображениях"

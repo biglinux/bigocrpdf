@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="0 0 120 80">
+  <!-- PDF with image (blurry/scanned) -->
+  <g transform="translate(10,10)">
+    <rect x="5" y="5" width="35" height="48" rx="2" fill="#e8e8e8" stroke="#999" stroke-width="1.2"/>
+    <rect x="10" y="10" width="14" height="12" rx="1" fill="#c4c4c4" stroke="#aaa" stroke-width="0.8"/>
+    <circle cx="14" cy="14" r="2" fill="#ddd"/>
+    <polygon points="10,22 17,16 24,22" fill="#bbb"/>
+    <line x1="10" y1="28" x2="32" y2="28" stroke="#bbb" stroke-width="1.5"/>
+    <line x1="10" y1="34" x2="32" y2="34" stroke="#bbb" stroke-width="1.5"/>
+    <line x1="10" y1="40" x2="26" y2="40" stroke="#bbb" stroke-width="1.5"/>
+  </g>
+  <!-- Arrow -->
+  <path d="M56,38 L68,38" stroke="#3584e4" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+  <defs><marker id="arr" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3584e4"/></marker></defs>
+  <!-- PDF with OCR text layer -->
+  <g transform="translate(72,10)">
+    <rect x="5" y="5" width="35" height="48" rx="2" fill="#fff" stroke="#3584e4" stroke-width="1.5"/>
+    <rect x="10" y="10" width="14" height="12" rx="1" fill="#e4effd" stroke="#3584e4" stroke-width="0.8"/>
+    <circle cx="14" cy="14" r="2" fill="#c6daf7"/>
+    <polygon points="10,22 17,16 24,22" fill="#a8c8f0"/>
+    <text x="10" y="30" font-size="4.5" fill="#3584e4">OCR</text>
+    <line x1="10" y1="34" x2="32" y2="34" stroke="#555" stroke-width="1.5"/>
+    <line x1="10" y1="40" x2="32" y2="40" stroke="#555" stroke-width="1.5"/>
+    <line x1="10" y1="46" x2="26" y2="46" stroke="#555" stroke-width="1.5"/>
+  </g>
+</svg>
