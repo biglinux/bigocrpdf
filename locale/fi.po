@@ -3749,3 +3749,95 @@ msgstr "Päävalikko"
 #: src/bigocrpdf/window_ui_setup.py:223
 msgid "Results"
 msgstr "Tulokset"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export to ODT or TXT"
+msgstr "Vie ODT- tai TXT-muotoon"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export format"
+msgstr "Vientimuoto"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Choose the output format for the extracted text."
+msgstr "Valitse puretun tekstin tulostusmuoto."
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "ODF Document (.odt)"
+msgstr "ODF-asiakirja (.odt)"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Preserves text formatting, paragraphs and layout. Editable in LibreOffice, Google Docs and Microsoft Word."
+msgstr "Säilyttää tekstin muotoilun, kappaleet ja asettelun. Muokattavissa LibreOfficessa, Google Docsissa ja Microsoft Wordissa."
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export ODF"
+msgstr "Vie ODF"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Plain Text (.txt)"
+msgstr "Pelkkä teksti (.txt)"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Raw text without any formatting. Lightweight and universal — works everywhere."
+msgstr "Raaka teksti ilman muotoilua. Kevyt ja universaali — toimii kaikkialla."
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export TXT"
+msgstr "Vie TXT"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "This PDF contains %d image(s)"
+msgstr "Tämä PDF sisältää %d kuva(a)"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "PDF content analysis"
+msgstr "PDF-sisältöanalyysi"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Apply OCR first"
+msgstr "Käytä ensin OCR:ää"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "If the images contain text (scanned pages or photos), applying OCR first will produce much better export results."
+msgstr "Jos kuvat sisältävät tekstiä (skannattuja sivuja tai valokuvia), OCR:n käyttäminen ensin tuottaa paljon parempia vientituloksia."
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Open OCR"
+msgstr "Avaa OCR"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export as ODF document"
+msgstr "Vie ODF-asiakirjana"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export as plain text"
+msgstr "Vie pelkkänä tekstinä"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Open OCR application to recognize text in images"
+msgstr "Avaa OCR-sovellus tunnistamaan tekstiä kuvista"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "%d lines of text"
+msgstr "%d tekstiriviä"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "No text found"
+msgstr "Tekstiä ei löytynyt"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "%d image(s)"
+msgstr "%d kuva(a)"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export completed"
+msgstr "Vienti valmis"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "File saved to:\n%s"
+msgstr "Tiedosto tallennettu:\n%s"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "An error occurred during export. Please try again."
+msgstr "Viennissä tapahtui virhe. Yritä uudelleen."

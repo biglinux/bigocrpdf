@@ -3487,3 +3487,95 @@ msgstr "主页"
 #: src/bigocrpdf/window_ui_setup.py:223
 msgid "Results"
 msgstr "结果"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export to ODT or TXT"
+msgstr "导出为 ODT 或 TXT"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export format"
+msgstr "导出格式"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Choose the output format for the extracted text."
+msgstr "选择提取文本的输出格式。"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "ODF Document (.odt)"
+msgstr "ODF 文档 (.odt)"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Preserves text formatting, paragraphs and layout. Editable in LibreOffice, Google Docs and Microsoft Word."
+msgstr "保留文本格式、段落和布局。可在 LibreOffice、Google Docs 和 Microsoft Word 中编辑。"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export ODF"
+msgstr "导出 ODF"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Plain Text (.txt)"
+msgstr "纯文本 (.txt)"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Raw text without any formatting. Lightweight and universal — works everywhere."
+msgstr "无任何格式的原始文本。轻量且通用 — 适用于所有场景。"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export TXT"
+msgstr "导出 TXT"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "This PDF contains %d image(s)"
+msgstr "此 PDF 包含 %d 张图片"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "PDF content analysis"
+msgstr "PDF 内容分析"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Apply OCR first"
+msgstr "先应用 OCR"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "If the images contain text (scanned pages or photos), applying OCR first will produce much better export results."
+msgstr "如果图像包含文本（扫描页面或照片），先应用 OCR 将产生更好的导出结果。"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Open OCR"
+msgstr "打开 OCR"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export as ODF document"
+msgstr "导出为 ODF 文档"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export as plain text"
+msgstr "导出为纯文本"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Open OCR application to recognize text in images"
+msgstr "打开 OCR 应用以识别图像中的文字"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "%d lines of text"
+msgstr "%d 行文本"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "No text found"
+msgstr "未找到文本"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "%d image(s)"
+msgstr "%d 张图片"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export completed"
+msgstr "导出完成"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "File saved to:\n%s"
+msgstr "文件已保存到:\n%s"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "An error occurred during export. Please try again."
+msgstr "导出过程中发生错误。请重试。"

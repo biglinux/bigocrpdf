@@ -44,6 +44,20 @@ def _count_pdf_images(pdf_path: Path) -> int:
         return -1  # unknown
 
 
+def _count_pdf_text_lines(pdf_path: Path) -> int:
+    """Count non-empty text lines via pdftotext (poppler-utils)."""
+    try:
+        proc = subprocess.run(
+            ["pdftotext", str(pdf_path), "-"],
+            capture_output=True, text=True, check=False, timeout=15,
+        )
+        if proc.returncode != 0:
+            return -1
+        return sum(1 for line in proc.stdout.splitlines() if line.strip())
+    except Exception:
+        return -1
+
+
 def _load_svg(filename: str, size: int = 92) -> Gtk.Image:
     """Load an SVG illustration rendered to a fixed pixel size."""
     path = os.path.join(_ILLUSTRATIONS_DIR, filename)
@@ -96,6 +110,7 @@ class _ExportWindow(Adw.Window):
         self.set_modal(True)
 
         image_count = _count_pdf_images(pdf_path)
+        text_lines = _count_pdf_text_lines(pdf_path)
 
         # --- layout ---
         toolbar_view = Adw.ToolbarView()
@@ -165,6 +180,21 @@ class _ExportWindow(Adw.Window):
 
         content.append(format_group)
 
+        # --- PDF analysis info ---
+        info_parts: list[str] = []
+        if text_lines > 0:
+            info_parts.append(_("%d lines of text") % text_lines)
+        elif text_lines == 0:
+            info_parts.append(_("No text found"))
+        if image_count > 0:
+            info_parts.append(_("%d image(s)") % image_count)
+
+        if info_parts:
+            info_group = Adw.PreferencesGroup()
+            info_group.set_title(_("PDF content analysis"))
+            info_group.set_description(", ".join(info_parts))
+            content.append(info_group)
+
         # --- OCR notice (only if PDF has images) ---
         if image_count != 0:
             ocr_group = Adw.PreferencesGroup()
@@ -204,8 +234,49 @@ class _ExportWindow(Adw.Window):
         self.set_content(toolbar_view)
 
     def _do_fmt(self, fmt: str) -> None:
-        self._result[0] = _do_export(self._pdf_path, fmt)
-        self.close()
+        ext = ".odt" if fmt == "odf" else ".txt"
+        out_path = self._pdf_path.with_suffix(ext)
+        rc = _do_export(self._pdf_path, fmt)
+        if rc == 0 and out_path.exists():
+            self._show_success(out_path)
+        else:
+            self._show_error()
+
+    def _show_success(self, out_path: Path) -> None:
+        """Show completion dialog with file path and Open button."""
+        dlg = Adw.AlertDialog()
+        dlg.set_heading(_("Export completed"))
+        dlg.set_body(
+            _("File saved to:\n%s") % str(out_path)
+        )
+        dlg.add_response("close", _("Close"))
+        dlg.add_response("open", _("Open file"))
+        dlg.set_response_appearance("open", Adw.ResponseAppearance.SUGGESTED)
+        dlg.set_default_response("open")
+        dlg.set_close_response("close")
+
+        def _on_response(_dlg: Adw.AlertDialog, response: str) -> None:
+            if response == "open":
+                _open_file(out_path)
+            self._result[0] = 0
+            self.close()
+
+        dlg.connect("response", _on_response)
+        dlg.present(self)
+
+    def _show_error(self) -> None:
+        """Show error dialog."""
+        dlg = Adw.AlertDialog()
+        dlg.set_heading(_("Export failed"))
+        dlg.set_body(_("An error occurred during export. Please try again."))
+        dlg.add_response("close", _("Close"))
+        dlg.set_close_response("close")
+
+        def _on_response(_dlg: Adw.AlertDialog, _response: str) -> None:
+            self._result[0] = 1
+
+        dlg.connect("response", _on_response)
+        dlg.present(self)
 
     def _on_ocr(self, _btn: Gtk.Button) -> None:
         _open_ocr(self._pdf_path)
@@ -227,3 +298,8 @@ def _do_export(pdf_path: Path, fmt: str) -> int:
 def _open_ocr(pdf_path: Path) -> None:
     """Open the main bigocrpdf GUI with the file in the queue."""
     subprocess.Popen(["bigocrpdf", str(pdf_path)])
+
+
+def _open_file(path: Path) -> None:
+    """Open a file with the default system application via xdg-open."""
+    subprocess.Popen(["xdg-open", str(path)])

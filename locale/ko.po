@@ -3261,3 +3261,95 @@ msgstr "주요"
 #: src/bigocrpdf/window_ui_setup.py:223
 msgid "Results"
 msgstr "결과"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export to ODT or TXT"
+msgstr "ODT 또는 TXT로 내보내기"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export format"
+msgstr "내보내기 형식"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Choose the output format for the extracted text."
+msgstr "추출된 텍스트의 출력 형식을 선택하세요."
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "ODF Document (.odt)"
+msgstr "ODF 문서 (.odt)"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Preserves text formatting, paragraphs and layout. Editable in LibreOffice, Google Docs and Microsoft Word."
+msgstr "텍스트 서식, 단락 및 레이아웃을 유지합니다. LibreOffice, Google Docs, Microsoft Word에서 편집할 수 있습니다."
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export ODF"
+msgstr "ODF 내보내기"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Plain Text (.txt)"
+msgstr "일반 텍스트 (.txt)"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Raw text without any formatting. Lightweight and universal — works everywhere."
+msgstr "서식 없는 원시 텍스트. 가볍고 범용적 — 어디서나 사용 가능합니다."
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export TXT"
+msgstr "TXT 내보내기"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "This PDF contains %d image(s)"
+msgstr "이 PDF에는 %d개의 이미지가 있습니다"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "PDF content analysis"
+msgstr "PDF 콘텐츠 분석"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Apply OCR first"
+msgstr "먼저 OCR 적용"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "If the images contain text (scanned pages or photos), applying OCR first will produce much better export results."
+msgstr "이미지에 텍스트가 포함된 경우(스캔 페이지 또는 사진), 먼저 OCR을 적용하면 훨씬 더 나은 내보내기 결과를 얻을 수 있습니다."
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Open OCR"
+msgstr "OCR 열기"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export as ODF document"
+msgstr "ODF 문서로 내보내기"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export as plain text"
+msgstr "일반 텍스트로 내보내기"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Open OCR application to recognize text in images"
+msgstr "이미지의 텍스트를 인식하기 위해 OCR 애플리케이션 열기"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "%d lines of text"
+msgstr "텍스트 %d줄"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "No text found"
+msgstr "텍스트를 찾을 수 없음"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "%d image(s)"
+msgstr "이미지 %d개"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export completed"
+msgstr "내보내기 완료"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "File saved to:\n%s"
+msgstr "파일 저장 위치:\n%s"
+
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "An error occurred during export. Please try again."
+msgstr "내보내기 중 오류가 발생했습니다. 다시 시도해 주세요."
