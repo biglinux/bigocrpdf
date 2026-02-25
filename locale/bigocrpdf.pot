@@ -71,8 +71,11 @@ msgid   "OpenDocument Text (*.odt)"
 msgstr  ""
 
 #
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+#
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 187
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 306
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 270
 msgid   "Export failed"
 msgstr  ""
 
@@ -718,8 +721,12 @@ msgid   "Save TXT"
 msgstr  ""
 
 #
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+#
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 261
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 263
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 252
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 272
 msgid   "Close"
 msgstr  ""
 
@@ -1337,7 +1344,10 @@ msgid   "Remove this file from the list"
 msgstr  ""
 
 #
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 477
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 253
 msgid   "Open file"
 msgstr  ""
 
@@ -1502,95 +1512,130 @@ msgid   "All files removed from queue"
 msgstr  ""
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 93
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 107
 msgid   "Export to ODT or TXT"
 msgstr  ""
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 117
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 132
 msgid   "Export format"
 msgstr  ""
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 119
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 134
 msgid   "Choose the output format for the extracted text."
 msgstr  ""
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 124
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 139
 msgid   "ODF Document (.odt)"
 msgstr  ""
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 127
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 142
 msgid   "Preserves text formatting, paragraphs and layout. Editable in "
         "LibreOffice, Google Docs and Microsoft Word."
 msgstr  ""
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 132
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 135
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 147
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 150
 msgid   "Export ODF"
 msgstr  ""
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 138
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 153
 msgid   "Export as ODF document"
 msgstr  ""
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 146
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 161
 msgid   "Plain Text (.txt)"
 msgstr  ""
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 149
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 164
 msgid   "Raw text without any formatting. Lightweight and universal — works "
         "everywhere."
 msgstr  ""
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 154
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 157
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 169
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 172
 msgid   "Export TXT"
 msgstr  ""
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 160
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 175
 msgid   "Export as plain text"
 msgstr  ""
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 173
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 186
+#, python-format
+msgid   "%d lines of text"
+msgstr  ""
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 188
+msgid   "No text found"
+msgstr  ""
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 190
+#, python-format
+msgid   "%d image(s)"
+msgstr  ""
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 194
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 206
+msgid   "PDF content analysis"
+msgstr  ""
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 203
 #, python-format
 msgid   "This PDF contains %d image(s)"
 msgstr  ""
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 176
-msgid   "PDF content analysis"
-msgstr  ""
-
-#
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 179
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 209
 msgid   "Apply OCR first"
 msgstr  ""
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 182
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 212
 msgid   "If the images contain text (scanned pages or photos), applying OCR "
         "first will produce much better export results."
 msgstr  ""
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 188
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 191
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 218
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 221
 msgid   "Open OCR"
 msgstr  ""
 
 #
-# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 194
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 224
 msgid   "Open OCR application to recognize text in images"
+msgstr  ""
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 248
+msgid   "Export completed"
+msgstr  ""
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 250
+#, python-format
+msgid   "File saved to:\n"
+        "%s"
+msgstr  ""
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 271
+msgid   "An error occurred during export. Please try again."
 msgstr  ""
 
 #
@@ -3545,90 +3590,3 @@ msgstr  ""
 # File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 223
 msgid   "Results"
 msgstr  ""
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Export format"
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Choose the output format for the extracted text."
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "ODF Document (.odt)"
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Preserves text formatting, paragraphs and layout. Editable in LibreOffice, Google Docs and Microsoft Word."
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Export ODF"
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Plain Text (.txt)"
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Raw text without any formatting. Lightweight and universal — works everywhere."
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Export TXT"
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "This PDF contains %d image(s)"
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "PDF content analysis"
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Apply OCR first"
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "If the images contain text (scanned pages or photos), applying OCR first will produce much better export results."
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Open OCR"
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Export as ODF document"
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Export as plain text"
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Open OCR application to recognize text in images"
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "%d lines of text"
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "No text found"
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "%d image(s)"
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Export completed"
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "File saved to:\n%s"
-msgstr ""
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "An error occurred during export. Please try again."
-msgstr ""
