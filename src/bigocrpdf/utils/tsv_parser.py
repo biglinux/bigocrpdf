@@ -10,8 +10,6 @@ import re
 import subprocess
 from dataclasses import dataclass, field
 
-from bigocrpdf.utils.logger import logger  # noqa: I001
-
 # ── Data Model ──
 
 

@@ -20,8 +20,8 @@ from bigocrpdf.ui.pdf_editor.editor_tools_mixin import EditorToolsMixin
 from bigocrpdf.ui.pdf_editor.page_grid import PageGrid
 from bigocrpdf.ui.pdf_editor.page_model import PageState, PDFDocument
 from bigocrpdf.ui.pdf_editor.thumbnail_renderer import get_thumbnail_renderer
-from bigocrpdf.utils.config_manager import get_config_manager
 from bigocrpdf.utils.a11y import set_a11y_label
+from bigocrpdf.utils.config_manager import get_config_manager
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.utils.tooltip_helper import get_tooltip_helper

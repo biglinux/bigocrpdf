@@ -297,7 +297,7 @@ class PageGrid(Gtk.ScrolledWindow):
 
         # Rebuild internal list and remap selection indices
         old_to_new = {}
-        for new_idx, (_, old_idx, _) in enumerate(indexed):
+        for new_idx, (_key, old_idx, _thumb) in enumerate(indexed):
             old_to_new[old_idx] = new_idx
 
         new_selected = set()

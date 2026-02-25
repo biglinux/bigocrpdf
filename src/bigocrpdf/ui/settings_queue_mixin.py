@@ -823,7 +823,6 @@ class SettingsQueueMixin:
 
     def _extract_image(self, file_path: str, img_info: dict) -> None:
         """Extract a single image from the PDF via file save dialog."""
-        import glob
 
         enc = img_info["enc"]
         ext_map = {"jpeg": "jpg", "jpx": "jp2", "ccitt": "tif", "jbig2": "jbig2"}

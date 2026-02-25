@@ -9,9 +9,9 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, Gdk, Gio, GLib, Gtk
-
 import tempfile
+
+from gi.repository import Adw, Gdk, Gio, GLib, Gtk
 
 from bigocrpdf.config import IMAGE_WINDOW_STATE_KEY
 from bigocrpdf.services.processor import OcrProcessor

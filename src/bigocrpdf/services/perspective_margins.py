@@ -463,7 +463,7 @@ def gentle_margin_perspective_correction(
         image,
         M,
         (w, h),
-        flags=cv2.INTER_LINEAR,
+        flags=cv2.INTER_LANCZOS4,
         borderMode=cv2.BORDER_REPLICATE,
     )
 

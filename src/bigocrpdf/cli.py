@@ -54,8 +54,12 @@ import logging
 import sys
 import time
 from pathlib import Path  # noqa: I001
+from typing import TYPE_CHECKING
 
 from bigocrpdf.utils.i18n import _
+
+if TYPE_CHECKING:
+    from bigocrpdf.services.rapidocr_service.config import OCRConfig
 
 # ---------------------------------------------------------------------------
 # Environment setup

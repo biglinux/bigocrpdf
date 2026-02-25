@@ -9,7 +9,7 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, Gdk, GdkPixbuf, Gtk
+from gi.repository import Adw, GdkPixbuf, Gtk
 
 from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.i18n import _

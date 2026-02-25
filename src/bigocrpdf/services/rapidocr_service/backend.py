@@ -416,10 +416,8 @@ class ProfessionalPDFOCR(
         right_x = max(max(p[0] for p in r.box) for r in line)
         top = min(min(p[1] for p in r.box) for r in line)
         bottom = max(max(p[1] for p in r.box) for r in line)
-        line_center = (left_x + right_x) / 2
         line_width = right_x - left_x
 
-        page_center = metrics["page_center"]
         page_width = metrics["page_width"]
         body_left = metrics["body_left_margin"]
         avg_cw = metrics["avg_char_width"]

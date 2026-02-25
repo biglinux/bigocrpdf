@@ -23,6 +23,8 @@ from bigocrpdf.services.rapidocr_service.pdf_extractor import (
     get_pages_with_native_text,
     load_image_with_exif_rotation,
 )
+from bigocrpdf.services.rapidocr_service.pipeline_chunked_ocr import ChunkedOCRMixin
+from bigocrpdf.services.rapidocr_service.pipeline_mixed_content import MixedContentMixin
 from bigocrpdf.services.rapidocr_service.rotation import (
     PageRotation,
     apply_final_rotation_to_pdf,
@@ -31,8 +33,6 @@ from bigocrpdf.services.rapidocr_service.rotation import (
 from bigocrpdf.services.rapidocr_service.rotation import (
     apply_editor_modifications as apply_editor_mods_to_rotations,
 )
-from bigocrpdf.services.rapidocr_service.pipeline_chunked_ocr import ChunkedOCRMixin
-from bigocrpdf.services.rapidocr_service.pipeline_mixed_content import MixedContentMixin
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
@@ -760,8 +760,10 @@ class BackendPipelineMixin(ChunkedOCRMixin, MixedContentMixin):
         Returns:
             List of OCR text strings found in the image.
         """
-        # Skip very small images (likely icons or decorations)
-        if img_pos.width < MIN_IMAGE_BOX_SIZE_PX or img_pos.height < MIN_IMAGE_BOX_SIZE_PX:
+        # Skip very small images (likely icons or decorations).
+        # Use area check: both dimensions must be small to skip.
+        # Wide/thin images (terminal screenshots, banners) are kept.
+        if img_pos.width < MIN_IMAGE_BOX_SIZE_PX and img_pos.height < MIN_IMAGE_BOX_SIZE_PX:
             logger.debug(f"Skipping small image: {img_pos.width}x{img_pos.height}")
             return []
 

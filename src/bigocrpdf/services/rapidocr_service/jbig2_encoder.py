@@ -221,7 +221,7 @@ def _extract_ccitt_from_tiff(tiff_bytes: bytes) -> bytes | None:
         return None
 
     parts = []
-    for offset, length in zip(strip_offsets, strip_byte_counts):
+    for offset, length in zip(strip_offsets, strip_byte_counts, strict=False):
         end = offset + length
         if end > len(tiff_bytes):
             return None

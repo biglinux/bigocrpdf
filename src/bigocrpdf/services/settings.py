@@ -59,7 +59,7 @@ _SUB_OBJECTS = ("file_queue", "output", "preprocessing")
 def _build_delegation_map(*sub_instances: object) -> dict[str, str]:
     """Build a static {attr_name: sub_object_field} map once at init time."""
     mapping: dict[str, str] = {}
-    for sub, name in zip(sub_instances, _SUB_OBJECTS):
+    for sub, name in zip(sub_instances, _SUB_OBJECTS, strict=True):
         for attr in vars(sub):
             if not attr.startswith("_"):
                 mapping[attr] = name
@@ -115,7 +115,7 @@ class OcrSettings:
         try:
             dmap = object.__getattribute__(self, "_delegation_map")
         except AttributeError:
-            raise AttributeError(f"'{type(self).__name__}' has no attribute '{name}'")
+            raise AttributeError(f"'{type(self).__name__}' has no attribute '{name}'") from None
         sub_name = dmap.get(name)
         if sub_name is not None:
             sub = object.__getattribute__(self, sub_name)

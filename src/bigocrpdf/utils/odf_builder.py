@@ -8,9 +8,14 @@ from __future__ import annotations
 
 import io
 import re
+import threading
+from typing import TYPE_CHECKING
 
 from bigocrpdf.utils.logger import logger  # noqa: I001
 from bigocrpdf.utils.tsv_parser import DocElement
+
+if TYPE_CHECKING:
+    from PIL import Image
 
 # Max pixel width for images embedded in ODF (~180 DPI on A4).
 _MAX_IMAGE_WIDTH = 1500
@@ -18,7 +23,7 @@ _MAX_IMAGE_WIDTH = 1500
 _JPEG_THRESHOLD = 256 * 256
 
 
-def _pil_to_jpeg(pil_img: "Image.Image", w: int, h: int) -> tuple[bytes, str, int, int]:
+def _pil_to_jpeg(pil_img: Image.Image, w: int, h: int) -> tuple[bytes, str, int, int]:
     """Convert a PIL image to JPEG bytes, downscaling if oversized.
 
     Returns (jpeg_bytes, "image/jpeg", out_w, out_h).
@@ -47,7 +52,7 @@ class ExportCancelled(Exception):
 
 def _extract_pdf_images(
     pdf_path: str,
-    cancel_event: "threading.Event | None" = None,
+    cancel_event: threading.Event | None = None,
 ) -> dict[int, list[tuple[bytes, str, int, int, float]]]:
     """Extract actual images from a PDF, mapped by page number.
 
@@ -72,7 +77,7 @@ def _extract_pdf_images(
 
     MIN_DIM = 50  # Skip icons/masks smaller than 50px
 
-    def _image_positions(page: "pikepdf.Page") -> dict[str, float]:
+    def _image_positions(page: pikepdf.Page) -> dict[str, float]:
         """Return {XObject_name: y_top} from the content stream."""
         positions: dict[str, float] = {}
         try:
@@ -102,7 +107,7 @@ def _extract_pdf_images(
                 last_cm = None
         return positions
 
-    def _used_xobject_names(page: "pikepdf.Page") -> set[str]:
+    def _used_xobject_names(page: pikepdf.Page) -> set[str]:
         """Return XObject names actually invoked in the page content stream."""
         names: set[str] = set()
         try:
@@ -201,7 +206,7 @@ def create_odf(
     pages_elements: list[list[DocElement]],
     output_path: str,
     page_images: dict[int, list[tuple[bytes, str, int, int]]] | None = None,
-    cancel_event: "threading.Event | None" = None,
+    cancel_event: threading.Event | None = None,
 ):
     """Generate a structured ODF document."""
     from odf.opendocument import OpenDocumentText
@@ -435,7 +440,7 @@ def create_odf(
                 img_p.addElement(frame)
                 doc.text.addElement(img_p)
             except Exception as e:
-                logger.debug("Could not embed image for page %d: %s", page_num, e)
+                logger.debug("Could not embed image for page %d: %s", page_num, e)  # noqa: B023
 
         def _render_element(elem: DocElement) -> None:
             if elem.kind == "table":

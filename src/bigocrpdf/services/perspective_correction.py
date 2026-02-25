@@ -126,6 +126,21 @@ class PerspectiveCorrector:
 
             # Require at least 100% sharpness retention (no degradation allowed)
             is_valid = sharpness_corr >= sharpness_orig
+
+            # Also reject if overall image detail decreased significantly.
+            # Laplacian variance measures edge sharpness; a correction that
+            # softens the image (e.g., false-positive warp on digital content)
+            # will reduce this metric.
+            lap_orig = float(cv2.Laplacian(gray_orig, cv2.CV_64F).var())
+            lap_corr = float(cv2.Laplacian(gray_corr, cv2.CV_64F).var())
+            if lap_orig > 0 and lap_corr < lap_orig * 0.85:
+                logger.debug(
+                    f"{method} rejected: detail loss "
+                    f"(laplacian {lap_orig:.0f} → {lap_corr:.0f}, "
+                    f"{(lap_corr - lap_orig) / lap_orig * 100:+.1f}%)"
+                )
+                is_valid = False
+
             logger.debug(
                 f"{method} validation: original_sharpness={sharpness_orig:.1f}, "
                 f"corrected_sharpness={sharpness_corr:.1f}, valid={is_valid}"
@@ -209,7 +224,9 @@ class PerspectiveCorrector:
         # Priority 3: Gentle margin-based
         gentle_result = gentle_margin_perspective_correction(image)
         if gentle_result is not None:
-            return gentle_result
+            if self._validate_correction(image, gentle_result, "gentle_margin"):
+                return gentle_result
+            logger.info("Gentle margin correction rejected (did not improve alignment).")
 
         if not self.skip_skew:
             # Priority 4: Regional skew (mesh dewarping)

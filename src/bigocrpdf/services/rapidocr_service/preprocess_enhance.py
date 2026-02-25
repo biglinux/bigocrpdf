@@ -68,6 +68,10 @@ _BORDER_MAX_AREA_RATIO = 0.5
 _BORDER_DILATE_KERN = 5
 _BORDER_DILATE_ITERS = 2
 
+# Background already white: skip scanner effect for born-digital content.
+# Physical scans/photos always have L_p90 < 230 due to paper/lighting.
+_CLEAN_BACKGROUND_L_P90 = 248
+
 
 def auto_normalize_illumination(img: np.ndarray, force: bool = False) -> np.ndarray:
     """Detect and correct non-uniform illumination in document images.
@@ -330,10 +334,20 @@ def apply_independent_effects(img: np.ndarray, config: "OCRConfig") -> np.ndarra
 
     # Scanner effect - creates professional scanner document appearance
     if config.enable_scanner_effect:
-        logger.debug(f"Applying scanner effect (strength={config.scanner_effect_strength})")
-        result = apply_scanner_effect(result, config.scanner_effect_strength)
-        # Sharpen text after scanner normalization to restore edge crispness
-        result = sharpen_text(result)
+        # Skip on already-clean images (born-digital PDFs): background is
+        # already pure white, so normalization+stretching can only distort
+        # colors (especially on screenshots and colored content).
+        lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+        l_p90 = float(np.percentile(lab[:, :, 0], 90))
+        if l_p90 >= _CLEAN_BACKGROUND_L_P90:
+            logger.debug(
+                f"Skipping scanner effect: background already clean (L_p90={l_p90:.0f})"
+            )
+        else:
+            logger.debug(f"Applying scanner effect (strength={config.scanner_effect_strength})")
+            result = apply_scanner_effect(result, config.scanner_effect_strength)
+            # Sharpen text after scanner normalization to restore edge crispness
+            result = sharpen_text(result)
 
     return result
 

@@ -12,7 +12,6 @@ gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Gdk, Gio, GLib, Gtk
 
-from bigocrpdf.ui.pdf_editor.page_grid import PageGrid
 from bigocrpdf.ui.pdf_editor.page_model import PageState
 from bigocrpdf.ui.pdf_editor.thumbnail_renderer import get_thumbnail_renderer
 from bigocrpdf.utils.i18n import _

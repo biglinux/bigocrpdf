@@ -8,6 +8,7 @@ and plain-text formatting to:
 """
 
 import re
+import threading
 
 from bigocrpdf.utils.column_detector import (
     detect_page_columns,
@@ -15,6 +16,7 @@ from bigocrpdf.utils.column_detector import (
     is_table_line,
     split_words_by_columns,
 )
+from bigocrpdf.utils.logger import logger  # noqa: I001
 from bigocrpdf.utils.odf_builder import _extract_pdf_images, create_odf
 from bigocrpdf.utils.tsv_parser import (
     MIN_TABLE_ROWS,
@@ -28,9 +30,6 @@ from bigocrpdf.utils.tsv_parser import (
     is_kv_line,
     parse_tsv_pages,
 )
-
-from bigocrpdf.utils.logger import logger  # noqa: I001
-
 
 # ── Page Processing ──
 
@@ -74,7 +73,7 @@ def _strip_pre_headers(
 ) -> None:
     """Remove header lines absorbed into para_buf before a table."""
     header_indices = set(range(line_idx - n_pre_headers, line_idx))
-    new_buf = [t for t, li in zip(para_buf, para_line_idx) if li not in header_indices]
+    new_buf = [t for t, li in zip(para_buf, para_line_idx, strict=False) if li not in header_indices]
     new_idx = [li for li in para_line_idx if li not in header_indices]
     para_buf[:] = new_buf
     para_line_idx[:] = new_idx

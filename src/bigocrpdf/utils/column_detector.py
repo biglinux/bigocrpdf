@@ -23,7 +23,6 @@ from bigocrpdf.utils.tsv_parser import (
     Word,
 )
 
-
 # ── Column Detection ──
 
 

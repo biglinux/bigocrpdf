@@ -9,7 +9,7 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, Gdk, GdkPixbuf, Gtk
+from gi.repository import Adw, GdkPixbuf, Gtk
 
 from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.i18n import _
@@ -168,9 +168,9 @@ def show_advanced_settings_dialog(
                     if w.get_active() != switch.get_active():
                         w.set_active(switch.get_active())
 
-                def _on_row(row, _pspec):
-                    if tgl.get_active() != row.get_active():
-                        tgl.set_active(row.get_active())
+                def _on_row(row, _pspec):  # noqa: B023
+                    if tgl.get_active() != row.get_active():  # noqa: B023
+                        tgl.set_active(row.get_active())  # noqa: B023
 
                 tgl.connect("notify::active", _on_toggle)
                 w.connect("notify::active", _on_row)
@@ -193,9 +193,9 @@ def show_advanced_settings_dialog(
                     if w.get_selected() != drop.get_selected():
                         w.set_selected(drop.get_selected())
 
-                def _on_row(row, _pspec):
-                    if dd.get_selected() != row.get_selected():
-                        dd.set_selected(row.get_selected())
+                def _on_row(row, _pspec):  # noqa: B023
+                    if dd.get_selected() != row.get_selected():  # noqa: B023
+                        dd.set_selected(row.get_selected())  # noqa: B023
 
                 dd.connect("notify::selected", _on_dropdown)
                 w.connect("notify::selected", _on_row)

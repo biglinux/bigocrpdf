@@ -17,7 +17,7 @@ BYTES_PER_MB: Final[int] = 1024 * 1024
 # PDF Font Sizing
 # ============================================================================
 
-FONT_SIZE_SCALE_FACTOR: Final[float] = 0.85
+FONT_SIZE_SCALE_FACTOR: Final[float] = 0.90
 MIN_FONT_SIZE: Final[float] = 4.0
 MAX_FONT_SIZE: Final[float] = 72.0
 

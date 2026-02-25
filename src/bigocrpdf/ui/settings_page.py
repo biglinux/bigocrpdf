@@ -14,7 +14,6 @@ from gi.repository import Gtk
 
 from bigocrpdf.ui.settings_queue_mixin import SettingsQueueMixin
 from bigocrpdf.ui.settings_sidebar_mixin import SettingsSidebarMixin
-from bigocrpdf.utils.i18n import _
 
 if TYPE_CHECKING:
     from window import BigOcrPdfWindow
