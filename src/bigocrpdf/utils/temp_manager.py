@@ -11,6 +11,7 @@ import os
 import shutil
 import signal
 import tempfile
+import threading
 from pathlib import Path
 
 from bigocrpdf.utils.logger import logger
@@ -39,18 +40,19 @@ def _register_cleanup() -> None:
 
     atexit.register(cleanup_all)
 
-    # Also handle SIGTERM (e.g. system shutdown, kill <pid>)
-    prev_handler = signal.getsignal(signal.SIGTERM)
+    # SIGTERM handler can only be set from the main thread
+    if threading.current_thread() is threading.main_thread():
+        prev_handler = signal.getsignal(signal.SIGTERM)
 
-    def _on_sigterm(signum, frame):
-        cleanup_all()
-        # Chain to previous handler
-        if callable(prev_handler):
-            prev_handler(signum, frame)
-        else:
-            raise SystemExit(1)
+        def _on_sigterm(signum, frame):
+            cleanup_all()
+            # Chain to previous handler
+            if callable(prev_handler):
+                prev_handler(signum, frame)
+            else:
+                raise SystemExit(1)
 
-    signal.signal(signal.SIGTERM, _on_sigterm)
+        signal.signal(signal.SIGTERM, _on_sigterm)
 
 
 # ---------------------------------------------------------------------------

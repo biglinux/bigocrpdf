@@ -262,13 +262,19 @@ class ScreenCaptureService:
         Returns:
             True (flameshot was executed, regardless of success/cancel).
         """
-        result = subprocess.run(cmd, capture_output=True, timeout=60)
-        if result.returncode == 0 and result.stdout:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        try:
+            stdout, stderr = proc.communicate(timeout=60)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.communicate()
+            return True
+        if proc.returncode == 0 and stdout:
             with open(temp_path, "wb") as f:
-                f.write(result.stdout)
+                f.write(stdout)
         else:
             logger.debug(
-                f"Flameshot exited with code {result.returncode}: {result.stderr.decode().strip()}"
+                f"Flameshot exited with code {proc.returncode}: {stderr.decode().strip()}"
             )
         return True
 
@@ -285,11 +291,17 @@ class ScreenCaptureService:
         if subprocess.call(["which", tool_name], stdout=subprocess.DEVNULL) != 0:
             return None
 
-        result = subprocess.run(cmd, capture_output=True, timeout=60)
-        if result.returncode != 0:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        try:
+            _stdout, stderr = proc.communicate(timeout=60)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.communicate()
+            return True
+        if proc.returncode != 0:
             logger.debug(
-                f"{tool_name} exited with code {result.returncode}: "
-                f"{result.stderr.decode().strip()}"
+                f"{tool_name} exited with code {proc.returncode}: "
+                f"{stderr.decode().strip()}"
             )
         return True
 
@@ -341,15 +353,25 @@ class ScreenCaptureService:
                 cmd = self._build_ocr_command(temp_img_path, config)
                 logger.info(f"Running image OCR: language={language}")
 
-                proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+                proc = subprocess.Popen(
+                    cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+                )
+                try:
+                    stdout, stderr = proc.communicate(timeout=120)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                    proc.communicate()
+                    logger.error("OCR processing timed out")
+                    self._invoke_callback(None, _("OCR processing timed out."))
+                    return None
 
                 if proc.returncode != 0:
-                    logger.error(f"OCR subprocess failed: {proc.stderr}")
+                    logger.error(f"OCR subprocess failed: {stderr}")
                     self._invoke_callback(None, _("OCR processing failed."))
                     return None
 
                 # Parse OCR results
-                results = self._parse_ocr_results(proc.stdout)
+                results = self._parse_ocr_results(stdout)
                 if not results:
                     return _("No text found in the image")
 
@@ -365,10 +387,6 @@ class ScreenCaptureService:
             self._invoke_callback(
                 None, _("OCR engine not available. Please check your installation.")
             )
-            return None
-        except subprocess.TimeoutExpired:
-            logger.error("OCR processing timed out")
-            self._invoke_callback(None, _("OCR processing timed out."))
             return None
         except (OSError, subprocess.SubprocessError, ValueError) as e:
             logger.error(f"OCR processing error: {e}")
