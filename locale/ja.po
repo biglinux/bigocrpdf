@@ -14,819 +14,568 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: attranslate\n"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1898
+#: src/bigocrpdf/ui/pdf_options_callbacks_mixin.py:254
+msgid "Select Folder for Text Files"
+msgstr "テキストファイルのフォルダーを選択"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1852
+#: src/bigocrpdf/ui/pdf_options_callbacks_mixin.py:257
+#: src/bigocrpdf/ui/pdf_options_callbacks_mixin.py:292
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:306
+msgid "Not set"
+msgstr "未設定"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_callbacks_mixin.py, line: 317
+#: src/bigocrpdf/ui/pdf_options_callbacks_mixin.py:320
+msgid "PDF output settings saved"
+msgstr "PDF出力設定が保存されました"
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 102
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:31
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:146
+msgid "Export to OpenDocument"
+msgstr "OpenDocument形式でエクスポート"
 # 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
-#: src/bigocrpdf/application.py:49 src/bigocrpdf/config.py:134
-#: src/bigocrpdf/image_application.py:45
-msgid "Print version information and exit"
-msgstr "バージョン情報を表示して終了する"
-# File: bigocrpdf/src/bigocrpdf/image_application.py, line: 115
-#: src/bigocrpdf/image_application.py:115
-msgid "Extract text from images using OCR"
-msgstr "画像からOCRを使用してテキストを抽出します。"
-# File: bigocrpdf/src/bigocrpdf/utils/temp_manager.py, line: 85
-#: src/bigocrpdf/utils/temp_manager.py:85
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 53
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:53
+msgid "Include images"
+msgstr "画像を含める"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 54
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:54
+msgid "Embed page images alongside text"
+msgstr "テキストと一緒にページ画像を埋め込む"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 65
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:65
+msgid "Open after export"
+msgstr "エクスポート後に開く"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 66
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:66
+msgid "Open file in the default application"
+msgstr "デフォルトアプリケーションでファイルを開く"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 81
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 88
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:81
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:88
+msgid "Export"
+msgstr "エクスポート"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 157
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:157
+msgid "OpenDocument Text (*.odt)"
+msgstr "OpenDocumentテキスト (*.odt)"
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 340
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 350
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:187
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:306
+msgid "Export failed"
+msgstr "エクスポートに失敗しました"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 206
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:206
+msgid "Exporting…"
+msgstr "エクスポート中…"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 230
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:230
+msgid "Exporting to OpenDocument…"
+msgstr "OpenDocumentにエクスポート中…"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 398
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1641
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1752
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:234
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:239
+#: src/bigocrpdf/ui/file_save_mixin.py:81
+#: src/bigocrpdf/ui/navigation_manager.py:101
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_mixin.py:116
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_mixin.py:211
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_mixin.py:243
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:93
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:95
+#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:238
+#: src/bigocrpdf/ui/terminal_page.py:228 src/bigocrpdf/window_actions.py:315
+msgid "Cancel"
+msgstr "キャンセル"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 287
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:287
+msgid "Export cancelled"
+msgstr "エクスポートがキャンセルされました"
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 338
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:300
 #, python-brace-format
-msgid "Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
-msgstr "ディスク容量が不足しています。{needed:.0f} MB必要ですが、{free:.0f} MBしか利用できません。"
-# File: bigocrpdf/src/bigocrpdf/utils/temp_manager.py, line: 98
-#: src/bigocrpdf/utils/temp_manager.py:98
-#, python-brace-format
-msgid "No write permission for folder: {path}"
-msgstr "フォルダへの書き込み権限がありません：{path}"
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 85
-#: src/bigocrpdf/services/processor.py:88
-#, python-brace-format
-msgid "Started OCR processing for {0} files using RapidOCR"
-msgstr "RapidOCRを使用して{0}ファイルのOCR処理を開始しました。"
+msgid "Exported to {}"
+msgstr "{}にエクスポートされました。"
 # File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
-# line: 82
-#: src/bigocrpdf/services/processor.py:95
-#, python-brace-format
-msgid "Error starting OCR processing: {0}"
-msgstr "OCR処理の開始中にエラーが発生しました: {0}"
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
-# line: 92
-#: src/bigocrpdf/services/processor.py:101
-msgid "No files to process"
-msgstr "処理するファイルはありません"
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 135
-#: src/bigocrpdf/services/processor.py:139
-msgid "Processing stopped by user"
-msgstr "ユーザーによって処理が停止されました"
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 158
-#: src/bigocrpdf/services/processor.py:165
-#, python-brace-format
-msgid "Processing cancelled by user during file: {0}"
-msgstr "ユーザーによってファイルの処理がキャンセルされました: {0}"
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 163
-#: src/bigocrpdf/services/processor.py:170
-#, python-brace-format
-msgid "Error processing {0}: {1}"
-msgstr "{0}の処理中にエラーが発生しました: {1}"
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 178
-#: src/bigocrpdf/services/processor.py:185
-#, python-brace-format
-msgid "Processing thread error: {0}"
-msgstr "処理スレッドエラー: {0}"
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
-# line: 136
-#: src/bigocrpdf/services/processor.py:195
-#, python-brace-format
-msgid "Error: File not found or invalid: {0}"
-msgstr "エラー: ファイルが見つからないか無効です: {0}"
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 223
-#: src/bigocrpdf/services/processor.py:231
-#, python-brace-format
-msgid "Processed {0}: {1} pages, {2} words"
-msgstr "処理済み {0}: {1} ページ, {2} 単語"
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
-# line: 172
-#: src/bigocrpdf/services/processor.py:365
-#, python-brace-format
-msgid "Could not determine output directory for {0}"
-msgstr "{0}の出力ディレクトリを特定できませんでした。"
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
-# line: 185
-#: src/bigocrpdf/services/processor.py:375
-#, python-brace-format
-msgid "Error creating output path for {0}: {1}"
-msgstr "{0}の出力パスを作成中にエラーが発生しました: {1}"
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
-# line: 388
-#: src/bigocrpdf/services/processor.py:413
-#, python-brace-format
-msgid "Error getting OCR languages: {0}"
-msgstr "OCR言語の取得エラー: {0}"
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 481
-#: src/bigocrpdf/services/processor.py:489
-#, python-brace-format
-msgid "Cleared editor state for: {0}"
-msgstr "{0}のエディタ状態がクリアされました。"
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
-# line: 508
-#: src/bigocrpdf/services/processor.py:496
-#, python-brace-format
-msgid "Removed processed file from queue: {0}"
-msgstr "キューから処理済みファイルを削除しました: {0}"
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
-# line: 533
-#: src/bigocrpdf/services/processor.py:518
-#, python-brace-format
-msgid "Generated unique filename to avoid overwriting: {0}"
-msgstr "上書きを避けるために生成されたユニークなファイル名: {0}"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 105
-#: src/bigocrpdf/services/settings.py:369
-#, python-brace-format
-msgid "Attempting to add {0} files"
-msgstr "{0} ファイルを追加しようとしています。"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 120
-#: src/bigocrpdf/services/settings.py:384
-#, python-brace-format
-msgid "Successfully added {0} files"
-msgstr "{0} 件のファイルが正常に追加されました。"
-# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 229
-#: src/bigocrpdf/services/settings.py:386
-msgid "No valid files were found to add"
-msgstr "追加する有効なファイルが見つかりませんでした。"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 140
-#: src/bigocrpdf/services/settings.py:404
-msgid "Empty file path provided"
-msgstr "空のファイルパスが提供されました"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 145
-#: src/bigocrpdf/services/settings.py:409
-#, python-brace-format
-msgid "File does not exist: {0}"
-msgstr "ファイルが存在しません: {0}"
-# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 258
-#: src/bigocrpdf/services/settings.py:425
-#, python-brace-format
-msgid "Unsupported file type: {0}"
-msgstr "サポートされていないファイルタイプ: {0}"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 155
-#: src/bigocrpdf/services/settings.py:430
-#, python-brace-format
-msgid "File already in list: {0}"
-msgstr "リストに既にファイルが存在します: {0}"
-# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 267
-#: src/bigocrpdf/services/settings.py:434
-#, python-brace-format
-msgid "Adding valid file: {0}"
-msgstr "有効なファイルを追加中: {0}"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 231
-#: src/bigocrpdf/services/settings.py:461
-msgid "Settings saved successfully"
-msgstr "設定が正常に保存されました"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 234
-#: src/bigocrpdf/services/settings.py:464
-#, python-brace-format
-msgid "Error saving settings: {0}"
-msgstr "設定の保存中にエラーが発生しました: {0}"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 404
-#: src/bigocrpdf/services/settings.py:683
-#, python-brace-format
-msgid "Saved {0} selected files"
-msgstr "{0} 個の選択したファイルが保存されました"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 406
-#: src/bigocrpdf/services/settings.py:685
-#, python-brace-format
-msgid "Error saving selected files: {0}"
-msgstr "選択したファイルの保存中にエラーが発生しました: {0}"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 430
-#: src/bigocrpdf/services/settings.py:706
-#, python-brace-format
-msgid "Error loading selected files: {0}"
-msgstr "選択したファイルの読み込みエラー: {0}"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 594
-#: src/bigocrpdf/services/settings.py:765
-msgid "Processing state reset successfully"
-msgstr "処理状態が正常にリセットされました。"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 612
-#: src/bigocrpdf/services/settings.py:799
-msgid "Temporary files cleanup completed"
-msgstr "一時ファイルのクリーンアップが完了しました"
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 34
-#: src/bigocrpdf/services/rapidocr_service/discovery.py:34
-msgid "Latin (PT, EN, FR, DE, ES...)"
-msgstr "ラテン文字（PT、EN、FR、DE、ES...）"
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 35
-#: src/bigocrpdf/services/rapidocr_service/discovery.py:35
-msgid "English (Optimized)"
-msgstr "英語（最適化）"
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 36
-#: src/bigocrpdf/services/rapidocr_service/discovery.py:36
-msgid "Chinese Simplified"
-msgstr "簡体字中国語"
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 37
-#: src/bigocrpdf/services/rapidocr_service/discovery.py:37
-msgid "Korean"
-msgstr "韓国語"
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 36
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 37
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 38
-#: src/bigocrpdf/services/rapidocr_service/discovery.py:38
-msgid "Arabic (AR, FA, UR...)"
-msgstr "アラビア文字 (AR, FA, UR...)"
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 39
-#: src/bigocrpdf/services/rapidocr_service/discovery.py:39
-msgid "Cyrillic (RU, UK, BG...)"
-msgstr "キリル文字 (RU, UK, BG...)"
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 40
-#: src/bigocrpdf/services/rapidocr_service/discovery.py:40
-msgid "East Slavic (RU, BY, UK)"
-msgstr "東スラブ語（RU、BY、UK）"
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 41
-#: src/bigocrpdf/services/rapidocr_service/discovery.py:41
-msgid "Greek"
-msgstr "ギリシャ語"
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 41
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 42
-#: src/bigocrpdf/services/rapidocr_service/discovery.py:42
-msgid "Devanagari (Hindi, Marathi, Nepali)"
-msgstr "デーヴァナーガリー（ヒンディー語、マラーティー語、ネパール語）"
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 43
-#: src/bigocrpdf/services/rapidocr_service/discovery.py:43
-msgid "Tamil"
-msgstr "タミル語"
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 44
-#: src/bigocrpdf/services/rapidocr_service/discovery.py:44
-msgid "Telugu"
-msgstr "テルグ語"
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 45
-#: src/bigocrpdf/services/rapidocr_service/discovery.py:45
-msgid "Thai"
-msgstr "タイ語"
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 464
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 715
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:351
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:157
-msgid "Done!"
-msgstr "完了！"
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 43
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 44
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 45
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 245
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:371
-msgid "Analyzing PDF..."
-msgstr "PDFを分析中..."
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 417
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:432
-msgid "Merging text layer..."
-msgstr "テキストレイヤーをマージしています..."
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 564
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:449
-msgid "Processing text page images..."
-msgstr "テキストページの画像を処理中..."
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 472
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:472
-msgid "Optimizing image compression..."
-msgstr "画像圧縮を最適化中..."
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 483
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:483
-#, python-brace-format
-msgid "{0} pages re-encoded with JBIG2"
-msgstr "{0}ページをJBIG2で再エンコード済み"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 357
-# File:
-# bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_text_layer.py,
-# line: 422
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:666
-#: src/bigocrpdf/services/rapidocr_service/backend_text_layer.py:426
-#: src/bigocrpdf/services/rapidocr_service/pipeline_chunked_ocr.py:141
-#, python-brace-format
-msgid "Processing page {0}/{1}..."
-msgstr "ページ {0}/{1} を処理中..."
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 746
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:898
-msgid "Converting to PDF/A..."
-msgstr "PDF/Aに変換中..."
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 698
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 758
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:910
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:251
-msgid "Splitting PDF by size limit..."
-msgstr "サイズ制限によるPDFの分割..."
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
 # line: 610
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:95
-msgid "Analyzing PDF structure..."
-msgstr "PDF構造を分析中..."
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 633
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:128
-msgid "Extracting images..."
-msgstr "画像を抽出しています..."
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 687
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:147
-msgid "Saving PDF..."
-msgstr "PDFを保存中..."
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 655
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:207
-#, python-brace-format
-msgid "OCR page {0}..."
-msgstr "OCRページ {0}..."
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 293
-#: src/bigocrpdf/services/rapidocr_service/pipeline_chunked_ocr.py:91
-msgid "Starting OCR..."
-msgstr "OCRを開始しています..."
-# File: bigocrpdf/src/bigocrpdf/services/export_service.py, line: 42
-#: src/bigocrpdf/services/export_service.py:73
-#, python-brace-format
-msgid "Saved extracted text to: {0}"
-msgstr "抽出したテキストを保存しました: {0}"
-# File: bigocrpdf/src/bigocrpdf/services/export_service.py, line: 46
-#: src/bigocrpdf/services/export_service.py:77
-#, python-brace-format
-msgid "Failed to save text file: {0}"
-msgstr "テキストファイルの保存に失敗しました: {0}"
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 118
-#: src/bigocrpdf/services/screen_capture.py:117
-msgid "No screenshot tool available. Please install spectacle, gnome-screenshot, or flameshot."
-msgstr "スクリーンショットツールが利用できません。spectacle、gnome-screenshot、またはflameshotをインストールしてください。"
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 135
-#: src/bigocrpdf/services/screen_capture.py:132
-msgid "Screenshot was cancelled"
-msgstr "スクリーンショットはキャンセルされました。"
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 133
-#: src/bigocrpdf/services/screen_capture.py:139
-#, python-brace-format
-msgid "An unexpected error occurred during capture: {0}"
-msgstr "キャプチャ中に予期しないエラーが発生しました：{0}"
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 277
-#: src/bigocrpdf/services/screen_capture.py:320
-msgid "Could not load image file."
-msgstr "画像ファイルを読み込めませんでした。"
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 305
-#: src/bigocrpdf/services/screen_capture.py:348
-msgid "OCR processing failed."
-msgstr "OCR処理に失敗しました。"
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 311
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 315
-#: src/bigocrpdf/services/screen_capture.py:354
-#: src/bigocrpdf/services/screen_capture.py:358
-msgid "No text found in the image"
-msgstr "画像にテキストが見つかりません。"
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 326
-#: src/bigocrpdf/services/screen_capture.py:366
-msgid "OCR engine not available. Please check your installation."
-msgstr "OCRエンジンが利用できません。インストールを確認してください。"
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 331
-#: src/bigocrpdf/services/screen_capture.py:371
-msgid "OCR processing timed out."
-msgstr "OCR処理がタイムアウトしました。"
-# File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 34
-#: src/bigocrpdf/services/pdf_operations.py:63
-msgid "Could not find the file. Was it moved or deleted?"
-msgstr "ファイルが見つかりません。移動または削除されましたか？"
-# File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 36
-#: src/bigocrpdf/services/pdf_operations.py:65
-msgid "Cannot write to this folder. Choose a different location."
-msgstr "このフォルダに書き込めません。別の場所を選択してください。"
-# File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 38
-#: src/bigocrpdf/services/pdf_operations.py:67
-msgid "This PDF is password-protected. Remove the password first."
-msgstr "このPDFはパスワードで保護されています。まずパスワードを解除してください。"
-# File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 40
-#: src/bigocrpdf/services/pdf_operations.py:69
-#, python-brace-format
-msgid "The PDF file appears to be damaged or invalid: {error}"
-msgstr "PDFファイルが破損しているか無効のようです：{error}"
-# File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 370
-#: src/bigocrpdf/services/pdf_operations.py:409
-msgid "No input files provided."
-msgstr "入力ファイルが指定されていません。"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 163
-#: src/bigocrpdf/cli.py:163
-msgid "Verbose logging (DEBUG)"
-msgstr "詳細ログ（DEBUG）"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 165
-#: src/bigocrpdf/cli.py:165
-msgid "Available commands"
-msgstr "利用可能なコマンド"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 168
-#: src/bigocrpdf/cli.py:168
-msgid "OCR processing for PDF files"
-msgstr "PDFファイルのOCR処理"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 169
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 277
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 309
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 328
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 346
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 357
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 394
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 411
-#: src/bigocrpdf/cli.py:169 src/bigocrpdf/cli.py:277 src/bigocrpdf/cli.py:309
-#: src/bigocrpdf/cli.py:328 src/bigocrpdf/cli.py:346 src/bigocrpdf/cli.py:357
-#: src/bigocrpdf/cli.py:394 src/bigocrpdf/cli.py:411
-msgid "Input PDF file"
-msgstr "入力PDFファイル"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 170
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 305
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 310
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 329
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 347
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 358
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 369
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 395
-#: src/bigocrpdf/cli.py:170 src/bigocrpdf/cli.py:305 src/bigocrpdf/cli.py:310
-#: src/bigocrpdf/cli.py:329 src/bigocrpdf/cli.py:347 src/bigocrpdf/cli.py:358
-#: src/bigocrpdf/cli.py:369 src/bigocrpdf/cli.py:395
-msgid "Output PDF file"
-msgstr "出力PDFファイル"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 175
-#: src/bigocrpdf/cli.py:175
-msgid "Pages to process (e.g. '7', '3-10', '1,3,7'). Default: all."
-msgstr "処理するページ（例：'7', '3-10', '1,3,7'）。デフォルト：すべて。"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 181
-#: src/bigocrpdf/cli.py:181
-msgid "OCR language (latin, ch, japan, korean, etc.). Default: latin."
-msgstr "OCR言語（latin, ch, japan, korean等）。デフォルト：latin。"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 187
-#: src/bigocrpdf/cli.py:187
-msgid "Parallel workers (0 = auto). Default: 0."
-msgstr "並列ワーカー数（0＝自動）。デフォルト：0。"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 189
-#: src/bigocrpdf/cli.py:189
-msgid "DPI for extraction (default: 300)"
-msgstr "抽出用DPI（デフォルト：300）"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 192
-#: src/bigocrpdf/cli.py:192
-msgid "OCR behavior"
-msgstr "OCRの動作"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 197
-#: src/bigocrpdf/cli.py:197
-msgid "Re-OCR pages that already have text (default: skip them)."
-msgstr "既にテキストがあるページを再OCR処理する（デフォルト：スキップ）。"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 203
-#: src/bigocrpdf/cli.py:203
-msgid "Process all pages as image-only (for editor-merged files)."
-msgstr "すべてのページを画像専用として処理する（エディタで結合したファイル用）。"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 209
-#: src/bigocrpdf/cli.py:209
-msgid "Use high-quality server models if available."
-msgstr "利用可能な場合、高品質サーバーモデルを使用する。"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 213
-#: src/bigocrpdf/cli.py:213
-msgid "Geometric corrections"
-msgstr "幾何学的補正"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 214
-#: src/bigocrpdf/cli.py:214
-msgid "Disable curvature correction"
-msgstr "湾曲補正を無効にする"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 215
-#: src/bigocrpdf/cli.py:215
-msgid "Disable skew correction"
-msgstr "傾き補正を無効にする"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 217
-#: src/bigocrpdf/cli.py:217
-msgid "Disable perspective correction"
-msgstr "遠近補正を無効にする"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 220
-#: src/bigocrpdf/cli.py:220
-msgid "Disable orientation detection"
-msgstr "向き検出を無効にする"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 224
-#: src/bigocrpdf/cli.py:224
-msgid "Image enhancements"
-msgstr "画像補正"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 229
-#: src/bigocrpdf/cli.py:229
-msgid "Enable scanner effect (whitens background)."
-msgstr "スキャナー効果を有効にする（背景を白くする）。"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 231
-#: src/bigocrpdf/cli.py:231
-msgid "Disable scanner effect."
-msgstr "スキャナー効果を無効にする。"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 232
-#: src/bigocrpdf/cli.py:232
-msgid "Enable CLAHE contrast"
-msgstr "CLAHEコントラストを有効にする"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 233
-#: src/bigocrpdf/cli.py:233
-msgid "Enable auto brightness"
-msgstr "自動明度調整を有効にする"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 234
-#: src/bigocrpdf/cli.py:234
-msgid "Enable denoising"
-msgstr "ノイズ除去を有効にする"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 235
-#: src/bigocrpdf/cli.py:235
-msgid "Remove dark borders"
-msgstr "暗い縁を除去する"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 239
-#: src/bigocrpdf/cli.py:239
-msgid "Enable vintage look (sepia/BW)."
-msgstr "ヴィンテージ効果を有効にする（セピア/白黒）。"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 241
-#: src/bigocrpdf/cli.py:241
-msgid "Vintage in black & white"
-msgstr "白黒ヴィンテージ"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 401
-#: src/bigocrpdf/cli.py:244 src/bigocrpdf/ui/settings_queue_mixin.py:172
-#: src/bigocrpdf/ui/settings_queue_mixin.py:174
-msgid "Output options"
-msgstr "出力オプション"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 245
-#: src/bigocrpdf/cli.py:245
-msgid "Convert output to PDF/A-2b"
-msgstr "出力をPDF/A-2bに変換する"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 251
-#: src/bigocrpdf/cli.py:251
-msgid "Image format in output PDF. Default: original."
-msgstr "出力PDFの画像形式。デフォルト：オリジナル。"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 258
-#: src/bigocrpdf/cli.py:258
-msgid "Image quality for JPEG/WebP (1-95, default: 85)."
-msgstr "JPEG/WebPの画質（1-95、デフォルト：85）。"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 262
-#: src/bigocrpdf/cli.py:262
-msgid "Debugging"
-msgstr "デバッグ"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 267
-#: src/bigocrpdf/cli.py:267
-msgid "Save preprocessed images to this directory."
-msgstr "前処理済み画像をこのディレクトリに保存する。"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 272
-#: src/bigocrpdf/cli.py:272
-msgid "Only run preprocessing (dewarp/deskew), save images, skip OCR."
-msgstr "前処理のみ実行（湾曲補正/傾き補正）、画像を保存、OCRをスキップ。"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 276
-#: src/bigocrpdf/cli.py:276
-msgid "Split PDF into smaller files"
-msgstr "PDFを小さなファイルに分割する"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 278
-#: src/bigocrpdf/cli.py:278
-msgid "Output directory"
-msgstr "出力ディレクトリ"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 284
-#: src/bigocrpdf/cli.py:284
-msgid "Split every N pages"
-msgstr "Nページごとに分割"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 290
-#: src/bigocrpdf/cli.py:290
-msgid "Maximum file size per part in megabytes"
-msgstr "分割ファイルの最大サイズ（MB）"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 296
-#: src/bigocrpdf/cli.py:296
-msgid "Explicit ranges (e.g. '1-5,6-10,11-15')"
-msgstr "明示的な範囲（例：'1-5,6-10,11-15'）"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 299
-#: src/bigocrpdf/cli.py:299
-msgid "Filename prefix for output parts"
-msgstr "出力ファイルの名前接頭辞"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 303
-#: src/bigocrpdf/cli.py:303
-msgid "Merge multiple PDFs into one"
-msgstr "複数のPDFを1つに結合する"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 304
-#: src/bigocrpdf/cli.py:304
-msgid "Input PDF files (in order)"
-msgstr "入力PDFファイル（順番に）"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 308
-#: src/bigocrpdf/cli.py:308
-msgid "Compress PDF to reduce file size"
-msgstr "PDFを圧縮してファイルサイズを縮小する"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 316
-#: src/bigocrpdf/cli.py:316
-msgid "JPEG quality for images (1-95, default: 60)"
-msgstr "画像のJPEG品質（1-95、デフォルト：60）"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 323
-#: src/bigocrpdf/cli.py:323
-msgid "Target DPI for images (default: 150)"
-msgstr "画像のターゲットDPI（デフォルト：150）"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 327
-#: src/bigocrpdf/cli.py:327
-msgid "Rotate pages in a PDF"
-msgstr "PDFのページを回転する"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 335
-#: src/bigocrpdf/cli.py:335
-msgid "Rotation angle in degrees (clockwise)"
-msgstr "回転角度（時計回り、度単位）"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 341
-#: src/bigocrpdf/cli.py:341
-msgid "Pages to rotate (e.g. '1,3,5' or '1-5'). Default: all."
-msgstr "回転するページ（例：'1,3,5'または'1-5'）。デフォルト：すべて。"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 345
-#: src/bigocrpdf/cli.py:345
-msgid "Remove pages from a PDF"
-msgstr "PDFからページを削除する"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 352
-#: src/bigocrpdf/cli.py:352
-msgid "Pages to delete (e.g. '3,5,7' or '2-4')"
-msgstr "削除するページ（例：'3,5,7'または'2-4'）"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 356
-#: src/bigocrpdf/cli.py:356
-msgid "Extract pages to a new PDF"
-msgstr "ページを新しいPDFに抽出する"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 363
-#: src/bigocrpdf/cli.py:363
-msgid "Pages to extract (e.g. '3-5' or '1,3,7')"
-msgstr "抽出するページ（例：'3-5'または'1,3,7'）"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 367
-#: src/bigocrpdf/cli.py:367
-msgid "Insert pages from another PDF"
-msgstr "別のPDFからページを挿入する"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 368
-#: src/bigocrpdf/cli.py:368
-msgid "Target PDF file"
-msgstr "ターゲットPDFファイル"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 376
-#: src/bigocrpdf/cli.py:376
-msgid "PDF file to insert pages from"
-msgstr "ページを挿入するPDFファイル"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 383
-#: src/bigocrpdf/cli.py:383
-msgid "Insert at this page position (1-indexed, 0 = append). Default: append."
-msgstr "このページ位置に挿入（1始まり、0＝末尾に追加）。デフォルト：末尾に追加。"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 389
-#: src/bigocrpdf/cli.py:389
-msgid "Pages to insert from the source (e.g. '1-3'). Default: all."
-msgstr "ソースから挿入するページ（例：'1-3'）。デフォルト：すべて。"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 393
-#: src/bigocrpdf/cli.py:393
-msgid "Reorder or reverse pages"
-msgstr "ページの並べ替えまたは逆順にする"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 401
-#: src/bigocrpdf/cli.py:401
-msgid "New page order (e.g. '3,1,2,5,4')"
-msgstr "新しいページ順序（例：'3,1,2,5,4'）"
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:369
+msgid "Extracted Text"
+msgstr "抽出されたテキスト"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 406
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 197
-#: src/bigocrpdf/cli.py:406
-msgid "Reverse the page order"
-msgstr "ページの順序を逆にする"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 410
-#: src/bigocrpdf/cli.py:410
-msgid "Show PDF metadata and page count"
-msgstr "PDFメタデータとページ数を表示する"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 414
-#: src/bigocrpdf/cli.py:414
-msgid "Export OCR'd PDF as ODF document"
-msgstr "OCR済みPDFをODF文書としてエクスポート"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 415
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 426
-#: src/bigocrpdf/cli.py:415 src/bigocrpdf/cli.py:426
-msgid "Input PDF file (must have text layer)"
-msgstr "入力PDFファイル（テキストレイヤーが必要）"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 457
+# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 169
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1225
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 443
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:372
+#: src/bigocrpdf/ui/file_save_mixin.py:163
+#: src/bigocrpdf/ui/image_ocr_window.py:457
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:1017
+msgid "OK"
+msgstr "OK"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 421
-#: src/bigocrpdf/cli.py:421
-msgid "Output ODF file (default: same name as input with .odt)"
-msgstr "出力ODFファイル（デフォルト：入力と同名で.odt拡張子）"
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 612
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1199
 # 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 425
-#: src/bigocrpdf/cli.py:425
-msgid "Export OCR'd PDF as formatted text"
-msgstr "OCR済みPDFを書式付きテキストとしてエクスポート"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 432
-#: src/bigocrpdf/cli.py:432
-msgid "Output text file (default: same name as input with .txt)"
-msgstr "出力テキストファイル（デフォルト：入力と同名で.txt拡張子）"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 414
-#: src/bigocrpdf/cli.py:436
-msgid "Open interactive GUI editor"
-msgstr "インタラクティブGUIエディタを開く"
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 415
-#: src/bigocrpdf/cli.py:437
-msgid "PDF file to edit"
-msgstr "編集するPDFファイル"
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 612
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1199
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 612
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1199
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 612
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1199
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 612
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1199
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 612
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1199
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 612
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1199
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 612
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1199
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 612
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1199
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 612
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1199
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 612
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1199
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 612
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1199
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 639
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:398
+msgid "No text content was detected in this file during OCR processing."
+msgstr "このファイルのOCR処理中にテキストコンテンツが検出されませんでした。"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 97
+#: src/bigocrpdf/ui/corrections_dialog.py:108
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:49
+msgid "Image Corrections"
+msgstr "画像補正"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 105
+#: src/bigocrpdf/ui/output_dialog.py:113
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:57
+msgid "Output Settings"
+msgstr "出力設定"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 111
+#: src/bigocrpdf/ui/advanced_dialog.py:85
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:65
+msgid "Advanced"
+msgstr "詳細設定"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 189
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 84
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 85
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:84
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:85
+#: src/bigocrpdf/ui/terminal_page.py:191
+msgid "Language"
+msgstr "言語"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 142
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 143
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:94
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:95
+msgid "Language help"
+msgstr "言語ヘルプ"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 159
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:113
+msgid ""
+"Choose the language of your document's text.\n"
+"The correct language helps recognize text more accurately."
+msgstr "ドキュメントのテキストの言語を選択してください。正しい言語は、テキストをより正確に認識するのに役立ちます。"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 611
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:120
+#: src/bigocrpdf/ui/terminal_page.py:130
+msgid "Deskew"
+msgstr "傾き補正"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 131
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 184
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:121
+#: src/bigocrpdf/ui/terminal_page.py:131
+msgid "Dewarp"
+msgstr "湾曲補正"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 622
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:122
+msgid "Perspective Correction"
+msgstr "パースペクティブ補正"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 635
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:123
+#: src/bigocrpdf/ui/terminal_page.py:133
+msgid "Auto-rotate"
+msgstr "自動回転"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 646
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:124
+#: src/bigocrpdf/ui/terminal_page.py:134
+msgid "Scanner Effect"
+msgstr "スキャナー効果"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 88
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 125
+#: src/bigocrpdf/ui/corrections_dialog.py:86
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:125
+msgid "Enhance Embedded Images"
+msgstr "埋め込み画像の補正"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 145
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:145
+#, python-brace-format
+msgid "{active} of {total} enabled"
+msgstr "{total}中{active}個有効"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 175
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 252
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:174
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:248
+#, python-brace-format
+msgid "{n} options enabled"
+msgstr "{n}個のオプションが有効"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/output_dialog.py, line: 74
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 186
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 187
+#: src/bigocrpdf/ui/output_dialog.py:72
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:182
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:183
+msgid "Image Quality"
+msgstr "画質"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 149
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 240
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:185
+#: src/bigocrpdf/ui/terminal_page.py:149
+msgid "Keep Original"
+msgstr "オリジナル維持"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 227
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:186
+msgid "Very Low (30%)"
+msgstr "非常に低い (30%)"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 228
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:187
+msgid "Low (50%)"
+msgstr "低 (50%)"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 229
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:188
+msgid "Medium (70%)"
+msgstr "中程度 (70%)"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 230
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:189
+msgid "High (85%)"
+msgstr "高 (85%)"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 231
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:190
+msgid "Maximum (95%)"
+msgstr "最大 (95%)"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 195
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:191
+msgid "Black & White (JBIG2)"
+msgstr "白黒（JBIG2）"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 249
+#: src/bigocrpdf/ui/output_dialog.py:86
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:195
+msgid "Export as PDF/A"
+msgstr "PDF/Aとしてエクスポート"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 264
+#: src/bigocrpdf/ui/output_dialog.py:97
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:197
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:198
+msgid "Maximum Output Size"
+msgstr "最大出力サイズ"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 270
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:201
+msgid "No limit"
+msgstr "制限なし"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 206
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:202
+msgid "5 MB"
+msgstr "5 MB"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 207
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:203
+msgid "10 MB"
+msgstr "10 MB"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 208
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:204
+msgid "15 MB"
+msgstr "15 MB"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:205
+msgid "20 MB"
+msgstr "20 MB"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:206
+msgid "25 MB"
+msgstr "25 MB"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:207
+msgid "50 MB"
+msgstr "50 MB"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:208
+msgid "100 MB"
+msgstr "100 MB"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 165
+#: src/bigocrpdf/ui/advanced_dialog.py:42
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:256
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:257
+msgid "OCR Precision"
+msgstr "OCR精度"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 171
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:259
+msgid "Low Precision"
+msgstr "低精度"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 172
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:260
+msgid "Standard"
+msgstr "標準"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 173
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:261
+msgid "Precise"
+msgstr "正確な"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 174
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:262
+msgid "Very Precise"
+msgstr "非常に正確"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 657
+#: src/bigocrpdf/ui/advanced_dialog.py:53
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:266
+msgid "Replace Existing OCR"
+msgstr "既存のOCRを置き換える"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 273
+# File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 66
+#: src/bigocrpdf/ui/advanced_dialog.py:64
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:269
+msgid "Full Resolution Detection"
+msgstr "フル解像度検出"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 467
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:353
+msgid "Choose the model that matches the language of your documents for the best results."
+msgstr "ドキュメントの言語に合ったモデルを選択して、最良の結果を得てください。"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 493
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:374
+#, python-brace-format
+msgid "{count} languages"
+msgstr "{count} 言語"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 546
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:422
+msgid "Supported Languages"
+msgstr "サポートされている言語"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 177
+msgid "Unsupported file format"
+msgstr "サポートされていないファイル形式"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 196
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 234
+msgid "No image found in clipboard"
+msgstr "クリップボードに画像が見つかりません。"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
+#: src/bigocrpdf/ui/image_ocr_window.py:135
+msgid "Image OCR"
+msgstr "画像OCR"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
+#: src/bigocrpdf/ui/image_ocr_window.py:136
+msgid "Extract text from images or screen captures using OCR."
+msgstr "画像やスクリーンキャプチャからOCRを使用してテキストを抽出します。"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
+#: src/bigocrpdf/ui/image_ocr_window.py:144
+#: src/bigocrpdf/ui/image_ocr_window.py:148
+#: src/bigocrpdf/ui/image_ocr_window.py:230
+msgid "Open Image"
+msgstr "画像を開く"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 152
+#: src/bigocrpdf/ui/image_ocr_window.py:154
+#: src/bigocrpdf/ui/image_ocr_window.py:159
+msgid "Screen Capture"
+msgstr "スクリーンキャプチャ"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 167
+#: src/bigocrpdf/ui/image_ocr_window.py:170
+msgid "Extracting text…"
+msgstr "テキストを抽出しています…"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 196
+#: src/bigocrpdf/ui/image_ocr_window.py:196
+msgid "Extracted text"
+msgstr "抽出されたテキスト"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
+#: src/bigocrpdf/ui/image_ocr_window.py:208
+msgid "Copy"
+msgstr "コピー"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
+#: src/bigocrpdf/ui/image_ocr_window.py:210
+#: src/bigocrpdf/ui/image_ocr_window.py:212
+#: src/bigocrpdf/ui/text_viewer_mixin.py:248
+#: src/bigocrpdf/ui/text_viewer_mixin.py:249
+msgid "Copy text to clipboard"
+msgstr "クリップボードにテキストをコピー"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
+#: src/bigocrpdf/ui/image_ocr_window.py:220
+msgid "New Capture"
+msgstr "新しいキャプチャ"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 216
+#: src/bigocrpdf/ui/image_ocr_window.py:223
+#: src/bigocrpdf/ui/image_ocr_window.py:224
+msgid "Capture a screen region"
+msgstr "画面の領域をキャプチャする"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 224
+#: src/bigocrpdf/ui/image_ocr_window.py:232
+#: src/bigocrpdf/ui/image_ocr_window.py:233
+msgid "Open an image file"
+msgstr "画像ファイルを開く"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 255
+#: src/bigocrpdf/ui/image_ocr_window.py:264
+msgid "Choose the language of the text in the image"
+msgstr "画像内のテキストの言語を選択してください。"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 265
+#: src/bigocrpdf/ui/image_ocr_window.py:265
+msgid "OCR language"
+msgstr "OCR言語"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
+#: src/bigocrpdf/ui/image_ocr_window.py:323
+msgid "No text extracted."
+msgstr "テキストが抽出されませんでした。"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
+#: src/bigocrpdf/ui/image_ocr_window.py:377
+msgid "Open Image to OCR"
+msgstr "OCR用に画像を開く"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 496
+#: src/bigocrpdf/ui/image_ocr_window.py:380
+#: src/bigocrpdf/ui/settings_queue_mixin.py:706
+#: src/bigocrpdf/ui/settings_queue_mixin.py:709
+#: src/bigocrpdf/ui/settings_queue_mixin.py:770
+#: src/bigocrpdf/window_actions.py:238
+msgid "Images"
+msgstr "画像"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
+#: src/bigocrpdf/ui/image_ocr_window.py:433
+msgid "Copied to clipboard"
+msgstr "クリップボードにコピーされました"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
+#: src/bigocrpdf/ui/image_ocr_window.py:455
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:1015
+msgid "Error"
+msgstr "エラー"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
 # line: 380
 #: src/bigocrpdf/ui/terminal_page.py:102
@@ -841,58 +590,16 @@ msgstr "0%"
 #: src/bigocrpdf/ui/terminal_page.py:114
 msgid "OCR processing progress"
 msgstr "OCR処理の進捗"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 611
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:120
-#: src/bigocrpdf/ui/terminal_page.py:130
-msgid "Deskew"
-msgstr "傾き補正"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 131
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 184
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:121
-#: src/bigocrpdf/ui/terminal_page.py:131
-msgid "Dewarp"
-msgstr "湾曲補正"
 # File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 132
 #: src/bigocrpdf/ui/terminal_page.py:132
 msgid "Perspective"
 msgstr "遠近補正"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 635
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:123
-#: src/bigocrpdf/ui/terminal_page.py:133
-msgid "Auto-rotate"
-msgstr "自動回転"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 646
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:124
-#: src/bigocrpdf/ui/terminal_page.py:134
-msgid "Scanner Effect"
-msgstr "スキャナー効果"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 149
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 240
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:185
-#: src/bigocrpdf/ui/terminal_page.py:149
-msgid "Keep Original"
-msgstr "オリジナル維持"
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 151
 #: src/bigocrpdf/ui/terminal_page.py:151
 #, python-brace-format
 msgid "JPEG {quality}%"
 msgstr "JPEG {quality}%"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 189
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 84
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 85
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:84
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:85
-#: src/bigocrpdf/ui/terminal_page.py:191
-msgid "Language"
-msgstr "言語"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
 # line: 194
 #: src/bigocrpdf/ui/terminal_page.py:192
@@ -937,25 +644,6 @@ msgstr "無効"
 #: src/bigocrpdf/ui/terminal_page.py:218 src/bigocrpdf/ui/terminal_page.py:489
 msgid "Preparing processing..."
 msgstr "処理を準備中..."
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 398
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1641
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1752
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:234
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:239
-#: src/bigocrpdf/ui/file_save_mixin.py:81
-#: src/bigocrpdf/ui/navigation_manager.py:101
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_mixin.py:116
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_mixin.py:211
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_mixin.py:243
-#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:93
-#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:95
-#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:238
-#: src/bigocrpdf/ui/terminal_page.py:228 src/bigocrpdf/window_actions.py:315
-msgid "Cancel"
-msgstr "キャンセル"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 857
 #: src/bigocrpdf/ui/terminal_page.py:270
 #, python-brace-format
@@ -1017,117 +705,114 @@ msgstr "{total}ファイルの処理を開始しています... • 時間: {tim
 #, python-brace-format
 msgid "{percent}%"
 msgstr "{percent}%"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 708
+#: src/bigocrpdf/ui/text_viewer_mixin.py:89
+msgid "OCR processing was completed for this file, but the extracted text could not be found."
+msgstr "このファイルのOCR処理は完了しましたが、抽出されたテキストが見つかりませんでした。"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 134
+#: src/bigocrpdf/ui/text_viewer_mixin.py:158
+msgid "words"
+msgstr "単語"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1215
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 194
-#: src/bigocrpdf/ui/dialogs_manager.py:70
-msgid "Separate PDFs"
-msgstr "PDFを分割する"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1216
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 195
-#: src/bigocrpdf/ui/dialogs_manager.py:71
-msgid "Merge into One PDF"
-msgstr "1つのPDFに統合"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1227
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 221
-#: src/bigocrpdf/ui/dialogs_manager.py:83
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
+#: src/bigocrpdf/ui/text_viewer_mixin.py:160
+msgid "characters"
+msgstr "キャラクター"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 203
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 204
+#: src/bigocrpdf/ui/text_viewer_mixin.py:227
+#: src/bigocrpdf/ui/text_viewer_mixin.py:228
+msgid "Decrease font size"
+msgstr "フォントサイズを縮小"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 209
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 210
+#: src/bigocrpdf/ui/text_viewer_mixin.py:233
+#: src/bigocrpdf/ui/text_viewer_mixin.py:234
+msgid "Increase font size"
+msgstr "フォントサイズを拡大"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 371
+#: src/bigocrpdf/ui/text_viewer_mixin.py:254
+#: src/bigocrpdf/ui/text_viewer_mixin.py:257
+msgid "Save TXT"
+msgstr "TXTを保存"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1493
+#: src/bigocrpdf/ui/text_viewer_mixin.py:260
+#: src/bigocrpdf/ui/text_viewer_mixin.py:262
+msgid "Close"
+msgstr "閉じる"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1291
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1272
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1272
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1324
+#: src/bigocrpdf/ui/text_viewer_mixin.py:309
+msgid "Search in text..."
+msgstr "テキスト内を検索..."
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 287
+#: src/bigocrpdf/ui/text_viewer_mixin.py:311
+msgid "Search in text"
+msgstr "テキスト内を検索"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 294
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 295
+#: src/bigocrpdf/ui/text_viewer_mixin.py:318
+#: src/bigocrpdf/ui/text_viewer_mixin.py:319
+msgid "Previous match"
+msgstr "前の一致"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 301
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 302
+#: src/bigocrpdf/ui/text_viewer_mixin.py:325
+#: src/bigocrpdf/ui/text_viewer_mixin.py:326
+msgid "Next match"
+msgstr "次の一致"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 448
+#: src/bigocrpdf/ui/text_viewer_mixin.py:448
 #, python-brace-format
-msgid "Merged {} images into one PDF"
-msgstr "{}の画像を1つのPDFにマージしました。"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+msgid "{current}/{total}"
+msgstr "{current}/{total}"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1231
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 225
-#: src/bigocrpdf/ui/dialogs_manager.py:87
-msgid "Error merging images"
-msgstr "画像のマージ中にエラーが発生しました。"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 457
+#: src/bigocrpdf/ui/text_viewer_mixin.py:457
+msgid "Wrapped to first match"
+msgstr "最初の一致に戻りました"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 348
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 478
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:350
-#: src/bigocrpdf/ui/settings_queue_mixin.py:478
-msgid "Show in file manager"
-msgstr "ファイルマネージャーで表示"
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 374
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:376
-msgid "Open the processed file"
-msgstr "処理されたファイルを開く"
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 410
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:394
-msgid "View the text found in this document"
-msgstr "このドキュメントに見つかったテキストを表示します。"
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 425
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:409
-msgid "Save as a document for LibreOffice"
-msgstr "LibreOffice用のドキュメントとして保存"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/output_dialog.py, line: 74
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 186
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 187
-#: src/bigocrpdf/ui/output_dialog.py:72
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:182
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:183
-msgid "Image Quality"
-msgstr "画質"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/output_dialog.py, line: 76
-#: src/bigocrpdf/ui/output_dialog.py:74
-msgid ""
-"Controls the compression applied to images inside the PDF. Lower quality means smaller files but "
-"some detail is lost. 'Keep Original' preserves images exactly as they are.\n"
-"\n"
-"The last option, 'Black & White (JBIG2)', converts all pages to pure black and white using JBIG2 — "
-"the most compact format available. Ideal for text-only documents, but all color is lost."
-msgstr ""
-"PDF内の画像に適用される圧縮を制御します。低い品質はファイルサイズが小さくなりますが、一部の詳細が失われます。「オリジナル維持」は画像をそのまま保持します。\n"
-"\n"
-"最後のオプション「白黒（JBIG2）」は、利用可能な最もコンパクトな形式であるJBIG2を使用してすべてのページを完全な白黒に変換します。テキストのみの文書に最適ですが、すべての色が失われます。"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 249
-#: src/bigocrpdf/ui/output_dialog.py:86
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:195
-msgid "Export as PDF/A"
-msgstr "PDF/Aとしてエクスポート"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/output_dialog.py, line: 90
-#: src/bigocrpdf/ui/output_dialog.py:88
-msgid ""
-"Creates an archival PDF designed for long-term storage. The file will open correctly on any device, "
-"now and in the future. Recommended for important documents."
-msgstr "長期保存用のアーカイブPDFを作成します。このファイルはどのデバイスでも、現在も将来も正しく開けます。重要な文書に推奨されます。"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 264
-#: src/bigocrpdf/ui/output_dialog.py:97
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:197
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:198
-msgid "Maximum Output Size"
-msgstr "最大出力サイズ"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/output_dialog.py, line: 101
-#: src/bigocrpdf/ui/output_dialog.py:99
-msgid ""
-"Sets a size limit for the final file. If the result is too large, it is automatically split into "
-"smaller numbered files (e.g. document-01.pdf). Useful for email or uploads."
-msgstr "最終ファイルにサイズ制限を設定します。結果が大きすぎる場合、自動的に番号付きの小さなファイルに分割されます（例：document-01.pdf）。メールやアップロードに便利です。"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 105
-#: src/bigocrpdf/ui/output_dialog.py:113
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:57
-msgid "Output Settings"
-msgstr "出力設定"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/output_dialog.py, line: 136
-#: src/bigocrpdf/ui/output_dialog.py:134
-msgid ""
-"Configure how the final PDF is generated. These settings affect file size, quality, and "
-"compatibility."
-msgstr "最終PDFの生成方法を設定します。これらの設定はファイルサイズ、品質、互換性に影響します。"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 466
+#: src/bigocrpdf/ui/text_viewer_mixin.py:466
+msgid "Wrapped to last match"
+msgstr "最後の一致に戻りました"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 507
+#: src/bigocrpdf/ui/text_viewer_mixin.py:484
+msgid "No matches"
+msgstr "一致なし"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
 # line: 1738
 #: src/bigocrpdf/ui/pdf_options_ui_mixin.py:26
@@ -1239,13 +924,6 @@ msgstr "テキストファイルフォルダー"
 #: src/bigocrpdf/ui/pdf_options_ui_mixin.py:301
 msgid "Select where to save text files"
 msgstr "テキストファイルを保存する場所を選択してください。"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1852
-#: src/bigocrpdf/ui/pdf_options_callbacks_mixin.py:257
-#: src/bigocrpdf/ui/pdf_options_callbacks_mixin.py:292
-#: src/bigocrpdf/ui/pdf_options_ui_mixin.py:306
-msgid "Not set"
-msgstr "未設定"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 287
 #: src/bigocrpdf/ui/pdf_options_ui_mixin.py:316
 #: src/bigocrpdf/ui/pdf_options_ui_mixin.py:318
@@ -1364,240 +1042,77 @@ msgstr "プレビュー"
 #: src/bigocrpdf/ui/pdf_options_ui_mixin.py:500
 msgid "Filename Example:"
 msgstr "ファイル名の例："
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 43
+#: src/bigocrpdf/ui/corrections_dialog.py:41
+msgid "Straighten Pages"
+msgstr "ページの傾き補正"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/dialogs_manager.py, line: 1232
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 521
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page.py, line: 579
+# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 45
+#: src/bigocrpdf/ui/corrections_dialog.py:43
+msgid "Fixes pages that were scanned at a slight angle. The text lines become perfectly horizontal."
+msgstr "わずかに傾いてスキャンされたページを修正します。テキスト行が完全に水平になります。"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 52
+#: src/bigocrpdf/ui/corrections_dialog.py:50
+msgid "Fix Curved Text"
+msgstr "湾曲テキストの補正"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 54
+#: src/bigocrpdf/ui/corrections_dialog.py:52
+msgid "Corrects wavy or curved text that appears when photographing a book or a bent document."
+msgstr "本や曲がった文書を撮影した際に現れる波打ちや湾曲したテキストを補正します。"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/dialogs_manager.py, line: 1232
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 521
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page.py, line: 579
+# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 61
+#: src/bigocrpdf/ui/corrections_dialog.py:59
+msgid "Fix Perspective"
+msgstr "遠近補正"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 63
+#: src/bigocrpdf/ui/corrections_dialog.py:61
+msgid ""
+"Corrects pages that look like a trapezoid because the photo was taken at an angle instead of "
+"straight above."
+msgstr "真上からでなく斜めから撮影されたために台形に見えるページを補正します。"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 70
+#: src/bigocrpdf/ui/corrections_dialog.py:68
+msgid "Fix Page Direction"
+msgstr "ページ方向の修正"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/dialogs_manager.py, line: 1232
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 521
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page.py, line: 579
+# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 72
+#: src/bigocrpdf/ui/corrections_dialog.py:70
+msgid ""
+"Detects and fixes pages that are upside-down or sideways, automatically rotating them to the "
+"correct orientation."
+msgstr "上下逆さまや横向きのページを検出し、自動的に正しい向きに回転します。"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 79
+#: src/bigocrpdf/ui/corrections_dialog.py:77
+msgid "Enhance Readability"
+msgstr "読みやすさの向上"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 81
+#: src/bigocrpdf/ui/corrections_dialog.py:79
+msgid ""
+"Makes text darker and the background lighter, producing a cleaner result similar to a high-quality "
+"scan."
+msgstr "テキストを濃く、背景を明るくし、高品質スキャンに似たきれいな結果を生成します。"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/dialogs_manager.py, line: 1232
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 521
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page.py, line: 579
+# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 90
+#: src/bigocrpdf/ui/corrections_dialog.py:88
+msgid ""
+"Apply image corrections (deskew, dewarp, perspective) to images inside pages that already contain "
+"text. Normally skipped because these images are already well-aligned. Enable only if embedded "
+"images appear crooked or distorted."
+msgstr "テキストを含むページ内の画像に画像補正（傾き補正、湾曲補正、遠近補正）を適用します。通常これらの画像は正しく配置されているためスキップされます。埋め込み画像が歪んでいる場合のみ有効にしてください。"
 # 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1206
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 568
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1206
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 568
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1206
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 568
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1206
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 568
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1206
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 568
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1206
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 568
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1206
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 568
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1206
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 568
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line:
-# 34
-#: src/bigocrpdf/ui/widgets.py:32
-#, python-brace-format
-msgid "CSS file not found: {0}"
-msgstr "CSSファイルが見つかりません: {0}"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line:
-# 43
-#: src/bigocrpdf/ui/widgets.py:41
-msgid "Custom CSS styles loaded successfully"
-msgstr "カスタムCSSスタイルが正常に読み込まれました。"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line:
-# 46
-#: src/bigocrpdf/ui/widgets.py:44
-#, python-brace-format
-msgid "Error loading CSS styles: {0}"
-msgstr "CSSスタイルの読み込みエラー: {0}"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 177
-msgid "Unsupported file format"
-msgstr "サポートされていないファイル形式"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 196
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 234
-msgid "No image found in clipboard"
-msgstr "クリップボードに画像が見つかりません。"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
-#: src/bigocrpdf/ui/image_ocr_window.py:135
-msgid "Image OCR"
-msgstr "画像OCR"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
-#: src/bigocrpdf/ui/image_ocr_window.py:136
-msgid "Extract text from images or screen captures using OCR."
-msgstr "画像やスクリーンキャプチャからOCRを使用してテキストを抽出します。"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
-#: src/bigocrpdf/ui/image_ocr_window.py:144
-#: src/bigocrpdf/ui/image_ocr_window.py:148
-#: src/bigocrpdf/ui/image_ocr_window.py:230
-msgid "Open Image"
-msgstr "画像を開く"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 152
-#: src/bigocrpdf/ui/image_ocr_window.py:154
-#: src/bigocrpdf/ui/image_ocr_window.py:159
-msgid "Screen Capture"
-msgstr "スクリーンキャプチャ"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 167
-#: src/bigocrpdf/ui/image_ocr_window.py:170
-msgid "Extracting text…"
-msgstr "テキストを抽出しています…"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 196
-#: src/bigocrpdf/ui/image_ocr_window.py:196
-msgid "Extracted text"
-msgstr "抽出されたテキスト"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
-#: src/bigocrpdf/ui/image_ocr_window.py:208
-msgid "Copy"
-msgstr "コピー"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
-#: src/bigocrpdf/ui/image_ocr_window.py:210
-#: src/bigocrpdf/ui/image_ocr_window.py:212
-#: src/bigocrpdf/ui/text_viewer_mixin.py:248
-#: src/bigocrpdf/ui/text_viewer_mixin.py:249
-msgid "Copy text to clipboard"
-msgstr "クリップボードにテキストをコピー"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
-#: src/bigocrpdf/ui/image_ocr_window.py:220
-msgid "New Capture"
-msgstr "新しいキャプチャ"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 216
-#: src/bigocrpdf/ui/image_ocr_window.py:223
-#: src/bigocrpdf/ui/image_ocr_window.py:224
-msgid "Capture a screen region"
-msgstr "画面の領域をキャプチャする"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 224
-#: src/bigocrpdf/ui/image_ocr_window.py:232
-#: src/bigocrpdf/ui/image_ocr_window.py:233
-msgid "Open an image file"
-msgstr "画像ファイルを開く"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 255
-#: src/bigocrpdf/ui/image_ocr_window.py:264
-msgid "Choose the language of the text in the image"
-msgstr "画像内のテキストの言語を選択してください。"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 265
-#: src/bigocrpdf/ui/image_ocr_window.py:265
-msgid "OCR language"
-msgstr "OCR言語"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
-#: src/bigocrpdf/ui/image_ocr_window.py:323
-msgid "No text extracted."
-msgstr "テキストが抽出されませんでした。"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
-#: src/bigocrpdf/ui/image_ocr_window.py:377
-msgid "Open Image to OCR"
-msgstr "OCR用に画像を開く"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 496
-#: src/bigocrpdf/ui/image_ocr_window.py:380
-#: src/bigocrpdf/ui/settings_queue_mixin.py:706
-#: src/bigocrpdf/ui/settings_queue_mixin.py:709
-#: src/bigocrpdf/ui/settings_queue_mixin.py:770
-#: src/bigocrpdf/window_actions.py:238
-msgid "Images"
-msgstr "画像"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
-#: src/bigocrpdf/ui/image_ocr_window.py:433
-msgid "Copied to clipboard"
-msgstr "クリップボードにコピーされました"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
-#: src/bigocrpdf/ui/image_ocr_window.py:455
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:1015
-msgid "Error"
-msgstr "エラー"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 457
-# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 169
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1225
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 443
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:372
-#: src/bigocrpdf/ui/file_save_mixin.py:163
-#: src/bigocrpdf/ui/image_ocr_window.py:457
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:1017
-msgid "OK"
-msgstr "OK"
+# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 131
+#: src/bigocrpdf/ui/corrections_dialog.py:129
+msgid ""
+"These corrections automatically improve your scanned or photographed documents. Each one fixes a "
+"specific problem."
+msgstr "これらの補正はスキャンまたは撮影した文書を自動的に改善します。それぞれが特定の問題を修正します。"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
@@ -1760,13 +1275,587 @@ msgstr "破棄"
 #: src/bigocrpdf/ui/file_save_mixin.py:190
 msgid "Resume"
 msgstr "履歴書"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 190
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 726
+#: src/bigocrpdf/ui/navigation_manager.py:93
+msgid "Start"
+msgstr "開始"
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/navigation_manager.py,
+# line: 109
+#: src/bigocrpdf/ui/navigation_manager.py:109
+msgid "Process New Files"
+msgstr "新しいファイルを処理する"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_grid.py, line: 112
-#: src/bigocrpdf/ui/pdf_editor/page_grid.py:111
+# File: bigocrpdf/src/bigocrpdf/ui/output_dialog.py, line: 76
+#: src/bigocrpdf/ui/output_dialog.py:74
 msgid ""
-"Page thumbnails. Ctrl+A select all, Ctrl+Up/Down reorder, Delete toggle page, Ctrl+L/R rotate, "
-"Ctrl+Z undo"
-msgstr "ページサムネイル。Ctrl+Aですべて選択、Ctrl+上下で並べ替え、Deleteでページ切替、Ctrl+L/Rで回転、Ctrl+Zで元に戻す"
+"Controls the compression applied to images inside the PDF. Lower quality means smaller files but "
+"some detail is lost. 'Keep Original' preserves images exactly as they are.\n"
+"\n"
+"The last option, 'Black & White (JBIG2)', converts all pages to pure black and white using JBIG2 — "
+"the most compact format available. Ideal for text-only documents, but all color is lost."
+msgstr ""
+"PDF内の画像に適用される圧縮を制御します。低い品質はファイルサイズが小さくなりますが、一部の詳細が失われます。「オリジナル維持」は画像をそのまま保持します。\n"
+"\n"
+"最後のオプション「白黒（JBIG2）」は、利用可能な最もコンパクトな形式であるJBIG2を使用してすべてのページを完全な白黒に変換します。テキストのみの文書に最適ですが、すべての色が失われます。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/output_dialog.py, line: 90
+#: src/bigocrpdf/ui/output_dialog.py:88
+msgid ""
+"Creates an archival PDF designed for long-term storage. The file will open correctly on any device, "
+"now and in the future. Recommended for important documents."
+msgstr "長期保存用のアーカイブPDFを作成します。このファイルはどのデバイスでも、現在も将来も正しく開けます。重要な文書に推奨されます。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/output_dialog.py, line: 101
+#: src/bigocrpdf/ui/output_dialog.py:99
+msgid ""
+"Sets a size limit for the final file. If the result is too large, it is automatically split into "
+"smaller numbered files (e.g. document-01.pdf). Useful for email or uploads."
+msgstr "最終ファイルにサイズ制限を設定します。結果が大きすぎる場合、自動的に番号付きの小さなファイルに分割されます（例：document-01.pdf）。メールやアップロードに便利です。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/output_dialog.py, line: 136
+#: src/bigocrpdf/ui/output_dialog.py:134
+msgid ""
+"Configure how the final PDF is generated. These settings affect file size, quality, and "
+"compatibility."
+msgstr "最終PDFの生成方法を設定します。これらの設定はファイルサイズ、品質、互換性に影響します。"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/dialogs_manager.py, line: 1232
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 521
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page.py, line: 579
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/dialogs_manager.py, line: 1232
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 521
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page.py, line: 579
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/dialogs_manager.py, line: 1232
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 521
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page.py, line: 579
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/dialogs_manager.py, line: 1232
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 521
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page.py, line: 579
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1206
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 568
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1206
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 568
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1206
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 568
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1206
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 568
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1206
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 568
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1206
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 568
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1206
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 568
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 1206
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
+# line: 568
+# 
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line:
+# 34
+#: src/bigocrpdf/ui/widgets.py:32
+#, python-brace-format
+msgid "CSS file not found: {0}"
+msgstr "CSSファイルが見つかりません: {0}"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line:
+# 43
+#: src/bigocrpdf/ui/widgets.py:41
+msgid "Custom CSS styles loaded successfully"
+msgstr "カスタムCSSスタイルが正常に読み込まれました。"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line:
+# 46
+#: src/bigocrpdf/ui/widgets.py:44
+#, python-brace-format
+msgid "Error loading CSS styles: {0}"
+msgstr "CSSスタイルの読み込みエラー: {0}"
+# 
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 348
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 478
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:350
+#: src/bigocrpdf/ui/settings_queue_mixin.py:478
+msgid "Show in file manager"
+msgstr "ファイルマネージャーで表示"
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 374
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:376
+msgid "Open the processed file"
+msgstr "処理されたファイルを開く"
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 410
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:394
+msgid "View the text found in this document"
+msgstr "このドキュメントに見つかったテキストを表示します。"
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 425
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:409
+msgid "Save as a document for LibreOffice"
+msgstr "LibreOffice用のドキュメントとして保存"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 46
+#: src/bigocrpdf/ui/advanced_dialog.py:44
+msgid ""
+"How carefully the program reads text from your documents. Lower precision finds more text (good for "
+"blurry pages), while higher precision makes fewer mistakes but may miss faint text."
+msgstr "文書からテキストを読み取る際の精度です。低い精度はより多くのテキストを検出します（ぼやけたページに有効）が、高い精度はミスが少ない一方で薄いテキストを見逃す場合があります。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 57
+#: src/bigocrpdf/ui/advanced_dialog.py:55
+msgid ""
+"When enabled, redoes the text recognition even if the PDF already has searchable text. Use this "
+"when the existing text layer is incorrect or of poor quality."
+msgstr "有効にすると、PDFに既に検索可能なテキストがある場合でもテキスト認識をやり直します。既存のテキストレイヤーが不正確または品質が低い場合に使用してください。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 68
+#: src/bigocrpdf/ui/advanced_dialog.py:66
+msgid ""
+"Analyzes the image at full resolution for text detection. Finds more text in high-resolution scans "
+"but takes longer. The faster mode is good enough for most documents."
+msgstr "テキスト検出のために画像をフル解像度で分析します。高解像度スキャンでより多くのテキストを検出しますが、時間がかかります。高速モードでほとんどの文書には十分です。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 108
+#: src/bigocrpdf/ui/advanced_dialog.py:106
+msgid "Fine-tune how OCR text recognition works. The default settings work well for most documents."
+msgstr "OCRテキスト認識の動作を微調整します。デフォルト設定はほとんどの文書に適しています。"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 400
+#: src/bigocrpdf/ui/settings_queue_mixin.py:53
+#: src/bigocrpdf/ui/settings_queue_mixin.py:93
+msgid "File queue"
+msgstr "ファイルキュー"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 57
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 100
+#: src/bigocrpdf/ui/settings_queue_mixin.py:57
+#: src/bigocrpdf/ui/settings_queue_mixin.py:100
+msgid "Add your PDFs"
+msgstr "PDFを追加"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 59
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 102
+#: src/bigocrpdf/ui/settings_queue_mixin.py:59
+#: src/bigocrpdf/ui/settings_queue_mixin.py:102
+msgid "Drag PDF files and images here, or use the button in the header bar"
+msgstr "PDFファイルや画像をここにドラッグするか、ヘッダーバーのボタンを使用してください"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 362
+#: src/bigocrpdf/ui/settings_queue_mixin.py:130
+msgid "Save in the same folder as the original file"
+msgstr "元のファイルと同じフォルダーに保存する"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 363
+#: src/bigocrpdf/ui/settings_queue_mixin.py:131
+msgid "Custom folder"
+msgstr "カスタムフォルダー"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 442
+#: src/bigocrpdf/ui/settings_queue_mixin.py:138
+msgid "Output folder location"
+msgstr "出力フォルダの場所"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1862
+#: src/bigocrpdf/ui/settings_queue_mixin.py:149
+msgid "Select folder"
+msgstr "フォルダーを選択"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 458
+#: src/bigocrpdf/ui/settings_queue_mixin.py:152
+msgid "Destination folder path"
+msgstr "保存先フォルダのパス"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 465
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 466
+#: src/bigocrpdf/ui/settings_queue_mixin.py:158
+#: src/bigocrpdf/ui/settings_queue_mixin.py:159
+msgid "Browse for folder"
+msgstr "フォルダを参照"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 401
+#: src/bigocrpdf/cli.py:244 src/bigocrpdf/ui/settings_queue_mixin.py:172
+#: src/bigocrpdf/ui/settings_queue_mixin.py:174
+msgid "Output options"
+msgstr "出力オプション"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 285
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:308
+#: src/bigocrpdf/ui/settings_queue_mixin.py:285
+#: src/bigocrpdf/ui/settings_queue_mixin.py:953
+#, python-brace-format
+msgid "{pages} pg."
+msgstr "{pages}ページ"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 290
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 384
+#: src/bigocrpdf/ui/settings_queue_mixin.py:290
+#: src/bigocrpdf/ui/settings_queue_mixin.py:384
+#, python-brace-format
+msgid "{size} MB"
+msgstr "{size} MB"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 983
+#: src/bigocrpdf/ui/settings_queue_mixin.py:307
+#: src/bigocrpdf/ui/settings_queue_mixin.py:308
+#: src/bigocrpdf/ui/settings_queue_mixin.py:395
+#: src/bigocrpdf/ui/settings_queue_mixin.py:396
+msgid "Edit pages of this file"
+msgstr "このファイルのページを編集する"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 999
+#: src/bigocrpdf/ui/settings_queue_mixin.py:315
+#: src/bigocrpdf/ui/settings_queue_mixin.py:316
+#: src/bigocrpdf/ui/settings_queue_mixin.py:403
+#: src/bigocrpdf/ui/settings_queue_mixin.py:404
+msgid "Remove this file from the list"
+msgstr "このファイルをリストから削除します。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 477
+#: src/bigocrpdf/ui/settings_queue_mixin.py:477
+msgid "Open file"
+msgstr "ファイルを開く"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 482
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 736
+#: src/bigocrpdf/ui/settings_queue_mixin.py:482
+#: src/bigocrpdf/ui/settings_queue_mixin.py:736
+msgid "File information"
+msgstr "ファイル情報"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1023
+#: src/bigocrpdf/ui/settings_queue_mixin.py:541
+msgid "Failed to open file"
+msgstr "ファイルを開くことに失敗しました"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 673
+#: src/bigocrpdf/ui/settings_queue_mixin.py:673
+msgid "Name"
+msgstr "名前"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 674
+#: src/bigocrpdf/ui/settings_queue_mixin.py:674
+msgid "Path"
+msgstr "パス"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 679
+#: src/bigocrpdf/ui/settings_queue_mixin.py:679
+msgid "Size"
+msgstr "サイズ"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 686
+#: src/bigocrpdf/ui/settings_queue_mixin.py:686
+msgid "Modified (local)"
+msgstr "更新日時（ローカル）"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 693
+#: src/bigocrpdf/ui/settings_queue_mixin.py:693
+msgid "Document"
+msgstr "文書"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 698
+#: src/bigocrpdf/ui/settings_queue_mixin.py:698
+msgid "Form"
+msgstr "フォーム"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 700
+#: src/bigocrpdf/ui/settings_queue_mixin.py:700
+msgid "JavaScript"
+msgstr "JavaScript"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 703
+#: src/bigocrpdf/ui/settings_queue_mixin.py:703
+msgid "Content"
+msgstr "コンテンツ"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 707
+#: src/bigocrpdf/ui/settings_queue_mixin.py:707
+msgid "Image formats"
+msgstr "画像形式"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 713
+#: src/bigocrpdf/ui/settings_queue_mixin.py:713
+msgid "Fonts"
+msgstr "フォント"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 716
+#: src/bigocrpdf/ui/settings_queue_mixin.py:716
+msgid "Embedded fonts"
+msgstr "埋め込みフォント"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 719
+#: src/bigocrpdf/ui/settings_queue_mixin.py:719
+msgid "Font names"
+msgstr "フォント名"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 722
+#: src/bigocrpdf/ui/settings_queue_mixin.py:722
+msgid "Attached files"
+msgstr "添付ファイル"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 725
+#: src/bigocrpdf/ui/settings_queue_mixin.py:725
+msgid "Metadata"
+msgstr "メタデータ"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 730
+#: src/bigocrpdf/ui/settings_queue_mixin.py:730
+msgid "Created"
+msgstr "作成日"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 732
+#: src/bigocrpdf/ui/settings_queue_mixin.py:732
+msgid "Modified"
+msgstr "更新日"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 745
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 746
+#: src/bigocrpdf/ui/settings_queue_mixin.py:745
+#: src/bigocrpdf/ui/settings_queue_mixin.py:746
+msgid "Copy all information"
+msgstr "すべての情報をコピー"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 772
+#: src/bigocrpdf/ui/settings_queue_mixin.py:772
+msgid "Image list"
+msgstr "画像一覧"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 773
+#: src/bigocrpdf/ui/settings_queue_mixin.py:773
+msgid "images"
+msgstr "画像"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 782
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 783
+#: src/bigocrpdf/ui/settings_queue_mixin.py:782
+#: src/bigocrpdf/ui/settings_queue_mixin.py:783
+msgid "Extract this image"
+msgstr "この画像を抽出"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 813
+#: src/bigocrpdf/ui/settings_queue_mixin.py:813
+msgid "Information copied"
+msgstr "情報をコピーしました"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 870
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 878
+#: src/bigocrpdf/ui/settings_queue_mixin.py:870
+#: src/bigocrpdf/ui/settings_queue_mixin.py:878
+msgid "Failed to extract image"
+msgstr "画像の抽出に失敗しました"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 876
+#: src/bigocrpdf/ui/settings_queue_mixin.py:876
+msgid "Image extracted"
+msgstr "画像を抽出しました"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1094
+#: src/bigocrpdf/ui/settings_queue_mixin.py:926
+msgid "Changes saved"
+msgstr "変更が保存されました"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1114
+#: src/bigocrpdf/ui/settings_queue_mixin.py:943
+msgid "Failed to open PDF editor"
+msgstr "PDFエディタを開けませんでした。"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1210
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1011
+msgid "Multiple Images Dropped"
+msgstr "複数の画像がドロップされました"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1212
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1012
+#, python-brace-format
+msgid "You dropped {} images. How would you like to add them?"
+msgstr "{}枚の画像が削除されました。どのように追加しますか？"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 1073
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1075
+#, python-brace-format
+msgid "{count} files in queue"
+msgstr "キューに{count}個のファイル"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 1085
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1087
+msgid "All files removed from queue"
+msgstr "すべてのファイルをキューから削除しました"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 93
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export to ODT or TXT"
+msgstr "ODT または TXT にエクスポート"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 117
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export format"
+msgstr "エクスポート形式"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 119
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Choose the output format for the extracted text."
+msgstr "抽出したテキストの出力形式を選択してください。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 124
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "ODF Document (.odt)"
+msgstr "ODF ドキュメント (.odt)"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 127
+#: src/bigocrpdf/ui/export_dialog.py
+msgid ""
+"Preserves text formatting, paragraphs and layout. Editable in LibreOffice, Google Docs and "
+"Microsoft Word."
+msgstr "テキストの書式、段落、レイアウトを保持します。LibreOffice、Google Docs、Microsoft Wordで編集可能です。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 132
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 135
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export ODF"
+msgstr "ODF にエクスポート"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 138
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export as ODF document"
+msgstr "ODF ドキュメントとしてエクスポート"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 146
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Plain Text (.txt)"
+msgstr "プレーンテキスト (.txt)"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 149
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Raw text without any formatting. Lightweight and universal — works everywhere."
+msgstr "書式なしの生テキスト。軽量で汎用的 — どこでも使えます。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 154
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 157
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export TXT"
+msgstr "TXT にエクスポート"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 160
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Export as plain text"
+msgstr "プレーンテキストとしてエクスポート"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 173
+#: src/bigocrpdf/ui/export_dialog.py
+#, python-format
+msgid "This PDF contains %d image(s)"
+msgstr "この PDF には %d 個の画像があります"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 176
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "PDF content analysis"
+msgstr "PDF コンテンツ分析"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 179
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Apply OCR first"
+msgstr "最初に OCR を適用"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 182
+#: src/bigocrpdf/ui/export_dialog.py
+msgid ""
+"If the images contain text (scanned pages or photos), applying OCR first will produce much better "
+"export results."
+msgstr "画像にテキストが含まれている場合（スキャンページや写真）、最初に OCR を適用するとエクスポート結果が大幅に向上します。"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 188
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 191
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Open OCR"
+msgstr "OCR を開く"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/export_dialog.py, line: 194
+#: src/bigocrpdf/ui/export_dialog.py
+msgid "Open OCR application to recognize text in images"
+msgstr "画像のテキストを認識するために OCR アプリケーションを開く"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1215
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 194
+#: src/bigocrpdf/ui/dialogs_manager.py:70
+msgid "Separate PDFs"
+msgstr "PDFを分割する"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1216
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 195
+#: src/bigocrpdf/ui/dialogs_manager.py:71
+msgid "Merge into One PDF"
+msgstr "1つのPDFに統合"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1227
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 221
+#: src/bigocrpdf/ui/dialogs_manager.py:83
+#, python-brace-format
+msgid "Merged {} images into one PDF"
+msgstr "{}の画像を1つのPDFにマージしました。"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1231
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 225
+#: src/bigocrpdf/ui/dialogs_manager.py:87
+msgid "Error merging images"
+msgstr "画像のマージ中にエラーが発生しました。"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 224
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 649
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_mixin.py:27
@@ -1883,96 +1972,6 @@ msgstr "{}個に分割（{}ページ）"
 #, python-brace-format
 msgid "Split failed: {}"
 msgstr "分割に失敗しました：{}"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 343
-#: src/bigocrpdf/ui/pdf_editor/editor_page_actions_mixin.py:99
-#, python-brace-format
-msgid "Failed to add file {}: {}"
-msgstr "ファイル {} を追加できませんでした: {}"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 126
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 474
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 95
-#: src/bigocrpdf/ui/header_bar.py:96 src/bigocrpdf/ui/header_bar.py:99
-#: src/bigocrpdf/ui/pdf_editor/editor_page_actions_mixin.py:175
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:306
-msgid "Add Files"
-msgstr "ファイルを追加"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 478
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 68
-#: src/bigocrpdf/ui/file_selection_manager.py:67
-#: src/bigocrpdf/ui/pdf_editor/editor_page_actions_mixin.py:178
-msgid "PDFs and Images"
-msgstr "PDFと画像"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 80
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:82
-#, python-brace-format
-msgid "Page {}"
-msgstr "{}ページ"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 131
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:140
-msgid "Excluded"
-msgstr "除外されました"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 153
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:162
-msgid "Include this page in the final document"
-msgstr "このページを最終文書に含める"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 164
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:166
-#, python-brace-format
-msgid "Include page {} in the final document"
-msgstr "最終文書にページ{}を含める"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 169
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:182
-msgid "Rotate this page to the left"
-msgstr "このページを左に回転させてください。"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 183
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:185
-#, python-brace-format
-msgid "Rotate page {} to the left"
-msgstr "ページ{}を左に回転"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 178
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:195
-msgid "Rotate this page to the right"
-msgstr "このページを右に回転させる"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 196
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:198
-#, python-brace-format
-msgid "Rotate page {} to the right"
-msgstr "ページ{}を右に回転"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 211
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:211
-msgid "Horizontal Flip"
-msgstr "水平反転"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 212
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:212
-msgid "Vertical Flip"
-msgstr "垂直反転"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 231
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:231
-msgid "Mirror this page (Horizontal/Vertical)"
-msgstr "このページを反転（水平/垂直）"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 235
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:235
-#, python-brace-format
-msgid "Mirror page {}"
-msgstr "ページ{}を反転"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 263
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:263
-msgid "Save page as image"
-msgstr "ページを画像として保存"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 264
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:264
-msgid "Save page as PDF"
-msgstr "ページをPDFとして保存"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 72
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:90
 #, python-brace-format
@@ -2086,6 +2085,16 @@ msgstr "すべてのページの順序を逆にする"
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:288
 msgid "Toggle Sidebar"
 msgstr "サイドバーの表示切替"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 126
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 474
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 95
+#: src/bigocrpdf/ui/header_bar.py:96 src/bigocrpdf/ui/header_bar.py:99
+#: src/bigocrpdf/ui/pdf_editor/editor_page_actions_mixin.py:175
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:306
+msgid "Add Files"
+msgstr "ファイルを追加"
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 308
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:308
@@ -2323,791 +2332,155 @@ msgstr "保存されていない変更"
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:935
 msgid "What would you like to do with your changes?"
 msgstr "変更をどうしますか？"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 343
+#: src/bigocrpdf/ui/pdf_editor/editor_page_actions_mixin.py:99
+#, python-brace-format
+msgid "Failed to add file {}: {}"
+msgstr "ファイル {} を追加できませんでした: {}"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 43
-#: src/bigocrpdf/ui/corrections_dialog.py:41
-msgid "Straighten Pages"
-msgstr "ページの傾き補正"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 478
+# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 68
+#: src/bigocrpdf/ui/file_selection_manager.py:67
+#: src/bigocrpdf/ui/pdf_editor/editor_page_actions_mixin.py:178
+msgid "PDFs and Images"
+msgstr "PDFと画像"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 80
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:82
+#, python-brace-format
+msgid "Page {}"
+msgstr "{}ページ"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 131
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:140
+msgid "Excluded"
+msgstr "除外されました"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 153
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:162
+msgid "Include this page in the final document"
+msgstr "このページを最終文書に含める"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 164
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:166
+#, python-brace-format
+msgid "Include page {} in the final document"
+msgstr "最終文書にページ{}を含める"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 169
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:182
+msgid "Rotate this page to the left"
+msgstr "このページを左に回転させてください。"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 183
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:185
+#, python-brace-format
+msgid "Rotate page {} to the left"
+msgstr "ページ{}を左に回転"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 178
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:195
+msgid "Rotate this page to the right"
+msgstr "このページを右に回転させる"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 196
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:198
+#, python-brace-format
+msgid "Rotate page {} to the right"
+msgstr "ページ{}を右に回転"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 45
-#: src/bigocrpdf/ui/corrections_dialog.py:43
-msgid "Fixes pages that were scanned at a slight angle. The text lines become perfectly horizontal."
-msgstr "わずかに傾いてスキャンされたページを修正します。テキスト行が完全に水平になります。"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 211
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:211
+msgid "Horizontal Flip"
+msgstr "水平反転"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 52
-#: src/bigocrpdf/ui/corrections_dialog.py:50
-msgid "Fix Curved Text"
-msgstr "湾曲テキストの補正"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 212
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:212
+msgid "Vertical Flip"
+msgstr "垂直反転"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 54
-#: src/bigocrpdf/ui/corrections_dialog.py:52
-msgid "Corrects wavy or curved text that appears when photographing a book or a bent document."
-msgstr "本や曲がった文書を撮影した際に現れる波打ちや湾曲したテキストを補正します。"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 231
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:231
+msgid "Mirror this page (Horizontal/Vertical)"
+msgstr "このページを反転（水平/垂直）"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 61
-#: src/bigocrpdf/ui/corrections_dialog.py:59
-msgid "Fix Perspective"
-msgstr "遠近補正"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 235
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:235
+#, python-brace-format
+msgid "Mirror page {}"
+msgstr "ページ{}を反転"
 # 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 63
-#: src/bigocrpdf/ui/corrections_dialog.py:61
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 263
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:263
+msgid "Save page as image"
+msgstr "ページを画像として保存"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 264
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:264
+msgid "Save page as PDF"
+msgstr "ページをPDFとして保存"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_grid.py, line: 112
+#: src/bigocrpdf/ui/pdf_editor/page_grid.py:111
 msgid ""
-"Corrects pages that look like a trapezoid because the photo was taken at an angle instead of "
-"straight above."
-msgstr "真上からでなく斜めから撮影されたために台形に見えるページを補正します。"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 70
-#: src/bigocrpdf/ui/corrections_dialog.py:68
-msgid "Fix Page Direction"
-msgstr "ページ方向の修正"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 72
-#: src/bigocrpdf/ui/corrections_dialog.py:70
-msgid ""
-"Detects and fixes pages that are upside-down or sideways, automatically rotating them to the "
-"correct orientation."
-msgstr "上下逆さまや横向きのページを検出し、自動的に正しい向きに回転します。"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 79
-#: src/bigocrpdf/ui/corrections_dialog.py:77
-msgid "Enhance Readability"
-msgstr "読みやすさの向上"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 81
-#: src/bigocrpdf/ui/corrections_dialog.py:79
-msgid ""
-"Makes text darker and the background lighter, producing a cleaner result similar to a high-quality "
-"scan."
-msgstr "テキストを濃く、背景を明るくし、高品質スキャンに似たきれいな結果を生成します。"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 88
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 125
-#: src/bigocrpdf/ui/corrections_dialog.py:86
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:125
-msgid "Enhance Embedded Images"
-msgstr "埋め込み画像の補正"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 90
-#: src/bigocrpdf/ui/corrections_dialog.py:88
-msgid ""
-"Apply image corrections (deskew, dewarp, perspective) to images inside pages that already contain "
-"text. Normally skipped because these images are already well-aligned. Enable only if embedded "
-"images appear crooked or distorted."
-msgstr "テキストを含むページ内の画像に画像補正（傾き補正、湾曲補正、遠近補正）を適用します。通常これらの画像は正しく配置されているためスキップされます。埋め込み画像が歪んでいる場合のみ有効にしてください。"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 97
-#: src/bigocrpdf/ui/corrections_dialog.py:108
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:49
-msgid "Image Corrections"
-msgstr "画像補正"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 131
-#: src/bigocrpdf/ui/corrections_dialog.py:129
-msgid ""
-"These corrections automatically improve your scanned or photographed documents. Each one fixes a "
-"specific problem."
-msgstr "これらの補正はスキャンまたは撮影した文書を自動的に改善します。それぞれが特定の問題を修正します。"
+"Page thumbnails. Ctrl+A select all, Ctrl+Up/Down reorder, Delete toggle page, Ctrl+L/R rotate, "
+"Ctrl+Z undo"
+msgstr "ページサムネイル。Ctrl+Aですべて選択、Ctrl+上下で並べ替え、Deleteでページ切替、Ctrl+L/Rで回転、Ctrl+Zで元に戻す"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1898
-#: src/bigocrpdf/ui/pdf_options_callbacks_mixin.py:254
-msgid "Select Folder for Text Files"
-msgstr "テキストファイルのフォルダーを選択"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_callbacks_mixin.py, line: 317
-#: src/bigocrpdf/ui/pdf_options_callbacks_mixin.py:320
-msgid "PDF output settings saved"
-msgstr "PDF出力設定が保存されました"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 111
-#: src/bigocrpdf/ui/advanced_dialog.py:85
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:65
-msgid "Advanced"
-msgstr "詳細設定"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 142
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 143
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:94
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:95
-msgid "Language help"
-msgstr "言語ヘルプ"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 159
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:113
-msgid ""
-"Choose the language of your document's text.\n"
-"The correct language helps recognize text more accurately."
-msgstr "ドキュメントのテキストの言語を選択してください。正しい言語は、テキストをより正確に認識するのに役立ちます。"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 622
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:122
-msgid "Perspective Correction"
-msgstr "パースペクティブ補正"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 145
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:145
-#, python-brace-format
-msgid "{active} of {total} enabled"
-msgstr "{total}中{active}個有効"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 175
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 252
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:174
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:248
-#, python-brace-format
-msgid "{n} options enabled"
-msgstr "{n}個のオプションが有効"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 227
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:186
-msgid "Very Low (30%)"
-msgstr "非常に低い (30%)"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 228
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:187
-msgid "Low (50%)"
-msgstr "低 (50%)"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 229
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:188
-msgid "Medium (70%)"
-msgstr "中程度 (70%)"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 230
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:189
-msgid "High (85%)"
-msgstr "高 (85%)"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 231
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:190
-msgid "Maximum (95%)"
-msgstr "最大 (95%)"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 195
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:191
-msgid "Black & White (JBIG2)"
-msgstr "白黒（JBIG2）"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 270
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:201
-msgid "No limit"
-msgstr "制限なし"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 206
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:202
-msgid "5 MB"
-msgstr "5 MB"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 207
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:203
-msgid "10 MB"
-msgstr "10 MB"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 208
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:204
-msgid "15 MB"
-msgstr "15 MB"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:205
-msgid "20 MB"
-msgstr "20 MB"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:206
-msgid "25 MB"
-msgstr "25 MB"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:207
-msgid "50 MB"
-msgstr "50 MB"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:208
-msgid "100 MB"
-msgstr "100 MB"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 165
-#: src/bigocrpdf/ui/advanced_dialog.py:42
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:256
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:257
-msgid "OCR Precision"
-msgstr "OCR精度"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 171
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:259
-msgid "Low Precision"
-msgstr "低精度"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 172
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:260
-msgid "Standard"
-msgstr "標準"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 173
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:261
-msgid "Precise"
-msgstr "正確な"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 174
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:262
-msgid "Very Precise"
-msgstr "非常に正確"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 657
-#: src/bigocrpdf/ui/advanced_dialog.py:53
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:266
-msgid "Replace Existing OCR"
-msgstr "既存のOCRを置き換える"
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 273
-# File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 66
-#: src/bigocrpdf/ui/advanced_dialog.py:64
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:269
-msgid "Full Resolution Detection"
-msgstr "フル解像度検出"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 467
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:353
-msgid "Choose the model that matches the language of your documents for the best results."
-msgstr "ドキュメントの言語に合ったモデルを選択して、最良の結果を得てください。"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 493
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:374
-#, python-brace-format
-msgid "{count} languages"
-msgstr "{count} 言語"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 546
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:422
-msgid "Supported Languages"
-msgstr "サポートされている言語"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 190
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 726
-#: src/bigocrpdf/ui/navigation_manager.py:93
-msgid "Start"
-msgstr "開始"
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/navigation_manager.py,
-# line: 109
-#: src/bigocrpdf/ui/navigation_manager.py:109
-msgid "Process New Files"
-msgstr "新しいファイルを処理する"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 400
-#: src/bigocrpdf/ui/settings_queue_mixin.py:53
-#: src/bigocrpdf/ui/settings_queue_mixin.py:93
-msgid "File queue"
-msgstr "ファイルキュー"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 57
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 100
-#: src/bigocrpdf/ui/settings_queue_mixin.py:57
-#: src/bigocrpdf/ui/settings_queue_mixin.py:100
-msgid "Add your PDFs"
-msgstr "PDFを追加"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 59
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 102
-#: src/bigocrpdf/ui/settings_queue_mixin.py:59
-#: src/bigocrpdf/ui/settings_queue_mixin.py:102
-msgid "Drag PDF files and images here, or use the button in the header bar"
-msgstr "PDFファイルや画像をここにドラッグするか、ヘッダーバーのボタンを使用してください"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 362
-#: src/bigocrpdf/ui/settings_queue_mixin.py:130
-msgid "Save in the same folder as the original file"
-msgstr "元のファイルと同じフォルダーに保存する"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 363
-#: src/bigocrpdf/ui/settings_queue_mixin.py:131
-msgid "Custom folder"
-msgstr "カスタムフォルダー"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 442
-#: src/bigocrpdf/ui/settings_queue_mixin.py:138
-msgid "Output folder location"
-msgstr "出力フォルダの場所"
+# line: 424
+#: src/bigocrpdf/ui/conclusion_page_builder.py:47
+msgid "Processing Summary"
+msgstr "処理概要"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1862
-#: src/bigocrpdf/ui/settings_queue_mixin.py:149
-msgid "Select folder"
-msgstr "フォルダーを選択"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 458
-#: src/bigocrpdf/ui/settings_queue_mixin.py:152
-msgid "Destination folder path"
-msgstr "保存先フォルダのパス"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 465
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 466
-#: src/bigocrpdf/ui/settings_queue_mixin.py:158
-#: src/bigocrpdf/ui/settings_queue_mixin.py:159
-msgid "Browse for folder"
-msgstr "フォルダを参照"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 285
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:308
-#: src/bigocrpdf/ui/settings_queue_mixin.py:285
-#: src/bigocrpdf/ui/settings_queue_mixin.py:953
-#, python-brace-format
-msgid "{pages} pg."
-msgstr "{pages}ページ"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 290
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 384
-#: src/bigocrpdf/ui/settings_queue_mixin.py:290
-#: src/bigocrpdf/ui/settings_queue_mixin.py:384
-#, python-brace-format
-msgid "{size} MB"
-msgstr "{size} MB"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 983
-#: src/bigocrpdf/ui/settings_queue_mixin.py:307
-#: src/bigocrpdf/ui/settings_queue_mixin.py:308
-#: src/bigocrpdf/ui/settings_queue_mixin.py:395
-#: src/bigocrpdf/ui/settings_queue_mixin.py:396
-msgid "Edit pages of this file"
-msgstr "このファイルのページを編集する"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 999
-#: src/bigocrpdf/ui/settings_queue_mixin.py:315
-#: src/bigocrpdf/ui/settings_queue_mixin.py:316
-#: src/bigocrpdf/ui/settings_queue_mixin.py:403
-#: src/bigocrpdf/ui/settings_queue_mixin.py:404
-msgid "Remove this file from the list"
-msgstr "このファイルをリストから削除します。"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 477
-#: src/bigocrpdf/ui/settings_queue_mixin.py:477
-msgid "Open file"
-msgstr "ファイルを開く"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 482
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 736
-#: src/bigocrpdf/ui/settings_queue_mixin.py:482
-#: src/bigocrpdf/ui/settings_queue_mixin.py:736
-msgid "File information"
-msgstr "ファイル情報"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1023
-#: src/bigocrpdf/ui/settings_queue_mixin.py:541
-msgid "Failed to open file"
-msgstr "ファイルを開くことに失敗しました"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 673
-#: src/bigocrpdf/ui/settings_queue_mixin.py:673
-msgid "Name"
-msgstr "名前"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 674
-#: src/bigocrpdf/ui/settings_queue_mixin.py:674
-msgid "Path"
-msgstr "パス"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 679
-#: src/bigocrpdf/ui/settings_queue_mixin.py:679
-msgid "Size"
-msgstr "サイズ"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 686
-#: src/bigocrpdf/ui/settings_queue_mixin.py:686
-msgid "Modified (local)"
-msgstr "更新日時（ローカル）"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 693
-#: src/bigocrpdf/ui/settings_queue_mixin.py:693
-msgid "Document"
-msgstr "文書"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 698
-#: src/bigocrpdf/ui/settings_queue_mixin.py:698
-msgid "Form"
-msgstr "フォーム"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 700
-#: src/bigocrpdf/ui/settings_queue_mixin.py:700
-msgid "JavaScript"
-msgstr "JavaScript"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 703
-#: src/bigocrpdf/ui/settings_queue_mixin.py:703
-msgid "Content"
-msgstr "コンテンツ"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 707
-#: src/bigocrpdf/ui/settings_queue_mixin.py:707
-msgid "Image formats"
-msgstr "画像形式"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 713
-#: src/bigocrpdf/ui/settings_queue_mixin.py:713
-msgid "Fonts"
-msgstr "フォント"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 716
-#: src/bigocrpdf/ui/settings_queue_mixin.py:716
-msgid "Embedded fonts"
-msgstr "埋め込みフォント"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 719
-#: src/bigocrpdf/ui/settings_queue_mixin.py:719
-msgid "Font names"
-msgstr "フォント名"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 722
-#: src/bigocrpdf/ui/settings_queue_mixin.py:722
-msgid "Attached files"
-msgstr "添付ファイル"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 725
-#: src/bigocrpdf/ui/settings_queue_mixin.py:725
-msgid "Metadata"
-msgstr "メタデータ"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 730
-#: src/bigocrpdf/ui/settings_queue_mixin.py:730
-msgid "Created"
-msgstr "作成日"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 732
-#: src/bigocrpdf/ui/settings_queue_mixin.py:732
-msgid "Modified"
-msgstr "更新日"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 745
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 746
-#: src/bigocrpdf/ui/settings_queue_mixin.py:745
-#: src/bigocrpdf/ui/settings_queue_mixin.py:746
-msgid "Copy all information"
-msgstr "すべての情報をコピー"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 772
-#: src/bigocrpdf/ui/settings_queue_mixin.py:772
-msgid "Image list"
-msgstr "画像一覧"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 773
-#: src/bigocrpdf/ui/settings_queue_mixin.py:773
-msgid "images"
-msgstr "画像"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 782
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 783
-#: src/bigocrpdf/ui/settings_queue_mixin.py:782
-#: src/bigocrpdf/ui/settings_queue_mixin.py:783
-msgid "Extract this image"
-msgstr "この画像を抽出"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 813
-#: src/bigocrpdf/ui/settings_queue_mixin.py:813
-msgid "Information copied"
-msgstr "情報をコピーしました"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 870
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 878
-#: src/bigocrpdf/ui/settings_queue_mixin.py:870
-#: src/bigocrpdf/ui/settings_queue_mixin.py:878
-msgid "Failed to extract image"
-msgstr "画像の抽出に失敗しました"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 876
-#: src/bigocrpdf/ui/settings_queue_mixin.py:876
-msgid "Image extracted"
-msgstr "画像を抽出しました"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1094
-#: src/bigocrpdf/ui/settings_queue_mixin.py:926
-msgid "Changes saved"
-msgstr "変更が保存されました"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1114
-#: src/bigocrpdf/ui/settings_queue_mixin.py:943
-msgid "Failed to open PDF editor"
-msgstr "PDFエディタを開けませんでした。"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1210
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1011
-msgid "Multiple Images Dropped"
-msgstr "複数の画像がドロップされました"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1212
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1012
-#, python-brace-format
-msgid "You dropped {} images. How would you like to add them?"
-msgstr "{}枚の画像が削除されました。どのように追加しますか？"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 1073
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1075
-#, python-brace-format
-msgid "{count} files in queue"
-msgstr "キューに{count}個のファイル"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 1085
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1087
-msgid "All files removed from queue"
-msgstr "すべてのファイルをキューから削除しました"
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 102
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:31
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:146
-msgid "Export to OpenDocument"
-msgstr "OpenDocument形式でエクスポート"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 53
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:53
-msgid "Include images"
-msgstr "画像を含める"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 54
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:54
-msgid "Embed page images alongside text"
-msgstr "テキストと一緒にページ画像を埋め込む"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 65
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:65
-msgid "Open after export"
-msgstr "エクスポート後に開く"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 66
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:66
-msgid "Open file in the default application"
-msgstr "デフォルトアプリケーションでファイルを開く"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 81
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 88
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:81
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:88
-msgid "Export"
-msgstr "エクスポート"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 157
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:157
-msgid "OpenDocument Text (*.odt)"
-msgstr "OpenDocumentテキスト (*.odt)"
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 340
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 350
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:187
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:306
-msgid "Export failed"
-msgstr "エクスポートに失敗しました"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 206
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:206
-msgid "Exporting…"
-msgstr "エクスポート中…"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 230
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:230
-msgid "Exporting to OpenDocument…"
-msgstr "OpenDocumentにエクスポート中…"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 287
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:287
-msgid "Export cancelled"
-msgstr "エクスポートがキャンセルされました"
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 338
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:300
-#, python-brace-format
-msgid "Exported to {}"
-msgstr "{}にエクスポートされました。"
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 610
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:369
-msgid "Extracted Text"
-msgstr "抽出されたテキスト"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 612
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1199
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 612
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1199
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 612
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1199
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 612
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1199
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 612
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1199
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 612
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1199
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 612
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1199
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 612
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1199
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 612
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1199
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 612
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1199
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 612
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1199
-# 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 612
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1199
-# 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 639
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:398
-msgid "No text content was detected in this file during OCR processing."
-msgstr "このファイルのOCR処理中にテキストコンテンツが検出されませんでした。"
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 708
-#: src/bigocrpdf/ui/text_viewer_mixin.py:89
-msgid "OCR processing was completed for this file, but the extracted text could not be found."
-msgstr "このファイルのOCR処理は完了しましたが、抽出されたテキストが見つかりませんでした。"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 134
-#: src/bigocrpdf/ui/text_viewer_mixin.py:158
-msgid "words"
-msgstr "単語"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
-#: src/bigocrpdf/ui/text_viewer_mixin.py:160
-msgid "characters"
-msgstr "キャラクター"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 203
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 204
-#: src/bigocrpdf/ui/text_viewer_mixin.py:227
-#: src/bigocrpdf/ui/text_viewer_mixin.py:228
-msgid "Decrease font size"
-msgstr "フォントサイズを縮小"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 209
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 210
-#: src/bigocrpdf/ui/text_viewer_mixin.py:233
-#: src/bigocrpdf/ui/text_viewer_mixin.py:234
-msgid "Increase font size"
-msgstr "フォントサイズを拡大"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 371
-#: src/bigocrpdf/ui/text_viewer_mixin.py:254
-#: src/bigocrpdf/ui/text_viewer_mixin.py:257
-msgid "Save TXT"
-msgstr "TXTを保存"
+# line: 450
+#: src/bigocrpdf/ui/conclusion_page_builder.py:100
+msgid "Files processed:"
+msgstr "処理されたファイル："
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1493
-#: src/bigocrpdf/ui/text_viewer_mixin.py:260
-#: src/bigocrpdf/ui/text_viewer_mixin.py:262
-msgid "Close"
-msgstr "閉じる"
+# line: 466
+#: src/bigocrpdf/ui/conclusion_page_builder.py:109
+msgid "Total pages:"
+msgstr "総ページ数："
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1291
+# line: 488
+#: src/bigocrpdf/ui/conclusion_page_builder.py:132
+msgid "Processing time:"
+msgstr "処理時間："
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 140
+#: src/bigocrpdf/ui/conclusion_page_builder.py:141
+msgid "Output size:"
+msgstr "出力サイズ："
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 149
+#: src/bigocrpdf/ui/conclusion_page_builder.py:150
+msgid "Size change:"
+msgstr "サイズ変更:"
 # 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 197
+#: src/bigocrpdf/ui/conclusion_page_builder.py:197
+msgid "Files processed"
+msgstr "処理済みファイル"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 207
+#: src/bigocrpdf/ui/conclusion_page_builder.py:207
+msgid "Pages processed"
+msgstr "処理済みページ"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 217
+#: src/bigocrpdf/ui/conclusion_page_builder.py:217
+msgid "Processing time"
+msgstr "処理時間"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 227
+#: src/bigocrpdf/ui/conclusion_page_builder.py:227
+msgid "Output file size"
+msgstr "出力ファイルサイズ"
+# 
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 237
+#: src/bigocrpdf/ui/conclusion_page_builder.py:237
+msgid "File size change"
+msgstr "ファイルサイズの変化"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1291
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1291
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1291
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1272
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1272
-# 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1324
-#: src/bigocrpdf/ui/text_viewer_mixin.py:309
-msgid "Search in text..."
-msgstr "テキスト内を検索..."
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 287
-#: src/bigocrpdf/ui/text_viewer_mixin.py:311
-msgid "Search in text"
-msgstr "テキスト内を検索"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 294
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 295
-#: src/bigocrpdf/ui/text_viewer_mixin.py:318
-#: src/bigocrpdf/ui/text_viewer_mixin.py:319
-msgid "Previous match"
-msgstr "前の一致"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 301
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 302
-#: src/bigocrpdf/ui/text_viewer_mixin.py:325
-#: src/bigocrpdf/ui/text_viewer_mixin.py:326
-msgid "Next match"
-msgstr "次の一致"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 448
-#: src/bigocrpdf/ui/text_viewer_mixin.py:448
-#, python-brace-format
-msgid "{current}/{total}"
-msgstr "{current}/{total}"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 457
-#: src/bigocrpdf/ui/text_viewer_mixin.py:457
-msgid "Wrapped to first match"
-msgstr "最初の一致に戻りました"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 466
-#: src/bigocrpdf/ui/text_viewer_mixin.py:466
-msgid "Wrapped to last match"
-msgstr "最後の一致に戻りました"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 507
-#: src/bigocrpdf/ui/text_viewer_mixin.py:484
-msgid "No matches"
-msgstr "一致なし"
+# line: 529
+#: src/bigocrpdf/ui/conclusion_page_builder.py:252
+msgid "Generated Files"
+msgstr "生成されたファイル"
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 281
+#: src/bigocrpdf/ui/conclusion_page_builder.py:286
+msgid "Output files"
+msgstr "出力ファイル"
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 46
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 47
 #: src/bigocrpdf/ui/header_bar.py:46 src/bigocrpdf/ui/header_bar.py:47
@@ -3204,186 +2577,818 @@ msgstr "宛先フォルダーの選択中にエラーが発生しました"
 #: src/bigocrpdf/ui/file_selection_manager.py:303
 msgid "Destination folder selected"
 msgstr "宛先フォルダーが選択されました"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 424
-#: src/bigocrpdf/ui/conclusion_page_builder.py:47
-msgid "Processing Summary"
-msgstr "処理概要"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 450
-#: src/bigocrpdf/ui/conclusion_page_builder.py:100
-msgid "Files processed:"
-msgstr "処理されたファイル："
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 466
-#: src/bigocrpdf/ui/conclusion_page_builder.py:109
-msgid "Total pages:"
-msgstr "総ページ数："
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 488
-#: src/bigocrpdf/ui/conclusion_page_builder.py:132
-msgid "Processing time:"
-msgstr "処理時間："
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 140
-#: src/bigocrpdf/ui/conclusion_page_builder.py:141
-msgid "Output size:"
-msgstr "出力サイズ："
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 149
-#: src/bigocrpdf/ui/conclusion_page_builder.py:150
-msgid "Size change:"
-msgstr "サイズ変更:"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 197
-#: src/bigocrpdf/ui/conclusion_page_builder.py:197
-msgid "Files processed"
-msgstr "処理済みファイル"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 207
-#: src/bigocrpdf/ui/conclusion_page_builder.py:207
-msgid "Pages processed"
-msgstr "処理済みページ"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 217
-#: src/bigocrpdf/ui/conclusion_page_builder.py:217
-msgid "Processing time"
-msgstr "処理時間"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 227
-#: src/bigocrpdf/ui/conclusion_page_builder.py:227
-msgid "Output file size"
-msgstr "出力ファイルサイズ"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 237
-#: src/bigocrpdf/ui/conclusion_page_builder.py:237
-msgid "File size change"
-msgstr "ファイルサイズの変化"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 529
-#: src/bigocrpdf/ui/conclusion_page_builder.py:252
-msgid "Generated Files"
-msgstr "生成されたファイル"
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 281
-#: src/bigocrpdf/ui/conclusion_page_builder.py:286
-msgid "Output files"
-msgstr "出力ファイル"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 46
-#: src/bigocrpdf/ui/advanced_dialog.py:44
-msgid ""
-"How carefully the program reads text from your documents. Lower precision finds more text (good for "
-"blurry pages), while higher precision makes fewer mistakes but may miss faint text."
-msgstr "文書からテキストを読み取る際の精度です。低い精度はより多くのテキストを検出します（ぼやけたページに有効）が、高い精度はミスが少ない一方で薄いテキストを見逃す場合があります。"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 57
-#: src/bigocrpdf/ui/advanced_dialog.py:55
-msgid ""
-"When enabled, redoes the text recognition even if the PDF already has searchable text. Use this "
-"when the existing text layer is incorrect or of poor quality."
-msgstr "有効にすると、PDFに既に検索可能なテキストがある場合でもテキスト認識をやり直します。既存のテキストレイヤーが不正確または品質が低い場合に使用してください。"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 68
-#: src/bigocrpdf/ui/advanced_dialog.py:66
-msgid ""
-"Analyzes the image at full resolution for text detection. Finds more text in high-resolution scans "
-"but takes longer. The faster mode is good enough for most documents."
-msgstr "テキスト検出のために画像をフル解像度で分析します。高解像度スキャンでより多くのテキストを検出しますが、時間がかかります。高速モードでほとんどの文書には十分です。"
-# 
-# File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 108
-#: src/bigocrpdf/ui/advanced_dialog.py:106
-msgid "Fine-tune how OCR text recognition works. The default settings work well for most documents."
-msgstr "OCRテキスト認識の動作を微調整します。デフォルト設定はほとんどの文書に適しています。"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 57
-# File: bigocrpdf/src/bigocrpdf/config.py, line: 146
-#: src/bigocrpdf/application.py:57 src/bigocrpdf/config.py:146
-msgid "Open files directly in the PDF editor"
-msgstr "PDFエディタで直接ファイルを開く"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
-#: src/bigocrpdf/application.py:180
-msgid "Application started successfully"
-msgstr "アプリケーションが正常に起動しました"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 111
-#: src/bigocrpdf/application.py:185
-msgid "Error starting application"
-msgstr "アプリケーションの起動中にエラーが発生しました"
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 270
-#: src/bigocrpdf/application.py:267
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
+#: src/bigocrpdf/application.py:49 src/bigocrpdf/config.py:134
+#: src/bigocrpdf/image_application.py:45
+msgid "Print version information and exit"
+msgstr "バージョン情報を表示して終了する"
+# File: bigocrpdf/src/bigocrpdf/image_application.py, line: 115
+#: src/bigocrpdf/image_application.py:115
+msgid "Extract text from images using OCR"
+msgstr "画像からOCRを使用してテキストを抽出します。"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
+# line: 105
+#: src/bigocrpdf/services/settings.py:369
 #, python-brace-format
-msgid "Opened {0} file(s)"
-msgstr "{0}個のファイルを開きました"
+msgid "Attempting to add {0} files"
+msgstr "{0} ファイルを追加しようとしています。"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
+# line: 120
+#: src/bigocrpdf/services/settings.py:384
+#, python-brace-format
+msgid "Successfully added {0} files"
+msgstr "{0} 件のファイルが正常に追加されました。"
+# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 229
+#: src/bigocrpdf/services/settings.py:386
+msgid "No valid files were found to add"
+msgstr "追加する有効なファイルが見つかりませんでした。"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
+# line: 140
+#: src/bigocrpdf/services/settings.py:404
+msgid "Empty file path provided"
+msgstr "空のファイルパスが提供されました"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
+# line: 145
+#: src/bigocrpdf/services/settings.py:409
+#, python-brace-format
+msgid "File does not exist: {0}"
+msgstr "ファイルが存在しません: {0}"
+# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 258
+#: src/bigocrpdf/services/settings.py:425
+#, python-brace-format
+msgid "Unsupported file type: {0}"
+msgstr "サポートされていないファイルタイプ: {0}"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
+# line: 155
+#: src/bigocrpdf/services/settings.py:430
+#, python-brace-format
+msgid "File already in list: {0}"
+msgstr "リストに既にファイルが存在します: {0}"
+# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 267
+#: src/bigocrpdf/services/settings.py:434
+#, python-brace-format
+msgid "Adding valid file: {0}"
+msgstr "有効なファイルを追加中: {0}"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
+# line: 231
+#: src/bigocrpdf/services/settings.py:461
+msgid "Settings saved successfully"
+msgstr "設定が正常に保存されました"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
+# line: 234
+#: src/bigocrpdf/services/settings.py:464
+#, python-brace-format
+msgid "Error saving settings: {0}"
+msgstr "設定の保存中にエラーが発生しました: {0}"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
+# line: 404
+#: src/bigocrpdf/services/settings.py:683
+#, python-brace-format
+msgid "Saved {0} selected files"
+msgstr "{0} 個の選択したファイルが保存されました"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
+# line: 406
+#: src/bigocrpdf/services/settings.py:685
+#, python-brace-format
+msgid "Error saving selected files: {0}"
+msgstr "選択したファイルの保存中にエラーが発生しました: {0}"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
+# line: 430
+#: src/bigocrpdf/services/settings.py:706
+#, python-brace-format
+msgid "Error loading selected files: {0}"
+msgstr "選択したファイルの読み込みエラー: {0}"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
+# line: 594
+#: src/bigocrpdf/services/settings.py:765
+msgid "Processing state reset successfully"
+msgstr "処理状態が正常にリセットされました。"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
+# line: 612
+#: src/bigocrpdf/services/settings.py:799
+msgid "Temporary files cleanup completed"
+msgstr "一時ファイルのクリーンアップが完了しました"
+# File: bigocrpdf/src/bigocrpdf/services/export_service.py, line: 42
+#: src/bigocrpdf/services/export_service.py:73
+#, python-brace-format
+msgid "Saved extracted text to: {0}"
+msgstr "抽出したテキストを保存しました: {0}"
+# File: bigocrpdf/src/bigocrpdf/services/export_service.py, line: 46
+#: src/bigocrpdf/services/export_service.py:77
+#, python-brace-format
+msgid "Failed to save text file: {0}"
+msgstr "テキストファイルの保存に失敗しました: {0}"
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 85
+#: src/bigocrpdf/services/processor.py:88
+#, python-brace-format
+msgid "Started OCR processing for {0} files using RapidOCR"
+msgstr "RapidOCRを使用して{0}ファイルのOCR処理を開始しました。"
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
+# line: 82
+#: src/bigocrpdf/services/processor.py:95
+#, python-brace-format
+msgid "Error starting OCR processing: {0}"
+msgstr "OCR処理の開始中にエラーが発生しました: {0}"
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
+# line: 92
+#: src/bigocrpdf/services/processor.py:101
+msgid "No files to process"
+msgstr "処理するファイルはありません"
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 135
+#: src/bigocrpdf/services/processor.py:139
+msgid "Processing stopped by user"
+msgstr "ユーザーによって処理が停止されました"
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 158
+#: src/bigocrpdf/services/processor.py:165
+#, python-brace-format
+msgid "Processing cancelled by user during file: {0}"
+msgstr "ユーザーによってファイルの処理がキャンセルされました: {0}"
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 163
+#: src/bigocrpdf/services/processor.py:170
+#, python-brace-format
+msgid "Error processing {0}: {1}"
+msgstr "{0}の処理中にエラーが発生しました: {1}"
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 178
+#: src/bigocrpdf/services/processor.py:185
+#, python-brace-format
+msgid "Processing thread error: {0}"
+msgstr "処理スレッドエラー: {0}"
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
+# line: 136
+#: src/bigocrpdf/services/processor.py:195
+#, python-brace-format
+msgid "Error: File not found or invalid: {0}"
+msgstr "エラー: ファイルが見つからないか無効です: {0}"
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 223
+#: src/bigocrpdf/services/processor.py:231
+#, python-brace-format
+msgid "Processed {0}: {1} pages, {2} words"
+msgstr "処理済み {0}: {1} ページ, {2} 単語"
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
+# line: 172
+#: src/bigocrpdf/services/processor.py:365
+#, python-brace-format
+msgid "Could not determine output directory for {0}"
+msgstr "{0}の出力ディレクトリを特定できませんでした。"
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
+# line: 185
+#: src/bigocrpdf/services/processor.py:375
+#, python-brace-format
+msgid "Error creating output path for {0}: {1}"
+msgstr "{0}の出力パスを作成中にエラーが発生しました: {1}"
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
+# line: 388
+#: src/bigocrpdf/services/processor.py:413
+#, python-brace-format
+msgid "Error getting OCR languages: {0}"
+msgstr "OCR言語の取得エラー: {0}"
+# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 481
+#: src/bigocrpdf/services/processor.py:489
+#, python-brace-format
+msgid "Cleared editor state for: {0}"
+msgstr "{0}のエディタ状態がクリアされました。"
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
+# line: 508
+#: src/bigocrpdf/services/processor.py:496
+#, python-brace-format
+msgid "Removed processed file from queue: {0}"
+msgstr "キューから処理済みファイルを削除しました: {0}"
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
+# line: 533
+#: src/bigocrpdf/services/processor.py:518
+#, python-brace-format
+msgid "Generated unique filename to avoid overwriting: {0}"
+msgstr "上書きを避けるために生成されたユニークなファイル名: {0}"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
+# line: 464
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
+# line: 715
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:351
+#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:157
+msgid "Done!"
+msgstr "完了！"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 43
 # 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 368
-#: src/bigocrpdf/application.py:365
-msgid "Shortcuts"
-msgstr "ショートカット"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 44
 # 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 372
-#: src/bigocrpdf/application.py:369
-msgid "File"
-msgstr "ファイル"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 45
 # 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 376
-msgid "Paste from clipboard"
-msgstr "クリップボードから貼り付け"
-# File: bigocrpdf/src/bigocrpdf/window.py, line: 108
-#: src/bigocrpdf/application.py:385 src/bigocrpdf/window_ui_setup.py:213
-msgid "Processing"
-msgstr "処理中"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 43
 # 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 393
-#: src/bigocrpdf/application.py:389
-msgid "Cancel processing"
-msgstr "処理をキャンセル"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 44
 # 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 394
-#: src/bigocrpdf/application.py:390
-msgid "Clear file queue"
-msgstr "ファイルキューをクリア"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 45
 # 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 406
-#: src/bigocrpdf/application.py:402
-msgid "General"
-msgstr "一般"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 43
 # 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 409
-#: src/bigocrpdf/application.py:405
-msgid "Keyboard shortcuts"
-msgstr "キーボードショートカット"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 129
-#: src/bigocrpdf/application.py:434
-msgid "BigLinux Team"
-msgstr "BigLinuxチーム"
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 249
-#: src/bigocrpdf/application.py:442
-msgid "Interface"
-msgstr "インターフェース"
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 255
-#: src/bigocrpdf/application.py:448
-msgid "Third-party Components"
-msgstr "サードパーティコンポーネント"
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 257
-#: src/bigocrpdf/application.py:450
-msgid ""
-"The OCR engine and other libraries used by this application are independent projects, each "
-"distributed under its own license."
-msgstr "このアプリケーションで使用されるOCRエンジンおよびその他のライブラリは独立したプロジェクトであり、それぞれ独自のライセンスの下で配布されています。"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 139
-#: src/bigocrpdf/application.py:461
-msgid "Developers"
-msgstr "開発者"
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 272
-#: src/bigocrpdf/application.py:465
-msgid "Powered by"
-msgstr "提供元"
-# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 42
-#: src/bigocrpdf/window_ui_setup.py:63
-msgid "Main"
-msgstr "メイン"
-# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 203
-#: src/bigocrpdf/window_ui_setup.py:223
-msgid "Results"
-msgstr "結果"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 44
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 45
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 43
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 44
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 45
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 43
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 44
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 45
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 43
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 44
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 45
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
+# line: 245
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:371
+msgid "Analyzing PDF..."
+msgstr "PDFを分析中..."
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
+# line: 417
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:432
+msgid "Merging text layer..."
+msgstr "テキストレイヤーをマージしています..."
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
+# line: 564
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:449
+msgid "Processing text page images..."
+msgstr "テキストページの画像を処理中..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 472
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:472
+msgid "Optimizing image compression..."
+msgstr "画像圧縮を最適化中..."
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py, line: 483
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:483
+#, python-brace-format
+msgid "{0} pages re-encoded with JBIG2"
+msgstr "{0}ページをJBIG2で再エンコード済み"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
+# line: 357
+# File:
+# bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_text_layer.py,
+# line: 422
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:666
+#: src/bigocrpdf/services/rapidocr_service/backend_text_layer.py:426
+#: src/bigocrpdf/services/rapidocr_service/pipeline_chunked_ocr.py:141
+#, python-brace-format
+msgid "Processing page {0}/{1}..."
+msgstr "ページ {0}/{1} を処理中..."
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
+# line: 746
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:898
+msgid "Converting to PDF/A..."
+msgstr "PDF/Aに変換中..."
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
+# line: 698
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
+# line: 758
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:910
+#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:251
+msgid "Splitting PDF by size limit..."
+msgstr "サイズ制限によるPDFの分割..."
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 34
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:34
+msgid "Latin (PT, EN, FR, DE, ES...)"
+msgstr "ラテン文字（PT、EN、FR、DE、ES...）"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 35
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:35
+msgid "English (Optimized)"
+msgstr "英語（最適化）"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 36
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:36
+msgid "Chinese Simplified"
+msgstr "簡体字中国語"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 37
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:37
+msgid "Korean"
+msgstr "韓国語"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 36
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 37
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 36
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 37
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 36
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 37
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 36
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 37
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 36
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 37
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 36
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 37
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 38
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:38
+msgid "Arabic (AR, FA, UR...)"
+msgstr "アラビア文字 (AR, FA, UR...)"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 39
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:39
+msgid "Cyrillic (RU, UK, BG...)"
+msgstr "キリル文字 (RU, UK, BG...)"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 40
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:40
+msgid "East Slavic (RU, BY, UK)"
+msgstr "東スラブ語（RU、BY、UK）"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 41
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:41
+msgid "Greek"
+msgstr "ギリシャ語"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 41
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 41
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 41
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 41
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 41
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 41
+# 
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 42
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:42
+msgid "Devanagari (Hindi, Marathi, Nepali)"
+msgstr "デーヴァナーガリー（ヒンディー語、マラーティー語、ネパール語）"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 43
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:43
+msgid "Tamil"
+msgstr "タミル語"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 44
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:44
+msgid "Telugu"
+msgstr "テルグ語"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 45
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:45
+msgid "Thai"
+msgstr "タイ語"
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
+# line: 610
+#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:95
+msgid "Analyzing PDF structure..."
+msgstr "PDF構造を分析中..."
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
+# line: 633
+#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:128
+msgid "Extracting images..."
+msgstr "画像を抽出しています..."
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
+# line: 687
+#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:147
+msgid "Saving PDF..."
+msgstr "PDFを保存中..."
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
+# line: 655
+#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:207
+#, python-brace-format
+msgid "OCR page {0}..."
+msgstr "OCRページ {0}..."
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
+# line: 293
+#: src/bigocrpdf/services/rapidocr_service/pipeline_chunked_ocr.py:91
+msgid "Starting OCR..."
+msgstr "OCRを開始しています..."
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 118
+#: src/bigocrpdf/services/screen_capture.py:117
+msgid "No screenshot tool available. Please install spectacle, gnome-screenshot, or flameshot."
+msgstr "スクリーンショットツールが利用できません。spectacle、gnome-screenshot、またはflameshotをインストールしてください。"
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 135
+#: src/bigocrpdf/services/screen_capture.py:132
+msgid "Screenshot was cancelled"
+msgstr "スクリーンショットはキャンセルされました。"
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 133
+#: src/bigocrpdf/services/screen_capture.py:139
+#, python-brace-format
+msgid "An unexpected error occurred during capture: {0}"
+msgstr "キャプチャ中に予期しないエラーが発生しました：{0}"
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 277
+#: src/bigocrpdf/services/screen_capture.py:320
+msgid "Could not load image file."
+msgstr "画像ファイルを読み込めませんでした。"
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 331
+#: src/bigocrpdf/services/screen_capture.py:371
+msgid "OCR processing timed out."
+msgstr "OCR処理がタイムアウトしました。"
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 305
+#: src/bigocrpdf/services/screen_capture.py:348
+msgid "OCR processing failed."
+msgstr "OCR処理に失敗しました。"
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 311
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 315
+#: src/bigocrpdf/services/screen_capture.py:354
+#: src/bigocrpdf/services/screen_capture.py:358
+msgid "No text found in the image"
+msgstr "画像にテキストが見つかりません。"
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 326
+#: src/bigocrpdf/services/screen_capture.py:366
+msgid "OCR engine not available. Please check your installation."
+msgstr "OCRエンジンが利用できません。インストールを確認してください。"
+# File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 34
+#: src/bigocrpdf/services/pdf_operations.py:63
+msgid "Could not find the file. Was it moved or deleted?"
+msgstr "ファイルが見つかりません。移動または削除されましたか？"
+# File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 36
+#: src/bigocrpdf/services/pdf_operations.py:65
+msgid "Cannot write to this folder. Choose a different location."
+msgstr "このフォルダに書き込めません。別の場所を選択してください。"
+# File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 38
+#: src/bigocrpdf/services/pdf_operations.py:67
+msgid "This PDF is password-protected. Remove the password first."
+msgstr "このPDFはパスワードで保護されています。まずパスワードを解除してください。"
+# File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 40
+#: src/bigocrpdf/services/pdf_operations.py:69
+#, python-brace-format
+msgid "The PDF file appears to be damaged or invalid: {error}"
+msgstr "PDFファイルが破損しているか無効のようです：{error}"
+# File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 370
+#: src/bigocrpdf/services/pdf_operations.py:409
+msgid "No input files provided."
+msgstr "入力ファイルが指定されていません。"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 163
+#: src/bigocrpdf/cli.py:163
+msgid "Verbose logging (DEBUG)"
+msgstr "詳細ログ（DEBUG）"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 165
+#: src/bigocrpdf/cli.py:165
+msgid "Available commands"
+msgstr "利用可能なコマンド"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 168
+#: src/bigocrpdf/cli.py:168
+msgid "OCR processing for PDF files"
+msgstr "PDFファイルのOCR処理"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 169
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 277
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 309
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 328
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 346
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 357
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 394
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 411
+#: src/bigocrpdf/cli.py:169 src/bigocrpdf/cli.py:277 src/bigocrpdf/cli.py:309
+#: src/bigocrpdf/cli.py:328 src/bigocrpdf/cli.py:346 src/bigocrpdf/cli.py:357
+#: src/bigocrpdf/cli.py:394 src/bigocrpdf/cli.py:411
+msgid "Input PDF file"
+msgstr "入力PDFファイル"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 170
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 305
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 310
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 329
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 347
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 358
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 369
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 395
+#: src/bigocrpdf/cli.py:170 src/bigocrpdf/cli.py:305 src/bigocrpdf/cli.py:310
+#: src/bigocrpdf/cli.py:329 src/bigocrpdf/cli.py:347 src/bigocrpdf/cli.py:358
+#: src/bigocrpdf/cli.py:369 src/bigocrpdf/cli.py:395
+msgid "Output PDF file"
+msgstr "出力PDFファイル"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 175
+#: src/bigocrpdf/cli.py:175
+msgid "Pages to process (e.g. '7', '3-10', '1,3,7'). Default: all."
+msgstr "処理するページ（例：'7', '3-10', '1,3,7'）。デフォルト：すべて。"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 181
+#: src/bigocrpdf/cli.py:181
+msgid "OCR language (latin, ch, japan, korean, etc.). Default: latin."
+msgstr "OCR言語（latin, ch, japan, korean等）。デフォルト：latin。"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 187
+#: src/bigocrpdf/cli.py:187
+msgid "Parallel workers (0 = auto). Default: 0."
+msgstr "並列ワーカー数（0＝自動）。デフォルト：0。"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 189
+#: src/bigocrpdf/cli.py:189
+msgid "DPI for extraction (default: 300)"
+msgstr "抽出用DPI（デフォルト：300）"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 192
+#: src/bigocrpdf/cli.py:192
+msgid "OCR behavior"
+msgstr "OCRの動作"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 197
+#: src/bigocrpdf/cli.py:197
+msgid "Re-OCR pages that already have text (default: skip them)."
+msgstr "既にテキストがあるページを再OCR処理する（デフォルト：スキップ）。"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 203
+#: src/bigocrpdf/cli.py:203
+msgid "Process all pages as image-only (for editor-merged files)."
+msgstr "すべてのページを画像専用として処理する（エディタで結合したファイル用）。"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 209
+#: src/bigocrpdf/cli.py:209
+msgid "Use high-quality server models if available."
+msgstr "利用可能な場合、高品質サーバーモデルを使用する。"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 213
+#: src/bigocrpdf/cli.py:213
+msgid "Geometric corrections"
+msgstr "幾何学的補正"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 214
+#: src/bigocrpdf/cli.py:214
+msgid "Disable curvature correction"
+msgstr "湾曲補正を無効にする"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 215
+#: src/bigocrpdf/cli.py:215
+msgid "Disable skew correction"
+msgstr "傾き補正を無効にする"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 217
+#: src/bigocrpdf/cli.py:217
+msgid "Disable perspective correction"
+msgstr "遠近補正を無効にする"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 220
+#: src/bigocrpdf/cli.py:220
+msgid "Disable orientation detection"
+msgstr "向き検出を無効にする"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 224
+#: src/bigocrpdf/cli.py:224
+msgid "Image enhancements"
+msgstr "画像補正"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 229
+#: src/bigocrpdf/cli.py:229
+msgid "Enable scanner effect (whitens background)."
+msgstr "スキャナー効果を有効にする（背景を白くする）。"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 231
+#: src/bigocrpdf/cli.py:231
+msgid "Disable scanner effect."
+msgstr "スキャナー効果を無効にする。"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 232
+#: src/bigocrpdf/cli.py:232
+msgid "Enable CLAHE contrast"
+msgstr "CLAHEコントラストを有効にする"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 233
+#: src/bigocrpdf/cli.py:233
+msgid "Enable auto brightness"
+msgstr "自動明度調整を有効にする"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 234
+#: src/bigocrpdf/cli.py:234
+msgid "Enable denoising"
+msgstr "ノイズ除去を有効にする"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 235
+#: src/bigocrpdf/cli.py:235
+msgid "Remove dark borders"
+msgstr "暗い縁を除去する"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 239
+#: src/bigocrpdf/cli.py:239
+msgid "Enable vintage look (sepia/BW)."
+msgstr "ヴィンテージ効果を有効にする（セピア/白黒）。"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 241
+#: src/bigocrpdf/cli.py:241
+msgid "Vintage in black & white"
+msgstr "白黒ヴィンテージ"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 245
+#: src/bigocrpdf/cli.py:245
+msgid "Convert output to PDF/A-2b"
+msgstr "出力をPDF/A-2bに変換する"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 251
+#: src/bigocrpdf/cli.py:251
+msgid "Image format in output PDF. Default: original."
+msgstr "出力PDFの画像形式。デフォルト：オリジナル。"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 258
+#: src/bigocrpdf/cli.py:258
+msgid "Image quality for JPEG/WebP (1-95, default: 85)."
+msgstr "JPEG/WebPの画質（1-95、デフォルト：85）。"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 262
+#: src/bigocrpdf/cli.py:262
+msgid "Debugging"
+msgstr "デバッグ"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 267
+#: src/bigocrpdf/cli.py:267
+msgid "Save preprocessed images to this directory."
+msgstr "前処理済み画像をこのディレクトリに保存する。"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 272
+#: src/bigocrpdf/cli.py:272
+msgid "Only run preprocessing (dewarp/deskew), save images, skip OCR."
+msgstr "前処理のみ実行（湾曲補正/傾き補正）、画像を保存、OCRをスキップ。"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 276
+#: src/bigocrpdf/cli.py:276
+msgid "Split PDF into smaller files"
+msgstr "PDFを小さなファイルに分割する"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 278
+#: src/bigocrpdf/cli.py:278
+msgid "Output directory"
+msgstr "出力ディレクトリ"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 284
+#: src/bigocrpdf/cli.py:284
+msgid "Split every N pages"
+msgstr "Nページごとに分割"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 290
+#: src/bigocrpdf/cli.py:290
+msgid "Maximum file size per part in megabytes"
+msgstr "分割ファイルの最大サイズ（MB）"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 296
+#: src/bigocrpdf/cli.py:296
+msgid "Explicit ranges (e.g. '1-5,6-10,11-15')"
+msgstr "明示的な範囲（例：'1-5,6-10,11-15'）"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 299
+#: src/bigocrpdf/cli.py:299
+msgid "Filename prefix for output parts"
+msgstr "出力ファイルの名前接頭辞"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 303
+#: src/bigocrpdf/cli.py:303
+msgid "Merge multiple PDFs into one"
+msgstr "複数のPDFを1つに結合する"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 304
+#: src/bigocrpdf/cli.py:304
+msgid "Input PDF files (in order)"
+msgstr "入力PDFファイル（順番に）"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 308
+#: src/bigocrpdf/cli.py:308
+msgid "Compress PDF to reduce file size"
+msgstr "PDFを圧縮してファイルサイズを縮小する"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 316
+#: src/bigocrpdf/cli.py:316
+msgid "JPEG quality for images (1-95, default: 60)"
+msgstr "画像のJPEG品質（1-95、デフォルト：60）"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 323
+#: src/bigocrpdf/cli.py:323
+msgid "Target DPI for images (default: 150)"
+msgstr "画像のターゲットDPI（デフォルト：150）"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 327
+#: src/bigocrpdf/cli.py:327
+msgid "Rotate pages in a PDF"
+msgstr "PDFのページを回転する"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 335
+#: src/bigocrpdf/cli.py:335
+msgid "Rotation angle in degrees (clockwise)"
+msgstr "回転角度（時計回り、度単位）"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 341
+#: src/bigocrpdf/cli.py:341
+msgid "Pages to rotate (e.g. '1,3,5' or '1-5'). Default: all."
+msgstr "回転するページ（例：'1,3,5'または'1-5'）。デフォルト：すべて。"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 345
+#: src/bigocrpdf/cli.py:345
+msgid "Remove pages from a PDF"
+msgstr "PDFからページを削除する"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 352
+#: src/bigocrpdf/cli.py:352
+msgid "Pages to delete (e.g. '3,5,7' or '2-4')"
+msgstr "削除するページ（例：'3,5,7'または'2-4'）"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 356
+#: src/bigocrpdf/cli.py:356
+msgid "Extract pages to a new PDF"
+msgstr "ページを新しいPDFに抽出する"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 363
+#: src/bigocrpdf/cli.py:363
+msgid "Pages to extract (e.g. '3-5' or '1,3,7')"
+msgstr "抽出するページ（例：'3-5'または'1,3,7'）"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 367
+#: src/bigocrpdf/cli.py:367
+msgid "Insert pages from another PDF"
+msgstr "別のPDFからページを挿入する"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 368
+#: src/bigocrpdf/cli.py:368
+msgid "Target PDF file"
+msgstr "ターゲットPDFファイル"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 376
+#: src/bigocrpdf/cli.py:376
+msgid "PDF file to insert pages from"
+msgstr "ページを挿入するPDFファイル"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 383
+#: src/bigocrpdf/cli.py:383
+msgid "Insert at this page position (1-indexed, 0 = append). Default: append."
+msgstr "このページ位置に挿入（1始まり、0＝末尾に追加）。デフォルト：末尾に追加。"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 389
+#: src/bigocrpdf/cli.py:389
+msgid "Pages to insert from the source (e.g. '1-3'). Default: all."
+msgstr "ソースから挿入するページ（例：'1-3'）。デフォルト：すべて。"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 393
+#: src/bigocrpdf/cli.py:393
+msgid "Reorder or reverse pages"
+msgstr "ページの並べ替えまたは逆順にする"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 401
+#: src/bigocrpdf/cli.py:401
+msgid "New page order (e.g. '3,1,2,5,4')"
+msgstr "新しいページ順序（例：'3,1,2,5,4'）"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 406
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 197
+#: src/bigocrpdf/cli.py:406
+msgid "Reverse the page order"
+msgstr "ページの順序を逆にする"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 410
+#: src/bigocrpdf/cli.py:410
+msgid "Show PDF metadata and page count"
+msgstr "PDFメタデータとページ数を表示する"
+# 
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 414
+#: src/bigocrpdf/cli.py:414
+msgid "Export OCR'd PDF as ODF document"
+msgstr "OCR済みPDFをODF文書としてエクスポート"
+# 
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 415
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 426
+#: src/bigocrpdf/cli.py:415 src/bigocrpdf/cli.py:426
+msgid "Input PDF file (must have text layer)"
+msgstr "入力PDFファイル（テキストレイヤーが必要）"
+# 
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 421
+#: src/bigocrpdf/cli.py:421
+msgid "Output ODF file (default: same name as input with .odt)"
+msgstr "出力ODFファイル（デフォルト：入力と同名で.odt拡張子）"
+# 
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 425
+#: src/bigocrpdf/cli.py:425
+msgid "Export OCR'd PDF as formatted text"
+msgstr "OCR済みPDFを書式付きテキストとしてエクスポート"
+# 
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 432
+#: src/bigocrpdf/cli.py:432
+msgid "Output text file (default: same name as input with .txt)"
+msgstr "出力テキストファイル（デフォルト：入力と同名で.txt拡張子）"
+# 
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 440
+msgid "Interactive export dialog (used by file managers)"
+msgstr "インタラクティブエクスポートダイアログ（ファイルマネージャーで使用）"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 414
+#: src/bigocrpdf/cli.py:436
+msgid "Open interactive GUI editor"
+msgstr "インタラクティブGUIエディタを開く"
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 415
+#: src/bigocrpdf/cli.py:437
+msgid "PDF file to edit"
+msgstr "編集するPDFファイル"
+# File: bigocrpdf/src/bigocrpdf/utils/temp_manager.py, line: 85
+#: src/bigocrpdf/utils/temp_manager.py:85
+#, python-brace-format
+msgid "Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
+msgstr "ディスク容量が不足しています。{needed:.0f} MB必要ですが、{free:.0f} MBしか利用できません。"
+# File: bigocrpdf/src/bigocrpdf/utils/temp_manager.py, line: 98
+#: src/bigocrpdf/utils/temp_manager.py:98
+#, python-brace-format
+msgid "No write permission for folder: {path}"
+msgstr "フォルダへの書き込み権限がありません：{path}"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 72
 #: src/bigocrpdf/config.py:136
 msgid "Enable debug mode"
@@ -3399,6 +3404,13 @@ msgstr "詳細出力を有効にする"
 #: src/bigocrpdf/config.py:141
 msgid "Start in image conversion mode"
 msgstr "画像変換モードを開始します"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# 
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 57
+# File: bigocrpdf/src/bigocrpdf/config.py, line: 146
+#: src/bigocrpdf/application.py:57 src/bigocrpdf/config.py:146
+msgid "Open files directly in the PDF editor"
+msgstr "PDFエディタで直接ファイルを開く"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
 #: src/bigocrpdf/config.py:148
 msgid "PDF files to process"
@@ -3511,6 +3523,83 @@ msgstr "セッションを再開できませんでした。"
 #: src/bigocrpdf/window_actions.py:385
 msgid "Previous session discarded"
 msgstr "前のセッションは破棄されました。"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
+#: src/bigocrpdf/application.py:180
+msgid "Application started successfully"
+msgstr "アプリケーションが正常に起動しました"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 111
+#: src/bigocrpdf/application.py:185
+msgid "Error starting application"
+msgstr "アプリケーションの起動中にエラーが発生しました"
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 270
+#: src/bigocrpdf/application.py:267
+#, python-brace-format
+msgid "Opened {0} file(s)"
+msgstr "{0}個のファイルを開きました"
+# 
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 368
+#: src/bigocrpdf/application.py:365
+msgid "Shortcuts"
+msgstr "ショートカット"
+# 
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 372
+#: src/bigocrpdf/application.py:369
+msgid "File"
+msgstr "ファイル"
+# 
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 376
+msgid "Paste from clipboard"
+msgstr "クリップボードから貼り付け"
+# File: bigocrpdf/src/bigocrpdf/window.py, line: 108
+#: src/bigocrpdf/application.py:385 src/bigocrpdf/window_ui_setup.py:213
+msgid "Processing"
+msgstr "処理中"
+# 
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 393
+#: src/bigocrpdf/application.py:389
+msgid "Cancel processing"
+msgstr "処理をキャンセル"
+# 
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 394
+#: src/bigocrpdf/application.py:390
+msgid "Clear file queue"
+msgstr "ファイルキューをクリア"
+# 
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 406
+#: src/bigocrpdf/application.py:402
+msgid "General"
+msgstr "一般"
+# 
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 409
+#: src/bigocrpdf/application.py:405
+msgid "Keyboard shortcuts"
+msgstr "キーボードショートカット"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 129
+#: src/bigocrpdf/application.py:434
+msgid "BigLinux Team"
+msgstr "BigLinuxチーム"
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 249
+#: src/bigocrpdf/application.py:442
+msgid "Interface"
+msgstr "インターフェース"
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 255
+#: src/bigocrpdf/application.py:448
+msgid "Third-party Components"
+msgstr "サードパーティコンポーネント"
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 257
+#: src/bigocrpdf/application.py:450
+msgid ""
+"The OCR engine and other libraries used by this application are independent projects, each "
+"distributed under its own license."
+msgstr "このアプリケーションで使用されるOCRエンジンおよびその他のライブラリは独立したプロジェクトであり、それぞれ独自のライセンスの下で配布されています。"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 139
+#: src/bigocrpdf/application.py:461
+msgid "Developers"
+msgstr "開発者"
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 272
+#: src/bigocrpdf/application.py:465
+msgid "Powered by"
+msgstr "提供元"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 611
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 612
 #: src/bigocrpdf/window_processing.py:67 src/bigocrpdf/window_processing.py:68
@@ -3573,71 +3662,11 @@ msgstr "ユーザーによってOCR処理がキャンセルされました。"
 #: src/bigocrpdf/window_processing.py:446
 msgid "OCR processing cancelled"
 msgstr "OCR処理がキャンセルされました。"
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Export to ODT or TXT"
-msgstr "ODT または TXT にエクスポート"
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Export format"
-msgstr "エクスポート形式"
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Choose the output format for the extracted text."
-msgstr "抽出したテキストの出力形式を選択してください。"
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "ODF Document (.odt)"
-msgstr "ODF ドキュメント (.odt)"
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Preserves text formatting, paragraphs and layout. Editable in LibreOffice, Google Docs and Microsoft Word."
-msgstr "テキストの書式、段落、レイアウトを保持します。LibreOffice、Google Docs、Microsoft Wordで編集可能です。"
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Export ODF"
-msgstr "ODF にエクスポート"
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Plain Text (.txt)"
-msgstr "プレーンテキスト (.txt)"
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Raw text without any formatting. Lightweight and universal — works everywhere."
-msgstr "書式なしの生テキスト。軽量で汎用的 — どこでも使えます。"
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Export TXT"
-msgstr "TXT にエクスポート"
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "This PDF contains %d image(s)"
-msgstr "この PDF には %d 個の画像があります"
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "PDF content analysis"
-msgstr "PDF コンテンツ分析"
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Apply OCR first"
-msgstr "最初に OCR を適用"
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "If the images contain text (scanned pages or photos), applying OCR first will produce much better export results."
-msgstr "画像にテキストが含まれている場合（スキャンページや写真）、最初に OCR を適用するとエクスポート結果が大幅に向上します。"
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Open OCR"
-msgstr "OCR を開く"
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Export as ODF document"
-msgstr "ODF ドキュメントとしてエクスポート"
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Export as plain text"
-msgstr "プレーンテキストとしてエクスポート"
-
-#: src/bigocrpdf/ui/export_dialog.py
-msgid "Open OCR application to recognize text in images"
-msgstr "画像のテキストを認識するために OCR アプリケーションを開く"
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 42
+#: src/bigocrpdf/window_ui_setup.py:63
+msgid "Main"
+msgstr "メイン"
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 203
+#: src/bigocrpdf/window_ui_setup.py:223
+msgid "Results"
+msgstr "結果"
