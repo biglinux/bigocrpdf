@@ -119,7 +119,9 @@ class ImageOcrApp(Adw.Application):
                 win.open_image(file_path)
                 logger.info(f"Opened image: {file_path}")
             else:
-                logger.warning(f"Could not open: path={file_path}, has_open_image={hasattr(win, 'open_image')}")
+                logger.warning(
+                    f"Could not open: path={file_path}, has_open_image={hasattr(win, 'open_image')}"
+                )
         else:
             logger.warning(f"on_open: win={win}, files={files}")
 

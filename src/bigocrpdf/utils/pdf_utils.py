@@ -206,10 +206,10 @@ def extract_images_for_odf(
 
 
 def open_file_with_default_app(file_path: str) -> bool:
-    """Open a file using the system's default application via Gtk.FileLauncher.
+    """Open a file using the system's default application.
 
-    Uses the GTK4 portal-aware launcher instead of raw subprocess calls,
-    which is non-blocking on the UI thread and Flatpak-compatible.
+    Uses Gio.AppInfo to directly launch the default handler without
+    showing an application chooser dialog.
 
     Args:
         file_path: Path to the file to open
@@ -224,17 +224,26 @@ def open_file_with_default_app(file_path: str) -> bool:
     try:
         import gi
 
-        gi.require_version("Gtk", "4.0")
         gi.require_version("Gio", "2.0")
-        from gi.repository import Gio, Gtk
+        from gi.repository import Gio
 
         gfile = Gio.File.new_for_path(file_path)
-        launcher = Gtk.FileLauncher.new(gfile)
-        launcher.launch(None, None, None)
+        uri = gfile.get_uri()
+        Gio.AppInfo.launch_default_for_uri(uri, None)
         return True
     except Exception as e:
-        logger.error(f"Failed to open file {file_path}: {e}")
-        return False
+        logger.warning(f"Gio launch failed for {file_path}: {e}, trying xdg-open")
+        try:
+            import subprocess
+            subprocess.Popen(
+                ["xdg-open", file_path],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            return True
+        except Exception as e2:
+            logger.error(f"Failed to open file {file_path}: {e2}")
+            return False
 
 
 def render_pdf_page_to_png(

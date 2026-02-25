@@ -133,6 +133,14 @@ class MixedContentMixin:
             try:
                 self._wait_for_ocr_ready(ocr_proc)
                 with pikepdf.open(input_pdf, allow_overwriting_input=True) as pdf:
+                    # Build set of excluded pages from editor modifications
+                    excluded_pages: set[int] = set()
+                    if self.config.page_modifications:
+                        for mod in self.config.page_modifications:
+                            pn = mod.get("page_number")
+                            if pn and (mod.get("deleted") or not mod.get("included_for_ocr", True)):
+                                excluded_pages.add(pn)
+
                     self._ocr_image_pages(
                         pdf,
                         image_positions,
@@ -142,10 +150,21 @@ class MixedContentMixin:
                         ocr_texts,
                         ocr_proc,
                         progress_callback,
+                        excluded_pages=excluded_pages,
                     )
+
+                    # Remove excluded pages before saving
+                    if excluded_pages:
+                        for idx in sorted(excluded_pages, reverse=True):
+                            if 0 < idx <= len(pdf.pages):
+                                del pdf.pages[idx - 1]
+                                logger.info(f"Removed excluded page {idx} from output")
+
                     if progress_callback:
                         progress_callback(90, 100, _("Saving PDF..."))
-                    stats.pages_processed = len(image_positions)
+                    stats.pages_processed = len(image_positions) - len(
+                        excluded_pages & set(image_positions.keys())
+                    )
                     pdf.save(output_pdf)
             finally:
                 self._stop_ocr_subprocess(ocr_proc)
@@ -170,12 +189,14 @@ class MixedContentMixin:
         ocr_texts: list[str],
         ocr_proc: subprocess.Popen,
         progress_callback: Callable[[int, int, str], None] | None,
+        excluded_pages: set[int] | None = None,
     ) -> None:
         """OCR all image-bearing pages, modifying the PDF in place."""
         enhance = getattr(self.config, "enhance_embedded_images", False)
         logger.info(f"Mixed content: enhance_embedded_images={enhance}")
         processed_images = 0
         current_img_idx = 0
+        _excluded = excluded_pages or set()
 
         for page_num in sorted(image_positions.keys()):
             if hasattr(self, "cancel_event") and self.cancel_event.is_set():
@@ -183,6 +204,13 @@ class MixedContentMixin:
                 raise InterruptedError("Processing cancelled by user")
 
             page_imgs = image_positions[page_num]
+
+            # Skip excluded pages entirely (no preprocessing, no OCR)
+            if page_num in _excluded:
+                logger.info(f"Page {page_num}: excluded from OCR, skipping ({len(page_imgs)} image(s))")
+                current_img_idx += len(page_imgs)
+                continue
+
             page = pdf.pages[page_num - 1]
             mediabox = page.mediabox
             page_height = float(mediabox[3]) - float(mediabox[1])

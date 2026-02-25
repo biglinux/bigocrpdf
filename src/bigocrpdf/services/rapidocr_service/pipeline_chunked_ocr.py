@@ -87,6 +87,14 @@ class ChunkedOCRMixin:
         total_confidence = 0.0
         num_chunks = (total_pages + CHUNK_SIZE - 1) // CHUNK_SIZE
 
+        # Build set of pages to skip (deleted or excluded from OCR)
+        skip_pages: set[int] = set()
+        for rot in page_rotations:
+            if rot.deleted or not rot.included_for_ocr:
+                skip_pages.add(rot.page_number)
+        if skip_pages:
+            logger.info(f"Skipping {len(skip_pages)} excluded page(s): {sorted(skip_pages)}")
+
         if progress_callback:
             progress_callback(5, 100, _("Starting OCR..."))
 
@@ -103,6 +111,26 @@ class ChunkedOCRMixin:
                     chunk_start = chunk_idx * CHUNK_SIZE
                     chunk_end = min(chunk_start + CHUNK_SIZE, total_pages)
 
+                    # Check if ALL pages in this chunk are excluded — skip entirely
+                    chunk_page_nums = set(range(chunk_start + 1, chunk_end + 1))
+                    if chunk_page_nums <= skip_pages:
+                        # All pages in chunk are excluded; add blank placeholders
+                        for page_num in sorted(chunk_page_nums):
+                            abs_idx = page_num - 1
+                            if abs_idx < len(all_rotation_dicts):
+                                mb = all_rotation_dicts[abs_idx]["mediabox"]
+                                c.setPageSize((mb[2] - mb[0], mb[3] - mb[1]))
+                            else:
+                                c.setPageSize((595, 842))
+                            c.showPage()
+                            page_standalone_flags.append(False)
+                            stats.pages_processed += 1
+                        logger.info(
+                            f"Chunk {chunk_idx + 1}/{num_chunks} skipped "
+                            f"(all {len(chunk_page_nums)} pages excluded)"
+                        )
+                        continue
+
                     for f in images_dir.glob("*"):
                         try:
                             f.unlink()
@@ -113,6 +141,7 @@ class ChunkedOCRMixin:
                         input_pdf,
                         output_dir=images_dir,
                         page_range=(chunk_start + 1, chunk_end),
+                        skip_pages=skip_pages,
                     )
 
                     work_items = self._build_chunk_work_items(
@@ -201,7 +230,7 @@ class ChunkedOCRMixin:
 
             if page_num in native_text_pages:
                 effective_path = None
-            elif rot.deleted:
+            elif rot.deleted or not rot.included_for_ocr:
                 effective_path = None
             else:
                 effective_path = img_path

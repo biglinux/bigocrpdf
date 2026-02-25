@@ -270,6 +270,7 @@ class PDFImageExtractor:
         pdf_path: Path,
         output_dir: Path,
         page_range: tuple[int, int] | None = None,
+        skip_pages: set[int] | None = None,
     ) -> list[Path | None]:
         """Extract native images from PDF ensuring correct page mapping.
 
@@ -279,6 +280,12 @@ class PDFImageExtractor:
 
         For images stored in formats that OpenCV/PIL cannot decode
         (JBIG2, CCITT), falls back to pdftoppm page rendering.
+
+        Args:
+            pdf_path: Path to the PDF file.
+            output_dir: Directory to extract images to.
+            page_range: Optional (start, end) 1-indexed page range.
+            skip_pages: Optional set of 1-indexed page numbers to skip entirely.
         """
         output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -320,9 +327,15 @@ class PDFImageExtractor:
             raise RuntimeError(f"Failed to extract images: {e}") from e
 
         # 4. Process extracted files based on mapping
+        _skip = skip_pages or set()
         fallback_pages: list[int] = []
         for i in range(num_pages_to_process):
             current_page = start_page + i
+
+            # Skip excluded pages entirely (no extraction, no rendering)
+            if current_page in _skip:
+                continue
+
             img_indices = image_mapping.get(current_page, [])
 
             if not img_indices:
