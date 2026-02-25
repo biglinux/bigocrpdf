@@ -31,7 +31,7 @@ msgid "Extract text from images using OCR"
 msgstr "Extract text from images using OCR"
 
 #
-# File: bigocrpdf/src/bigocrpdf/utils/temp_manager.py, line: 85
+# File: bigocrpdf/src/bigocrpdf/utils/temp_manager.py, line: 87
 #, python-brace-format
 msgid ""
 "Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
@@ -39,7 +39,7 @@ msgstr ""
 "Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
 
 #
-# File: bigocrpdf/src/bigocrpdf/utils/temp_manager.py, line: 98
+# File: bigocrpdf/src/bigocrpdf/utils/temp_manager.py, line: 100
 #, python-brace-format
 msgid "No write permission for folder: {path}"
 msgstr "No write permission for folder: {path}"
@@ -395,30 +395,30 @@ msgid "An unexpected error occurred during capture: {0}"
 msgstr "An unexpected error occurred during capture: {0}"
 
 #
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 320
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 332
 msgid "Could not load image file."
 msgstr "Could not load image file."
 
 #
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 348
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 365
+msgid "OCR processing timed out."
+msgstr "OCR processing timed out."
+
+#
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 370
 msgid "OCR processing failed."
 msgstr "OCR processing failed."
 
 #
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 354
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 358
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 376
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 380
 msgid "No text found in the image"
 msgstr "No text found in the image"
 
 #
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 366
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 388
 msgid "OCR engine not available. Please check your installation."
 msgstr "OCR engine not available. Please check your installation."
-
-#
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 371
-msgid "OCR processing timed out."
-msgstr "OCR processing timed out."
 
 #
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 63
