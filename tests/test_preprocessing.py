@@ -3,6 +3,11 @@
 import cv2
 import numpy as np
 
+from bigocrpdf.services.perspective_margins import trim_white_borders
+from bigocrpdf.services.rapidocr_service.preprocess_deskew import (
+    measure_box_angles,
+    rotate_image,
+)
 from bigocrpdf.services.rapidocr_service.preprocess_enhance import (
     adjust_brightness,
     apply_clahe,
@@ -10,12 +15,6 @@ from bigocrpdf.services.rapidocr_service.preprocess_enhance import (
     denoise,
     sharpen_text,
 )
-from bigocrpdf.services.rapidocr_service.preprocess_deskew import (
-    measure_box_angles,
-    rotate_image,
-)
-from bigocrpdf.services.perspective_margins import trim_white_borders
-
 
 # ── Helpers ──────────────────────────────────────────────────────
 

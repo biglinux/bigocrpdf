@@ -888,7 +888,7 @@ def _compress_page_images(
                 scale = target_dpi / current_dpi
                 new_w = max(MIN_IMAGE_DIMENSION_PX, int(width * scale))
                 new_h = max(MIN_IMAGE_DIMENSION_PX, int(height * scale))
-                pil_img = pil_img.resize((new_w, new_h), Image.LANCZOS)
+                pil_img = pil_img.resize((new_w, new_h), Image.Resampling.LANCZOS)
 
             # Re-encode as JPEG
             if pil_img.mode in ("RGBA", "LA", "P"):

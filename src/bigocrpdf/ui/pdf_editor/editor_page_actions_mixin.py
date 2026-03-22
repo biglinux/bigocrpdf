@@ -123,7 +123,7 @@ class EditorPageActionsMixin:
             return self._handle_ctrl_shortcut(keyval)
 
         if keyval == Gdk.KEY_Delete:
-            if self._page_grid._selected_indices:
+            if self._page_grid.selected_indices:
                 self._push_undo()
                 self._page_grid.toggle_ocr_for_selected()
             return True
@@ -330,8 +330,8 @@ class EditorPageActionsMixin:
     def _rotate_selected_pages(self, degrees: int) -> None:
         """Rotate selected pages by degrees. If none selected, rotate all included."""
         self._push_undo()
-        thumbnails = self._page_grid._thumbnails
-        selected = self._page_grid._selected_indices
+        thumbnails = self._page_grid.thumbnails
+        selected = self._page_grid.selected_indices
         rotated = 0
 
         if selected:
@@ -355,8 +355,8 @@ class EditorPageActionsMixin:
     def _flip_selected_pages(self, horizontal: bool = True) -> None:
         """Flip selected pages. If none selected, flip all included."""
         self._push_undo()
-        thumbnails = self._page_grid._thumbnails
-        selected = self._page_grid._selected_indices
+        thumbnails = self._page_grid.thumbnails
+        selected = self._page_grid.selected_indices
         flipped = 0
 
         if selected:
@@ -389,7 +389,7 @@ class EditorPageActionsMixin:
         if not self._document:
             return
 
-        selected = sorted(self._page_grid._selected_indices)
+        selected = sorted(self._page_grid.selected_indices)
         if not selected:
             return
 
@@ -412,8 +412,8 @@ class EditorPageActionsMixin:
         for i, page in enumerate(pages):
             page.position = i
 
-        self._page_grid._selected_indices = {
-            idx + direction for idx in self._page_grid._selected_indices
+        self._page_grid.selected_indices = {
+            idx + direction for idx in self._page_grid.selected_indices
         }
 
         self._document.mark_modified()

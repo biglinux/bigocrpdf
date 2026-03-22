@@ -745,15 +745,17 @@ def _build_line_metrics(
         wrapped = max(1, total_chars / chars_per_line)
         gap_pct = max(min_y - prev_y_pct, 0.0)
         prev_y_pct = min_y + (line_font_pt * pt_to_cm / content_h_cm) * 100
-        line_info.append({
-            "items": line_items,
-            "font_pt": line_font_pt,
-            "line_h_cm": line_h_cm,
-            "wrapped": wrapped,
-            "gap_pct": gap_pct,
-            "min_x": min(it.x for it in line_items),
-            "is_para_gap": gap_pct > 4.0,
-        })
+        line_info.append(
+            {
+                "items": line_items,
+                "font_pt": line_font_pt,
+                "line_h_cm": line_h_cm,
+                "wrapped": wrapped,
+                "gap_pct": gap_pct,
+                "min_x": min(it.x for it in line_items),
+                "is_para_gap": gap_pct > 4.0,
+            }
+        )
     return line_info
 
 

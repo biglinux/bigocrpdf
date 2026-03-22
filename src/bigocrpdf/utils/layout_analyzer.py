@@ -466,12 +466,14 @@ class LayoutAnalyzer:
         if len(lines) == 1:
             width_pct = lines[0].get("max_x", 100) - lines[0].get("min_x", 0)
             indent = detect_first_line_indent(lines[0], None)
-            self.blocks.append({
-                "type": "paragraph",
-                "lines": lines,
-                "alignment": get_alignment(lines[0], width_pct),
-                "first_line_indent": indent,
-            })
+            self.blocks.append(
+                {
+                    "type": "paragraph",
+                    "lines": lines,
+                    "alignment": get_alignment(lines[0], width_pct),
+                    "first_line_indent": indent,
+                }
+            )
             return
 
         spacings = []
@@ -481,11 +483,13 @@ class LayoutAnalyzer:
 
         if not spacings:
             width_pct = lines[0].get("max_x", 100) - lines[0].get("min_x", 0)
-            self.blocks.append({
-                "type": "paragraph",
-                "lines": lines,
-                "alignment": get_alignment(lines[0], width_pct),
-            })
+            self.blocks.append(
+                {
+                    "type": "paragraph",
+                    "lines": lines,
+                    "alignment": get_alignment(lines[0], width_pct),
+                }
+            )
             return
 
         median_spacing = np.median(spacings)
@@ -520,12 +524,14 @@ class LayoutAnalyzer:
             )
 
             if should_break:
-                self.blocks.append({
-                    "type": "paragraph",
-                    "lines": current_para,
-                    "alignment": current_alignment,
-                    "first_line_indent": current_indent,
-                })
+                self.blocks.append(
+                    {
+                        "type": "paragraph",
+                        "lines": current_para,
+                        "alignment": current_alignment,
+                        "first_line_indent": current_indent,
+                    }
+                )
                 current_para = [curr_line]
                 current_alignment = line_alignment
                 current_indent = detect_first_line_indent(curr_line, prev_line)
@@ -533,12 +539,14 @@ class LayoutAnalyzer:
                 current_para.append(curr_line)
 
         if current_para:
-            self.blocks.append({
-                "type": "paragraph",
-                "lines": current_para,
-                "alignment": current_alignment,
-                "first_line_indent": current_indent,
-            })
+            self.blocks.append(
+                {
+                    "type": "paragraph",
+                    "lines": current_para,
+                    "alignment": current_alignment,
+                    "first_line_indent": current_indent,
+                }
+            )
 
     def _cluster_items_by_vertical_lines(
         self, all_items: list[dict], vertical_lines: list[float]

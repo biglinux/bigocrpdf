@@ -677,6 +677,18 @@ def probmap_angle_deskew(img: np.ndarray, probmap_max_side: int = 0) -> np.ndarr
         median_idx = int(np.searchsorted(cum_w, w_sum / 2.0))
         median_idx = min(median_idx, len(arr_a) - 1)
         w_median = float(arr_a[sorted_idx[median_idx]])
+
+        # Reject noisy detections: when few baselines have high angular
+        # spread, the weighted median is unreliable.  Compute the median
+        # absolute deviation (MAD) of the angles — if MAD exceeds 3° the
+        # baselines disagree too much for a confident correction.
+        mad = float(np.median(np.abs(arr_a - w_median)))
+        if mad > 3.0:
+            logger.debug(
+                f"Probmap deskew: high angle dispersion (MAD={mad:.2f}°, n={len(angles)}), skipping"
+            )
+            return img
+
         skew_angle = float(np.clip(w_median, -5.0, 5.0))
         logger.debug(f"Probmap deskew: uniform skew correction {skew_angle:.2f}°")
         return rotate_image(img, skew_angle)

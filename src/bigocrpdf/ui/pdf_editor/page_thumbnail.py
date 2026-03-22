@@ -249,6 +249,11 @@ class PageThumbnail(Gtk.Box):
         right_click.connect("released", self._on_right_clicked)
         self.add_controller(right_click)
 
+        # Keyboard context menu (Shift+F10 / Menu key)
+        key_ctrl = Gtk.EventControllerKey()
+        key_ctrl.connect("key-pressed", self._on_key_for_context_menu)
+        self.add_controller(key_ctrl)
+
         # Save page actions
         save_img_action = Gio.SimpleAction.new("save-image", None)
         save_img_action.connect("activate", lambda *_: self._save_page_as_image())
@@ -312,6 +317,27 @@ class PageThumbnail(Gtk.Box):
             y: Y coordinate
         """
         self.emit("thumbnail-clicked")
+
+    def _on_key_for_context_menu(
+        self,
+        _controller: Gtk.EventControllerKey,
+        keyval: int,
+        _keycode: int,
+        state: Gdk.ModifierType,
+    ) -> bool:
+        """Show context menu via Shift+F10 or Menu key."""
+        if keyval == Gdk.KEY_Menu or (
+            keyval == Gdk.KEY_F10 and state & Gdk.ModifierType.SHIFT_MASK
+        ):
+            rect = Gdk.Rectangle()
+            rect.x = self.get_width() // 2
+            rect.y = self.get_height() // 2
+            rect.width = 1
+            rect.height = 1
+            self._ctx_popover.set_pointing_to(rect)
+            self._ctx_popover.popup()
+            return True
+        return False
 
     def _on_right_clicked(
         self, gesture: Gtk.GestureClick, _n_press: int, x: float, y: float
@@ -523,8 +549,19 @@ class PageThumbnail(Gtk.Box):
         self.emit("flip-vertical-clicked")
 
     def _update_page_label(self) -> None:
-        """Update the page number label text."""
-        self._page_label.set_text(str(self._page_state.page_number))
+        """Update the page number label text and accessible description."""
+        page_num = self._page_state.page_number
+        self._page_label.set_text(str(page_num))
+        # Build accessible label with state for screen readers
+        parts = [_("Page {n}").format(n=page_num)]
+        if self._page_state.deleted:
+            parts.append(_("Excluded"))
+        if self._page_state.rotation:
+            parts.append(_("Rotated {deg}°").format(deg=self._page_state.rotation))
+        self.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [" — ".join(parts)],
+        )
 
     def _update_appearance(self) -> None:
         """Update widget appearance based on current state."""

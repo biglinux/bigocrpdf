@@ -14,6 +14,7 @@ import numpy as np
 import pikepdf
 
 from bigocrpdf.constants import MIN_IMAGE_BOX_SIZE_PX, MIN_TEXT_BOX_HEIGHT_PX, MIN_TEXT_BOX_WIDTH_PX
+from bigocrpdf.services.rapidocr_service.backend_text_layer import _extract_image_rect_from_page
 from bigocrpdf.services.rapidocr_service.config import OCRBoxData, OCRResult, ProcessingStats
 from bigocrpdf.services.rapidocr_service.ocr_postprocess import refine_ocr_results
 from bigocrpdf.services.rapidocr_service.pdf_assembly import smart_merge_pdfs
@@ -253,11 +254,13 @@ class BackendPipelineMixin(ChunkedOCRMixin, MixedContentMixin):
             else:
                 valid_images.append(img_path)
 
-            valid_rotations.append({
-                "rotation": rot.original_pdf_rotation,
-                "mediabox": rot.mediabox,
-                "page_rotation": rot,
-            })
+            valid_rotations.append(
+                {
+                    "rotation": rot.original_pdf_rotation,
+                    "mediabox": rot.mediabox,
+                    "page_rotation": rot,
+                }
+            )
 
         return valid_images, valid_rotations
 
@@ -380,12 +383,16 @@ class BackendPipelineMixin(ChunkedOCRMixin, MixedContentMixin):
         stats.pages_total = total_pages
 
         all_rotation_dicts = []
-        for rot in page_rotations:
-            all_rotation_dicts.append({
-                "rotation": rot.original_pdf_rotation,
-                "mediabox": rot.mediabox,
-                "page_rotation": rot,
-            })
+        for i, rot in enumerate(page_rotations):
+            image_rect = _extract_image_rect_from_page(input_pdf, i + 1)
+            all_rotation_dicts.append(
+                {
+                    "rotation": rot.original_pdf_rotation,
+                    "mediabox": rot.mediabox,
+                    "page_rotation": rot,
+                    "image_rect": image_rect,
+                }
+            )
 
         native_text_pages: set[int] = set()
         if self.config.force_full_ocr:
@@ -432,9 +439,10 @@ class BackendPipelineMixin(ChunkedOCRMixin, MixedContentMixin):
             progress_callback(85, 100, _("Merging text layer..."))
 
         any_standalone = any(page_standalone_flags) if page_standalone_flags else False
+        all_standalone = all(page_standalone_flags) if page_standalone_flags else False
         format_changed = self.config.image_export_format not in ("original", "")
 
-        if format_changed:
+        if format_changed or all_standalone:
             import shutil
 
             shutil.copy2(text_layer_pdf, merged_pdf)
@@ -760,10 +768,8 @@ class BackendPipelineMixin(ChunkedOCRMixin, MixedContentMixin):
         Returns:
             List of OCR text strings found in the image.
         """
-        # Skip very small images (likely icons or decorations).
-        # Use area check: both dimensions must be small to skip.
-        # Wide/thin images (terminal screenshots, banners) are kept.
-        if img_pos.width < MIN_IMAGE_BOX_SIZE_PX and img_pos.height < MIN_IMAGE_BOX_SIZE_PX:
+        # Skip very small images (likely icons or decorations)
+        if img_pos.width < MIN_IMAGE_BOX_SIZE_PX or img_pos.height < MIN_IMAGE_BOX_SIZE_PX:
             logger.debug(f"Skipping small image: {img_pos.width}x{img_pos.height}")
             return []
 

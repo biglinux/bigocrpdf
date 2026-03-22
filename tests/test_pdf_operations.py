@@ -4,9 +4,9 @@ import os
 import tempfile
 
 import pikepdf
+import pytest
 
 from bigocrpdf.services.pdf_operations import (
-    OperationResult,
     PDFInfo,
     extract_pages,
     get_pdf_info,
@@ -49,11 +49,8 @@ class TestGetPdfInfo:
             os.unlink(path)
 
     def test_nonexistent_file_raises(self):
-        try:
+        with pytest.raises((FileNotFoundError, OSError)):
             get_pdf_info("/nonexistent/file.pdf")
-            assert False, "Should have raised"
-        except Exception:
-            pass
 
 
 class TestSplitByPages:

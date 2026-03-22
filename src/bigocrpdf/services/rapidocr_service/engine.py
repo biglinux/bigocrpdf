@@ -45,21 +45,23 @@ class _OCRModelCache:
 
     _instance: ProfessionalPDFOCR | None = None
     _config_hash: int = 0
+    _lock: threading.Lock = threading.Lock()
 
     @classmethod
     def get_cached_engine(cls, config: OCRConfig) -> ProfessionalPDFOCR:
         """Return a (possibly cached) OCR engine with *config* applied."""
         config_hash = cls._compute_config_hash(config)
 
-        if cls._instance is not None and cls._config_hash == config_hash:
-            logger.info("Using cached OCR engine (models already loaded)")
-            cls._sync_non_model_fields(cls._instance.config, config)
-            return cls._instance
+        with cls._lock:
+            if cls._instance is not None and cls._config_hash == config_hash:
+                logger.info("Using cached OCR engine (models already loaded)")
+                cls._sync_non_model_fields(cls._instance.config, config)
+                return cls._instance
 
-        logger.info("Creating new OCR engine (first run or config changed)")
-        cls._instance = ProfessionalPDFOCR(config)
-        cls._config_hash = config_hash
-        return cls._instance
+            logger.info("Creating new OCR engine (first run or config changed)")
+            cls._instance = ProfessionalPDFOCR(config)
+            cls._config_hash = config_hash
+            return cls._instance
 
     @classmethod
     def _compute_config_hash(cls, config: OCRConfig) -> int:

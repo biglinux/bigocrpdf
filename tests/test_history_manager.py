@@ -1,6 +1,5 @@
 """Tests for history_manager module."""
 
-import json
 import os
 import tempfile
 from unittest.mock import patch

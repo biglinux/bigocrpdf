@@ -58,6 +58,7 @@ class OcrProcessor:
         self._current_filename = ""  # Current file being processed
         self._current_engine: RapidOCREngine | None = None
         self._engine_lock = threading.Lock()  # Protects _current_engine
+        self._state_lock = threading.Lock()  # Protects progress/status fields
 
         # Model discovery
         self._discovery = ModelDiscovery()
@@ -91,6 +92,9 @@ class OcrProcessor:
             )
             return True
 
+        except MemoryError:
+            raise
+
         except Exception as e:
             logger.error(_("Error starting OCR processing: {0}").format(str(e)))
             return False
@@ -110,9 +114,10 @@ class OcrProcessor:
         with self._engine_lock:
             self._current_engine = None
         self._stats = ProcessingStats()
-        self._file_progress = 0.0
-        self._current_status = ""
-        self._current_filename = ""
+        with self._state_lock:
+            self._file_progress = 0.0
+            self._current_status = ""
+            self._current_filename = ""
         # Store original file count before processing removes files from queue
         self._total_files_at_start = len(self.settings.selected_files)
         self.settings.processed_files = []
@@ -139,14 +144,16 @@ class OcrProcessor:
                     logger.info(_("Processing stopped by user"))
                     break
 
-                self._current_filename = self.settings.display_name(file_path)
-                self._file_progress = 0.0
+                with self._state_lock:
+                    self._current_filename = self.settings.display_name(file_path)
+                    self._file_progress = 0.0
 
                 try:
                     success, extracted_text, ocr_boxes = self._process_single_file(file_path, i)
                     # Reset immediately to avoid progress spike to 100%
                     # between files (processed_files already incremented)
-                    self._file_progress = 0.0
+                    with self._state_lock:
+                        self._file_progress = 0.0
 
                     if success and self.on_file_complete:
                         output_file = (
@@ -165,6 +172,10 @@ class OcrProcessor:
                         _("Processing cancelled by user during file: {0}").format(file_path)
                     )
                     break
+
+                except MemoryError:
+                    logger.critical(_("Out of memory processing {0}").format(file_path))
+                    raise
 
                 except Exception as e:
                     logger.error(_("Error processing {0}: {1}").format(file_path, e))
@@ -213,8 +224,9 @@ class OcrProcessor:
 
         def progress_callback(current: int, total: int, message: str) -> None:
             # Backend reports progress as percentage (0-100)
-            self._file_progress = current / 100.0 if total > 0 else 0.0
-            self._current_status = message
+            with self._state_lock:
+                self._file_progress = current / 100.0 if total > 0 else 0.0
+                self._current_status = message
             if self.on_progress:
                 self.on_progress(current, total, message)
 
@@ -284,15 +296,18 @@ class OcrProcessor:
         # Get file-specific modifications
         page_modifications = None
         if file_path and hasattr(self.settings, "file_modifications"):
-            # Try exact match first
-            state_dict = self.settings.file_modifications.get(file_path)
+            resolved = os.path.realpath(file_path)
+            # Try resolved path first, then original path
+            state_dict = self.settings.file_modifications.get(
+                resolved
+            ) or self.settings.file_modifications.get(file_path)
             if not state_dict:
-                # Try basename match if full path fails (sometimes paths vary slightly)
+                # Try matching by resolved path against stored keys
                 found_key = next(
                     (
                         k
-                        for k in self.settings.file_modifications.keys()
-                        if os.path.basename(k) == os.path.basename(file_path)
+                        for k in self.settings.file_modifications
+                        if os.path.realpath(k) == resolved
                     ),
                     None,
                 )
@@ -431,7 +446,8 @@ class OcrProcessor:
         # Calculate progress: completed files + current file progress
         completed_files = len(self.settings.processed_files) if self.settings.processed_files else 0
         base_progress = completed_files / total_files
-        current_file_contribution = self._file_progress / total_files
+        with self._state_lock:
+            current_file_contribution = self._file_progress / total_files
 
         return min(1.0, base_progress + current_file_contribution)
 
@@ -459,13 +475,14 @@ class OcrProcessor:
             return {}
 
         completed_files = len(self.settings.processed_files) if self.settings.processed_files else 0
-        return {
-            "filename": self._current_filename,
-            "file_number": completed_files + 1,  # 1-based, current file being processed
-            "total_files": self._total_files_at_start,
-            "status_message": self._current_status,
-            "file_progress": self._file_progress,
-        }
+        with self._state_lock:
+            return {
+                "filename": self._current_filename,
+                "file_number": completed_files + 1,
+                "total_files": self._total_files_at_start,
+                "status_message": self._current_status,
+                "file_progress": self._file_progress,
+            }
 
     def register_callbacks(
         self,

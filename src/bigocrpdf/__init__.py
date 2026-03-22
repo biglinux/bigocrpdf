@@ -192,11 +192,8 @@ def main() -> int:
 
     # 8. Run application
     try:
-        # Detect --edit / -e early so the app can use a separate D-Bus name
-        edit_mode = "--edit" in sys.argv or "-e" in sys.argv
-
         # Initialize the GTK application
-        app = BigOcrPdfApp(edit_mode=edit_mode)
+        app = BigOcrPdfApp()
 
         # Add files from command line if provided
         if hasattr(args, "files") and args.files:

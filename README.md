@@ -5,8 +5,10 @@
 **The complete OCR toolkit for Linux — turn scanned PDFs and images into searchable, editable documents.**
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](LICENSE)
+[![Version: 3.0.0](https://img.shields.io/badge/Version-3.0.0-green.svg)](pyproject.toml)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg)](https://python.org)
 [![GTK4 + Libadwaita](https://img.shields.io/badge/GTK4-Libadwaita-4A86CF.svg)](https://gnome.org)
+[![Tests: 311](https://img.shields.io/badge/Tests-311%20passing-brightgreen.svg)](tests/)
 
 </div>
 
@@ -14,43 +16,37 @@
 
 BigOcrPDF is a powerful, all-in-one OCR application that adds searchable text layers to scanned PDFs, extracts text from images, and provides a full-featured PDF editor — all from a modern, native Linux interface.
 
-## Three Interfaces, One Toolkit
+## Why BigOcrPDF?
 
-BigOcrPDF offers three independent interfaces that cover every stage of document work:
-
-### 1. PDF OCR (`bigocrpdf`)
-
-The main interface. Drop your scanned PDFs, choose your settings, and get searchable documents back. Ideal for:
-
-- Turning scanned paperwork, contracts, and books into searchable PDFs
-- Archiving documents as PDF/A-2b for long-term preservation
-- Batch-processing dozens of files with checkpoint/resume
-- Re-OCR'ing documents that already have a poor text layer
-- Exporting extracted text as TXT or ODF/ODT with layout detection
-
-### 2. PDF Editor (`bigocrpdf --edit` or `bigocrpdf -e`)
-
-A standalone page editor that runs independently of the OCR window. Use it to organize your PDFs before or after OCR:
-
-- Reorder, rotate, flip, and delete pages with drag-and-drop
-- Merge multiple PDFs and images into a single document
-- Import photos (JPEG, PNG, TIFF, WebP, RAW) with automatic EXIF rotation
-- Split large PDFs by page count or target file size
-- Compress PDFs with configurable quality and DPI
-- Save individual pages as images or separate PDFs
-
-### 3. Image OCR (`bigocrimage`)
-
-A lightweight window for quick text extraction from images and screenshots:
-
-- Open any image — JPEG, PNG, WebP, TIFF, or RAW (CR2, DNG, NEF, ARW…)
-- Capture a screen region and extract the text instantly
-- Copy results to clipboard with one click
-- Works with Spectacle (KDE), GNOME Screenshot, and Flameshot
+- **AI-Powered OCR** — Uses **RapidOCR PP-OCRv5** with OpenVINO hardware acceleration for fast, accurate text recognition across **130+ languages**
+- **Edit, Merge & Organize PDFs** — Reorder pages, rotate, delete, and combine multiple PDFs and images into a single document
+- **Smart Preprocessing** — Automatic perspective correction, deskew, dewarping, and illumination normalization — even photos of documents come out clean
+- **Multiple Export Formats** — Searchable PDF, PDF/A-2b archival, plain text, and ODF/ODT with layout-aware formatting
+- **Screen Capture OCR** — Select any region on screen and instantly extract text
+- **Batch Processing** — Process dozens of files at once with checkpoint/resume support
+- **File Manager Integration** — Right-click any PDF or image to OCR it directly
 
 ---
 
 ## Key Features
+
+### PDF Editor
+
+Manage your documents before and after OCR — no need for a separate tool.
+
+- **Drag-and-drop page reordering** with thumbnail previews
+- **Rotate & flip pages** — left, right, horizontal, and vertical
+- **Delete pages** you don't need
+- **Merge files** — combine pages from multiple PDFs and images into one document
+- **Create PDFs from images** — import JPEG, PNG, TIFF, WebP, RAW photos, and more
+- **EXIF-aware import** — automatically applies correct orientation from camera metadata
+- **Zoom control** — 50% to 200% thumbnail scaling with keyboard shortcuts
+- **Select pages for OCR** — choose exactly which pages to process
+- **Context menu** — right-click any page to save as image or PDF
+- **Compress PDF** — reduce file size with configurable quality and DPI
+- **Split PDF** — by page count or target file size
+- **Undo support** — revert page operations with Ctrl+Z
+- **Window size persistence** — remembers your preferred dimensions
 
 ### OCR Engine
 
@@ -90,9 +86,19 @@ Get your text out in the format you need.
 | **Custom Quality PDF** | Choose JPEG quality: 30%, 50%, 70%, 85%, or 95% |
 | **Black & White (JBIG2)** | Pure black-and-white output using JBIG2 — the most compact format for text-only documents |
 | **Plain Text (.txt)** | Extracted text from all pages |
-| **ODF/ODT** | Formatted text with optional embedded images *(experimental — formatting quality may vary)* |
+| **ODF/ODT** ⚠️ | 4 modes: formatted + images, images + simple text, formatted text only, or plain text *(experimental — formatting quality may vary)* |
 
 ODF export includes **layout analysis**: automatic paragraph/heading detection, table detection, image embedding, and proper page breaks. Note: ODF/ODT export is experimental and formatting results may not always be accurate.
+
+### Screen Capture & Image OCR
+
+Extract text from anything on your screen.
+
+- **Region capture** — select an area and get the text instantly
+- **Works with**: Spectacle (KDE), GNOME Screenshot, Flameshot
+- **Open any image** — JPEG, PNG, WebP, TIFF, RAW formats (CR2, DNG, NEF, ARW, and more)
+- **Copy to clipboard** with one click
+- **Standalone mode** — run `bigocrimage` for a dedicated image OCR window
 
 ### Batch Processing & Session Management
 
@@ -141,10 +147,8 @@ pip install -e .
 ### GUI
 
 ```bash
-bigocrpdf                     # PDF OCR — main interface
-bigocrpdf --edit file.pdf     # PDF Editor — standalone page editor
-bigocrpdf -e file.pdf         # (short form)
-bigocrimage                   # Image OCR — quick text extraction
+bigocrpdf                     # PDF OCR interface
+bigocrimage                   # Image OCR window
 ```
 
 ### Command Line
@@ -153,7 +157,6 @@ bigocrimage                   # Image OCR — quick text extraction
 bigocrpdf [OPTIONS] [FILES...]
 
 Options:
-  -e, --edit        Open the PDF editor instead of the OCR interface
   -v, --version     Show version and exit
   -d, --debug       Enable debug logging
   --verbose         Verbose output
@@ -232,7 +235,8 @@ graph TD
 
 ## Quality & Testing
 
-- **303 automated tests** covering OCR pipeline, PDF operations, export, preprocessing, editor logic, and utilities
+- **311 automated tests** covering OCR pipeline, PDF operations, export, preprocessing, editor logic, and utilities
+- **Tested with Python 3.10 through 3.14** — supports the latest Python release
 - **100% i18n coverage** — all 28 languages fully translated (604 strings each)
 - **Ruff-enforced** code style and linting
 - **WCAG 2.1 Level AA** accessibility considerations

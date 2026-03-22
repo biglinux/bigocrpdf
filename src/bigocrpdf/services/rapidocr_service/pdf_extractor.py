@@ -244,6 +244,89 @@ def extract_image_positions(pdf_path: Path) -> dict[int, list[ImagePosition]]:
     return positions
 
 
+@dataclass
+class PdfImageInfo:
+    """Metadata for a single image entry from ``pdfimages -list``."""
+
+    idx: int
+    img_type: str
+    width: int
+    height: int
+    comp_size: int  # compressed size in bytes (from pdfimages -list "size" column)
+
+
+def _parse_size_field(s: str) -> int:
+    """Parse a size field like '249K', '5411B', '1.2M' into bytes."""
+    s = s.strip()
+    if s.endswith("K"):
+        return int(float(s[:-1]) * 1024)
+    if s.endswith("M"):
+        return int(float(s[:-1]) * 1024 * 1024)
+    if s.endswith("G"):
+        return int(float(s[:-1]) * 1024 * 1024 * 1024)
+    if s.endswith("B"):
+        return int(float(s[:-1]))
+    try:
+        return int(float(s))
+    except ValueError:
+        return 0
+
+
+def parse_pdfimages_list(
+    pdf_path: Path,
+) -> tuple[dict[int, list[PdfImageInfo]], set[int]]:
+    """Parse ``pdfimages -list`` and return per-page image info.
+
+    Returns:
+        A tuple of (mapping, masked_pages) where *mapping* is
+        ``{page_num: [PdfImageInfo, …]}`` (masks/smasks excluded)
+        and *masked_pages* is the set of pages that have JBIG2 mask
+        entries (DjVu-like FG/BG layers).
+    """
+    try:
+        result = subprocess.run(
+            ["pdfimages", "-list", str(pdf_path)],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        if result.returncode != 0:
+            return {}, set()
+    except Exception as exc:
+        logger.warning(f"pdfimages -list failed: {exc}")
+        return {}, set()
+
+    mapping: dict[int, list[PdfImageInfo]] = {}
+    masked_pages: set[int] = set()
+    for line in result.stdout.splitlines()[2:]:  # skip header lines
+        parts = line.split()
+        if len(parts) < 14:
+            continue
+        try:
+            page_num = int(parts[0])
+            img_idx = int(parts[1])
+            img_type = parts[2]
+            width = int(parts[3])
+            height = int(parts[4])
+            # "size" is at position 14 (0-indexed) in the standard layout:
+            # page num type width height color comp bpc enc interp object ID x-ppi y-ppi size ratio
+            comp_size = _parse_size_field(parts[14])
+        except (ValueError, IndexError):
+            continue
+        if img_type in ("mask", "smask"):
+            masked_pages.add(page_num)
+            continue
+        info = PdfImageInfo(
+            idx=img_idx,
+            img_type=img_type,
+            width=width,
+            height=height,
+            comp_size=comp_size,
+        )
+        mapping.setdefault(page_num, []).append(info)
+    return mapping, masked_pages
+
+
 class PDFImageExtractor:
     """Native PDF image extraction without re-encoding.
 
@@ -264,6 +347,11 @@ class PDFImageExtractor:
         # DPI parameter kept for API compatibility but not used for extraction
         # (pdfimages extracts at native resolution)
         self.dpi = dpi
+        # Track which 1-indexed pages were rendered via pdftoppm
+        # (rotation already baked into the image)
+        self.rendered_pages: set[int] = set()
+        # Pages with image masks (DjVu-like FG/BG layers)
+        self.masked_pages: set[int] = set()
 
     def extract(
         self,
@@ -288,6 +376,7 @@ class PDFImageExtractor:
             skip_pages: Optional set of 1-indexed page numbers to skip entirely.
         """
         output_dir.mkdir(parents=True, exist_ok=True)
+        self.rendered_pages = set()
 
         # 1. Determine Total Pages and Range
         with pikepdf.open(pdf_path) as pdf:
@@ -329,6 +418,37 @@ class PDFImageExtractor:
         # 4. Process extracted files based on mapping
         _skip = skip_pages or set()
         fallback_pages: list[int] = []
+
+        # Get page dimensions and text content info for decision making
+        page_dimensions: dict[int, tuple[float, float]] = {}
+        text_rich_pages: set[int] = set()
+        with pikepdf.open(pdf_path) as pdf:
+            for pn, page in enumerate(pdf.pages, 1):
+                if start_page <= pn <= end_page:
+                    if hasattr(page, "mediabox") and page.mediabox:
+                        pw = float(page.mediabox[2]) - float(page.mediabox[0])
+                        ph = float(page.mediabox[3]) - float(page.mediabox[1])
+                        page_dimensions[pn] = (pw, ph)
+                    # Detect pages with substantial vector text content.
+                    # Such pages should NOT be converted to bitmap via pdftoppm
+                    # because that destroys text quality and searchability.
+                    fonts = page.get("/Resources", {}).get("/Font", {})
+                    if len(fonts) >= 2:
+                        cs = page.get("/Contents")
+                        if cs is not None:
+                            try:
+                                if isinstance(cs, pikepdf.Array):
+                                    raw = b"".join(
+                                        bytes(pdf.get_object(ref).read_bytes()) for ref in cs
+                                    )
+                                else:
+                                    raw = bytes(cs.read_bytes())
+                                text_ops = raw.count(b"Tj") + raw.count(b"TJ")
+                                if text_ops >= 20:
+                                    text_rich_pages.add(pn)
+                            except Exception:
+                                pass  # content parsing failed; treat as non-text
+
         for i in range(num_pages_to_process):
             current_page = start_page + i
 
@@ -336,32 +456,88 @@ class PDFImageExtractor:
             if current_page in _skip:
                 continue
 
-            img_indices = image_mapping.get(current_page, [])
+            img_entries = image_mapping.get(current_page, [])
 
-            if not img_indices:
+            if not img_entries:
+                # No images at all — vector-only page.
+                # If it has substantial text content, skip it entirely
+                # (don't render as bitmap; preserves vector text quality).
+                if current_page in text_rich_pages:
+                    logger.info(f"Page {current_page}: no images but has vector text, skipping OCR")
+                    continue
+                fallback_pages.append(current_page)
+                logger.info(f"Page {current_page}: no images found, will render with pdftoppm")
                 continue
 
+            # Sort by pixel area (largest first) to pick the best image
+            img_entries_sorted = sorted(img_entries, key=lambda e: e[1] * e[2], reverse=True)
+
             valid_img_path: Path | None = None
-            for idx in img_indices:
+            best_w, best_h = 0, 0
+            for idx, img_w, img_h in img_entries_sorted:
                 found = self._find_file_for_index(output_dir, idx)
                 if found:
+                    ext = found.suffix.lower()
+                    if ext in self._UNSUPPORTED_EXTENSIONS:
+                        continue  # skip unreadable, try next
                     valid_img_path = found
+                    best_w, best_h = img_w, img_h
                     break
 
-            if valid_img_path:
-                ext = valid_img_path.suffix.lower()
-                if ext in self._UNSUPPORTED_EXTENSIONS:
-                    # Mark for fallback rendering; don't keep unreadable file
+            if valid_img_path is None:
+                # All images were unsupported formats or not found
+                if current_page in text_rich_pages:
+                    logger.info(
+                        f"Page {current_page}: no readable images but has vector text, skipping OCR"
+                    )
+                    continue
+                fallback_pages.append(current_page)
+                logger.info(
+                    f"Page {current_page}: no readable images found, will render with pdftoppm"
+                )
+                continue
+
+            # Check if the best image is too small relative to the page.
+            # PDF page dimensions are in points (72 pt/inch). At 300 DPI,
+            # a full A4 page is ~2480x3508 px.  We compare the image's
+            # pixel area and dimensions to the expected at 150 DPI (generous
+            # minimum).  Fallback to rendering if:
+            #   - area covers less than 15% of expected page area, OR
+            #   - either dimension is less than 45% of expected (catches
+            #     narrow strips like barcodes, tiled page fragments, headers)
+            page_dim = page_dimensions.get(current_page)
+            if page_dim:
+                expected_dpi = 150  # generous minimum
+                expected_w = page_dim[0] / 72.0 * expected_dpi
+                expected_h = page_dim[1] / 72.0 * expected_dpi
+                expected_area = expected_w * expected_h
+                img_area = best_w * best_h
+                coverage = img_area / expected_area if expected_area > 0 else 1.0
+                w_ratio = best_w / expected_w if expected_w > 0 else 1.0
+                h_ratio = best_h / expected_h if expected_h > 0 else 1.0
+                if coverage < 0.15 or w_ratio < 0.45 or h_ratio < 0.45:
+                    reason = (
+                        f"area {coverage:.0%}"
+                        if coverage < 0.15
+                        else f"dimensions {best_w}x{best_h} ({w_ratio:.0%}w, {h_ratio:.0%}h)"
+                    )
+                    if current_page in text_rich_pages:
+                        logger.info(
+                            f"Page {current_page}: small image {best_w}x{best_h} "
+                            f"({reason}) but has vector text, skipping OCR"
+                        )
+                        continue
                     fallback_pages.append(current_page)
                     logger.info(
-                        f"Page {current_page}: unsupported image format "
-                        f"'{ext}', will render with pdftoppm"
+                        f"Page {current_page}: largest image {best_w}x{best_h} "
+                        f"insufficient ({reason}), will render with pdftoppm"
                     )
-                else:
-                    dest = output_dir / f"page_{current_page}{valid_img_path.suffix}"
-                    if not dest.exists():
-                        valid_img_path.rename(dest)
-                        results[i] = dest
+                    continue
+
+            dest = output_dir / f"page_{current_page}{valid_img_path.suffix}"
+            if not dest.exists():
+                valid_img_path.rename(dest)
+                results[i] = dest
 
         # Cleanup unused extracted files (including unreadable ones)
         for f in output_dir.glob("obj-*"):
@@ -386,11 +562,16 @@ class PDFImageExtractor:
     ) -> None:
         """Render specific pages via pdftoppm when pdfimages produces unreadable formats.
 
-        Uses pdftoppm to render each page to PNG at 300 DPI (good balance
-        between quality and file size for OCR).
+        Uses pdftoppm to render each page to PNG at the configured DPI.
+        Multiple pages are rendered in parallel via threads.
         """
+        import os as _os
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
         dpi = str(self.dpi or 300)
-        for page_num in pages:
+        max_render_workers = min(len(pages), _os.cpu_count() or 4)
+
+        def _render_one(page_num: int) -> tuple[int, Path | None]:
             prefix = str(output_dir / f"render_{page_num}")
             cmd = [
                 "pdftoppm",
@@ -409,29 +590,47 @@ class PDFImageExtractor:
                 subprocess.run(cmd, check=True, capture_output=True, text=True)
             except subprocess.CalledProcessError as e:
                 logger.error(f"pdftoppm fallback failed for page {page_num}: {e.stderr}")
-                continue
+                return page_num, None
 
             rendered = Path(f"{prefix}.png")
             if rendered.exists():
                 dest = output_dir / f"page_{page_num}.png"
                 rendered.rename(dest)
-                idx = page_num - start_page
-                if 0 <= idx < len(results):
-                    results[idx] = dest
-                    logger.info(f"Page {page_num}: rendered via pdftoppm ({dest.name})")
-            else:
-                logger.warning(f"pdftoppm produced no output for page {page_num}")
+                logger.info(f"Page {page_num}: rendered via pdftoppm ({dest.name})")
+                return page_num, dest
+            logger.warning(f"pdftoppm produced no output for page {page_num}")
+            return page_num, None
+
+        with ThreadPoolExecutor(max_workers=max_render_workers) as tp:
+            for page_num, dest in (
+                fut.result() for fut in as_completed({tp.submit(_render_one, p): p for p in pages})
+            ):
+                if dest is not None:
+                    idx = page_num - start_page
+                    if 0 <= idx < len(results):
+                        results[idx] = dest
+                        self.rendered_pages.add(page_num)
 
     def _get_image_mapping(
         self,
         pdf_path: Path,
         page_range: tuple[int, int] | None = None,
-    ) -> dict[int, list[int]]:
-        """Map page numbers to image indices using pdfimages -list.
+    ) -> dict[int, list[tuple[int, int, int]]]:
+        """Map page numbers to image info using pdfimages -list.
 
         When page_range is provided, uses -f/-l flags so that image
         indices match the files produced by a corresponding pdfimages -all
         call with the same range.
+
+        Also populates ``self.masked_pages`` — a set of page numbers that
+        contain image masks (SMask / soft-mask).  Pages with masks typically
+        use DjVu-like foreground/background layer separation where the
+        extracted background layer is heavily compressed (~Q10) and
+        unusable for OCR on its own.  Such pages should be rendered via
+        pdftoppm to get the composited image.
+
+        Returns:
+            Dict mapping page_num -> list of (image_index, width, height).
         """
         cmd = ["pdfimages", "-list"]
         if page_range:
@@ -442,7 +641,8 @@ class PDFImageExtractor:
         except subprocess.CalledProcessError:
             return {}
 
-        mapping: dict[int, list[int]] = {}
+        mapping: dict[int, list[tuple[int, int, int]]] = {}
+        self.masked_pages: set[int] = set()
         lines = result.stdout.splitlines()
         start_parsing = False
         for line in lines:
@@ -453,15 +653,19 @@ class PDFImageExtractor:
                 continue
 
             parts = line.split()
-            if len(parts) >= 4:
+            if len(parts) >= 5:
                 try:
                     p_num = int(parts[0])
                     i_idx = int(parts[1])
                     type_str = parts[2]
+                    img_w = int(parts[3])
+                    img_h = int(parts[4])
                     if type_str == "image":
                         if p_num not in mapping:
                             mapping[p_num] = []
-                        mapping[p_num].append(i_idx)
+                        mapping[p_num].append((i_idx, img_w, img_h))
+                    elif type_str == "mask":
+                        self.masked_pages.add(p_num)
                 except ValueError:
                     continue
         return mapping

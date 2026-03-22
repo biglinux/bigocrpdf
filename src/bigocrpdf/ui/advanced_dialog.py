@@ -33,6 +33,9 @@ def _load_svg_picture(filename: str, size: int = 92) -> Gtk.Image:
     image.set_valign(Gtk.Align.CENTER)
     image.set_hexpand(False)
     image.set_vexpand(False)
+    image.update_property(
+        [Gtk.AccessibleProperty.LABEL], [""]
+    )
     return image
 
 
@@ -168,9 +171,9 @@ def show_advanced_settings_dialog(
                     if w.get_active() != switch.get_active():
                         w.set_active(switch.get_active())
 
-                def _on_row(row, _pspec):  # noqa: B023
-                    if tgl.get_active() != row.get_active():  # noqa: B023
-                        tgl.set_active(row.get_active())  # noqa: B023
+                def _on_row(source, _pspec):
+                    if tgl.get_active() != source.get_active():
+                        tgl.set_active(source.get_active())
 
                 tgl.connect("notify::active", _on_toggle)
                 w.connect("notify::active", _on_row)
@@ -193,9 +196,9 @@ def show_advanced_settings_dialog(
                     if w.get_selected() != drop.get_selected():
                         w.set_selected(drop.get_selected())
 
-                def _on_row(row, _pspec):  # noqa: B023
-                    if dd.get_selected() != row.get_selected():  # noqa: B023
-                        dd.set_selected(row.get_selected())  # noqa: B023
+                def _on_row(source, _pspec):
+                    if dd.get_selected() != source.get_selected():
+                        dd.set_selected(source.get_selected())
 
                 dd.connect("notify::selected", _on_dropdown)
                 w.connect("notify::selected", _on_row)

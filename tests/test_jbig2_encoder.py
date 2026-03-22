@@ -1,7 +1,6 @@
 """Tests for jbig2_encoder module."""
 
 import io
-import struct
 import unittest
 from unittest.mock import patch
 
@@ -10,7 +9,6 @@ from PIL import Image
 
 from bigocrpdf.services.rapidocr_service.jbig2_encoder import (
     _extract_ccitt_from_tiff,
-    _read_ifd_values,
     encode_bilevel,
     encode_ccitt_g4,
     encode_jbig2,

@@ -78,6 +78,20 @@ class PageGrid(Gtk.ScrolledWindow):
         if document:
             self.load_document(document)
 
+    @property
+    def selected_indices(self) -> set[int]:
+        """Currently selected page indices."""
+        return self._selected_indices
+
+    @selected_indices.setter
+    def selected_indices(self, value: set[int]) -> None:
+        self._selected_indices = value
+
+    @property
+    def thumbnails(self) -> list:
+        """List of PageThumbnail widgets."""
+        return self._thumbnails
+
     def _setup_ui(self) -> None:
         """Set up the grid UI."""
         # Main overlay for rubberband and drop indicator

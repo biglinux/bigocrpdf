@@ -9,6 +9,7 @@ to keep memory usage under ~600 MB total.
 import logging
 import os
 import signal
+import subprocess
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -320,7 +321,11 @@ def _determine_output_format(img_path: str, config: Any) -> tuple[str, int, int]
     if auto_detect and img_format == "original":
         detected_quality = detect_image_quality(img_path)
         if detected_quality > 0:
-            img_quality = detected_quality
+            # Use at least quality 75 to avoid generation loss when
+            # re-encoding low-quality source JPEGs.  Re-encoding at the
+            # original low quality (e.g. 32) adds new artifacts on top of
+            # the existing ones, visibly degrading the image.
+            img_quality = max(detected_quality, 75)
 
     if img_format == "original":
         detected_fmt = detect_original_format(img_path)
@@ -388,6 +393,39 @@ def _save_processed_image(processed_img: np.ndarray, img_format: str, img_qualit
     return temp_out
 
 
+def _render_page_pdftoppm(pdf_path: str, page_num: int, dpi: int = 150) -> str | None:
+    """Render a composited page from a PDF via pdftoppm.
+
+    Returns the path to an uncompressed PPM file, or None on failure.
+    Used for DjVu-like pages where the extracted BG layer is too degraded
+    for geometry corrections or recompression.
+    """
+    fd, prefix = tempfile.mkstemp(suffix="", prefix=f"worker_render_{page_num}_")
+    os.close(fd)
+    os.unlink(prefix)  # pdftoppm appends extension
+    cmd = [
+        "pdftoppm",
+        "-f",
+        str(page_num),
+        "-l",
+        str(page_num),
+        "-r",
+        str(dpi),
+        "-singlefile",
+        str(pdf_path),
+        prefix,
+    ]
+    try:
+        subprocess.run(cmd, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"pdftoppm render failed for page {page_num}: {e.stderr}")
+        return None
+    rendered = f"{prefix}.ppm"
+    if os.path.exists(rendered):
+        return rendered
+    return None
+
+
 def process_page(args: dict[str, Any]) -> dict[str, Any]:
     """Worker function for parallel page processing.
 
@@ -430,10 +468,36 @@ def process_page(args: dict[str, Any]) -> dict[str, Any]:
         if original_img is None:
             return {"page_num": page_num, "error": f"Could not read image: {img_path}"}
 
+        # For DjVu-like pages where the user wants image modifications
+        # (geometry corrections or format change), render the composited
+        # page via pdftoppm instead of using the degraded BG layer.
+        use_rendered_source = args.get("use_rendered_source", False)
+        rendered_source_path = None
+        if use_rendered_source:
+            input_pdf = args.get("input_pdf")
+            if input_pdf:
+                rendered_source_path = _render_page_pdftoppm(input_pdf, page_num)
+                if rendered_source_path:
+                    rendered_img = cv2.imread(rendered_source_path, cv2.IMREAD_COLOR)
+                    if rendered_img is not None:
+                        logger.info(
+                            f"Page {page_num}: using pdftoppm-rendered source "
+                            f"({rendered_img.shape[1]}x{rendered_img.shape[0]}) "
+                            f"instead of extracted BG layer"
+                        )
+                        original_img = rendered_img
+
         pdf_rotation = args.get("pdf_rotation", 0)
-        original_img, orig_h, orig_w, image_prerotated = _apply_pdf_rotation(
-            original_img, img_path, page_num, pdf_rotation
-        )
+        skip_rotation = args.get("skip_rotation", False)
+        if skip_rotation or rendered_source_path:
+            # Image already display-oriented (e.g. from pdftoppm rendering).
+            # Record as pre-rotated so downstream code adjusts page size.
+            orig_h, orig_w = original_img.shape[:2]
+            image_prerotated = pdf_rotation != 0
+        else:
+            original_img, orig_h, orig_w, image_prerotated = _apply_pdf_rotation(
+                original_img, img_path, page_num, pdf_rotation
+            )
 
         if pdf_rotation == 0:
             orientation_angle = preprocessor.detect_orientation(original_img)
@@ -443,7 +507,15 @@ def process_page(args: dict[str, Any]) -> dict[str, Any]:
         else:
             orientation_angle = 0
 
-        processed_img = preprocessor.process(original_img)
+        skip_geometric = args.get("skip_geometric", False)
+        if skip_geometric:
+            # DjVu-like page: skip geometric corrections (deskew, perspective,
+            # dewarp) so geometry_applied stays False → overlay mode preserves
+            # the original FG/BG/mask composite in the PDF.
+            processed_img = original_img
+            preprocessor.geometry_applied = False
+        else:
+            processed_img = preprocessor.process(original_img)
 
         img_format, img_quality, detected_quality = _determine_output_format(img_path, config)
 
@@ -473,10 +545,18 @@ def process_page(args: dict[str, Any]) -> dict[str, Any]:
             "detected_quality": detected_quality,
             "image_format": img_format,
             "original_encoding": args.get("original_encoding", ""),
+            "geometry_applied": preprocessor.geometry_applied,
             "success": True,
         }
 
         del original_img, processed_img
+
+        # Cleanup temporary pdftoppm render file
+        if rendered_source_path:
+            try:
+                os.unlink(rendered_source_path)
+            except OSError:
+                pass
 
         return result
 

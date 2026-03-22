@@ -1,7 +1,6 @@
 """Tests for bilevel image analysis and binarization."""
 
 import numpy as np
-import pytest
 
 from bigocrpdf.services.rapidocr_service.bilevel_analysis import (
     binarize,

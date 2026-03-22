@@ -710,11 +710,13 @@ class ProfessionalPDFOCR(
         logger.info(f"Output: {output_pdf}")
 
         # Choose pipeline: mixed content (text + images) vs image-only.
-        # force_full_ocr is the ONLY flag that bypasses mixed content detection
-        # (used for editor-merged files that must be fully re-processed).
-        # replace_existing_ocr does NOT affect pipeline selection — it only
-        # controls whether existing OCR text is re-processed within each pipeline.
-        if not self.config.force_full_ocr and has_native_text(input_pdf):
+        # force_full_ocr is set by the editor for merged files.
+        # replace_existing_ocr is handled inside each pipeline: the mixed
+        # content pipeline strips old OCR layers and re-OCRs, while the
+        # image-only pipeline simply overwrites.  Only force_full_ocr
+        # should bypass the mixed content detection entirely.
+        bypass_mixed = self.config.force_full_ocr
+        if not bypass_mixed and has_native_text(input_pdf):
             logger.info("Detected mixed content PDF (text + images). Using preservation mode.")
             return self._process_mixed_content_pdf(input_pdf, output_pdf, progress_callback)
         else:

@@ -77,6 +77,7 @@ class PipelineConfig:
     max_workers: int
     chunk_size: int
     ocr_threads: int
+    ocr_workers: int
     enable_prefetch: bool
     gc_after_page: bool
     gc_after_chunk: bool
@@ -199,6 +200,7 @@ def compute_pipeline_config(profile: ResourceProfile) -> PipelineConfig:
         max_workers = 1
         chunk_size = 4
         ocr_threads = max(2, cpu_count // 2)
+        ocr_workers = 1
         enable_prefetch = False
         gc_after_page = True
         gc_after_chunk = True
@@ -211,6 +213,7 @@ def compute_pipeline_config(profile: ResourceProfile) -> PipelineConfig:
         max_workers = min(ram_workers, cpu_workers, 6)
         chunk_size = 8
         ocr_threads = max(2, cpu_count // 2)
+        ocr_workers = 1
         enable_prefetch = False
         gc_after_page = False
         gc_after_chunk = True
@@ -222,6 +225,10 @@ def compute_pipeline_config(profile: ResourceProfile) -> PipelineConfig:
         cpu_workers = max(1, cpu_count - 2)
         max_workers = min(ram_workers, cpu_workers, 12)
         chunk_size = min(max_workers * 2, 20)
+        # Single OCR subprocess maximizes throughput: OpenVINO
+        # inference scales better with more threads in one process
+        # than splitting across multiple processes (cache contention).
+        ocr_workers = 1
         ocr_threads = max(2, cpu_count)
         enable_prefetch = True
         gc_after_page = False
@@ -232,6 +239,7 @@ def compute_pipeline_config(profile: ResourceProfile) -> PipelineConfig:
         max_workers=max_workers,
         chunk_size=chunk_size,
         ocr_threads=ocr_threads,
+        ocr_workers=ocr_workers,
         enable_prefetch=enable_prefetch,
         gc_after_page=gc_after_page,
         gc_after_chunk=gc_after_chunk,
@@ -240,7 +248,8 @@ def compute_pipeline_config(profile: ResourceProfile) -> PipelineConfig:
 
     logger.info(
         f"Pipeline config: workers={max_workers}, chunk={chunk_size}, "
-        f"ocr_threads={ocr_threads}, prefetch={enable_prefetch}, "
+        f"ocr_threads={ocr_threads}, ocr_workers={ocr_workers}, "
+        f"prefetch={enable_prefetch}, "
         f"gc_page={gc_after_page}, gc_chunk={gc_after_chunk}, "
         f"probmap_max={downscale_probmap}"
     )

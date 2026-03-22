@@ -235,6 +235,7 @@ def open_file_with_default_app(file_path: str) -> bool:
         logger.warning(f"Gio launch failed for {file_path}: {e}, trying xdg-open")
         try:
             import subprocess
+
             subprocess.Popen(
                 ["xdg-open", file_path],
                 stdout=subprocess.DEVNULL,

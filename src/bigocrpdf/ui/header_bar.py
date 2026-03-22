@@ -170,8 +170,28 @@ class HeaderBar(Gtk.Box):
             self.window.on_back_clicked(button)
 
     def _on_clear_queue_clicked(self, button: Gtk.Button) -> None:
-        """Handle Clear Queue button click."""
-        if hasattr(self.window, "clear_file_queue"):
+        """Handle Clear Queue button click with confirmation dialog."""
+        if not hasattr(self.window, "clear_file_queue"):
+            return
+        n_files = len(getattr(self.window.settings, "selected_files", []))
+        if n_files == 0:
+            return
+
+        dialog = Adw.AlertDialog(
+            heading=_("Clear file queue?"),
+            body=_("This will remove all {n} files from the queue.").format(n=n_files),
+        )
+        dialog.add_response("cancel", _("Cancel"))
+        dialog.add_response("clear", _("Clear"))
+        dialog.set_response_appearance("clear", Adw.ResponseAppearance.DESTRUCTIVE)
+        dialog.set_default_response("cancel")
+        dialog.set_close_response("cancel")
+        dialog.connect("response", self._on_clear_queue_response)
+        dialog.present(self.window)
+
+    def _on_clear_queue_response(self, dialog: Adw.AlertDialog, response: str) -> None:
+        """Handle clear queue confirmation response."""
+        if response == "clear":
             self.window.clear_file_queue()
 
     def _on_view_toggle_clicked(self, button: Gtk.Button) -> None:

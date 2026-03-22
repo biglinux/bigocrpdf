@@ -418,7 +418,7 @@ def create_odf(
             for img_data, mime, w_px, h_px, y_top in page_images[page_num]:
                 img_items.append((y_top, (img_data, mime, w_px, h_px)))
 
-        def _render_image(img_tuple: tuple[bytes, str, int, int]) -> None:
+        def _render_image(img_tuple: tuple[bytes, str, int, int], _pg: int = page_num) -> None:
             img_data, mime, w_px, h_px = img_tuple
             try:
                 frame_w_cm = min(16.0, w_px * 2.54 / 150)
@@ -440,7 +440,7 @@ def create_odf(
                 img_p.addElement(frame)
                 doc.text.addElement(img_p)
             except Exception as e:
-                logger.debug("Could not embed image for page %d: %s", page_num, e)  # noqa: B023
+                logger.debug("Could not embed image for page %d: %s", _pg, e)
 
         def _render_element(elem: DocElement) -> None:
             if elem.kind == "table":

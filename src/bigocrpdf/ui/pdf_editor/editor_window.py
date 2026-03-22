@@ -713,7 +713,7 @@ class PDFEditorWindow(EditorToolsMixin, EditorPageActionsMixin, Adw.Window):
         """Update the status bar labels."""
         total = self._page_grid.get_total_pages()
         included = self._page_grid.get_ocr_count()
-        selected_count = len(self._page_grid._selected_indices)
+        selected_count = len(self._page_grid.selected_indices)
 
         self._status_label.set_text(
             _("{total} pages · {included} included").format(total=total, included=included)

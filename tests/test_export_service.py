@@ -3,7 +3,7 @@
 import os
 import tempfile
 from types import SimpleNamespace
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from bigocrpdf.services.export_service import save_text_file
 

@@ -100,14 +100,16 @@ def _build_text_boxes(
         font_size = max(MIN_FONT_SIZE, min(MAX_FONT_SIZE, height_pts * FONT_SIZE_SCALE_FACTOR))
 
         descent_pts = 0.207 * font_size
-        boxes.append({
-            "text": text,
-            "x": img_x + min_x * scale_x,
-            "y": img_y + img_height - (max_y * scale_y) + descent_pts,
-            "width": width_pts,
-            "height": height_pts,
-            "font_size": font_size,
-        })
+        boxes.append(
+            {
+                "text": text,
+                "x": img_x + min_x * scale_x,
+                "y": img_y + img_height - (max_y * scale_y) + descent_pts,
+                "width": width_pts,
+                "height": height_pts,
+                "font_size": font_size,
+            }
+        )
     return boxes
 
 
@@ -225,27 +227,32 @@ def append_text_to_page(pdf: pikepdf.Pdf, page: pikepdf.Page, text_commands: lis
 
     # Add OCR font with unique name to avoid conflicts
     if "/FOcr" not in page.Resources.Font:
-        page.Resources.Font["/FOcr"] = pikepdf.Dictionary({
-            "/Type": pikepdf.Name("/Font"),
-            "/Subtype": pikepdf.Name("/Type1"),
-            "/BaseFont": pikepdf.Name("/Helvetica"),
-            "/Encoding": pikepdf.Name("/WinAnsiEncoding"),
-        })
+        page.Resources.Font["/FOcr"] = pikepdf.Dictionary(
+            {
+                "/Type": pikepdf.Name("/Font"),
+                "/Subtype": pikepdf.Name("/Type1"),
+                "/BaseFont": pikepdf.Name("/Helvetica"),
+                "/Encoding": pikepdf.Name("/WinAnsiEncoding"),
+            }
+        )
 
     # Create new content stream with text layer
     text_content = "\n".join(text_commands)
 
-    # Get existing content
+    # Wrap existing content in q/Q so any CTM changes (e.g. cm scaling)
+    # from the original page don't affect our text overlay coordinates.
     contents = page.get("/Contents")
+    q_stream = pikepdf.Stream(pdf, b"q\n")
+    Q_stream = pikepdf.Stream(pdf, b"\nQ\n")
+    new_stream = pikepdf.Stream(pdf, text_content.encode("latin-1", errors="replace"))
     if contents is None:
-        new_stream = pikepdf.Stream(pdf, text_content.encode("latin-1", errors="replace"))
         page["/Contents"] = new_stream
     elif isinstance(contents, pikepdf.Array):
-        new_stream = pikepdf.Stream(pdf, text_content.encode("latin-1", errors="replace"))
-        contents.append(new_stream)
+        # Wrap: q + existing_streams... + Q + text_overlay
+        wrapped = pikepdf.Array([q_stream] + list(contents) + [Q_stream, new_stream])
+        page["/Contents"] = wrapped
     else:
-        new_stream = pikepdf.Stream(pdf, text_content.encode("latin-1", errors="replace"))
-        page["/Contents"] = pikepdf.Array([contents, new_stream])
+        page["/Contents"] = pikepdf.Array([q_stream, contents, Q_stream, new_stream])
 
 
 def _collect_q_group(ops: list[tuple], start: int) -> tuple[list[tuple], int]:
@@ -330,6 +337,23 @@ def strip_invisible_text(page: pikepdf.Page, pdf: pikepdf.Pdf) -> int:
     Returns:
         Number of operator groups removed.
     """
+    # Quick byte-level check: if no "3 Tr" (invisible text render mode)
+    # exists in the content streams, skip the expensive full parse.
+    contents = page.get("/Contents")
+    if contents is None:
+        return 0
+    try:
+        streams = list(contents) if isinstance(contents, pikepdf.Array) else [contents]
+        has_invisible = False
+        for stream in streams:
+            if b"3 Tr" in stream.read_bytes():
+                has_invisible = True
+                break
+        if not has_invisible:
+            return 0
+    except Exception:
+        pass  # Fall through to full parse on error
+
     try:
         ops = list(pikepdf.parse_content_stream(page))
     except Exception:

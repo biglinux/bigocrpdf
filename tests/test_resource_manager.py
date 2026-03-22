@@ -2,6 +2,8 @@
 
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from bigocrpdf.services.rapidocr_service.resource_manager import (
     PipelineConfig,
     ResourceProfile,
@@ -32,11 +34,8 @@ class TestResourceProfile:
         p = ResourceProfile(
             available_ram_mb=4096, total_ram_mb=16384, cpu_count=8, tier=ResourceTier.MODERATE
         )
-        try:
+        with pytest.raises(AttributeError):
             p.available_ram_mb = 0
-            assert False, "Should not allow mutation"
-        except AttributeError:
-            pass
 
 
 class TestDetectResources:

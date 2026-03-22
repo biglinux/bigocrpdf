@@ -73,7 +73,7 @@ def _strip_pre_headers(
 ) -> None:
     """Remove header lines absorbed into para_buf before a table."""
     header_indices = set(range(line_idx - n_pre_headers, line_idx))
-    new_buf = [t for t, li in zip(para_buf, para_line_idx, strict=False) if li not in header_indices]
+    new_buf = [t for t, li in zip(para_buf, para_line_idx, strict=True) if li not in header_indices]
     new_idx = [li for li in para_line_idx if li not in header_indices]
     para_buf[:] = new_buf
     para_line_idx[:] = new_idx

@@ -34,14 +34,11 @@ from bigocrpdf.window import BigOcrPdfWindow
 class BigOcrPdfApp(Adw.Application):
     """Application class for BigOcrPdf."""
 
-    def __init__(self, edit_mode: bool = False) -> None:
+    def __init__(self) -> None:
         """Initialize the application."""
-        # Editor mode uses a separate application-id so it runs as an
-        # independent process from the OCR window (different D-Bus name).
-        app_id = f"{APP_ID}.editor" if edit_mode else APP_ID
-        super().__init__(application_id=app_id, flags=Gio.ApplicationFlags.HANDLES_OPEN)
+        super().__init__(application_id=APP_ID, flags=Gio.ApplicationFlags.HANDLES_OPEN)
 
-        self._edit_mode = edit_mode
+        self._edit_mode = False
 
         # Add command line handling
         self.add_main_option(
@@ -290,7 +287,7 @@ class BigOcrPdfApp(Adw.Application):
         try:
             from bigocrpdf.ui.pdf_editor.thumbnail_renderer import get_thumbnail_renderer
 
-            get_thumbnail_renderer()  # Initialize singleton
+            get_thumbnail_renderer()
 
             # Create a temporary PDF from the first image to bootstrap the editor
             first_path = image_paths[0]

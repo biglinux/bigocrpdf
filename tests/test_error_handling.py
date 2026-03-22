@@ -29,8 +29,8 @@ class TestPdfOperationsErrorHandling:
         from bigocrpdf.services.pdf_operations import split_by_pages
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            with pytest.raises(Exception):
-                split_by_pages("/nonexistent/file.pdf", tmpdir, pages_per_split=1)
+            with pytest.raises((FileNotFoundError, OSError)):
+                split_by_pages("/nonexistent/file.pdf", tmpdir, pages_per_file=1)
 
     def test_extract_pages_arg_order(self):
         from bigocrpdf.services.pdf_operations import extract_pages
@@ -39,7 +39,7 @@ class TestPdfOperationsErrorHandling:
             pdf_path = os.path.join(tmpdir, "test.pdf")
             _create_test_pdf(pdf_path, num_pages=5)
             out_path = os.path.join(tmpdir, "out.pdf")
-            result = extract_pages(pdf_path, out_path, [1, 3])
+            extract_pages(pdf_path, out_path, [1, 3])
             assert os.path.exists(out_path)
 
     def test_rotate_preserves_page_count(self):
@@ -93,7 +93,7 @@ class TestCorruptPdfHandling:
             f.write(b"This is not a PDF file at all")
             corrupt_path = f.name
         try:
-            with pytest.raises(Exception):
+            with pytest.raises(pikepdf.PdfError):
                 with pikepdf.Pdf.open(corrupt_path):
                     pass
         finally:
@@ -103,7 +103,7 @@ class TestCorruptPdfHandling:
         with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
             empty_path = f.name
         try:
-            with pytest.raises(Exception):
+            with pytest.raises(pikepdf.PdfError):
                 with pikepdf.Pdf.open(empty_path):
                     pass
         finally:

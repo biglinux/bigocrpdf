@@ -273,9 +273,7 @@ class ScreenCaptureService:
             with open(temp_path, "wb") as f:
                 f.write(stdout)
         else:
-            logger.debug(
-                f"Flameshot exited with code {proc.returncode}: {stderr.decode().strip()}"
-            )
+            logger.debug(f"Flameshot exited with code {proc.returncode}: {stderr.decode().strip()}")
         return True
 
     def _run_standard_tool(self, cmd: list[str]) -> bool | None:
@@ -300,8 +298,7 @@ class ScreenCaptureService:
             return True
         if proc.returncode != 0:
             logger.debug(
-                f"{tool_name} exited with code {proc.returncode}: "
-                f"{stderr.decode().strip()}"
+                f"{tool_name} exited with code {proc.returncode}: {stderr.decode().strip()}"
             )
         return True
 

@@ -4,7 +4,6 @@ BigOcrPdf - Terminal Page Module
 This module handles the creation and management of the processing/terminal page UI.
 """
 
-
 import gi
 
 gi.require_version("Gtk", "4.0")

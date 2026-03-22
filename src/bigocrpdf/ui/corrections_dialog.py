@@ -33,6 +33,9 @@ def _load_svg_picture(filename: str, size: int = 92) -> Gtk.Image:
     image.set_valign(Gtk.Align.CENTER)
     image.set_hexpand(False)
     image.set_vexpand(False)
+    image.update_property(
+        [Gtk.AccessibleProperty.LABEL], [""]
+    )
     return image
 
 

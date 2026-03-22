@@ -133,29 +133,31 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         # Enable drag-and-drop for image files
         self._setup_drop_target()
 
-    _SUPPORTED_IMAGE_EXTENSIONS = frozenset((
-        ".png",
-        ".jpg",
-        ".jpeg",
-        ".bmp",
-        ".tiff",
-        ".tif",
-        ".webp",
-        ".gif",
-        ".avif",
-        ".heif",
-        ".heic",
-        ".jxl",
-        ".ico",
-        ".psd",
-        ".eps",
-        ".tga",
-        ".pbm",
-        ".pgm",
-        ".ppm",
-        ".xbm",
-        ".xpm",
-    ))
+    _SUPPORTED_IMAGE_EXTENSIONS = frozenset(
+        (
+            ".png",
+            ".jpg",
+            ".jpeg",
+            ".bmp",
+            ".tiff",
+            ".tif",
+            ".webp",
+            ".gif",
+            ".avif",
+            ".heif",
+            ".heic",
+            ".jxl",
+            ".ico",
+            ".psd",
+            ".eps",
+            ".tga",
+            ".pbm",
+            ".pgm",
+            ".ppm",
+            ".xbm",
+            ".xpm",
+        )
+    )
 
     def _setup_drop_target(self) -> None:
         """Set up drag-and-drop target for image files."""

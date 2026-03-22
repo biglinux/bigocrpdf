@@ -185,15 +185,17 @@ class SettingsSidebarMixin:
 
         self.image_quality_combo = Adw.ComboRow(title=_("Image Quality"))
         set_a11y_label(self.image_quality_combo, _("Image Quality"))
-        quality_model = Gtk.StringList.new([
-            _("Keep Original"),
-            _("Very Low (30%)"),
-            _("Low (50%)"),
-            _("Medium (70%)"),
-            _("High (85%)"),
-            _("Maximum (95%)"),
-            _("Black & White (JBIG2)"),
-        ])
+        quality_model = Gtk.StringList.new(
+            [
+                _("Keep Original"),
+                _("Very Low (30%)"),
+                _("Low (50%)"),
+                _("Medium (70%)"),
+                _("High (85%)"),
+                _("Maximum (95%)"),
+                _("Black & White (JBIG2)"),
+            ]
+        )
         self.image_quality_combo.set_model(quality_model)
 
         self.pdfa_switch_row = Adw.SwitchRow(title=_("Export as PDF/A"))
@@ -201,16 +203,18 @@ class SettingsSidebarMixin:
         self.max_size_combo = Adw.ComboRow(title=_("Maximum Output Size"))
         set_a11y_label(self.max_size_combo, _("Maximum Output Size"))
         self._max_size_values = [0, 5, 10, 15, 20, 25, 50, 100]
-        max_size_model = Gtk.StringList.new([
-            _("No limit"),
-            _("5 MB"),
-            _("10 MB"),
-            _("15 MB"),
-            _("20 MB"),
-            _("25 MB"),
-            _("50 MB"),
-            _("100 MB"),
-        ])
+        max_size_model = Gtk.StringList.new(
+            [
+                _("No limit"),
+                _("5 MB"),
+                _("10 MB"),
+                _("15 MB"),
+                _("20 MB"),
+                _("25 MB"),
+                _("50 MB"),
+                _("100 MB"),
+            ]
+        )
         self.max_size_combo.set_model(max_size_model)
         self.max_size_combo.connect("notify::selected", self._on_max_size_changed)
 
@@ -259,12 +263,14 @@ class SettingsSidebarMixin:
 
         self.ocr_precision_combo = Adw.ComboRow(title=_("OCR Precision"))
         set_a11y_label(self.ocr_precision_combo, _("OCR Precision"))
-        precision_model = Gtk.StringList.new([
-            _("Low Precision"),
-            _("Standard"),
-            _("Precise"),
-            _("Very Precise"),
-        ])
+        precision_model = Gtk.StringList.new(
+            [
+                _("Low Precision"),
+                _("Standard"),
+                _("Precise"),
+                _("Very Precise"),
+            ]
+        )
         self.ocr_precision_combo.set_model(precision_model)
 
         self.replace_ocr_switch = Adw.SwitchRow(title=_("Replace Existing OCR"))

@@ -441,12 +441,16 @@ class SettingsQueueMixin:
     # ── Popover item actions ──
 
     def _on_list_row_activated(self, listbox: Gtk.ListBox, row) -> None:
-        """Handle list row activation (left-click / Enter key)."""
-        pass
+        """Handle list row activation (Enter key) — open file editor."""
+        idx = getattr(row, "_file_idx", None)
+        if idx is not None and 0 <= idx < len(self.window.settings.selected_files):
+            self._on_edit_file(self.window.settings.selected_files[idx])
 
     def _on_grid_child_activated(self, flowbox: Gtk.FlowBox, child) -> None:
-        """Handle grid tile activation (double-click / Enter key)."""
-        pass
+        """Handle grid tile activation (double-click / Enter key) — open file editor."""
+        idx = child.get_index()
+        if 0 <= idx < len(self.window.settings.selected_files):
+            self._on_edit_file(self.window.settings.selected_files[idx])
 
     def _show_item_popover(self, widget: Gtk.Widget, idx: int) -> None:
         """Show a contextual popover with open/reveal actions."""
@@ -615,15 +619,17 @@ class SettingsQueueMixin:
                         page_img_counts[pg] = 0
                     in_page_idx = page_img_counts[pg]
                     page_img_counts[pg] += 1
-                    image_details.append({
-                        "page": pg,
-                        "in_page_idx": in_page_idx,
-                        "width": parts[3],
-                        "height": parts[4],
-                        "color": parts[5],
-                        "enc": enc,
-                        "size": parts[14],
-                    })
+                    image_details.append(
+                        {
+                            "page": pg,
+                            "in_page_idx": in_page_idx,
+                            "width": parts[3],
+                            "height": parts[4],
+                            "color": parts[5],
+                            "enc": enc,
+                            "size": parts[14],
+                        }
+                    )
         except Exception:
             pass
 
@@ -681,11 +687,13 @@ class SettingsQueueMixin:
             pass
         try:
             mtime = os.path.getmtime(file_path)
-            all_info.append((
-                "",
-                _("Modified (local)"),
-                datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S"),
-            ))
+            all_info.append(
+                (
+                    "",
+                    _("Modified (local)"),
+                    datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S"),
+                )
+            )
         except OSError:
             pass
 
@@ -711,11 +719,13 @@ class SettingsQueueMixin:
         if fonts:
             unique_fonts = sorted(set(fonts))
             all_info.append((group_content, _("Fonts"), f"{len(unique_fonts)}"))
-            all_info.append((
-                group_content,
-                _("Embedded fonts"),
-                f"{embedded_count} / {len(fonts)}",
-            ))
+            all_info.append(
+                (
+                    group_content,
+                    _("Embedded fonts"),
+                    f"{embedded_count} / {len(fonts)}",
+                )
+            )
             all_info.append((group_content, _("Font names"), ", ".join(unique_fonts)))
 
         if attached_files:

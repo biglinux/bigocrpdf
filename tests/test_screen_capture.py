@@ -2,7 +2,6 @@
 
 import json
 import sys
-from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 # Mock GTK and heavy deps before importing the module

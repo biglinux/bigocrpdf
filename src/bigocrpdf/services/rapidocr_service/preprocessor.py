@@ -64,6 +64,10 @@ class ImagePreprocessor:
         # On constrained systems, resource_manager sets this to 1024
         # to reduce peak memory by ~30%.
         self.probmap_max_side: int = 0
+        # Track whether geometric corrections were actually applied
+        # (perspective warp, dewarp, deskew) — even if dimensions stay the same,
+        # the coordinate space changes and standalone mode must be used.
+        self.geometry_applied: bool = False
 
     def process(self, img: np.ndarray) -> np.ndarray:
         """Apply preprocessing to image.
@@ -83,6 +87,9 @@ class ImagePreprocessor:
         # trim_dark_borders returns a view, but downstream steps create
         # new arrays so the original is never mutated in-place.
         result = img
+
+        # Reset per-image geometry tracking
+        self.geometry_applied = False
 
         # === PHASE 1: GEOMETRIC CORRECTIONS (INDEPENDENT) ===
         result = self._apply_geometric_corrections(result)
@@ -113,6 +120,9 @@ class ImagePreprocessor:
     def _apply_geometric_corrections(self, img: np.ndarray) -> np.ndarray:
         """Apply geometric corrections (perspective, deskew, dewarp, illumination).
 
+        Sets ``self.geometry_applied = True`` if any correction changes the
+        coordinate space (even without changing dimensions).
+
         Args:
             img: Input image in BGR format
 
@@ -126,34 +136,32 @@ class ImagePreprocessor:
         # Fallback: 3D Coons patch + baseline refinement
         # Must run before deskew/perspective: curved pages confuse deskew.
         if getattr(self.config, "enable_baseline_dewarp", False):
+            before = result
             result, probmap_analyzed = self._try_probmap_dewarp(result)
             if result is img and not probmap_analyzed:
                 # Probmap couldn't analyze (import/runtime error),
                 # try 3D/baseline fallback
                 result = self._try_3d_dewarp(img)
+            if result is not before:
+                self.geometry_applied = True
 
         # Step 2: Perspective correction if enabled (must run BEFORE deskew)
         if self.config.enable_perspective_correction:
+            before = result
             result = self._correct_perspective(result)
+            if result is not before:
+                self.geometry_applied = True
 
         # Step 3: Trim dark borders from photographed documents
         # Runs ALWAYS — dark margins from camera photos confuse OCR text detection.
         result = self._trim_dark_borders(result)
 
         # Step 4: Probmap-guided deskew + angular perspective correction
-        # Uses DBNet probability map baselines (reuses the same model from
-        # Step 1) to measure text-line angles.  ~3× faster and ~120 MB less
-        # peak memory than OCR-box detection because it only runs lightweight
-        # connected-component analysis on the probability map instead of the
-        # full text detection + recognition pipeline.
-        #
-        # Distinguishes two cases:
-        #   a) Angular gradient (span > 3°, R² > 0.4, n ≥ 10): perspective
-        #      makes lines tilt differently at top vs bottom → applies
-        #      warpPerspective angular correction + iterative refinement.
-        #   b) Uniform skew (R² ≤ 0.4): simple rotation correction.
         if self.config.enable_deskew:
+            before = result
             result = probmap_angle_deskew(result, self.probmap_max_side)
+            if result is not before:
+                self.geometry_applied = True
 
         return result
 

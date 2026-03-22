@@ -141,6 +141,7 @@ class TextLayerRenderer:
         ocr_results: list["OCRResult"],
         image_width_px: int,
         image_height_px: int,
+        page_size_pts: tuple[float, float] | None = None,
     ) -> PageTextLayer:
         """Convert OCR results to a text layer.
 
@@ -153,14 +154,27 @@ class TextLayerRenderer:
             ocr_results: List of OCR results for one page.
             image_width_px: Image width in pixels.
             image_height_px: Image height in pixels.
+            page_size_pts: If provided, use these page dimensions (width, height)
+                in points for coordinate mapping instead of computing from DPI.
+                Required for overlay mode where the image DPI may differ from
+                the configured DPI.
 
         Returns:
             PageTextLayer with positioned text boxes.
         """
-        dpi = float(self.config.dpi)
-        px_to_pt = 72.0 / dpi
-        width_pts = image_width_px * px_to_pt
-        height_pts = image_height_px * px_to_pt
+        if page_size_pts:
+            width_pts, height_pts = page_size_pts
+            px_to_pt_x = width_pts / image_width_px
+            px_to_pt_y = height_pts / image_height_px
+            # Use average for font size scaling
+            px_to_pt = (px_to_pt_x + px_to_pt_y) / 2.0
+        else:
+            dpi = float(self.config.dpi)
+            px_to_pt = 72.0 / dpi
+            px_to_pt_x = px_to_pt
+            px_to_pt_y = px_to_pt
+            width_pts = image_width_px * px_to_pt
+            height_pts = image_height_px * px_to_pt
 
         layer = PageTextLayer(
             page_num=1,
@@ -205,8 +219,8 @@ class TextLayerRenderer:
                 right_h = math.hypot(tr[0] - br[0], tr[1] - br[1])
                 text_height_px = (left_h + right_h) / 2.0
 
-                width = text_width_px * px_to_pt
-                height = text_height_px * px_to_pt
+                width = text_width_px * px_to_pt_x
+                height = text_height_px * px_to_pt_y
 
                 font_size = max(
                     MIN_FONT_SIZE,
@@ -215,12 +229,12 @@ class TextLayerRenderer:
 
                 # Horizontal position: left edge of the quadrilateral
                 x_min = min(tl[0], bl[0])
-                x_pdf = x_min * px_to_pt
+                x_pdf = x_min * px_to_pt_x
 
                 # Vertical position: baseline with descent offset.
                 # Use the average of the bottom edge y-coords → PDF y-flip.
                 y_bottom_avg = (bl[1] + br[1]) / 2.0
-                y_bottom_pts = y_bottom_avg * px_to_pt
+                y_bottom_pts = y_bottom_avg * px_to_pt_y
                 descent_pts = DESCENT_FRAC * font_size
                 y_pdf = height_pts - y_bottom_pts + descent_pts
 
@@ -308,6 +322,8 @@ class TextLayerRenderer:
         ocr_results: list["OCRResult"],
         image_size: tuple[int, int],
         rotation: int = 0,
+        page_size_pts: tuple[float, float] | None = None,
+        image_offset: tuple[float, float] | None = None,
     ) -> int:
         """Render invisible text layer directly to an existing canvas.
 
@@ -316,16 +332,28 @@ class TextLayerRenderer:
             ocr_results: List of OCR results for one page.
             image_size: Tuple of ``(width, height)`` in pixels.
             rotation: Rotation angle in degrees (0, 90, 180, 270).
+            page_size_pts: If provided, map pixel coordinates to this page
+                size instead of using DPI-based calculation.
+            image_offset: If provided, translate the text layer by (x, y)
+                points so OCR text aligns with an image that does not start
+                at the page origin.
 
         Returns:
             Number of text regions rendered.
         """
-        layer = self.create_text_layer(ocr_results, image_size[0], image_size[1])
+        layer = self.create_text_layer(
+            ocr_results, image_size[0], image_size[1], page_size_pts=page_size_pts
+        )
 
         # Snap baselines so text extractors group same-line boxes together
         self._snap_baselines(layer.boxes)
 
         canvas.saveState()
+
+        # Shift text layer to the image position when the image does not
+        # start at the page origin (e.g. centred or offset images).
+        if image_offset:
+            canvas.translate(image_offset[0], image_offset[1])
 
         # Apply transform if rotation is needed to match PDF coordinate system
         # layer.width/height correspond to the View dimensions (Upright)
