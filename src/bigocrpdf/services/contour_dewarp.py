@@ -384,201 +384,153 @@ def _baseline_refinement_remap(
 # ── 3D Dewarp: main entry point ─────────────────────────────────────────────
 
 
-def dewarp_3d(image: np.ndarray) -> np.ndarray | None:
-    """Dewarp a document page using 3D surface simulation.
+def _apply_perspective_pass(
+    image: np.ndarray,
+    boundary: tuple,
+    scale: float,
+    h: int,
+    w: int,
+) -> tuple[np.ndarray, tuple[int, int, int, int] | None]:
+    """Pass 1: apply perspective correction from page boundary corners.
 
-    Two-pass approach:
-
-    **Pass 1 — Perspective correction (boundary-based):**
-    Detects the page outline using Otsu thresholding + contour analysis,
-    identifies 4 corner points, and applies a homography transform via
-    cv2.warpPerspective. This corrects camera perspective with minimal
-    quality loss (projective transform preserves text sharpness).
-
-    **Pass 2 — Curvature refinement (text-based):**
-    Detects text baselines via morphological operations and measures
-    residual curvature from spine binding. Fits a degree-4 polynomial
-    surface to baseline displacement control points.
-
-    **Illumination signal:**
-    Column-wise brightness analysis detects the spine side (darker due
-    to shadow from binding). Used for diagnostic logging.
-
-    This should run as the FIRST preprocessing step, before other
-    geometric corrections, as it handles fundamental page geometry.
-
-    Args:
-        image: Input BGR image (numpy array, uint8).
-
-    Returns:
-        Dewarped image, or None if no significant distortion detected.
+    Returns (corrected_image, page_roi) or (original_image, None).
     """
-    h, w = image.shape[:2]
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    corners_s, edge_dict_s = boundary
+    curvatures = {k: _measure_edge_curvature(v) for k, v in edge_dict_s.items()}
+    max_curv = max(curvatures.values())
 
-    # ── Downscale for analysis ───────────────────────────────────────
-    max_dim = max(h, w)
-    scale = min(1.0, _3D_MAX_DIM / max_dim)
-    if scale < 1.0:
-        small_gray = cv2.resize(
-            gray,
-            None,
-            fx=scale,
-            fy=scale,
-            interpolation=cv2.INTER_AREA,
+    if max_curv < _3D_MIN_EDGE_CURVATURE_PX:
+        return image, None
+
+    corners_full = corners_s / scale
+    centroid = corners_full.mean(axis=0)
+    expand_ratio = 0.04
+    for i in range(4):
+        corners_full[i] += (corners_full[i] - centroid) * expand_ratio
+    corners_full[:, 0] = np.clip(corners_full[:, 0], 0, w - 1)
+    corners_full[:, 1] = np.clip(corners_full[:, 1], 0, h - 1)
+
+    top_len = float(np.linalg.norm(corners_full[1] - corners_full[0]))
+    bot_len = float(np.linalg.norm(corners_full[2] - corners_full[3]))
+    left_len = float(np.linalg.norm(corners_full[3] - corners_full[0]))
+    right_len = float(np.linalg.norm(corners_full[2] - corners_full[1]))
+    nat_w = int((top_len + bot_len) / 2)
+    nat_h = int((left_len + right_len) / 2)
+    src_pts = corners_full.astype(np.float32)
+
+    if nat_w / w >= 0.85 and nat_h / h >= 0.85:
+        result, page_roi, out_w, out_h = _perspective_tight_crop(
+            image,
+            src_pts,
+            nat_w,
+            nat_h,
+            w,
+            h,
         )
     else:
-        small_gray = gray.copy()
-    sh, sw = small_gray.shape
+        result, page_roi, out_w, out_h = _perspective_full_bounds(
+            image,
+            src_pts,
+            nat_w,
+            nat_h,
+            w,
+            h,
+        )
 
-    # ═══ PASS 1: Perspective Correction from Page Boundaries ═════════
+    logger.info(
+        f"3D dewarp pass 1: perspective, "
+        f"max edge curvature {max_curv / scale:.1f}px, "
+        f"output {out_w}×{out_h}"
+    )
+    return result, page_roi
 
-    boundary = _detect_page_boundary(small_gray, sh, sw)
-    perspective_applied = False
-    page_roi = None  # (x, y, w, h) of page region in output
-    result = image
 
-    if boundary is not None:
-        corners_s, edge_dict_s = boundary
-        curvatures = {k: _measure_edge_curvature(v) for k, v in edge_dict_s.items()}
-        max_curv = max(curvatures.values())
+def _perspective_tight_crop(
+    image: np.ndarray,
+    src_pts: np.ndarray,
+    nat_w: int,
+    nat_h: int,
+    w: int,
+    h: int,
+) -> tuple[np.ndarray, tuple[int, int, int, int], int, int]:
+    """Standard tight crop when natural dims >= 85% of original."""
+    out_w = max(int(w * 0.9), min(int(w * 1.1), nat_w))
+    out_h = max(int(h * 0.9), min(int(h * 1.1), nat_h))
+    dst_pts = np.array(
+        [[0, 0], [out_w, 0], [out_w, out_h], [0, out_h]],
+        dtype=np.float32,
+    )
+    M = cv2.getPerspectiveTransform(src_pts, dst_pts)
+    result = cv2.warpPerspective(
+        image,
+        M,
+        (out_w, out_h),
+        flags=cv2.INTER_LANCZOS4,
+        borderMode=cv2.BORDER_CONSTANT,
+        borderValue=(255, 255, 255),
+    )
+    return result, (0, 0, out_w, out_h), out_w, out_h
 
-        if max_curv >= _3D_MIN_EDGE_CURVATURE_PX:
-            # Scale corners to full resolution
-            corners_full = corners_s / scale
 
-            # Expand corners outward from centroid to include text
-            # near page edges (spine shadow makes detection conservative).
-            centroid = corners_full.mean(axis=0)
-            expand_ratio = 0.04  # 4% outward expansion
-            for i in range(4):
-                direction = corners_full[i] - centroid
-                corners_full[i] = corners_full[i] + direction * expand_ratio
-            corners_full[:, 0] = np.clip(corners_full[:, 0], 0, w - 1)
-            corners_full[:, 1] = np.clip(corners_full[:, 1], 0, h - 1)
+def _perspective_full_bounds(
+    image: np.ndarray,
+    src_pts: np.ndarray,
+    nat_w: int,
+    nat_h: int,
+    w: int,
+    h: int,
+) -> tuple[np.ndarray, tuple[int, int, int, int], int, int]:
+    """Full-bounds expansion when boundary detection missed significant content."""
+    dst_rect = np.array(
+        [[0, 0], [nat_w, 0], [nat_w, nat_h], [0, nat_h]],
+        dtype=np.float32,
+    )
+    M = cv2.getPerspectiveTransform(src_pts, dst_rect)
+    img_corners = np.array(
+        [[0, 0], [w, 0], [w, h], [0, h]],
+        dtype=np.float32,
+    ).reshape(-1, 1, 2)
+    warped = cv2.perspectiveTransform(img_corners, M).reshape(-1, 2)
 
-            # Output dimensions from corner-to-corner distances
-            top_len = float(np.linalg.norm(corners_full[1] - corners_full[0]))
-            bot_len = float(np.linalg.norm(corners_full[2] - corners_full[3]))
-            left_len = float(np.linalg.norm(corners_full[3] - corners_full[0]))
-            right_len = float(np.linalg.norm(corners_full[2] - corners_full[1]))
+    all_pts = np.vstack([dst_rect, warped])
+    x_min = float(np.min(all_pts[:, 0]))
+    y_min = float(np.min(all_pts[:, 1]))
+    x_max = float(np.max(all_pts[:, 0]))
+    y_max = float(np.max(all_pts[:, 1]))
 
-            nat_w = int((top_len + bot_len) / 2)
-            nat_h = int((left_len + right_len) / 2)
+    tx = -min(0.0, x_min)
+    ty = -min(0.0, y_min)
+    out_w = min(int(np.ceil(x_max - x_min)), int(w * 1.15))
+    out_h = min(int(np.ceil(y_max - y_min)), int(h * 1.15))
 
-            # Order: TL, TR, BR, BL → matches getPerspectiveTransform
-            src_pts = corners_full.astype(np.float32)
+    T = np.array([[1, 0, tx], [0, 1, ty], [0, 0, 1]], dtype=np.float64)
+    M_final = T @ M.astype(np.float64)
+    result = cv2.warpPerspective(
+        image,
+        M_final,
+        (out_w, out_h),
+        flags=cv2.INTER_LANCZOS4,
+        borderMode=cv2.BORDER_CONSTANT,
+        borderValue=(255, 255, 255),
+    )
+    return result, (int(tx), int(ty), nat_w, nat_h), out_w, out_h
 
-            # If natural dims are close to original (>= 85%), use
-            # standard tight crop with ±10% constraint. This gives
-            # clean OCR input by excluding dark margins.
-            # If much smaller (<85%), the boundary detection missed a
-            # large content area — use full-bounds expansion instead.
-            nat_w_pct = nat_w / w
-            nat_h_pct = nat_h / h
 
-            if nat_w_pct >= 0.85 and nat_h_pct >= 0.85:
-                # ── Standard tight crop ──────────────────────────────
-                out_w = max(int(w * 0.9), min(int(w * 1.1), nat_w))
-                out_h = max(int(h * 0.9), min(int(h * 1.1), nat_h))
-                dst_pts = np.array(
-                    [
-                        [0, 0],
-                        [out_w, 0],
-                        [out_w, out_h],
-                        [0, out_h],
-                    ],
-                    dtype=np.float32,
-                )
-                M_final = cv2.getPerspectiveTransform(src_pts, dst_pts)
-                result = cv2.warpPerspective(
-                    image,
-                    M_final,
-                    (out_w, out_h),
-                    flags=cv2.INTER_LANCZOS4,
-                    borderMode=cv2.BORDER_CONSTANT,
-                    borderValue=(255, 255, 255),
-                )
-                # Page ROI fills the full output in tight mode
-                page_roi = (0, 0, out_w, out_h)
-            else:
-                # ── Full-bounds mode for extreme cases ───────────────
-                # When boundary detection missed significant content
-                # (>15% in either dimension), expand the output canvas
-                # to include ALL source image content.
-                dst_rect = np.array(
-                    [
-                        [0, 0],
-                        [nat_w, 0],
-                        [nat_w, nat_h],
-                        [0, nat_h],
-                    ],
-                    dtype=np.float32,
-                )
-                M = cv2.getPerspectiveTransform(src_pts, dst_rect)
+def _apply_baseline_pass(
+    result: np.ndarray,
+    perspective_applied: bool,
+    page_roi: tuple[int, int, int, int] | None,
+) -> tuple[np.ndarray, bool, int]:
+    """Pass 2: text baseline curvature refinement.
 
-                img_corners_arr = np.array(
-                    [[0, 0], [w, 0], [w, h], [0, h]],
-                    dtype=np.float32,
-                ).reshape(-1, 1, 2)
-                warped = cv2.perspectiveTransform(
-                    img_corners_arr,
-                    M,
-                ).reshape(-1, 2)
-
-                all_pts = np.vstack([dst_rect, warped])
-                x_min = float(np.min(all_pts[:, 0]))
-                y_min = float(np.min(all_pts[:, 1]))
-                x_max = float(np.max(all_pts[:, 0]))
-                y_max = float(np.max(all_pts[:, 1]))
-
-                tx = -min(0.0, x_min)
-                ty = -min(0.0, y_min)
-                out_w = min(
-                    int(np.ceil(x_max - x_min)),
-                    int(w * 1.15),
-                )
-                out_h = min(
-                    int(np.ceil(y_max - y_min)),
-                    int(h * 1.15),
-                )
-
-                T = np.array(
-                    [[1, 0, tx], [0, 1, ty], [0, 0, 1]],
-                    dtype=np.float64,
-                )
-                M_final = T @ M.astype(np.float64)
-                result = cv2.warpPerspective(
-                    image,
-                    M_final,
-                    (out_w, out_h),
-                    flags=cv2.INTER_LANCZOS4,
-                    borderMode=cv2.BORDER_CONSTANT,
-                    borderValue=(255, 255, 255),
-                )
-                # Page ROI is within the expanded output
-                page_roi = (int(tx), int(ty), nat_w, nat_h)
-
-            perspective_applied = True
-            logger.info(
-                f"3D dewarp pass 1: perspective, "
-                f"max edge curvature {max_curv / scale:.1f}px, "
-                f"output {out_w}×{out_h}"
-            )
-
-    # ═══ PASS 2: Text Baseline Refinement ════════════════════════════
-
+    Returns (image, baseline_applied, n_curved).
+    """
     result_gray = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
     rh, rw = result_gray.shape
 
-    # If perspective was applied, analyze only the page region (not
-    # white borders) for baseline/spine detection.  This gives the
-    # same detection quality as the old tight-crop approach while
-    # preserving all content in the output.
     roi_x = roi_y = 0
     if perspective_applied and page_roi is not None:
         rx, ry, roi_w, roi_h = page_roi
-        # Clamp ROI to image bounds
         rx = max(0, min(rx, rw - 1))
         ry = max(0, min(ry, rh - 1))
         roi_w = min(roi_w, rw - rx)
@@ -598,19 +550,15 @@ def dewarp_3d(image: np.ndarray) -> np.ndarray | None:
         result_scale,
     )
 
-    # Shift baseline controls from ROI coordinates to full image coords
     if roi_x or roi_y:
         bl_cx = [x + roi_x for x in bl_cx]
         bl_cy = [y + roi_y for y in bl_cy]
 
-    baseline_applied = False
-    # When no perspective was applied, the page is likely already well-
-    # aligned (clean scan). Require higher displacement threshold to
-    # avoid introducing interpolation artifacts on straight text.
     if not perspective_applied and bl_cdy:
         disp_p95 = float(np.percentile(np.abs(np.array(bl_cdy)), 95))
         if disp_p95 < 8.0:
-            n_curved = 0  # Force skip
+            n_curved = 0
+
     if n_curved >= _3D_MIN_CURVED_LINES and len(bl_cx) >= 15:
         bl_remap = _baseline_refinement_remap(bl_cx, bl_cy, bl_cdy, rh, rw)
         if bl_remap is not None:
@@ -623,14 +571,46 @@ def dewarp_3d(image: np.ndarray) -> np.ndarray | None:
                 borderMode=cv2.BORDER_CONSTANT,
                 borderValue=(255, 255, 255),
             )
-            baseline_applied = True
+            return result, True, n_curved
+
+    return result, False, n_curved
+
+
+def dewarp_3d(image: np.ndarray) -> np.ndarray | None:
+    """Dewarp a document page using 3D surface simulation (two-pass)."""
+    h, w = image.shape[:2]
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    max_dim = max(h, w)
+    scale = min(1.0, _3D_MAX_DIM / max_dim)
+    if scale < 1.0:
+        small_gray = cv2.resize(gray, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
+    else:
+        small_gray = gray.copy()
+    sh, sw = small_gray.shape
+
+    # Pass 1: Perspective correction
+    boundary = _detect_page_boundary(small_gray, sh, sw)
+    perspective_applied = False
+    page_roi = None
+    result = image
+
+    if boundary is not None:
+        result, page_roi = _apply_perspective_pass(image, boundary, scale, h, w)
+        perspective_applied = page_roi is not None
+
+    # Pass 2: Baseline refinement
+    result, baseline_applied, n_curved = _apply_baseline_pass(
+        result,
+        perspective_applied,
+        page_roi,
+    )
 
     if not perspective_applied and not baseline_applied:
         logger.debug(f"3D dewarp: no correction — curved_lines={n_curved}")
         return None
 
-    # ═══ Quality Validation ══════════════════════════════════════════
-
+    # Quality validation
     final_gray = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
     lap_orig = cv2.Laplacian(gray, cv2.CV_64F).var()
     lap_corr = cv2.Laplacian(final_gray, cv2.CV_64F).var()

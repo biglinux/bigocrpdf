@@ -68,6 +68,39 @@ _MIN_CURVATURE_PX = 5.0  # pixels — skip remap if max curvature below this
 _MAX_CURVATURE_PX = 60.0  # pixels — cap per-baseline displacement to avoid distortion
 _MIN_BASELINE_SPAN = 0.40  # fraction of page width — reject shorter baselines
 
+# Deskew segment geometry filters
+_MORPH_KERN_WIDTH_DIV = 80  # horizontal closing kernel = page_w / this
+_MORPH_VERT_KERN_H = 3  # vertical dilation kernel height
+_SEG_MAX_H_RATIO = 0.05  # max segment height as fraction of page height
+_SEG_MIN_W_RATIO = 0.02  # min segment width as fraction of page width
+_SEG_MAX_W_RATIO = 0.15  # max segment width as fraction of page width
+_SEG_MIN_H_PX = 5  # pixels — minimum segment height
+_SEG_MIN_ASPECT = 2  # min width:height ratio for text-like segment
+_ANGLE_NORM_THRESHOLD = 45.0  # degrees — boundary for angle normalisation
+_MAD_OUTLIER_FACTOR = 3.0  # × MAD for outlier rejection
+_ANGLE_NONZERO_EPS = 0.01  # degrees — treat smaller as exact zero
+
+# Baseline extraction constants
+_BASELINE_ERODE_KERN_H = 3  # vertical erode kernel height
+_BASELINE_MIN_W_RATIO = 0.05  # min component width as fraction of page width
+_BASELINE_MIN_H_PX = 5  # pixels — minimum component height
+_BASELINE_MIN_VALID_PTS = 4  # min valid column points for spline fitting
+_SPLINE_MIN_POINTS = 4  # min points to attempt spline
+_SPLINE_SMOOTH_MULT = 5.0  # smoothing factor = this × len(points)
+_CENTROID_OUTLIER_SIGMA = 2.5  # × std for centroid outlier rejection
+_BASELINE_SAMPLE_DIV = 10  # n_samples = comp_w / this (min clamped)
+_BASELINE_PROB_EPS = 0.01  # min column probability to count as valid
+
+# Curvature remap constants
+_CURVATURE_CHUNK = 128  # pixels — row chunk size for vectorised remap
+_FADE_MARGIN_GAP_MULT = 3.0  # fade margin = typical_gap × this
+_SMOOTH_DOWNSCALE = 4  # downscale factor for Gaussian smoothing
+_SMOOTH_SIGMA_Y_MULT = 0.4  # σ_y = downscaled_height × this
+_SMOOTH_SIGMA_X_RATIO = 0.03  # σ_x = σ_y × this ratio (σ_x/σ_y≈0.075)
+
+# DBNet inference
+_INFERENCE_ALIGN_STRIDE = 32  # resize dimensions must be multiples of this
+
 # ── Cached OpenVINO model ──────────────────────────────────────────
 
 _ov_model = None
@@ -138,20 +171,20 @@ def detect_deskew_angle(gray: np.ndarray) -> float:
     _, binary = cv2.threshold(cv2.bitwise_not(gray), 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
     # Horizontal closing: merge characters within a line
-    kern_w = max(w // 80, 5)
+    kern_w = max(w // _MORPH_KERN_WIDTH_DIV, 5)
     kern_close = cv2.getStructuringElement(cv2.MORPH_RECT, (kern_w, 1))
     closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kern_close)
 
     # Vertical dilation: connect broken segments
-    kern_vert = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 3))
+    kern_vert = cv2.getStructuringElement(cv2.MORPH_RECT, (1, _MORPH_VERT_KERN_H))
     dilated = cv2.dilate(closed, kern_vert, iterations=1)
 
     # Find contours and measure angles
     contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    max_h_seg = int(h * 0.05)
-    min_w_seg = int(w * 0.02)
-    max_w_seg = int(w * 0.15)
+    max_h_seg = int(h * _SEG_MAX_H_RATIO)
+    min_w_seg = int(w * _SEG_MIN_W_RATIO)
+    max_w_seg = int(w * _SEG_MAX_W_RATIO)
 
     angles = []
     for cnt in contours:
@@ -166,17 +199,17 @@ def detect_deskew_angle(gray: np.ndarray) -> float:
             actual_w, actual_h = rw, rh
 
         # Geometry filters
-        if actual_h < 5 or actual_h > max_h_seg:
+        if actual_h < _SEG_MIN_H_PX or actual_h > max_h_seg:
             continue
         if actual_w < min_w_seg or actual_w > max_w_seg:
             continue
-        if actual_w < actual_h * 2:
+        if actual_w < actual_h * _SEG_MIN_ASPECT:
             continue
 
         # Normalise to [-90, 90) range
-        if angle > 45:
+        if angle > _ANGLE_NORM_THRESHOLD:
             angle -= 90
-        elif angle < -45:
+        elif angle < -_ANGLE_NORM_THRESHOLD:
             angle += 90
 
         if abs(angle) < _MAX_DESKEW_ANGLE:
@@ -191,7 +224,7 @@ def detect_deskew_angle(gray: np.ndarray) -> float:
     # Discard exact-zero angles: minAreaRect returns 0° for axis-aligned
     # bounding rects, which biases the median towards zero on pages where
     # many short segments happen to be quantised to 0°.
-    nonzero = angles[np.abs(angles) >= 0.01]
+    nonzero = angles[np.abs(angles) >= _ANGLE_NONZERO_EPS]
     if len(nonzero) >= 3:
         angles = nonzero
 
@@ -200,7 +233,7 @@ def detect_deskew_angle(gray: np.ndarray) -> float:
     # MAD outlier rejection (3×MAD)
     mad = np.median(np.abs(angles - median))
     if mad > 0.01:
-        mask = np.abs(angles - median) < 3.0 * mad
+        mask = np.abs(angles - median) < _MAD_OUTLIER_FACTOR * mad
         angles = angles[mask]
 
     if len(angles) < 3:
@@ -238,8 +271,8 @@ def _get_probmap(img_bgr: np.ndarray, max_side: int = 0) -> np.ndarray:
 
     effective_max = max_side if max_side > 0 else _DBNET_MAX_SIDE
     scale = min(effective_max / max(h, w), 1.0)
-    new_h = int(h * scale / 32) * 32
-    new_w = int(w * scale / 32) * 32
+    new_h = int(h * scale / _INFERENCE_ALIGN_STRIDE) * _INFERENCE_ALIGN_STRIDE
+    new_w = int(w * scale / _INFERENCE_ALIGN_STRIDE) * _INFERENCE_ALIGN_STRIDE
 
     resized = cv2.resize(img_bgr, (new_w, new_h))
     rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
@@ -283,7 +316,7 @@ def _extract_baselines(prob: np.ndarray, h: int, w: int) -> list:
         Sorted list of (y_centre, spline, x_start, x_end) tuples.
     """
     binary = (prob > _DBNET_PROB_THRESHOLD).astype(np.uint8)
-    kern_erode = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 3))
+    kern_erode = cv2.getStructuringElement(cv2.MORPH_RECT, (1, _BASELINE_ERODE_KERN_H))
     eroded = cv2.erode(binary, kern_erode, iterations=1)
 
     labeled, n_comp = ndimage.label(eroded)
@@ -292,7 +325,7 @@ def _extract_baselines(prob: np.ndarray, h: int, w: int) -> list:
 
     comp_slices = ndimage.find_objects(labeled)
     baselines = []
-    min_comp_w = int(w * 0.05)
+    min_comp_w = int(w * _BASELINE_MIN_W_RATIO)
 
     for comp_id, slc in enumerate(comp_slices, start=1):
         if slc is None:
@@ -304,7 +337,7 @@ def _extract_baselines(prob: np.ndarray, h: int, w: int) -> list:
 
         # Size filters: must be wide enough (≥5% of page width),
         # tall enough (≥5 px), and wider than tall (text-line shape).
-        if comp_w < min_comp_w or comp_h < 5 or comp_w < comp_h:
+        if comp_w < min_comp_w or comp_h < _BASELINE_MIN_H_PX or comp_w < comp_h:
             continue
 
         # Extract local sub-arrays (fast — no full-image scan)
@@ -312,16 +345,16 @@ def _extract_baselines(prob: np.ndarray, h: int, w: int) -> list:
         local_prob = prob[y_slc, x_slc]
 
         # Sample centroids at regular column intervals (vectorised)
-        n_samples = max(comp_w // 10, 10)
+        n_samples = max(comp_w // _BASELINE_SAMPLE_DIV, _BASELINE_SAMPLE_DIV)
         sample_cols = np.linspace(0, comp_w - 1, n_samples).astype(int)
         row_indices = np.arange(comp_h, dtype=np.float64)
 
         # Batch column extraction and weighted centroid computation
         prob_cols = local_prob[:, sample_cols] * local_mask[:, sample_cols]
         total_prob = prob_cols.sum(axis=0)
-        valid = total_prob >= 0.01
+        valid = total_prob >= _BASELINE_PROB_EPS
 
-        if np.count_nonzero(valid) < 4:
+        if np.count_nonzero(valid) < _BASELINE_MIN_VALID_PTS:
             continue
 
         centroids = row_indices @ prob_cols  # weighted sum per column
@@ -332,14 +365,14 @@ def _extract_baselines(prob: np.ndarray, h: int, w: int) -> list:
         if len(tx) > 5:
             med = np.median(ty)
             std = max(np.std(ty), 1.0)
-            keep = np.abs(ty - med) < 2.5 * std
+            keep = np.abs(ty - med) < _CENTROID_OUTLIER_SIGMA * std
             tx, ty = tx[keep], ty[keep]
 
-        if len(tx) < 4:
+        if len(tx) < _SPLINE_MIN_POINTS:
             continue
 
         try:
-            spl = UnivariateSpline(tx, ty, s=5.0 * len(tx), k=3)
+            spl = UnivariateSpline(tx, ty, s=_SPLINE_SMOOTH_MULT * len(tx), k=3)
             baselines.append((float(np.mean(ty)), spl, float(tx[0]), float(tx[-1])))
         except Exception:
             continue
@@ -494,7 +527,7 @@ def _build_curvature_remap(
     else:
         typical_gap = 60.0
     # Use wider margin to prevent vertical compression of characters
-    fade_margin = typical_gap * 3.0
+    fade_margin = typical_gap * _FADE_MARGIN_GAP_MULT
 
     above_all = all_y < bys[0]
     below_all = all_y >= bys[-1]
@@ -513,7 +546,7 @@ def _build_curvature_remap(
     # Chunked to reduce peak memory from ~185 MB to ~4 MB.
     t_col = t.astype(np.float32)
     dy_field = np.empty((h, w), dtype=np.float32)
-    _CHUNK = 128
+    _CHUNK = _CURVATURE_CHUNK
     for r0 in range(0, h, _CHUNK):
         r1 = min(r0 + _CHUNK, h)
         chunk_t = t_col[r0:r1, np.newaxis]
@@ -536,9 +569,9 @@ def _build_curvature_remap(
     # Downscale 4× → GaussianBlur → upscale for ~16× speedup.
     # Large sigma means the information is low-frequency, so
     # downsampling is effectively lossless.
-    sigma_y = max(typical_gap * 0.4, 10.0)
-    sigma_x = w * 0.03
-    ds = 4
+    sigma_y = max(typical_gap * _SMOOTH_SIGMA_Y_MULT, 10.0)
+    sigma_x = w * _SMOOTH_SIGMA_X_RATIO
+    ds = _SMOOTH_DOWNSCALE
     sm_h, sm_w = max(h // ds, 1), max(w // ds, 1)
     dy_small = cv2.resize(dy_field, (sm_w, sm_h), interpolation=cv2.INTER_AREA)
     sy, sx = sigma_y / ds, sigma_x / ds

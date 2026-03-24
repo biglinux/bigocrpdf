@@ -8,6 +8,9 @@ from pathlib import Path
 import cv2
 import numpy as np
 import pikepdf
+
+# Restart OCR subprocess every N pages to limit memory growth
+_OCR_RESTART_INTERVAL = 3
 from PIL import Image
 from reportlab.pdfgen import canvas
 
@@ -22,6 +25,108 @@ from bigocrpdf.services.rapidocr_service.pdf_assembly import (
 )
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
+
+
+def _extract_image_rect_from_page(
+    pdf_path: Path, page_num: int
+) -> tuple[float, float, float, float] | None:
+    """Extract the display rectangle of the main image on a PDF page.
+
+    Parses the page's content stream, tracks the CTM through q/Q/cm
+    operators, and finds the bounding box where the largest image
+    XObject is drawn.
+
+    Returns (x, y, width, height) in PDF points with origin at
+    the page's bottom-left, or None if no image is found.
+    """
+    try:
+        with pikepdf.open(pdf_path) as pdf:
+            if page_num < 1 or page_num > len(pdf.pages):
+                return None
+            page = pdf.pages[page_num - 1]
+
+            # Find image XObjects and their pixel areas
+            resources = page.get("/Resources")
+            if not resources:
+                return None
+            xobjects = resources.get("/XObject")
+            if not xobjects:
+                return None
+
+            image_areas: dict[str, int] = {}
+            for name in xobjects.keys():
+                try:
+                    xobj = xobjects[name]
+                    subtype = str(xobj.get("/Subtype", ""))
+                    if subtype == "/Image":
+                        w = int(xobj.get("/Width", 0))
+                        h = int(xobj.get("/Height", 0))
+                        image_areas[str(name)] = w * h
+                except Exception:
+                    continue
+
+            if not image_areas:
+                return None
+
+            target_name = max(image_areas, key=image_areas.get)
+
+            # Parse content stream and track CTM
+            ctm = [1.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+            ctm_stack: list[list[float]] = []
+
+            def _mat_mul(m1: list[float], m2: list[float]) -> list[float]:
+                a1, b1, c1, d1, e1, f1 = m1
+                a2, b2, c2, d2, e2, f2 = m2
+                return [
+                    a1 * a2 + b1 * c2,
+                    a1 * b2 + b1 * d2,
+                    c1 * a2 + d1 * c2,
+                    c1 * b2 + d1 * d2,
+                    e1 * a2 + f1 * c2 + e2,
+                    e1 * b2 + f1 * d2 + f2,
+                ]
+
+            ops = pikepdf.parse_content_stream(page)
+            for operands, operator in ops:
+                op = str(operator)
+                if op == "q":
+                    ctm_stack.append(ctm[:])
+                elif op == "Q":
+                    if ctm_stack:
+                        ctm = ctm_stack.pop()
+                elif op == "cm" and len(operands) >= 6:
+                    m = [float(operands[i]) for i in range(6)]
+                    ctm = _mat_mul(m, ctm)
+                elif op == "Do" and operands:
+                    if str(operands[0]) == target_name:
+                        a, b, c, d, e, f = ctm
+                        xs = [e, a + e, c + e, a + c + e]
+                        ys = [f, b + f, d + f, b + d + f]
+                        x_min, x_max = min(xs), max(xs)
+                        y_min, y_max = min(ys), max(ys)
+                        iw, ih = x_max - x_min, y_max - y_min
+                        # Validate that the image covers a significant
+                        # portion of the page — small decorative images
+                        # (barcodes, logos) should not be used as the
+                        # image rect for text coordinate mapping.
+                        mb = page.get("/MediaBox")
+                        if mb:
+                            pw = float(mb[2]) - float(mb[0])
+                            ph = float(mb[3]) - float(mb[1])
+                            if pw > 0 and ph > 0:
+                                coverage = (iw * ih) / (pw * ph)
+                                if coverage < 0.25:
+                                    logger.debug(
+                                        f"Page {page_num}: largest image "
+                                        f"{iw:.1f}×{ih:.1f} covers only "
+                                        f"{coverage:.1%} of page — ignoring"
+                                    )
+                                    return None
+                        return (x_min, y_min, iw, ih)
+
+    except Exception as exc:
+        logger.debug(f"Failed to extract image rect for page {page_num}: {exc}")
+    return None
 
 
 class BackendTextLayerMixin:
@@ -48,6 +153,23 @@ class BackendTextLayerMixin:
         """Append text layer commands to a PDF page."""
         append_text_to_page(pdf, page, text_commands)
 
+    def _has_appearance_effects(self) -> bool:
+        """Check if appearance-altering effects are enabled in config."""
+        cfg = self.config
+        return (
+            cfg.enable_border_clean
+            or cfg.enable_scanner_effect
+            or (
+                cfg.enable_preprocessing
+                and (
+                    cfg.enable_auto_contrast
+                    or cfg.enable_auto_brightness
+                    or cfg.enable_denoise
+                    or cfg.enable_vintage_look
+                )
+            )
+        )
+
     def _determine_page_mode(
         self,
         result: dict,
@@ -66,61 +188,39 @@ class BackendTextLayerMixin:
         change_ratio = dim_change / total_size if total_size > 0 else 0
         geometry_changed = change_ratio > 0.05 or (result.get("orientation_angle", 0) != 0)
 
-        # When the image was pre-rotated (PDF /Rotate applied), the image
-        # dimensions no longer match the original MediaBox and standalone
-        # mode must be used so the /Rotate is not needed on the output page.
-        image_prerotated = result.get("image_prerotated", False)
-        original_pdf_rotation = result.get("original_pdf_rotation", 0)
-        if image_prerotated and original_pdf_rotation != 0:
+        if result.get("image_prerotated", False) and result.get("original_pdf_rotation", 0) != 0:
             geometry_changed = True
 
-        # Force standalone mode when user explicitly chose a non-original format
-        # (e.g. JPEG custom quality), otherwise the format/quality settings are ignored
+        # Coordinate-space changes from perspective/dewarp/deskew that
+        # don't alter dimensions still require standalone mode so OCR
+        # coordinates match the displayed image.
+        if result.get("geometry_applied", False):
+            geometry_changed = True
+
         format_changed = self.config.image_export_format not in ("original", "")
 
-        # Force standalone mode when appearance-altering effects are enabled,
-        # otherwise the processed image is discarded and the original is kept
-        appearance_changed = (
-            self.config.enable_border_clean
-            or self.config.enable_scanner_effect
-            or (
-                self.config.enable_preprocessing
-                and (
-                    self.config.enable_auto_contrast
-                    or self.config.enable_auto_brightness
-                    or self.config.enable_denoise
-                    or self.config.enable_vintage_look
-                )
-            )
-        )
+        # Standalone mode replaces the original image with the processed one.
+        # Only use it when geometry or format actually changed:
+        #   - geometry_changed: dimensions/orientation changed OR coordinate
+        #     space changed by perspective/dewarp/deskew
+        #   - format_changed: user explicitly requested a different format
+        # Appearance effects (scanner, vintage, etc.) improve OCR accuracy
+        # but should NOT trigger image replacement, because re-encoding
+        # low-quality JPEGs causes generation loss and destroys FG/BG
+        # layer separation in mixed-mode PDFs.
+        use_processed_for_page = geometry_changed or format_changed
 
-        # Geometric preprocessing that may change pixel content without
-        # changing dimensions (e.g. small deskew rotation)
-        geometric_preprocessing = (
-            self.config.enable_deskew or self.config.enable_perspective_correction
-        )
-
-        use_processed_for_page = (
-            geometry_changed or format_changed or appearance_changed or geometric_preprocessing
-        )
-
+        page_label = result.get("page_num", "?")
         if geometry_changed:
             logger.info(
-                f"Page {result.get('page_num', '?')}: significant geometry change "
+                f"Page {page_label}: geometry/coordinate change "
                 f"({orig_w}x{orig_h} → {proc_w}x{proc_h}, "
                 f"{change_ratio:.1%}), using processed image in PDF"
             )
-
-        if format_changed and not geometry_changed:
+        elif format_changed:
             logger.debug(
-                f"Page {result.get('page_num', '?')}: using processed image "
+                f"Page {page_label}: using processed image "
                 f"(export format: {self.config.image_export_format})"
-            )
-
-        if appearance_changed and not geometry_changed and not format_changed:
-            logger.debug(
-                f"Page {result.get('page_num', '?')}: using processed image "
-                f"(appearance effects enabled)"
             )
 
         return use_processed_for_page, geometry_changed
@@ -138,6 +238,7 @@ class BackendTextLayerMixin:
         draw_image_path: str | None,
         stats: ProcessingStats,
         precomputed_ocr: list[OCRResult] | None = None,
+        image_rect: tuple[float, float, float, float] | None = None,
     ) -> float:
         """Run OCR on image and render results to a PDF page.
 
@@ -161,7 +262,16 @@ class BackendTextLayerMixin:
 
         # If using processed image, draw it on the PDF
         if use_processed_for_page and draw_image_path:
-            c.drawImage(draw_image_path, 0, 0, width=pdf_width, height=pdf_height)
+            # Convert to JPEG for embedding — reportlab uses DCTDecode
+            # (JPEG passthrough) which is much faster and smaller than
+            # ASCII85+FlateDecode used for PNG.
+            jpg_path = draw_image_path + ".jpg"
+            try:
+                Image.open(draw_image_path).convert("RGB").save(jpg_path, "JPEG", quality=95)
+                c.drawImage(jpg_path, 0, 0, width=pdf_width, height=pdf_height)
+            finally:
+                if os.path.exists(jpg_path):
+                    os.remove(jpg_path)
 
         total_confidence = 0.0
         if ocr_results:
@@ -193,7 +303,33 @@ class BackendTextLayerMixin:
                 )
             )
 
-            regions_added = self.renderer.render(c, ocr_results, ocr_img_size, pdf_rotation)
+            # In overlay mode, image DPI may differ from config DPI, so
+            # pass actual page dimensions for correct coordinate mapping.
+            # Always map OCR pixel coords to the actual PDF page dimensions.
+            # In standalone mode the processed image is drawn at pdf_width×pdf_height,
+            # so text coordinates must match that space — not config DPI which
+            # may differ from the rendering DPI (e.g. pdftoppm at 150 vs config 300).
+            # In overlay mode the same logic applies to the original page.
+            overlay_page_size = (pdf_width, pdf_height)
+            image_offset = None
+            if overlay_page_size and image_rect:
+                ix, iy, iw, ih = image_rect
+                if abs(iw - pdf_width) > 2 or abs(ih - pdf_height) > 2:
+                    overlay_page_size = (iw, ih)
+                    image_offset = (ix, iy)
+                    logger.info(
+                        f"Page {page_num}: image offset ({ix:.1f}, {iy:.1f}), "
+                        f"display size {iw:.1f}×{ih:.1f} pt "
+                        f"(page {pdf_width:.1f}×{pdf_height:.1f})"
+                    )
+            regions_added = self.renderer.render(
+                c,
+                ocr_results,
+                ocr_img_size,
+                pdf_rotation,
+                page_size_pts=overlay_page_size,
+                image_offset=image_offset,
+            )
             stats.total_text_regions += regions_added
 
             page_conf = sum(r.confidence for r in ocr_results) / len(ocr_results)
@@ -216,6 +352,73 @@ class BackendTextLayerMixin:
             return cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
         return image
 
+    def _handle_skipped_page(
+        self,
+        c,
+        page_rotations,
+        page_num,
+        stats,
+    ) -> tuple[float, bool]:
+        """Add a blank page for a skipped (None input) page."""
+        page_info = (
+            page_rotations[page_num - 1]
+            if page_num <= len(page_rotations)
+            else {"rotation": 0, "mediabox": None}
+        )
+        mediabox = page_info["mediabox"]
+        if mediabox:
+            pdf_width = mediabox[2] - mediabox[0]
+            pdf_height = mediabox[3] - mediabox[1]
+        else:
+            pdf_width, pdf_height = 595, 842
+        c.setPageSize((pdf_width, pdf_height))
+        c.showPage()
+        stats.pages_processed += 1
+        logger.info(f"Page {page_num}: Skipped (no image), added blank text page.")
+        return 0.0, False
+
+    @staticmethod
+    def _load_processed_image(temp_path: str) -> np.ndarray:
+        """Load a processed image from a temp file (PIL with cv2 fallback)."""
+        try:
+            pil_img = Image.open(temp_path)
+            if pil_img.mode != "RGB":
+                pil_img = pil_img.convert("RGB")
+            return cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
+        except Exception as read_err:
+            img = cv2.imread(temp_path)
+            if img is None:
+                raise ValueError(f"Could not read temp image {temp_path}: {read_err}") from read_err
+            return img
+
+    def _setup_overlay_mode(
+        self,
+        result,
+        page_info,
+        ocr_image,
+        page_num,
+    ) -> tuple[np.ndarray, int, float, float, tuple[int, int]]:
+        """Compute overlay-mode parameters.
+
+        Returns (ocr_image, pdf_rotation, pdf_width, pdf_height, ocr_img_size).
+        """
+        rotation = page_info.get("rotation", 0)
+        if result.get("image_prerotated"):
+            pass
+        elif rotation != 0:
+            ocr_image = self._rotate_image_for_overlay(ocr_image, rotation)
+            logger.info(
+                f"Rotated OCR image for page {page_num} by {rotation} degrees (overlay mode)"
+            )
+        ocr_img_h, ocr_img_w = ocr_image.shape[:2]
+        mediabox = page_info["mediabox"]
+        if mediabox:
+            pdf_width = mediabox[2] - mediabox[0]
+            pdf_height = mediabox[3] - mediabox[1]
+        else:
+            pdf_width, pdf_height = float(ocr_img_w), float(ocr_img_h)
+        return ocr_image, rotation, pdf_width, pdf_height, (ocr_img_w, ocr_img_h)
+
     def _process_page_result(
         self,
         c: canvas.Canvas,
@@ -226,34 +429,9 @@ class BackendTextLayerMixin:
         stats: ProcessingStats,
         force_overlay: bool = False,
     ) -> tuple[float, bool]:
-        """Process a single page result from the parallel worker.
-
-        Args:
-            force_overlay: When True, forces overlay mode even if
-                _determine_page_mode would choose standalone. Used for
-                pages with native text in editor-merged files.
-
-        Returns:
-            Tuple of (confidence_contribution, geometry_changed)
-        """
-        # Handle skipped pages (None input)
+        """Process a single page result from the parallel worker."""
         if work_item["img_path"] is None:
-            page_info = (
-                page_rotations[page_num - 1]
-                if page_num <= len(page_rotations)
-                else {"rotation": 0, "mediabox": None}
-            )
-            mediabox = page_info["mediabox"]
-            if mediabox:
-                pdf_width = mediabox[2] - mediabox[0]
-                pdf_height = mediabox[3] - mediabox[1]
-            else:
-                pdf_width, pdf_height = 595, 842
-            c.setPageSize((pdf_width, pdf_height))
-            c.showPage()
-            stats.pages_processed += 1
-            logger.info(f"Page {page_num}: Skipped (no image), added blank text page.")
-            return 0.0, False
+            return self._handle_skipped_page(c, page_rotations, page_num, stats)
 
         if not result.get("success"):
             logger.warning(f"Failed to process page {page_num}: {result.get('error')}")
@@ -262,23 +440,9 @@ class BackendTextLayerMixin:
             c.showPage()
             return 0.0, False
 
-        # Load processed image from temp file
         temp_path = result["temp_out_path"]
         try:
-            # Use PIL to read (supports JP2 and other formats that cv2 may not)
-            try:
-                pil_img = Image.open(temp_path)
-                if pil_img.mode != "RGB":
-                    pil_img = pil_img.convert("RGB")
-                processed_img = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
-            except Exception as read_err:
-                # Fallback to cv2 for standard formats
-                processed_img = cv2.imread(temp_path)
-                if processed_img is None:
-                    raise ValueError(
-                        f"Could not read temp image {temp_path}: {read_err}"
-                    ) from read_err
-
+            processed_img = self._load_processed_image(temp_path)
             proc_h, proc_w = processed_img.shape[:2]
             ocr_image = processed_img
 
@@ -287,64 +451,59 @@ class BackendTextLayerMixin:
                 if page_num <= len(page_rotations)
                 else {"rotation": 0, "mediabox": None}
             )
-            rotation = page_info.get("rotation", 0)
 
             use_processed_for_page, geometry_changed = self._determine_page_mode(
                 result, proc_w, proc_h
             )
-
-            # Force overlay mode for pages with native text (editor-merged files)
-            # so the original page content (text + layout) is preserved intact.
             if force_overlay:
                 use_processed_for_page = False
 
             if use_processed_for_page:
-                # STANDALONE MODE: embed processed image in the PDF page.
-                # Compute page size from image pixel dimensions and the
-                # extraction DPI so the page has proper physical dimensions
-                # (e.g. ~A4) and the image is not distorted.
                 draw_image_path = temp_path
-                dpi = self.config.dpi or 300
-                pdf_width = proc_w * 72.0 / dpi
-                pdf_height = proc_h * 72.0 / dpi
+                # Use original PDF page dimensions when available so that
+                # native images at non-standard DPI keep the correct page
+                # size.  Swap width/height when the image has been rotated:
+                #   - /Rotate pages whose images were pre-rotated
+                #   - Orientation correction (90°/270° detected by the worker)
+                mediabox = page_info.get("mediabox")
+                page_rot = page_info.get("rotation", 0)
+                prerotated = result.get("image_prerotated", False)
+                orientation_angle = result.get("orientation_angle", 0)
+                need_swap = (prerotated and page_rot in (90, 270)) or orientation_angle in (90, 270)
+                if mediabox:
+                    mb_w = float(mediabox[2]) - float(mediabox[0])
+                    mb_h = float(mediabox[3]) - float(mediabox[1])
+                    if need_swap:
+                        pdf_width, pdf_height = mb_h, mb_w
+                    else:
+                        pdf_width, pdf_height = mb_w, mb_h
+                else:
+                    dpi = self.config.dpi or 300
+                    pdf_width = proc_w * 72.0 / dpi
+                    pdf_height = proc_h * 72.0 / dpi
                 logger.info(
                     f"Page {page_num}: page size {pdf_width:.1f}×{pdf_height:.1f} pt "
-                    f"from {proc_w}×{proc_h} px @ {dpi} DPI"
+                    f"from {proc_w}×{proc_h} px"
                 )
-
                 pdf_rotation = 0
                 ocr_img_size = (proc_w, proc_h)
+                page_image_rect = None
             else:
-                # OVERLAY MODE
-                # When the image was pre-rotated (/Rotate applied in worker),
-                # it is already in display orientation — skip the rotation.
-                if result.get("image_prerotated"):
-                    pass  # Already display-oriented
-                elif rotation != 0:
-                    ocr_image = self._rotate_image_for_overlay(ocr_image, rotation)
-                    logger.info(
-                        f"Rotated OCR image for page {page_num} by "
-                        f"{rotation} degrees (overlay mode)"
-                    )
-
-                ocr_img_h, ocr_img_w = ocr_image.shape[:2]
-                pdf_rotation = rotation
-                mediabox = page_info["mediabox"]
-                if mediabox:
-                    pdf_width = mediabox[2] - mediabox[0]
-                    pdf_height = mediabox[3] - mediabox[1]
-                else:
-                    pdf_width, pdf_height = float(ocr_img_w), float(ocr_img_h)
-                ocr_img_size = (ocr_img_w, ocr_img_h)
+                ocr_image, pdf_rotation, pdf_width, pdf_height, ocr_img_size = (
+                    self._setup_overlay_mode(result, page_info, ocr_image, page_num)
+                )
                 draw_image_path = None
+                page_image_rect = page_info.get("image_rect")
+                # When OCR ran on a higher-quality rendered image (pdftoppm
+                # for DjVu-like pages), OCR coordinates are in the rendered
+                # image space.  Override ocr_img_size so the renderer
+                # scales coordinates correctly.
+                if "ocr_img_w" in result and "ocr_img_h" in result:
+                    ocr_img_size = (result["ocr_img_w"], result["ocr_img_h"])
 
-            # Use pre-computed OCR results from pool worker when available.
-            # This avoids a sequential subprocess call per page and is the
-            # key optimisation that enables parallel OCR across pages.
             precomputed_ocr = None
             ocr_raw = result.get("ocr_raw")
             if ocr_raw and ocr_raw.get("boxes"):
-                # Apply confidence filter matching _run_ocr post-processing
                 min_score = self.config.text_score_threshold
                 precomputed_ocr = [
                     OCRResult(text=t, box=b, confidence=s)
@@ -366,18 +525,18 @@ class BackendTextLayerMixin:
                 draw_image_path,
                 stats,
                 precomputed_ocr=precomputed_ocr,
+                image_rect=page_image_rect,
             )
 
-            # Explicitly release large arrays to prevent memory accumulation
             del processed_img, ocr_image
-            if "pil_img" in locals():
-                del pil_img
-
             return confidence, use_processed_for_page
 
         finally:
             if os.path.exists(temp_path):
                 os.remove(temp_path)
+            ocr_path = result.get("temp_ocr_path")
+            if ocr_path and ocr_path != temp_path and os.path.exists(ocr_path):
+                os.remove(ocr_path)
 
     def _create_text_layer_pdf(
         self,
@@ -417,13 +576,28 @@ class BackendTextLayerMixin:
                 )
                 pdf_rotation = page_info.get("rotation", 0)
 
+                masked_pages = getattr(getattr(self, "extractor", None), "masked_pages", set())
+                masked = i in masked_pages
+                format_changed = self.config.image_export_format not in ("original", "")
+                geometry_enabled = (
+                    self.config.enable_deskew
+                    or self.config.enable_perspective_correction
+                    or self.config.enable_baseline_dewarp
+                )
+                use_rendered_source = masked and (format_changed or geometry_enabled)
                 work_item = {
                     "page_num": i,
                     "img_path": str(p) if p is not None else None,
                     "config": self.config,
                     "pdf_rotation": pdf_rotation,
+                    "skip_geometric": masked and not use_rendered_source,
                     "run_ocr": False,
                 }
+                if use_rendered_source:
+                    input_pdf = getattr(self, "_input_pdf", None)
+                    if input_pdf:
+                        work_item["use_rendered_source"] = True
+                        work_item["input_pdf"] = str(input_pdf)
 
                 # Step 1: Preprocess
                 result = process_page(work_item)
@@ -466,10 +640,18 @@ class BackendTextLayerMixin:
                 except Exception:
                     pass
 
-                # Restart OCR subprocess every 3 pages to limit memory growth
-                if (i + 1) % 3 == 0 and i < len(image_paths) - 1:
+                # Restart OCR subprocess periodically to limit memory growth
+                if (i + 1) % _OCR_RESTART_INTERVAL == 0 and i < len(image_paths) - 1:
                     self._stop_ocr_subprocess(ocr_proc)
-                    ocr_proc = self._launch_ocr_subprocess()
+                    try:
+                        ocr_proc = self._launch_ocr_subprocess()
+                    except Exception:
+                        logger.warning("OCR subprocess restart failed, retrying once")
+                        try:
+                            ocr_proc = self._launch_ocr_subprocess()
+                        except Exception:
+                            logger.error("OCR subprocess restart failed twice, aborting")
+                            raise
 
         finally:
             self._stop_ocr_subprocess(ocr_proc)

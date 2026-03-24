@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 
 from gi.repository import Gtk
 
-from bigocrpdf.utils.i18n import _
+from bigocrpdf.utils.i18n import N_, _
 from bigocrpdf.utils.logger import logger
 
 if TYPE_CHECKING:
@@ -67,9 +67,9 @@ class NavigationManager:
     PAGE_CONCLUSION = "conclusion"
 
     # Step labels
-    STEP_SETTINGS = "Step 1/3: Settings"
-    STEP_TERMINAL = "Step 2/3: Processing"
-    STEP_CONCLUSION = "Step 3/3: Results"
+    STEP_SETTINGS = N_("Step 1/3: Settings")
+    STEP_TERMINAL = N_("Step 2/3: Processing")
+    STEP_CONCLUSION = N_("Step 3/3: Results")
 
     def __init__(self, window: "BigOcrPdfWindow"):
         """
@@ -171,6 +171,12 @@ class NavigationManager:
             self.main_stack.set_visible_child_name(page_name)
 
         self._update_header_bar_for_page(page_name)
+
+        # Announce step change for screen readers (Orca)
+        state = self._page_states.get(page_name)
+        if state and hasattr(self.window, "announce_status"):
+            self.window.announce_status(_(state.step_text))
+
         logger.debug(f"Navigated to page: {page_name}")
 
     def _update_header_bar_for_page(self, page_name: str) -> None:

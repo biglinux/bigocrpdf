@@ -27,6 +27,8 @@ class PageState:
 
     page_number: int
     rotation: int = 0
+    flip_horizontal: bool = False
+    flip_vertical: bool = False
     included_for_ocr: bool = True
     deleted: bool = False
     position: int = 0
@@ -55,6 +57,14 @@ class PageState:
         """Rotate page 90 degrees clockwise."""
         self.rotation = (self.rotation + 90) % 360
 
+    def toggle_flip_horizontal(self) -> None:
+        """Toggle horizontal flip state."""
+        self.flip_horizontal = not self.flip_horizontal
+
+    def toggle_flip_vertical(self) -> None:
+        """Toggle vertical flip state."""
+        self.flip_vertical = not self.flip_vertical
+
     def to_dict(self) -> dict:
         """Convert to dictionary for serialization.
 
@@ -64,6 +74,8 @@ class PageState:
         return {
             "page_number": self.page_number,
             "rotation": self.rotation,
+            "flip_horizontal": self.flip_horizontal,
+            "flip_vertical": self.flip_vertical,
             "included_for_ocr": self.included_for_ocr,
             "deleted": self.deleted,
             "position": self.position,
@@ -83,6 +95,8 @@ class PageState:
         return cls(
             page_number=data.get("page_number", 1),
             rotation=data.get("rotation", 0),
+            flip_horizontal=data.get("flip_horizontal", False),
+            flip_vertical=data.get("flip_vertical", False),
             included_for_ocr=data.get("included_for_ocr", True),
             deleted=data.get("deleted", False),
             position=data.get("position", 0),

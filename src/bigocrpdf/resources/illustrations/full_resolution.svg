@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="0 0 120 80">
+  <!-- Low res scan (before) - small magnifier -->
+  <g transform="translate(8,10)">
+    <rect x="4" y="2" width="36" height="48" rx="2" fill="#fff" stroke="#999" stroke-width="1.2"/>
+    <text x="10" y="18" font-size="4" fill="#999" font-family="sans-serif">Abc def</text>
+    <text x="10" y="26" font-size="4" fill="#999" font-family="sans-serif">ghi jkl</text>
+    <text x="10" y="34" font-size="4" fill="#999" font-family="sans-serif">mno pqr</text>
+    <!-- Small magnifier -->
+    <circle cx="30" cy="42" r="5" fill="none" stroke="#999" stroke-width="1.2"/>
+    <line x1="34" y1="46" x2="37" y2="49" stroke="#999" stroke-width="1.5" stroke-linecap="round"/>
+    <text x="22" y="48" font-size="4" fill="#999" font-family="sans-serif">1x</text>
+  </g>
+  <!-- Arrow -->
+  <path d="M56,38 L68,38" stroke="#3584e4" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+  <defs><marker id="arr" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3584e4"/></marker></defs>
+  <!-- Full res scan (after) - large magnifier -->
+  <g transform="translate(70,10)">
+    <rect x="4" y="2" width="36" height="48" rx="2" fill="#fff" stroke="#3584e4" stroke-width="1.5"/>
+    <text x="10" y="18" font-size="4" fill="#333" font-family="sans-serif">Abc def</text>
+    <text x="10" y="26" font-size="4" fill="#333" font-family="sans-serif">ghi jkl</text>
+    <text x="10" y="34" font-size="4" fill="#333" font-family="sans-serif">mno pqr</text>
+    <!-- Bigger magnifier -->
+    <circle cx="30" cy="42" r="6" fill="none" stroke="#3584e4" stroke-width="1.5"/>
+    <line x1="35" y1="47" x2="38" y2="50" stroke="#3584e4" stroke-width="2" stroke-linecap="round"/>
+    <text x="22" y="48" font-size="4" fill="#3584e4" font-family="sans-serif" font-weight="bold">4x</text>
+  </g>
+</svg>

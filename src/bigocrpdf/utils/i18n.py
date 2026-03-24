@@ -65,6 +65,17 @@ except Exception:
     pass
 
 
+def N_(text: str) -> str:
+    """Mark a string for extraction without translating it at definition time.
+
+    Use this for strings that are defined as constants but translated later
+    via ``_()``.  Extraction tools (xgettext / pybabel) will pick up the
+    string, but it is returned unchanged so the runtime ``_()`` call can
+    do the actual translation.
+    """
+    return text
+
+
 def setup_i18n() -> Callable[[str], str]:
     """Reinitialize the internationalization system if needed.
 

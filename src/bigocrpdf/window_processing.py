@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import gc
 import os
 import time
 from typing import TYPE_CHECKING
@@ -206,8 +205,8 @@ class WindowProcessingMixin:
         self._cleanup_ocr_processor()
         self.processed_files = []
 
-        # Clear file queue and all processing state
-        self.settings.reset_processing_state(full=True)
+        # Reset processing state but keep remaining files in queue
+        self.settings.reset_processing_state(full=False)
 
         # Navigate back to settings page
         self.nav_manager.restore_next_button()
@@ -236,9 +235,6 @@ class WindowProcessingMixin:
 
         # Create a fresh processor instance - eliminates race conditions
         self.ocr_processor = OcrProcessor(self.settings)
-
-        # Force garbage collection to release old resources
-        gc.collect()
 
         logger.info("Created fresh OCR processor instance")
 
@@ -338,7 +334,7 @@ class WindowProcessingMixin:
                 from bigocrpdf.services.export_service import save_text_file
 
                 separate = self.settings.txt_folder if self.settings.separate_txt_folder else None
-                save_text_file(output_file, extracted_text, separate)
+                save_text_file(output_file, extracted_text, separate, ocr_boxes)
 
             # Auto-save ODF file if enabled
             if getattr(self.settings, "save_odf", False) and extracted_text:
@@ -377,7 +373,7 @@ class WindowProcessingMixin:
                 _("Processed file {current}/{total}: {filename}").format(
                     current=len(self.settings.processed_files),
                     total=self.ocr_processor.get_total_count(),
-                    filename=os.path.basename(input_file),
+                    filename=self.settings.display_name(input_file),
                 )
             )
 

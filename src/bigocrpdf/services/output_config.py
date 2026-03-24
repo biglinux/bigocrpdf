@@ -32,6 +32,7 @@ class OutputConfig:
         self.save_odf: bool = False
         self.odf_include_images: bool = True
         self.odf_use_formatting: bool = True
+        self.odf_open_after_export: bool = False
         # Image export
         self.image_export_format: str = "original"
         self.image_export_quality: int = 85

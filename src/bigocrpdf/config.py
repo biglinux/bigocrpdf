@@ -112,6 +112,7 @@ IMAGE_WINDOW_STATE_KEY: Final[str] = "image_window"
 
 SHORTCUTS: Final[dict[str, str]] = {
     "add-files": "<Control>o",
+    "paste-clipboard": "<Control>v",
     "start-processing": "<Control>Return",
     "cancel-processing": "Escape",
     "remove-all-files": "<Control>r",

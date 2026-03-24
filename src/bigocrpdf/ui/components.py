@@ -143,6 +143,9 @@ class UIComponents:
         if tooltip:
             button.set_tooltip_text(tooltip)
             set_a11y_label(button, tooltip)
+        else:
+            fallback = icon_name.replace("-symbolic", "").replace("-", " ").title()
+            set_a11y_label(button, fallback)
 
         if circular:
             button.add_css_class("circular")

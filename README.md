@@ -5,8 +5,10 @@
 **The complete OCR toolkit for Linux — turn scanned PDFs and images into searchable, editable documents.**
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](LICENSE)
+[![Version: 3.0.0](https://img.shields.io/badge/Version-3.0.0-green.svg)](pyproject.toml)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg)](https://python.org)
 [![GTK4 + Libadwaita](https://img.shields.io/badge/GTK4-Libadwaita-4A86CF.svg)](https://gnome.org)
+[![Tests: 311](https://img.shields.io/badge/Tests-311%20passing-brightgreen.svg)](tests/)
 
 </div>
 
@@ -33,13 +35,18 @@ BigOcrPDF is a powerful, all-in-one OCR application that adds searchable text la
 Manage your documents before and after OCR — no need for a separate tool.
 
 - **Drag-and-drop page reordering** with thumbnail previews
-- **Rotate pages** left or right in 90° increments
+- **Rotate & flip pages** — left, right, horizontal, and vertical
 - **Delete pages** you don't need
 - **Merge files** — combine pages from multiple PDFs and images into one document
 - **Create PDFs from images** — import JPEG, PNG, TIFF, WebP, RAW photos, and more
 - **EXIF-aware import** — automatically applies correct orientation from camera metadata
-- **Zoom control** — 50% to 200% thumbnail scaling
+- **Zoom control** — 50% to 200% thumbnail scaling with keyboard shortcuts
 - **Select pages for OCR** — choose exactly which pages to process
+- **Context menu** — right-click any page to save as image or PDF
+- **Compress PDF** — reduce file size with configurable quality and DPI
+- **Split PDF** — by page count or target file size
+- **Undo support** — revert page operations with Ctrl+Z
+- **Window size persistence** — remembers your preferred dimensions
 
 ### OCR Engine
 
@@ -65,7 +72,8 @@ Automatically clean up scans and photos before OCR for maximum accuracy.
 - **Illumination normalization** — even out uneven lighting
 - **Scanner effect** — LAB-space background normalization
 - **Denoising** — bilateral filter and Non-Local Means
-- **All toggles individually controllable** from the settings page
+- **Enhance embedded images** — apply corrections to images inside mixed-content pages
+- **All toggles individually controllable** from educational settings dialogs with visual illustrations
 
 ### Export Options
 
@@ -76,6 +84,7 @@ Get your text out in the format you need.
 | **Searchable PDF** | Original pages with invisible OCR text layer |
 | **PDF/A-2b** | ISO archival standard with metadata injection (preserves original images) |
 | **Custom Quality PDF** | Choose JPEG quality: 30%, 50%, 70%, 85%, or 95% |
+| **Black & White (JBIG2)** | Pure black-and-white output using JBIG2 — the most compact format for text-only documents |
 | **Plain Text (.txt)** | Extracted text from all pages |
 | **ODF/ODT** ⚠️ | 4 modes: formatted + images, images + simple text, formatted text only, or plain text *(experimental — formatting quality may vary)* |
 
@@ -95,7 +104,8 @@ Extract text from anything on your screen.
 
 Handle large workloads efficiently.
 
-- **Multi-file queue** — add files via drag-and-drop or file chooser
+- **Multi-file queue** — add files via drag-and-drop or file chooser, with grid and list views
+- **File information** — right-click any file to view PDF metadata, fonts, images, and attachments
 - **Checkpoint/resume** — interrupted sessions automatically resume on next launch
 - **Processing history** — tracks file sizes, page counts, processing time, and success/failure
 - **Cancel anytime** with clean cleanup
@@ -172,10 +182,14 @@ Press **Print Screen** → select a region → export to **Extract text from ima
 
 - **GTK4 + Libadwaita** — clean, modern design following GNOME Human Interface Guidelines
 - **Multi-page wizard** — Settings → Processing → Results
+- **Educational dialogs** — image corrections, output, and advanced settings with SVG illustrations explaining each option
+- **Grid / List view toggle** — switch between compact grid and detailed list in the file queue
+- **Context menus** — right-click files in the queue or pages in the editor for quick actions
 - **Toast notifications** — non-intrusive status feedback
 - **Before/After comparison** — track file size changes after OCR
-- **Window size persistence** — remembers your preferred dimensions
-- **28 UI languages** — Bulgarian, Chinese, Czech, Danish, Dutch, English, Estonian, Finnish, French, German, Greek, Hebrew, Croatian, Hungarian, Icelandic, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovak, Spanish, Swedish, Turkish, Ukrainian
+- **Window size persistence** — remembers your preferred dimensions for all windows
+- **Keyboard shortcuts** — comprehensive shortcuts for all major actions
+- **28 UI languages** — Bulgarian, Chinese, Czech, Croatian, Danish, Dutch, English, Estonian, Finnish, French, German, Greek, Hebrew, Hungarian, Icelandic, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovak, Spanish, Swedish, Turkish, Ukrainian
 
 ---
 
@@ -216,6 +230,16 @@ graph TD
     style A fill:#4A86CF,color:#fff
     style C6 fill:#3776AB,color:#fff
 ```
+
+---
+
+## Quality & Testing
+
+- **311 automated tests** covering OCR pipeline, PDF operations, export, preprocessing, editor logic, and utilities
+- **Tested with Python 3.10 through 3.14** — supports the latest Python release
+- **100% i18n coverage** — all 28 languages fully translated (604 strings each)
+- **Ruff-enforced** code style and linting
+- **WCAG 2.1 Level AA** accessibility considerations
 
 ---
 

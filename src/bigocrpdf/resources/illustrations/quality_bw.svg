@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="0 0 120 80">
+  <!-- Color image with quality slider (left) -->
+  <g transform="translate(4,8)">
+    <rect x="2" y="2" width="46" height="56" rx="2" fill="#fff" stroke="#999" stroke-width="1.2"/>
+    <!-- Color photo with mountain -->
+    <polygon points="12,36 22,18 32,36" fill="#4a9" stroke="none"/>
+    <circle cx="34" cy="14" r="4" fill="#f5c211"/>
+    <polygon points="24,36 32,24 40,36" fill="#3a8" stroke="none"/>
+    <!-- Quality label -->
+    <text x="25" y="46" text-anchor="middle" font-size="5" fill="#555" font-family="sans-serif">JPEG 85%</text>
+    <rect x="8" y="50" width="34" height="3" rx="1" fill="#ddd"/>
+    <rect x="8" y="50" width="24" height="3" rx="1" fill="#3584e4"/>
+  </g>
+  <!-- OR divider -->
+  <text x="60" y="30" text-anchor="middle" font-size="7" fill="#888" font-family="sans-serif">or</text>
+  <!-- B&W with JBIG2 (right) -->
+  <g transform="translate(68,8)">
+    <rect x="2" y="2" width="46" height="56" rx="2" fill="#fff" stroke="#3584e4" stroke-width="1.5"/>
+    <line x1="10" y1="14" x2="40" y2="14" stroke="#222" stroke-width="2"/>
+    <line x1="10" y1="22" x2="40" y2="22" stroke="#222" stroke-width="2"/>
+    <line x1="10" y1="30" x2="35" y2="30" stroke="#222" stroke-width="2"/>
+    <line x1="10" y1="38" x2="40" y2="38" stroke="#222" stroke-width="2"/>
+    <!-- JBIG2 label -->
+    <text x="25" y="50" text-anchor="middle" font-size="5" fill="#3584e4" font-family="sans-serif" font-weight="bold">JBIG2</text>
+    <text x="25" y="57" text-anchor="middle" font-size="4" fill="#26a269" font-family="sans-serif">smallest</text>
+  </g>
+  <!-- Arrow pointing down to indicate override -->
+  <path d="M60,36 L60,46" stroke="#e5a50a" stroke-width="1.5" fill="none" marker-end="url(#warr)"/>
+  <defs><marker id="warr" viewBox="0 0 6 6" refX="3" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L6,0 L3,6 Z" fill="#e5a50a"/></marker></defs>
+  <text x="60" y="56" text-anchor="middle" font-size="4" fill="#e5a50a" font-family="sans-serif">overrides</text>
+</svg>

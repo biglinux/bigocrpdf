@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="0 0 120 80">
+  <!-- Faded page (before) -->
+  <g transform="translate(8,10)">
+    <rect x="5" y="5" width="35" height="48" rx="2" fill="#ddd" stroke="#999" stroke-width="1.2"/>
+    <line x1="12" y1="18" x2="32" y2="18" stroke="#c5c5c5" stroke-width="1.5"/>
+    <line x1="12" y1="25" x2="32" y2="25" stroke="#c5c5c5" stroke-width="1.5"/>
+    <line x1="12" y1="32" x2="28" y2="32" stroke="#c5c5c5" stroke-width="1.5"/>
+    <line x1="12" y1="39" x2="32" y2="39" stroke="#c5c5c5" stroke-width="1.5"/>
+  </g>
+  <!-- Arrow -->
+  <path d="M56,38 L68,38" stroke="#3584e4" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <defs><marker id="arrow" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3584e4"/></marker></defs>
+  <!-- Clean page (after) -->
+  <g transform="translate(72,10)">
+    <rect x="5" y="5" width="35" height="48" rx="2" fill="#fff" stroke="#3584e4" stroke-width="1.5"/>
+    <line x1="12" y1="18" x2="32" y2="18" stroke="#222" stroke-width="2"/>
+    <line x1="12" y1="25" x2="32" y2="25" stroke="#222" stroke-width="2"/>
+    <line x1="12" y1="32" x2="28" y2="32" stroke="#222" stroke-width="2"/>
+    <line x1="12" y1="39" x2="32" y2="39" stroke="#222" stroke-width="2"/>
+  </g>
+</svg>

@@ -31,6 +31,8 @@ depends=(
 	'python-odfpy'
 	# BiDi text support (Arabic, Hebrew)
 	'fribidi'
+	# JBIG2 encoding for compact PDF output
+	'jbig2enc'
 )
 
 makedepends=(
@@ -47,6 +49,9 @@ license=('GPL-3.0-or-later')
 url="https://github.com/biglinux/bigocrpdf"
 
 optdepends=(
+	# File manager integration
+	'python-nautilus: GNOME Files (Nautilus) context menu integration'
+	'nemo-python: Nemo file manager context menu integration'
 	# RapidOCR language models
 	'rapidocr-models-mobile-arabic: Arabic script OCR'
 	'rapidocr-models-mobile-korean: Korean OCR'

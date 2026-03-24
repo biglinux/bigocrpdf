@@ -413,6 +413,24 @@ def gentle_margin_perspective_correction(
         )
         return None
 
+    # ── Width linearity check ────────────────────────────────────────
+    # True camera perspective produces a smooth linear width gradient.
+    # Form/table layouts create step-like width changes → low R².
+    # Require R² > 0.6 to avoid false positives from layout artifacts.
+    widths_body = rm_body - lm_body
+    if len(widths_body) >= 4:
+        wc = np.polyfit(ys_body, widths_body, 1)
+        w_pred = np.polyval(wc, ys_body)
+        ss_res = float(np.sum((widths_body - w_pred) ** 2))
+        ss_tot = float(np.sum((widths_body - np.mean(widths_body)) ** 2))
+        w_r2 = 1.0 - ss_res / ss_tot if ss_tot > 0 else 0.0
+        if w_r2 < 0.6:
+            logger.debug(
+                f"Gentle perspective: width R²={w_r2:.2f} too low "
+                f"(layout variation, not perspective)"
+            )
+            return None
+
     # ── Full projective correction via warpPerspective ─────────────
     # src_pts = actual margin positions (where content IS in the image).
     # dst_pts = rotation-only positions (perspective removed, rotation kept).

@@ -194,6 +194,7 @@ class ConclusionPageBuilderMixin:
             A Gtk.Label for displaying file count
         """
         self.result_file_count = Gtk.Label(label="0")
+        set_a11y_label(self.result_file_count, _("Files processed"))
         return self.result_file_count
 
     def _create_page_count_label(self) -> Gtk.Label:
@@ -203,6 +204,7 @@ class ConclusionPageBuilderMixin:
             A Gtk.Label for displaying page count
         """
         self.result_page_count = Gtk.Label(label="0")
+        set_a11y_label(self.result_page_count, _("Pages processed"))
         return self.result_page_count
 
     def _create_time_label(self) -> Gtk.Label:
@@ -212,6 +214,7 @@ class ConclusionPageBuilderMixin:
             A Gtk.Label for displaying processing time
         """
         self.result_time = Gtk.Label(label="00:00")
+        set_a11y_label(self.result_time, _("Processing time"))
         return self.result_time
 
     def _create_file_size_label(self) -> Gtk.Label:
@@ -221,6 +224,7 @@ class ConclusionPageBuilderMixin:
             A Gtk.Label for displaying file size
         """
         self.result_file_size = Gtk.Label(label="0 KB")
+        set_a11y_label(self.result_file_size, _("Output file size"))
         return self.result_file_size
 
     def _create_size_change_label(self) -> Gtk.Label:
@@ -230,6 +234,7 @@ class ConclusionPageBuilderMixin:
             A Gtk.Label for displaying size change
         """
         self.result_size_change = Gtk.Label(label="--")
+        set_a11y_label(self.result_size_change, _("File size change"))
         return self.result_size_change
 
     def _create_files_card(self) -> Gtk.Box:

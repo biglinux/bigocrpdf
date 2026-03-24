@@ -8,7 +8,6 @@ This module provides screen capture and OCR functionality using external tools
 import json
 import os
 import subprocess
-import tempfile
 import threading
 from collections.abc import Callable
 from pathlib import Path
@@ -17,12 +16,14 @@ import cv2
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import GLib, Gtk
+from gi.repository import Gio, GLib, Gtk
 
 from bigocrpdf.services.rapidocr_service.config import OCRConfig, OCRResult
 from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.temp_manager import mkstemp as tm_mkstemp
+from bigocrpdf.utils.temp_manager import remove_file as tm_remove
 
 
 class ScreenCaptureService:
@@ -96,23 +97,28 @@ class ScreenCaptureService:
         """Execute the capture and OCR process in a thread."""
         temp_path = None
         try:
-            # Generate a temporary file path
-            fd, temp_path = tempfile.mkstemp(suffix=".png", prefix="bigocrpdf_capture_")
+            # Generate a tracked temporary file path
+            fd, temp_path = tm_mkstemp(suffix=".png", prefix="bigocrpdf_capture_")
             os.close(fd)
 
-            # Capture screen
-            tool_executed = self._capture_with_cli_tools(temp_path)
-
-            if not tool_executed:
+            # Try XDG Portal first (works in Flatpak/sandboxed environments)
+            portal_path = self._capture_via_portal()
+            if portal_path and os.path.exists(portal_path) and os.path.getsize(portal_path) > 0:
                 self._cleanup_temp_file(temp_path)
-                self._invoke_callback(
-                    None,
-                    _(
-                        "No screenshot tool available. Please install spectacle, "
-                        "gnome-screenshot, or flameshot."
-                    ),
-                )
-                return
+                temp_path = portal_path
+            else:
+                # Fallback to CLI tools
+                tool_executed = self._capture_with_cli_tools(temp_path)
+                if not tool_executed:
+                    self._cleanup_temp_file(temp_path)
+                    self._invoke_callback(
+                        None,
+                        _(
+                            "No screenshot tool available. Please install spectacle, "
+                            "gnome-screenshot, or flameshot."
+                        ),
+                    )
+                    return
 
             # Check if file has content (screenshot was taken, not cancelled)
             if os.path.exists(temp_path) and os.path.getsize(temp_path) > 0:
@@ -125,7 +131,7 @@ class ScreenCaptureService:
                 self._cleanup_temp_file(temp_path)
                 self._invoke_callback(None, _("Screenshot was cancelled"))
 
-        except Exception as e:
+        except (OSError, subprocess.SubprocessError) as e:
             if temp_path:
                 self._cleanup_temp_file(temp_path)
             logger.error(f"Screenshot capture error: {e}")
@@ -134,6 +140,38 @@ class ScreenCaptureService:
             )
 
     # ── Screenshot Capture ──────────────────────────────────────────────
+
+    def _capture_via_portal(self) -> str | None:
+        """Attempt screenshot via XDG Desktop Portal (Flatpak-safe).
+
+        Returns:
+            Path to screenshot file, or None if portal unavailable.
+        """
+        try:
+            bus = Gio.bus_get_sync(Gio.BusType.SESSION)
+            proxy = Gio.DBusProxy.new_sync(
+                bus,
+                Gio.DBusProxyFlags.NONE,
+                None,
+                "org.freedesktop.portal.Desktop",
+                "/org/freedesktop/portal/desktop",
+                "org.freedesktop.portal.Screenshot",
+                None,
+            )
+            result = proxy.call_sync(
+                "Screenshot",
+                GLib.Variant("(sa{sv})", ("", {"interactive": GLib.Variant("b", True)})),
+                Gio.DBusCallFlags.NONE,
+                60000,
+                None,
+            )
+            if result:
+                uri = result.unpack()[0]
+                if uri.startswith("file://"):
+                    return uri[7:]
+        except (GLib.Error, Exception) as e:
+            logger.debug(f"XDG Portal screenshot unavailable: {e}")
+        return None
 
     def _capture_with_cli_tools(self, temp_path: str) -> bool:
         """Capture screen using CLI tools (spectacle, gnome-screenshot, flameshot).
@@ -147,7 +185,7 @@ class ScreenCaptureService:
         try:
             commands = self._get_screenshot_commands(temp_path)
             return self._try_screenshot_tools(commands, temp_path)
-        except Exception as e:
+        except (OSError, subprocess.SubprocessError) as e:
             logger.error(f"Screenshot capture error: {e}")
             return False
 
@@ -210,7 +248,7 @@ class ScreenCaptureService:
         except subprocess.TimeoutExpired:
             logger.warning(f"Screenshot tool {cmd[0]} timed out.")
             return None
-        except Exception as e:
+        except (OSError, subprocess.SubprocessError) as e:
             logger.warning(f"Error running screenshot tool {cmd[0]}: {e}")
             return None
 
@@ -224,14 +262,18 @@ class ScreenCaptureService:
         Returns:
             True (flameshot was executed, regardless of success/cancel).
         """
-        result = subprocess.run(cmd, capture_output=True, timeout=60)
-        if result.returncode == 0 and result.stdout:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        try:
+            stdout, stderr = proc.communicate(timeout=60)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.communicate()
+            return True
+        if proc.returncode == 0 and stdout:
             with open(temp_path, "wb") as f:
-                f.write(result.stdout)
+                f.write(stdout)
         else:
-            logger.debug(
-                f"Flameshot exited with code {result.returncode}: {result.stderr.decode().strip()}"
-            )
+            logger.debug(f"Flameshot exited with code {proc.returncode}: {stderr.decode().strip()}")
         return True
 
     def _run_standard_tool(self, cmd: list[str]) -> bool | None:
@@ -247,11 +289,16 @@ class ScreenCaptureService:
         if subprocess.call(["which", tool_name], stdout=subprocess.DEVNULL) != 0:
             return None
 
-        result = subprocess.run(cmd, capture_output=True, timeout=60)
-        if result.returncode != 0:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        try:
+            _stdout, stderr = proc.communicate(timeout=60)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.communicate()
+            return True
+        if proc.returncode != 0:
             logger.debug(
-                f"{tool_name} exited with code {result.returncode}: "
-                f"{result.stderr.decode().strip()}"
+                f"{tool_name} exited with code {proc.returncode}: {stderr.decode().strip()}"
             )
         return True
 
@@ -291,7 +338,7 @@ class ScreenCaptureService:
             img = preprocessor.process(img)
 
             # Write preprocessed image to temp file for OCR worker subprocess
-            fd, temp_img_path = tempfile.mkstemp(suffix=".png")
+            fd, temp_img_path = tm_mkstemp(suffix=".png")
             os.close(fd)
             cv2.imwrite(temp_img_path, img)
 
@@ -303,15 +350,25 @@ class ScreenCaptureService:
                 cmd = self._build_ocr_command(temp_img_path, config)
                 logger.info(f"Running image OCR: language={language}")
 
-                proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+                proc = subprocess.Popen(
+                    cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+                )
+                try:
+                    stdout, stderr = proc.communicate(timeout=120)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                    proc.communicate()
+                    logger.error("OCR processing timed out")
+                    self._invoke_callback(None, _("OCR processing timed out."))
+                    return None
 
                 if proc.returncode != 0:
-                    logger.error(f"OCR subprocess failed: {proc.stderr}")
+                    logger.error(f"OCR subprocess failed: {stderr}")
                     self._invoke_callback(None, _("OCR processing failed."))
                     return None
 
                 # Parse OCR results
-                results = self._parse_ocr_results(proc.stdout)
+                results = self._parse_ocr_results(stdout)
                 if not results:
                     return _("No text found in the image")
 
@@ -320,10 +377,7 @@ class ScreenCaptureService:
                 return text if text.strip() else _("No text found in the image")
 
             finally:
-                try:
-                    os.unlink(temp_img_path)
-                except Exception:
-                    pass
+                tm_remove(temp_img_path)
 
         except FileNotFoundError:
             logger.error("RapidOCR worker not found")
@@ -331,11 +385,7 @@ class ScreenCaptureService:
                 None, _("OCR engine not available. Please check your installation.")
             )
             return None
-        except subprocess.TimeoutExpired:
-            logger.error("OCR processing timed out")
-            self._invoke_callback(None, _("OCR processing timed out."))
-            return None
-        except Exception as e:
+        except (OSError, subprocess.SubprocessError, ValueError) as e:
             logger.error(f"OCR processing error: {e}")
             return None
 
@@ -486,16 +536,13 @@ class ScreenCaptureService:
     # ── Callback Helpers ────────────────────────────────────────────────
 
     def _cleanup_temp_file(self, path: str) -> None:
-        """Clean up a temporary file.
+        """Clean up a tracked temporary file.
 
         Args:
             path: Path to the file to delete
         """
-        try:
-            if path and os.path.exists(path):
-                os.unlink(path)
-        except Exception as e:
-            logger.debug(f"Could not remove temp file {path}: {e}")
+        if path:
+            tm_remove(path)
 
     def _invoke_callback(self, text: str | None, error: str | None) -> None:
         """Invoke the pending callback with the result.

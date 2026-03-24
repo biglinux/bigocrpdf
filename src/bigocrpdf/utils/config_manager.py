@@ -249,12 +249,13 @@ class ConfigManager:
             logger.error(f"Error saving config: {e}")
             return False
 
-    def get(self, key_path: str, default: Any = None) -> Any:
+    def get(self, key_path: str, default: Any = None, expected_type: type | None = None) -> Any:
         """Get a configuration value by dot-separated path.
 
         Args:
             key_path: Dot-separated path to the config value (e.g., "ocr.language")
             default: Default value if key not found
+            expected_type: If provided, return default when value is not this type
 
         Returns:
             Configuration value or default
@@ -267,6 +268,9 @@ class ConfigManager:
                 value = value[key]
             else:
                 return default
+
+        if expected_type is not None and not isinstance(value, expected_type):
+            return default
 
         return value
 

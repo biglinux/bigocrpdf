@@ -186,6 +186,7 @@ class PDFOptionsUICreationMixin:
         overwrite_row.set_title(_("Overwrite Existing Files"))
         overwrite_row.set_subtitle(_("Replace files with the same name"))
         overwrite_row.set_active(self.window.settings.overwrite_existing)
+        overwrite_row.connect("notify::active", self._on_overwrite_toggled)
 
         # Add all rows to group
         main_group.add(use_original_name_row)
@@ -220,6 +221,32 @@ class PDFOptionsUICreationMixin:
         warning_row.add_prefix(warning_icon)
         warning_row.add_css_class("warning-row")
         return warning_row
+
+    def _on_overwrite_toggled(self, row: Adw.SwitchRow, _pspec) -> None:
+        """Show a confirmation when overwrite is enabled."""
+        if not row.get_active():
+            return
+
+        dialog = Adw.AlertDialog()
+        dialog.set_heading(_("Overwrite Existing Files?"))
+        dialog.set_body(
+            _(
+                "If files with the same name already exist in the output "
+                "folder, they will be permanently replaced. This cannot be undone."
+            )
+        )
+        dialog.add_response("cancel", _("Cancel"))
+        dialog.add_response("confirm", _("Enable"))
+        dialog.set_response_appearance("confirm", Adw.ResponseAppearance.DESTRUCTIVE)
+        dialog.set_default_response("cancel")
+        dialog.set_close_response("cancel")
+
+        def on_response(_d, response):
+            if response != "confirm":
+                row.set_active(False)
+
+        dialog.connect("response", on_response)
+        dialog.present(self.window)
 
     def _create_text_extraction_group(self) -> Adw.PreferencesGroup:
         """Create text extraction preference group
@@ -419,9 +446,9 @@ class PDFOptionsUICreationMixin:
         format_row = Adw.ComboRow()
         format_row.set_title(_("Date Format"))
         format_model = Gtk.StringList()
-        format_model.append(_("YYYY-MM-DD (ISO)"))
-        format_model.append(_("DD-MM-YYYY (Europe)"))
-        format_model.append(_("MM-DD-YYYY (US)"))
+        format_model.append(_("Standard (2026-02-23)"))
+        format_model.append(_("European (23-02-2026)"))
+        format_model.append(_("American (02-23-2026)"))
         format_row.set_model(format_model)
         format_row.set_sensitive(initial_sensitivity)
 

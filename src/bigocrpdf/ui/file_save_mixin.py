@@ -119,9 +119,14 @@ class FileSaveDialogMixin:
         counter = 1
         new_path = file_path
 
-        while os.path.exists(new_path):
-            new_path = os.path.join(dir_name, f"{name}-{counter}{ext}")
-            counter += 1
+        while True:
+            try:
+                fd = os.open(new_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+                os.close(fd)
+                break
+            except FileExistsError:
+                new_path = os.path.join(dir_name, f"{name}-{counter}{ext}")
+                counter += 1
 
         return new_path
 
@@ -139,24 +144,13 @@ class FileSaveDialogMixin:
                 f.write(text)
 
             logger.info(f"Text saved to {file_path}")
-            self._show_success_toast(
+            self.window.show_toast(
                 _("Text saved to {filename}").format(filename=os.path.basename(file_path))
             )
 
         except Exception as e:
             logger.error(f"Error writing text to file: {e}")
             self._show_error_dialog(_("Save Failed"), str(e))
-
-    def _show_success_toast(self, message: str) -> None:
-        """Show success toast notification
-
-        Args:
-            message: Message to display
-        """
-        if hasattr(self.window, "toast_overlay") and self.window.toast_overlay:
-            toast = Adw.Toast.new(message)
-            toast.set_timeout(3)
-            self.window.toast_overlay.add_toast(toast)
 
     def _show_error_dialog(self, title: str, message: str) -> None:
         """Show error dialog

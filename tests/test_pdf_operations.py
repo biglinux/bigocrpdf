@@ -4,9 +4,9 @@ import os
 import tempfile
 
 import pikepdf
+import pytest
 
 from bigocrpdf.services.pdf_operations import (
-    OperationResult,
     PDFInfo,
     extract_pages,
     get_pdf_info,
@@ -22,10 +22,12 @@ def _create_test_pdf(path: str, num_pages: int = 3) -> str:
     """Create a simple test PDF with the given number of pages."""
     pdf = pikepdf.Pdf.new()
     for i in range(num_pages):
-        page = pikepdf.Dictionary(
-            Type=pikepdf.Name.Page,
-            MediaBox=[0, 0, 612, 792],
-            Contents=pdf.make_stream(f"BT /F1 12 Tf 100 700 Td (Page {i + 1}) Tj ET".encode()),
+        page = pikepdf.Page(
+            pikepdf.Dictionary(
+                Type=pikepdf.Name.Page,
+                MediaBox=[0, 0, 612, 792],
+                Contents=pdf.make_stream(f"BT /F1 12 Tf 100 700 Td (Page {i + 1}) Tj ET".encode()),
+            )
         )
         pdf.pages.append(page)
     pdf.save(path)
@@ -47,11 +49,8 @@ class TestGetPdfInfo:
             os.unlink(path)
 
     def test_nonexistent_file_raises(self):
-        try:
+        with pytest.raises((FileNotFoundError, OSError)):
             get_pdf_info("/nonexistent/file.pdf")
-            assert False, "Should have raised"
-        except Exception:
-            pass
 
 
 class TestSplitByPages:

@@ -197,15 +197,17 @@ class ThumbnailRenderer:
         """Worker thread: render PDF page to pixbuf via cairo surface."""
         try:
             lower_path = pdf_path.lower()
-            is_image = lower_path.endswith((
-                ".jpg",
-                ".jpeg",
-                ".png",
-                ".webp",
-                ".tif",
-                ".tiff",
-                ".bmp",
-            ))
+            is_image = lower_path.endswith(
+                (
+                    ".jpg",
+                    ".jpeg",
+                    ".png",
+                    ".webp",
+                    ".tif",
+                    ".tiff",
+                    ".bmp",
+                )
+            )
 
             if is_image:
                 # Image loading needs GdkPixbuf on main thread
@@ -424,7 +426,7 @@ class ThumbnailRenderer:
     def clear_all(self) -> None:
         """Clear all caches and shut down the thread pool."""
         self._doc_version += 1
-        self._pool.shutdown(wait=False)
+        self._pool.shutdown(wait=True, cancel_futures=True)
         with self._lock:
             self._cache.clear()
             self._documents.clear()

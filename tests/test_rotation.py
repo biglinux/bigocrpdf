@@ -2,32 +2,7 @@
 Tests for the unified rotation module.
 """
 
-import sys
 import unittest
-from unittest.mock import MagicMock
-
-# Mock heavy dependencies before importing
-sys.modules["cv2"] = MagicMock()
-sys.modules["numpy"] = MagicMock()
-sys.modules["pikepdf"] = MagicMock()
-sys.modules["rapidocr"] = MagicMock()
-sys.modules["shapely"] = MagicMock()
-sys.modules["shapely.geometry"] = MagicMock()
-sys.modules["PIL"] = MagicMock()
-sys.modules["PIL.Image"] = MagicMock()
-
-# Mock reportlab with proper submodule hierarchy
-_reportlab = MagicMock()
-sys.modules["reportlab"] = _reportlab
-sys.modules["reportlab.pdfbase"] = _reportlab.pdfbase
-sys.modules["reportlab.pdfbase.pdfmetrics"] = _reportlab.pdfbase.pdfmetrics
-sys.modules["reportlab.pdfbase.ttfonts"] = _reportlab.pdfbase.ttfonts
-sys.modules["reportlab.pdfgen"] = _reportlab.pdfgen
-sys.modules["reportlab.pdfgen.canvas"] = _reportlab.pdfgen.canvas
-sys.modules["reportlab.lib"] = _reportlab.lib
-sys.modules["reportlab.lib.pagesizes"] = _reportlab.lib.pagesizes
-sys.modules["reportlab.lib.colors"] = _reportlab.lib.colors
-sys.modules["reportlab.lib.units"] = _reportlab.lib.units
 
 from bigocrpdf.services.rapidocr_service.rotation import (
     PageRotation,

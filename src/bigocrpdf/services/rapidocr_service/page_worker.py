@@ -9,6 +9,7 @@ to keep memory usage under ~600 MB total.
 import logging
 import os
 import signal
+import subprocess
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -250,6 +251,181 @@ def save_jpeg2000(img: np.ndarray, output_path: str, quality: int = 85) -> None:
             shutil.move(fallback_path, output_path)
 
 
+def _apply_pdf_rotation(
+    original_img: np.ndarray,
+    img_path: str,
+    page_num: int,
+    pdf_rotation: int,
+) -> tuple[np.ndarray, int, int, bool]:
+    """Apply PDF /Rotate metadata, accounting for EXIF orientation.
+
+    Returns:
+        Tuple of (rotated_image, orig_h, orig_w, image_prerotated).
+    """
+    orig_h, orig_w = original_img.shape[:2]
+    if pdf_rotation == 0:
+        return original_img, orig_h, orig_w, False
+
+    exif_degrees = 0
+    try:
+        with Image.open(img_path) as pil_check:
+            exif_data = pil_check.getexif()
+            exif_orient = exif_data.get(274, 1)
+            _exif_to_deg = {1: 0, 2: 0, 3: 180, 4: 180, 5: 90, 6: 90, 7: 270, 8: 270}
+            exif_degrees = _exif_to_deg.get(exif_orient, 0)
+    except Exception as e:
+        logger.debug("EXIF orientation read failed for page %d: %s", page_num, e)
+
+    effective_rotation = (pdf_rotation - exif_degrees) % 360
+
+    if exif_degrees:
+        logger.info(
+            f"Page {page_num}: EXIF orientation={exif_degrees}°, "
+            f"PDF /Rotate={pdf_rotation}° → effective={effective_rotation}°"
+        )
+
+    if effective_rotation == 90:
+        original_img = cv2.rotate(original_img, cv2.ROTATE_90_CLOCKWISE)
+    elif effective_rotation == 180:
+        original_img = cv2.rotate(original_img, cv2.ROTATE_180)
+    elif effective_rotation == 270:
+        original_img = cv2.rotate(original_img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+
+    if effective_rotation != 0:
+        orig_h, orig_w = original_img.shape[:2]
+        logger.info(
+            f"Page {page_num}: Applied effective rotation {effective_rotation}° → {orig_w}×{orig_h}"
+        )
+
+    logger.info(
+        f"Page {page_num}: Image is display-oriented "
+        f"(pdf_rotation={pdf_rotation}°, exif={exif_degrees}°)"
+    )
+    return original_img, orig_h, orig_w, True
+
+
+def _determine_output_format(img_path: str, config: Any) -> tuple[str, int, int]:
+    """Determine output image format, quality, and detected quality.
+
+    Returns:
+        Tuple of (img_format, img_quality, detected_quality).
+    """
+    img_format = getattr(config, "image_export_format", "original")
+    img_quality = getattr(config, "image_export_quality", 85)
+    auto_detect = getattr(config, "auto_detect_quality", True)
+
+    if img_format == "jpg":
+        img_format = "jpeg"
+
+    detected_quality = 0
+    if auto_detect and img_format == "original":
+        detected_quality = detect_image_quality(img_path)
+        if detected_quality > 0:
+            # Use at least quality 75 to avoid generation loss when
+            # re-encoding low-quality source JPEGs.  Re-encoding at the
+            # original low quality (e.g. 32) adds new artifacts on top of
+            # the existing ones, visibly degrading the image.
+            img_quality = max(detected_quality, 75)
+
+    if img_format == "original":
+        detected_fmt = detect_original_format(img_path)
+        if detected_fmt in ("jpeg", "png", "jp2", "tiff"):
+            img_format = detected_fmt
+        elif detected_fmt == "ppm":
+            img_format = "jpeg"
+            if img_quality == 0:
+                img_quality = 85
+        elif detected_fmt == "webp":
+            img_format = "jpeg"
+            if img_quality == 0:
+                img_quality = 85
+        else:
+            img_ext = Path(img_path).suffix.lower()
+            if img_ext in (".jpg", ".jpeg"):
+                img_format = "jpeg"
+            elif img_ext == ".jp2":
+                img_format = "jp2"
+            elif img_ext == ".png":
+                img_format = "png"
+            else:
+                img_format = "jpeg"
+                if img_quality == 0:
+                    img_quality = 85
+
+    if img_format in ("webp", "avif"):
+        img_format = "jpeg"
+
+    if img_format == "tiff":
+        img_format = "png"
+
+    return img_format, img_quality, detected_quality
+
+
+def _save_processed_image(processed_img: np.ndarray, img_format: str, img_quality: int) -> str:
+    """Save processed image to temp file in the appropriate format.
+
+    Returns:
+        Path to the saved temporary file.
+    """
+    if img_format == "jp2":
+        suffix = ".jp2"
+        write_params = None
+    elif img_format == "jpeg":
+        suffix = ".jpg"
+        write_params = [cv2.IMWRITE_JPEG_QUALITY, img_quality]
+    elif img_format == "png":
+        suffix = ".png"
+        write_params = None
+    else:
+        suffix = ".jpg"
+        write_params = [cv2.IMWRITE_JPEG_QUALITY, img_quality or 85]
+
+    fd, temp_out = tempfile.mkstemp(suffix=suffix)
+    os.close(fd)
+
+    if img_format == "jp2":
+        save_jpeg2000(processed_img, temp_out, img_quality)
+    elif write_params:
+        cv2.imwrite(temp_out, processed_img, write_params)
+    else:
+        cv2.imwrite(temp_out, processed_img)
+
+    return temp_out
+
+
+def _render_page_pdftoppm(pdf_path: str, page_num: int, dpi: int = 150) -> str | None:
+    """Render a composited page from a PDF via pdftoppm.
+
+    Returns the path to an uncompressed PPM file, or None on failure.
+    Used for DjVu-like pages where the extracted BG layer is too degraded
+    for geometry corrections or recompression.
+    """
+    fd, prefix = tempfile.mkstemp(suffix="", prefix=f"worker_render_{page_num}_")
+    os.close(fd)
+    os.unlink(prefix)  # pdftoppm appends extension
+    cmd = [
+        "pdftoppm",
+        "-f",
+        str(page_num),
+        "-l",
+        str(page_num),
+        "-r",
+        str(dpi),
+        "-singlefile",
+        str(pdf_path),
+        prefix,
+    ]
+    try:
+        subprocess.run(cmd, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"pdftoppm render failed for page {page_num}: {e.stderr}")
+        return None
+    rendered = f"{prefix}.ppm"
+    if os.path.exists(rendered):
+        return rendered
+    return None
+
+
 def process_page(args: dict[str, Any]) -> dict[str, Any]:
     """Worker function for parallel page processing.
 
@@ -266,7 +442,6 @@ def process_page(args: dict[str, Any]) -> dict[str, Any]:
         img_path = args["img_path"]
         config = args["config"]
 
-        # Early return for pages with no image (e.g., text-only pages)
         if img_path is None:
             return {
                 "page_num": page_num,
@@ -275,10 +450,8 @@ def process_page(args: dict[str, Any]) -> dict[str, Any]:
                 "error": "No image path provided",
             }
 
-        # Instantiate preprocessor in worker
         preprocessor = ImagePreprocessor(config)
 
-        # Adaptive probmap resolution from resource manager (passed via config)
         probmap_max_side = args.get("probmap_max_side", 0)
         if probmap_max_side > 0:
             preprocessor.probmap_max_side = probmap_max_side
@@ -291,186 +464,77 @@ def process_page(args: dict[str, Any]) -> dict[str, Any]:
             f"preprocessing={config.enable_preprocessing}"
         )
 
-        # Load image
         original_img = load_image_with_exif_rotation(Path(img_path))
         if original_img is None:
             return {"page_num": page_num, "error": f"Could not read image: {img_path}"}
 
-        # Store original dimensions BEFORE any processing
-        orig_h, orig_w = original_img.shape[:2]
+        # For DjVu-like pages where the user wants image modifications
+        # (geometry corrections or format change), render the composited
+        # page via pdftoppm instead of using the degraded BG layer.
+        use_rendered_source = args.get("use_rendered_source", False)
+        rendered_source_path = None
+        if use_rendered_source:
+            input_pdf = args.get("input_pdf")
+            if input_pdf:
+                rendered_source_path = _render_page_pdftoppm(input_pdf, page_num)
+                if rendered_source_path:
+                    rendered_img = cv2.imread(rendered_source_path, cv2.IMREAD_COLOR)
+                    if rendered_img is not None:
+                        logger.info(
+                            f"Page {page_num}: using pdftoppm-rendered source "
+                            f"({rendered_img.shape[1]}x{rendered_img.shape[0]}) "
+                            f"instead of extracted BG layer"
+                        )
+                        original_img = rendered_img
 
-        # Step 1: Apply PDF /Rotate to make image display-oriented.
-        # When /Rotate != 0 the raw image stored in the PDF is sideways;
-        # rotating it now ensures all subsequent preprocessing (perspective
-        # correction, deskew, scanner effect) operates on the correctly
-        # oriented image.  In standalone mode the /Rotate metadata is NOT
-        # preserved, so the image itself must be in display orientation.
-        #
-        # IMPORTANT: load_image_with_exif_rotation() already applies EXIF
-        # orientation correction via ImageOps.exif_transpose().  When the
-        # JPEG embedded in the PDF preserves its EXIF orientation tag
-        # (e.g. camera photos), the same rotation may be encoded in BOTH
-        # EXIF and PDF /Rotate.  We must subtract the EXIF-applied rotation
-        # to avoid double-rotating the image.
         pdf_rotation = args.get("pdf_rotation", 0)
-        image_prerotated = False
-        if pdf_rotation != 0:
-            # Determine how many degrees EXIF already rotated the image
-            exif_degrees = 0
-            try:
-                with Image.open(img_path) as pil_check:
-                    exif_data = pil_check.getexif()
-                    exif_orient = exif_data.get(274, 1)  # Orientation tag
-                    # Map EXIF orientation to CW degrees applied by exif_transpose
-                    _exif_to_deg = {
-                        1: 0,
-                        2: 0,
-                        3: 180,
-                        4: 180,
-                        5: 90,
-                        6: 90,
-                        7: 270,
-                        8: 270,
-                    }
-                    exif_degrees = _exif_to_deg.get(exif_orient, 0)
-            except Exception:
-                exif_degrees = 0
-
-            effective_rotation = (pdf_rotation - exif_degrees) % 360
-
-            if exif_degrees:
-                logger.info(
-                    f"Page {page_num}: EXIF orientation={exif_degrees}°, "
-                    f"PDF /Rotate={pdf_rotation}° → effective={effective_rotation}°"
-                )
-
-            if effective_rotation == 90:
-                original_img = cv2.rotate(original_img, cv2.ROTATE_90_CLOCKWISE)
-            elif effective_rotation == 180:
-                original_img = cv2.rotate(original_img, cv2.ROTATE_180)
-            elif effective_rotation == 270:
-                original_img = cv2.rotate(original_img, cv2.ROTATE_90_COUNTERCLOCKWISE)
-
-            if effective_rotation != 0:
-                orig_h, orig_w = original_img.shape[:2]
-                logger.info(
-                    f"Page {page_num}: Applied effective rotation "
-                    f"{effective_rotation}° → {orig_w}×{orig_h}"
-                )
-
-            # Flag that image is now in display orientation (whether by
-            # EXIF, explicit rotation, or both).  This tells downstream
-            # code to swap the MediaBox and skip overlay rotation.
-            image_prerotated = True
-            logger.info(
-                f"Page {page_num}: Image is display-oriented "
-                f"(pdf_rotation={pdf_rotation}°, exif={exif_degrees}°)"
+        skip_rotation = args.get("skip_rotation", False)
+        if skip_rotation or rendered_source_path:
+            # Image already display-oriented (e.g. from pdftoppm rendering).
+            # Record as pre-rotated so downstream code adjusts page size.
+            orig_h, orig_w = original_img.shape[:2]
+            image_prerotated = pdf_rotation != 0
+        else:
+            original_img, orig_h, orig_w, image_prerotated = _apply_pdf_rotation(
+                original_img, img_path, page_num, pdf_rotation
             )
 
-        # Step 2: Detect and correct orientation — only when no /Rotate
-        # metadata exists, because /Rotate is authoritative and was already
-        # applied above.
         if pdf_rotation == 0:
             orientation_angle = preprocessor.detect_orientation(original_img)
             if orientation_angle != 0:
                 original_img = preprocessor.correct_orientation(original_img, orientation_angle)
-                # Update original dimensions after rotation correction
                 orig_h, orig_w = original_img.shape[:2]
         else:
             orientation_angle = 0
 
-        # Process (Enhance)
-        processed_img = preprocessor.process(original_img)
-
-        # Determine output format and quality based on config
-        img_format = getattr(config, "image_export_format", "original")
-        img_quality = getattr(config, "image_export_quality", 85)
-        auto_detect = getattr(config, "auto_detect_quality", True)
-
-        # Normalize format aliases
-        if img_format == "jpg":
-            img_format = "jpeg"
-
-        # Auto-detect quality from original image — only when format is "original"
-        # (when user explicitly chose a format, respect their quality setting)
-        detected_quality = 0
-        if auto_detect and img_format == "original":
-            detected_quality = detect_image_quality(img_path)
-            if detected_quality > 0:
-                img_quality = detected_quality
-
-        # PDF/A-2b is fully compatible with JPEG images — no format change needed.
-        # Simply preserve the original image format for best quality and size.
-
-        # For "original" format, detect the ACTUAL source format using PIL
-        # (not just the file extension, which may be wrong after pdfimages extraction)
-        if img_format == "original":
-            detected_fmt = detect_original_format(img_path)
-            if detected_fmt in ("jpeg", "png", "jp2", "tiff"):
-                img_format = detected_fmt
-            elif detected_fmt == "ppm":
-                # PPM/PBM from pdfimages extraction — original was likely JPEG in the PDF
-                img_format = "jpeg"
-                if img_quality == 0:
-                    img_quality = 85
-            elif detected_fmt == "webp":
-                # WebP is not PDF-native; use JPEG for PDF embedding
-                img_format = "jpeg"
-                if img_quality == 0:
-                    img_quality = 85
-            else:
-                # Fallback: use file extension
-                img_ext = Path(img_path).suffix.lower()
-                if img_ext in (".jpg", ".jpeg"):
-                    img_format = "jpeg"
-                elif img_ext == ".jp2":
-                    img_format = "jp2"
-                elif img_ext == ".png":
-                    img_format = "png"
-                else:
-                    img_format = "jpeg"
-                    if img_quality == 0:
-                        img_quality = 85
-
-        # PDF only natively supports JPEG (DCTDecode), JPEG2000 (JPXDecode),
-        # and raw (FlateDecode). WebP and AVIF are NOT PDF-native formats —
-        # ReportLab would decode them to raw RGB, causing massive file sizes.
-        # Convert non-PDF-native formats to JPEG for efficient embedding.
-        if img_format in ("webp", "avif"):
-            img_format = "jpeg"
-
-        # TIFF: convert to lossless PNG for PDF embedding
-        if img_format == "tiff":
-            img_format = "png"
-
-        if img_format == "jp2":
-            suffix = ".jp2"
-            write_params = None  # PIL handles JPEG 2000
-        elif img_format == "jpeg":
-            suffix = ".jpg"
-            write_params = [cv2.IMWRITE_JPEG_QUALITY, img_quality]
-        elif img_format == "png":
-            suffix = ".png"
-            write_params = None
+        skip_geometric = args.get("skip_geometric", False)
+        if skip_geometric:
+            # DjVu-like page: skip geometric corrections (deskew, perspective,
+            # dewarp) so geometry_applied stays False → overlay mode preserves
+            # the original FG/BG/mask composite in the PDF.
+            processed_img = original_img
+            preprocessor.geometry_applied = False
         else:
-            suffix = ".jpg"
-            write_params = [cv2.IMWRITE_JPEG_QUALITY, img_quality or 85]
+            processed_img = preprocessor.process(original_img)
 
-        # Save to temp file
-        fd, temp_out = tempfile.mkstemp(suffix=suffix)
-        os.close(fd)
+        img_format, img_quality, detected_quality = _determine_output_format(img_path, config)
 
-        # Write image based on format
-        if img_format == "jp2":
-            save_jpeg2000(processed_img, temp_out, img_quality)
-        elif write_params:
-            cv2.imwrite(temp_out, processed_img, write_params)
-        else:
-            cv2.imwrite(temp_out, processed_img)
+        temp_out = _save_processed_image(processed_img, img_format, img_quality)
+
+        # Save a lossless PNG for OCR when the PDF image is lossy-compressed.
+        # JPEG artifacts (even at q=85) can degrade OCR accuracy — e.g.
+        # "CAIXA" misread as "CAIZA".  The OCR subprocess must always
+        # receive an uncompressed image for reliable text recognition.
+        temp_ocr = None
+        if img_format not in ("png",):
+            fd_ocr, temp_ocr = tempfile.mkstemp(suffix=".png")
+            os.close(fd_ocr)
+            cv2.imwrite(temp_ocr, processed_img)
 
         result = {
             "page_num": page_num,
             "temp_out_path": temp_out,
+            "temp_ocr_path": temp_ocr,
             "orientation_angle": orientation_angle,
             "image_prerotated": image_prerotated,
             "original_pdf_rotation": pdf_rotation,
@@ -480,11 +544,19 @@ def process_page(args: dict[str, Any]) -> dict[str, Any]:
             "proc_w": processed_img.shape[1],
             "detected_quality": detected_quality,
             "image_format": img_format,
+            "original_encoding": args.get("original_encoding", ""),
+            "geometry_applied": preprocessor.geometry_applied,
             "success": True,
         }
 
-        # Release large numpy arrays immediately (threads share heap)
         del original_img, processed_img
+
+        # Cleanup temporary pdftoppm render file
+        if rendered_source_path:
+            try:
+                os.unlink(rendered_source_path)
+            except OSError:
+                pass
 
         return result
 

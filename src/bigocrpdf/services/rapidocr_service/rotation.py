@@ -34,6 +34,7 @@ class PageRotation:
     original_pdf_rotation: int = 0
     editor_rotation: int = 0
     deleted: bool = False
+    included_for_ocr: bool = True
     mediabox: list[float] | None = None
 
     @property
@@ -144,6 +145,7 @@ def apply_editor_modifications(
             mod = mod_lookup[rot.page_number]
             rot.editor_rotation = mod.get("rotation", 0)
             rot.deleted = mod.get("deleted", False)
+            rot.included_for_ocr = mod.get("included_for_ocr", True)
 
     return rotations
 
@@ -192,10 +194,11 @@ def apply_final_rotation_to_pdf(
                     f"Page {page_num}: {current_rot}° + {rot_info.editor_rotation}° = {new_rot}°"
                 )
 
-            # Mark for deletion
-            if rot_info.deleted:
+            # Mark for deletion (deleted or excluded from OCR)
+            if rot_info.deleted or not rot_info.included_for_ocr:
                 pages_to_delete.append(i)
-                logger.info(f"Page {page_num}: marked for deletion")
+                reason = "deleted" if rot_info.deleted else "excluded from OCR"
+                logger.info(f"Page {page_num}: marked for removal ({reason})")
 
         # Delete in reverse order
         for idx in reversed(pages_to_delete):

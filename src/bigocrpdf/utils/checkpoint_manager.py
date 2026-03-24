@@ -43,6 +43,7 @@ class CheckpointData:
     files_completed: list[str] = field(default_factory=list)
     files_failed: list[str] = field(default_factory=list)
     output_files: dict[str, str] = field(default_factory=dict)
+    file_modifications: dict[str, Any] = field(default_factory=dict)
     settings_snapshot: dict[str, Any] = field(default_factory=dict)
     start_time: float = 0.0
     last_update: float = 0.0
@@ -138,6 +139,19 @@ class CheckpointManager:
 
         self._save_checkpoint()
         logger.debug(f"Checkpoint: marked failed - {os.path.basename(input_file)}: {error}")
+
+    def save_file_modifications(self, input_file: str, modifications: dict[str, Any]) -> None:
+        """Save editor modifications for a file.
+
+        Args:
+            input_file: Path to the input file
+            modifications: Serializable dict of editor state (e.g. from PDFDocument.to_dict())
+        """
+        if not self._current_checkpoint:
+            return
+        self._current_checkpoint.file_modifications[input_file] = modifications
+        self._current_checkpoint.last_update = time.time()
+        self._save_checkpoint()
 
     def complete_session(self) -> None:
         """Mark the current session as successfully completed."""

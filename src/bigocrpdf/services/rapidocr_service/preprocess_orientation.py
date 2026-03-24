@@ -65,7 +65,10 @@ def detect_orientation(img: np.ndarray, config: "OCRConfig") -> int:
             vert_ratio = n_vertical / total
             # If > 55% of lines are vertical, text is probably rotated
             if vert_ratio > 0.55:
-                hough_vote = 1
+                # Very strong Hough signal (>80%) outweighs conflicting
+                # energy votes (e.g. horizontal form borders that create
+                # horizontal edges despite vertical text).
+                hough_vote = 2 if vert_ratio > 0.80 else 1
             elif vert_ratio < 0.45:
                 hough_vote = -1
 

@@ -1,12 +1,14 @@
 """Window Actions, Drag-Drop, Signals and Dialogs Mixin."""
 
 import os
+import tempfile
+from urllib.parse import unquote, urlparse
 
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, Gdk, Gio, Gtk
+from gi.repository import Adw, Gdk, Gio, GLib, Gtk
 
 from bigocrpdf.config import APP_ICON_NAME
 from bigocrpdf.utils.a11y import set_a11y_label
@@ -46,6 +48,11 @@ class WindowActionsSignalsMixin:
         remove_all_action.connect("activate", self._on_remove_all_files_action)
         self.add_action(remove_all_action)
 
+        # Paste from clipboard action (Ctrl+V)
+        paste_action = Gio.SimpleAction.new("paste-clipboard", None)
+        paste_action.connect("activate", self._on_paste_clipboard_action)
+        self.add_action(paste_action)
+
         logger.info("Window actions set up for keyboard shortcuts")
 
     def _on_add_files_action(self, _action: Gio.SimpleAction, _param) -> None:
@@ -73,6 +80,150 @@ class WindowActionsSignalsMixin:
         if self.stack.get_visible_child_name() == "settings":
             if hasattr(self.ui, "settings_page_manager") and self.ui.settings_page_manager:
                 self.ui.settings_page_manager._remove_all_files()
+
+    # ------------------------------------------------------------------
+    # Clipboard paste (Ctrl+V)
+    # ------------------------------------------------------------------
+
+    def _on_paste_clipboard_action(self, _action: Gio.SimpleAction, _param) -> None:
+        """Handle paste from clipboard (Ctrl+V).
+
+        Reads the system clipboard and adds images or file URIs to the
+        processing queue. Supports:
+        - Image data (screenshots / copied images)
+        - File URIs (files copied in a file manager)
+        """
+        if self.stack.get_visible_child_name() != "settings":
+            return
+
+        clipboard = Gdk.Display.get_default().get_clipboard()
+        formats = clipboard.get_formats()
+
+        # Prefer file URIs first (copied files from file manager)
+        # File managers use x-special/gnome-copied-files or text/uri-list
+        uri_mime_types = ["x-special/gnome-copied-files", "text/uri-list"]
+        has_uris = any(formats.contain_mime_type(m) for m in uri_mime_types)
+
+        if has_uris:
+            clipboard.read_async(
+                uri_mime_types,
+                GLib.PRIORITY_DEFAULT,
+                None,
+                self._on_clipboard_uris_ready,
+            )
+        # Then try image texture
+        elif formats.contain_gtype(Gdk.Texture):
+            clipboard.read_texture_async(None, self._on_clipboard_texture_ready)
+        else:
+            logger.debug("Clipboard has no image or file URI content")
+
+    def _on_clipboard_uris_ready(self, clipboard: Gdk.Clipboard, result: Gio.AsyncResult) -> None:
+        """Handle clipboard data containing file URIs."""
+        from bigocrpdf.utils.pdf_utils import images_to_pdf, is_image_file
+
+        try:
+            stream, _mime = clipboard.read_finish(result)
+        except Exception as e:
+            logger.error(f"Failed to read clipboard URIs: {e}")
+            return
+
+        if stream is None:
+            return
+
+        # Read all bytes from the input stream
+        try:
+            raw = stream.read_bytes(1024 * 1024, None).get_data().decode("utf-8", errors="replace")
+            stream.close(None)
+        except Exception as e:
+            logger.error(f"Failed to decode clipboard stream: {e}")
+            return
+
+        # Parse URIs — one per line, skip action lines like "copy" or "cut"
+        file_paths: list[str] = []
+        for line in raw.strip().splitlines():
+            line = line.strip()
+            if not line or line in ("copy", "cut"):
+                continue
+            parsed = urlparse(line)
+            if parsed.scheme == "file":
+                path = unquote(parsed.path)
+                if os.path.isfile(path):
+                    file_paths.append(path)
+            elif os.path.isfile(line):
+                file_paths.append(line)
+
+        if not file_paths:
+            logger.debug("Clipboard URIs contain no valid file paths")
+            return
+
+        # Filter supported files (PDF + images)
+        supported = [p for p in file_paths if p.lower().endswith(".pdf") or is_image_file(p)]
+        if not supported:
+            self.show_toast(_("No supported files in clipboard"))
+            return
+
+        image_files = [p for p in supported if is_image_file(p)]
+        pdf_files = [p for p in supported if not is_image_file(p)]
+
+        if pdf_files:
+            self.settings.add_files(pdf_files)
+
+        if len(image_files) > 1:
+            self.ui.dialogs_manager.show_image_merge_dialog(
+                image_files,
+                self.settings,
+                heading=_("Multiple Images Pasted"),
+                body=_("You pasted {} images. How would you like to add them?").format(
+                    len(image_files)
+                ),
+                on_complete=lambda: self.update_file_info(),
+            )
+        elif len(image_files) == 1:
+            try:
+                pdf_path = images_to_pdf(image_files)
+                self.settings.original_file_paths[pdf_path] = image_files[0]
+                self.settings.add_files([pdf_path])
+            except Exception as e:
+                logger.error(f"Failed to convert pasted image to PDF: {e}")
+
+        self.update_file_info()
+        count = len(supported)
+        self.show_toast(_("{count} file(s) added from clipboard").format(count=count))
+
+    def _on_clipboard_texture_ready(
+        self, clipboard: Gdk.Clipboard, result: Gio.AsyncResult
+    ) -> None:
+        """Handle clipboard image texture (e.g. screenshot)."""
+        from bigocrpdf.utils.pdf_utils import images_to_pdf
+
+        try:
+            texture = clipboard.read_texture_finish(result)
+        except Exception as e:
+            logger.error(f"Failed to read clipboard image: {e}")
+            return
+
+        if texture is None:
+            return
+
+        # Save texture as temporary PNG
+        try:
+            png_bytes = texture.save_to_png_bytes()
+            fd, tmp_path = tempfile.mkstemp(suffix=".png", prefix="bigocrpdf_paste_")
+            os.write(fd, png_bytes.get_data())
+            os.close(fd)
+        except Exception as e:
+            logger.error(f"Failed to save clipboard image: {e}")
+            return
+
+        # Convert to PDF and add to queue
+        try:
+            pdf_path = images_to_pdf([tmp_path])
+            self.settings.original_file_paths[pdf_path] = tmp_path
+            self.settings.add_files([pdf_path])
+            self.update_file_info()
+            self.show_toast(_("Image from clipboard added"))
+        except Exception as e:
+            logger.error(f"Failed to convert clipboard image to PDF: {e}")
 
     def _setup_global_drag_drop(self) -> None:
         """Set up global drag and drop for the entire window."""
@@ -194,12 +345,14 @@ class WindowActionsSignalsMixin:
         icon.set_pixel_size(64)
         icon.set_margin_bottom(16)
         icon.set_halign(Gtk.Align.CENTER)
+        icon.set_accessible_role(Gtk.AccessibleRole.PRESENTATION)
         content_box.append(icon)
 
         what_is = Gtk.Label()
         what_is.set_markup(f"<span size='large' weight='bold'>{_('What is')} Big OCR PDF?</span>")
         what_is.set_halign(Gtk.Align.CENTER)
         what_is.set_margin_bottom(14)
+        set_a11y_label(what_is, f"{_('What is')} Big OCR PDF?")
         content_box.append(what_is)
 
         what_is_desc = Gtk.Label()
@@ -223,6 +376,7 @@ class WindowActionsSignalsMixin:
         )
         benefits.set_halign(Gtk.Align.START)
         benefits.set_margin_bottom(8)
+        set_a11y_label(benefits, _("Benefits of using Big OCR PDF:"))
         content_box.append(benefits)
 
         benefits_list = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=3)

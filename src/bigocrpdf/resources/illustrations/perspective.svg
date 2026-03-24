@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="0 0 120 80">
+  <!-- Perspective distorted page (before) -->
+  <g transform="translate(8,10)">
+    <polygon points="10,8 35,3 38,55 7,50" fill="#e8e8e8" stroke="#999" stroke-width="1.2" stroke-linejoin="round"/>
+    <line x1="14" y1="17" x2="34" y2="14" stroke="#bbb" stroke-width="1.5"/>
+    <line x1="13" y1="25" x2="35" y2="23" stroke="#bbb" stroke-width="1.5"/>
+    <line x1="12" y1="33" x2="36" y2="32" stroke="#bbb" stroke-width="1.5"/>
+  </g>
+  <!-- Arrow -->
+  <path d="M56,38 L68,38" stroke="#3584e4" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <defs><marker id="arrow" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3584e4"/></marker></defs>
+  <!-- Corrected page (after) -->
+  <g transform="translate(72,10)">
+    <rect x="5" y="5" width="35" height="48" rx="2" fill="#fff" stroke="#3584e4" stroke-width="1.5"/>
+    <line x1="12" y1="18" x2="32" y2="18" stroke="#555" stroke-width="1.5"/>
+    <line x1="12" y1="25" x2="32" y2="25" stroke="#555" stroke-width="1.5"/>
+    <line x1="12" y1="32" x2="28" y2="32" stroke="#555" stroke-width="1.5"/>
+  </g>
+</svg>

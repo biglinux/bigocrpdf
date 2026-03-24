@@ -1,6 +1,7 @@
 """PDF Options Dialog Callbacks Mixin."""
 
 import os
+import re
 import time
 from collections.abc import Callable
 
@@ -116,7 +117,7 @@ class PDFOptionsCallbacksMixin:
             preview_group: Preview group
         """
         now = time.localtime()
-        suffix = file_group.suffix_row.get_text() or "ocr"
+        suffix = re.sub(r'[/:*?"<>|\\\\]', "-", file_group.suffix_row.get_text()) or "ocr"
         use_original = file_group.use_original_name_row.get_active()
 
         # Update UI sensitivity
@@ -279,7 +280,9 @@ class PDFOptionsCallbacksMixin:
         """
         # Save file settings
         self.window.settings.use_original_filename = file_group.use_original_name_row.get_active()
-        self.window.settings.pdf_suffix = file_group.suffix_row.get_text() or "ocr"
+        self.window.settings.pdf_suffix = (
+            re.sub(r'[/:*?"<>|\\\\]', "-", file_group.suffix_row.get_text()) or "ocr"
+        )
         self.window.settings.overwrite_existing = file_group.overwrite_row.get_active()
 
         # Save text extraction settings

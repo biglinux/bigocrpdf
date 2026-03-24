@@ -16,6 +16,7 @@ from gi.repository import Gdk, GLib, GObject, Gtk
 from bigocrpdf.ui.pdf_editor.page_model import PageState, PDFDocument
 from bigocrpdf.ui.pdf_editor.page_thumbnail import PageThumbnail
 from bigocrpdf.ui.pdf_editor.thumbnail_renderer import get_thumbnail_renderer
+from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
 
@@ -77,6 +78,20 @@ class PageGrid(Gtk.ScrolledWindow):
         if document:
             self.load_document(document)
 
+    @property
+    def selected_indices(self) -> set[int]:
+        """Currently selected page indices."""
+        return self._selected_indices
+
+    @selected_indices.setter
+    def selected_indices(self, value: set[int]) -> None:
+        self._selected_indices = value
+
+    @property
+    def thumbnails(self) -> list:
+        """List of PageThumbnail widgets."""
+        return self._thumbnails
+
     def _setup_ui(self) -> None:
         """Set up the grid UI."""
         # Main overlay for rubberband and drop indicator
@@ -103,12 +118,23 @@ class PageGrid(Gtk.ScrolledWindow):
         self._flowbox.set_valign(Gtk.Align.START)
         self._flowbox.set_halign(Gtk.Align.FILL)
         self._flowbox.add_css_class("page-flowbox")
+        self._flowbox.set_accessible_role(Gtk.AccessibleRole.LIST)
+        self._flowbox.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [
+                _(
+                    "Page thumbnails. Ctrl+A select all, Ctrl+Up/Down reorder, "
+                    "Delete toggle page, Ctrl+L/R rotate, Ctrl+Z undo"
+                )
+            ],
+        )
 
         self._main_box.append(self._flowbox)
 
         # Connect to scroll position changes for lazy loading
         vadj = self.get_vadjustment()
         vadj.connect("value-changed", self._on_scroll_changed)
+        vadj.connect("notify::page-size", self._on_scroll_changed)
 
         # Drop Indicator Overlay (a simple DrawingArea that renders a line)
         self._drop_indicator = Gtk.DrawingArea()
@@ -285,7 +311,7 @@ class PageGrid(Gtk.ScrolledWindow):
 
         # Rebuild internal list and remap selection indices
         old_to_new = {}
-        for new_idx, (_, old_idx, _) in enumerate(indexed):
+        for new_idx, (_key, old_idx, _thumb) in enumerate(indexed):
             old_to_new[old_idx] = new_idx
 
         new_selected = set()
@@ -402,6 +428,9 @@ class PageGrid(Gtk.ScrolledWindow):
         source_set = set(source_indices)
         moving = [self._thumbnails[i] for i in source_indices]
 
+        # Freeze rendering during batch operations
+        self._flowbox.set_visible(False)
+
         # Remove from FlowBox (reverse order to preserve indices)
         for i in sorted(source_set, reverse=True):
             thumb = self._thumbnails[i]
@@ -420,6 +449,9 @@ class PageGrid(Gtk.ScrolledWindow):
             self._flowbox.insert(thumb, pos)
             self._thumbnails.insert(pos, thumb)
 
+        # Unfreeze rendering
+        self._flowbox.set_visible(True)
+
         # Update selection to new positions
         count = len(moving)
         self._selected_indices = set(range(insert_at, insert_at + count))
@@ -428,6 +460,9 @@ class PageGrid(Gtk.ScrolledWindow):
         self.emit("selection-changed")
 
     def _remove_all_children(self):
+        for thumb in self._thumbnails:
+            for hid in getattr(thumb, "_grid_handler_ids", []):
+                thumb.disconnect(hid)
         child = self._flowbox.get_first_child()
         while child is not None:
             next_child = child.get_next_sibling()
@@ -441,10 +476,19 @@ class PageGrid(Gtk.ScrolledWindow):
             size=self._thumbnail_size,
         )
         thumbnail.on_before_mutate = self.on_before_mutate
-        thumbnail.connect("thumbnail-clicked", self._on_thumbnail_clicked)
-        thumbnail.connect("ocr-toggled", self._on_thumbnail_ocr_toggled, page_state)
-        thumbnail.connect("rotate-left-clicked", self._on_thumbnail_rotate_left, page_state)
-        thumbnail.connect("rotate-right-clicked", self._on_thumbnail_rotate_right, page_state)
+        handler_ids = [
+            thumbnail.connect("thumbnail-clicked", self._on_thumbnail_clicked),
+            thumbnail.connect("ocr-toggled", self._on_thumbnail_ocr_toggled, page_state),
+            thumbnail.connect("rotate-left-clicked", self._on_thumbnail_rotate_left, page_state),
+            thumbnail.connect("rotate-right-clicked", self._on_thumbnail_rotate_right, page_state),
+            thumbnail.connect(
+                "flip-horizontal-clicked", self._on_thumbnail_flip_horizontal, page_state
+            ),
+            thumbnail.connect(
+                "flip-vertical-clicked", self._on_thumbnail_flip_vertical, page_state
+            ),
+        ]
+        thumbnail._grid_handler_ids = handler_ids
         return thumbnail
 
     def _on_thumbnail_clicked(self, thumbnail: PageThumbnail) -> None:
@@ -496,6 +540,26 @@ class PageGrid(Gtk.ScrolledWindow):
             self.on_before_mutate()
         page_state.rotate(90)
         thumbnail.rotate_thumbnail_in_place(90)
+        thumbnail._update_appearance()
+        if self._document:
+            self._document.mark_modified()
+
+    def _on_thumbnail_flip_horizontal(
+        self, thumbnail: PageThumbnail, page_state: PageState
+    ) -> None:
+        if self.on_before_mutate:
+            self.on_before_mutate()
+        page_state.toggle_flip_horizontal()
+        thumbnail.flip_thumbnail_in_place(horizontal=True)
+        thumbnail._update_appearance()
+        if self._document:
+            self._document.mark_modified()
+
+    def _on_thumbnail_flip_vertical(self, thumbnail: PageThumbnail, page_state: PageState) -> None:
+        if self.on_before_mutate:
+            self.on_before_mutate()
+        page_state.toggle_flip_vertical()
+        thumbnail.flip_thumbnail_in_place(horizontal=False)
         thumbnail._update_appearance()
         if self._document:
             self._document.mark_modified()
@@ -615,7 +679,7 @@ class PageGrid(Gtk.ScrolledWindow):
 
     # --- Lazy Load ---
 
-    def _on_scroll_changed(self, _adjustment: Gtk.Adjustment) -> None:
+    def _on_scroll_changed(self, *_args) -> None:
         self._load_visible_thumbnails()
 
     def _load_visible_thumbnails(self) -> bool:
