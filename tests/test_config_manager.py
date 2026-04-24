@@ -41,11 +41,13 @@ class TestConfigManager:
             cm.set("a.b.c", 42, save_immediately=False)
             assert cm.get("a.b.c") == 42
 
-    def test_default_config_has_ocr_language(self):
+    def test_default_config_ocr_language_absent(self):
+        # Language is intentionally omitted from defaults so Settings can
+        # auto-detect from system locale on first run; see config_manager
+        # DEFAULT_CONFIG and services.settings._load_language_settings.
         with tempfile.TemporaryDirectory() as d:
             cm = self._make_manager(d)
-            lang = cm.get("ocr.language")
-            assert isinstance(lang, str)
+            assert cm.get("ocr.language") is None
 
     def test_load_existing_config(self):
         with tempfile.TemporaryDirectory() as d:

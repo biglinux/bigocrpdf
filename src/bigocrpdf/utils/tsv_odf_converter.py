@@ -16,7 +16,7 @@ from bigocrpdf.utils.column_detector import (
     is_table_line,
     split_words_by_columns,
 )
-from bigocrpdf.utils.logger import logger  # noqa: I001
+from bigocrpdf.utils.logger import logger
 from bigocrpdf.utils.odf_builder import _extract_pdf_images, create_odf
 from bigocrpdf.utils.tsv_parser import (
     MIN_TABLE_ROWS,

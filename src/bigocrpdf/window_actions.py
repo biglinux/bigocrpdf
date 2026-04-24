@@ -140,8 +140,8 @@ class WindowActionsSignalsMixin:
 
         # Parse URIs — one per line, skip action lines like "copy" or "cut"
         file_paths: list[str] = []
-        for line in raw.strip().splitlines():
-            line = line.strip()
+        for raw_line in raw.strip().splitlines():
+            line = raw_line.strip()
             if not line or line in ("copy", "cut"):
                 continue
             parsed = urlparse(line)

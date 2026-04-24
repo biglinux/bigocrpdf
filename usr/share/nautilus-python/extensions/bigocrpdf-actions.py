@@ -1,9 +1,10 @@
 """Nautilus extension for BigOCR PDF / BigOCR Image context menu actions."""
 
-import os
 import locale
+import os
 import subprocess
-from gi.repository import Nautilus, GObject
+
+from gi.repository import GObject, Nautilus
 
 # Image MIME types supported by the application
 _IMAGE_MIMES = frozenset((

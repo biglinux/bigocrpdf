@@ -489,9 +489,9 @@ def create_odf(
 
 def _render_table(doc, rows, tbl_s, cell_s, hdr_cell_s, cell_txt_s, cell_txt_l, bold_s, counter):
     """Render a table into the ODF document."""
-    from odf.style import Style, TableColumnProperties  # noqa: F811
-    from odf.table import Table, TableCell, TableColumn, TableRow  # noqa: F811
-    from odf.text import P, Span  # noqa: F811
+    from odf.style import Style, TableColumnProperties
+    from odf.table import Table, TableCell, TableColumn, TableRow
+    from odf.text import P, Span
 
     if not rows:
         return
