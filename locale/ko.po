@@ -3197,74 +3197,57 @@ msgstr "주요"
 #: src/bigocrpdf/window_ui_setup.py:223
 msgid "Results"
 msgstr "결과"
-
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:34
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:46
 msgid "Open selected PDFs"
 msgstr "선택한 PDF 열기"
-
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:59
 msgid "How would you like to open these files?"
 msgstr "이 파일들을 어떻게 열까요?"
-
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:68
 #, python-brace-format
 msgid "{count} PDF files were selected."
 msgstr "{count}개의 PDF 파일이 선택되었습니다."
-
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:78
 msgid "Open in separate windows"
 msgstr "별도 창에서 열기"
-
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:79
 msgid "Edit each PDF in its own editor window."
 msgstr "각 PDF를 자체 편집기 창에서 편집합니다."
-
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:88
 msgid "Combine in one editor"
 msgstr "하나의 편집기에서 병합"
-
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:89
 msgid "Import all pages using the current selection order."
 msgstr "현재 선택 순서대로 모든 페이지를 가져옵니다."
-
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:98
 msgid "Choose order and combine"
 msgstr "순서 선택 후 병합"
-
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:99
 msgid "Set the document order before importing the pages."
 msgstr "페이지를 가져오기 전에 문서 순서를 설정합니다."
-
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:125
 msgid "Choose import order"
 msgstr "가져오기 순서 선택"
-
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:130
 msgid "Pages will be imported from top to bottom."
 msgstr "페이지는 위에서 아래로 가져옵니다."
-
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:155
 msgid "Open combined"
 msgstr "병합하여 열기"
-
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:194
 #, python-brace-format
 msgid "{position}. {filename}"
 msgstr "{position}. {filename}"
-
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:226
 msgid "Move up"
 msgstr "위로 이동"
-
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:235
 msgid "Move down"
 msgstr "아래로 이동"
-
 #: src/bigocrpdf/application.py:261
 msgid "PDF Editor - Combined PDF"
 msgstr "PDF 편집기 - 병합된 PDF"
-
 #: src/bigocrpdf/application.py:264
 #, python-brace-format
 msgid "Combined PDF ({count} files)"

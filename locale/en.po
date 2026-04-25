@@ -53,7 +53,7 @@ msgstr "Failed to start OCR processing"
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 110
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 114
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 266
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 392
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 444
 msgid "Start OCR"
 msgstr "Start OCR"
 
@@ -506,7 +506,7 @@ msgstr "Insert PDF or image files"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 #
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 309
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 375
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 427
 msgid "Add files"
 msgstr "Add files"
 
@@ -575,7 +575,7 @@ msgstr "Help"
 #
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 342
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 139
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 410
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 462
 # File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 271
 msgid "About"
 msgstr "About"
@@ -589,7 +589,7 @@ msgstr "About"
 #
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 343
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 140
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 377
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 429
 # File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 272
 msgid "Quit"
 msgstr "Quit"
@@ -899,6 +899,99 @@ msgstr "Page {n}"
 #, python-brace-format
 msgid "Rotated {deg}°"
 msgstr "Rotated {deg}°"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 37
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 53
+msgid "Open selected PDFs"
+msgstr "Open selected PDFs"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 68
+msgid "How would you like to open these files?"
+msgstr "How would you like to open these files?"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 76
+#, python-brace-format
+msgid "{count} PDF files were selected."
+msgstr "{count} PDF files were selected."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 86
+msgid "Open in separate windows"
+msgstr "Open in separate windows"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 87
+msgid "Edit each PDF in its own editor window."
+msgstr "Edit each PDF in its own editor window."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 94
+msgid "Combine in one editor"
+msgstr "Combine in one editor"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 95
+msgid "Import all pages using the current selection order."
+msgstr "Import all pages using the current selection order."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 102
+msgid "Choose order and combine"
+msgstr "Choose order and combine"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 103
+msgid "Set the document order before importing the pages."
+msgstr "Set the document order before importing the pages."
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 136
+msgid "Choose import order"
+msgstr "Choose import order"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 142
+msgid "Pages will be imported from top to bottom."
+msgstr "Pages will be imported from top to bottom."
+
+#
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+#
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 162
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 58
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 62
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 251
+# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 256
+msgid "Back"
+msgstr "Back"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 166
+msgid "Open combined"
+msgstr "Open combined"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 199
+#, python-brace-format
+msgid "{position}. {filename}"
+msgstr "{position}. {filename}"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 246
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 247
+msgid "Move up"
+msgstr "Move up"
+
+#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 255
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 256
+msgid "Move down"
+msgstr "Move down"
 
 #
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_page_actions_mixin.py, line: 100
@@ -1784,16 +1877,6 @@ msgstr ""
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 47
 msgid "Toggle sidebar"
 msgstr "Toggle sidebar"
-
-#
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-#
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 58
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 62
-# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 251
-# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 256
-msgid "Back"
-msgstr "Back"
 
 #
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 72
@@ -3507,70 +3590,81 @@ msgstr "Error starting application"
 
 #
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 270
+msgid "PDF Editor - Combined PDF"
+msgstr "PDF Editor - Combined PDF"
+
+#
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 273
+#, python-brace-format
+msgid "Combined PDF ({count} files)"
+msgstr "Combined PDF ({count} files)"
+
+#
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 322
 #, python-brace-format
 msgid "Opened {0} file(s)"
 msgstr "Opened {0} file(s)"
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 368
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 420
 msgid "Shortcuts"
 msgstr "Shortcuts"
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 372
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 424
 msgid "File"
 msgstr "File"
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 376
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 428
 msgid "Paste from clipboard"
 msgstr "Paste from clipboard"
 
 #
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 389
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 441
 # File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 213
 msgid "Processing"
 msgstr "Processing"
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 393
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 445
 msgid "Cancel processing"
 msgstr "Cancel processing"
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 394
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 446
 msgid "Clear file queue"
 msgstr "Clear file queue"
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 406
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 458
 msgid "General"
 msgstr "General"
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 409
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 461
 msgid "Keyboard shortcuts"
 msgstr "Keyboard shortcuts"
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 438
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 490
 msgid "BigLinux Team"
 msgstr "BigLinux Team"
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 446
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 498
 msgid "Interface"
 msgstr "Interface"
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 452
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 504
 msgid "Third-party Components"
 msgstr "Third-party Components"
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 454
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 506
 msgid ""
 "The OCR engine and other libraries used by this application are independent "
 "projects, each distributed under its own license."
@@ -3579,12 +3673,12 @@ msgstr ""
 "projects, each distributed under its own license."
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 465
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 517
 msgid "Developers"
 msgstr "Developers"
 
 #
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 469
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 521
 msgid "Powered by"
 msgstr "Powered by"
 
@@ -3597,75 +3691,3 @@ msgstr "Main"
 # File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 223
 msgid "Results"
 msgstr "Results"
-
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:34
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:46
-msgid "Open selected PDFs"
-msgstr "Open selected PDFs"
-
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:59
-msgid "How would you like to open these files?"
-msgstr "How would you like to open these files?"
-
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:68
-#, python-brace-format
-msgid "{count} PDF files were selected."
-msgstr "{count} PDF files were selected."
-
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:78
-msgid "Open in separate windows"
-msgstr "Open in separate windows"
-
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:79
-msgid "Edit each PDF in its own editor window."
-msgstr "Edit each PDF in its own editor window."
-
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:88
-msgid "Combine in one editor"
-msgstr "Combine in one editor"
-
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:89
-msgid "Import all pages using the current selection order."
-msgstr "Import all pages using the current selection order."
-
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:98
-msgid "Choose order and combine"
-msgstr "Choose order and combine"
-
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:99
-msgid "Set the document order before importing the pages."
-msgstr "Set the document order before importing the pages."
-
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:125
-msgid "Choose import order"
-msgstr "Choose import order"
-
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:130
-msgid "Pages will be imported from top to bottom."
-msgstr "Pages will be imported from top to bottom."
-
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:155
-msgid "Open combined"
-msgstr "Open combined"
-
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:194
-#, python-brace-format
-msgid "{position}. {filename}"
-msgstr "{position}. {filename}"
-
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:226
-msgid "Move up"
-msgstr "Move up"
-
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:235
-msgid "Move down"
-msgstr "Move down"
-
-#: src/bigocrpdf/application.py:261
-msgid "PDF Editor - Combined PDF"
-msgstr "PDF Editor - Combined PDF"
-
-#: src/bigocrpdf/application.py:264
-#, python-brace-format
-msgid "Combined PDF ({count} files)"
-msgstr "Combined PDF ({count} files)"
