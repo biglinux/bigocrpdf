@@ -210,22 +210,74 @@ class BigOcrPdfApp(Adw.Application):
 
     def _open_edit_mode(self, app, pdf_paths, image_paths):
         """Handle --edit mode file opening."""
+        if len(pdf_paths) > 1 and not image_paths:
+            self._show_multi_pdf_open_dialog(app, pdf_paths)
+            return
+
         if pdf_paths:
-            from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
-
-            for pdf_path in pdf_paths:
-                win = PDFEditorWindow(application=app, pdf_path=pdf_path, standalone=True)
-                win.present()
-                logger.info(f"Opened PDF editor for: {pdf_path}")
-
-            if image_paths:
-                win = self.get_active_window()
-                if win and hasattr(win, "_add_files_to_document"):
-                    GLib.timeout_add(200, lambda: win._add_files_to_document(image_paths) or False)
+            self._open_pdf_files_individually(app, pdf_paths, image_paths)
             return
 
         if image_paths:
             self._open_images_in_editor(app, image_paths)
+
+    def _show_multi_pdf_open_dialog(self, app: Adw.Application, pdf_paths: list[str]) -> None:
+        """Ask how multiple selected PDFs should be opened in edit mode."""
+        from bigocrpdf.ui.pdf_editor.open_options_dialog import MultiPdfOpenDialog
+
+        dialog = MultiPdfOpenDialog(
+            application=app,
+            file_paths=pdf_paths,
+            on_open_individual=lambda paths: self._open_pdf_files_individually(app, paths, []),
+            on_open_combined=lambda paths: self._open_pdf_files_combined(app, paths),
+        )
+        dialog.present()
+        logger.info(f"Prompting for multi-PDF edit mode with {len(pdf_paths)} files")
+
+    def _open_pdf_files_individually(
+        self, app: Adw.Application, pdf_paths: list[str], image_paths: list[str]
+    ) -> None:
+        """Open each PDF in its own standalone editor window."""
+        from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
+
+        for pdf_path in pdf_paths:
+            win = PDFEditorWindow(application=app, pdf_path=pdf_path, standalone=True)
+            win.present()
+            logger.info(f"Opened PDF editor for: {pdf_path}")
+
+        if image_paths:
+            win = self.get_active_window()
+            if win and hasattr(win, "_add_files_to_document"):
+                GLib.timeout_add(200, lambda: win._add_files_to_document(image_paths) or False)
+
+    def _open_pdf_files_combined(self, app: Adw.Application, pdf_paths: list[str]) -> None:
+        """Open several PDFs in one editor window, preserving the given file order."""
+        if not pdf_paths:
+            return
+
+        from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
+
+        first_pdf = pdf_paths[0]
+        remaining_pdfs = pdf_paths[1:]
+        win = PDFEditorWindow(application=app, pdf_path=first_pdf, standalone=True)
+        win.present()
+
+        if remaining_pdfs:
+
+            def add_remaining_files():
+                try:
+                    win._add_files_to_document(remaining_pdfs)
+                    win.set_title(_("PDF Editor - Combined PDF"))
+                    if hasattr(win, "_filename_label"):
+                        win._filename_label.set_text(
+                            _("Combined PDF ({count} files)").format(count=len(pdf_paths))
+                        )
+                    logger.info(f"Opened combined PDF editor with {len(pdf_paths)} files")
+                except Exception as e:
+                    logger.error(f"Failed to combine PDFs in editor: {e}")
+                return False
+
+            GLib.timeout_add(200, add_remaining_files)
 
     def _open_normal_mode(self, app, pdf_paths, image_paths):
         """Handle normal mode file opening."""

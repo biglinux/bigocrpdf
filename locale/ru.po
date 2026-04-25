@@ -3660,3 +3660,75 @@ msgstr "Главный"
 #: src/bigocrpdf/window_ui_setup.py:223
 msgid "Results"
 msgstr "Результаты"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:34
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:46
+msgid "Open selected PDFs"
+msgstr "Открыть выбранные PDF"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:59
+msgid "How would you like to open these files?"
+msgstr "Как вы хотите открыть эти файлы?"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:68
+#, python-brace-format
+msgid "{count} PDF files were selected."
+msgstr "Выбрано файлов PDF: {count}."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:78
+msgid "Open in separate windows"
+msgstr "Открыть в отдельных окнах"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:79
+msgid "Edit each PDF in its own editor window."
+msgstr "Редактировать каждый PDF в отдельном окне редактора."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:88
+msgid "Combine in one editor"
+msgstr "Объединить в одном редакторе"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:89
+msgid "Import all pages using the current selection order."
+msgstr "Импортировать все страницы в текущем порядке выбора."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:98
+msgid "Choose order and combine"
+msgstr "Выбрать порядок и объединить"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:99
+msgid "Set the document order before importing the pages."
+msgstr "Задайте порядок документов перед импортом страниц."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:125
+msgid "Choose import order"
+msgstr "Выбрать порядок импорта"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:130
+msgid "Pages will be imported from top to bottom."
+msgstr "Страницы будут импортированы сверху вниз."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:155
+msgid "Open combined"
+msgstr "Открыть объединённый"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:194
+#, python-brace-format
+msgid "{position}. {filename}"
+msgstr "{position}. {filename}"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:226
+msgid "Move up"
+msgstr "Переместить вверх"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:235
+msgid "Move down"
+msgstr "Переместить вниз"
+
+#: src/bigocrpdf/application.py:261
+msgid "PDF Editor - Combined PDF"
+msgstr "Редактор PDF - объединённый PDF"
+
+#: src/bigocrpdf/application.py:264
+#, python-brace-format
+msgid "Combined PDF ({count} files)"
+msgstr "Объединённый PDF ({count} файлов)"

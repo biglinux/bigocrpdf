@@ -47,6 +47,28 @@ pkgrel=$(date +%H%M)
 arch=('any')
 license=('GPL-3.0-or-later')
 url="https://github.com/biglinux/bigocrpdf"
+_git_source="git+https://github.com/biglinux/bigocrpdf.git"
+_pkgbuild_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+
+_find_local_source() {
+	local candidate resolved
+
+	for candidate in "${BIGOCRPDF_LOCAL_SOURCE:-}" "${_pkgbuild_dir}/.." "${_pkgbuild_dir}"; do
+		[ -n "$candidate" ] || continue
+		resolved="$(cd -- "$candidate" 2>/dev/null && pwd -P)" || continue
+
+		if [ -f "${resolved}/pyproject.toml" ] &&
+			[ -d "${resolved}/src/bigocrpdf" ] &&
+			[ -f "${resolved}/usr/bin/bigocrpdf" ]; then
+			printf '%s\n' "$resolved"
+			return 0
+		fi
+	done
+
+	return 1
+}
+
+_local_source="$(_find_local_source || true)"
 
 optdepends=(
 	# File manager integration
@@ -70,19 +92,46 @@ optdepends=(
 	# PDF/A ICC profile fallback
 	'ghostscript: sRGB ICC profile for PDF/A-2b conversion'
 )
-source=("git+https://github.com/biglinux/bigocrpdf.git")
-md5sums=('SKIP')
+
+if [ -n "$_local_source" ]; then
+	source=()
+	md5sums=()
+else
+	source=("${pkgname}::${_git_source}")
+	md5sums=('SKIP')
+fi
+
+prepare() {
+	if [ -n "$_local_source" ]; then
+		rm -rf "${srcdir}/${pkgname}"
+		mkdir -p "${srcdir}/${pkgname}"
+		(
+			cd "$_local_source"
+			tar \
+				--exclude='./.git' \
+				--exclude='./.codex' \
+				--exclude='./build' \
+				--exclude='./dist' \
+				--exclude='./pkgbuild/pkg' \
+				--exclude='./pkgbuild/src' \
+				--exclude='./pkgbuild/*.pkg.tar*' \
+				--exclude='./src/*.egg-info' \
+				-cf - .
+		) | tar -xf - -C "${srcdir}/${pkgname}"
+	fi
+}
 
 build() {
 	cd "${srcdir}/${pkgname}"
-	python -m build --wheel --no-isolation --skip-dependency-check
+	rm -rf "${srcdir}/dist"
+	python -m build --wheel --no-isolation --skip-dependency-check --outdir "${srcdir}/dist"
 }
 
 package() {
 	cd "${srcdir}/${pkgname}"
 
 	# Install Python wheel
-	python -m installer --destdir="$pkgdir" dist/*.whl
+	python -m installer --destdir="$pkgdir" "${srcdir}"/dist/*.whl
 
 	# Install additional files (icons, desktop files, translations, etc.)
 	# Exclude bin directory to avoid conflict with python-installer (bigocrpdf)

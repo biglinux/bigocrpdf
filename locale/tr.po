@@ -591,7 +591,7 @@ msgstr "{total} dosyadan {current}. işleniyor: {filename}"
 #: src/bigocrpdf/ui/terminal_page.py:458
 #, python-brace-format
 msgid "Processing files: {processed}/{total} completed • Time: {time}"
-msgstr "Dosyalar işleniyor: {işlenmiş}/{toplam} tamamlandı • Süre: {süre}"
+msgstr "Dosyalar işleniyor: {processed}/{total} tamamlandı • Süre: {time}"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py,
 # line: 382
 #: src/bigocrpdf/ui/terminal_page.py:467
@@ -3246,3 +3246,75 @@ msgstr "Ana"
 #: src/bigocrpdf/window_ui_setup.py:223
 msgid "Results"
 msgstr "Sonuçlar"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:34
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:46
+msgid "Open selected PDFs"
+msgstr "Seçili PDF'leri aç"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:59
+msgid "How would you like to open these files?"
+msgstr "Bu dosyaları nasıl açmak istersiniz?"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:68
+#, python-brace-format
+msgid "{count} PDF files were selected."
+msgstr "{count} PDF dosyası seçildi."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:78
+msgid "Open in separate windows"
+msgstr "Ayrı pencerelerde aç"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:79
+msgid "Edit each PDF in its own editor window."
+msgstr "Her PDF'yi kendi düzenleyici penceresinde düzenle."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:88
+msgid "Combine in one editor"
+msgstr "Tek düzenleyicide birleştir"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:89
+msgid "Import all pages using the current selection order."
+msgstr "Tüm sayfaları geçerli seçim sırasıyla içe aktar."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:98
+msgid "Choose order and combine"
+msgstr "Sıralamayı seç ve birleştir"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:99
+msgid "Set the document order before importing the pages."
+msgstr "Sayfaları içe aktarmadan önce belge sırasını ayarlayın."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:125
+msgid "Choose import order"
+msgstr "İçe aktarma sırasını seç"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:130
+msgid "Pages will be imported from top to bottom."
+msgstr "Sayfalar yukarıdan aşağıya içe aktarılacak."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:155
+msgid "Open combined"
+msgstr "Birleştirilmiş olarak aç"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:194
+#, python-brace-format
+msgid "{position}. {filename}"
+msgstr "{position}. {filename}"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:226
+msgid "Move up"
+msgstr "Yukarı taşı"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:235
+msgid "Move down"
+msgstr "Aşağı taşı"
+
+#: src/bigocrpdf/application.py:261
+msgid "PDF Editor - Combined PDF"
+msgstr "PDF Düzenleyici - Birleştirilmiş PDF"
+
+#: src/bigocrpdf/application.py:264
+#, python-brace-format
+msgid "Combined PDF ({count} files)"
+msgstr "Birleştirilmiş PDF ({count} dosya)"

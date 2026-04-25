@@ -3423,3 +3423,75 @@ msgstr "主页"
 #: src/bigocrpdf/window_ui_setup.py:223
 msgid "Results"
 msgstr "结果"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:34
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:46
+msgid "Open selected PDFs"
+msgstr "打开选中的 PDF"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:59
+msgid "How would you like to open these files?"
+msgstr "您想如何打开这些文件？"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:68
+#, python-brace-format
+msgid "{count} PDF files were selected."
+msgstr "已选择 {count} 个 PDF 文件。"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:78
+msgid "Open in separate windows"
+msgstr "在单独窗口中打开"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:79
+msgid "Edit each PDF in its own editor window."
+msgstr "在各自的编辑器窗口中编辑每个 PDF。"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:88
+msgid "Combine in one editor"
+msgstr "在一个编辑器中合并"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:89
+msgid "Import all pages using the current selection order."
+msgstr "按当前选择顺序导入所有页面。"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:98
+msgid "Choose order and combine"
+msgstr "选择顺序并合并"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:99
+msgid "Set the document order before importing the pages."
+msgstr "导入页面前先设置文档顺序。"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:125
+msgid "Choose import order"
+msgstr "选择导入顺序"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:130
+msgid "Pages will be imported from top to bottom."
+msgstr "页面将从上到下导入。"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:155
+msgid "Open combined"
+msgstr "打开合并文档"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:194
+#, python-brace-format
+msgid "{position}. {filename}"
+msgstr "{position}. {filename}"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:226
+msgid "Move up"
+msgstr "上移"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:235
+msgid "Move down"
+msgstr "下移"
+
+#: src/bigocrpdf/application.py:261
+msgid "PDF Editor - Combined PDF"
+msgstr "PDF 编辑器 - 合并的 PDF"
+
+#: src/bigocrpdf/application.py:264
+#, python-brace-format
+msgid "Combined PDF ({count} files)"
+msgstr "合并的 PDF（{count} 个文件）"

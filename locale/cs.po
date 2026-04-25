@@ -3579,3 +3579,75 @@ msgstr "Hlavní"
 #: src/bigocrpdf/window_ui_setup.py:223
 msgid "Results"
 msgstr "Výsledky"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:34
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:46
+msgid "Open selected PDFs"
+msgstr "Otevřít vybrané PDF soubory"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:59
+msgid "How would you like to open these files?"
+msgstr "Jak chcete tyto soubory otevřít?"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:68
+#, python-brace-format
+msgid "{count} PDF files were selected."
+msgstr "Bylo vybráno {count} souborů PDF."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:78
+msgid "Open in separate windows"
+msgstr "Otevřít v samostatných oknech"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:79
+msgid "Edit each PDF in its own editor window."
+msgstr "Upravit každý PDF soubor ve vlastním okně editoru."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:88
+msgid "Combine in one editor"
+msgstr "Sloučit v jednom editoru"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:89
+msgid "Import all pages using the current selection order."
+msgstr "Importovat všechny stránky v aktuálním pořadí výběru."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:98
+msgid "Choose order and combine"
+msgstr "Zvolit pořadí a sloučit"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:99
+msgid "Set the document order before importing the pages."
+msgstr "Nastavit pořadí dokumentů před importem stránek."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:125
+msgid "Choose import order"
+msgstr "Zvolit pořadí importu"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:130
+msgid "Pages will be imported from top to bottom."
+msgstr "Stránky budou importovány shora dolů."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:155
+msgid "Open combined"
+msgstr "Otevřít sloučené"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:194
+#, python-brace-format
+msgid "{position}. {filename}"
+msgstr "{position}. {filename}"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:226
+msgid "Move up"
+msgstr "Přesunout nahoru"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:235
+msgid "Move down"
+msgstr "Přesunout dolů"
+
+#: src/bigocrpdf/application.py:261
+msgid "PDF Editor - Combined PDF"
+msgstr "Editor PDF - sloučený PDF"
+
+#: src/bigocrpdf/application.py:264
+#, python-brace-format
+msgid "Combined PDF ({count} files)"
+msgstr "Sloučený PDF ({count} souborů)"

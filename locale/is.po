@@ -3747,3 +3747,75 @@ msgstr "Aðal"
 #: src/bigocrpdf/window_ui_setup.py:223
 msgid "Results"
 msgstr "Niðurstöður"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:34
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:46
+msgid "Open selected PDFs"
+msgstr "Opna valdar PDF-skrár"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:59
+msgid "How would you like to open these files?"
+msgstr "Hvernig viltu opna þessar skrár?"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:68
+#, python-brace-format
+msgid "{count} PDF files were selected."
+msgstr "{count} PDF-skrár voru valdar."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:78
+msgid "Open in separate windows"
+msgstr "Opna í aðskildum gluggum"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:79
+msgid "Edit each PDF in its own editor window."
+msgstr "Breyta hverri PDF-skrá í sínum eigin ritilglugga."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:88
+msgid "Combine in one editor"
+msgstr "Sameina í einum ritli"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:89
+msgid "Import all pages using the current selection order."
+msgstr "Flytja inn allar síður í núverandi valröð."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:98
+msgid "Choose order and combine"
+msgstr "Velja röð og sameina"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:99
+msgid "Set the document order before importing the pages."
+msgstr "Stilltu röð skjala áður en síðurnar eru fluttar inn."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:125
+msgid "Choose import order"
+msgstr "Velja innflutningsröð"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:130
+msgid "Pages will be imported from top to bottom."
+msgstr "Síður verða fluttar inn frá toppi til botns."
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:155
+msgid "Open combined"
+msgstr "Opna sameinað"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:194
+#, python-brace-format
+msgid "{position}. {filename}"
+msgstr "{position}. {filename}"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:226
+msgid "Move up"
+msgstr "Færa upp"
+
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:235
+msgid "Move down"
+msgstr "Færa niður"
+
+#: src/bigocrpdf/application.py:261
+msgid "PDF Editor - Combined PDF"
+msgstr "PDF-ritill - sameinuð PDF-skrá"
+
+#: src/bigocrpdf/application.py:264
+#, python-brace-format
+msgid "Combined PDF ({count} files)"
+msgstr "Sameinuð PDF-skrá ({count} skrár)"
