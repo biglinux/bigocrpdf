@@ -41,6 +41,14 @@ class ConclusionStatsFileListMixin:
         self.result_size_change = None
         self.output_list_box = None
 
+        # Bulk-selection state (set by the page builder).
+        self._selection_toggle_btn: Gtk.ToggleButton | None = None
+        self._selection_action_bar: Gtk.Box | None = None
+        self._selection_count_label: Gtk.Label | None = None
+        self._bulk_export_button: Gtk.MenuButton | None = None
+        self._selection_mode: bool = False
+        self._selected_files: set[str] = set()
+
     def update_conclusion_page(self) -> None:
         """Update the conclusion page with results from OCR processing"""
         if not self._validate_components():
@@ -277,15 +285,62 @@ class ConclusionStatsFileListMixin:
         # Add file statistics
         self._add_file_statistics_to_row(row, pages, file_size, comparison)
 
-        # Add file icon
-        file_icon = Gtk.Image.new_from_icon_name("x-office-document-symbolic")
-        row.add_prefix(file_icon)
-
-        # Add action buttons
-        button_container = self._create_file_action_buttons(output_file)
-        row.add_suffix(button_container)
+        if self._selection_mode:
+            # In selection mode the row is dedicated to picking files; per-row
+            # action buttons would only get in the way.
+            check = Gtk.CheckButton()
+            check.set_active(output_file in self._selected_files)
+            check.connect("toggled", self._on_row_check_toggled, output_file)
+            row.add_prefix(check)
+        else:
+            file_icon = Gtk.Image.new_from_icon_name("x-office-document-symbolic")
+            row.add_prefix(file_icon)
+            button_container = self._create_file_action_buttons(output_file)
+            row.add_suffix(button_container)
 
         return row
+
+    # ── Selection mode ────────────────────────────────────────────────
+
+    def _on_selection_toggle_clicked(self, button: Gtk.ToggleButton) -> None:
+        """Toggle selection mode on/off and rebuild the file list accordingly."""
+        self._selection_mode = button.get_active()
+        if not self._selection_mode:
+            self._selected_files.clear()
+        if self._selection_action_bar is not None:
+            self._selection_action_bar.set_visible(self._selection_mode)
+        self._refresh_selection_ui()
+        self._update_file_list()
+
+    def _on_row_check_toggled(self, check: Gtk.CheckButton, file_path: str) -> None:
+        """Track selection set as individual rows are toggled."""
+        if check.get_active():
+            self._selected_files.add(file_path)
+        else:
+            self._selected_files.discard(file_path)
+        self._refresh_selection_ui()
+
+    def _on_select_all_clicked(self) -> None:
+        """Mark every visible file as selected."""
+        for output_file in self.window.settings.processed_files:
+            if os.path.exists(output_file) and self._is_recent_file(output_file):
+                self._selected_files.add(output_file)
+        self._update_file_list()
+        self._refresh_selection_ui()
+
+    def _on_clear_selection_clicked(self) -> None:
+        """Drop all selections without leaving selection mode."""
+        self._selected_files.clear()
+        self._update_file_list()
+        self._refresh_selection_ui()
+
+    def _refresh_selection_ui(self) -> None:
+        """Sync the action bar label and bulk-export button sensitivity."""
+        if self._selection_count_label is not None:
+            count = len(self._selected_files)
+            self._selection_count_label.set_text(_("Selected: {count}").format(count=count))
+        if self._bulk_export_button is not None:
+            self._bulk_export_button.set_sensitive(bool(self._selected_files))
 
     def _add_file_statistics_to_row(
         self,
@@ -354,9 +409,9 @@ class ConclusionStatsFileListMixin:
         text_button = self._create_text_button(output_file)
         button_container.append(text_button)
 
-        # Add export to ODF button
-        odf_button = self._create_odf_button(output_file)
-        button_container.append(odf_button)
+        # Add unified export menu (ODF + Markdown + future formats)
+        export_button = self._create_export_menu_button(output_file)
+        button_container.append(export_button)
 
         return button_container
 
@@ -393,26 +448,38 @@ class ConclusionStatsFileListMixin:
             on_click=lambda: self._show_extracted_text(output_file),
         )
 
-    def _create_odf_button(self, output_file: str) -> Gtk.Button:
-        """Create an export to ODF button
-
-        Args:
-            output_file: Path to the file
-
-        Returns:
-            A Gtk.Button for exporting to ODF
-        """
-        return create_icon_button(
-            icon_name="x-office-document-symbolic",
-            tooltip=_("Save as a document for LibreOffice"),
-            on_click=lambda: self._export_to_odf(output_file),
-        )
-
     def _export_to_odf(self, file_path: str) -> None:
-        """Export extracted text to ODF file
-
-        Args:
-            file_path: Path to the PDF file
-        """
-        # Show export options dialog first
+        """Export extracted text to ODF file."""
         self._show_odf_export_options_dialog(file_path)
+
+    def _export_to_markdown(self, file_path: str) -> None:
+        """Show export options dialog for Markdown export."""
+        self._show_markdown_export_options_dialog(file_path)
+
+    def _create_export_menu_button(self, output_file: str) -> Gtk.MenuButton:
+        """Unified export menu for a single OCR'd file.
+
+        Backed by ``Gio.Menu`` + a popover-menu so keyboard navigation
+        (Up/Down/Enter) and screen-reader semantics come for free.
+        """
+        from gi.repository import Gio
+
+        menu_model = Gio.Menu()
+        menu_model.append(_("OpenDocument (.odt)"), "row.odt")
+        menu_model.append(_("Markdown (.md)"), "row.md")
+
+        button = Gtk.MenuButton()
+        button.set_icon_name("document-save-as-symbolic")
+        button.set_tooltip_text(_("Export to other formats"))
+        button.add_css_class("flat")
+        button.set_menu_model(menu_model)
+
+        group = Gio.SimpleActionGroup()
+        odt_action = Gio.SimpleAction.new("odt", None)
+        odt_action.connect("activate", lambda *_a: self._export_to_odf(output_file))
+        group.add_action(odt_action)
+        md_action = Gio.SimpleAction.new("md", None)
+        md_action.connect("activate", lambda *_a: self._export_to_markdown(output_file))
+        group.add_action(md_action)
+        button.insert_action_group("row", group)
+        return button

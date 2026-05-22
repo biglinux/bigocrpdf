@@ -248,19 +248,66 @@ class ConclusionPageBuilderMixin:
         files_card.set_margin_top(16)
         files_card.set_margin_bottom(16)
 
-        # Card header
+        # Header row: title on the left, selection toggle on the right.
+        header_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        header_row.set_margin_top(16)
+        header_row.set_margin_start(16)
+        header_row.set_margin_end(16)
+
         files_header = Gtk.Label(label=_("Generated Files"))
         files_header.add_css_class("heading")
         files_header.set_halign(Gtk.Align.START)
-        files_header.set_margin_top(16)
-        files_header.set_margin_start(16)
-        files_card.append(files_header)
+        files_header.set_hexpand(True)
+        header_row.append(files_header)
+
+        self._selection_toggle_btn = Gtk.ToggleButton()
+        self._selection_toggle_btn.set_icon_name("object-select-symbolic")
+        self._selection_toggle_btn.set_tooltip_text(_("Select files for bulk actions"))
+        self._selection_toggle_btn.add_css_class("flat")
+        self._selection_toggle_btn.connect("toggled", self._on_selection_toggle_clicked)
+        header_row.append(self._selection_toggle_btn)
+
+        files_card.append(header_row)
 
         # Create scrollable file list
         scrolled_list = self._create_scrollable_file_list()
         files_card.append(scrolled_list)
 
+        # Bulk-action bar (hidden until selection mode is on).
+        self._selection_action_bar = self._create_selection_action_bar()
+        self._selection_action_bar.set_visible(False)
+        files_card.append(self._selection_action_bar)
+
         return files_card
+
+    def _create_selection_action_bar(self) -> Gtk.Box:
+        """Build the bulk-action bar shown at the bottom of the files card."""
+        bar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        bar.set_margin_start(16)
+        bar.set_margin_end(16)
+        bar.set_margin_bottom(16)
+
+        self._selection_count_label = Gtk.Label(label=_("Selected: 0"))
+        self._selection_count_label.set_halign(Gtk.Align.START)
+        self._selection_count_label.set_hexpand(True)
+        self._selection_count_label.add_css_class("dim-label")
+        bar.append(self._selection_count_label)
+
+        select_all_btn = Gtk.Button(label=_("Select all"))
+        select_all_btn.add_css_class("flat")
+        select_all_btn.connect("clicked", lambda _b: self._on_select_all_clicked())
+        bar.append(select_all_btn)
+
+        clear_btn = Gtk.Button(label=_("Clear"))
+        clear_btn.add_css_class("flat")
+        clear_btn.connect("clicked", lambda _b: self._on_clear_selection_clicked())
+        bar.append(clear_btn)
+
+        # The export menu builds itself when there's a selection to act on.
+        self._bulk_export_button = self._create_bulk_export_menu_button()
+        bar.append(self._bulk_export_button)
+
+        return bar
 
     def _create_scrollable_file_list(self) -> Gtk.ScrolledWindow:
         """Create the scrollable file list

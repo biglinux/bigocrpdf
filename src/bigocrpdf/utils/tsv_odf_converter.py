@@ -389,3 +389,194 @@ def convert_pdf_to_text(pdf_path: str) -> str:
 
     all_elements = fix_cross_page_breaks(all_elements)
     return create_text(all_elements)
+
+
+# ── Markdown Generation ──
+
+# Inline characters that always need escaping. Line-start punctuation like
+# '#', '-', '+', '>' and 'N.' lists is handled separately so we don't uglify
+# mid-paragraph text (e.g. CPF/phone numbers full of hyphens).
+_MD_INLINE_ESCAPE_RE = re.compile(r"([\\`*_\[\]<>|])")
+_MD_LINE_START_RE = re.compile(r"^([#\-+>]|\d+\.)")
+
+
+def _escape_md(text: str) -> str:
+    """Escape Markdown control characters in inline text.
+
+    Escapes characters that have meaning anywhere in a line (``*``, ``_``,
+    ``[``, ``]``, ``<``, ``>``, ``|``, backticks, backslashes) and, only at
+    the start of the string, the block-level markers (``#``, ``-``, ``+``,
+    ``>`` and ordered-list ``N.``).
+    """
+    escaped = _MD_INLINE_ESCAPE_RE.sub(r"\\\1", text)
+    return _MD_LINE_START_RE.sub(r"\\\1", escaped)
+
+
+def _escape_md_cell(text: str) -> str:
+    """Escape inline Markdown specials inside a table cell.
+
+    Same rules as :func:`_escape_md` minus the line-start markers (cells are
+    rendered inline, not at the start of a block) plus an explicit ``|``
+    escape so the cell does not break the table.
+    """
+    return _MD_INLINE_ESCAPE_RE.sub(r"\\\1", text)
+
+
+def _format_table_markdown(rows: list[list[str]]) -> list[str]:
+    """Format table rows as a GitHub-flavored Markdown pipe table."""
+    if not rows:
+        return []
+    n_cols = max(len(r) for r in rows)
+
+    def _cell(value: str) -> str:
+        return _escape_md_cell(value).strip() or " "
+
+    out: list[str] = []
+    header = rows[0]
+    out.append(
+        "| " + " | ".join(_cell(header[j] if j < len(header) else "") for j in range(n_cols)) + " |"
+    )
+    out.append("|" + "|".join(["---"] * n_cols) + "|")
+    for row in rows[1:]:
+        out.append(
+            "| " + " | ".join(_cell(row[j] if j < len(row) else "") for j in range(n_cols)) + " |"
+        )
+    return out
+
+
+def _yaml_escape(value: str) -> str:
+    """Escape a value for safe inclusion in a single-line YAML scalar."""
+    # Strip control characters (including NUL, newlines, tabs) — they can't
+    # appear in a single-line YAML scalar regardless of quoting.
+    sanitized = "".join(c for c in value if ord(c) >= 0x20 or c == " ")
+    return sanitized.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def _build_front_matter(pdf_path: str, page_count: int) -> list[str]:
+    """Build YAML front-matter lines for a Markdown export."""
+    import datetime
+    import os
+
+    title = os.path.splitext(os.path.basename(pdf_path))[0]
+    # UTC so the date doesn't drift across timezones (and tests stay stable).
+    today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+    return [
+        "---",
+        f'title: "{_yaml_escape(title)}"',
+        f'source: "{_yaml_escape(os.path.abspath(pdf_path))}"',
+        f"pages: {page_count}",
+        f"date: {today}",
+        'generator: "bigocrpdf"',
+        "---",
+        "",
+    ]
+
+
+_MD_HEADING_PREFIX = {"heading1": "# ", "heading2": "## ", "heading3": "### "}
+
+
+def _ensure_blank_line(lines: list[str]) -> None:
+    """Append a blank line unless the previous one already is blank."""
+    if lines and lines[-1] != "":
+        lines.append("")
+
+
+def _emit_heading(lines: list[str], elem: DocElement) -> None:
+    _ensure_blank_line(lines)
+    lines.append(_MD_HEADING_PREFIX[elem.kind] + _escape_md(elem.text.strip()))
+    lines.append("")
+
+
+def _emit_table(lines: list[str], elem: DocElement) -> None:
+    _ensure_blank_line(lines)
+    lines.extend(_format_table_markdown(elem.rows))
+    lines.append("")
+
+
+def _emit_kv(lines: list[str], elem: DocElement) -> None:
+    """Bold the key portion (before the first colon) for readability."""
+    text = elem.text.strip()
+    if ":" not in text:
+        lines.append(_escape_md(text))
+        return
+    key, _sep, value = text.partition(":")
+    lines.append(f"**{_escape_md(key.strip())}:** {_escape_md(value.strip())}")
+
+
+def _emit_paragraph(lines: list[str], elem: DocElement) -> None:
+    """Paragraph variants (paragraph, paragraph_indent, paragraph_right, …)."""
+    _ensure_blank_line(lines)
+    lines.append(_escape_md(elem.text.strip()))
+    lines.append("")
+
+
+def _emit_element(lines: list[str], elem: DocElement) -> None:
+    """Dispatch a single DocElement to the appropriate Markdown emitter."""
+    if elem.kind in _MD_HEADING_PREFIX:
+        _emit_heading(lines, elem)
+    elif elem.kind == "table":
+        _emit_table(lines, elem)
+    elif elem.kind == "kv":
+        _emit_kv(lines, elem)
+    else:
+        _emit_paragraph(lines, elem)
+
+
+def create_markdown(pages_elements: list[list[DocElement]]) -> str:
+    """Generate Markdown preserving document structure (headings, tables, paragraphs)."""
+    lines: list[str] = []
+
+    for page_idx, elements in enumerate(pages_elements):
+        if page_idx > 0:
+            _ensure_blank_line(lines)
+            lines.append("---")
+            lines.append("")
+        for elem in elements:
+            _emit_element(lines, elem)
+
+    while lines and lines[-1] == "":
+        lines.pop()
+
+    return "\n".join(lines) + "\n"
+
+
+def convert_pdf_to_markdown(
+    pdf_path: str,
+    include_front_matter: bool = False,
+    cancel_event: "threading.Event | None" = None,
+) -> str:
+    """Convert an OCR'd PDF to a structured Markdown document.
+
+    Args:
+        pdf_path: Path to a PDF containing a text layer (post-OCR).
+        include_front_matter: If True, prepend YAML front-matter with title,
+            source path, page count and date — handy for ingesting into
+            Obsidian/Hugo or as LLM context.
+        cancel_event: Optional event polled between pages so long batches
+            stay responsive to a cancel button.  Raises
+            :class:`ExportCancelled` if set mid-conversion, matching the
+            ODF path's contract.
+    """
+    from bigocrpdf.utils.odf_builder import ExportCancelled
+
+    pages_words = parse_tsv_pages(pdf_path)
+    if cancel_event is not None and cancel_event.is_set():
+        raise ExportCancelled
+    if not pages_words:
+        if include_front_matter:
+            return "\n".join(_build_front_matter(pdf_path, 0)) + "\n"
+        return ""
+
+    all_elements: list[list[DocElement]] = []
+    for page_num in sorted(pages_words.keys()):
+        if cancel_event is not None and cancel_event.is_set():
+            raise ExportCancelled
+        elements = process_page(pages_words[page_num], page_num)
+        all_elements.append(elements)
+
+    all_elements = fix_cross_page_breaks(all_elements)
+
+    body = create_markdown(all_elements)
+    if include_front_matter:
+        return "\n".join(_build_front_matter(pdf_path, len(all_elements))) + body
+    return body

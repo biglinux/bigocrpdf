@@ -414,9 +414,12 @@ def build_parser() -> argparse.ArgumentParser:
     info_p = sub.add_parser("info", help=_("Show PDF metadata and page count"))
     info_p.add_argument("input", type=Path, help=_("Input PDF file"))
 
+    # --- export subcommands share the same input-PDF help text ---
+    input_pdf_with_text_help = _("Input PDF file (must have text layer)")
+
     # --- export-odf ---
     odf_p = sub.add_parser("export-odf", help=_("Export OCR'd PDF as ODF document"))
-    odf_p.add_argument("input", type=Path, help=_("Input PDF file (must have text layer)"))
+    odf_p.add_argument("input", type=Path, help=input_pdf_with_text_help)
     odf_p.add_argument(
         "-o",
         "--output",
@@ -427,13 +430,29 @@ def build_parser() -> argparse.ArgumentParser:
 
     # --- export-txt ---
     txt_p = sub.add_parser("export-txt", help=_("Export OCR'd PDF as formatted text"))
-    txt_p.add_argument("input", type=Path, help=_("Input PDF file (must have text layer)"))
+    txt_p.add_argument("input", type=Path, help=input_pdf_with_text_help)
     txt_p.add_argument(
         "-o",
         "--output",
         type=Path,
         default=None,
         help=_("Output text file (default: same name as input with .txt)"),
+    )
+
+    # --- export-md ---
+    md_p = sub.add_parser("export-md", help=_("Export OCR'd PDF as Markdown"))
+    md_p.add_argument("input", type=Path, help=input_pdf_with_text_help)
+    md_p.add_argument(
+        "-o",
+        "--output",
+        type=Path,
+        default=None,
+        help=_("Output Markdown file (default: same name as input with .md)"),
+    )
+    md_p.add_argument(
+        "--front-matter",
+        action="store_true",
+        help=_("Prepend YAML front-matter (title, source, page count, date)."),
     )
 
     # --- edit ---
@@ -460,11 +479,13 @@ def _cmd_ocr(args: argparse.Namespace, logger: logging.Logger) -> int:
         scanner_enabled = True
 
     # Enable preprocessing master switch if any enhancement is requested
-    enable_preprocessing = any([
-        args.auto_contrast,
-        args.auto_brightness,
-        args.denoise,
-    ])
+    enable_preprocessing = any(
+        [
+            args.auto_contrast,
+            args.auto_brightness,
+            args.denoise,
+        ]
+    )
 
     config = OCRConfig(
         language=args.language,
@@ -715,6 +736,23 @@ def _cmd_export_txt(args: argparse.Namespace, logger: logging.Logger) -> int:
     with open(txt_path, "w", encoding="utf-8") as f:
         f.write(text)
     print(f"Saved: {txt_path}")
+    return 0
+
+
+def _cmd_export_md(args: argparse.Namespace, logger: logging.Logger) -> int:
+    """Handle the 'export-md' command."""
+    from bigocrpdf.utils.tsv_odf_converter import convert_pdf_to_markdown
+
+    if args.output:
+        md_path = str(args.output)
+    else:
+        md_path = str(args.input.with_suffix(".md"))
+
+    logger.info(f"Converting {args.input} → {md_path}")
+    text = convert_pdf_to_markdown(str(args.input), include_front_matter=args.front_matter)
+    with open(md_path, "w", encoding="utf-8") as f:
+        f.write(text)
+    print(f"Saved: {md_path}")
     return 0
 
 
@@ -978,6 +1016,7 @@ def main(argv: list[str] | None = None) -> int:
         "info": _cmd_info,
         "export-odf": _cmd_export_odf,
         "export-txt": _cmd_export_txt,
+        "export-md": _cmd_export_md,
         "edit": _cmd_edit,
     }
 
