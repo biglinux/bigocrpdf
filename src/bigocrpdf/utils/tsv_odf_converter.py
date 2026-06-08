@@ -397,7 +397,10 @@ def convert_pdf_to_text(pdf_path: str) -> str:
 # '#', '-', '+', '>' and 'N.' lists is handled separately so we don't uglify
 # mid-paragraph text (e.g. CPF/phone numbers full of hyphens).
 _MD_INLINE_ESCAPE_RE = re.compile(r"([\\`*_\[\]<>|])")
-_MD_LINE_START_RE = re.compile(r"^([#\-+>]|\d+\.)")
+# Ordered-list marker requires whitespace after the dot in CommonMark; without
+# the lookahead a paragraph starting with a decimal like "1.5 million" would be
+# wrongly escaped to "\1.5 million".
+_MD_LINE_START_RE = re.compile(r"^([#\-+>]|\d+\.(?=\s|$))")
 
 
 def _escape_md(text: str) -> str:
@@ -495,18 +498,32 @@ def _emit_table(lines: list[str], elem: DocElement) -> None:
 
 def _emit_kv(lines: list[str], elem: DocElement) -> None:
     """Bold the key portion (before the first colon) for readability."""
+    _ensure_blank_line(lines)
     text = elem.text.strip()
     if ":" not in text:
         lines.append(_escape_md(text))
-        return
-    key, _sep, value = text.partition(":")
-    lines.append(f"**{_escape_md(key.strip())}:** {_escape_md(value.strip())}")
+    else:
+        key, _sep, value = text.partition(":")
+        lines.append(f"**{_escape_md(key.strip())}:** {_escape_md(value.strip())}")
+    lines.append("")
 
 
 def _emit_paragraph(lines: list[str], elem: DocElement) -> None:
-    """Paragraph variants (paragraph, paragraph_indent, paragraph_right, …)."""
+    """Paragraph variants (paragraph, paragraph_indent, paragraph_right, …).
+
+    When the OCR layer preserved per-line breaks in ``raw_lines`` (multi-line
+    addresses, poetry, etc.), emit each line separately with a CommonMark
+    hard break (two trailing spaces) so the rendered output keeps the
+    original line geometry instead of collapsing into one run-on paragraph.
+    """
     _ensure_blank_line(lines)
-    lines.append(_escape_md(elem.text.strip()))
+    raw = [line for line in (elem.raw_lines or []) if line.strip()]
+    if len(raw) > 1:
+        for i, line in enumerate(raw):
+            suffix = "  " if i < len(raw) - 1 else ""
+            lines.append(_escape_md(line.strip()) + suffix)
+    else:
+        lines.append(_escape_md(elem.text.strip()))
     lines.append("")
 
 

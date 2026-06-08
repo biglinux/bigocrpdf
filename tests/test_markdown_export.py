@@ -59,6 +59,16 @@ class TestEscapeMd:
         # line-start regex, so the inline rule is what kicks in.
         assert _escape_md("*emphasized* mid") == r"\*emphasized\* mid"
 
+    def test_decimal_at_line_start_not_escaped(self):
+        # "1.5 million" must not be mangled to "\1.5 million"; the
+        # ordered-list rule applies only when the dot is followed by
+        # whitespace (or end of string).
+        assert _escape_md("1.5 million users") == "1.5 million users"
+        assert _escape_md("2025.06 release") == "2025.06 release"
+        # End-of-string also counts as a list-marker boundary so "1." alone
+        # stays escaped.
+        assert _escape_md("1.") == r"\1."
+
 
 class TestEscapeMdCell:
     """Table cells need inline escapes but no line-start rules."""
@@ -168,6 +178,35 @@ class TestCreateMarkdown:
         md = create_markdown(pages)
         assert r"\_underscores\_" in md
         assert r"\*stars\*" in md
+
+    def test_kv_elements_separated_by_blank_line(self):
+        # Adjacent kv elements must be separated so CommonMark renders them
+        # as distinct paragraphs instead of one soft-wrapped block.
+        pages = [
+            [
+                DocElement("kv", "Author: Jane"),
+                DocElement("kv", "Date: 2025"),
+            ]
+        ]
+        md = create_markdown(pages)
+        # There must be a blank line between the two bolded keys.
+        assert "**Author:** Jane\n\n**Date:** 2025" in md
+
+    def test_paragraph_preserves_raw_lines(self):
+        # When the OCR layer captured per-line breaks, the Markdown output
+        # keeps them via CommonMark hard breaks (two trailing spaces).
+        pages = [
+            [
+                DocElement(
+                    "paragraph",
+                    "Rua X 123 Bairro Y CEP 00000-000",
+                    raw_lines=["Rua X 123", "Bairro Y", "CEP 00000-000"],
+                )
+            ]
+        ]
+        md = create_markdown(pages)
+        # Hard break = two trailing spaces before the newline.
+        assert "Rua X 123  \nBairro Y  \nCEP 00000-000" in md
 
 
 class TestConvertPdfToMarkdown:
@@ -301,3 +340,76 @@ class TestIsUserDismissed:
 
         assert not ConclusionExportMixin._is_user_dismissed(RuntimeError("Disk full"))
         assert not ConclusionExportMixin._is_user_dismissed(FileNotFoundError("nope"))
+
+
+class TestSaveMdSettings:
+    """MD export toggles persist through the same config flow as ODF."""
+
+    def test_save_md_settings_writes_both_keys(self):
+        from bigocrpdf.services.settings import OcrSettings
+
+        # Minimal config double — record .set() calls and replay .get().
+        store: dict = {}
+
+        class _Cfg:
+            def get(self, key, default=None):
+                return store.get(key, default)
+
+            def set(self, key, value, save_immediately=False):
+                store[key] = value
+
+            def save(self):
+                pass
+
+        s = OcrSettings.__new__(OcrSettings)
+        s._config = _Cfg()  # type: ignore[attr-defined]
+        s.md_include_front_matter = True
+        s.md_open_after_export = True
+        s._save_md_settings()
+
+        assert store.get("md_export.include_front_matter") is True
+        assert store.get("md_export.open_after_export") is True
+
+    def test_load_md_settings_reads_both_keys(self):
+        from bigocrpdf.services.settings import OcrSettings
+
+        class _Cfg:
+            def __init__(self):
+                self.store = {
+                    "md_export.include_front_matter": True,
+                    "md_export.open_after_export": True,
+                }
+
+            def get(self, key, default=None):
+                return self.store.get(key, default)
+
+        s = OcrSettings.__new__(OcrSettings)
+        s._config = _Cfg()  # type: ignore[attr-defined]
+        s._load_md_settings()
+
+        assert s.md_include_front_matter is True
+        assert s.md_open_after_export is True
+
+    def test_save_md_settings_defaults_when_unset(self):
+        # Settings object freshly constructed may not have the attributes —
+        # the saver must default to False instead of raising AttributeError.
+        from bigocrpdf.services.settings import OcrSettings
+
+        store: dict = {}
+
+        class _Cfg:
+            def get(self, key, default=None):
+                return store.get(key, default)
+
+            def set(self, key, value, save_immediately=False):
+                store[key] = value
+
+            def save(self):
+                pass
+
+        s = OcrSettings.__new__(OcrSettings)
+        s._config = _Cfg()  # type: ignore[attr-defined]
+        s._save_md_settings()  # no attributes set yet
+
+        assert store["md_export.include_front_matter"] is False
+        assert store["md_export.open_after_export"] is False

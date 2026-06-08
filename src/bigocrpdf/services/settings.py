@@ -142,6 +142,7 @@ class OcrSettings:
         self._load_date_settings()
         self._load_text_extraction_settings()
         self._load_odf_settings()
+        self._load_md_settings()
         self._load_preprocessing_settings()
         self._load_image_export_settings()
         self._load_pdf_output_settings()
@@ -196,6 +197,10 @@ class OcrSettings:
         self.odf_include_images = self._config.get("odf_export.include_images", True)
         self.odf_use_formatting = self._config.get("odf_export.use_formatting", True)
         self.odf_open_after_export = self._config.get("odf_export.open_after_export", False)
+
+    def _load_md_settings(self) -> None:
+        self.md_include_front_matter = self._config.get("md_export.include_front_matter", False)
+        self.md_open_after_export = self._config.get("md_export.open_after_export", False)
 
     def _load_preprocessing_settings(self) -> None:
         self.dpi = self._config.get("rapidocr.dpi", DEFAULT_DPI)
@@ -473,6 +478,7 @@ class OcrSettings:
         self._save_text_extraction_settings()
         self._save_editor_settings()
         self._save_odf_settings()
+        self._save_md_settings()
         self._save_preprocessing_settings()
         self._save_image_export_settings()
         self._save_pdf_output_settings()
@@ -534,6 +540,18 @@ class OcrSettings:
         )
         self._config.set(
             "odf_export.open_after_export", self.odf_open_after_export, save_immediately=False
+        )
+
+    def _save_md_settings(self) -> None:
+        self._config.set(
+            "md_export.include_front_matter",
+            getattr(self, "md_include_front_matter", False),
+            save_immediately=False,
+        )
+        self._config.set(
+            "md_export.open_after_export",
+            getattr(self, "md_open_after_export", False),
+            save_immediately=False,
         )
 
     def _save_preprocessing_settings(self) -> None:
@@ -641,20 +659,26 @@ class OcrSettings:
 
         # Add date elements with their preferred order
         if self.include_year:
-            date_components.append((
-                self.date_format_order.get("year", 1),
-                f"{now.tm_year}",
-            ))
+            date_components.append(
+                (
+                    self.date_format_order.get("year", 1),
+                    f"{now.tm_year}",
+                )
+            )
         if self.include_month:
-            date_components.append((
-                self.date_format_order.get("month", 2),
-                f"{now.tm_mon:02d}",
-            ))
+            date_components.append(
+                (
+                    self.date_format_order.get("month", 2),
+                    f"{now.tm_mon:02d}",
+                )
+            )
         if self.include_day:
-            date_components.append((
-                self.date_format_order.get("day", 3),
-                f"{now.tm_mday:02d}",
-            ))
+            date_components.append(
+                (
+                    self.date_format_order.get("day", 3),
+                    f"{now.tm_mday:02d}",
+                )
+            )
 
         # Sort components by their position value
         date_components.sort(key=lambda x: x[0])
