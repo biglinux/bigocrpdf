@@ -13,7 +13,9 @@ from bigocrpdf.services.rapidocr_service.config import ProcessingStats
 from bigocrpdf.services.rapidocr_service.pdf_assembly import strip_invisible_text
 from bigocrpdf.services.rapidocr_service.pdf_extractor import (
     PdfImageInfo,
+    _get_page_xobjects,
     extract_image_positions,
+    match_positions_to_images,
     page_has_ocr_text,
     parse_pdfimages_list,
 )
@@ -21,6 +23,26 @@ from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
 _MULTI_BLANK_RE = re.compile(r"\n{4,}")
+
+
+def _index_extracted_images(paths: list[Path]) -> dict[int, Path]:
+    """Map each pdfimages *global* image index to its extracted file path.
+
+    ``pdfimages`` names files ``<prefix>-NNN.<ext>`` where ``NNN`` is the same
+    global counter reported in the ``pdfimages -list`` "num" column.  Indexing
+    by that number — instead of by position in the (filtered) file list — stays
+    correct even when ``_extract_and_filter_images`` drops small-PNG masks and
+    shifts later entries.
+    """
+    out: dict[int, Path] = {}
+    for raw in paths:
+        p = Path(raw)
+        _, _, num = p.stem.rpartition("-")
+        try:
+            out[int(num)] = p
+        except ValueError:
+            continue
+    return out
 
 
 def _try_join_line(para: str, stripped_next: str) -> str | None:
@@ -316,27 +338,44 @@ class MixedContentMixin:
                 pct = progress_start + int(progress_band * processed_images / max(total_images, 1))
                 progress_callback(pct, 100, _("OCR page {0}...").format(page_num))
 
-            # Match each ImagePosition to its extracted file using
-            # pdfimages_map indices.  Select the images with the largest
-            # compressed size (best quality indicator for DjVu-like PDFs
-            # where BG layers are tiny but have large pixel dimensions).
-            if len(page_img_infos) >= len(page_imgs):
-                # Sort by compressed size descending — highest quality first
-                sorted_infos = sorted(page_img_infos, key=lambda info: info.comp_size, reverse=True)
-                selected_files: list[tuple[Path, int]] = []
-                for info in sorted_infos[: len(page_imgs)]:
-                    if info.idx < len(extracted_images):
-                        selected_files.append((extracted_images[info.idx], info.idx))
-            else:
-                # Fallback: no pdfimages_map or mismatch
-                selected_files = []
+            # Correlate each image position with the extracted file it actually
+            # belongs to — by PDF object number (exact), else pixel dimensions.
+            # Pairing by sort order (largest comp_size first, zipped by index)
+            # cross-pairs images: on a page carrying both a full-page scan and a
+            # small logo/stamp, the scan's OCR text lands in the logo's tiny box
+            # and gets crammed into a thin strip, scrambling the text layer.
+            xobjs = _get_page_xobjects(page)
+            obj_by_name = {n: d["obj"] for n, d in xobjs.items()}
+            dims_by_name = {n: (d["width"], d["height"]) for n, d in xobjs.items()}
+            pairs = match_positions_to_images(
+                page_imgs, page_img_infos, obj_by_name, dims_by_name
+            )
 
-            for pos_i, img_pos in enumerate(page_imgs):
-                if pos_i < len(selected_files):
-                    img_path = selected_files[pos_i][0]
-                else:
-                    logger.warning(f"Page {page_num}: no extracted image for position {pos_i}")
+            idx_to_path = _index_extracted_images(extracted_images)
+
+            # Last-resort pool for positions the matcher could not pair
+            # (no object id and ambiguous/colliding dimensions): largest first.
+            used = {id(info) for _, info in pairs if info is not None}
+            leftover = sorted(
+                (i for i in page_img_infos if id(i) not in used),
+                key=lambda i: i.comp_size,
+                reverse=True,
+            )
+
+            for img_pos, info in pairs:
+                if info is None and leftover:
+                    info = leftover.pop(0)
+                img_path = idx_to_path.get(info.idx) if info is not None else None
+                if img_path is None:
+                    logger.warning(
+                        f"Page {page_num}: no extracted image for position {img_pos.name}"
+                    )
                     continue
+                logger.debug(
+                    f"Page {page_num}: {img_pos.name} "
+                    f"({img_pos.width:.0f}x{img_pos.height:.0f}pt) <- "
+                    f"image idx{info.idx} ({info.width}x{info.height}px, obj {info.object_id})"
+                )
                 try:
                     texts = self._ocr_image_in_page(
                         img_path,

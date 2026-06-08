@@ -163,14 +163,23 @@ def _multiply_ctm(current: list[float], m: list[float]) -> list[float]:
 
 
 def _get_page_xobjects(page) -> dict[str, dict]:
-    """Return {name: {width, height}} for image XObjects on a page."""
+    """Return {name: {width, height, obj}} for image XObjects on a page.
+
+    ``obj`` is the PDF object number, used to correlate each image with its
+    ``pdfimages -list`` entry (whose "object" column carries the same number).
+    """
     xobjects = {}
     if "/Resources" in page and "/XObject" in page.Resources:
         for name, xobj in page.Resources.XObject.items():
             if xobj.get("/Subtype") == "/Image":
+                try:
+                    obj_num = int(xobj.objgen[0])
+                except Exception:
+                    obj_num = 0
                 xobjects[str(name)] = {
                     "width": int(xobj.get("/Width", 0)),
                     "height": int(xobj.get("/Height", 0)),
+                    "obj": obj_num,
                 }
     return xobjects
 
@@ -253,6 +262,7 @@ class PdfImageInfo:
     width: int
     height: int
     comp_size: int  # compressed size in bytes (from pdfimages -list "size" column)
+    object_id: int = 0  # PDF object number (from pdfimages -list "object" column)
 
 
 def _parse_size_field(s: str) -> int:
@@ -308,8 +318,10 @@ def parse_pdfimages_list(
             img_type = parts[2]
             width = int(parts[3])
             height = int(parts[4])
-            # "size" is at position 14 (0-indexed) in the standard layout:
+            # Standard column layout (0-indexed):
             # page num type width height color comp bpc enc interp object ID x-ppi y-ppi size ratio
+            # "object" (PDF object number) is at 10, "size" at 14.
+            object_id = int(parts[10])
             comp_size = _parse_size_field(parts[14])
         except (ValueError, IndexError):
             continue
@@ -322,9 +334,51 @@ def parse_pdfimages_list(
             width=width,
             height=height,
             comp_size=comp_size,
+            object_id=object_id,
         )
         mapping.setdefault(page_num, []).append(info)
     return mapping, masked_pages
+
+
+def match_positions_to_images(
+    positions: list[ImagePosition],
+    infos: list[PdfImageInfo],
+    obj_by_name: dict[str, int],
+    dims_by_name: dict[str, tuple[int, int]],
+) -> list[tuple[ImagePosition, "PdfImageInfo | None"]]:
+    """Pair each image position with the extracted image it actually belongs to.
+
+    Each ``ImagePosition`` is the *display* rectangle of one image on the page;
+    each ``PdfImageInfo`` describes one *extracted* image file.  They must be
+    paired by identity, not by sort order — pairing the largest extracted image
+    with whichever position comes first in the content stream crams a full-page
+    scan's OCR text into, e.g., a 75 pt logo box, scrambling the text layer.
+
+    Matching is greedy and each ``PdfImageInfo`` is used at most once:
+      1. by PDF object number (``obj_by_name`` vs ``info.object_id``) — exact;
+      2. else by pixel dimensions (``dims_by_name`` vs ``info.width/height``).
+    A position with no match yields ``None`` so the caller can fall back.
+    """
+    remaining = list(infos)
+    result: list[tuple[ImagePosition, PdfImageInfo | None]] = []
+
+    def _take(pred) -> "PdfImageInfo | None":
+        for i, info in enumerate(remaining):
+            if pred(info):
+                return remaining.pop(i)
+        return None
+
+    for pos in positions:
+        obj = obj_by_name.get(pos.name)
+        match = None
+        if obj:
+            match = _take(lambda info, o=obj: info.object_id == o)
+        if match is None:
+            dims = dims_by_name.get(pos.name)
+            if dims:
+                match = _take(lambda info, d=dims: (info.width, info.height) == d)
+        result.append((pos, match))
+    return result
 
 
 class PDFImageExtractor:
