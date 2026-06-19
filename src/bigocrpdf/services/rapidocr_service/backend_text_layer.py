@@ -478,9 +478,16 @@ class BackendTextLayerMixin:
                     else:
                         pdf_width, pdf_height = mb_w, mb_h
                 else:
-                    dpi = self.config.dpi or 300
-                    pdf_width = proc_w * 72.0 / dpi
-                    pdf_height = proc_h * 72.0 / dpi
+                    # No source-PDF mediabox (image source): size the page at
+                    # native pixel resolution (1 px = 1 pt) to match the
+                    # overlay path (_setup_overlay_mode). Using config.dpi here
+                    # would make geometry-corrected pages physically smaller
+                    # than unchanged pages of the same resolution, which mobile
+                    # viewers (honoring per-page MediaBox) render at a different
+                    # size. proc_w/proc_h already reflect the final image
+                    # orientation, so no need_swap is required.
+                    pdf_width = float(proc_w)
+                    pdf_height = float(proc_h)
                 logger.info(
                     f"Page {page_num}: page size {pdf_width:.1f}×{pdf_height:.1f} pt "
                     f"from {proc_w}×{proc_h} px"

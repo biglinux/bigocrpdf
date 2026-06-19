@@ -200,6 +200,20 @@ class SettingsSidebarMixin:
 
         self.pdfa_switch_row = Adw.SwitchRow(title=_("Export as PDF/A"))
 
+        self._page_layout_signal_connected = False
+        self._page_layout_values = ["default", "single", "continuous", "two_page"]
+        self.page_layout_combo = Adw.ComboRow(title=_("Page Layout"))
+        set_a11y_label(self.page_layout_combo, _("Page Layout"))
+        page_layout_model = Gtk.StringList.new(
+            [
+                _("Default (viewer decides)"),
+                _("Single page"),
+                _("Continuous scroll"),
+                _("Two pages"),
+            ]
+        )
+        self.page_layout_combo.set_model(page_layout_model)
+
         self.max_size_combo = Adw.ComboRow(title=_("Maximum Output Size"))
         set_a11y_label(self.max_size_combo, _("Maximum Output Size"))
         self._max_size_values = [0, 5, 10, 15, 20, 25, 50, 100]
@@ -221,6 +235,7 @@ class SettingsSidebarMixin:
         self._output_widgets: dict[str, Gtk.Widget] = {
             "image_quality": self.image_quality_combo,
             "pdfa": self.pdfa_switch_row,
+            "page_layout": self.page_layout_combo,
             "max_size": self.max_size_combo,
         }
 
@@ -557,6 +572,18 @@ class SettingsSidebarMixin:
                 if not self._pdfa_signal_connected:
                     self.pdfa_switch_row.connect("notify::active", self._on_pdfa_changed)
                     self._pdfa_signal_connected = True
+
+            if hasattr(self, "page_layout_combo"):
+                self.page_layout_combo.set_can_focus(True)
+                layout = getattr(settings, "page_layout", "default")
+                try:
+                    idx = self._page_layout_values.index(layout)
+                except ValueError:
+                    idx = 0
+                self.page_layout_combo.set_selected(idx)
+                if not self._page_layout_signal_connected:
+                    self.page_layout_combo.connect("notify::selected", self._on_page_layout_changed)
+                    self._page_layout_signal_connected = True
         except Exception as e:
             logger.error(f"Error loading image export settings: {e}")
         self._update_output_subtitle()
@@ -598,6 +625,16 @@ class SettingsSidebarMixin:
         pdfa_enabled = switch_row.get_active()
         self.window.settings.convert_to_pdfa = pdfa_enabled
         logger.info(f"PDF/A export changed to: {pdfa_enabled}")
+        self.window.settings._save_all_settings()
+
+    def _on_page_layout_changed(self, combo: Adw.ComboRow, _pspec) -> None:
+        """Handle page-layout (viewer /PageLayout) selection changes."""
+        selected = combo.get_selected()
+        if selected < 0 or selected >= len(self._page_layout_values):
+            return
+        layout = self._page_layout_values[selected]
+        self.window.settings.page_layout = layout
+        logger.info(f"Page layout changed to: {layout}")
         self.window.settings._save_all_settings()
 
     def _load_max_size_setting(self) -> None:

@@ -26,6 +26,7 @@ class EditorToolsMixin:
         dialog = Gtk.FileDialog()
         dialog.set_title(_("Save a copy"))
         dialog.set_initial_name(os.path.basename(self._pdf_path))
+        dialog.set_initial_folder(Gio.File.new_for_path(self._default_save_dir()))
 
         pdf_filter = Gtk.FileFilter()
         pdf_filter.set_name(_("PDF Files"))
@@ -155,6 +156,7 @@ class EditorToolsMixin:
             dialog = Gtk.FileDialog()
             dialog.set_title(_("Save Compressed PDF"))
             dialog.set_initial_name("compressed_" + os.path.basename(self._pdf_path))
+            dialog.set_initial_folder(Gio.File.new_for_path(self._default_save_dir()))
 
             pdf_filter = Gtk.FileFilter()
             pdf_filter.set_name(_("PDF Files"))
@@ -258,6 +260,7 @@ class EditorToolsMixin:
         """Let user pick an output directory, then run the split."""
         dialog = Gtk.FileDialog()
         dialog.set_title(_("Select Output Directory"))
+        dialog.set_initial_folder(Gio.File.new_for_path(self._default_save_dir()))
 
         dialog.select_folder(
             self,

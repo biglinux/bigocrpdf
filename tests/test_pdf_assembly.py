@@ -1,6 +1,11 @@
 """Tests for PDF text escaping and assembly utilities."""
 
-from bigocrpdf.services.rapidocr_service.pdf_assembly import escape_pdf_text
+import pikepdf
+
+from bigocrpdf.services.rapidocr_service.pdf_assembly import (
+    escape_pdf_text,
+    set_root_page_layout,
+)
 
 
 class TestEscapePdfText:
@@ -59,3 +64,38 @@ class TestEscapePdfText:
     def test_only_latin1_passes(self):
         text = "\xe9\xe0\xfc"  # é à ü
         assert escape_pdf_text(text) == text
+
+
+class TestSetRootPageLayout:
+    """Tests for the viewer /PageLayout catalog setting."""
+
+    @staticmethod
+    def _blank_pdf() -> pikepdf.Pdf:
+        pdf = pikepdf.Pdf.new()
+        pdf.add_blank_page(page_size=(200, 300))
+        return pdf
+
+    def test_default_omits_page_layout(self):
+        pdf = self._blank_pdf()
+        assert set_root_page_layout(pdf, "default") is False
+        assert "/PageLayout" not in pdf.Root
+
+    def test_unknown_value_omits_page_layout(self):
+        pdf = self._blank_pdf()
+        assert set_root_page_layout(pdf, "garbage") is False
+        assert "/PageLayout" not in pdf.Root
+
+    def test_single_maps_to_singlepage(self):
+        pdf = self._blank_pdf()
+        assert set_root_page_layout(pdf, "single") is True
+        assert str(pdf.Root.PageLayout) == "/SinglePage"
+
+    def test_continuous_maps_to_onecolumn(self):
+        pdf = self._blank_pdf()
+        assert set_root_page_layout(pdf, "continuous") is True
+        assert str(pdf.Root.PageLayout) == "/OneColumn"
+
+    def test_two_page_maps_to_twocolumnleft(self):
+        pdf = self._blank_pdf()
+        assert set_root_page_layout(pdf, "two_page") is True
+        assert str(pdf.Root.PageLayout) == "/TwoColumnLeft"

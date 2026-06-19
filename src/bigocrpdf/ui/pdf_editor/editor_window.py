@@ -208,6 +208,31 @@ class PDFEditorWindow(EditorToolsMixin, EditorPageActionsMixin, Adw.Window):
         )
         doc_group.add(self._split_size_btn)
 
+        self._page_layout_values = ["default", "single", "continuous", "two_page"]
+        self._page_layout_combo = Adw.ComboRow(title=_("Page Layout"))
+        self._page_layout_combo.add_prefix(Gtk.Image.new_from_icon_name("view-paged-symbolic"))
+        self._page_layout_combo.set_model(
+            Gtk.StringList.new(
+                [
+                    _("Default (viewer decides)"),
+                    _("Single page"),
+                    _("Continuous scroll"),
+                    _("Two pages"),
+                ]
+            )
+        )
+        current_layout = get_config_manager().get("output.page_layout", "default")
+        try:
+            self._page_layout_combo.set_selected(self._page_layout_values.index(current_layout))
+        except ValueError:
+            self._page_layout_combo.set_selected(0)
+        self._page_layout_combo.connect("notify::selected", self._on_page_layout_changed)
+        get_tooltip_helper().add_tooltip(
+            self._page_layout_combo,
+            _("How PDF viewers arrange pages when opening the file"),
+        )
+        doc_group.add(self._page_layout_combo)
+
         sidebar_box.append(doc_group)
 
         # Group 2: Page Actions
@@ -813,6 +838,44 @@ class PDFEditorWindow(EditorToolsMixin, EditorPageActionsMixin, Adw.Window):
         self._save_and_callback()
         self._close_window()
 
+    def _on_page_layout_changed(self, combo: Adw.ComboRow, _pspec) -> None:
+        """Persist the viewer page-layout (/PageLayout) selection."""
+        idx = combo.get_selected()
+        if 0 <= idx < len(self._page_layout_values):
+            get_config_manager().set(
+                "output.page_layout", self._page_layout_values[idx], save_immediately=True
+            )
+            logger.info("Editor page layout changed to: %s", self._page_layout_values[idx])
+
+    def _default_save_dir(self) -> str:
+        """Pick the folder to open the Save dialog in.
+
+        Prefers the directory of the originally opened source files (where the
+        images/PDFs live), so a document assembled into a temporary file does
+        not default the dialog to the temp dir. Falls back to the user's home
+        when no source folder is writable; never returns the temp directory.
+        """
+        import tempfile
+
+        candidates: list[str] = []
+        if self._document:
+            for page in self._document.get_active_pages():
+                src = getattr(page, "source_file", "") or ""
+                if src:
+                    candidates.append(os.path.dirname(os.path.abspath(src)))
+        if self._pdf_path:
+            candidates.append(os.path.dirname(os.path.abspath(self._pdf_path)))
+
+        tmp_dir = os.path.realpath(tempfile.gettempdir())
+        for folder in candidates:
+            if not folder or not os.path.isdir(folder) or not os.access(folder, os.W_OK):
+                continue
+            real = os.path.realpath(folder)
+            if real == tmp_dir or real.startswith(tmp_dir + os.sep):
+                continue
+            return folder
+        return os.path.expanduser("~")
+
     def _on_save_as_clicked(self, _button: Gtk.Button) -> None:
         """Handle Save As button click — show file dialog and save PDF."""
         if not self._document:
@@ -831,9 +894,9 @@ class PDFEditorWindow(EditorToolsMixin, EditorPageActionsMixin, Adw.Window):
         if self._pdf_path:
             name = os.path.splitext(os.path.basename(self._pdf_path))[0]
             dialog.set_initial_name(f"{name}-edited.pdf")
-            dialog.set_initial_folder(Gio.File.new_for_path(os.path.dirname(self._pdf_path)))
         else:
             dialog.set_initial_name(_("document.pdf"))
+        dialog.set_initial_folder(Gio.File.new_for_path(self._default_save_dir()))
 
         dialog.save(self, None, self._on_save_as_response)
 

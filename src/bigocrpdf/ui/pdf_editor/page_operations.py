@@ -194,6 +194,12 @@ def _add_image_page(source_file, page_state, new_pdf, opened_pdfs, opened_stream
 
     temp_pdf = pikepdf.Pdf.open(pdf_bytes)
     page = temp_pdf.pages[0]
+    # Force the page box to the image's native pixel size (1 px = 1 pt).
+    # PIL sizes the page from the image DPI, so images of the same resolution
+    # but differing embedded DPI would otherwise yield inconsistent physical
+    # page sizes — which mobile viewers (honoring per-page MediaBox) render at
+    # different scales. Pinning to native pixels keeps every image page uniform.
+    page.MediaBox = [0, 0, img.width, img.height]
     if page_state.rotation != 0:
         page.Rotate = page_state.rotation
     new_pdf.pages.append(page)
@@ -297,6 +303,13 @@ def apply_changes_to_pdf(doc: PDFDocument | None, output_path: str) -> bool:
             except Exception as e:
                 logger.error(f"Failed to process {source_file}: {e}")
                 continue
+
+        # Apply the viewer page layout (/PageLayout) from the shared setting.
+        from bigocrpdf.utils.config_manager import get_config_manager
+        from bigocrpdf.utils.pdf_utils import set_root_page_layout
+
+        layout = get_config_manager().get("output.page_layout", "default")
+        set_root_page_layout(new_pdf, layout)
 
         new_pdf.save(output_path)
         logger.info(f"Saved modified PDF to {output_path}")

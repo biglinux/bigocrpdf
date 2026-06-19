@@ -904,7 +904,20 @@ class BackendPipelineMixin(ChunkedOCRMixin, MixedContentMixin):
         if self.config.convert_to_pdfa:
             if progress_callback:
                 progress_callback(90, 100, _("Converting to PDF/A..."))
+            # PDF/A path sets /PageLayout inside convert_to_pdfa's careful save.
             self._convert_to_pdfa(merged_pdf, output_pdf)
+        elif getattr(self.config, "page_layout", "default") != "default":
+            # Non-PDF/A: write /PageLayout into the catalog. Only re-save via
+            # pikepdf when a non-default layout was requested; the common
+            # default path keeps the instant rename below.
+            import pikepdf
+
+            from bigocrpdf.services.rapidocr_service.pdf_assembly import set_root_page_layout
+
+            with pikepdf.open(merged_pdf) as pdf:
+                set_root_page_layout(pdf, self.config.page_layout)
+                pdf.save(output_pdf)
+            merged_pdf.unlink(missing_ok=True)
         else:
             # Use move instead of copy — instant rename on same filesystem
             shutil.move(str(merged_pdf), str(output_pdf))

@@ -162,4 +162,4 @@ class BackendOCRMixin:
 
     def _convert_to_pdfa(self, input_pdf: Path, output_pdf: Path) -> None:
         """Convert PDF to PDF/A-2b format using Ghostscript."""
-        convert_to_pdfa(input_pdf, output_pdf)
+        convert_to_pdfa(input_pdf, output_pdf, getattr(self.config, "page_layout", "default"))

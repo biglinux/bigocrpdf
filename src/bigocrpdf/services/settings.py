@@ -43,6 +43,7 @@ from bigocrpdf.services.rapidocr_service.config import (
     DEFAULT_IMAGE_EXPORT_QUALITY,
     DEFAULT_LANGUAGE,
     DEFAULT_MAX_FILE_SIZE_MB,
+    DEFAULT_PAGE_LAYOUT,
     DEFAULT_SCANNER_EFFECT_STRENGTH,
     DEFAULT_TEXT_SCORE_THRESHOLD,
     DEFAULT_UNCLIP_RATIO,
@@ -266,6 +267,7 @@ class OcrSettings:
         self.max_file_size_mb = self._config.get(
             "output.max_file_size_mb", DEFAULT_MAX_FILE_SIZE_MB
         )
+        self.page_layout = self._config.get("output.page_layout", DEFAULT_PAGE_LAYOUT)
 
     def _load_bilevel_settings(self) -> None:
         self.enable_bilevel_compression = self._config.get(
@@ -625,6 +627,7 @@ class OcrSettings:
     def _save_pdf_output_settings(self) -> None:
         self._config.set("output.convert_to_pdfa", self.convert_to_pdfa, save_immediately=False)
         self._config.set("output.max_file_size_mb", self.max_file_size_mb, save_immediately=False)
+        self._config.set("output.page_layout", self.page_layout, save_immediately=False)
 
     def _save_bilevel_settings(self) -> None:
         self._config.set(

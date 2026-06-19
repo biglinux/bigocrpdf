@@ -17,8 +17,13 @@ from bigocrpdf.services.rapidocr_service.pdf_extractor import (
     extract_content_streams,
     merge_page_fonts,
 )
+from bigocrpdf.utils.pdf_utils import set_root_page_layout
 
 logger = logging.getLogger(__name__)
+
+# Re-exported from utils.pdf_utils so the lightweight PDF editor can apply the
+# same /PageLayout without importing this reportlab-heavy module.
+__all__ = ["set_root_page_layout"]
 
 
 def escape_pdf_text(text: str) -> str:
@@ -554,7 +559,7 @@ def smart_merge_pdfs(
     logger.info(f"Smart merged PDF saved: {output_pdf_path}")
 
 
-def convert_to_pdfa(input_pdf: Path, output_pdf: Path) -> None:
+def convert_to_pdfa(input_pdf: Path, output_pdf: Path, page_layout: str = "default") -> None:
     """Convert PDF to PDF/A-2b format using pikepdf metadata injection.
 
     Instead of re-rendering the entire PDF through Ghostscript (which
@@ -570,6 +575,8 @@ def convert_to_pdfa(input_pdf: Path, output_pdf: Path) -> None:
     Args:
         input_pdf: Path to source PDF
         output_pdf: Path for PDF/A output
+        page_layout: Viewer page-layout setting written to the catalog
+            ``/PageLayout`` ("default" leaves it unset).
     """
     import shutil
 
@@ -589,6 +596,9 @@ def convert_to_pdfa(input_pdf: Path, output_pdf: Path) -> None:
         icc_data = srgb_icc.read_bytes()
 
         with pikepdf.open(input_pdf) as pdf:
+            # 0. Apply viewer page layout (no-op for "default")
+            set_root_page_layout(pdf, page_layout)
+
             # 1. Add MarkInfo (required for PDF/A-2)
             if pikepdf.Name.MarkInfo not in pdf.Root:
                 pdf.Root.MarkInfo = pikepdf.Dictionary(Marked=True)

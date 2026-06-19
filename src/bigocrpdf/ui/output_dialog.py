@@ -33,9 +33,7 @@ def _load_svg_picture(filename: str, size: int = 92) -> Gtk.Image:
     image.set_valign(Gtk.Align.CENTER)
     image.set_hexpand(False)
     image.set_vexpand(False)
-    image.update_property(
-        [Gtk.AccessibleProperty.LABEL], [""]
-    )
+    image.update_property([Gtk.AccessibleProperty.LABEL], [""])
     return image
 
 
@@ -93,6 +91,18 @@ _OUTPUT_SETTINGS = [
             "Creates an archival PDF designed for long-term storage. "
             "The file will open correctly on any device, now and "
             "in the future. Recommended for important documents."
+        ),
+    },
+    {
+        "key": "page_layout",
+        "type": "combo",
+        "svg": "full_resolution.svg",
+        "title": _("Page Layout"),
+        "description": _(
+            "Sets how PDF viewers arrange the pages when the file is opened: "
+            "one page at a time, a continuous vertical scroll, or two pages "
+            "side by side. 'Default' lets each viewer choose. Use this if "
+            "pages appear at inconsistent sizes on phones."
         ),
     },
     {

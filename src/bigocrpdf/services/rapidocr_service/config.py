@@ -40,6 +40,9 @@ DEFAULT_VINTAGE_BW = False
 # Output
 DEFAULT_CONVERT_TO_PDFA = False
 DEFAULT_MAX_FILE_SIZE_MB = 0
+# Viewer page layout written to the PDF catalog /PageLayout.
+# One of: "default" (omit), "single", "continuous", "two_page".
+DEFAULT_PAGE_LAYOUT = "default"
 # Image export
 DEFAULT_IMAGE_EXPORT_FORMAT = "original"
 DEFAULT_IMAGE_EXPORT_QUALITY = 85
@@ -118,6 +121,7 @@ class OCRConfig:
     # === Output Options ===
     convert_to_pdfa: bool = DEFAULT_CONVERT_TO_PDFA
     max_file_size_mb: int = DEFAULT_MAX_FILE_SIZE_MB
+    page_layout: str = DEFAULT_PAGE_LAYOUT
     enable_bilevel_compression: bool = DEFAULT_ENABLE_BILEVEL_COMPRESSION
     force_bilevel_compression: bool = DEFAULT_FORCE_BILEVEL_COMPRESSION
 

@@ -342,6 +342,7 @@ class OcrProcessor:
             # Output options
             convert_to_pdfa=self.settings.convert_to_pdfa,
             max_file_size_mb=self.settings.max_file_size_mb,
+            page_layout=getattr(self.settings, "page_layout", "default"),
             enable_bilevel_compression=self.settings.enable_bilevel_compression,
             force_bilevel_compression=self.settings.force_bilevel_compression,
             # Image export options

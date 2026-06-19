@@ -248,6 +248,13 @@ def build_parser() -> argparse.ArgumentParser:
     ocr_o = ocr_p.add_argument_group(_("Output options"))
     ocr_o.add_argument("--pdfa", action="store_true", help=_("Convert output to PDF/A-2b"))
     ocr_o.add_argument(
+        "--page-layout",
+        type=str,
+        default="default",
+        choices=["default", "single", "continuous", "two_page"],
+        help=_("Viewer page layout (/PageLayout) in output PDF. Default: default."),
+    )
+    ocr_o.add_argument(
         "--image-format",
         type=str,
         default="original",
@@ -508,6 +515,7 @@ def _cmd_ocr(args: argparse.Namespace, logger: logging.Logger) -> int:
         vintage_bw=args.vintage_bw,
         # Output
         convert_to_pdfa=args.pdfa,
+        page_layout=args.page_layout,
         image_export_format=args.image_format,
         image_export_quality=args.image_quality,
         # Behavior

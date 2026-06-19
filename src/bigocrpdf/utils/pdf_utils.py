@@ -381,3 +381,30 @@ def images_to_pdf(image_paths: list[str], output_path: str | None = None) -> str
         return output_path
     except Exception as e:
         raise RuntimeError(f"Failed to create PDF from images: {e}") from e
+
+
+# Map the user-facing page-layout setting to a PDF catalog ``/PageLayout``
+# name (ISO 32000 §7.7.2). ``"default"`` omits the key so the viewer chooses.
+PAGE_LAYOUT_NAMES: dict[str, str] = {
+    "single": "/SinglePage",
+    "continuous": "/OneColumn",
+    "two_page": "/TwoColumnLeft",
+}
+
+
+def set_root_page_layout(pdf: Any, page_layout: str) -> bool:
+    """Set the document catalog ``/PageLayout`` from the page-layout setting.
+
+    Controls how viewers (notably mobile readers) arrange pages on open:
+    one page at a time, continuous vertical scroll, or two-up. ``"default"``
+    (or any unknown value) leaves the catalog untouched so the viewer decides.
+
+    ``pdf`` is a ``pikepdf.Pdf``. Returns True when a name was written.
+    """
+    import pikepdf
+
+    name = PAGE_LAYOUT_NAMES.get(page_layout)
+    if name is None:
+        return False
+    pdf.Root.PageLayout = pikepdf.Name(name)
+    return True
