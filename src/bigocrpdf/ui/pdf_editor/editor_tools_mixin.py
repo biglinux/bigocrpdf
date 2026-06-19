@@ -46,11 +46,13 @@ class EditorToolsMixin:
                 if path:
                     from bigocrpdf.ui.pdf_editor.page_operations import apply_changes_to_pdf
 
-                    if apply_changes_to_pdf(self._document, path):
-                        logger.info("Saved PDF copy to %s", path)
-                        self._show_info(_("Saved to {}").format(os.path.basename(path)))
-                    else:
-                        self._show_error(_("Failed to save PDF."))
+                    def _save(p: str = path) -> bool:
+                        if not apply_changes_to_pdf(self._document, p):
+                            return False
+                        logger.info("Saved PDF copy to %s", p)
+                        return True
+
+                    self._save_with_feedback(_save, _("Saved to {}").format(os.path.basename(path)))
         except GLib.Error as e:
             if "dismissed" not in str(e).lower():
                 logger.error("Save copy error: %s", e)

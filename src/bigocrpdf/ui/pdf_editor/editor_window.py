@@ -803,6 +803,44 @@ class PDFEditorWindow(EditorToolsMixin, EditorPageActionsMixin, Adw.Window):
         self._notification_timer_id = None
         return False
 
+    def _show_info(self, message: str, timeout: int = 3) -> None:
+        """Show a success/info banner (e.g. save completed)."""
+        self._show_notification(message, "emblem-ok-symbolic", timeout)
+
+    def _show_saving(self) -> None:
+        """Show a persistent 'Saving…' banner until the next notification."""
+        self._show_notification(_("Saving…"), "document-save-symbolic", timeout=0)
+
+    def _save_with_feedback(self, save_fn, success_message: str) -> None:
+        """Run a blocking save while showing saving/saved feedback.
+
+        Shows a persistent 'Saving…' banner, then defers the blocking save to
+        the next idle cycle so the banner is painted before the UI freezes, and
+        finally reports success or failure.
+
+        Args:
+            save_fn: Callable returning True on success.
+            success_message: Banner text shown when save_fn returns True.
+        """
+        self._show_saving()
+
+        def _run() -> bool:
+            try:
+                ok = save_fn()
+            except Exception as e:
+                logger.error("Save failed: %s", e)
+                self._show_error(_("Failed to save PDF."))
+                return False
+            if ok:
+                self._show_info(success_message)
+            else:
+                self._show_error(_("Failed to save PDF."))
+            return False
+
+        # Small delay so the "Saving…" banner is painted before the blocking
+        # save freezes the main loop.
+        GLib.timeout_add(50, _run)
+
     def _on_back_clicked(self, _button: Gtk.Button) -> None:
         """Handle back button click.
 
@@ -912,12 +950,14 @@ class PDFEditorWindow(EditorToolsMixin, EditorPageActionsMixin, Adw.Window):
 
             from bigocrpdf.ui.pdf_editor.page_operations import apply_changes_to_pdf
 
-            if apply_changes_to_pdf(self._document, dest_path):
+            def _save() -> bool:
+                if not apply_changes_to_pdf(self._document, dest_path):
+                    return False
                 self._document.clear_modifications()
-                self._show_notification(_("Saved: {}").format(os.path.basename(dest_path)))
                 logger.info("Saved PDF via Save As: %s", dest_path)
-            else:
-                self._show_error(_("Failed to save PDF."))
+                return True
+
+            self._save_with_feedback(_save, _("Saved: {}").format(os.path.basename(dest_path)))
         except GLib.Error as e:
             if "dismissed" not in str(e).lower():
                 logger.error(f"Save As error: {e}")
