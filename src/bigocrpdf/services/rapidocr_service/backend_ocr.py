@@ -73,6 +73,7 @@ class BackendOCRMixin:
         GTK's threading model interferes with ONNX Runtime causing detection to fail.
         """
 
+        temp_img_path = ""
         try:
             fd, temp_img_path = tempfile.mkstemp(suffix=".png")
             os.close(fd)

@@ -394,12 +394,12 @@ def create_odf(
     img_counter = [0]
 
     # Embed page images if provided
-    _embed_images = bool(page_images)
-    if _embed_images:
-        from odf.draw import Frame
-        from odf.draw import Image as OdfImage
+    from odf.draw import Frame
+    from odf.draw import Image as OdfImage
 
-        img_frame_s = Style(name="ImgFrame", family="graphic")
+    _embed_images = bool(page_images)
+    img_frame_s = Style(name="ImgFrame", family="graphic")
+    if _embed_images:
         doc.automaticstyles.addElement(img_frame_s)
 
     _MIME_EXT = {"image/jpeg": ".jpg", "image/png": ".png"}

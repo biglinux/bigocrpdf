@@ -1,0 +1,38 @@
+{
+  // Pragmatic type-check baseline.
+  //
+  // The app composes behaviour from many *Mixin classes whose self.<attr>
+  // members are supplied by the host window, and leans on PyGObject / pikepdf /
+  // cv2, which ship no (or only partial) type stubs. Pyright cannot resolve
+  // those structurally, so the rules dominated by that noise are demoted to
+  // warnings while genuine signal stays an error (reportPossiblyUnboundVariable,
+  // syntax, self/cls). To tighten later: give the mixins a Host Protocol and
+  // install PyGObject-stubs, then promote these rules back to "error".
+  "include": ["src"],
+  "exclude": [
+    "**/__pycache__",
+    "**/node_modules",
+    "pkgbuild",
+    "usr",
+    ".venv",
+    "venv",
+    "build"
+  ],
+  "typeCheckingMode": "basic",
+
+  "reportMissingModuleSource": "none",
+  "reportAttributeAccessIssue": "warning",
+  "reportOptionalMemberAccess": "warning",
+  "reportArgumentType": "warning",
+  "reportCallIssue": "warning",
+  "reportReturnType": "warning",
+  "reportAssignmentType": "warning",
+  "reportOperatorIssue": "warning",
+  "reportOptionalOperand": "warning",
+  "reportGeneralTypeIssues": "warning",
+  "reportIndexIssue": "warning",
+  "reportOptionalSubscript": "warning",
+  "reportOptionalIterable": "warning",
+
+  "reportPossiblyUnboundVariable": "error"
+}

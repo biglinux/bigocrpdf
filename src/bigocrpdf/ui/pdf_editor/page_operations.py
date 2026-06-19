@@ -277,13 +277,11 @@ def apply_changes_to_pdf(doc: PDFDocument | None, output_path: str) -> bool:
     """
     if doc is None:
         return False
+    opened_pdfs: dict = {}
+    opened_streams: list = []
     try:
-        import io
-
         import pikepdf
 
-        opened_pdfs: dict[str, pikepdf.Pdf] = {}
-        opened_streams: list[io.BytesIO] = []
         new_pdf = pikepdf.Pdf.new()
         active_pages = doc.get_active_pages()
 
