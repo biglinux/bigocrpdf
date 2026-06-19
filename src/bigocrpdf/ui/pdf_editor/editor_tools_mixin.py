@@ -1,4 +1,4 @@
-"""Sidebar tool dialogs for PDFEditorWindow: compress, split, save-copy, reverse."""
+"""Sidebar tool dialogs for PDFEditorWindow: compress, split, reverse."""
 
 from __future__ import annotations
 
@@ -17,45 +17,6 @@ from bigocrpdf.utils.logger import logger
 
 class EditorToolsMixin:
     """Mixin providing document-level tool dialogs for the PDF editor."""
-
-    def _on_save_copy(self, _action, _param) -> None:
-        """Save included pages as a new PDF file."""
-        if not self._document:
-            return
-
-        dialog = Gtk.FileDialog()
-        dialog.set_title(_("Save a copy"))
-        dialog.set_initial_name(os.path.basename(self._pdf_path))
-        dialog.set_initial_folder(Gio.File.new_for_path(self._default_save_dir()))
-
-        pdf_filter = Gtk.FileFilter()
-        pdf_filter.set_name(_("PDF Files"))
-        pdf_filter.add_pattern("*.pdf")
-        store = Gio.ListStore.new(Gtk.FileFilter)
-        store.append(pdf_filter)
-        dialog.set_filters(store)
-
-        dialog.save(self, None, self._on_save_copy_response)
-
-    def _on_save_copy_response(self, dialog: Gtk.FileDialog, result: Gio.AsyncResult) -> None:
-        """Handle Save Copy dialog response."""
-        try:
-            file = dialog.save_finish(result)
-            if file:
-                path = file.get_path()
-                if path:
-                    from bigocrpdf.ui.pdf_editor.page_operations import apply_changes_to_pdf
-
-                    def _save(p: str = path) -> bool:
-                        if not apply_changes_to_pdf(self._document, p):
-                            return False
-                        logger.info("Saved PDF copy to %s", p)
-                        return True
-
-                    self._save_with_feedback(_save, _("Saved to {}").format(os.path.basename(path)))
-        except GLib.Error as e:
-            if "dismissed" not in str(e).lower():
-                logger.error("Save copy error: %s", e)
 
     def _on_tools_compress(self, _action, _param) -> None:
         """Show compress dialog and compress the document."""

@@ -176,13 +176,6 @@ class PDFEditorWindow(EditorToolsMixin, EditorPageActionsMixin, Adw.Window):
         # Group 1: Document Actions
         doc_group = Adw.PreferencesGroup()
 
-        self._save_copy_btn = Adw.ActionRow(title=_("Save As..."))
-        self._save_copy_btn.add_prefix(Gtk.Image.new_from_icon_name("document-save-as-symbolic"))
-        self._save_copy_btn.set_activatable(True)
-        self._save_copy_btn.set_action_name("editor.save-copy")
-        get_tooltip_helper().add_tooltip(self._save_copy_btn, _("Export a copy of the document"))
-        doc_group.add(self._save_copy_btn)
-
         self._compress_btn = Adw.ActionRow(title=_("Compress PDF"))
         self._compress_btn.add_prefix(Gtk.Image.new_from_icon_name("document-properties-symbolic"))
         self._compress_btn.set_activatable(True)
@@ -472,7 +465,6 @@ class PDFEditorWindow(EditorToolsMixin, EditorPageActionsMixin, Adw.Window):
         action_group = Gio.SimpleActionGroup()
 
         actions = {
-            "save-copy": self._on_save_copy,
             "compress": self._on_tools_compress,
             "split-pages": self._on_tools_split_pages,
             "split-size": self._on_tools_split_size,
