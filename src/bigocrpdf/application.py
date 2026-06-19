@@ -352,7 +352,13 @@ class BigOcrPdfApp(Adw.Application):
             img = PILImage.open(first_path)
             if img.mode in ("RGBA", "LA", "P"):
                 img = img.convert("RGB")
-            img.save(tmp_pdf, "PDF", resolution=150)
+            # Embed at native pixel resolution (1 px = 1 pt, i.e. 72 DPI) so the
+            # bootstrap cover page matches the pages appended later via
+            # _add_image_page. A non-native resolution (e.g. 150) here, or an
+            # image carrying its own DPI metadata, would make this first page a
+            # different physical size than the rest, which mobile viewers render
+            # at a different scale.
+            img.save(tmp_pdf, "PDF", resolution=72.0)
             img.close()
 
             from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
