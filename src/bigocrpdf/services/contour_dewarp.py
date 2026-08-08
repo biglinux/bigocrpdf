@@ -695,68 +695,37 @@ def dewarp_baseline(image: np.ndarray) -> np.ndarray | None:
         )
         return None
 
-    # ── Step 5: Add edge anchors and build surface ───────────────────
-    # Only anchor top and bottom edges (NOT left/right) to preserve
-    # curvature correction at the spine edge where correction is needed most
-    edge_n = 20
-    edge_x_list: list[float] = []
-    edge_y_list: list[float] = []
-    edge_dy_list: list[float] = []
-
-    for xv in np.linspace(0, w, edge_n):
-        edge_x_list.extend([float(xv), float(xv)])
-        edge_y_list.extend([0.0, float(h)])
-        edge_dy_list.extend([0.0, 0.0])
-
-    all_x = np.concatenate([control_x_arr, np.array(edge_x_list)])
-    all_y = np.concatenate([control_y_arr, np.array(edge_y_list)])
-    all_dy = np.concatenate([control_dy_arr, np.array(edge_dy_list)])
+    all_x, all_y, all_dy = _baseline_control_points_with_edge_anchors(
+        control_x_arr,
+        control_y_arr,
+        control_dy_arr,
+        h,
+        w,
+    )
 
     # ── Step 6: Fit 2D polynomial surface ────────────────────────────
-    # Degree-4 polynomial captures varying curvature across the page
-    # 15 terms: 1, x, y, x², xy, y², x³, x²y, xy², y³, x⁴, x³y, x²y², xy³, y⁴
-    xn = all_x / w
-    yn = all_y / h
-
-    poly_deg = _BL_POLY_DEGREE
-    cols = []
-    for i in range(poly_deg + 1):
-        for j in range(poly_deg + 1 - i):
-            cols.append(xn**i * yn**j)
-    vander = np.column_stack(cols)
-
     try:
-        coeffs_2d, _, _, _ = np.linalg.lstsq(vander, all_dy, rcond=None)
+        coeffs_2d, _, _, _ = np.linalg.lstsq(
+            _baseline_poly_vander(all_x / w, all_y / h),
+            all_dy,
+            rcond=None,
+        )
     except np.linalg.LinAlgError:
         logger.debug("Baseline dewarp: 2D polynomial fit failed, skipping")
         return None
 
     # ── Step 7: Evaluate on decimated grid ───────────────────────────
-    dec = _BL_REMAP_DECIMATE
-    grid_y, grid_x = np.mgrid[0:h:dec, 0:w:dec]
-
-    gx_flat = grid_x.ravel().astype(np.float64) / w
-    gy_flat = grid_y.ravel().astype(np.float64) / h
-
-    grid_cols = []
-    for i in range(poly_deg + 1):
-        for j in range(poly_deg + 1 - i):
-            grid_cols.append(gx_flat**i * gy_flat**j)
-    grid_vander = np.column_stack(grid_cols)
-
-    dy_flat = grid_vander @ coeffs_2d
-    dy_grid = dy_flat.reshape(grid_y.shape)
-
-    # Smooth and clamp
-    dy_grid = gaussian_filter(dy_grid, sigma=2.0)
-    dy_grid = np.clip(dy_grid, -max_allowed_dy, max_allowed_dy)
-
-    # ── Step 8: Build remap maps and apply ───────────────────────────
-    map_x_small = grid_x.astype(np.float32)
-    map_y_small = (grid_y.astype(np.float64) - dy_grid).astype(np.float32)
-
-    map_x = cv2.resize(map_x_small, (w, h), interpolation=cv2.INTER_LINEAR).astype(np.float32)
-    map_y = cv2.resize(map_y_small, (w, h), interpolation=cv2.INTER_LINEAR).astype(np.float32)
+    grid_y, grid_x = np.mgrid[0:h:_BL_REMAP_DECIMATE, 0:w:_BL_REMAP_DECIMATE]
+    dy_grid = _baseline_displacement_grid(
+        coeffs_2d,
+        grid_x,
+        grid_y,
+        h,
+        w,
+        max_allowed_dy,
+        gaussian_filter,
+    )
+    map_x, map_y = _baseline_remap_grid(grid_x, grid_y, dy_grid, h, w)
 
     result = cv2.remap(
         image,
@@ -767,19 +736,8 @@ def dewarp_baseline(image: np.ndarray) -> np.ndarray | None:
         borderValue=(255, 255, 255),
     )
 
-    # ── Step 9: Quality validation ───────────────────────────────────
-    gray_corr = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
-    lap_orig = cv2.Laplacian(gray, cv2.CV_64F).var()
-    lap_corr = cv2.Laplacian(gray_corr, cv2.CV_64F).var()
-
-    if lap_orig > 0:
-        lap_ratio = lap_corr / lap_orig
-        if lap_ratio < _BL_MIN_LAPLACIAN_RATIO:
-            logger.debug(
-                f"Baseline dewarp rejected: Laplacian ratio {lap_ratio:.3f} "
-                f"< {_BL_MIN_LAPLACIAN_RATIO} (too much blur)"
-            )
-            return None
+    if _baseline_dewarp_is_too_blurry(gray, result):
+        return None
 
     logger.info(
         f"Baseline dewarp applied: {n_curved} curved lines, "
@@ -787,6 +745,87 @@ def dewarp_baseline(image: np.ndarray) -> np.ndarray | None:
         f"max displacement {max_displacement:.1f}px, P95 {disp_95:.1f}px"
     )
     return result
+
+
+def _baseline_control_points_with_edge_anchors(
+    control_x_arr: np.ndarray,
+    control_y_arr: np.ndarray,
+    control_dy_arr: np.ndarray,
+    h: int,
+    w: int,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    edge_x_list: list[float] = []
+    edge_y_list: list[float] = []
+    edge_dy_list: list[float] = []
+
+    for xv in np.linspace(0, w, 20):
+        edge_x_list.extend([float(xv), float(xv)])
+        edge_y_list.extend([0.0, float(h)])
+        edge_dy_list.extend([0.0, 0.0])
+
+    return (
+        np.concatenate([control_x_arr, np.array(edge_x_list)]),
+        np.concatenate([control_y_arr, np.array(edge_y_list)]),
+        np.concatenate([control_dy_arr, np.array(edge_dy_list)]),
+    )
+
+
+def _baseline_poly_vander(xn: np.ndarray, yn: np.ndarray) -> np.ndarray:
+    cols = []
+    for i in range(_BL_POLY_DEGREE + 1):
+        for j in range(_BL_POLY_DEGREE + 1 - i):
+            cols.append(xn**i * yn**j)
+    return np.column_stack(cols)
+
+
+def _baseline_displacement_grid(
+    coeffs_2d: np.ndarray,
+    grid_x: np.ndarray,
+    grid_y: np.ndarray,
+    h: int,
+    w: int,
+    max_allowed_dy: float,
+    gaussian_filter,
+) -> np.ndarray:
+    gx_flat = grid_x.ravel().astype(np.float64) / w
+    gy_flat = grid_y.ravel().astype(np.float64) / h
+    dy_flat = _baseline_poly_vander(gx_flat, gy_flat) @ coeffs_2d
+    dy_grid = dy_flat.reshape(grid_y.shape)
+    dy_grid = gaussian_filter(dy_grid, sigma=2.0)
+    return np.clip(dy_grid, -max_allowed_dy, max_allowed_dy)
+
+
+def _baseline_remap_grid(
+    grid_x: np.ndarray,
+    grid_y: np.ndarray,
+    dy_grid: np.ndarray,
+    h: int,
+    w: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    map_x_small = grid_x.astype(np.float32)
+    map_y_small = (grid_y.astype(np.float64) - dy_grid).astype(np.float32)
+    map_x = cv2.resize(map_x_small, (w, h), interpolation=cv2.INTER_LINEAR).astype(np.float32)
+    map_y = cv2.resize(map_y_small, (w, h), interpolation=cv2.INTER_LINEAR).astype(np.float32)
+    return map_x, map_y
+
+
+def _baseline_dewarp_is_too_blurry(gray: np.ndarray, result: np.ndarray) -> bool:
+    gray_corr = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
+    lap_orig = cv2.Laplacian(gray, cv2.CV_64F).var()
+    lap_corr = cv2.Laplacian(gray_corr, cv2.CV_64F).var()
+
+    if lap_orig <= 0:
+        return False
+
+    lap_ratio = lap_corr / lap_orig
+    if lap_ratio >= _BL_MIN_LAPLACIAN_RATIO:
+        return False
+
+    logger.debug(
+        f"Baseline dewarp rejected: Laplacian ratio {lap_ratio:.3f} "
+        f"< {_BL_MIN_LAPLACIAN_RATIO} (too much blur)"
+    )
+    return True
 
 
 # ── Skew detection from spans ────────────────────────────────────────────────
@@ -888,7 +927,7 @@ def detect_skew_from_contours(image: np.ndarray) -> float:
         return 0.0
 
     # Sample keypoints
-    span_points = _sample_spans(small.shape, spans)
+    span_points = _sample_spans(spans)
     n_pts = sum(len(sp) for sp in span_points)
     if n_pts < 20:
         return 0.0

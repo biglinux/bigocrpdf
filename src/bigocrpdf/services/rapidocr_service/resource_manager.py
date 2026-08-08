@@ -9,7 +9,7 @@ settings that avoid swapping and OOM.
 Resource tiers:
   - CONSTRAINED: < 2 GB available RAM → single worker, small chunks, aggressive GC
   - MODERATE:    2-6 GB available RAM → balanced workers, medium chunks
-  - ABUNDANT:    > 6 GB available RAM → max workers, large chunks, prefetch
+  - ABUNDANT:    > 6 GB available RAM → max workers, large chunks
 
 All thresholds are derived from measured memory profiles:
   - Base process overhead:   ~150 MB
@@ -20,9 +20,12 @@ All thresholds are derived from measured memory profiles:
 """
 
 import logging
+import math
 import os
+from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum, auto
+from pathlib import Path
 
 from bigocrpdf.constants import (
     BASE_PROCESS_OVERHEAD_MB,
@@ -68,19 +71,14 @@ class PipelineConfig:
         max_workers: Maximum preprocessing worker processes
         chunk_size: Pages per processing chunk
         ocr_threads: Threads for OCR inference subprocess
-        enable_prefetch: Prefetch next chunk while processing current
         gc_after_page: Force gc.collect() after each page
-        gc_after_chunk: Force gc.collect() after each chunk
         downscale_probmap: Max side for probmap inference (lower = less RAM)
     """
 
     max_workers: int
     chunk_size: int
     ocr_threads: int
-    ocr_workers: int
-    enable_prefetch: bool
     gc_after_page: bool
-    gc_after_chunk: bool
     downscale_probmap: int
 
 
@@ -200,10 +198,7 @@ def compute_pipeline_config(profile: ResourceProfile) -> PipelineConfig:
         max_workers = 1
         chunk_size = 4
         ocr_threads = max(2, cpu_count // 2)
-        ocr_workers = 1
-        enable_prefetch = False
         gc_after_page = True
-        gc_after_chunk = True
         downscale_probmap = 1024  # Smaller inference = less RAM
 
     elif profile.tier == ResourceTier.MODERATE:
@@ -213,10 +208,7 @@ def compute_pipeline_config(profile: ResourceProfile) -> PipelineConfig:
         max_workers = min(ram_workers, cpu_workers, 6)
         chunk_size = 8
         ocr_threads = max(2, cpu_count // 2)
-        ocr_workers = 1
-        enable_prefetch = False
         gc_after_page = False
-        gc_after_chunk = True
         downscale_probmap = 1536
 
     else:  # ABUNDANT
@@ -228,29 +220,22 @@ def compute_pipeline_config(profile: ResourceProfile) -> PipelineConfig:
         # Single OCR subprocess maximizes throughput: OpenVINO
         # inference scales better with more threads in one process
         # than splitting across multiple processes (cache contention).
-        ocr_workers = 1
         ocr_threads = max(2, cpu_count)
-        enable_prefetch = True
         gc_after_page = False
-        gc_after_chunk = True
         downscale_probmap = 1536
 
     config = PipelineConfig(
         max_workers=max_workers,
         chunk_size=chunk_size,
         ocr_threads=ocr_threads,
-        ocr_workers=ocr_workers,
-        enable_prefetch=enable_prefetch,
         gc_after_page=gc_after_page,
-        gc_after_chunk=gc_after_chunk,
         downscale_probmap=downscale_probmap,
     )
 
     logger.info(
         f"Pipeline config: workers={max_workers}, chunk={chunk_size}, "
-        f"ocr_threads={ocr_threads}, ocr_workers={ocr_workers}, "
-        f"prefetch={enable_prefetch}, "
-        f"gc_page={gc_after_page}, gc_chunk={gc_after_chunk}, "
+        f"ocr_threads={ocr_threads}, "
+        f"gc_page={gc_after_page}, "
         f"probmap_max={downscale_probmap}"
     )
 
@@ -279,6 +264,143 @@ def estimate_page_memory_mb(width_pts: float, height_pts: float, render_dpi: int
     raw_mb = px_w * px_h * _BYTES_PER_PIXEL / (1024 * 1024)
     # Account for preprocessing copies (~3x raw) + inference overhead
     return raw_mb * 3.5
+
+
+def estimate_page_megapixels(width_pts: float, height_pts: float, render_dpi: int = 300) -> float:
+    """Estimate rendered page size in megapixels for a PDF page."""
+    px_w = abs(width_pts) / _PDF_POINTS_PER_INCH * render_dpi
+    px_h = abs(height_pts) / _PDF_POINTS_PER_INCH * render_dpi
+    return px_w * px_h / 1_000_000
+
+
+def select_render_dpi_for_page(
+    width_pts: float,
+    height_pts: float,
+    preferred_dpi: int,
+    max_megapixels: float,
+    min_dpi: int = 150,
+) -> int:
+    """Choose a render DPI that stays under the configured megapixel budget."""
+    if preferred_dpi <= 0 or max_megapixels <= 0:
+        return preferred_dpi
+    width_pts = abs(width_pts)
+    height_pts = abs(height_pts)
+    if (
+        not math.isfinite(width_pts)
+        or not math.isfinite(height_pts)
+        or width_pts <= 0
+        or height_pts <= 0
+    ):
+        raise ValueError("Page has invalid dimensions for the configured render budget")
+    if estimate_page_megapixels(width_pts, height_pts, preferred_dpi) <= max_megapixels:
+        return preferred_dpi
+
+    page_area_inches = (width_pts / _PDF_POINTS_PER_INCH) * (height_pts / _PDF_POINTS_PER_INCH)
+    effective_min_dpi = min(preferred_dpi, max(1, min_dpi))
+    minimum_megapixels = estimate_page_megapixels(
+        width_pts,
+        height_pts,
+        effective_min_dpi,
+    )
+    if minimum_megapixels > max_megapixels + 1e-9:
+        raise ValueError(
+            f"Page would render at {minimum_megapixels:.1f} MP at minimum "
+            f"{effective_min_dpi} DPI; configured limit is {max_megapixels:.1f} MP"
+        )
+
+    capped_dpi = int(math.floor(math.sqrt((max_megapixels * 1_000_000) / page_area_inches)))
+    return max(effective_min_dpi, min(preferred_dpi, capped_dpi))
+
+
+def select_pdf_page_render_dpi(
+    pdf_path: Path | str,
+    page_num: int,
+    preferred_dpi: int,
+    max_megapixels: float,
+    min_dpi: int = 150,
+) -> int:
+    """Choose render DPI for a PDF page, failing closed when its size cannot be inspected."""
+    if max_megapixels <= 0:
+        return preferred_dpi
+    if page_num <= 0:
+        raise ValueError(f"Invalid PDF page number for render budget: {page_num}")
+    try:
+        import pikepdf
+
+        with pikepdf.open(pdf_path) as pdf:
+            page = pdf.pages[page_num - 1]
+            mediabox = page.mediabox
+            user_unit = float(page.get("/UserUnit", 1))
+            width_pts = abs(float(mediabox[2]) - float(mediabox[0])) * user_unit
+            height_pts = abs(float(mediabox[3]) - float(mediabox[1])) * user_unit
+    except Exception as exc:
+        raise ValueError(
+            f"Could not inspect page {page_num} size required for the configured render budget"
+        ) from exc
+    if not math.isfinite(user_unit) or user_unit <= 0:
+        raise ValueError(f"Page {page_num} has an invalid PDF UserUnit")
+    return select_render_dpi_for_page(
+        width_pts,
+        height_pts,
+        preferred_dpi,
+        max_megapixels,
+        min_dpi,
+    )
+
+
+def enforce_pdf_resource_limits(
+    total_pages: int,
+    page_dimensions: Iterable[tuple[float, float]],
+    config,
+    image_dimensions: Iterable[tuple[int, int, int]] = (),
+) -> None:
+    """Fail early when a PDF would exceed configured OCR resource limits."""
+    max_pdf_pages = int(getattr(config, "max_pdf_pages", 0))
+    if max_pdf_pages > 0 and total_pages > max_pdf_pages:
+        raise ValueError(f"PDF has {total_pages} pages; configured limit is {max_pdf_pages}")
+
+    max_page_megapixels = float(getattr(config, "max_page_megapixels", 0.0))
+    if max_page_megapixels > 0:
+        render_dpi = int(getattr(config, "dpi", 300))
+        for page_index, (width_pts, height_pts) in enumerate(page_dimensions, 1):
+            if (
+                not math.isfinite(width_pts)
+                or not math.isfinite(height_pts)
+                or width_pts <= 0
+                or height_pts <= 0
+            ):
+                raise ValueError(f"Page {page_index} has invalid dimensions")
+            megapixels = estimate_page_megapixels(width_pts, height_pts, render_dpi)
+            if megapixels > max_page_megapixels:
+                raise ValueError(
+                    f"Page {page_index} would render at {megapixels:.1f} MP "
+                    f"({render_dpi} DPI); configured limit is {max_page_megapixels:.1f} MP"
+                )
+
+    enforce_image_resource_limits(image_dimensions, config)
+
+
+def enforce_image_resource_limits(
+    image_dimensions: Iterable[tuple[int, int, int]],
+    config,
+) -> None:
+    """Reject embedded images whose declared decoded size exceeds the limit."""
+    max_image_megapixels = float(getattr(config, "max_image_megapixels", 0.0))
+    if max_image_megapixels <= 0:
+        return
+
+    for image_index, (page_num, width_px, height_px) in enumerate(image_dimensions, 1):
+        if width_px <= 0 or height_px <= 0:
+            raise ValueError(
+                f"Image {image_index} on page {page_num} has invalid dimensions: "
+                f"{width_px}x{height_px}"
+            )
+        megapixels = width_px * height_px / 1_000_000
+        if megapixels > max_image_megapixels:
+            raise ValueError(
+                f"Image {image_index} on page {page_num} is {megapixels:.1f} MP; "
+                f"configured limit is {max_image_megapixels:.1f} MP"
+            )
 
 
 def adjust_chunk_size(

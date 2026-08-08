@@ -4,19 +4,14 @@ BigOcrPdf - Navigation Manager Module
 Handles page navigation and step label management.
 """
 
-import gi
-
-gi.require_version("Gtk", "4.0")
 from collections.abc import Callable
 from typing import TYPE_CHECKING
-
-from gi.repository import Gtk
 
 from bigocrpdf.utils.i18n import N_, _
 from bigocrpdf.utils.logger import logger
 
 if TYPE_CHECKING:
-    from window import BigOcrPdfWindow
+    from bigocrpdf.ui.window_ui import BigOcrPdfUI
 
 
 class NavigationState:
@@ -51,15 +46,7 @@ class NavigationState:
 
 
 class NavigationManager:
-    """
-    Manages page navigation and step labels.
-
-    This class handles:
-    - Page transitions
-    - Step label updates
-    - Back/Next button states
-    - Navigation history
-    """
+    """Manage page transitions and accessible step announcements."""
 
     # Page names
     PAGE_SETTINGS = "settings"
@@ -71,85 +58,15 @@ class NavigationManager:
     STEP_TERMINAL = N_("Step 2/3: Processing")
     STEP_CONCLUSION = N_("Step 3/3: Results")
 
-    def __init__(self, window: "BigOcrPdfWindow"):
-        """
-        Initialize the navigation manager.
+    def __init__(self, ui: "BigOcrPdfUI", announce_status: Callable[[str], None]) -> None:
+        self.ui = ui
+        self._announce_status = announce_status
 
-        Args:
-            window: Reference to the main application window
-        """
-        self.window = window
-        self._on_apply_callback: Callable | None = None
-        self._on_reset_callback: Callable | None = None
-
-        # Define navigation states for each page
-        self._page_states: dict[str, NavigationState] = {
-            self.PAGE_SETTINGS: NavigationState(
-                step_text=_(self.STEP_SETTINGS),
-                back_enabled=False,
-                back_visible=False,
-                next_enabled=True,
-                next_visible=True,
-                next_label=_("Start"),
-            ),
-            self.PAGE_TERMINAL: NavigationState(
-                step_text=_(self.STEP_TERMINAL),
-                back_enabled=True,
-                back_visible=True,
-                next_enabled=False,
-                next_visible=False,
-                next_label=_("Cancel"),
-            ),
-            self.PAGE_CONCLUSION: NavigationState(
-                step_text=_(self.STEP_CONCLUSION),
-                back_enabled=True,
-                back_visible=True,
-                next_enabled=True,
-                next_visible=True,
-                next_label=_("Process New Files"),
-            ),
+        self._page_steps = {
+            self.PAGE_SETTINGS: self.STEP_SETTINGS,
+            self.PAGE_TERMINAL: self.STEP_TERMINAL,
+            self.PAGE_CONCLUSION: self.STEP_CONCLUSION,
         }
-
-    def set_on_apply_callback(self, callback: Callable) -> None:
-        """
-        Set callback for when apply/start is triggered.
-
-        Args:
-            callback: Function to call when starting processing
-        """
-        self._on_apply_callback = callback
-
-    def set_on_reset_callback(self, callback: Callable) -> None:
-        """
-        Set callback for when reset is triggered.
-
-        Args:
-            callback: Function to call when resetting state
-        """
-        self._on_reset_callback = callback
-
-    @property
-    def stack(self) -> Gtk.Stack:
-        """Get the page stack from the window."""
-        return self.window.stack
-
-    @property
-    def main_stack(self) -> Gtk.Stack:
-        """Get the main stack from the window (for terminal/conclusion pages)."""
-        return self.window.main_stack
-
-    def get_current_page(self) -> str:
-        """
-        Get the name of the current visible page.
-
-        Returns:
-            Name of the current page
-        """
-        # Check main_stack first for terminal/conclusion
-        main_page = self.main_stack.get_visible_child_name()
-        if main_page in (self.PAGE_TERMINAL, self.PAGE_CONCLUSION):
-            return main_page
-        return self.PAGE_SETTINGS  # Default to settings when on main_view
 
     def navigate_to(self, page_name: str) -> None:
         """
@@ -158,77 +75,22 @@ class NavigationManager:
         Args:
             page_name: Name of the page to navigate to
         """
-        if page_name not in self._page_states:
+        if page_name not in self._page_steps:
             logger.warning(f"Unknown page: {page_name}")
             return
 
         if page_name == self.PAGE_SETTINGS:
             # Navigate to main view (which shows settings)
-            self.main_stack.set_visible_child_name("main_view")
-            self.stack.set_visible_child_name("settings")
+            self.ui.main_stack.set_visible_child_name("main_view")
+            self.ui.stack.set_visible_child_name("settings")
         elif page_name in (self.PAGE_TERMINAL, self.PAGE_CONCLUSION):
             # Navigate to full-width pages in main_stack
-            self.main_stack.set_visible_child_name(page_name)
-
-        self._update_header_bar_for_page(page_name)
+            self.ui.main_stack.set_visible_child_name(page_name)
 
         # Announce step change for screen readers (Orca)
-        state = self._page_states.get(page_name)
-        if state and hasattr(self.window, "announce_status"):
-            self.window.announce_status(_(state.step_text))
+        self._announce_status(_(self._page_steps[page_name]))
 
         logger.debug(f"Navigated to page: {page_name}")
-
-    def _update_header_bar_for_page(self, page_name: str) -> None:
-        """
-        Update header bar buttons for the current page.
-
-        Args:
-            page_name: Name of the current page
-        """
-        if not hasattr(self.window, "custom_header_bar") or not self.window.custom_header_bar:
-            return
-
-        if page_name == self.PAGE_SETTINGS:
-            self.window.custom_header_bar.set_view("queue")
-        elif page_name == self.PAGE_TERMINAL:
-            self.window.custom_header_bar.set_view("processing")
-        elif page_name == self.PAGE_CONCLUSION:
-            self.window.custom_header_bar.set_view("complete")
-
-    def handle_back_clicked(self, _button: Gtk.Button = None) -> None:
-        """
-        Handle back button click.
-
-        Args:
-            _button: The button that was clicked (unused)
-        """
-        current_page = self.get_current_page()
-
-        if current_page == self.PAGE_TERMINAL:
-            self._navigate_from_terminal_to_settings()
-        elif current_page == self.PAGE_CONCLUSION:
-            self._reset_to_settings()
-
-    def _navigate_from_terminal_to_settings(self) -> None:
-        """Navigate from terminal page back to settings."""
-        self.navigate_to(self.PAGE_SETTINGS)
-        self.window.update_file_info()
-
-    def _start_processing(self, button: Gtk.Button = None) -> None:
-        """
-        Start the OCR processing.
-
-        Args:
-            button: The button that triggered the action
-        """
-        if self._on_apply_callback:
-            self._on_apply_callback(button)
-
-    def _reset_to_settings(self) -> None:
-        """Reset state and go back to settings page."""
-        if self._on_reset_callback:
-            self._on_reset_callback()
 
     def navigate_to_terminal(self) -> None:
         """Navigate to the terminal/processing page."""
@@ -241,7 +103,3 @@ class NavigationManager:
     def navigate_to_settings(self) -> None:
         """Navigate to the settings page."""
         self.navigate_to(self.PAGE_SETTINGS)
-
-    def restore_next_button(self) -> None:
-        """Restore the header bar to its default state for the current page."""
-        self._update_header_bar_for_page(self.get_current_page())

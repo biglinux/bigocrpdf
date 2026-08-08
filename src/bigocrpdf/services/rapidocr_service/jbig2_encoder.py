@@ -177,29 +177,19 @@ def _read_ifd_values(tiff_bytes: bytes, endian: str, entry_offset: int) -> list[
     ]
 
 
-def _extract_ccitt_from_tiff(tiff_bytes: bytes) -> bytes | None:
-    """Extract raw CCITT data from a TIFF file byte stream.
-
-    Parses TIFF IFD to find strip offsets and byte counts,
-    then concatenates all strips into a single raw data block.
-    """
-    if len(tiff_bytes) < 8:
-        return None
-
+def _tiff_endian(tiff_bytes: bytes) -> str | None:
+    """Return struct endian marker for a TIFF byte stream."""
     byte_order = tiff_bytes[:2]
     if byte_order == b"II":
-        endian = "<"
-    elif byte_order == b"MM":
-        endian = ">"
-    else:
-        return None
+        return "<"
+    if byte_order == b"MM":
+        return ">"
+    return None
 
-    ifd_offset = struct.unpack_from(f"{endian}I", tiff_bytes, 4)[0]
-    if ifd_offset >= len(tiff_bytes):
-        return None
 
+def _read_ccitt_strip_entries(tiff_bytes: bytes, endian: str, ifd_offset: int):
+    """Read StripOffsets and StripByteCounts values from a TIFF IFD."""
     num_entries = struct.unpack_from(f"{endian}H", tiff_bytes, ifd_offset)[0]
-
     strip_offsets = None
     strip_byte_counts = None
 
@@ -209,12 +199,20 @@ def _extract_ccitt_from_tiff(tiff_bytes: bytes) -> bytes | None:
             break
 
         tag = struct.unpack_from(f"{endian}H", tiff_bytes, entry_offset)[0]
-
         if tag == 273:  # StripOffsets
             strip_offsets = _read_ifd_values(tiff_bytes, endian, entry_offset)
         elif tag == 279:  # StripByteCounts
             strip_byte_counts = _read_ifd_values(tiff_bytes, endian, entry_offset)
 
+    return strip_offsets, strip_byte_counts
+
+
+def _join_tiff_strips(
+    tiff_bytes: bytes,
+    strip_offsets: list[int] | None,
+    strip_byte_counts: list[int] | None,
+) -> bytes | None:
+    """Join raw TIFF strip payloads after validating bounds."""
     if not strip_offsets or not strip_byte_counts:
         return None
     if len(strip_offsets) != len(strip_byte_counts):
@@ -228,6 +226,33 @@ def _extract_ccitt_from_tiff(tiff_bytes: bytes) -> bytes | None:
         parts.append(tiff_bytes[offset:end])
 
     return b"".join(parts) if parts else None
+
+
+def _extract_ccitt_from_tiff(tiff_bytes: bytes) -> bytes | None:
+    """Extract raw CCITT data from a TIFF file byte stream.
+
+    Parses TIFF IFD to find strip offsets and byte counts,
+    then concatenates all strips into a single raw data block.
+    """
+    if len(tiff_bytes) < 8:
+        return None
+
+    endian = _tiff_endian(tiff_bytes)
+    if endian is None:
+        return None
+
+    try:
+        ifd_offset = struct.unpack_from(f"{endian}I", tiff_bytes, 4)[0]
+        if ifd_offset + 2 > len(tiff_bytes):
+            return None
+        strip_offsets, strip_byte_counts = _read_ccitt_strip_entries(
+            tiff_bytes,
+            endian,
+            ifd_offset,
+        )
+    except (struct.error, OverflowError):
+        return None
+    return _join_tiff_strips(tiff_bytes, strip_offsets, strip_byte_counts)
 
 
 def encode_bilevel(img: np.ndarray) -> tuple[str, bytes, bytes | None] | None:

@@ -2,42 +2,20 @@
 
 from __future__ import annotations
 
-import os
 from typing import TYPE_CHECKING
 
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, GdkPixbuf, Gtk
+from gi.repository import Adw, GObject, Gtk
 
+from bigocrpdf.ui.widgets import load_svg_picture
 from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.i18n import _
 
 if TYPE_CHECKING:
     pass
-
-_ILLUSTRATIONS_DIR = os.path.join(os.path.dirname(__file__), "..", "resources", "illustrations")
-
-
-def _load_svg_picture(filename: str, size: int = 92) -> Gtk.Image:
-    """Load an SVG illustration rendered to a fixed pixel size."""
-    path = os.path.join(_ILLUSTRATIONS_DIR, filename)
-    if os.path.exists(path):
-        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, size, size, True)
-        image = Gtk.Image.new_from_pixbuf(pixbuf)
-    else:
-        image = Gtk.Image()
-    image.set_pixel_size(size)
-    image.set_halign(Gtk.Align.CENTER)
-    image.set_valign(Gtk.Align.CENTER)
-    image.set_hexpand(False)
-    image.set_vexpand(False)
-    image.update_property(
-        [Gtk.AccessibleProperty.LABEL], [""]
-    )
-    return image
-
 
 _ADVANCED_SETTINGS = [
     {
@@ -88,9 +66,8 @@ def show_advanced_settings_dialog(
     """
     dialog = Adw.Dialog()
     dialog.set_title(_("Advanced"))
-    dialog.set_content_width(680)
-    dialog.set_content_height(700)
-    dialog.set_presentation_mode(Adw.DialogPresentationMode.FLOATING)
+    dialog.set_content_width(600)
+    dialog.set_content_height(600)
 
     toolbar = Adw.ToolbarView()
     header = Adw.HeaderBar()
@@ -119,97 +96,90 @@ def show_advanced_settings_dialog(
     content.append(intro)
 
     for setting in _ADVANCED_SETTINGS:
-        key = setting["key"]
-        widget = widgets.get(key)
-        if not widget:
-            continue
-
-        card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        card.add_css_class("card")
-        card.set_margin_bottom(12)
-
-        # Horizontal layout: [SVG] [text] [control]
-        row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=16)
-        row.set_margin_top(16)
-        row.set_margin_bottom(16)
-        row.set_margin_start(16)
-        row.set_margin_end(16)
-
-        # Left: SVG illustration
-        picture = _load_svg_picture(setting["svg"])
-        picture.set_valign(Gtk.Align.CENTER)
-        row.append(picture)
-
-        # Center: title + description
-        text_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
-        text_box.set_hexpand(True)
-        text_box.set_valign(Gtk.Align.CENTER)
-
-        title_label = Gtk.Label(label=setting["title"])
-        title_label.add_css_class("heading")
-        title_label.set_halign(Gtk.Align.START)
-        title_label.set_wrap(True)
-        text_box.append(title_label)
-
-        desc = Gtk.Label(label=setting["description"])
-        desc.set_wrap(True)
-        desc.set_xalign(0)
-        desc.add_css_class("dim-label")
-        text_box.append(desc)
-
-        row.append(text_box)
-
-        # Right: switch or dropdown
-        if setting["type"] == "switch":
-            toggle = Gtk.Switch()
-            toggle.set_active(widget.get_active())
-            toggle.set_valign(Gtk.Align.CENTER)
-            set_a11y_label(toggle, setting["title"])
-
-            def _make_switch_sync(w, tgl):
-                def _on_toggle(switch, _pspec):
-                    if w.get_active() != switch.get_active():
-                        w.set_active(switch.get_active())
-
-                def _on_row(source, _pspec):
-                    if tgl.get_active() != source.get_active():
-                        tgl.set_active(source.get_active())
-
-                tgl.connect("notify::active", _on_toggle)
-                w.connect("notify::active", _on_row)
-
-            _make_switch_sync(widget, toggle)
-            row.append(toggle)
-
-        elif setting["type"] == "combo":
-            source_model = widget.get_model()
-            n_items = source_model.get_n_items()
-            items = [source_model.get_string(i) for i in range(n_items)]
-            model = Gtk.StringList.new(items)
-            dropdown = Gtk.DropDown(model=model)
-            dropdown.set_selected(widget.get_selected())
-            dropdown.set_valign(Gtk.Align.CENTER)
-            set_a11y_label(dropdown, setting["title"])
-
-            def _make_combo_sync(w, dd):
-                def _on_dropdown(drop, _pspec):
-                    if w.get_selected() != drop.get_selected():
-                        w.set_selected(drop.get_selected())
-
-                def _on_row(source, _pspec):
-                    if dd.get_selected() != source.get_selected():
-                        dd.set_selected(source.get_selected())
-
-                dd.connect("notify::selected", _on_dropdown)
-                w.connect("notify::selected", _on_row)
-
-            _make_combo_sync(widget, dropdown)
-            row.append(dropdown)
-
-        card.append(row)
-        content.append(card)
+        widget = widgets.get(setting["key"])
+        if widget:
+            content.append(_advanced_setting_card(setting, widget))
 
     scroll.set_child(content)
     toolbar.set_content(scroll)
     dialog.set_child(toolbar)
     dialog.present(parent)
+
+
+def _advanced_setting_card(setting: dict, widget: Gtk.Widget) -> Gtk.Box:
+    card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+    card.add_css_class("card")
+    card.set_margin_bottom(12)
+
+    row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=16)
+    row.set_margin_top(16)
+    row.set_margin_bottom(16)
+    row.set_margin_start(16)
+    row.set_margin_end(16)
+
+    picture = load_svg_picture(setting["svg"])
+    picture.set_valign(Gtk.Align.CENTER)
+    row.append(picture)
+    row.append(_advanced_setting_text(setting))
+
+    control = _advanced_setting_control(setting, widget)
+    if control is not None:
+        row.append(control)
+
+    card.append(row)
+    return card
+
+
+def _advanced_setting_text(setting: dict) -> Gtk.Box:
+    text_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+    text_box.set_hexpand(True)
+    text_box.set_valign(Gtk.Align.CENTER)
+
+    title_label = Gtk.Label(label=setting["title"])
+    title_label.add_css_class("heading")
+    title_label.set_halign(Gtk.Align.START)
+    title_label.set_wrap(True)
+    text_box.append(title_label)
+
+    desc = Gtk.Label(label=setting["description"])
+    desc.set_wrap(True)
+    desc.set_xalign(0)
+    desc.add_css_class("dim-label")
+    text_box.append(desc)
+    return text_box
+
+
+def _advanced_setting_control(setting: dict, widget: Gtk.Widget) -> Gtk.Widget | None:
+    if setting["type"] == "switch":
+        if not isinstance(widget, Adw.SwitchRow):
+            return None
+        toggle = Gtk.Switch()
+        toggle.set_valign(Gtk.Align.CENTER)
+        set_a11y_label(toggle, setting["title"])
+        widget.bind_property(
+            "active",
+            toggle,
+            "active",
+            GObject.BindingFlags.BIDIRECTIONAL | GObject.BindingFlags.SYNC_CREATE,
+        )
+        return toggle
+
+    if setting["type"] == "combo":
+        if not isinstance(widget, Adw.ComboRow):
+            return None
+        source_model = widget.get_model()
+        if not isinstance(source_model, Gtk.StringList):
+            return None
+        items = [source_model.get_string(i) or "" for i in range(source_model.get_n_items())]
+        dropdown = Gtk.DropDown(model=Gtk.StringList.new(items))
+        dropdown.set_valign(Gtk.Align.CENTER)
+        set_a11y_label(dropdown, setting["title"])
+        widget.bind_property(
+            "selected",
+            dropdown,
+            "selected",
+            GObject.BindingFlags.BIDIRECTIONAL | GObject.BindingFlags.SYNC_CREATE,
+        )
+        return dropdown
+
+    return None

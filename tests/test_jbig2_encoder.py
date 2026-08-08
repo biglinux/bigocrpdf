@@ -143,6 +143,9 @@ class TestExtractCcittFromTiff(unittest.TestCase):
     def test_bad_byte_order(self):
         self.assertIsNone(_extract_ccitt_from_tiff(b"XX\x00\x00\x00\x00\x00\x00"))
 
+    def test_truncated_ifd_returns_none(self):
+        self.assertIsNone(_extract_ccitt_from_tiff(b"II*\x00\x07\x00\x00\x00"))
+
     def test_valid_tiff_extraction(self):
         """Create a real CCITT G4 TIFF and verify extraction."""
         img = _make_binary_image()
@@ -202,7 +205,3 @@ class TestEncodeBilevel(unittest.TestCase):
             enc_name, data, globals_or_none = result
             self.assertEqual(enc_name, "ccitt")
             self.assertIsNone(globals_or_none)
-
-
-if __name__ == "__main__":
-    unittest.main()

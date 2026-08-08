@@ -16,7 +16,7 @@ from bigocrpdf.ui.settings_queue_mixin import SettingsQueueMixin
 from bigocrpdf.ui.settings_sidebar_mixin import SettingsSidebarMixin
 
 if TYPE_CHECKING:
-    from window import BigOcrPdfWindow
+    from bigocrpdf.window import BigOcrPdfWindow
 
 
 class SettingsPageManager(SettingsSidebarMixin, SettingsQueueMixin):
@@ -32,6 +32,11 @@ class SettingsPageManager(SettingsSidebarMixin, SettingsQueueMixin):
         self.folder_entry_box = None
         self.file_list_box = None
         self.placeholder = None
+        self._selected_file_idx = None
+        self._item_popover = None
+        self._queue_metadata_pool = None
+        self._queue_metadata_waiters = {}
+        self._queue_metadata_closed = True
 
         # Preprocessing UI components
         self.deskew_switch = None
@@ -55,7 +60,7 @@ class SettingsPageManager(SettingsSidebarMixin, SettingsQueueMixin):
         settings = self.window.settings
 
         if self.lang_dropdown:
-            languages = self.window.ocr_processor.get_available_ocr_languages()
+            languages = self.window.processing.ocr_processor.get_available_ocr_languages()
             for i, (code, _name) in enumerate(languages):
                 if code == settings.lang:
                     self.lang_dropdown.set_selected(i)
@@ -81,8 +86,7 @@ class SettingsPageManager(SettingsSidebarMixin, SettingsQueueMixin):
             use_custom = self.folder_combo.get_selected() == 1
             self.folder_entry_box.set_visible(use_custom)
 
-        if hasattr(self.window, "custom_header_bar") and self.window.custom_header_bar:
-            self.window.custom_header_bar.update_queue_size(file_count)
+        self.window.ui.custom_header_bar.update_queue_size(file_count)
 
         if self.file_list_box:
             self._populate_file_list()

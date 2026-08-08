@@ -27,10 +27,13 @@ class TestParsePageList:
         assert _parse_page_list(" 1 , 3 - 5 ") == [1, 3, 4, 5]
 
     def test_negative_raises(self):
-        import pytest
-
         with pytest.raises(ValueError):
             _parse_page_list("0,1,-1,2")
+
+    @pytest.mark.parametrize("value", ["0", "3-1", "0-2"])
+    def test_non_positive_or_reversed_range_raises(self, value):
+        with pytest.raises(ValueError, match="Invalid page specification"):
+            _parse_page_list(value)
 
     def test_empty_parts_skipped(self):
         assert _parse_page_list(",1,,2,") == [1, 2]
@@ -72,6 +75,11 @@ class TestParseRanges:
         with pytest.raises(ValueError, match="Invalid range specification"):
             _parse_ranges("abc")
 
+    @pytest.mark.parametrize("value", ["0", "0-2", "3-1"])
+    def test_non_positive_or_reversed_range_raises(self, value):
+        with pytest.raises(ValueError, match="Invalid range specification"):
+            _parse_ranges(value)
+
     def test_empty_string(self):
         assert _parse_ranges("") == []
 
@@ -82,6 +90,15 @@ class TestBuildParser:
     def test_returns_parser(self):
         p = build_parser()
         assert p is not None
+
+    def test_version_flag(self, capsys):
+        parser = build_parser()
+
+        with pytest.raises(SystemExit) as exit_info:
+            parser.parse_args(["--version"])
+
+        assert exit_info.value.code == 0
+        assert capsys.readouterr().out == "bigocrpdf-cli 3.0.0\n"
 
     def test_ocr_subcommand(self):
         p = build_parser()
@@ -140,6 +157,10 @@ class TestBuildParser:
         p = build_parser()
         args = p.parse_args(["export-odf", "input.pdf"])
         assert args.command == "export-odf"
+        assert args.preserve_text_layout is False
+
+        positioned_args = p.parse_args(["export-odf", "input.pdf", "--preserve-text-layout"])
+        assert positioned_args.preserve_text_layout is True
 
     def test_export_txt_subcommand(self):
         p = build_parser()
@@ -151,10 +172,37 @@ class TestBuildParser:
         args = p.parse_args(["-v", "info", "input.pdf"])
         assert args.verbose is True
 
-    def test_ocr_language_default(self):
+    def test_ocr_has_no_legacy_language_selection(self):
         p = build_parser()
         args = p.parse_args(["ocr", "in.pdf", "-o", "out.pdf"])
-        assert args.language == "latin"
+        assert not hasattr(args, "language")
+
+        with pytest.raises(SystemExit):
+            p.parse_args(["ocr", "in.pdf", "-o", "out.pdf", "--language", "arabic"])
+        with pytest.raises(SystemExit):
+            p.parse_args(["ocr", "in.pdf", "-o", "out.pdf", "--ocr-version", "PPOCRV5"])
+
+    def test_ocr_pdf_mode_and_batch_options(self):
+        p = build_parser()
+        args = p.parse_args(
+            [
+                "ocr",
+                "in.pdf",
+                "-o",
+                "out.pdf",
+                "--pdf-mode",
+                "auto_verified",
+                "--engine-type",
+                "onnxruntime",
+                "--rec-batch-num",
+                "8",
+                "--use-textline-cls",
+            ]
+        )
+        assert args.pdf_mode == "auto_verified"
+        assert args.engine_type == "onnxruntime"
+        assert args.rec_batch_num == 8
+        assert args.use_textline_cls is True
 
     def test_ocr_no_flags(self):
         p = build_parser()

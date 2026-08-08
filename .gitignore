@@ -164,8 +164,19 @@ cython_debug/
 .pypirc
 
 # Project-specific
+.bigocrpdf-cpython-3.14/
+.bigocrpdf-debian-runtime/
+.bigocrpdf-venv/
+*.mo
+.bigocr_processing_*.pdf
+.bigocr_textlayer_*.pdf
+benchmark_results/**/export_complex_top3/
+benchmark_results/**/export_smoke/
+benchmark_results/**/exports/
 .pyscn/
 .vscode/
+pkgbuild/pkg/
+pkgbuild/src/
 feedback.md
 log.txt
 models-language.txt

@@ -1,22 +1,141 @@
 """File queue panel, drag-and-drop, and file management for SettingsPageManager."""
+# Host attributes are supplied by SettingsPageManager's explicit mixin composition.
+# pyright: reportAttributeAccessIssue=false
 
 from __future__ import annotations
 
+import glob
 import os
-from typing import TYPE_CHECKING
+import shutil
+import subprocess
+import tempfile
+from collections import Counter
+from collections.abc import Callable
+from concurrent.futures import Future, ThreadPoolExecutor
+from datetime import datetime
+from typing import cast
 
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, Gdk, Gio, GLib, GObject, Gtk
+gi.require_version("Gdk", "4.0")
+from gi.repository import Adw, Gdk, Gio, GLib, GObject, Gtk, Pango
 
+from bigocrpdf.ui.widgets import get_default_clipboard
 from bigocrpdf.utils.a11y import set_a11y_label
-from bigocrpdf.utils.i18n import _
+from bigocrpdf.utils.i18n import _, ngettext
 from bigocrpdf.utils.logger import logger
 
-if TYPE_CHECKING:
-    pass
+
+def _run_pdf_info_command(command: list[str], timeout: int) -> str:
+    try:
+        environment = os.environ.copy()
+        environment["LC_ALL"] = "C"
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=timeout,
+            env=environment,
+        )
+    except (OSError, subprocess.SubprocessError) as error:
+        logger.debug("PDF metadata command failed: %s", error)
+        return ""
+
+    if result.returncode != 0:
+        logger.debug(
+            "PDF metadata command returned %s: %s",
+            result.returncode,
+            result.stderr.strip(),
+        )
+        return ""
+    return result.stdout
+
+
+def _pdfinfo_fields(file_path: str) -> dict[str, str]:
+    info: dict[str, str] = {}
+    for line in _run_pdf_info_command(["pdfinfo", file_path], 10).splitlines():
+        if ":" in line:
+            key, value = line.split(":", 1)
+            value = value.strip()
+            if value:
+                info[key.strip()] = value
+    return info
+
+
+def _pdf_image_metadata(file_path: str) -> tuple[int, Counter[str], list[dict]]:
+    image_count = 0
+    image_formats: Counter[str] = Counter()
+    image_details: list[dict] = []
+    page_img_counts: dict[int, int] = {}
+
+    for line in _run_pdf_info_command(["pdfimages", "-list", file_path], 15).splitlines()[2:]:
+        parts = line.split()
+        if len(parts) < 15:
+            continue
+        try:
+            page_num = int(parts[0])
+        except ValueError:
+            continue
+        image_count += 1
+        enc = parts[8]
+        image_formats[enc] += 1
+        in_page_idx = page_img_counts.get(page_num, 0)
+        page_img_counts[page_num] = in_page_idx + 1
+        image_details.append(
+            {
+                "page": page_num,
+                "in_page_idx": in_page_idx,
+                "width": parts[3],
+                "height": parts[4],
+                "color": parts[5],
+                "enc": enc,
+                "size": parts[14],
+            }
+        )
+
+    return image_count, image_formats, image_details
+
+
+def _pdf_font_metadata(file_path: str) -> tuple[list[str], int]:
+    fonts: list[str] = []
+    embedded_count = 0
+    for line in _run_pdf_info_command(["pdffonts", file_path], 10).splitlines()[2:]:
+        parts = line.split()
+        if len(parts) >= 5:
+            fonts.append(parts[0])
+            if parts[3] == "yes":
+                embedded_count += 1
+    return fonts, embedded_count
+
+
+def _pdf_attached_files(file_path: str) -> list[str]:
+    attached_files: list[str] = []
+    for line in _run_pdf_info_command(["pdfdetach", "-list", file_path], 10).splitlines():
+        stripped = line.strip()
+        if stripped and not stripped.startswith("The following") and ":" in stripped:
+            attached_files.append(stripped.split(":", 1)[1].strip())
+    return attached_files
+
+
+def _read_pdf_metadata(
+    file_path: str,
+) -> tuple[dict[str, str], int, Counter[str], list[dict], list[str], int, list[str]]:
+    info = _pdfinfo_fields(file_path)
+    image_count, image_formats, image_details = _pdf_image_metadata(file_path)
+    fonts, embedded_count = _pdf_font_metadata(file_path)
+    attached_files = _pdf_attached_files(file_path)
+    return (
+        info,
+        image_count,
+        image_formats,
+        image_details,
+        fonts,
+        embedded_count,
+        attached_files,
+    )
 
 
 class SettingsQueueMixin:
@@ -28,6 +147,13 @@ class SettingsQueueMixin:
 
     def _create_file_queue_panel(self) -> Gtk.Widget:
         """Create the file queue panel for the right side."""
+        self._queue_metadata_pool = ThreadPoolExecutor(
+            max_workers=2,
+            thread_name_prefix="queue-metadata",
+        )
+        self._queue_metadata_waiters = {}
+        self._queue_metadata_closed = False
+
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         main_box.set_vexpand(True)
         main_box.add_css_class("view")
@@ -114,9 +240,6 @@ class SettingsQueueMixin:
 
         main_box.append(self._queue_view_stack)
 
-        self._selected_file_idx: int | None = None
-        self._item_popover: Gtk.PopoverMenu | None = None
-
         # Bottom options bar
         options_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         options_box.set_spacing(12)
@@ -157,7 +280,9 @@ class SettingsQueueMixin:
         folder_button.set_icon_name("folder-symbolic")
         folder_button.set_tooltip_text(_("Browse for folder"))
         set_a11y_label(folder_button, _("Browse for folder"))
-        folder_button.connect("clicked", self.window.on_browse_clicked)
+        folder_button.connect(
+            "clicked", lambda _button: self.window.file_manager.show_folder_selection_dialog()
+        )
         folder_button.add_css_class("flat")
         folder_button.add_css_class("circular")
         folder_button.set_valign(Gtk.Align.CENTER)
@@ -184,7 +309,6 @@ class SettingsQueueMixin:
         """Set up drag and drop functionality for both list and grid views."""
         for widget in (self.file_list_box, self._file_grid_box):
             drop_target = Gtk.DropTarget.new(Gdk.FileList, Gdk.DragAction.COPY)
-            drop_target.set_gtypes([Gdk.FileList])
             drop_target.connect("drop", self._on_drop)
             widget.add_controller(drop_target)
 
@@ -195,10 +319,6 @@ class SettingsQueueMixin:
             self._populate_grid()
         else:
             self._queue_view_stack.set_visible_child_name("list")
-
-    def _connect_view_toggles(self) -> None:
-        """No-op — view toggle is handled via HeaderBar._on_view_toggle_clicked."""
-        pass
 
     def _populate_file_list(self) -> None:
         """Populate the file list box with the selected files."""
@@ -214,14 +334,12 @@ class SettingsQueueMixin:
             else:
                 break
 
-        if hasattr(self, "placeholder") and self.placeholder:
-            self.file_list_box.set_placeholder(self.placeholder)
+        self.file_list_box.set_placeholder(self.placeholder)
 
         for idx, file_path in enumerate(self.window.settings.selected_files):
             self._create_file_row(file_path, idx)
 
-        # Re-populate grid if it is currently visible or was previously populated
-        if hasattr(self, "_file_grid_box"):
+        if self._queue_view_stack.get_visible_child_name() == "grid":
             self._populate_grid()
 
     def _populate_grid(self) -> None:
@@ -253,7 +371,6 @@ class SettingsQueueMixin:
 
     def _create_grid_tile(self, file_path: str, idx: int) -> Gtk.Widget:
         """Create a thumbnail tile for the grid view."""
-        from bigocrpdf.utils.pdf_utils import get_pdf_page_count
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
         box.set_halign(Gtk.Align.CENTER)
@@ -272,30 +389,17 @@ class SettingsQueueMixin:
         # Filename
         display = self._display_name(file_path)
         label = Gtk.Label(label=display)
-        label.set_ellipsize(3)  # Pango.EllipsizeMode.END
+        label.set_ellipsize(Pango.EllipsizeMode.END)
         label.set_max_width_chars(22)
         label.add_css_class("caption")
         label.set_tooltip_text(display)
         box.append(label)
 
-        # File info (pages + size)
-        info_parts: list[str] = []
-        pages = get_pdf_page_count(file_path)
-        if pages > 0:
-            info_parts.append(_("{pages} pg.").format(pages=pages))
-        try:
-            from bigocrpdf.constants import BYTES_PER_MB
-
-            file_size = os.path.getsize(file_path) / BYTES_PER_MB
-            info_parts.append(_("{size} MB").format(size=f"{file_size:.1f}"))
-        except (OSError, FileNotFoundError):
-            pass
-
-        if info_parts:
-            info_label = Gtk.Label()
-            info_label.set_markup(f"<small>{' · '.join(info_parts)}</small>")
-            info_label.add_css_class("dim-label")
-            box.append(info_label)
+        info_label = Gtk.Label()
+        info_label.add_css_class("caption")
+        info_label.add_css_class("dim-label")
+        info_label.set_visible(False)
+        box.append(info_label)
 
         # Action buttons row
         btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
@@ -309,7 +413,7 @@ class SettingsQueueMixin:
         edit_btn.connect("clicked", lambda _b, fp=file_path: self._on_edit_file(fp))
         btn_box.append(edit_btn)
 
-        remove_btn = Gtk.Button.new_from_icon_name("trash-symbolic")
+        remove_btn = Gtk.Button.new_from_icon_name("user-trash-symbolic")
         remove_btn.add_css_class("flat")
         remove_btn.add_css_class("circular")
         remove_btn.set_tooltip_text(_("Remove this file from the list"))
@@ -341,17 +445,106 @@ class SettingsQueueMixin:
         )
         box.add_controller(drag)
 
-        drop = Gtk.DropTarget.new(GObject.TYPE_STRING, Gdk.DragAction.MOVE)
+        drop = Gtk.DropTarget.new(cast(type, GObject.TYPE_STRING), Gdk.DragAction.MOVE)
         drop.connect(
             "drop",
-            lambda tgt, val, x, y, ti=idx: self._on_reorder_drop(int(val), ti),
+            lambda _tgt, val, _x, _y, ti=idx: self._on_reorder_drop(int(val), ti),
         )
         box.add_controller(drop)
 
         # Load thumbnail asynchronously
         self._load_grid_thumbnail(file_path, image)
+        self._load_queue_metadata(
+            file_path,
+            lambda pages, size: self._update_grid_metadata(
+                box,
+                info_label,
+                file_path,
+                pages,
+                size,
+            ),
+        )
 
         return box
+
+    def _load_queue_metadata(
+        self,
+        file_path: str,
+        callback: Callable[[int, float | None], None],
+    ) -> None:
+        if self._queue_metadata_closed:
+            return
+
+        waiters = self._queue_metadata_waiters.get(file_path)
+        if waiters is not None:
+            waiters.append(callback)
+            return
+
+        self._queue_metadata_waiters[file_path] = [callback]
+        pool = self._queue_metadata_pool
+        if pool is None:
+            return
+        future = pool.submit(self._read_queue_metadata, file_path)
+
+        def on_complete(completed: Future[tuple[int, float | None]]) -> None:
+            if not self._queue_metadata_closed:
+                GLib.idle_add(self._deliver_queue_metadata, file_path, completed)
+
+        future.add_done_callback(on_complete)
+
+    @staticmethod
+    def _read_queue_metadata(file_path: str) -> tuple[int, float | None]:
+        from bigocrpdf.constants import BYTES_PER_MB
+        from bigocrpdf.utils.pdf_utils import get_pdf_page_count
+
+        pages = get_pdf_page_count(file_path)
+        try:
+            size_mb = os.path.getsize(file_path) / BYTES_PER_MB
+        except OSError:
+            size_mb = None
+        return pages, size_mb
+
+    def _deliver_queue_metadata(
+        self,
+        file_path: str,
+        future: Future[tuple[int, float | None]],
+    ) -> bool:
+        if self._queue_metadata_closed:
+            self._queue_metadata_waiters.pop(file_path, None)
+            return GLib.SOURCE_REMOVE
+
+        try:
+            metadata = future.result()
+        except Exception as error:
+            logger.warning("Could not read queue metadata for %s: %s", file_path, error)
+            metadata = (0, None)
+
+        for callback in self._queue_metadata_waiters.pop(file_path, []):
+            callback(*metadata)
+        return GLib.SOURCE_REMOVE
+
+    def _update_grid_metadata(
+        self,
+        box: Gtk.Box,
+        label: Gtk.Label,
+        file_path: str,
+        pages: int,
+        size_mb: float | None,
+    ) -> None:
+        if box.get_parent() is None or file_path not in self.window.settings.selected_files:
+            return
+        parts = self._format_queue_metadata(pages, size_mb)
+        label.set_label(" · ".join(parts))
+        label.set_visible(bool(parts))
+
+    @staticmethod
+    def _format_queue_metadata(pages: int, size_mb: float | None) -> list[str]:
+        parts: list[str] = []
+        if pages > 0:
+            parts.append(ngettext("{count} page", "{count} pages", pages).format(count=pages))
+        if size_mb is not None:
+            parts.append(_("{size} MB").format(size=f"{size_mb:.1f}"))
+        return parts
 
     def _load_grid_thumbnail(self, file_path: str, image_widget: Gtk.Picture) -> None:
         """Load a thumbnail for a grid tile using the existing renderer."""
@@ -375,20 +568,14 @@ class SettingsQueueMixin:
         file_name = self._display_name(file_path)
         row.set_title(file_name)
 
-        try:
-            original = self.window.settings.original_file_paths.get(file_path)
-            dir_name = os.path.dirname(original or file_path)
-            from bigocrpdf.constants import BYTES_PER_MB
+        original = self.window.settings.original_file_paths.get(file_path)
+        directory = os.path.dirname(original or file_path)
+        row.set_subtitle(directory)
 
-            file_size = os.path.getsize(file_path) / BYTES_PER_MB
-            size_str = _("{size} MB").format(size=f"{file_size:.1f}")
-            subtitle = f"{dir_name}  •  {size_str}"
-            row.set_subtitle(subtitle)
-        except (OSError, FileNotFoundError):
-            original = self.window.settings.original_file_paths.get(file_path)
-            row.set_subtitle(os.path.dirname(original or file_path))
-
-        self._add_page_count_to_row(row, file_path)
+        page_label = Gtk.Label()
+        page_label.add_css_class("caption")
+        page_label.set_visible(False)
+        row.add_suffix(page_label)
 
         # Left side: edit + remove
         edit_button = Gtk.Button.new_from_icon_name("document-edit-symbolic")
@@ -399,7 +586,7 @@ class SettingsQueueMixin:
         edit_button.connect("clicked", lambda _b, fp=file_path: self._on_edit_file(fp))
         row.add_prefix(edit_button)
 
-        remove_button = Gtk.Button.new_from_icon_name("trash-symbolic")
+        remove_button = Gtk.Button.new_from_icon_name("user-trash-symbolic")
         remove_button.set_tooltip_text(_("Remove this file from the list"))
         set_a11y_label(remove_button, _("Remove this file from the list"))
         remove_button.add_css_class("flat")
@@ -429,24 +616,54 @@ class SettingsQueueMixin:
         )
         row.add_controller(drag)
 
-        drop = Gtk.DropTarget.new(GObject.TYPE_STRING, Gdk.DragAction.MOVE)
+        drop = Gtk.DropTarget.new(cast(type, GObject.TYPE_STRING), Gdk.DragAction.MOVE)
         drop.connect(
             "drop",
-            lambda tgt, val, x, y, ti=idx: self._on_reorder_drop(int(val), ti),
+            lambda _tgt, val, _x, _y, ti=idx: self._on_reorder_drop(int(val), ti),
         )
         row.add_controller(drop)
 
         self.file_list_box.append(row)
+        self._load_queue_metadata(
+            file_path,
+            lambda pages, size: self._update_row_metadata(
+                row,
+                page_label,
+                file_path,
+                directory,
+                pages,
+                size,
+            ),
+        )
+
+    def _update_row_metadata(
+        self,
+        row: Adw.ActionRow,
+        page_label: Gtk.Label,
+        file_path: str,
+        directory: str,
+        pages: int,
+        size_mb: float | None,
+    ) -> None:
+        if row.get_parent() is None or file_path not in self.window.settings.selected_files:
+            return
+        if size_mb is not None:
+            row.set_subtitle(f"{directory}  •  {_('{size} MB').format(size=f'{size_mb:.1f}')}")
+        if pages > 0:
+            page_label.set_label(
+                ngettext("{count} page", "{count} pages", pages).format(count=pages)
+            )
+            page_label.set_visible(True)
 
     # ── Popover item actions ──
 
-    def _on_list_row_activated(self, listbox: Gtk.ListBox, row) -> None:
+    def _on_list_row_activated(self, _listbox: Gtk.ListBox, row) -> None:
         """Handle list row activation (Enter key) — open file editor."""
         idx = getattr(row, "_file_idx", None)
         if idx is not None and 0 <= idx < len(self.window.settings.selected_files):
             self._on_edit_file(self.window.settings.selected_files[idx])
 
-    def _on_grid_child_activated(self, flowbox: Gtk.FlowBox, child) -> None:
+    def _on_grid_child_activated(self, _flowbox: Gtk.FlowBox, child) -> None:
         """Handle grid tile activation (double-click / Enter key) — open file editor."""
         idx = child.get_index()
         if 0 <= idx < len(self.window.settings.selected_files):
@@ -498,11 +715,9 @@ class SettingsQueueMixin:
         if pop is None:
             return
         self._item_popover = None
-        try:
-            pop.popdown()
+        pop.popdown()
+        if pop.get_parent() is not None:
             pop.unparent()
-        except Exception:
-            pass
 
     def _on_item_popover_closed(self, popover) -> None:
         """Auto-cleanup when the popover is dismissed by the user."""
@@ -512,21 +727,14 @@ class SettingsQueueMixin:
 
     @staticmethod
     def _safe_unparent_popover(popover) -> bool:
-        try:
+        if popover.get_parent() is not None:
             popover.unparent()
-        except Exception:
-            pass
-        return False
+        return GLib.SOURCE_REMOVE
 
     def _on_reorder_drop(self, source_idx: int, target_idx: int) -> bool:
         """Handle drop to reorder files in the queue."""
-        if source_idx == target_idx:
+        if not self.window.settings._move_file(source_idx, target_idx):
             return False
-        files = self.window.settings.selected_files
-        if not (0 <= source_idx < len(files)) or not (0 <= target_idx < len(files)):
-            return False
-        item = files.pop(source_idx)
-        files.insert(target_idx, item)
         self._populate_file_list()
         return True
 
@@ -542,13 +750,11 @@ class SettingsQueueMixin:
         from bigocrpdf.utils.pdf_utils import open_file_with_default_app
 
         if not open_file_with_default_app(file_path):
-            self.window.show_toast(_("Failed to open file"))
+            self.window.ui.show_toast(_("Failed to open file"))
 
     def _reveal_in_file_manager(self, file_path: str) -> None:
         """Open the system file manager with the given file selected."""
-        import subprocess
-
-        file_uri = f"file://{os.path.abspath(file_path)}"
+        file_uri = Gio.File.new_for_path(file_path).get_uri()
         try:
             subprocess.Popen(
                 [
@@ -571,113 +777,82 @@ class SettingsQueueMixin:
 
     def _show_file_info(self, file_path: str) -> None:
         """Show a dialog with detailed file metadata."""
-        import subprocess
-        from collections import Counter
-        from datetime import datetime
+        if self._queue_metadata_closed:
+            return
 
-        info: dict[str, str] = {}
+        pool = self._queue_metadata_pool
+        if pool is None:
+            return
+        future = pool.submit(_read_pdf_metadata, file_path)
 
-        # Parse pdfinfo output
+        def on_complete(completed) -> None:
+            if not self._queue_metadata_closed:
+                GLib.idle_add(self._deliver_file_info, file_path, completed)
+
+        future.add_done_callback(on_complete)
+
+    def _deliver_file_info(self, file_path: str, future) -> bool:
+        if self._queue_metadata_closed or file_path not in self.window.settings.selected_files:
+            return GLib.SOURCE_REMOVE
+
         try:
-            result = subprocess.run(
-                ["pdfinfo", file_path],
-                capture_output=True,
-                text=True,
-                check=False,
-                timeout=10,
-            )
-            for line in result.stdout.splitlines():
-                if ":" in line:
-                    key, value = line.split(":", 1)
-                    value = value.strip()
-                    if value:
-                        info[key.strip()] = value
+            (
+                info,
+                image_count,
+                image_formats,
+                image_details,
+                fonts,
+                embedded_count,
+                attached_files,
+            ) = future.result()
         except Exception:
-            pass
+            logger.exception("Could not read PDF metadata for %s", file_path)
+            return GLib.SOURCE_REMOVE
 
-        # Parse pdfimages -list for image info
-        image_count = 0
-        image_formats: Counter[str] = Counter()
-        image_details: list[dict] = []
-        page_img_counts: dict[int, int] = {}
-        try:
-            result = subprocess.run(
-                ["pdfimages", "-list", file_path],
-                capture_output=True,
-                text=True,
-                check=False,
-                timeout=15,
-            )
-            for line in result.stdout.splitlines()[2:]:  # skip header lines
-                parts = line.split()
-                if len(parts) >= 15:
-                    image_count += 1
-                    enc = parts[8]
-                    image_formats[enc] += 1
-                    pg = int(parts[0])
-                    if pg not in page_img_counts:
-                        page_img_counts[pg] = 0
-                    in_page_idx = page_img_counts[pg]
-                    page_img_counts[pg] += 1
-                    image_details.append(
-                        {
-                            "page": pg,
-                            "in_page_idx": in_page_idx,
-                            "width": parts[3],
-                            "height": parts[4],
-                            "color": parts[5],
-                            "enc": enc,
-                            "size": parts[14],
-                        }
-                    )
-        except Exception:
-            pass
+        all_info = self._build_file_info_rows(
+            file_path,
+            info,
+            image_count,
+            image_formats,
+            fonts,
+            embedded_count,
+            attached_files,
+        )
+        self._show_file_info_dialog(file_path, all_info, image_details)
+        return GLib.SOURCE_REMOVE
 
-        # Parse pdffonts for font info
-        fonts: list[str] = []
-        embedded_count = 0
-        try:
-            result = subprocess.run(
-                ["pdffonts", file_path],
-                capture_output=True,
-                text=True,
-                check=False,
-                timeout=10,
-            )
-            for line in result.stdout.splitlines()[2:]:  # skip header lines
-                parts = line.split()
-                if len(parts) >= 5:
-                    fonts.append(parts[0])
-                    if parts[3] == "yes":
-                        embedded_count += 1
-        except Exception:
-            pass
+    def _build_file_info_rows(
+        self,
+        file_path: str,
+        info: dict[str, str],
+        image_count: int,
+        image_formats: Counter[str],
+        fonts: list[str],
+        embedded_count: int,
+        attached_files: list[str],
+    ) -> list[tuple[str, str, str]]:
+        all_info: list[tuple[str, str, str]] = []
+        self._append_basic_file_info(all_info, file_path)
+        self._append_document_info(all_info, info)
+        self._append_content_info(
+            all_info,
+            image_count,
+            image_formats,
+            fonts,
+            embedded_count,
+            attached_files,
+        )
+        self._append_metadata_info(all_info, info)
+        return all_info
 
-        # Parse pdfdetach for embedded files
-        attached_files: list[str] = []
-        try:
-            result = subprocess.run(
-                ["pdfdetach", "-list", file_path],
-                capture_output=True,
-                text=True,
-                check=False,
-                timeout=10,
-            )
-            for line in result.stdout.splitlines():
-                stripped = line.strip()
-                if stripped and not stripped.startswith("The following"):
-                    # Lines like "1: filename.ext"
-                    if ":" in stripped:
-                        attached_files.append(stripped.split(":", 1)[1].strip())
-        except Exception:
-            pass
-
-        # ── Build info dict for copy ──
-        all_info: list[tuple[str, str, str]] = []  # (group, key, value)
-
-        # File info
+    def _append_basic_file_info(
+        self,
+        all_info: list[tuple[str, str, str]],
+        file_path: str,
+    ) -> None:
         all_info.append(("", _("Name"), self._display_name(file_path)))
         all_info.append(("", _("Path"), os.path.dirname(file_path)))
+
         try:
             from bigocrpdf.constants import BYTES_PER_MB
 
@@ -685,19 +860,16 @@ class SettingsQueueMixin:
             all_info.append(("", _("Size"), f"{size / BYTES_PER_MB:.2f} MB ({size:,} bytes)"))
         except OSError:
             pass
+
         try:
             mtime = os.path.getmtime(file_path)
-            all_info.append(
-                (
-                    "",
-                    _("Modified (local)"),
-                    datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S"),
-                )
-            )
+            modified = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S")
+            all_info.append(("", _("Modified (local)"), modified))
         except OSError:
             pass
 
-        # Document info
+    @staticmethod
+    def _append_document_info(all_info: list[tuple[str, str, str]], info: dict[str, str]) -> None:
         group_doc = _("Document")
         for key in ("Pages", "Page size", "PDF version", "Encrypted", "Optimized", "Tagged"):
             if key in info:
@@ -707,31 +879,34 @@ class SettingsQueueMixin:
         if "JavaScript" in info:
             all_info.append((group_doc, _("JavaScript"), info["JavaScript"]))
 
-        # Content info
+    @staticmethod
+    def _append_content_info(
+        all_info: list[tuple[str, str, str]],
+        image_count: int,
+        image_formats: Counter[str],
+        fonts: list[str],
+        embedded_count: int,
+        attached_files: list[str],
+    ) -> None:
         group_content = _("Content")
+        all_info.append((group_content, _("Images"), f"{image_count}"))
         if image_count > 0:
             fmt_str = ", ".join(f"{fmt} ({cnt})" for fmt, cnt in image_formats.most_common())
-            all_info.append((group_content, _("Images"), f"{image_count}"))
             all_info.append((group_content, _("Image formats"), fmt_str))
-        else:
-            all_info.append((group_content, _("Images"), "0"))
 
         if fonts:
             unique_fonts = sorted(set(fonts))
             all_info.append((group_content, _("Fonts"), f"{len(unique_fonts)}"))
             all_info.append(
-                (
-                    group_content,
-                    _("Embedded fonts"),
-                    f"{embedded_count} / {len(fonts)}",
-                )
+                (group_content, _("Embedded fonts"), f"{embedded_count} / {len(fonts)}")
             )
             all_info.append((group_content, _("Font names"), ", ".join(unique_fonts)))
 
         if attached_files:
             all_info.append((group_content, _("Attached files"), ", ".join(attached_files)))
 
-        # Metadata info
+    @staticmethod
+    def _append_metadata_info(all_info: list[tuple[str, str, str]], info: dict[str, str]) -> None:
         group_meta = _("Metadata")
         for key in ("Title", "Subject", "Author", "Creator", "Producer", "Keywords"):
             if key in info:
@@ -741,7 +916,12 @@ class SettingsQueueMixin:
         if "ModDate" in info:
             all_info.append((group_meta, _("Modified"), info["ModDate"]))
 
-        # ── Build dialog ──
+    def _show_file_info_dialog(
+        self,
+        file_path: str,
+        all_info: list[tuple[str, str, str]],
+        image_details: list[dict],
+    ) -> None:
         dialog = Adw.Dialog()
         dialog.set_title(_("File information"))
         dialog.set_content_width(460)
@@ -749,26 +929,36 @@ class SettingsQueueMixin:
 
         toolbar = Adw.ToolbarView()
         header = Adw.HeaderBar()
-
-        # Copy button in header
-        copy_btn = Gtk.Button.new_from_icon_name("edit-copy-symbolic")
-        copy_btn.set_tooltip_text(_("Copy all information"))
-        set_a11y_label(copy_btn, _("Copy all information"))
-        copy_btn.connect("clicked", lambda _b: self._copy_all_info(all_info))
-        header.pack_end(copy_btn)
-
+        header.pack_end(self._file_info_copy_button(all_info))
         toolbar.add_top_bar(header)
 
         scroll = Gtk.ScrolledWindow()
         scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        scroll.set_child(self._file_info_preferences_page(file_path, all_info, image_details))
 
+        toolbar.set_content(scroll)
+        dialog.set_child(toolbar)
+        dialog.present(self.window)
+
+    def _file_info_copy_button(self, all_info: list[tuple[str, str, str]]) -> Gtk.Button:
+        copy_btn = Gtk.Button.new_from_icon_name("edit-copy-symbolic")
+        copy_btn.set_tooltip_text(_("Copy all information"))
+        set_a11y_label(copy_btn, _("Copy all information"))
+        copy_btn.connect("clicked", lambda _b: self._copy_all_info(all_info))
+        return copy_btn
+
+    def _file_info_preferences_page(
+        self,
+        file_path: str,
+        all_info: list[tuple[str, str, str]],
+        image_details: list[dict],
+    ) -> Adw.PreferencesPage:
         page = Adw.PreferencesPage()
-
         current_group_name = None
         current_group = None
 
         for group_name, key, value in all_info:
-            if group_name != current_group_name:
+            if current_group is None or group_name != current_group_name:
                 current_group_name = group_name
                 current_group = Adw.PreferencesGroup()
                 if group_name:
@@ -776,34 +966,35 @@ class SettingsQueueMixin:
                 page.add(current_group)
             self._add_info_row(current_group, key, value)
 
-            # After the Content group, add the image list expander
-            if group_name == group_content and key == _("Images") and image_details:
-                expander = Adw.ExpanderRow()
-                expander.set_title(_("Image list"))
-                expander.set_subtitle(str(len(image_details)) + " " + _("images"))
-                for img in image_details:
-                    img_row = Adw.ActionRow()
-                    img_row.set_title(f"Page {img['page']} — {img['width']}×{img['height']}")
-                    img_row.set_subtitle(f"{img['enc'].upper()} · {img['size']} · {img['color']}")
+            if group_name == _("Content") and key == _("Images") and image_details:
+                current_group.add(self._image_details_expander(file_path, image_details))
 
-                    extract_btn = Gtk.Button.new_from_icon_name("document-save-symbolic")
-                    extract_btn.add_css_class("flat")
-                    extract_btn.set_valign(Gtk.Align.CENTER)
-                    extract_btn.set_tooltip_text(_("Extract this image"))
-                    set_a11y_label(extract_btn, _("Extract this image"))
-                    extract_btn.connect(
-                        "clicked",
-                        lambda _b, fp=file_path, i=img: self._extract_image(fp, i),
-                    )
-                    img_row.add_suffix(extract_btn)
+        return page
 
-                    expander.add_row(img_row)
-                current_group.add(expander)
+    def _image_details_expander(self, file_path: str, image_details: list[dict]) -> Adw.ExpanderRow:
+        expander = Adw.ExpanderRow()
+        expander.set_title(_("Image list"))
+        image_count = len(image_details)
+        expander.set_subtitle(
+            ngettext("{count} image", "{count} images", image_count).format(count=image_count)
+        )
+        for img in image_details:
+            expander.add_row(self._image_detail_row(file_path, img))
+        return expander
 
-        scroll.set_child(page)
-        toolbar.set_content(scroll)
-        dialog.set_child(toolbar)
-        dialog.present(self.window)
+    def _image_detail_row(self, file_path: str, img: dict) -> Adw.ActionRow:
+        img_row = Adw.ActionRow()
+        img_row.set_title(f"Page {img['page']} — {img['width']}×{img['height']}")
+        img_row.set_subtitle(f"{img['enc'].upper()} · {img['size']} · {img['color']}")
+
+        extract_btn = Gtk.Button.new_from_icon_name("document-save-symbolic")
+        extract_btn.add_css_class("flat")
+        extract_btn.set_valign(Gtk.Align.CENTER)
+        extract_btn.set_tooltip_text(_("Extract this image"))
+        set_a11y_label(extract_btn, _("Extract this image"))
+        extract_btn.connect("clicked", lambda _b, fp=file_path, i=img: self._extract_image(fp, i))
+        img_row.add_suffix(extract_btn)
+        return img_row
 
     def _copy_all_info(self, info_rows: list[tuple[str, str, str]]) -> None:
         """Copy all info to clipboard in a readable text format."""
@@ -818,9 +1009,12 @@ class SettingsQueueMixin:
                     lines.append(f"── {group_name} ──")
             lines.append(f"{key}: {value}")
 
-        clipboard = Gdk.Display.get_default().get_clipboard()
+        clipboard = get_default_clipboard()
+        if clipboard is None:
+            logger.warning("Clipboard is unavailable because no display is active")
+            return
         clipboard.set("\n".join(lines))
-        self.window.show_toast(_("Information copied"))
+        self.window.ui.show_toast(_("Information copied"))
 
     @staticmethod
     def _add_info_row(group: Adw.PreferencesGroup, title: str, value: str) -> None:
@@ -843,25 +1037,31 @@ class SettingsQueueMixin:
         file_dialog = Gtk.FileDialog()
         file_dialog.set_initial_name(name)
 
-        def _on_save(_dialog, result):
+        def _on_save(_dialog, result) -> None:
             try:
                 gfile = _dialog.save_finish(result)
-            except GLib.Error:
+            except GLib.Error as error:
+                if (
+                    error.matches(Gtk.DialogError.quark(), Gtk.DialogError.CANCELLED)
+                    or error.matches(Gtk.DialogError.quark(), Gtk.DialogError.DISMISSED)
+                    or error.matches(Gio.io_error_quark(), Gio.IOErrorEnum.CANCELLED)
+                ):
+                    return
+                logger.error("Could not choose an image destination: %s", error)
+                self.window.ui.show_toast(_("Failed to extract image"))
                 return
-            if gfile is None:
-                return
+
             save_path = gfile.get_path()
+            if save_path is None:
+                logger.warning("Cannot extract an image to a non-local destination")
+                self.window.ui.show_toast(_("Failed to extract image"))
+                return
             self._do_extract_image(file_path, img_info, save_path)
 
         file_dialog.save(self.window, None, _on_save)
 
     def _do_extract_image(self, pdf_path: str, img_info: dict, save_path: str) -> None:
         """Extract image using pdfimages and save to destination."""
-        import glob
-        import shutil
-        import subprocess
-        import tempfile
-
         page = str(img_info["page"])
         idx = img_info["in_page_idx"]
 
@@ -874,197 +1074,144 @@ class SettingsQueueMixin:
                     timeout=30,
                     capture_output=True,
                 )
-            except Exception as e:
-                logger.error(f"pdfimages extraction failed: {e}")
-                self.window.show_toast(_("Failed to extract image"))
+            except (OSError, subprocess.SubprocessError) as error:
+                logger.error("pdfimages extraction failed: %s", error)
+                self.window.ui.show_toast(_("Failed to extract image"))
                 return
 
             files = sorted(glob.glob(f"{prefix}-*"))
             if 0 <= idx < len(files):
-                shutil.copy2(files[idx], save_path)
-                self.window.show_toast(_("Image extracted"))
-            else:
-                self.window.show_toast(_("Failed to extract image"))
+                try:
+                    shutil.copy2(files[idx], save_path)
+                except OSError as error:
+                    logger.error("Could not save extracted image: %s", error)
+                    self.window.ui.show_toast(_("Failed to extract image"))
+                    return
+                self.window.ui.show_toast(_("Image extracted"))
+                return
+
+            self.window.ui.show_toast(_("Failed to extract image"))
 
     def _on_edit_file(self, file_path: str) -> None:
         """Open the PDF editor for the file."""
         try:
             from bigocrpdf.ui.pdf_editor import PDFEditorWindow
 
-            def on_editor_save(document):
-                """Handle editor save callback."""
-                if document.path != file_path:
-                    try:
-                        if file_path in self.window.settings.selected_files:
-                            idx = self.window.settings.selected_files.index(file_path)
-                            self.window.settings.selected_files[idx] = document.path
-
-                            true_original = self.window.settings.original_file_paths.get(
-                                file_path, file_path
-                            )
-                            self.window.settings.original_file_paths[document.path] = true_original
-
-                            if file_path in self.window.settings.original_file_paths:
-                                del self.window.settings.original_file_paths[file_path]
-
-                            if file_path in self.window.settings.file_modifications:
-                                del self.window.settings.file_modifications[file_path]
-
-                            if file_path != true_original and os.path.exists(file_path):
-                                try:
-                                    os.remove(file_path)
-                                    logger.info(f"Removed previous temp file: {file_path}")
-                                except OSError as rm_err:
-                                    logger.warning(f"Could not remove temp file: {rm_err}")
-
-                            logger.info(
-                                f"Replaced original file with merged output: {document.path}"
-                            )
-                    except ValueError:
-                        logger.debug("File %s not found in queue, skipping update", file_path)
-                else:
-                    state = document.to_dict()
-                    self.window.settings.file_modifications[document.path] = state
-
-                self._populate_file_list()
-                self.window.update_file_info()
-
-                if hasattr(self, "refresh_queue_status"):
-                    self.refresh_queue_status()
-
-                self.window.show_toast(_("Changes saved"))
-                logger.info(f"Editor saved changes to: {document.path}")
-
             initial_state = self.window.settings.file_modifications.get(file_path)
 
             editor = PDFEditorWindow(
                 application=self.window.get_application(),
                 pdf_path=file_path,
-                on_save_callback=on_editor_save,
-                parent_window=self.window,
+                on_save_callback=lambda document: self._handle_pdf_editor_save(
+                    file_path,
+                    document,
+                ),
                 initial_state=initial_state,
             )
             editor.present()
 
-            logger.info(f"Opened PDF editor for: {file_path}")
-        except Exception as e:
-            logger.error(f"Failed to open PDF editor: {e}")
-            self.window.show_toast(_("Failed to open PDF editor"))
+            logger.info("Opened PDF editor for: %s", file_path)
+        except (GLib.Error, OSError, RuntimeError, ValueError) as error:
+            logger.error("Failed to open PDF editor: %s", error)
+            self.window.ui.show_toast(_("Failed to open PDF editor"))
 
-    def _add_page_count_to_row(self, row: Adw.ActionRow, file_path: str) -> None:
-        """Add page count to a file row if available."""
-        from bigocrpdf.utils.pdf_utils import get_pdf_page_count
+    def _handle_pdf_editor_save(self, file_path: str, document) -> bool:
+        if document.path != file_path:
+            if not self.window.settings._replace_file(file_path, document.path):
+                logger.warning("Could not persist edited queue replacement for %s", file_path)
+                return False
+            logger.info("Replaced original file with merged output: %s", document.path)
+        else:
+            self.window.settings.file_modifications[document.path] = document.to_dict()
 
-        pages = get_pdf_page_count(file_path)
-        if pages > 0:
-            page_label = Gtk.Label()
-            page_label.set_markup(f"<small>{_('{pages} pg.').format(pages=pages)}</small>")
-            row.add_suffix(page_label)
+        self.window.ui.update_file_info()
+        self.refresh_queue_status()
 
-    def _on_drop(self, drop_target: Gtk.DropTarget, value, _x: float, _y: float) -> bool:
+        self.window.ui.show_toast(_("Changes saved"))
+        logger.info("Editor saved changes to: %s", document.path)
+        return True
+
+    def _on_drop(self, _drop_target: Gtk.DropTarget, value, _x: float, _y: float) -> bool:
         """Handle file drop events for both single and multiple files."""
         from bigocrpdf.utils.pdf_utils import images_to_pdf, is_image_file
 
-        try:
-            file_paths = self._extract_file_paths_from_drop(value)
-            if not file_paths:
-                return False
-
-            valid_file_paths = self._filter_supported_files(file_paths)
-            if not valid_file_paths:
-                logger.warning("No valid files in drop data")
-                return False
-
-            logger.info(f"{len(valid_file_paths)} files dropped")
-
-            image_files = [p for p in valid_file_paths if is_image_file(p)]
-            pdf_files = [p for p in valid_file_paths if not is_image_file(p)]
-
-            if pdf_files:
-                self.window.settings.add_files(pdf_files)
-
-            if len(image_files) > 1:
-                self._show_drop_image_merge_dialog(image_files)
-            elif len(image_files) == 1:
-                try:
-                    pdf_path = images_to_pdf(image_files)
-                    self.window.settings.original_file_paths[pdf_path] = image_files[0]
-                    self.window.settings.add_files([pdf_path])
-                except Exception as e:
-                    logger.error(f"Failed to convert dropped image to PDF: {e}")
-
-            self._populate_file_list()
-            file_count = len(self.window.settings.selected_files)
-            if hasattr(self.window, "custom_header_bar") and self.window.custom_header_bar:
-                self.window.custom_header_bar.update_queue_size(file_count)
-
-            return True
-        except Exception as e:
-            logger.error(f"Error handling dropped file(s): {e}")
+        if not isinstance(value, Gdk.FileList):
+            logger.warning("Unsupported drop value type: %s", type(value).__name__)
             return False
+
+        file_paths: list[str] = []
+        for file in value.get_files():
+            file_path = file.get_path()
+            if file_path is None:
+                logger.warning("Ignoring non-local dropped file: %s", file.get_uri())
+                continue
+            file_paths.append(file_path)
+
+        valid_file_paths = self._filter_supported_files(file_paths)
+        if not valid_file_paths:
+            logger.warning("No valid files in drop data")
+            return False
+
+        logger.info("%s files dropped", len(valid_file_paths))
+        image_files = [path for path in valid_file_paths if is_image_file(path)]
+        pdf_files = [path for path in valid_file_paths if not is_image_file(path)]
+
+        if pdf_files:
+            self.window.settings.add_files(pdf_files)
+
+        if len(image_files) > 1:
+            self._show_drop_image_merge_dialog(image_files)
+        elif image_files:
+            try:
+                pdf_path = images_to_pdf(image_files)
+                self.window.settings._add_generated_file(pdf_path, image_files[0])
+            except (OSError, RuntimeError, ValueError) as error:
+                logger.error("Failed to convert dropped image to PDF: %s", error)
+
+        self.refresh_queue_status()
+        return True
 
     def _show_drop_image_merge_dialog(self, image_files: list[str]) -> None:
         """Show merge dialog for dropped images."""
-
-        def _on_complete() -> None:
-            self._populate_file_list()
-            file_count = len(self.window.settings.selected_files)
-            if hasattr(self.window, "custom_header_bar") and self.window.custom_header_bar:
-                self.window.custom_header_bar.update_queue_size(file_count)
-
         self.window.ui.dialogs_manager.show_image_merge_dialog(
             image_files,
-            self.window.settings,
             heading=_("Multiple Images Dropped"),
-            body=_("You dropped {} images. How would you like to add them?").format(
-                len(image_files)
-            ),
-            on_complete=_on_complete,
+            body=ngettext(
+                "You dropped {count} image. How would you like to add it?",
+                "You dropped {count} images. How would you like to add them?",
+                len(image_files),
+            ).format(count=len(image_files)),
+            on_complete=self.refresh_queue_status,
         )
-
-    def _extract_file_paths_from_drop(self, value) -> list[str]:
-        """Extract file paths from drop value."""
-        file_paths = []
-
-        if isinstance(value, Gio.File):
-            file_path = value.get_path()
-            if file_path:
-                file_paths.append(file_path)
-        elif isinstance(value, list) or hasattr(value, "__iter__"):
-            for file in value:
-                if isinstance(file, Gio.File):
-                    file_path = file.get_path()
-                    if file_path:
-                        file_paths.append(file_path)
-        else:
-            logger.warning(f"Unsupported drop value type: {type(value)}")
-
-        return file_paths
 
     def _filter_supported_files(self, file_paths: list[str]) -> list[str]:
         """Filter file paths to only include valid PDF and image files."""
-        supported_extensions = (
-            ".pdf",
-            ".png",
-            ".jpg",
-            ".jpeg",
-            ".tiff",
-            ".tif",
-            ".bmp",
-            ".webp",
-            ".avif",
-        )
-        valid_paths = []
+        from bigocrpdf.utils.pdf_utils import is_image_file
+
+        queued_identities = {
+            os.path.realpath(path)
+            for path in (
+                *self.window.settings.selected_files,
+                *self.window.settings.original_file_paths.values(),
+            )
+        }
+        valid_paths: list[str] = []
         for file_path in file_paths:
-            if not file_path.lower().endswith(supported_extensions):
-                logger.warning(f"Ignoring unsupported file: {file_path}")
+            if not file_path.lower().endswith(".pdf") and not is_image_file(file_path):
+                logger.warning("Ignoring unsupported file: %s", file_path)
                 continue
 
-            if not os.path.exists(file_path):
-                logger.warning(f"Ignoring nonexistent file: {file_path}")
+            if not os.path.isfile(file_path):
+                logger.warning("Ignoring missing or non-regular file: %s", file_path)
+                continue
+
+            identity = os.path.realpath(file_path)
+            if identity in queued_identities:
+                logger.info("Ignoring file already represented in queue: %s", file_path)
                 continue
 
             valid_paths.append(file_path)
+            queued_identities.add(identity)
 
         return valid_paths
 
@@ -1073,13 +1220,19 @@ class SettingsQueueMixin:
         if idx < 0 or idx >= len(self.window.settings.selected_files):
             return
 
-        file_path = self.window.settings.selected_files.pop(idx)
-        logger.info(f"Removed file: {file_path}")
+        file_path = self.window.settings.selected_files[idx]
+        if not self.window.settings._remove_file(file_path):
+            return
+        logger.info("Removed file: %s", file_path)
 
-        self._populate_file_list()
         self.refresh_queue_status()
+        file_count = len(self.window.settings.selected_files)
         self.window.announce_status(
-            _("{count} files in queue").format(count=len(self.window.settings.selected_files))
+            ngettext(
+                "{count} file in queue",
+                "{count} files in queue",
+                file_count,
+            ).format(count=file_count)
         )
 
     def _remove_all_files(self) -> None:
@@ -1087,15 +1240,22 @@ class SettingsQueueMixin:
         if not self.window.settings.selected_files:
             return
 
-        logger.info(f"Removing all {len(self.window.settings.selected_files)} files from queue")
-        self.window.settings.selected_files.clear()
-        self._populate_file_list()
+        logger.info("Removing all %s files from queue", len(self.window.settings.selected_files))
+        if not self.window.settings._clear_files():
+            return
         self.refresh_queue_status()
         self.window.announce_status(_("All files removed from queue"))
 
     def _show_pdf_options_dialog(self) -> None:
         """Show PDF output options dialog."""
-        if hasattr(self.window, "ui") and hasattr(self.window.ui, "show_pdf_options_dialog"):
-            self.window.ui.show_pdf_options_dialog(lambda _: None)
-        else:
-            logger.warning("PDF options dialog not yet implemented")
+        self.window.ui.dialogs_manager.show_pdf_options_dialog(lambda _: None)
+
+    def cleanup(self) -> None:
+        """Release queue-owned asynchronous resources."""
+        self._queue_metadata_closed = True
+        self._queue_metadata_waiters.clear()
+        self._dismiss_item_popover()
+        pool = self._queue_metadata_pool
+        self._queue_metadata_pool = None
+        if pool is not None:
+            pool.shutdown(wait=False, cancel_futures=True)

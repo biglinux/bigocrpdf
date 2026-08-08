@@ -5,12 +5,15 @@ A FlowBox-based widget for displaying and managing PDF page thumbnails
 with multi-select support, zoom control, and enhanced drag-and-drop.
 """
 
+import math
 from collections.abc import Callable
+from typing import cast
 
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
+gi.require_version("Gdk", "4.0")
 from gi.repository import Gdk, GLib, GObject, Gtk
 
 from bigocrpdf.ui.pdf_editor.page_model import PageState, PDFDocument
@@ -54,6 +57,8 @@ class PageGrid(Gtk.ScrolledWindow):
         self._zoom_level = 100  # Percentage
         self._thumbnail_size = self.DEFAULT_THUMBNAIL_SIZE
         self.on_before_mutate: Callable[[], None] | None = None
+        self._thumbnail_load_source_id: int | None = None
+        self._tearing_down = False
 
         # Drag and Drop state
         self._drop_target_index: int | None = None
@@ -153,7 +158,7 @@ class PageGrid(Gtk.ScrolledWindow):
     def _setup_interactions(self) -> None:
         """Set up drag-drop and selection interactions."""
         # 1. Drop Target for page reordering (on FlowBox)
-        drop_target = Gtk.DropTarget.new(GObject.TYPE_INT, Gdk.DragAction.MOVE)
+        drop_target = Gtk.DropTarget.new(cast(type, GObject.TYPE_INT), Gdk.DragAction.MOVE)
         drop_target.connect("drop", self._on_page_drop)
         drop_target.connect("enter", self._on_drag_enter)
         drop_target.connect("motion", self._on_drag_motion)
@@ -257,6 +262,8 @@ class PageGrid(Gtk.ScrolledWindow):
                 vadj.set_value(allocation.y + allocation.height - vadj.get_page_size())
 
     def load_document(self, document: PDFDocument) -> None:
+        if self._tearing_down:
+            return
         self._document = document
         # Show ALL pages (including excluded) so they remain visible
         all_pages = sorted(document.pages, key=lambda p: p.position)
@@ -264,6 +271,8 @@ class PageGrid(Gtk.ScrolledWindow):
         # Preserve selection state across refresh
         old_selected = set(self._selected_indices)
 
+        for thumbnail in self._thumbnails:
+            thumbnail.unload_thumbnail()
         self._thumbnails.clear()
         self._remove_all_children()
 
@@ -280,7 +289,7 @@ class PageGrid(Gtk.ScrolledWindow):
                 self._thumbnails[idx].selected = True
 
         # Only load visible thumbnails (lazy loading)
-        GLib.timeout_add(50, self._load_visible_thumbnails)
+        self._schedule_visible_thumbnail_load()
         self.emit("selection-changed")
 
     def reorder_in_place(self) -> None:
@@ -301,7 +310,7 @@ class PageGrid(Gtk.ScrolledWindow):
         # FlowBoxChild wrapper and requires the widget to have no parent.
         for thumb in self._thumbnails:
             fb_child = thumb.get_parent()  # GtkFlowBoxChild
-            if fb_child:
+            if isinstance(fb_child, Gtk.FlowBoxChild):
                 fb_child.set_child(None)  # unparent thumbnail
                 self._flowbox.remove(fb_child)  # remove empty wrapper
 
@@ -343,7 +352,7 @@ class PageGrid(Gtk.ScrolledWindow):
 
         # Remove the single widget from FlowBox
         fb_child = thumb.get_parent()
-        if fb_child:
+        if isinstance(fb_child, Gtk.FlowBoxChild):
             fb_child.set_child(None)
             self._flowbox.remove(fb_child)
 
@@ -435,7 +444,7 @@ class PageGrid(Gtk.ScrolledWindow):
         for i in sorted(source_set, reverse=True):
             thumb = self._thumbnails[i]
             fb_child = thumb.get_parent()
-            if fb_child:
+            if isinstance(fb_child, Gtk.FlowBoxChild):
                 fb_child.set_child(None)
                 self._flowbox.remove(fb_child)
 
@@ -531,7 +540,7 @@ class PageGrid(Gtk.ScrolledWindow):
             self.on_before_mutate()
         page_state.rotate(-90)
         thumbnail.rotate_thumbnail_in_place(270)
-        thumbnail._update_appearance()
+        thumbnail.update_from_state()
         if self._document:
             self._document.mark_modified()
 
@@ -540,7 +549,7 @@ class PageGrid(Gtk.ScrolledWindow):
             self.on_before_mutate()
         page_state.rotate(90)
         thumbnail.rotate_thumbnail_in_place(90)
-        thumbnail._update_appearance()
+        thumbnail.update_from_state()
         if self._document:
             self._document.mark_modified()
 
@@ -551,7 +560,7 @@ class PageGrid(Gtk.ScrolledWindow):
             self.on_before_mutate()
         page_state.toggle_flip_horizontal()
         thumbnail.flip_thumbnail_in_place(horizontal=True)
-        thumbnail._update_appearance()
+        thumbnail.update_from_state()
         if self._document:
             self._document.mark_modified()
 
@@ -560,7 +569,7 @@ class PageGrid(Gtk.ScrolledWindow):
             self.on_before_mutate()
         page_state.toggle_flip_vertical()
         thumbnail.flip_thumbnail_in_place(horizontal=False)
-        thumbnail._update_appearance()
+        thumbnail.update_from_state()
         if self._document:
             self._document.mark_modified()
 
@@ -641,9 +650,17 @@ class PageGrid(Gtk.ScrolledWindow):
         self.set_ocr_for_all(False)
 
     def set_ocr_for_all(self, included: bool) -> None:
+        changed_thumbnails = [
+            thumbnail
+            for thumbnail in self._thumbnails
+            if thumbnail.page_state.deleted == included
+            or thumbnail.page_state.included_for_ocr != included
+        ]
+        if not changed_thumbnails:
+            return
         if self.on_before_mutate:
             self.on_before_mutate()
-        for thumbnail in self._thumbnails:
+        for thumbnail in changed_thumbnails:
             thumbnail.page_state.deleted = not included
             thumbnail.page_state.included_for_ocr = included
             thumbnail.update_from_state()
@@ -654,6 +671,8 @@ class PageGrid(Gtk.ScrolledWindow):
     # --- Zoom ---
 
     def set_zoom_level(self, level: int) -> None:
+        if self._tearing_down:
+            return
         level = max(50, min(400, level))
         if level == self._zoom_level:
             return
@@ -674,46 +693,115 @@ class PageGrid(Gtk.ScrolledWindow):
             thumbnail.resize_without_reload(self._thumbnail_size)
 
         # Schedule batch reload after layout settles
-        GLib.timeout_add(50, self._load_visible_thumbnails)
+        self._schedule_visible_thumbnail_load()
         logger.info(f"Zoom level set to {level}%")
 
     # --- Lazy Load ---
 
+    def _schedule_visible_thumbnail_load(self) -> None:
+        """Coalesce deferred viewport loads into one owned GLib source."""
+        if self._tearing_down:
+            return
+        if self._thumbnail_load_source_id is not None:
+            GLib.source_remove(self._thumbnail_load_source_id)
+        self._thumbnail_load_source_id = GLib.timeout_add(
+            50,
+            self._run_deferred_thumbnail_load,
+        )
+
+    def _run_deferred_thumbnail_load(self) -> bool:
+        self._thumbnail_load_source_id = None
+        if self._tearing_down:
+            return False
+        return self._load_visible_thumbnails()
+
     def _on_scroll_changed(self, *_args) -> None:
+        if self._tearing_down:
+            return
         self._load_visible_thumbnails()
 
     def _load_visible_thumbnails(self) -> bool:
+        if self._tearing_down:
+            return False
         vadj = self.get_vadjustment()
         visible_top = vadj.get_value()
         visible_bottom = visible_top + vadj.get_page_size()
         margin = vadj.get_page_size() * 0.5
         load_top = visible_top - margin
         load_bottom = visible_bottom + margin
+        has_allocated_child = False
         for i, thumbnail in enumerate(self._thumbnails):
             child = self._flowbox.get_child_at_index(i)
             if child:
                 allocation = child.get_allocation()
-                if allocation.height == 0 or (
-                    allocation.y + allocation.height >= load_top and allocation.y <= load_bottom
-                ):
+                if allocation.height <= 0:
+                    continue
+                has_allocated_child = True
+                if allocation.y + allocation.height >= load_top and allocation.y <= load_bottom:
                     thumbnail.load_thumbnail()
+                else:
+                    thumbnail.unload_thumbnail()
+
+        if not has_allocated_child:
+            columns = self._get_visible_columns()
+            item_height = int(self._thumbnail_size * 1.414) + 62
+            load_limit = self._initial_thumbnail_load_limit(
+                len(self._thumbnails),
+                columns,
+                int(vadj.get_page_size()),
+                item_height,
+            )
+            for thumbnail in self._thumbnails[:load_limit]:
+                thumbnail.load_thumbnail()
         return False
+
+    @staticmethod
+    def _initial_thumbnail_load_limit(
+        item_count: int,
+        columns: int,
+        viewport_height: int,
+        item_height: int,
+    ) -> int:
+        """Bound the first pre-layout load to the viewport plus a 50% row margin."""
+        safe_columns = max(1, columns)
+        safe_item_height = max(1, item_height)
+        visible_rows = max(1, math.ceil(max(0, viewport_height) / safe_item_height))
+        prefetched_rows = math.ceil(visible_rows * 1.5)
+        return min(item_count, safe_columns * prefetched_rows)
 
     def refresh(self):
         if self._document:
             self.load_document(self._document)
 
+    def cancel_thumbnail_requests(self) -> None:
+        """Cancel every request owned by this grid before its window closes."""
+        if getattr(self, "_tearing_down", False):
+            return
+        self._tearing_down = True
+        source_id = getattr(self, "_thumbnail_load_source_id", None)
+        self._thumbnail_load_source_id = None
+        if source_id is not None:
+            GLib.source_remove(source_id)
+        self._stop_auto_scroll()
+        for thumbnail in self._thumbnails:
+            thumbnail.unload_thumbnail()
+
     def toggle_ocr_for_selected(self) -> None:
         """Toggle OCR inclusion for all selected pages."""
+        selected_thumbnails = [
+            self._thumbnails[idx]
+            for idx in self._selected_indices
+            if 0 <= idx < len(self._thumbnails)
+        ]
+        if not selected_thumbnails:
+            return
         if self.on_before_mutate:
             self.on_before_mutate()
-        for idx in self._selected_indices:
-            if 0 <= idx < len(self._thumbnails):
-                thumb = self._thumbnails[idx]
-                page = thumb.page_state
-                page.deleted = not page.deleted
-                page.included_for_ocr = not page.deleted
-                thumb.update_from_state()
+        for thumb in selected_thumbnails:
+            page = thumb.page_state
+            page.deleted = not page.deleted
+            page.included_for_ocr = not page.deleted
+            thumb.update_from_state()
         if self._document:
             self._document.mark_modified()
         self.emit("selection-changed")
@@ -890,63 +978,78 @@ class PageGrid(Gtk.ScrolledWindow):
         if source_pos == target_pos or source_pos == target_pos - 1:
             return False
 
-        if self.on_before_mutate:
-            self.on_before_mutate()
-
         try:
             pages = self._document.pages
-
-            # Multi-page move: dragged page is part of a multi-selection
             if source_pos in self._selected_indices and len(self._selected_indices) > 1:
-                selected = sorted(self._selected_indices)
-                moving_pages = [pages[i] for i in selected]
+                return self._move_selected_pages(target_pos)
 
-                # Remove selected pages (reverse order to preserve indices)
-                for i in reversed(selected):
-                    pages.pop(i)
-
-                # Adjust target for removed pages that were before the target
-                adjusted_target = target_pos - sum(1 for i in selected if i < target_pos)
-                adjusted_target = max(0, min(adjusted_target, len(pages)))
-
-                # Insert all pages at target
-                for offset, page in enumerate(moving_pages):
-                    pages.insert(adjusted_target + offset, page)
-
-                # Re-index
-                for i, p in enumerate(pages):
-                    p.position = i
-
-                self._document.mark_modified()
-                self.move_pages_in_grid(selected, adjusted_target)
-                logger.info(f"Moved {len(selected)} pages to position {adjusted_target}")
-                return True
-
-            # Single page move
             if 0 <= source_pos < len(pages):
-                page = pages.pop(source_pos)
-
-                # Adjust target because we removed source
-                final_target = target_pos
-                if source_pos < target_pos:
-                    final_target -= 1
-
-                final_target = max(0, min(final_target, len(pages)))
-                pages.insert(final_target, page)
-
-                # Re-index
-                for i, p in enumerate(pages):
-                    p.position = i
-
-                self._document.mark_modified()
-                self.move_page_in_grid(source_pos, final_target)
-                logger.info(f"Page reordered from {source_pos} to {final_target}")
-                return True
+                return self._move_single_page(source_pos, target_pos)
 
         except Exception as e:
             logger.error(f"Error reordering pages: {e}")
 
         return False
+
+    def _move_selected_pages(self, target_pos: int) -> bool:
+        document = self._document
+        if document is None:
+            return False
+        pages = document.pages
+        selected = sorted(idx for idx in self._selected_indices if 0 <= idx < len(pages))
+        if not selected:
+            return False
+        moving_pages = [pages[i] for i in selected]
+        remaining_pages = [page for i, page in enumerate(pages) if i not in self._selected_indices]
+
+        adjusted_target = target_pos - sum(1 for i in selected if i < target_pos)
+        adjusted_target = max(0, min(adjusted_target, len(remaining_pages)))
+        reordered = [
+            *remaining_pages[:adjusted_target],
+            *moving_pages,
+            *remaining_pages[adjusted_target:],
+        ]
+        if all(before is after for before, after in zip(pages, reordered, strict=True)):
+            return False
+
+        if self.on_before_mutate:
+            self.on_before_mutate()
+        pages[:] = reordered
+
+        self._reindex_pages()
+        document.mark_modified()
+        self.move_pages_in_grid(selected, adjusted_target)
+        logger.info(f"Moved {len(selected)} pages to position {adjusted_target}")
+        return True
+
+    def _move_single_page(self, source_pos: int, target_pos: int) -> bool:
+        document = self._document
+        if document is None:
+            return False
+        pages = document.pages
+        if not 0 <= source_pos < len(pages):
+            return False
+        final_target = target_pos - 1 if source_pos < target_pos else target_pos
+        final_target = max(0, min(final_target, len(pages) - 1))
+        if final_target == source_pos:
+            return False
+
+        if self.on_before_mutate:
+            self.on_before_mutate()
+        page = pages.pop(source_pos)
+        pages.insert(final_target, page)
+
+        self._reindex_pages()
+        document.mark_modified()
+        self.move_page_in_grid(source_pos, final_target)
+        logger.info(f"Page reordered from {source_pos} to {final_target}")
+        return True
+
+    def _reindex_pages(self) -> None:
+        if self._document is None:
+            return
+        for i, page in enumerate(self._document.pages):
+            page.position = i
 
     # --- Rubberband Selection ---
 

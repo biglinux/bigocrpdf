@@ -88,11 +88,12 @@ def optimize_bilevel_images(
 
     except Exception as e:
         logger.error(f"Bilevel optimization failed: {e}")
+        return 0
 
     return optimized
 
 
-def _get_page_xobjects(page: pikepdf.Page):
+def _get_page_xobjects(page: pikepdf.Page) -> pikepdf.Dictionary | None:
     """Extract XObject dictionary from a page, or None.
 
     Returns the actual pikepdf Dictionary reference so mutations
@@ -103,14 +104,14 @@ def _get_page_xobjects(page: pikepdf.Page):
         if resources is None:
             return None
         xobjects = resources.get("/XObject")
-        return xobjects if xobjects else None
+        return xobjects if isinstance(xobjects, pikepdf.Dictionary) and xobjects else None
     except Exception:
         return None
 
 
 def _try_optimize_image(
     pdf: pikepdf.Pdf,
-    xobjects: dict,
+    xobjects: pikepdf.Dictionary,
     key: str,
     page_num: int,
     page_encodings: dict[int, str],
@@ -122,68 +123,93 @@ def _try_optimize_image(
     Returns True if image was successfully optimized.
     """
     try:
-        obj = xobjects[key]
-        if not isinstance(obj, pikepdf.Stream):
+        obj = _candidate_image_stream(xobjects, key)
+        if obj is None:
             return False
-        if obj.get("/Subtype") != Name.Image:
-            return False
-
-        # Skip if already JBIG2 or CCITT
-        current_filter = obj.get("/Filter")
-        if current_filter in (Name.JBIG2Decode, Name.CCITTFaxDecode):
+        if not _should_optimize_image(obj, page_num, page_encodings, force_bilevel):
             return False
 
-        from bigocrpdf.constants import MIN_IMAGE_DIMENSION_PX
-
-        width = int(obj.get("/Width", 0))
-        height = int(obj.get("/Height", 0))
-        if width < MIN_IMAGE_DIMENSION_PX or height < MIN_IMAGE_DIMENSION_PX:
-            return False
-
-        # Determine if this page should be optimized
-        orig_enc = page_encodings.get(page_num, "")
-        was_bilevel = orig_enc in ("jbig2", "ccitt")
-
-        if not was_bilevel and not force_bilevel:
-            # Original was not bilevel (e.g. JPEG scan) — skip auto-conversion.
-            # The bilevel candidate check runs on the PROCESSED image which may
-            # look bilevel after auto-contrast/brightness preprocessing even
-            # though the original was a continuous-tone scan.  Converting such
-            # pages to 1-bit loses quality with no user intent to do so.
-            return False
-
-        pil_img = _extract_pil_image(obj)
-        if pil_img is None:
-            return False
-
-        # Binarize the image
-        gray = np.array(pil_img.convert("L"))
-        binary = binarize(gray)
-        h, w = binary.shape
-
-        # Encode with best available method
-        if has_jbig2:
-            result = encode_jbig2_with_globals(binary)
-            if result is not None:
-                page_data, globals_data = result
-                _embed_jbig2(pdf, xobjects, key, page_data, globals_data, w, h)
-                logger.debug(
-                    f"Page {page_num} image {key}: JBIG2 {len(page_data) + len(globals_data)} bytes"
-                )
-                return True
-
-        # Fallback to CCITT G4
-        ccitt_result = encode_ccitt_g4(binary)
-        if ccitt_result is not None:
-            ccitt_data, cw, ch = ccitt_result
-            _embed_ccitt(pdf, xobjects, key, ccitt_data, cw, ch)
-            logger.debug(f"Page {page_num} image {key}: CCITT G4 {len(ccitt_data)} bytes")
-            return True
+        binary = _extract_binary_image(obj)
+        return _embed_best_bilevel_encoding(pdf, xobjects, key, page_num, binary, has_jbig2)
 
     except Exception as e:
         logger.debug(f"Could not optimize image {key} on page {page_num}: {e}")
 
     return False
+
+
+def _candidate_image_stream(
+    xobjects: pikepdf.Dictionary,
+    key: str,
+) -> pikepdf.Stream | None:
+    """Return an image XObject stream eligible for inspection."""
+    obj = xobjects[key]
+    if not isinstance(obj, pikepdf.Stream):
+        return None
+    if obj.get("/Subtype") != Name.Image:
+        return None
+    if obj.get("/Filter") in (Name.JBIG2Decode, Name.CCITTFaxDecode):
+        return None
+    return obj
+
+
+def _should_optimize_image(
+    obj: pikepdf.Stream,
+    page_num: int,
+    page_encodings: dict[int, str],
+    force_bilevel: bool,
+) -> bool:
+    """Return whether an image should be converted to bilevel output."""
+    from bigocrpdf.constants import MIN_IMAGE_DIMENSION_PX
+
+    width = int(obj.get("/Width", 0))
+    height = int(obj.get("/Height", 0))
+    if width < MIN_IMAGE_DIMENSION_PX or height < MIN_IMAGE_DIMENSION_PX:
+        return False
+
+    orig_enc = page_encodings.get(page_num, "")
+    return force_bilevel or orig_enc in ("jbig2", "ccitt")
+
+
+def _extract_binary_image(obj: pikepdf.Stream) -> np.ndarray | None:
+    """Extract and binarize a PDF image stream."""
+    pil_img = _extract_pil_image(obj)
+    if pil_img is None:
+        return None
+    gray = np.array(pil_img.convert("L"))
+    return binarize(gray)
+
+
+def _embed_best_bilevel_encoding(
+    pdf: pikepdf.Pdf,
+    xobjects: pikepdf.Dictionary,
+    key: str,
+    page_num: int,
+    binary: np.ndarray | None,
+    has_jbig2: bool,
+) -> bool:
+    """Embed a binary image using JBIG2 when available, otherwise CCITT G4."""
+    if binary is None:
+        return False
+    h, w = binary.shape
+
+    if has_jbig2:
+        result = encode_jbig2_with_globals(binary)
+        if result is not None:
+            page_data, globals_data = result
+            _embed_jbig2(pdf, xobjects, key, page_data, globals_data, w, h)
+            logger.debug(
+                f"Page {page_num} image {key}: JBIG2 {len(page_data) + len(globals_data)} bytes"
+            )
+            return True
+
+    ccitt_result = encode_ccitt_g4(binary)
+    if ccitt_result is None:
+        return False
+    ccitt_data, cw, ch = ccitt_result
+    _embed_ccitt(pdf, xobjects, key, ccitt_data, cw, ch)
+    logger.debug(f"Page {page_num} image {key}: CCITT G4 {len(ccitt_data)} bytes")
+    return True
 
 
 def _extract_pil_image(obj: pikepdf.Stream):
@@ -197,7 +223,7 @@ def _extract_pil_image(obj: pikepdf.Stream):
 
 def _embed_jbig2(
     pdf: pikepdf.Pdf,
-    xobjects: dict,
+    xobjects: pikepdf.Dictionary,
     key: str,
     page_data: bytes,
     globals_data: bytes,
@@ -223,7 +249,7 @@ def _embed_jbig2(
 
 def _embed_ccitt(
     pdf: pikepdf.Pdf,
-    xobjects: dict,
+    xobjects: pikepdf.Dictionary,
     key: str,
     ccitt_data: bytes,
     width: int,

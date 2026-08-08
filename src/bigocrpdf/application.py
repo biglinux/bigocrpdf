@@ -1,6 +1,8 @@
 """
 BigOcrPdf - Application Module
 
+allow-noisy-log: --version prints user-facing CLI output.
+
 This module contains the main application class for the BigOcrPdf application.
 """
 
@@ -12,6 +14,7 @@ gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Adw, Gio, GLib, Gtk
 
+from bigocrpdf import OcrDependencyState
 from bigocrpdf.config import (
     APP_DEVELOPERS,
     APP_ICON_NAME,
@@ -25,8 +28,11 @@ from bigocrpdf.config import (
     init_config,
 )
 from bigocrpdf.ui.image_ocr_window import ImageOcrWindow
+from bigocrpdf.ui.pdf_editor.thumbnail_renderer import shutdown_thumbnail_renderer
 from bigocrpdf.ui.widgets import load_css
-from bigocrpdf.utils.i18n import _
+from bigocrpdf.utils.adw_compat import build_shortcuts_dialog
+from bigocrpdf.utils.i18n import _, ngettext
+from bigocrpdf.utils.icons import setup_icons
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.window import BigOcrPdfWindow
 
@@ -34,10 +40,11 @@ from bigocrpdf.window import BigOcrPdfWindow
 class BigOcrPdfApp(Adw.Application):
     """Application class for BigOcrPdf."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, ocr_dependency: OcrDependencyState) -> None:
         """Initialize the application."""
         super().__init__(application_id=APP_ID, flags=Gio.ApplicationFlags.HANDLES_OPEN)
 
+        self.ocr_dependency = ocr_dependency
         self._edit_mode = False
 
         # Add command line handling
@@ -62,9 +69,15 @@ class BigOcrPdfApp(Adw.Application):
         self.connect("activate", self.on_activate)
         self.connect("open", self.on_open)
         self.connect("handle-local-options", self.on_handle_local_options)
+        self.connect("shutdown", self._on_shutdown)
 
         # Set up application actions
         self._setup_actions()
+
+    def do_startup(self) -> None:
+        """Register the bundled icon theme before any widget is created."""
+        Adw.Application.do_startup(self)
+        setup_icons()
 
     def _setup_actions(self) -> None:
         """Set up application actions."""
@@ -75,7 +88,7 @@ class BigOcrPdfApp(Adw.Application):
 
         # Quit action
         quit_action = Gio.SimpleAction.new("quit", None)
-        quit_action.connect("activate", lambda *_: self.quit())
+        quit_action.connect("activate", self._on_quit_action)
         self.add_action(quit_action)
 
         # Image OCR action
@@ -91,32 +104,44 @@ class BigOcrPdfApp(Adw.Application):
         # Set up keyboard shortcuts
         self._setup_keyboard_shortcuts()
 
+    def _prepare_windows_for_shutdown(self) -> None:
+        """Release resources owned by every application window."""
+        from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
+
+        for window in self.get_windows():
+            if isinstance(window, (BigOcrPdfWindow, ImageOcrWindow)):
+                window.prepare_close()
+            elif isinstance(window, PDFEditorWindow):
+                window._prepare_close()
+
+    def _on_quit_action(self, *_args: object) -> None:
+        """Release window resources before explicit application quit."""
+        self._prepare_windows_for_shutdown()
+        self.quit()
+
+    def _on_shutdown(self, *_args: object) -> None:
+        """Release window resources for every shutdown path."""
+        self._prepare_windows_for_shutdown()
+        shutdown_thumbnail_renderer(wait=True)
+
     def _setup_keyboard_shortcuts(self) -> None:
         """Set up application-level keyboard shortcuts."""
-        try:
-            # Application-level shortcuts
-            self.set_accels_for_action("app.quit", [SHORTCUTS.get("quit", "<Control>q")])
-            self.set_accels_for_action("app.about", [SHORTCUTS.get("about", "F1")])
-            self.set_accels_for_action("app.shortcuts", ["<Control>question"])
-
-            # Window-level shortcuts (win. prefix)
-            self.set_accels_for_action("win.add-files", [SHORTCUTS.get("add-files", "<Control>o")])
-            self.set_accels_for_action(
-                "win.start-processing", [SHORTCUTS.get("start-processing", "<Control>Return")]
-            )
-            self.set_accels_for_action(
-                "win.cancel-processing", [SHORTCUTS.get("cancel-processing", "Escape")]
-            )
-            self.set_accels_for_action(
-                "win.remove-all-files", [SHORTCUTS.get("remove-all-files", "<Control>r")]
-            )
-            self.set_accels_for_action(
-                "win.paste-clipboard", [SHORTCUTS.get("paste-clipboard", "<Control>v")]
-            )
-
-            logger.info("Keyboard shortcuts configured successfully")
-        except Exception as e:
-            logger.error(f"Failed to setup keyboard shortcuts: {e}")
+        self.set_accels_for_action("app.quit", [SHORTCUTS.get("quit", "<Control>q")])
+        self.set_accels_for_action("app.about", [SHORTCUTS.get("about", "F1")])
+        self.set_accels_for_action("app.shortcuts", ["<Control>question"])
+        self.set_accels_for_action("win.add-files", [SHORTCUTS.get("add-files", "<Control>o")])
+        self.set_accels_for_action(
+            "win.start-processing", [SHORTCUTS.get("start-processing", "<Control>Return")]
+        )
+        self.set_accels_for_action(
+            "win.cancel-processing", [SHORTCUTS.get("cancel-processing", "Escape")]
+        )
+        self.set_accels_for_action(
+            "win.remove-all-files", [SHORTCUTS.get("remove-all-files", "<Control>r")]
+        )
+        self.set_accels_for_action(
+            "win.paste-clipboard", [SHORTCUTS.get("paste-clipboard", "<Control>v")]
+        )
 
     def on_handle_local_options(self, app: Adw.Application, options: GLib.VariantDict) -> int:
         """Handle command line options.
@@ -164,21 +189,23 @@ class BigOcrPdfApp(Adw.Application):
 
             # Check if we already have a window open
             win = self.get_active_window()
-            if not win:
+            if not isinstance(win, BigOcrPdfWindow):
                 # Create the main window
-                win = BigOcrPdfWindow(app)
+                win = BigOcrPdfWindow(app, ocr_dependency=self.ocr_dependency)
 
             # Show the window
             win.present()
 
-            # Check if we should show the welcome dialog
-            if hasattr(win, "should_show_welcome_dialog") and win.should_show_welcome_dialog():
-                # Use a small delay to ensure the window is fully drawn
-                GLib.timeout_add(300, lambda: win.show_welcome_dialog())
+            if self.ocr_dependency.is_available:
+                # Check if we should show the welcome dialog
+                if win.actions.welcome.should_show():
+                    # Use a small delay to ensure the window is fully drawn
+                    GLib.timeout_add(300, lambda: win.actions.welcome.show())
 
-            # Check for resumable session (after welcome dialog)
-            if hasattr(win, "check_resumable_session"):
-                GLib.timeout_add(500, lambda: win.check_resumable_session())
+                # Check for resumable session (after welcome dialog)
+                GLib.timeout_add(500, lambda: win.actions.sessions.check())
+            else:
+                GLib.idle_add(win.show_ocr_unavailable_dialog)
 
             logger.info(_("Application started successfully"))
 
@@ -189,24 +216,27 @@ class BigOcrPdfApp(Adw.Application):
             error_dialog.set_detail(str(e))
             error_dialog.show()
 
-    _IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"}
+    _IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff", ".avif"}
 
     @staticmethod
-    def _categorize_files(files) -> tuple[list[str], list[str]]:
-        """Split GFile objects into (pdf_paths, image_paths)."""
+    def _categorize_files(files) -> tuple[list[str], list[str], list[str]]:
+        """Split GFile objects into supported PDFs, images, and rejected paths."""
         import os
 
         pdf_paths: list[str] = []
         image_paths: list[str] = []
+        unsupported_paths: list[str] = []
         for gfile in files:
             path = gfile.get_path()
             if path:
                 ext = os.path.splitext(path)[1].lower()
                 if ext in BigOcrPdfApp._IMAGE_EXTENSIONS:
                     image_paths.append(path)
-                else:
+                elif ext == ".pdf":
                     pdf_paths.append(path)
-        return pdf_paths, image_paths
+                else:
+                    unsupported_paths.append(path)
+        return pdf_paths, image_paths, unsupported_paths
 
     def _open_edit_mode(self, app, pdf_paths, image_paths):
         """Handle --edit mode file opening."""
@@ -247,8 +277,13 @@ class BigOcrPdfApp(Adw.Application):
 
         if image_paths:
             win = self.get_active_window()
-            if win and hasattr(win, "_add_files_to_document"):
-                GLib.timeout_add(200, lambda: win._add_files_to_document(image_paths) or False)
+            if isinstance(win, PDFEditorWindow):
+
+                def add_images_to_editor() -> bool:
+                    win._add_files_to_document(image_paths)
+                    return False
+
+                GLib.timeout_add(200, add_images_to_editor)
 
     def _open_pdf_files_combined(self, app: Adw.Application, pdf_paths: list[str]) -> None:
         """Open several PDFs in one editor window, preserving the given file order."""
@@ -266,12 +301,18 @@ class BigOcrPdfApp(Adw.Application):
 
             def add_remaining_files():
                 try:
-                    win._add_files_to_document(remaining_pdfs)
+                    added_pages = win._add_files_to_document(remaining_pdfs)
+                    if added_pages == 0:
+                        logger.error("No pages from the additional PDFs could be imported")
+                        return False
                     win.set_title(_("PDF Editor - Combined PDF"))
-                    if hasattr(win, "_filename_label"):
-                        win._filename_label.set_text(
-                            _("Combined PDF ({count} files)").format(count=len(pdf_paths))
-                        )
+                    win._filename_label.set_text(
+                        ngettext(
+                            "Combined PDF ({count} file)",
+                            "Combined PDF ({count} files)",
+                            len(pdf_paths),
+                        ).format(count=len(pdf_paths))
+                    )
                     logger.info(f"Opened combined PDF editor with {len(pdf_paths)} files")
                 except Exception as e:
                     logger.error(f"Failed to combine PDFs in editor: {e}")
@@ -282,26 +323,39 @@ class BigOcrPdfApp(Adw.Application):
     def _open_normal_mode(self, app, pdf_paths, image_paths):
         """Handle normal mode file opening."""
         if image_paths and not pdf_paths:
-            win = ImageOcrWindow(app, image_path=image_paths[0])
+            win = ImageOcrWindow(
+                app,
+                image_path=image_paths[0],
+                ocr_dependency=self.ocr_dependency,
+            )
             win.present()
+            if not self.ocr_dependency.is_available:
+                GLib.idle_add(win.show_ocr_unavailable_dialog)
             logger.info(f"Opened image OCR window with: {image_paths[0]}")
             return
 
         win = self.get_active_window()
-        if not win or isinstance(win, ImageOcrWindow):
-            win = BigOcrPdfWindow(app)
+        if not isinstance(win, BigOcrPdfWindow):
+            win = BigOcrPdfWindow(app, ocr_dependency=self.ocr_dependency)
         win.present()
+        if not self.ocr_dependency.is_available:
+            GLib.idle_add(win.show_ocr_unavailable_dialog)
 
-        if pdf_paths:
+        input_paths = [*pdf_paths, *image_paths]
+        if input_paths:
 
             def add_files_when_ready():
                 try:
-                    if hasattr(win, "settings"):
-                        added = win.settings.add_files(pdf_paths)
-                        if added > 0:
-                            logger.info(f"Added {added} file(s) from command line")
-                            if hasattr(win, "update_file_info"):
-                                win.update_file_info()
+                    added = win.settings.add_files(input_paths)
+                    if added > 0:
+                        logger.info(
+                            ngettext(
+                                "Added {count} file from command line",
+                                "Added {count} files from command line",
+                                added,
+                            ).format(count=added)
+                        )
+                        win.ui.update_file_info()
                 except Exception as e:
                     logger.error(f"Error adding files: {e}")
                 return False
@@ -312,17 +366,47 @@ class BigOcrPdfApp(Adw.Application):
         """Callback for opening files from command line or file manager."""
         try:
             load_css()
-            pdf_paths, image_paths = self._categorize_files(files)
+            pdf_paths, image_paths, unsupported_paths = self._categorize_files(files)
+
+            if not pdf_paths and not image_paths:
+                self.on_activate(app)
 
             if self._edit_mode:
                 self._open_edit_mode(app, pdf_paths, image_paths)
             else:
                 self._open_normal_mode(app, pdf_paths, image_paths)
 
-            logger.info(_("Opened {0} file(s)").format(n_files))
+            opened_count = len(pdf_paths) + len(image_paths)
+            if opened_count:
+                logger.info(
+                    ngettext(
+                        "Opened {count} file",
+                        "Opened {count} files",
+                        opened_count,
+                    ).format(count=opened_count)
+                )
+            if unsupported_paths:
+                GLib.idle_add(self._show_unsupported_files_dialog, unsupported_paths)
 
         except Exception as e:
             logger.error(f"{_('Error opening files')}: {e}")
+
+    def _show_unsupported_files_dialog(self, paths: list[str]) -> bool:
+        """Explain which command-line or file-manager inputs were rejected."""
+        parent = self.get_active_window()
+        if parent is None:
+            logger.warning(_("Unsupported file type: {0}").format(", ".join(paths)))
+            return False
+
+        dialog = Adw.AlertDialog(
+            heading=_("Unsupported file format"),
+            body=_("Unsupported file type: {0}").format("\n".join(paths)),
+        )
+        dialog.add_response("close", _("Close"))
+        dialog.set_default_response("close")
+        dialog.set_close_response("close")
+        dialog.present(parent)
+        return False
 
     def _open_images_in_editor(self, app: Adw.Application, image_paths: list[str]) -> None:
         """Open images in the PDF editor to create a new PDF.
@@ -334,8 +418,11 @@ class BigOcrPdfApp(Adw.Application):
             image_paths: List of image file paths
         """
         import os
-        import tempfile
 
+        from bigocrpdf.utils.temp_manager import mkstemp, remove_file
+
+        tmp_pdf: str | None = None
+        transferred = False
         try:
             from bigocrpdf.ui.pdf_editor.thumbnail_renderer import get_thumbnail_renderer
 
@@ -343,23 +430,27 @@ class BigOcrPdfApp(Adw.Application):
 
             # Create a temporary PDF from the first image to bootstrap the editor
             first_path = image_paths[0]
-            fd, tmp_pdf = tempfile.mkstemp(suffix=".pdf", prefix="bigocr_images_")
+            fd, tmp_pdf = mkstemp(suffix=".pdf", prefix="bigocr_images_")
             os.close(fd)
 
             # Use pikepdf + Pillow to create a minimal PDF from the first image
             from PIL import Image as PILImage
 
-            img = PILImage.open(first_path)
-            if img.mode in ("RGBA", "LA", "P"):
-                img = img.convert("RGB")
-            # Embed at native pixel resolution (1 px = 1 pt, i.e. 72 DPI) so the
-            # bootstrap cover page matches the pages appended later via
-            # _add_image_page. A non-native resolution (e.g. 150) here, or an
-            # image carrying its own DPI metadata, would make this first page a
-            # different physical size than the rest, which mobile viewers render
-            # at a different scale.
-            img.save(tmp_pdf, "PDF", resolution=72.0)
-            img.close()
+            with PILImage.open(first_path) as source_image:
+                img = source_image
+                if source_image.mode in ("RGBA", "LA", "P"):
+                    img = source_image.convert("RGB")
+                try:
+                    # Embed at native pixel resolution (1 px = 1 pt, i.e. 72 DPI) so the
+                    # bootstrap cover page matches the pages appended later via
+                    # _add_image_page. A non-native resolution (e.g. 150) here, or an
+                    # image carrying its own DPI metadata, would make this first page a
+                    # different physical size than the rest, which mobile viewers render
+                    # at a different scale.
+                    img.save(tmp_pdf, "PDF", resolution=72.0)
+                finally:
+                    if img is not source_image:
+                        img.close()
 
             from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
 
@@ -369,115 +460,59 @@ class BigOcrPdfApp(Adw.Application):
                 standalone=True,
             )
             win.present()
+            transferred = True
 
             # If there are additional images, add them after the window is ready
             if len(image_paths) > 1:
                 remaining = image_paths[1:]
 
                 def add_remaining():
-                    win._add_files_to_document(remaining)
+                    added_pages = win._add_files_to_document(remaining)
+                    logger.info(f"Added {added_pages} additional image page(s) to the editor")
                     return False
 
                 GLib.timeout_add(500, add_remaining)
 
-            logger.info(f"Opened PDF editor with {len(image_paths)} image(s)")
+            logger.info("Opened PDF editor with the first image")
 
         except Exception as e:
+            if tmp_pdf is not None and not transferred:
+                remove_file(tmp_pdf)
             logger.error(f"Failed to open images in editor: {e}")
-
-    def _standalone_editor_save(self, doc, original_path: str) -> None:
-        """Save callback when editor is used in standalone mode.
-
-        Args:
-            doc: The PDFDocument with changes
-            original_path: Original file path
-        """
-        import os
-        import shutil
-        import tempfile
-
-        from bigocrpdf.ui.pdf_editor.page_operations import apply_changes_to_pdf
-
-        fd, tmp = tempfile.mkstemp(suffix=".pdf", prefix="bigocr_edit_")
-        os.close(fd)
-
-        try:
-            if apply_changes_to_pdf(doc, tmp):
-                shutil.move(tmp, original_path)
-                logger.info("Saved edited PDF: %s", original_path)
-            else:
-                logger.error("Failed to save PDF in standalone editor mode")
-        finally:
-            if os.path.exists(tmp):
-                os.remove(tmp)
 
     def _on_shortcuts_action(self, _action: Gio.SimpleAction, _param: Any) -> None:
         """Show the keyboard shortcuts dialog."""
-        win = self.get_active_window()
-        shortcuts_win = self._build_shortcuts_window()
-        shortcuts_win.set_transient_for(win)
-        shortcuts_win.present()
+        self._build_shortcuts_dialog().present(self.get_active_window())
 
-    def _build_shortcuts_window(self) -> Gtk.ShortcutsWindow:
-        """Build a Gtk.ShortcutsWindow with categorized shortcut descriptions."""
-        window = Gtk.ShortcutsWindow()
+    def _build_shortcuts_dialog(self) -> Adw.Dialog:
+        """Build the keyboard shortcuts dialog."""
+        groups = (
+            (
+                _("File"),
+                (
+                    (_("Add files"), SHORTCUTS.get("add-files", "<Control>o")),
+                    (_("Paste from clipboard"), SHORTCUTS.get("paste-clipboard", "<Control>v")),
+                    (_("Quit"), SHORTCUTS.get("quit", "<Control>q")),
+                ),
+            ),
+            (
+                _("Processing"),
+                (
+                    (_("Start OCR"), SHORTCUTS.get("start-processing", "<Control>Return")),
+                    (_("Cancel processing"), SHORTCUTS.get("cancel-processing", "Escape")),
+                    (_("Clear file queue"), SHORTCUTS.get("remove-all-files", "<Control>r")),
+                ),
+            ),
+            (
+                _("General"),
+                (
+                    (_("Keyboard shortcuts"), "<Control>question"),
+                    (_("About"), SHORTCUTS.get("about", "F1")),
+                ),
+            ),
+        )
 
-        # Main section
-        section = Gtk.ShortcutsSection(section_name="main", title=_("Shortcuts"))
-        section.set_visible(True)
-
-        # File group
-        file_group = Gtk.ShortcutsGroup(title=_("File"))
-        file_group.set_visible(True)
-        for accel, title in [
-            (SHORTCUTS.get("add-files", "<Control>o"), _("Add files")),
-            (SHORTCUTS.get("paste-clipboard", "<Control>v"), _("Paste from clipboard")),
-            (SHORTCUTS.get("quit", "<Control>q"), _("Quit")),
-        ]:
-            sc = Gtk.ShortcutsShortcut(
-                shortcut_type=Gtk.ShortcutType.ACCELERATOR,
-                accelerator=accel,
-                title=title,
-            )
-            sc.set_visible(True)
-            file_group.append(sc)
-        section.append(file_group)
-
-        # Processing group
-        proc_group = Gtk.ShortcutsGroup(title=_("Processing"))
-        proc_group.set_visible(True)
-        for accel, title in [
-            (SHORTCUTS.get("start-processing", "<Control>Return"), _("Start OCR")),
-            (SHORTCUTS.get("cancel-processing", "Escape"), _("Cancel processing")),
-            (SHORTCUTS.get("remove-all-files", "<Control>r"), _("Clear file queue")),
-        ]:
-            sc = Gtk.ShortcutsShortcut(
-                shortcut_type=Gtk.ShortcutType.ACCELERATOR,
-                accelerator=accel,
-                title=title,
-            )
-            sc.set_visible(True)
-            proc_group.append(sc)
-        section.append(proc_group)
-
-        # General group
-        gen_group = Gtk.ShortcutsGroup(title=_("General"))
-        gen_group.set_visible(True)
-        for accel, title in [
-            ("<Control>question", _("Keyboard shortcuts")),
-            (SHORTCUTS.get("about", "F1"), _("About")),
-        ]:
-            sc = Gtk.ShortcutsShortcut(
-                shortcut_type=Gtk.ShortcutType.ACCELERATOR,
-                accelerator=accel,
-                title=title,
-            )
-            sc.set_visible(True)
-            gen_group.append(sc)
-        section.append(gen_group)
-
-        window.set_child(section)
-        return window
+        return build_shortcuts_dialog(groups)
 
     def on_about_action(self, _action: Gio.SimpleAction, _param: Any) -> None:
         """Show about dialog.
@@ -527,7 +562,7 @@ class BigOcrPdfApp(Adw.Application):
             _("Powered by"),
             [
                 "RapidOCR https://github.com/RapidAI/RapidOCR",
-                "PaddleOCR (PP-OCRv5) https://github.com/PaddlePaddle/PaddleOCR",
+                "PaddleOCR (PP-OCRv6) https://github.com/PaddlePaddle/PaddleOCR",
                 "OpenCV https://opencv.org",
                 "OpenVINO https://github.com/openvinotoolkit/openvino",
                 "pikepdf https://github.com/pikepdf/pikepdf",
@@ -545,5 +580,7 @@ class BigOcrPdfApp(Adw.Application):
             _action: The action that triggered this callback
             _param: Action parameters
         """
-        win = ImageOcrWindow(self)
+        win = ImageOcrWindow(self, ocr_dependency=self.ocr_dependency)
         win.present()
+        if not self.ocr_dependency.is_available:
+            GLib.idle_add(win.show_ocr_unavailable_dialog)

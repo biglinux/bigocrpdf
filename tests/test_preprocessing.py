@@ -2,9 +2,12 @@
 
 import cv2
 import numpy as np
+import pytest
 
 from bigocrpdf.services.perspective_margins import trim_white_borders
+from bigocrpdf.services.rapidocr_service.config import OCRConfig
 from bigocrpdf.services.rapidocr_service.preprocess_deskew import (
+    _detect_skew_hough,
     measure_box_angles,
     rotate_image,
 )
@@ -15,6 +18,7 @@ from bigocrpdf.services.rapidocr_service.preprocess_enhance import (
     denoise,
     sharpen_text,
 )
+from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
 
 # ── Helpers ──────────────────────────────────────────────────────
 
@@ -29,6 +33,39 @@ def _make_text_image(h=200, w=400):
     img = np.full((h, w, 3), 255, dtype=np.uint8)  # White bg
     cv2.putText(img, "Hello World", (30, 100), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 3)
     return img
+
+
+def test_preprocessor_checks_cancellation_between_heavy_phases(monkeypatch):
+    preprocessor = ImagePreprocessor(OCRConfig(enable_preprocessing=True))
+    image = _make_bgr()
+    phases = []
+
+    monkeypatch.setattr(
+        preprocessor,
+        "_apply_geometric_corrections",
+        lambda value, *, cancel_check=None: phases.append("geometry") or value,
+    )
+    monkeypatch.setattr(
+        "bigocrpdf.services.rapidocr_service.preprocessor.apply_color_enhancements",
+        lambda value, _config: phases.append("color") or value,
+    )
+    monkeypatch.setattr(
+        "bigocrpdf.services.rapidocr_service.preprocessor.apply_independent_effects",
+        lambda value, _config: phases.append("effects") or value,
+    )
+
+    checks = 0
+
+    def cancel_check():
+        nonlocal checks
+        checks += 1
+        if checks == 2:
+            raise RuntimeError("cancelled")
+
+    with pytest.raises(RuntimeError, match="cancelled"):
+        preprocessor.process(image, cancel_check=cancel_check)
+
+    assert phases == ["geometry"]
 
 
 # ── rotate_image ─────────────────────────────────────────────────
@@ -94,6 +131,26 @@ class TestMeasureBoxAngles:
     def test_empty_boxes(self):
         angles, ys, widths = measure_box_angles([], page_width=400)
         assert len(angles) == 0
+
+
+# ── Hough skew detection ────────────────────────────────────────
+
+
+def test_hough_skew_accepts_flat_opencv_line_vectors(monkeypatch):
+    """OpenCV bindings may expose Vec4i rows as either N×4 or N×1×4."""
+    lines = np.array(
+        [
+            [0, 10, 200, 20],
+            [0, 20, 200, 30],
+            [0, 30, 200, 40],
+        ],
+        dtype=np.int32,
+    )
+    monkeypatch.setattr(cv2, "HoughLinesP", lambda *_args, **_kwargs: lines)
+
+    angles = _detect_skew_hough(np.zeros((100, 220), dtype=np.uint8), 220)
+
+    assert len(angles) == 3
 
 
 # ── adjust_brightness ────────────────────────────────────────────

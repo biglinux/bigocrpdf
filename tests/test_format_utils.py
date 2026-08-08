@@ -27,6 +27,10 @@ class TestFormatFileSize:
     def test_negative_returns_zero(self):
         assert format_file_size(-1) == "0 B"
 
+    def test_boolean_returns_zero(self):
+        assert format_file_size(True) == "0 B"
+        assert format_file_size(False) == "0 B"
+
 
 class TestFormatElapsedTime:
     def test_zero_seconds(self):
@@ -49,3 +53,7 @@ class TestFormatElapsedTime:
 
     def test_negative_treated_as_zero(self):
         assert format_elapsed_time(-5) == "0s"
+
+    def test_boolean_treated_as_zero(self):
+        assert format_elapsed_time(True) == "0s"
+        assert format_elapsed_time(False) == "0s"

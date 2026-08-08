@@ -1,9 +1,10 @@
 [Desktop Entry]
-ServiceTypes=KonqPopupMenu/Plugin
 Actions=OCR;
 Type=Service
-MimeType=image/jpeg;image/png;image/bmp;image/webp;image/tiff;
+MimeType=image/apng;image/avif;image/gif;image/jpeg;image/png;image/bmp;image/x-portable-anymap;image/x-portable-bitmap;image/x-portable-graymap;image/x-portable-pixmap;image/tiff;image/webp;
 X-KDE-Priority=TopLevel
+X-KDE-Protocols=file
+X-KDE-RequiredNumberOfUrls=1
 
 [Desktop Action OCR]
 Name=Text recognition (OCR)
@@ -36,4 +37,4 @@ Name[tr]=Metin tanıma (OCR)
 Name[uk]=Розпізнавання тексту (OCR)
 Name[zh]=文字识别（OCR）
 Icon=bigocrimage
-Exec=bigocrimage "%U"
+Exec=bigocrimage %f

@@ -76,6 +76,10 @@ class TestIsBilevelCandidate:
         img = np.zeros((0, 0), dtype=np.uint8)
         assert is_bilevel_candidate(img) is False
 
+    def test_empty_bgr_image(self):
+        img = np.zeros((0, 0, 3), dtype=np.uint8)
+        assert is_bilevel_candidate(img) is False
+
 
 class TestBinarize:
     """Tests for binarize()."""
@@ -116,7 +120,7 @@ class TestBinarize:
     def test_bimodal_separates_cleanly(self):
         """Image with two clear peaks should be separated correctly."""
         img = np.zeros((100, 100), dtype=np.uint8)
-        img[:50, :] = 40   # dark region
+        img[:50, :] = 40  # dark region
         img[50:, :] = 220  # light region
         result = binarize(img)
         assert np.all(result[:50, :] == 0)

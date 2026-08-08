@@ -1,9 +1,9 @@
 [Desktop Entry]
-ServiceTypes=KonqPopupMenu/Plugin
 Actions=CreatePDF;
 Type=Service
-MimeType=image/jpeg;image/png;image/bmp;image/webp;image/tiff;
+MimeType=image/avif;image/jpeg;image/png;image/bmp;image/webp;image/tiff;
 X-KDE-Priority=TopLevel
+X-KDE-Protocols=file
 
 [Desktop Action CreatePDF]
 Name=Create PDF

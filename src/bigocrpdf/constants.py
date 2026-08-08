@@ -59,3 +59,4 @@ MIN_IMAGE_BOX_SIZE_PX: Final[int] = 50
 # ============================================================================
 
 JBIG2_ENCODER_TIMEOUT_SECS: Final[int] = 30
+PDF_TOOL_TIMEOUT_SECS: Final[int] = 120

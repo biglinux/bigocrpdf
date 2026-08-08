@@ -10,6 +10,10 @@ from bigocrpdf.services.rapidocr_service.resource_manager import (
     ResourceTier,
     compute_pipeline_config,
     detect_resources,
+    enforce_pdf_resource_limits,
+    estimate_page_megapixels,
+    select_pdf_page_render_dpi,
+    select_render_dpi_for_page,
 )
 
 
@@ -35,7 +39,7 @@ class TestResourceProfile:
             available_ram_mb=4096, total_ram_mb=16384, cpu_count=8, tier=ResourceTier.MODERATE
         )
         with pytest.raises(AttributeError):
-            p.available_ram_mb = 0
+            p.available_ram_mb = 0  # pyright: ignore[reportAttributeAccessIssue]
 
 
 class TestDetectResources:
@@ -48,8 +52,9 @@ class TestDetectResources:
         mock_psutil.virtual_memory.return_value = mock_mem
 
         with patch.dict("sys.modules", {"psutil": mock_psutil}):
-            with patch("os.cpu_count", return_value=8):
-                profile = detect_resources()
+            with patch("builtins.open", side_effect=OSError):
+                with patch("os.cpu_count", return_value=8):
+                    profile = detect_resources()
 
         assert profile.available_ram_mb == 4096
         assert profile.total_ram_mb == 16384
@@ -65,8 +70,9 @@ class TestDetectResources:
         mock_psutil.virtual_memory.return_value = mock_mem
 
         with patch.dict("sys.modules", {"psutil": mock_psutil}):
-            with patch("os.cpu_count", return_value=4):
-                profile = detect_resources()
+            with patch("builtins.open", side_effect=OSError):
+                with patch("os.cpu_count", return_value=4):
+                    profile = detect_resources()
 
         assert profile.tier == ResourceTier.CONSTRAINED
 
@@ -79,8 +85,9 @@ class TestDetectResources:
         mock_psutil.virtual_memory.return_value = mock_mem
 
         with patch.dict("sys.modules", {"psutil": mock_psutil}):
-            with patch("os.cpu_count", return_value=16):
-                profile = detect_resources()
+            with patch("builtins.open", side_effect=OSError):
+                with patch("os.cpu_count", return_value=16):
+                    profile = detect_resources()
 
         assert profile.tier == ResourceTier.ABUNDANT
 
@@ -131,9 +138,7 @@ class TestComputePipelineConfig:
         cfg = compute_pipeline_config(p)
         assert cfg.max_workers == 1
         assert cfg.chunk_size == 4
-        assert cfg.enable_prefetch is False
         assert cfg.gc_after_page is True
-        assert cfg.gc_after_chunk is True
         assert cfg.downscale_probmap == 1024
 
     def test_moderate_balanced(self):
@@ -141,9 +146,7 @@ class TestComputePipelineConfig:
         cfg = compute_pipeline_config(p)
         assert 1 <= cfg.max_workers <= 6
         assert cfg.chunk_size == 8
-        assert cfg.enable_prefetch is False
         assert cfg.gc_after_page is False
-        assert cfg.gc_after_chunk is True
         assert cfg.downscale_probmap == 1536
 
     def test_abundant_high_performance(self):
@@ -151,9 +154,7 @@ class TestComputePipelineConfig:
         cfg = compute_pipeline_config(p)
         assert cfg.max_workers > 1
         assert cfg.max_workers <= 12
-        assert cfg.enable_prefetch is True
         assert cfg.gc_after_page is False
-        assert cfg.gc_after_chunk is True
         assert cfg.downscale_probmap == 1536
 
     def test_abundant_respects_cpu_cap(self):
@@ -176,3 +177,113 @@ class TestComputePipelineConfig:
             p = self._profile(2000, 2, tier)
             cfg = compute_pipeline_config(p)
             assert cfg.ocr_threads >= 2
+
+
+class TestPdfResourceLimits:
+    def test_estimates_page_megapixels_from_points_and_dpi(self):
+        megapixels = estimate_page_megapixels(612, 792, 300)
+        assert 8.0 < megapixels < 9.0
+
+    def test_accepts_pdf_within_limits(self):
+        config = type("Config", (), {"max_pdf_pages": 10, "max_page_megapixels": 40, "dpi": 300})()
+        enforce_pdf_resource_limits(2, [(612, 792), (612, 792)], config)
+
+    def test_accepts_embedded_image_within_limit(self):
+        config = type(
+            "Config",
+            (),
+            {
+                "max_pdf_pages": 10,
+                "max_page_megapixels": 40,
+                "max_image_megapixels": 128,
+                "dpi": 300,
+            },
+        )()
+        enforce_pdf_resource_limits(
+            1,
+            [(612, 792)],
+            config,
+            image_dimensions=[(1, 4000, 3000)],
+        )
+
+    def test_page_count_limit_is_disabled_by_default(self):
+        config = type("Config", (), {"max_pdf_pages": 0, "max_page_megapixels": 0, "dpi": 300})()
+        enforce_pdf_resource_limits(10_000, [(612, 792)], config)
+
+    def test_rejects_too_many_pages(self):
+        config = type("Config", (), {"max_pdf_pages": 1, "max_page_megapixels": 40, "dpi": 300})()
+        with pytest.raises(ValueError, match="configured limit is 1"):
+            enforce_pdf_resource_limits(2, [(612, 792), (612, 792)], config)
+
+    @pytest.mark.parametrize(
+        "dimensions",
+        ((0, 792), (float("nan"), 792), (612, float("inf"))),
+    )
+    def test_rejects_invalid_page_dimensions(self, dimensions):
+        config = type(
+            "Config",
+            (),
+            {"max_pdf_pages": 10, "max_page_megapixels": 40, "dpi": 300},
+        )()
+
+        with pytest.raises(ValueError, match="Page 1 has invalid dimensions"):
+            enforce_pdf_resource_limits(1, [dimensions], config)
+
+    def test_rejects_too_large_rendered_page(self):
+        config = type("Config", (), {"max_pdf_pages": 10, "max_page_megapixels": 1, "dpi": 300})()
+        with pytest.raises(ValueError, match="would render"):
+            enforce_pdf_resource_limits(1, [(612, 792)], config)
+
+    def test_rejects_too_large_embedded_image(self):
+        config = type(
+            "Config",
+            (),
+            {
+                "max_pdf_pages": 10,
+                "max_page_megapixels": 40,
+                "max_image_megapixels": 128,
+                "dpi": 300,
+            },
+        )()
+        with pytest.raises(ValueError, match=r"page 1.*200\.0 MP.*128\.0 MP"):
+            enforce_pdf_resource_limits(
+                1,
+                [(612, 792)],
+                config,
+                image_dimensions=[(1, 20_000, 10_000)],
+            )
+
+    def test_render_dpi_stays_preferred_when_within_budget(self):
+        assert select_render_dpi_for_page(612, 792, 300, 45) == 300
+
+    def test_render_dpi_is_reduced_to_megapixel_budget(self):
+        dpi = select_render_dpi_for_page(612, 792, 300, 1, min_dpi=72)
+        assert 90 <= dpi <= 110
+
+    def test_render_dpi_stops_at_floor_when_floor_fits_budget(self):
+        floor_budget = estimate_page_megapixels(612, 792, 150)
+        assert select_render_dpi_for_page(612, 792, 300, floor_budget, min_dpi=150) == 150
+
+    def test_render_dpi_rejects_page_when_floor_exceeds_budget(self):
+        with pytest.raises(ValueError, match=r"minimum 150 DPI.*configured limit is 1\.0 MP"):
+            select_render_dpi_for_page(612, 792, 300, 1, min_dpi=150)
+
+    def test_render_dpi_rejects_invalid_page_dimensions(self):
+        with pytest.raises(ValueError, match="invalid dimensions"):
+            select_render_dpi_for_page(0, 792, 300, 45)
+
+    def test_pdf_render_budget_accounts_for_user_unit(self, tmp_path):
+        import pikepdf
+
+        pdf_path = tmp_path / "large-user-unit.pdf"
+        pdf = pikepdf.Pdf.new()
+        page = pdf.add_blank_page(page_size=(612, 792))
+        page["/UserUnit"] = 10
+        pdf.save(pdf_path)
+
+        with pytest.raises(ValueError, match=r"minimum 150 DPI.*configured limit is 45\.0 MP"):
+            select_pdf_page_render_dpi(pdf_path, 1, 300, 45)
+
+    def test_pdf_render_budget_rejects_invalid_page_number(self, tmp_path):
+        with pytest.raises(ValueError, match="Invalid PDF page number"):
+            select_pdf_page_render_dpi(tmp_path / "unused.pdf", 0, 300, 45)

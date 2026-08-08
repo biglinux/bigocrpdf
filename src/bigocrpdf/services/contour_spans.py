@@ -37,7 +37,6 @@ class _ContourInfo:
     """Geometric and orientation data about a single text contour."""
 
     __slots__ = (
-        "contour",
         "rect",
         "mask",
         "center",
@@ -58,7 +57,6 @@ class _ContourInfo:
         center: np.ndarray,
         tangent: np.ndarray,
     ) -> None:
-        self.contour = contour
         self.rect = rect
         self.mask = mask
         self.center = center
@@ -158,8 +156,8 @@ def _detect_text_contours(
     cinfo_list: list[_ContourInfo] = []
 
     for contour in contours:
-        rect = cv2.boundingRect(contour)
-        xmin, ymin, width, height = rect
+        xmin, ymin, width, height = cv2.boundingRect(contour)
+        rect = (xmin, ymin, width, height)
 
         if width < TEXT_MIN_WIDTH or height < TEXT_MIN_HEIGHT or width < TEXT_MIN_ASPECT * height:
             continue
@@ -234,43 +232,37 @@ def _assemble_spans(cinfo_list: list[_ContourInfo]) -> list[list[_ContourInfo]]:
     partial text line.
     """
     cinfo_list = sorted(cinfo_list, key=lambda ci: ci.rect[1])
+    candidate_edges = _candidate_span_edges(cinfo_list)
+    _link_span_edges(candidate_edges)
+    return _walk_contour_spans(cinfo_list)
 
-    # Generate all candidate edges
+
+def _candidate_span_edges(
+    cinfo_list: list[_ContourInfo],
+) -> list[tuple[float, _ContourInfo, _ContourInfo]]:
     candidate_edges: list[tuple[float, _ContourInfo, _ContourInfo]] = []
     for i, ci_i in enumerate(cinfo_list):
         for j in range(i):
             edge = _generate_candidate_edge(ci_i, cinfo_list[j])
             if edge is not None:
                 candidate_edges.append(edge)
-
-    # Sort by score (lower is better)
     candidate_edges.sort(key=lambda e: e[0])
+    return candidate_edges
 
-    # Link contours: each contour can have at most one predecessor and one successor
+
+def _link_span_edges(candidate_edges: list[tuple[float, _ContourInfo, _ContourInfo]]) -> None:
     for _, cinfo_a, cinfo_b in candidate_edges:
         if cinfo_a.succ is None and cinfo_b.pred is None:
             cinfo_a.succ = cinfo_b
             cinfo_b.pred = cinfo_a
 
-    # Build spans by walking from each head (no predecessor) to tail
+
+def _walk_contour_spans(cinfo_list: list[_ContourInfo]) -> list[list[_ContourInfo]]:
     spans: list[list[_ContourInfo]] = []
     remaining = list(cinfo_list)
 
     while remaining:
-        cinfo: _ContourInfo | None = remaining[0]
-        # Walk to head of chain
-        while cinfo is not None and cinfo.pred:
-            cinfo = cinfo.pred
-
-        cur_span: list[_ContourInfo] = []
-        width = 0.0
-
-        while cinfo:
-            if cinfo in remaining:
-                remaining.remove(cinfo)
-            cur_span.append(cinfo)
-            width += cinfo.local_xrng[1] - cinfo.local_xrng[0]
-            cinfo = cinfo.succ
+        cur_span, width = _walk_single_contour_span(remaining)
 
         if width > SPAN_MIN_WIDTH:
             spans.append(cur_span)
@@ -278,10 +270,29 @@ def _assemble_spans(cinfo_list: list[_ContourInfo]) -> list[list[_ContourInfo]]:
     return spans
 
 
+def _walk_single_contour_span(
+    remaining: list[_ContourInfo],
+) -> tuple[list[_ContourInfo], float]:
+    cinfo: _ContourInfo | None = remaining[0]
+    while cinfo is not None and cinfo.pred:
+        cinfo = cinfo.pred
+
+    cur_span: list[_ContourInfo] = []
+    width = 0.0
+    while cinfo:
+        if cinfo in remaining:
+            remaining.remove(cinfo)
+        cur_span.append(cinfo)
+        width += cinfo.local_xrng[1] - cinfo.local_xrng[0]
+        cinfo = cinfo.succ
+
+    return cur_span, width
+
+
 # ── Span sampling ────────────────────────────────────────────────────────────
 
 
-def _sample_spans(shape: tuple[int, ...], spans: list[list[_ContourInfo]]) -> list[np.ndarray]:
+def _sample_spans(spans: list[list[_ContourInfo]]) -> list[np.ndarray]:
     """Sample keypoints along spans at regular intervals.
 
     Within each contour's bounding rectangle, measures the vertical centroid

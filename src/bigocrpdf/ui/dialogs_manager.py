@@ -4,7 +4,6 @@ BigOcrPdf - Dialogs Manager Module
 This module handles all dialog creation and management for the application.
 """
 
-import logging
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
@@ -13,41 +12,56 @@ import gi
 gi.require_version("Adw", "1")
 from gi.repository import Adw
 
-from bigocrpdf.ui.file_save_mixin import FileSaveDialogMixin
-from bigocrpdf.ui.pdf_options_callbacks_mixin import PDFOptionsCallbacksMixin
-from bigocrpdf.ui.pdf_options_ui_mixin import PDFOptionsUICreationMixin
-from bigocrpdf.ui.text_viewer_mixin import TextViewerDialogMixin
-from bigocrpdf.utils.i18n import _
+from bigocrpdf.ui.file_save_controller import FileSaveController
+from bigocrpdf.ui.pdf_options_controller import PDFOptionsController
+from bigocrpdf.ui.text_viewer_controller import TextViewerController
+from bigocrpdf.utils.i18n import _, ngettext
+from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.pdf_utils import images_to_pdf
 
 if TYPE_CHECKING:
     from bigocrpdf.services.settings import OcrSettings
-    from bigocrpdf.window import BigOcrPdfWindow
-
-logger = logging.getLogger(__name__)
 
 
-class DialogsManager(
-    PDFOptionsUICreationMixin,
-    PDFOptionsCallbacksMixin,
-    TextViewerDialogMixin,
-    FileSaveDialogMixin,
-):
+class DialogsManager:
     """Manages all dialogs and modal windows for the application"""
 
-    def __init__(self, window: "BigOcrPdfWindow"):
+    def __init__(
+        self,
+        parent,
+        settings: "OcrSettings",
+        show_toast: Callable[[str], None],
+    ) -> None:
         """Initialize the dialogs manager
 
         Args:
-            window: Reference to the main application window
+            parent: Parent window for modal dialogs.
         """
-        self.window = window
+        self._parent = parent
+        self._settings = settings
+        self._show_toast = show_toast
+        self._file_save = FileSaveController(parent, show_toast)
+        self._text_viewer = TextViewerController(
+            parent,
+            settings,
+            show_toast,
+            self._file_save,
+        )
+        self._pdf_options = PDFOptionsController(parent, settings)
+
+    def show_pdf_options_dialog(self, callback: Callable) -> None:
+        """Present PDF output settings."""
+        self._pdf_options.show_pdf_options_dialog(callback)
+
+    def show_extracted_text(self, file_path: str) -> None:
+        """Present extracted text for a processed file."""
+        self._text_viewer.show_extracted_text(file_path)
 
     # ── Image merge dialog ──────────────────────────────────────────────
 
     def show_image_merge_dialog(
         self,
         image_files: list[str],
-        settings: "OcrSettings",
         *,
         heading: str,
         body: str,
@@ -57,12 +71,15 @@ class DialogsManager(
 
         Args:
             image_files: Paths to the image files.
-            settings: OcrSettings instance for tracking file origins.
             heading: Dialog heading text.
             body: Dialog body text.
             on_complete: Optional callback invoked after files are added.
         """
-        from bigocrpdf.utils.pdf_utils import images_to_pdf
+        if not image_files:
+            logger.warning("Image merge dialog opened without images")
+            if on_complete is not None:
+                on_complete()
+            return
 
         dialog = Adw.AlertDialog()
         dialog.set_heading(heading)
@@ -74,31 +91,30 @@ class DialogsManager(
 
         def on_response(_dialog: Adw.AlertDialog, response: str) -> None:
             if response == "merge":
-                try:
-                    pdf_path = images_to_pdf(image_files)
-                    settings.original_file_paths[pdf_path] = image_files[0]
-                    added = settings.add_files([pdf_path])
-                    if added > 0:
-                        self.window.show_toast(
-                            _("Merged {} images into one PDF").format(len(image_files))
-                        )
-                except (OSError, ValueError) as e:
-                    logger.error("Failed to merge images: %s", e)
-                    self.window.show_toast(_("Error merging images"))
+                if self._convert_and_queue_images(image_files, image_files[0]):
+                    self._show_toast(
+                        ngettext(
+                            "Merged {count} image into one PDF",
+                            "Merged {count} images into one PDF",
+                            len(image_files),
+                        ).format(count=len(image_files))
+                    )
+                else:
+                    self._show_toast(_("Error merging images"))
             elif response == "separate":
-                converted: list[str] = []
-                for img_path in image_files:
-                    try:
-                        pdf_path = images_to_pdf([img_path])
-                        converted.append(pdf_path)
-                        settings.original_file_paths[pdf_path] = img_path
-                    except (OSError, ValueError) as e:
-                        logger.error("Failed to convert image to PDF: %s", e)
-                if converted:
-                    settings.add_files(converted)
+                for image_path in image_files:
+                    self._convert_and_queue_images([image_path], image_path)
 
-            if on_complete:
+            if on_complete is not None:
                 on_complete()
 
         dialog.connect("response", on_response)
-        dialog.present(self.window)
+        dialog.present(self._parent)
+
+    def _convert_and_queue_images(self, image_files: list[str], original_path: str) -> bool:
+        try:
+            pdf_path = images_to_pdf(image_files)
+        except (OSError, RuntimeError, ValueError) as error:
+            logger.error("Failed to convert images to PDF: %s", error)
+            return False
+        return self._settings._add_generated_file(pdf_path, original_path)

@@ -9,7 +9,6 @@ to keep memory usage under ~600 MB total.
 import logging
 import os
 import signal
-import subprocess
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -19,9 +18,93 @@ import numpy as np
 from PIL import Image
 
 from bigocrpdf.services.rapidocr_service.pdf_extractor import load_image_with_exif_rotation
+from bigocrpdf.services.rapidocr_service.pdf_page_geometry import render_pdf_page_to_ppm
 from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
+from bigocrpdf.services.rapidocr_service.resource_manager import select_pdf_page_render_dpi
 
 logger = logging.getLogger(__name__)
+
+_IJG_LUMA_BASE = [
+    16,
+    11,
+    10,
+    16,
+    24,
+    40,
+    51,
+    61,
+    12,
+    12,
+    14,
+    19,
+    26,
+    58,
+    60,
+    55,
+    14,
+    13,
+    16,
+    24,
+    40,
+    57,
+    69,
+    56,
+    14,
+    17,
+    22,
+    29,
+    51,
+    87,
+    80,
+    62,
+    18,
+    22,
+    37,
+    56,
+    68,
+    109,
+    103,
+    77,
+    24,
+    35,
+    55,
+    64,
+    81,
+    104,
+    113,
+    92,
+    49,
+    64,
+    78,
+    87,
+    103,
+    121,
+    120,
+    101,
+    72,
+    92,
+    95,
+    98,
+    112,
+    100,
+    103,
+    99,
+]
+
+
+def _write_cv_image(
+    output_path: str,
+    image: np.ndarray,
+    parameters: list[int] | None = None,
+) -> None:
+    """Write an image and raise when OpenCV reports an encoder failure."""
+    written = (
+        cv2.imwrite(output_path, image, parameters)
+        if parameters is not None
+        else cv2.imwrite(output_path, image)
+    )
+    if not written:
+        raise OSError(f"OpenCV could not write image: {output_path}")
 
 
 def worker_init() -> None:
@@ -59,124 +142,55 @@ def detect_image_quality(img_path: str) -> int:
     Returns:
         Detected quality (1-100) or 0 if not detectable
     """
-    # IJG standard luminance quantization table (quality=50 baseline)
-    _IJG_LUMA_BASE = [
-        16,
-        11,
-        10,
-        16,
-        24,
-        40,
-        51,
-        61,
-        12,
-        12,
-        14,
-        19,
-        26,
-        58,
-        60,
-        55,
-        14,
-        13,
-        16,
-        24,
-        40,
-        57,
-        69,
-        56,
-        14,
-        17,
-        22,
-        29,
-        51,
-        87,
-        80,
-        62,
-        18,
-        22,
-        37,
-        56,
-        68,
-        109,
-        103,
-        77,
-        24,
-        35,
-        55,
-        64,
-        81,
-        104,
-        113,
-        92,
-        49,
-        64,
-        78,
-        87,
-        103,
-        121,
-        120,
-        101,
-        72,
-        92,
-        95,
-        98,
-        112,
-        100,
-        103,
-        99,
-    ]
-
     try:
         with Image.open(img_path) as img:
-            # Check for JPEG quantization tables
-            if hasattr(img, "quantization") and img.quantization:
-                qtables = img.quantization
-                if qtables:
-                    # Use first quantization table (luminance)
-                    first_table = (
-                        list(qtables.values())[0] if isinstance(qtables, dict) else qtables[0]
-                    )
-
-                    # Estimate scaling factor from quantization table vs IJG base
-                    # For each coefficient: scaling = (actual * 100) / base
-                    scaling_factors = []
-                    for actual, base in zip(first_table, _IJG_LUMA_BASE, strict=False):
-                        if base > 0 and actual > 0:
-                            scaling_factors.append((actual * 100.0) / base)
-
-                    if scaling_factors:
-                        # Use median for robustness against rounding variations
-                        scaling_factors.sort()
-                        mid = len(scaling_factors) // 2
-                        if len(scaling_factors) % 2 == 0:
-                            avg_scaling = (scaling_factors[mid - 1] + scaling_factors[mid]) / 2
-                        else:
-                            avg_scaling = scaling_factors[mid]
-
-                        # Reverse IJG formula: scaling → quality
-                        if avg_scaling < 100:
-                            quality = int(round((200 - avg_scaling) / 2))
-                        else:
-                            quality = int(round(5000.0 / avg_scaling))
-
-                        return max(1, min(100, quality))
-
-            # For PNG: lossless, return 100
-            if img.format == "PNG":
-                return 100
-
-            # For WebP: try to detect quality from file size heuristic
-            if img.format == "WEBP":
-                return 85  # WebP default quality
-
-            # For JPEG2000: lossless capable
-            if img.format in ("JPEG2000", "J2K"):
-                return 95
+            if quality := _detect_jpeg_quality_from_tables(img):
+                return quality
+            return _lossless_or_default_quality(img.format)
 
     except Exception as e:
         logger.debug(f"Could not detect image quality: {e}")
     return 0  # Not detectable
+
+
+def _detect_jpeg_quality_from_tables(img: Image.Image) -> int:
+    qtables = getattr(img, "quantization", None)
+    if not qtables:
+        return 0
+
+    first_table = list(qtables.values())[0] if isinstance(qtables, dict) else qtables[0]
+    scaling_factors = [
+        (actual * 100.0) / base
+        for actual, base in zip(first_table, _IJG_LUMA_BASE, strict=False)
+        if base > 0 and actual > 0
+    ]
+    if not scaling_factors:
+        return 0
+
+    avg_scaling = _median(scaling_factors)
+    if avg_scaling < 100:
+        quality = int(round((200 - avg_scaling) / 2))
+    else:
+        quality = int(round(5000.0 / avg_scaling))
+    return max(1, min(100, quality))
+
+
+def _median(values: list[float]) -> float:
+    sorted_values = sorted(values)
+    mid = len(sorted_values) // 2
+    if len(sorted_values) % 2 == 0:
+        return (sorted_values[mid - 1] + sorted_values[mid]) / 2
+    return sorted_values[mid]
+
+
+def _lossless_or_default_quality(img_format: str | None) -> int:
+    if img_format == "PNG":
+        return 100
+    if img_format == "WEBP":
+        return 85
+    if img_format in ("JPEG2000", "J2K"):
+        return 95
+    return 0
 
 
 def detect_original_format(img_path: str) -> str:
@@ -243,12 +257,12 @@ def save_jpeg2000(img: np.ndarray, output_path: str, quality: int = 85) -> None:
         logger.warning(f"JPEG 2000 save failed, falling back to PNG: {e}")
         # Fallback to PNG (lossless, universally readable)
         fallback_path = str(Path(output_path).with_suffix(".png"))
-        cv2.imwrite(fallback_path, img)
-        # Rename to expected path so downstream code finds it
-        if fallback_path != output_path:
-            import shutil
-
-            shutil.move(fallback_path, output_path)
+        try:
+            _write_cv_image(fallback_path, img)
+            # Preserve the expected path so downstream code remains format-agnostic.
+            os.replace(fallback_path, output_path)
+        finally:
+            Path(fallback_path).unlink(missing_ok=True)
 
 
 def _apply_pdf_rotation(
@@ -314,8 +328,7 @@ def _determine_output_format(img_path: str, config: Any) -> tuple[str, int, int]
     img_quality = getattr(config, "image_export_quality", 85)
     auto_detect = getattr(config, "auto_detect_quality", True)
 
-    if img_format == "jpg":
-        img_format = "jpeg"
+    img_format = _normalize_requested_format(img_format)
 
     detected_quality = 0
     if auto_detect and img_format == "original":
@@ -328,40 +341,52 @@ def _determine_output_format(img_path: str, config: Any) -> tuple[str, int, int]
             img_quality = max(detected_quality, 75)
 
     if img_format == "original":
-        detected_fmt = detect_original_format(img_path)
-        if detected_fmt in ("jpeg", "png", "jp2", "tiff"):
-            img_format = detected_fmt
-        elif detected_fmt == "ppm":
-            img_format = "jpeg"
-            if img_quality == 0:
-                img_quality = 85
-        elif detected_fmt == "webp":
-            img_format = "jpeg"
-            if img_quality == 0:
-                img_quality = 85
-        else:
-            img_ext = Path(img_path).suffix.lower()
-            if img_ext in (".jpg", ".jpeg"):
-                img_format = "jpeg"
-            elif img_ext == ".jp2":
-                img_format = "jp2"
-            elif img_ext == ".png":
-                img_format = "png"
-            else:
-                img_format = "jpeg"
-                if img_quality == 0:
-                    img_quality = 85
+        img_format, img_quality = _format_from_original_image(img_path, img_quality)
 
-    if img_format in ("webp", "avif"):
-        img_format = "jpeg"
-
-    if img_format == "tiff":
-        img_format = "png"
+    img_format = _normalize_output_format(img_format)
 
     return img_format, img_quality, detected_quality
 
 
-def _save_processed_image(processed_img: np.ndarray, img_format: str, img_quality: int) -> str:
+def _normalize_requested_format(img_format: str) -> str:
+    return "jpeg" if img_format == "jpg" else img_format
+
+
+def _format_from_original_image(img_path: str, img_quality: int) -> tuple[str, int]:
+    detected_fmt = detect_original_format(img_path)
+    if detected_fmt in ("jpeg", "png", "jp2", "tiff"):
+        return detected_fmt, img_quality
+    if detected_fmt in ("ppm", "webp"):
+        return "jpeg", img_quality or 85
+
+    return _format_from_extension(img_path, img_quality)
+
+
+def _format_from_extension(img_path: str, img_quality: int) -> tuple[str, int]:
+    img_ext = Path(img_path).suffix.lower()
+    if img_ext in (".jpg", ".jpeg"):
+        return "jpeg", img_quality
+    if img_ext == ".jp2":
+        return "jp2", img_quality
+    if img_ext == ".png":
+        return "png", img_quality
+    return "jpeg", img_quality or 85
+
+
+def _normalize_output_format(img_format: str) -> str:
+    if img_format in ("webp", "avif"):
+        return "jpeg"
+    if img_format == "tiff":
+        return "png"
+    return img_format
+
+
+def _save_processed_image(
+    processed_img: np.ndarray,
+    img_format: str,
+    img_quality: int,
+    scratch_dir: Path | str | None = None,
+) -> str:
     """Save processed image to temp file in the appropriate format.
 
     Returns:
@@ -380,50 +405,209 @@ def _save_processed_image(processed_img: np.ndarray, img_format: str, img_qualit
         suffix = ".jpg"
         write_params = [cv2.IMWRITE_JPEG_QUALITY, img_quality or 85]
 
-    fd, temp_out = tempfile.mkstemp(suffix=suffix)
+    fd, temp_out = tempfile.mkstemp(suffix=suffix, dir=scratch_dir)
     os.close(fd)
 
-    if img_format == "jp2":
-        save_jpeg2000(processed_img, temp_out, img_quality)
-    elif write_params:
-        cv2.imwrite(temp_out, processed_img, write_params)
-    else:
-        cv2.imwrite(temp_out, processed_img)
-
-    return temp_out
-
-
-def _render_page_pdftoppm(pdf_path: str, page_num: int, dpi: int = 150) -> str | None:
-    """Render a composited page from a PDF via pdftoppm.
-
-    Returns the path to an uncompressed PPM file, or None on failure.
-    Used for DjVu-like pages where the extracted BG layer is too degraded
-    for geometry corrections or recompression.
-    """
-    fd, prefix = tempfile.mkstemp(suffix="", prefix=f"worker_render_{page_num}_")
-    os.close(fd)
-    os.unlink(prefix)  # pdftoppm appends extension
-    cmd = [
-        "pdftoppm",
-        "-f",
-        str(page_num),
-        "-l",
-        str(page_num),
-        "-r",
-        str(dpi),
-        "-singlefile",
-        str(pdf_path),
-        prefix,
-    ]
     try:
-        subprocess.run(cmd, check=True, capture_output=True, text=True)
-    except subprocess.CalledProcessError as e:
-        logger.warning(f"pdftoppm render failed for page {page_num}: {e.stderr}")
+        if img_format == "jp2":
+            save_jpeg2000(processed_img, temp_out, img_quality)
+        else:
+            _write_cv_image(temp_out, processed_img, write_params)
+        return temp_out
+    except BaseException:
+        Path(temp_out).unlink(missing_ok=True)
+        raise
+
+
+def _missing_image_path_result(page_num: int) -> dict[str, Any]:
+    return {
+        "page_num": page_num,
+        "success": False,
+        "skipped": True,
+        "error": "No image path provided",
+    }
+
+
+def _create_page_preprocessor(
+    config: Any, args: dict[str, Any], page_num: int
+) -> ImagePreprocessor:
+    preprocessor = ImagePreprocessor(config)
+    probmap_max_side = args.get("probmap_max_side", 0)
+    if probmap_max_side > 0:
+        preprocessor.probmap_max_side = probmap_max_side
+
+    logger.info(
+        f"Page {page_num} config: "
+        f"scanner={config.enable_scanner_effect}, "
+        f"perspective={config.enable_perspective_correction}, "
+        f"deskew={config.enable_deskew}, orientation={config.enable_orientation_detection}, "
+        f"preprocessing={config.enable_preprocessing}"
+    )
+    return preprocessor
+
+
+def _load_page_source_image(img_path: str) -> np.ndarray | None:
+    return load_image_with_exif_rotation(Path(img_path))
+
+
+def _replace_with_rendered_source(
+    original_img: np.ndarray,
+    args: dict[str, Any],
+    page_num: int,
+) -> tuple[np.ndarray, str | None]:
+    if not args.get("use_rendered_source", False):
+        return original_img, None
+
+    input_pdf = args.get("input_pdf")
+    if not input_pdf:
+        return original_img, None
+
+    config = args.get("config")
+    preferred_dpi = int(getattr(config, "fallback_render_dpi", 300))
+    render_dpi = select_pdf_page_render_dpi(
+        input_pdf,
+        page_num,
+        preferred_dpi,
+        float(getattr(config, "max_render_megapixels", 45)),
+    )
+    if render_dpi != preferred_dpi:
+        logger.info(
+            f"Page {page_num}: reducing rendered-source DPI {preferred_dpi} -> {render_dpi}"
+        )
+    rendered_source_path = render_pdf_page_to_ppm(
+        input_pdf,
+        page_num,
+        render_dpi,
+        output_dir=args.get("scratch_dir"),
+    )
+    if not rendered_source_path:
+        return original_img, None
+
+    rendered_img = cv2.imread(rendered_source_path, cv2.IMREAD_COLOR)
+    if rendered_img is None:
+        return original_img, rendered_source_path
+
+    logger.info(
+        f"Page {page_num}: using pdftoppm-rendered source "
+        f"({rendered_img.shape[1]}x{rendered_img.shape[0]}) "
+        f"instead of extracted BG layer"
+    )
+    return rendered_img, rendered_source_path
+
+
+def _orient_page_image(
+    original_img: np.ndarray,
+    img_path: str,
+    page_num: int,
+    pdf_rotation: int,
+    has_rendered_source: bool,
+    args: dict[str, Any],
+    preprocessor: ImagePreprocessor,
+) -> tuple[np.ndarray, int, bool, int, int]:
+    if args.get("skip_rotation", False) or has_rendered_source:
+        orig_h, orig_w = original_img.shape[:2]
+        image_prerotated = pdf_rotation != 0
+    else:
+        original_img, orig_h, orig_w, image_prerotated = _apply_pdf_rotation(
+            original_img, img_path, page_num, pdf_rotation
+        )
+
+    if pdf_rotation != 0:
+        return original_img, 0, image_prerotated, orig_h, orig_w
+
+    orientation_angle = preprocessor.detect_orientation(original_img)
+    if orientation_angle != 0:
+        original_img = preprocessor.correct_orientation(original_img, orientation_angle)
+        orig_h, orig_w = original_img.shape[:2]
+    return original_img, orientation_angle, image_prerotated, orig_h, orig_w
+
+
+def _preprocess_page_image(
+    original_img: np.ndarray,
+    args: dict[str, Any],
+    preprocessor: ImagePreprocessor,
+) -> np.ndarray:
+    if args.get("skip_geometric", False):
+        preprocessor.geometry_applied = False
+        return original_img
+    return preprocessor.process(original_img)
+
+
+def _save_ocr_image_if_needed(
+    processed_img: np.ndarray,
+    img_format: str,
+    scratch_dir: Path | str | None = None,
+) -> str | None:
+    if img_format == "png":
         return None
-    rendered = f"{prefix}.ppm"
-    if os.path.exists(rendered):
-        return rendered
-    return None
+
+    fd_ocr, temp_ocr = tempfile.mkstemp(suffix=".png", dir=scratch_dir)
+    os.close(fd_ocr)
+    try:
+        _write_cv_image(temp_ocr, processed_img)
+        return temp_ocr
+    except BaseException:
+        Path(temp_ocr).unlink(missing_ok=True)
+        raise
+
+
+def _page_success_result(
+    page_num: int,
+    args: dict[str, Any],
+    temp_out: str,
+    temp_ocr: str | None,
+    orientation_angle: int,
+    image_prerotated: bool,
+    pdf_rotation: int,
+    orig_h: int,
+    orig_w: int,
+    processed_img: np.ndarray,
+    detected_quality: int,
+    img_format: str,
+    geometry_applied: bool,
+    crop_applied: bool,
+    crop_offset_px: tuple[int, int],
+    crop_original_size_px: tuple[int, int] | None,
+) -> dict[str, Any]:
+    return {
+        "page_num": page_num,
+        "temp_out_path": temp_out,
+        "temp_ocr_path": temp_ocr,
+        "orientation_angle": orientation_angle,
+        "image_prerotated": image_prerotated,
+        "original_pdf_rotation": pdf_rotation,
+        "orig_h": orig_h,
+        "orig_w": orig_w,
+        "proc_h": processed_img.shape[0],
+        "proc_w": processed_img.shape[1],
+        "detected_quality": detected_quality,
+        "image_format": img_format,
+        "original_encoding": args.get("original_encoding", ""),
+        "geometry_applied": geometry_applied,
+        "crop_applied": crop_applied,
+        "crop_offset_px": crop_offset_px,
+        "crop_original_size_px": crop_original_size_px,
+        "success": True,
+    }
+
+
+def _cleanup_rendered_source(rendered_source_path: str | None) -> None:
+    if not rendered_source_path:
+        return
+    try:
+        os.unlink(rendered_source_path)
+    except OSError:
+        pass
+
+
+def _cleanup_owned_page_outputs(*paths: str | None) -> None:
+    for path in paths:
+        if not path:
+            continue
+        try:
+            Path(path).unlink(missing_ok=True)
+        except OSError:
+            pass
 
 
 def process_page(args: dict[str, Any]) -> dict[str, Any]:
@@ -437,127 +621,72 @@ def process_page(args: dict[str, Any]) -> dict[str, Any]:
     Returns:
         Dictionary with processing results or error info
     """
+    rendered_source_path: str | None = None
+    temp_out: str | None = None
+    temp_ocr: str | None = None
+    ownership_transferred = False
     try:
         page_num = args["page_num"]
         img_path = args["img_path"]
         config = args["config"]
 
         if img_path is None:
-            return {
-                "page_num": page_num,
-                "success": False,
-                "skipped": True,
-                "error": "No image path provided",
-            }
+            return _missing_image_path_result(page_num)
 
-        preprocessor = ImagePreprocessor(config)
-
-        probmap_max_side = args.get("probmap_max_side", 0)
-        if probmap_max_side > 0:
-            preprocessor.probmap_max_side = probmap_max_side
-
-        logger.info(
-            f"Page {page_num} config: "
-            f"scanner={config.enable_scanner_effect}, "
-            f"perspective={config.enable_perspective_correction}, "
-            f"deskew={config.enable_deskew}, orientation={config.enable_orientation_detection}, "
-            f"preprocessing={config.enable_preprocessing}"
-        )
-
-        original_img = load_image_with_exif_rotation(Path(img_path))
+        preprocessor = _create_page_preprocessor(config, args, page_num)
+        original_img = _load_page_source_image(img_path)
         if original_img is None:
             return {"page_num": page_num, "error": f"Could not read image: {img_path}"}
 
-        # For DjVu-like pages where the user wants image modifications
-        # (geometry corrections or format change), render the composited
-        # page via pdftoppm instead of using the degraded BG layer.
-        use_rendered_source = args.get("use_rendered_source", False)
-        rendered_source_path = None
-        if use_rendered_source:
-            input_pdf = args.get("input_pdf")
-            if input_pdf:
-                rendered_source_path = _render_page_pdftoppm(input_pdf, page_num)
-                if rendered_source_path:
-                    rendered_img = cv2.imread(rendered_source_path, cv2.IMREAD_COLOR)
-                    if rendered_img is not None:
-                        logger.info(
-                            f"Page {page_num}: using pdftoppm-rendered source "
-                            f"({rendered_img.shape[1]}x{rendered_img.shape[0]}) "
-                            f"instead of extracted BG layer"
-                        )
-                        original_img = rendered_img
+        original_img, rendered_source_path = _replace_with_rendered_source(
+            original_img,
+            args,
+            page_num,
+        )
 
         pdf_rotation = args.get("pdf_rotation", 0)
-        skip_rotation = args.get("skip_rotation", False)
-        if skip_rotation or rendered_source_path:
-            # Image already display-oriented (e.g. from pdftoppm rendering).
-            # Record as pre-rotated so downstream code adjusts page size.
-            orig_h, orig_w = original_img.shape[:2]
-            image_prerotated = pdf_rotation != 0
-        else:
-            original_img, orig_h, orig_w, image_prerotated = _apply_pdf_rotation(
-                original_img, img_path, page_num, pdf_rotation
-            )
-
-        if pdf_rotation == 0:
-            orientation_angle = preprocessor.detect_orientation(original_img)
-            if orientation_angle != 0:
-                original_img = preprocessor.correct_orientation(original_img, orientation_angle)
-                orig_h, orig_w = original_img.shape[:2]
-        else:
-            orientation_angle = 0
-
-        skip_geometric = args.get("skip_geometric", False)
-        if skip_geometric:
-            # DjVu-like page: skip geometric corrections (deskew, perspective,
-            # dewarp) so geometry_applied stays False → overlay mode preserves
-            # the original FG/BG/mask composite in the PDF.
-            processed_img = original_img
-            preprocessor.geometry_applied = False
-        else:
-            processed_img = preprocessor.process(original_img)
+        original_img, orientation_angle, image_prerotated, orig_h, orig_w = _orient_page_image(
+            original_img,
+            img_path,
+            page_num,
+            pdf_rotation,
+            bool(rendered_source_path),
+            args,
+            preprocessor,
+        )
+        processed_img = _preprocess_page_image(original_img, args, preprocessor)
 
         img_format, img_quality, detected_quality = _determine_output_format(img_path, config)
-
-        temp_out = _save_processed_image(processed_img, img_format, img_quality)
-
-        # Save a lossless PNG for OCR when the PDF image is lossy-compressed.
-        # JPEG artifacts (even at q=85) can degrade OCR accuracy — e.g.
-        # "CAIXA" misread as "CAIZA".  The OCR subprocess must always
-        # receive an uncompressed image for reliable text recognition.
-        temp_ocr = None
-        if img_format not in ("png",):
-            fd_ocr, temp_ocr = tempfile.mkstemp(suffix=".png")
-            os.close(fd_ocr)
-            cv2.imwrite(temp_ocr, processed_img)
-
-        result = {
-            "page_num": page_num,
-            "temp_out_path": temp_out,
-            "temp_ocr_path": temp_ocr,
-            "orientation_angle": orientation_angle,
-            "image_prerotated": image_prerotated,
-            "original_pdf_rotation": pdf_rotation,
-            "orig_h": orig_h,
-            "orig_w": orig_w,
-            "proc_h": processed_img.shape[0],
-            "proc_w": processed_img.shape[1],
-            "detected_quality": detected_quality,
-            "image_format": img_format,
-            "original_encoding": args.get("original_encoding", ""),
-            "geometry_applied": preprocessor.geometry_applied,
-            "success": True,
-        }
+        scratch_dir = args.get("scratch_dir")
+        temp_out = _save_processed_image(
+            processed_img,
+            img_format,
+            img_quality,
+            scratch_dir,
+        )
+        temp_ocr = _save_ocr_image_if_needed(processed_img, img_format, scratch_dir)
+        result = _page_success_result(
+            page_num,
+            args,
+            temp_out,
+            temp_ocr,
+            orientation_angle,
+            image_prerotated,
+            pdf_rotation,
+            orig_h,
+            orig_w,
+            processed_img,
+            detected_quality,
+            img_format,
+            preprocessor.geometry_applied,
+            preprocessor.crop_applied,
+            preprocessor.crop_offset_px,
+            preprocessor.crop_original_size_px,
+        )
 
         del original_img, processed_img
 
-        # Cleanup temporary pdftoppm render file
-        if rendered_source_path:
-            try:
-                os.unlink(rendered_source_path)
-            except OSError:
-                pass
-
+        ownership_transferred = True
         return result
 
     except Exception as e:
@@ -569,3 +698,7 @@ def process_page(args: dict[str, Any]) -> dict[str, Any]:
             "traceback": traceback.format_exc(),
             "success": False,
         }
+    finally:
+        _cleanup_rendered_source(rendered_source_path)
+        if not ownership_transferred:
+            _cleanup_owned_page_outputs(temp_out, temp_ocr)

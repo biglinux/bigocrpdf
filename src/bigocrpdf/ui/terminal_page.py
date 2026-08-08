@@ -1,155 +1,122 @@
-"""
-BigOcrPdf - Terminal Page Module
+"""Processing page UI and progress updates."""
 
-This module handles the creation and management of the processing/terminal page UI.
-"""
+import time
+from typing import TYPE_CHECKING
 
 import gi
 
 gi.require_version("Gtk", "4.0")
-import time
-from typing import TYPE_CHECKING
-
 from gi.repository import GLib, Gtk
 
 if TYPE_CHECKING:
-    from window import BigOcrPdfWindow
+    from bigocrpdf.window import BigOcrPdfWindow
 
-from bigocrpdf.ui.components import create_navigation_button
 from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.format_utils import format_elapsed_time
-from bigocrpdf.utils.i18n import _
+from bigocrpdf.utils.i18n import _, ngettext
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.utils.progress_state import ProgressState
 from bigocrpdf.utils.timer import safe_remove_source
 
-# Constants for smooth incremental progress display
-PROGRESS_UPDATE_INTERVAL = 800  # Update every 800ms for smooth responsiveness
+PROGRESS_UPDATE_INTERVAL_MS = 800
 
 
 class TerminalPageManager:
-    """Manages the terminal/processing page UI and interactions with smooth incremental progress"""
+    """Manage the processing page and its progress timer."""
 
     def __init__(self, window: "BigOcrPdfWindow"):
-        """Initialize the terminal page manager"""
         self.window = window
-
-        # UI component references
-        self.terminal_progress_bar = None
-        self.terminal_status_bar = None
+        self.terminal_progress_bar: Gtk.ProgressBar | None = None
+        self.terminal_status_bar: Gtk.Label | None = None
         self._summary_box: Gtk.Box | None = None
         self._summary_parent: Gtk.Box | None = None
-
-        # Smooth progress tracking using ProgressState
-        self.progress_timer_id = None
+        self.progress_timer_id: int | None = None
         self._progress_state = ProgressState()
 
     def create_terminal_page(self) -> Gtk.Box:
-        """Create the processing page with progress display"""
+        """Create the processing page."""
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         main_box.set_vexpand(True)
 
-        progress_card = self._create_progress_card()
-        main_box.append(progress_card)
-
-        return main_box
-
-    def _create_progress_card(self) -> Gtk.Box:
-        """Create the progress card container"""
-        progress_card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        progress_card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         progress_card.set_margin_bottom(8)
         progress_card.set_vexpand(True)
+        main_box.append(progress_card)
 
-        progress_area = self._create_progress_area()
-        progress_card.append(progress_area)
-
-        # Settings summary pinned to the bottom, outside the centered area
-        self._summary_parent = progress_card
-        self._add_active_settings_summary(progress_card)
-
-        return progress_card
-
-    def _create_progress_area(self) -> Gtk.Box:
-        """Create the centered progress area"""
         progress_area = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=24)
         progress_area.set_valign(Gtk.Align.CENTER)
         progress_area.set_vexpand(True)
         progress_area.set_margin_start(24)
         progress_area.set_margin_end(24)
         progress_area.set_margin_bottom(24)
+        progress_card.append(progress_area)
 
-        self._add_progress_icon(progress_area)
-        self._add_progress_label(progress_area)
-        self._add_progress_bar(progress_area)
-        self._add_status_label(progress_area)
-        self._add_cancel_button(progress_area)
-
-        return progress_area
-
-    def _add_progress_icon(self, container: Gtk.Box) -> None:
-        """Add the PDF processing icon"""
         pdf_icon = Gtk.Image.new_from_icon_name("x-office-document-symbolic")
         pdf_icon.set_pixel_size(48)
         pdf_icon.set_margin_bottom(16)
         pdf_icon.set_halign(Gtk.Align.CENTER)
-        container.append(pdf_icon)
+        progress_area.append(pdf_icon)
 
-    def _add_progress_label(self, container: Gtk.Box) -> None:
-        """Add the main progress label"""
-        current_file_label = Gtk.Label()
-        current_file_label.set_markup("<big>" + _("Processing PDF files...") + "</big>")
+        current_file_label = Gtk.Label(label=_("Processing PDF files..."))
+        current_file_label.add_css_class("title-3")
         current_file_label.set_halign(Gtk.Align.CENTER)
         current_file_label.set_margin_bottom(24)
-        container.append(current_file_label)
+        progress_area.append(current_file_label)
 
-    def _add_progress_bar(self, container: Gtk.Box) -> None:
-        """Add the progress bar"""
         self.terminal_progress_bar = Gtk.ProgressBar()
         self.terminal_progress_bar.set_show_text(True)
         self.terminal_progress_bar.set_text(_("0%"))
-        self.terminal_progress_bar.set_fraction(0)
         self.terminal_progress_bar.set_margin_bottom(8)
         set_a11y_label(self.terminal_progress_bar, _("OCR processing progress"))
-        container.append(self.terminal_progress_bar)
+        progress_area.append(self.terminal_progress_bar)
+
+        self.terminal_status_bar = Gtk.Label(label=_("Preparing processing..."))
+        self.terminal_status_bar.add_css_class("body")
+        self.terminal_status_bar.set_halign(Gtk.Align.CENTER)
+        self.terminal_status_bar.set_margin_bottom(8)
+        self.terminal_status_bar.set_accessible_role(Gtk.AccessibleRole.STATUS)
+        progress_area.append(self.terminal_status_bar)
+
+        cancel_button = Gtk.Button(label=_("Cancel"))
+        cancel_button.add_css_class("destructive-action")
+        cancel_button.connect("clicked", lambda _button: self.window.processing.cancel())
+        cancel_button.set_margin_top(16)
+        cancel_button.set_halign(Gtk.Align.CENTER)
+        set_a11y_label(cancel_button, _("Cancel"))
+        progress_area.append(cancel_button)
+
+        self._summary_parent = progress_card
+        self._add_active_settings_summary(progress_card)
+        return main_box
 
     def _rebuild_settings_summary(self) -> None:
-        """Remove old summary and rebuild with current settings."""
-        if self._summary_box and self._summary_parent:
+        """Rebuild the summary with the current settings."""
+        if self._summary_box is not None and self._summary_parent is not None:
             self._summary_parent.remove(self._summary_box)
             self._summary_box = None
-        if self._summary_parent:
+        if self._summary_parent is not None:
             self._add_active_settings_summary(self._summary_parent)
 
     def _add_active_settings_summary(self, container: Gtk.Box) -> None:
-        """Add a discreet text summary of active/inactive settings at the bottom."""
+        """Add a compact summary of the active processing settings."""
         settings = self.window.settings
+        all_effects = (
+            (_("Deskew"), settings.enable_deskew),
+            (_("Dewarp"), settings.enable_baseline_dewarp),
+            (_("Perspective"), settings.enable_perspective_correction),
+            (_("Auto-rotate"), settings.enable_orientation_detection),
+            (_("Scanner Effect"), settings.enable_scanner_effect),
+        )
+        active = [name for name, enabled in all_effects if enabled]
+        inactive = [name for name, enabled in all_effects if not enabled]
 
-        all_effects: list[tuple[str, bool]] = [
-            (_("Deskew"), bool(getattr(settings, "enable_deskew", False))),
-            (_("Dewarp"), bool(getattr(settings, "enable_baseline_dewarp", False))),
-            (_("Perspective"), bool(getattr(settings, "enable_perspective_correction", False))),
-            (_("Auto-rotate"), bool(getattr(settings, "enable_orientation_detection", False))),
-            (_("Scanner Effect"), bool(getattr(settings, "enable_scanner_effect", False))),
-        ]
-
-        active = [name for name, on in all_effects if on]
-        inactive = [name for name, on in all_effects if not on]
-
-        lang_code = getattr(settings, "lang", "")
-        lang_name = lang_code
-        for code, name in self.window.ocr_processor.get_available_ocr_languages():
-            if code == lang_code:
-                lang_name = name
-                break
-
-        fmt = getattr(settings, "image_export_format", "original").lower()
+        image_format = settings.image_export_format.lower()
         quality_label = (
             _("Keep Original")
-            if fmt == "original"
-            else _("JPEG {quality}%").format(quality=getattr(settings, "image_export_quality", 85))
+            if image_format == "original"
+            else _("JPEG {quality}%").format(quality=settings.image_export_quality)
         )
 
-        # --- Build bottom summary ---
         summary = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
         summary.set_halign(Gtk.Align.CENTER)
         summary.set_valign(Gtk.Align.END)
@@ -157,223 +124,132 @@ class TerminalPageManager:
         summary.set_margin_end(32)
         summary.set_margin_bottom(16)
 
-        sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
-        sep.set_margin_start(64)
-        sep.set_margin_end(64)
-        sep.set_margin_bottom(4)
-        summary.append(sep)
+        separator = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
+        separator.set_margin_start(64)
+        separator.set_margin_end(64)
+        separator.set_margin_bottom(4)
+        summary.append(separator)
 
-        grid = Gtk.Grid()
-        grid.set_column_spacing(12)
-        grid.set_row_spacing(2)
-        grid.set_halign(Gtk.Align.CENTER)
+        grid = Gtk.Grid(column_spacing=12, row_spacing=2, halign=Gtk.Align.CENTER)
+        row = 0
 
-        row_idx = 0
+        def add_row(label_text: str, value_text: str) -> None:
+            nonlocal row
+            label = Gtk.Label(label=label_text, halign=Gtk.Align.END)
+            label.add_css_class("dim-label")
+            label.add_css_class("caption")
+            value = Gtk.Label(label=value_text, halign=Gtk.Align.START)
+            value.add_css_class("dim-label")
+            value.add_css_class("caption")
+            grid.attach(label, 0, row, 1, 1)
+            grid.attach(value, 1, row, 1, 1)
+            row += 1
 
-        def _add_row(label_text: str, value_text: str) -> None:
-            nonlocal row_idx
-            lbl = Gtk.Label(label=label_text)
-            lbl.set_halign(Gtk.Align.END)
-            lbl.add_css_class("dim-label")
-            lbl.add_css_class("caption")
-            val = Gtk.Label(label=value_text)
-            val.set_halign(Gtk.Align.START)
-            val.add_css_class("dim-label")
-            val.add_css_class("caption")
-            grid.attach(lbl, 0, row_idx, 1, 1)
-            grid.attach(val, 1, row_idx, 1, 1)
-            row_idx += 1
-
-        _add_row(_("Language"), lang_name)
-        _add_row(_("Quality"), quality_label)
-
-        if getattr(settings, "convert_to_pdfa", False):
-            _add_row(_("Format"), "PDF/A")
-        max_mb = getattr(settings, "max_file_size_mb", 0)
-        if max_mb > 0:
-            _add_row(_("Max Size"), _("{mb} MB").format(mb=max_mb))
-        if getattr(settings, "replace_existing_ocr", False):
-            _add_row(_("Mode"), _("Replace OCR"))
-
+        add_row(_("Recognition"), _("Automatic multilingual (PP-OCRv6)"))
+        add_row(_("Quality"), quality_label)
+        if settings.convert_to_pdfa:
+            add_row(_("Format"), "PDF/A")
+        if settings.max_file_size_mb > 0:
+            add_row(_("Max Size"), _("{mb} MB").format(mb=settings.max_file_size_mb))
+        if settings.replace_existing_ocr:
+            add_row(_("Mode"), _("Replace OCR"))
         if active:
-            _add_row(_("Active"), ", ".join(active))
+            add_row(_("Active"), ", ".join(active))
         if inactive:
-            _add_row(_("Inactive"), ", ".join(inactive))
+            add_row(_("Inactive"), ", ".join(inactive))
 
         summary.append(grid)
-
         self._summary_box = summary
         container.append(summary)
 
-    def update_file_status(self, filename: str, status: str) -> None:
-        """No-op: per-file status list removed from UI."""
-        pass
-
-    def _add_status_label(self, container: Gtk.Box) -> None:
-        """Add the status label"""
-        self.terminal_status_bar = Gtk.Label(label=_("Preparing processing..."))
-        self.terminal_status_bar.add_css_class("body")
-        self.terminal_status_bar.set_halign(Gtk.Align.CENTER)
-        self.terminal_status_bar.set_margin_bottom(8)
-        self.terminal_status_bar.set_accessible_role(Gtk.AccessibleRole.STATUS)
-        container.append(self.terminal_status_bar)
-
-    def _add_cancel_button(self, container: Gtk.Box) -> None:
-        """Add the cancel button"""
-        cancel_button = create_navigation_button(
-            label=_("Cancel"),
-            direction="destructive",
-            on_click=self.window.on_cancel_clicked,
-        )
-        cancel_button.set_margin_top(16)
-        cancel_button.set_halign(Gtk.Align.CENTER)
-        container.append(cancel_button)
-
     def start_progress_monitor(self) -> None:
-        """Start monitoring the OCR progress with smooth incremental updates"""
-        # Stop any existing timer first
+        """Reset the page and start its progress timer."""
         self.stop_progress_monitor()
-
-        # Rebuild the settings summary with current values
         self._rebuild_settings_summary()
-
-        # Reset progress UI to initial state
         self.reset_progress()
-
-        # Set up timer with optimized interval for smooth incremental updates
         self.progress_timer_id = GLib.timeout_add(
-            PROGRESS_UPDATE_INTERVAL, self._update_ocr_progress
+            PROGRESS_UPDATE_INTERVAL_MS,
+            self._update_ocr_progress,
         )
 
     def stop_progress_monitor(self) -> None:
-        """Stop the progress monitor"""
+        """Stop the progress timer."""
         if self.progress_timer_id is not None:
             safe_remove_source(self.progress_timer_id)
             self.progress_timer_id = None
 
     def update_processing_status(self, input_file: str | None = None) -> None:
-        """Update the status bar with current processing information"""
-        if not self.window.ocr_processor:
-            return
+        """Update the completed and remaining input counts."""
+        processor = self.window.processing.ocr_processor
+        completed = processor.get_completed_input_count()
+        total = processor.get_total_count()
 
-        file_count = self.window.ocr_processor.get_processed_count()
-        total_files = self.window.ocr_processor.get_total_count()
-
-        if self.terminal_status_bar:
-            remaining = total_files - file_count
+        if self.terminal_status_bar is not None:
             self.terminal_status_bar.set_markup(
-                _(
-                    "<b>Processing: {current}/{total}:</b> {completed} file(s) completed • <b>{remaining}</b> remaining"
-                ).format(
-                    current=file_count,
-                    total=total_files,
-                    completed=file_count,
-                    remaining=remaining,
+                _("<b>Completed: {completed}/{total}</b> · Remaining: {remaining}").format(
+                    completed=completed,
+                    total=total,
+                    remaining=max(0, total - completed),
                 )
             )
 
         if input_file:
             logger.info(
                 _("Processed file {current}/{total}: {filename}").format(
-                    current=file_count,
-                    total=total_files,
+                    current=completed,
+                    total=total,
                     filename=self.window.settings.display_name(input_file),
                 )
             )
 
     def update_terminal_progress(self, fraction: float, text: str | None = None) -> None:
-        """Update the terminal progress bar with incremental precision"""
-        if not self.terminal_progress_bar:
+        """Update the progress bar without redundant redraws."""
+        if self.terminal_progress_bar is None:
             return
 
-        # Update more frequently for incremental progress (1% changes)
+        fraction = max(0.0, min(1.0, fraction))
         if self._progress_state.update_fraction(fraction):
             self.terminal_progress_bar.set_fraction(fraction)
-
-        if text and self._progress_state.update_text(text):
+        if text is not None and self._progress_state.update_text(text):
             self.terminal_progress_bar.set_text(text)
 
-    def update_terminal_status_complete(self) -> None:
-        """Update terminal status to show completion"""
-        if self.terminal_status_bar and self.window.ocr_processor:
-            total_files = self.window.ocr_processor.get_processed_count()
-            self.terminal_status_bar.set_markup(
-                _("<b>OCR processing complete!</b> {total} file(s) processed").format(
-                    total=total_files
-                )
-            )
-
     def _update_ocr_progress(self) -> bool:
-        """Update the OCR progress in the UI with smooth incremental updates"""
-        # Check if we're still on the terminal page
-        if not self._is_on_terminal_page():
+        """Read processor state and update the page."""
+        if self.window.ui.main_stack.get_visible_child_name() != "terminal":
+            self.progress_timer_id = None
             return False
 
-        # Get current progress data
-        progress_data = self._get_progress_data()
-        if not progress_data:
-            return True  # Continue checking
+        processor = self.window.processing.ocr_processor
+        progress_data = {
+            "progress": processor.get_progress(),
+            "processed_files": processor.get_completed_input_count(),
+            "total_files": processor.get_total_count(),
+            "current_file_info": processor.get_current_file_info(),
+            "is_processing": processor.is_processing(),
+        }
+        self._update_progress_bar_incremental(progress_data["progress"])
 
-        # Update UI with smooth incremental changes
-        self._update_progress_ui_incremental(progress_data)
-
-        return True
-
-    def _is_on_terminal_page(self) -> bool:
-        """Check if we're on the terminal page"""
-        # Terminal page is in main_stack, not stack
-        if self.window.main_stack.get_visible_child_name() != "terminal":
-            self.stop_progress_monitor()
-            return False
-        return True
-
-    def _get_progress_data(self) -> dict | None:
-        """Get current progress data from the processor"""
-        if not self.window.ocr_processor:
-            return None
-
-        try:
-            return {
-                "progress": self.window.ocr_processor.get_progress(),
-                "processed_files": self.window.ocr_processor.get_processed_count(),
-                "total_files": self.window.ocr_processor.get_total_count(),
-                "current_file_info": self.window.ocr_processor.get_current_file_info(),
-                "is_processing": self.window.ocr_processor.is_processing(),
-            }
-        except Exception as e:
-            logger.warning(f"Error getting progress data: {e}")
-            return None
-
-    def _update_progress_ui_incremental(self, progress_data: dict) -> None:
-        """Update progress UI with smooth incremental changes"""
-        progress = progress_data.get("progress", 0.0)
-
-        # Update progress bar
-        self._update_progress_bar_incremental(progress)
-
-        # Update status text
-        self._update_status_text_incremental(progress_data)
+        keep_monitoring = self._update_status_text_incremental(progress_data)
+        if not keep_monitoring:
+            self.progress_timer_id = None
+        return keep_monitoring
 
     def _update_progress_bar_incremental(self, progress: float) -> None:
-        """Update progress bar with smooth incremental display"""
-        if not self.terminal_progress_bar:
+        """Update the displayed percentage when it changes meaningfully."""
+        if self.terminal_progress_bar is None:
             return
 
         progress = max(0.0, min(1.0, progress))
-
-        # Update with 1% precision for smooth experience
         if self._progress_state.update_fraction(progress):
             self.terminal_progress_bar.set_fraction(progress)
-            progress_percent = self._progress_state.get_percentage()
-            progress_text = f"{progress_percent}%"
-
+            progress_text = f"{self._progress_state.get_percentage()}%"
             if self._progress_state.update_text(progress_text):
                 self.terminal_progress_bar.set_text(progress_text)
 
-    def _update_status_text_incremental(self, progress_data: dict) -> None:
-        """Update status text with current processing information"""
-        if not self.terminal_status_bar:
-            return
+    def _update_status_text_incremental(self, progress_data: dict) -> bool:
+        """Update the current processing status and return timer ownership."""
+        if self.terminal_status_bar is None:
+            return True
 
         processed_files = progress_data.get("processed_files", 0)
         total_files = progress_data.get("total_files", 0)
@@ -382,52 +258,65 @@ class TerminalPageManager:
         progress = progress_data.get("progress", 0.0)
 
         elapsed_time = 0
-        if hasattr(self.window, "process_start_time"):
-            elapsed_time = int(time.time() - self.window.process_start_time)
-
+        if self.window.processing.process_start_time:
+            elapsed_time = max(
+                0,
+                int(time.time() - self.window.processing.process_start_time),
+            )
         time_str = format_elapsed_time(elapsed_time)
 
-        # Determine status based on processing state
         if not is_processing and progress >= 1.0:
             self._show_completion_status(total_files, time_str)
-        elif current_file_info and current_file_info.get("filename"):
+            return False
+        if current_file_info and current_file_info.get("filename"):
             self._show_processing_status(current_file_info, time_str)
         elif processed_files > 0:
             self._show_simple_progress_status(processed_files, total_files, time_str)
         else:
             self._show_initial_status(total_files, time_str)
+        return True
 
     def _show_completion_status(self, total_files: int, time_str: str) -> None:
-        """Show completion status"""
-        status_text = _(
-            "<b>OCR processing complete!</b> {total} file(s) processed • Total time: {time}"
-        ).format(total=total_files, time=time_str)
+        status_bar = self.terminal_status_bar
+        if status_bar is None:
+            return
 
+        status_text = ngettext(
+            "<b>OCR processing complete!</b> {total} file processed · Total time: {time}",
+            "<b>OCR processing complete!</b> {total} files processed · Total time: {time}",
+            total_files,
+        ).format(total=total_files, time=time_str)
         if self._progress_state.update_status(status_text):
-            self.terminal_status_bar.set_markup(status_text)
+            status_bar.set_markup(status_text)
             self.window.announce_status(
-                _("OCR processing complete. {total} files processed.").format(total=total_files)
+                ngettext(
+                    "OCR processing complete. {total} file processed.",
+                    "OCR processing complete. {total} files processed.",
+                    total_files,
+                ).format(total=total_files)
             )
 
-        self.stop_progress_monitor()
-
     def _show_processing_status(self, current_file_info: dict, time_str: str) -> None:
-        """Show processing status with current file information"""
+        status_bar = self.terminal_status_bar
+        if status_bar is None:
+            return
+
         filename = current_file_info.get("filename", "")
         file_number = current_file_info.get("file_number", 1)
         total_files = current_file_info.get("total_files", 1)
         status_message = current_file_info.get("status_message", "")
+        escaped_filename = GLib.markup_escape_text(str(filename))
+        escaped_time = GLib.markup_escape_text(time_str)
 
-        # Build status text
         if status_message:
             status_text = _(
                 "File {current}/{total}: <b>{filename}</b> - {status} • Time: {time}"
             ).format(
                 current=file_number,
                 total=total_files,
-                filename=filename,
-                status=status_message,
-                time=time_str,
+                filename=escaped_filename,
+                status=GLib.markup_escape_text(str(status_message)),
+                time=escaped_time,
             )
         else:
             status_text = _(
@@ -435,58 +324,60 @@ class TerminalPageManager:
             ).format(
                 current=file_number,
                 total=total_files,
-                filename=filename,
-                time=time_str,
+                filename=escaped_filename,
+                time=escaped_time,
             )
 
         if self._progress_state.update_status(status_text):
-            self.terminal_status_bar.set_markup(status_text)
+            status_bar.set_markup(status_text)
             self.window.announce_status(
                 _("Processing file {current} of {total}: {filename}").format(
-                    current=file_number, total=total_files, filename=filename
+                    current=file_number,
+                    total=total_files,
+                    filename=filename,
                 )
             )
 
     def _show_simple_progress_status(
-        self, processed_files: int, total_files: int, time_str: str
+        self,
+        processed_files: int,
+        total_files: int,
+        time_str: str,
     ) -> None:
-        """Show simple progress status without current file details"""
-        status_text = _("Processing files: {processed}/{total} completed • Time: {time}").format(
-            processed=processed_files, total=total_files, time=time_str
-        )
+        status_bar = self.terminal_status_bar
+        if status_bar is None:
+            return
 
+        status_text = _("Completed: {processed}/{total} · Time: {time}").format(
+            processed=processed_files,
+            total=total_files,
+            time=time_str,
+        )
         if self._progress_state.update_status(status_text):
-            self.terminal_status_bar.set_markup(status_text)
+            status_bar.set_text(status_text)
 
     def _show_initial_status(self, total_files: int, time_str: str) -> None:
-        """Show initial processing status"""
-        status_text = _("Starting processing of {total} files... • Time: {time}").format(
-            total=total_files, time=time_str
-        )
+        status_bar = self.terminal_status_bar
+        if status_bar is None:
+            return
 
+        status_text = ngettext(
+            "Starting processing of {total} file... · Time: {time}",
+            "Starting processing of {total} files... · Time: {time}",
+            total_files,
+        ).format(total=total_files, time=time_str)
         if self._progress_state.update_status(status_text):
-            self.terminal_status_bar.set_markup(status_text)
-
-    def show_completion_ui(self) -> None:
-        """Update UI to show processing completion"""
-        self.update_terminal_progress(1.0, "100%")
-        self.update_terminal_status_complete()
-        self.stop_progress_monitor()
-
-    _INITIAL_FRACTION = 0.0
+            status_bar.set_text(status_text)
 
     def reset_progress(self) -> None:
-        """Reset progress indicators to initial state"""
-        if self.terminal_progress_bar:
+        """Reset the progress widgets and cached display state."""
+        if self.terminal_progress_bar is not None:
             self.terminal_progress_bar.set_fraction(0.0)
             self.terminal_progress_bar.set_text(_("{percent}%").format(percent=0))
-
-        if self.terminal_status_bar:
+        if self.terminal_status_bar is not None:
             self.terminal_status_bar.set_text(_("Preparing processing..."))
-
-        # Reset progress state
         self._progress_state.reset()
 
     def cleanup(self) -> None:
-        """Clean up resources and stop timers"""
+        """Release resources owned by the page."""
         self.stop_progress_monitor()

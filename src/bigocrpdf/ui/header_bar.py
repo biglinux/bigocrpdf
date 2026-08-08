@@ -11,7 +11,7 @@ gi.require_version("Adw", "1")
 from gi.repository import Adw, Gio, Gtk
 
 from bigocrpdf.utils.a11y import set_a11y_label
-from bigocrpdf.utils.i18n import _
+from bigocrpdf.utils.i18n import _, ngettext
 
 
 class HeaderBar(Gtk.Box):
@@ -50,25 +50,13 @@ class HeaderBar(Gtk.Box):
         self.sidebar_toggle.connect("toggled", self._on_sidebar_toggled)
         self.header_bar.pack_start(self.sidebar_toggle)
 
-        # Back button (hidden by default)
-        self.back_button = Gtk.Button()
-        self.back_button.add_css_class("suggested-action")
-        back_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        back_box.append(Gtk.Image.new_from_icon_name("go-previous-symbolic"))
-        back_box.append(Gtk.Label(label=_("Back")))
-        self.back_button.set_child(back_box)
-        self.back_button.connect("clicked", self._on_back_clicked)
-        self.back_button.set_visible(False)
-        set_a11y_label(self.back_button, _("Back"))
-        self.header_bar.pack_start(self.back_button)
-
         # Queue controls (left side)
         left_controls = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         left_controls.set_margin_start(14)
         left_controls.set_halign(Gtk.Align.START)
 
         self.clear_queue_button = Gtk.Button()
-        self.clear_queue_button.set_icon_name("trash-symbolic")
+        self.clear_queue_button.set_icon_name("user-trash-symbolic")
         self.clear_queue_button.set_tooltip_text(_("Remove all files from the list"))
         set_a11y_label(self.clear_queue_button, _("Remove all files from the list"))
         self.clear_queue_button.add_css_class("circular")
@@ -77,7 +65,9 @@ class HeaderBar(Gtk.Box):
         self.clear_queue_button.set_visible(False)
         left_controls.append(self.clear_queue_button)
 
-        self.queue_size_label = Gtk.Label(label=_("0 files"))
+        self.queue_size_label = Gtk.Label(
+            label=ngettext("{count} file", "{count} files", 0).format(count=0)
+        )
         self.queue_size_label.add_css_class("caption")
         self.queue_size_label.add_css_class("dim-label")
         self.queue_size_label.set_visible(False)
@@ -105,14 +95,8 @@ class HeaderBar(Gtk.Box):
         self.start_button.connect("clicked", self._on_start_clicked)
         self.start_button.set_visible(False)
         set_a11y_label(self.start_button, _("Start OCR"))
+        self._apply_ocr_availability_to_button(self.start_button)
         self.action_box.append(self.start_button)
-
-        self.start_current_button = Gtk.Button(label=_("Start OCR"))
-        self.start_current_button.add_css_class("suggested-action")
-        self.start_current_button.connect("clicked", self._on_start_current_clicked)
-        self.start_current_button.set_visible(False)
-        set_a11y_label(self.start_current_button, _("Start OCR"))
-        self.action_box.append(self.start_current_button)
 
         self.header_bar.set_title_widget(self.action_box)
 
@@ -161,25 +145,21 @@ class HeaderBar(Gtk.Box):
 
     def _on_add_files_clicked(self, button: Gtk.Button) -> None:
         """Handle Add Files button click."""
-        if hasattr(self.window, "on_add_file_clicked"):
-            self.window.on_add_file_clicked(button)
-
-    def _on_back_clicked(self, button: Gtk.Button) -> None:
-        """Handle Back button click."""
-        if hasattr(self.window, "on_back_clicked"):
-            self.window.on_back_clicked(button)
+        self.window.file_manager.show_open_files_dialog()
 
     def _on_clear_queue_clicked(self, button: Gtk.Button) -> None:
         """Handle Clear Queue button click with confirmation dialog."""
-        if not hasattr(self.window, "clear_file_queue"):
-            return
-        n_files = len(getattr(self.window.settings, "selected_files", []))
+        n_files = len(self.window.settings.selected_files)
         if n_files == 0:
             return
 
         dialog = Adw.AlertDialog(
             heading=_("Clear file queue?"),
-            body=_("This will remove all {n} files from the queue.").format(n=n_files),
+            body=ngettext(
+                "This will remove {count} file from the queue.",
+                "This will remove {count} files from the queue.",
+                n_files,
+            ).format(count=n_files),
         )
         dialog.add_response("cancel", _("Cancel"))
         dialog.add_response("clear", _("Clear"))
@@ -192,7 +172,7 @@ class HeaderBar(Gtk.Box):
     def _on_clear_queue_response(self, dialog: Adw.AlertDialog, response: str) -> None:
         """Handle clear queue confirmation response."""
         if response == "clear":
-            self.window.clear_file_queue()
+            self.window.actions.clear_file_queue()
 
     def _on_view_toggle_clicked(self, button: Gtk.Button) -> None:
         """Toggle between list and grid view."""
@@ -205,20 +185,11 @@ class HeaderBar(Gtk.Box):
             button.set_tooltip_text(_("List view (click for grid)"))
 
         # Notify the queue panel
-        if hasattr(self.window, "ui") and hasattr(self.window.ui, "settings_page_manager"):
-            self.window.ui.settings_page_manager._on_view_mode_toggled(self._is_grid_view)
+        self.window.ui.settings_page_manager._on_view_mode_toggled(self._is_grid_view)
 
     def _on_start_clicked(self, button: Gtk.Button) -> None:
         """Handle Start OCR button click."""
-        button.set_sensitive(False)
-        if hasattr(self.window, "on_apply_clicked"):
-            self.window.on_apply_clicked(button)
-
-    def _on_start_current_clicked(self, button: Gtk.Button) -> None:
-        """Handle Start OCR for current file button click."""
-        button.set_sensitive(False)
-        if hasattr(self.window, "start_ocr_current_file"):
-            self.window.start_ocr_current_file()
+        self.window.processing.start(button)
 
     # --- Public API ---
 
@@ -228,10 +199,7 @@ class HeaderBar(Gtk.Box):
         Args:
             count: Number of files in the queue
         """
-        if count == 1:
-            text = _("1 file")
-        else:
-            text = _("{} files").format(count)
+        text = ngettext("{count} file", "{count} files", count).format(count=count)
         self.queue_size_label.set_text(text)
 
         has_multiple_files = count >= 2
@@ -240,57 +208,18 @@ class HeaderBar(Gtk.Box):
 
         has_files = count > 0
         self.view_toggle_button.set_visible(has_files)
-
-        has_files = count > 0
         self.start_button.set_visible(has_files)
+        self._apply_ocr_availability_to_button(self.start_button)
 
-    def set_view(self, view_name: str) -> None:
-        """Set the header bar context based on current view.
-
-        Args:
-            view_name: 'queue', 'editor', 'processing', or 'complete'
-        """
-        if view_name == "queue":
-            self.add_button.set_visible(True)
-            self.start_current_button.set_visible(False)
-            self.back_button.set_visible(False)
-
-            if hasattr(self.window, "settings") and self.window.settings:
-                queue_count = len(self.window.settings.selected_files)
-                has_multiple_files = queue_count >= 2
-                has_files = queue_count > 0
-                self.clear_queue_button.set_visible(has_multiple_files)
-                self.queue_size_label.set_visible(has_multiple_files)
-                self.start_button.set_visible(has_files)
-                self.start_button.set_sensitive(True)
-                self.start_button.set_label(_("Start OCR"))
-            else:
-                self.start_button.set_visible(False)
-
-        elif view_name == "editor":
-            self.add_button.set_visible(False)
-            self.clear_queue_button.set_visible(False)
-            self.queue_size_label.set_visible(False)
-            self.start_button.set_visible(False)
-            self.start_current_button.set_visible(True)
-            self.back_button.set_visible(True)
-            self.start_current_button.set_sensitive(True)
-
-        elif view_name == "processing":
-            self.add_button.set_visible(False)
-            self.clear_queue_button.set_visible(False)
-            self.queue_size_label.set_visible(False)
-            self.start_button.set_visible(False)
-            self.start_current_button.set_visible(False)
-            self.back_button.set_visible(False)
-
-        elif view_name == "complete":
-            self.add_button.set_visible(False)
-            self.clear_queue_button.set_visible(False)
-            self.queue_size_label.set_visible(False)
-            self.start_button.set_visible(False)
-            self.start_current_button.set_visible(False)
-            self.back_button.set_visible(True)
+    def _apply_ocr_availability_to_button(self, button: Gtk.Button) -> None:
+        is_available = self.window.ocr_dependency.is_available
+        button.set_sensitive(is_available)
+        if is_available:
+            button.set_tooltip_text(_("Start OCR processing"))
+        else:
+            button.set_tooltip_text(
+                _("OCR is unavailable. Install the required engine and restart the application.")
+            )
 
     def bind_split_view(self, split_view: Adw.OverlaySplitView) -> None:
         """Bind the sidebar toggle button to an OverlaySplitView.
@@ -305,6 +234,8 @@ class HeaderBar(Gtk.Box):
 
         split_view.connect("notify::collapsed", self._on_split_view_collapsed_changed)
         split_view.connect("notify::show-sidebar", self._on_split_view_show_sidebar_changed)
+        self._on_split_view_collapsed_changed(split_view, None)
+        self._on_split_view_show_sidebar_changed(split_view, None)
 
     def _on_sidebar_toggled(self, button: Gtk.ToggleButton) -> None:
         """Handle sidebar toggle button click."""
@@ -315,7 +246,9 @@ class HeaderBar(Gtk.Box):
         """Show/hide the sidebar toggle based on collapsed state."""
         collapsed = split_view.get_collapsed()
         self.sidebar_toggle.set_visible(collapsed)
-        if not collapsed:
+        if collapsed:
+            split_view.set_show_sidebar(False)
+        else:
             self.sidebar_toggle.set_active(False)
 
     def _on_split_view_show_sidebar_changed(self, split_view: Adw.OverlaySplitView, _param) -> None:

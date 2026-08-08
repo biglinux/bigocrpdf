@@ -2,6 +2,7 @@
 
 import os
 import tempfile
+from pathlib import Path
 
 import pikepdf
 import pytest
@@ -63,14 +64,14 @@ class TestPdfExtractorErrorHandling:
         with tempfile.TemporaryDirectory() as tmpdir:
             pdf_path = os.path.join(tmpdir, "empty.pdf")
             _create_test_pdf(pdf_path, num_pages=1)
-            result = has_native_text(pdf_path)
+            result = has_native_text(Path(pdf_path))
             assert result is False  # Blank pages have no text
 
     def test_has_native_text_nonexistent_returns_false(self):
         from bigocrpdf.services.rapidocr_service.pdf_extractor import has_native_text
 
         # The function catches exceptions and returns False
-        result = has_native_text("/definitely/not/here.pdf")
+        result = has_native_text(Path("/definitely/not/here.pdf"))
         assert result is False
 
     def test_extract_image_positions_empty_pdf(self):
@@ -81,7 +82,7 @@ class TestPdfExtractorErrorHandling:
         with tempfile.TemporaryDirectory() as tmpdir:
             pdf_path = os.path.join(tmpdir, "empty.pdf")
             _create_test_pdf(pdf_path, num_pages=1)
-            positions = extract_image_positions(pdf_path)
+            positions = extract_image_positions(Path(pdf_path))
             assert isinstance(positions, dict)
 
 

@@ -19,7 +19,6 @@ import subprocess
 import sys
 import tempfile
 import threading
-from pathlib import Path
 
 import cv2
 import numpy as np
@@ -38,6 +37,8 @@ _detector_lock = threading.Lock()
 # 1536 balances speed (~2x faster than 2048) with sufficient box detection
 # accuracy for displacement field computation.
 _DEWARP_DETECT_SIDE_LEN = 1536
+_DEWARP_REC_BATCH_NUM = 1
+_DEWARP_USE_TEXTLINE_CLS = False
 
 
 def _get_inprocess_detector(language: str, limit_side_len: int):
@@ -64,32 +65,20 @@ def _get_inprocess_detector(language: str, limit_side_len: int):
         if _cached_detector is not None and _cached_detector_key == key:
             return _cached_detector
 
-        try:
-            from rapidocr import EngineType, LangRec, OCRVersion, RapidOCR
-        except ModuleNotFoundError:
-            from bigocrpdf.utils.python_compat import get_module_from_attribute
+        from bigocrpdf.services.rapidocr_service.ocr_worker_engine import (
+            _import_rapidocr_api,
+            _lang_rec_from_code,
+            _set_model_version_params,
+        )
 
-            EngineType, LangRec, RapidOCR = get_module_from_attribute(
-                "rapidocr", "EngineType", "LangRec", "RapidOCR"
-            )
-            OCRVersion = get_module_from_attribute("rapidocr", "OCRVersion")[0]
-
-        lang_map = {
-            "latin": LangRec.LATIN,
-            "en": LangRec.EN,
-            "ch": LangRec.CH,
-            "chinese_cht": LangRec.CHINESE_CHT,
-            "japan": LangRec.JAPAN,
-            "korean": LangRec.KOREAN,
-            "arabic": LangRec.ARABIC,
-        }
+        EngineType, LangRec, ModelType, OCRVersion, RapidOCR = _import_rapidocr_api()
 
         # Try detection-only params first (much less memory: ~100 MB vs ~400 MB)
         det_only_params = {
             "Det.engine_type": EngineType.OPENVINO,
             "Det.limit_side_len": limit_side_len,
             "Det.limit_type": "max",
-            "Global.use_cls": False,
+            "Global.use_cls": _DEWARP_USE_TEXTLINE_CLS,
             "Global.text_score": 0.3,
             "EngineConfig.openvino.inference_num_threads": 2,
         }
@@ -98,11 +87,11 @@ def _get_inprocess_detector(language: str, limit_side_len: int):
         full_params = {
             **det_only_params,
             "Rec.engine_type": EngineType.OPENVINO,
-            "Rec.lang_type": lang_map.get(language, LangRec.LATIN),
-            "Rec.ocr_version": OCRVersion.PPOCRV5,
-            "Rec.rec_batch_num": 1,
+            "Rec.lang_type": _lang_rec_from_code(LangRec, language),
+            "Rec.rec_batch_num": _DEWARP_REC_BATCH_NUM,
             "Cls.engine_type": EngineType.OPENVINO,
         }
+        _set_model_version_params(full_params, OCRVersion, ModelType, "small")
 
         detector = None
         det_mode = "detection-only"
@@ -189,12 +178,13 @@ def _detect_inprocess(
                 box_thresh=0.5,
             )
 
-        if result.boxes is None:
+        boxes = getattr(result, "boxes", None)
+        if boxes is None:
             return []
 
         # TextDetOutput from use_rec=False has boxes/scores but no txts
         return _parse_boxes(
-            result.boxes,
+            boxes,
             None,
             getattr(result, "scores", None),
         )
@@ -215,14 +205,16 @@ def _detect_subprocess(
     """
     fd, tmp_path = tempfile.mkstemp(suffix=".jpg")
     os.close(fd)
-    cv2.imwrite(tmp_path, image, [cv2.IMWRITE_JPEG_QUALITY, 50])
 
     try:
-        worker = Path(__file__).parent / "ocr_worker.py"
+        if not cv2.imwrite(tmp_path, image, [cv2.IMWRITE_JPEG_QUALITY, 50]):
+            logger.warning("Could not write temporary image for OCR detection")
+            return []
         result = subprocess.run(
             [
                 sys.executable,
-                str(worker),
+                "-m",
+                "bigocrpdf.services.rapidocr_service.ocr_worker",
                 tmp_path,
                 "--language",
                 language,

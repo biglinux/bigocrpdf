@@ -1,117 +1,68 @@
-"""Conclusion Page ODF Export Mixin."""
+"""Conclusion page export actions."""
+# Host attributes are supplied by the conclusion page's explicit mixin composition.
+# pyright: reportAttributeAccessIssue=false
 
 import os
+import threading
+from collections.abc import Callable
 
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, Gtk
+from gi.repository import Adw, Gio, GLib, Gtk
 
 from bigocrpdf.utils.a11y import set_a11y_label
-from bigocrpdf.utils.i18n import _
+from bigocrpdf.utils.adw_compat import create_spinner
+from bigocrpdf.utils.durable_writes import write_text_atomically
+from bigocrpdf.utils.i18n import _, ngettext
 from bigocrpdf.utils.logger import logger
-
-_EXPORT_FAILED_MSG = _("Export failed")
-_NOTIFY_ACTIVE = "notify::active"
 
 
 class ConclusionExportMixin:
-    """Mixin providing ODF export functionality for the conclusion page."""
-
-    _MODE_FILENAME_SUFFIX = {
-        "formatted_images": "_fmt_img",
-        "formatted": "_fmt",
-    }
+    """Provide single-file and bulk exports from the conclusion page."""
 
     def _show_odf_export_options_dialog(self, file_path: str) -> None:
-        """Show export options dialog with a single Export button and option switches.
-
-        Args:
-            file_path: Path to the source PDF file
-        """
-        dialog = Adw.Dialog()
-        dialog.set_title(_("Export to OpenDocument"))
-        dialog.set_content_width(380)
-
-        toolbar_view = Adw.ToolbarView()
-        header_bar = Adw.HeaderBar()
-        toolbar_view.add_top_bar(header_bar)
-
-        content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=24)
-        content_box.set_margin_start(24)
-        content_box.set_margin_end(24)
-        content_box.set_margin_top(12)
-        content_box.set_margin_bottom(24)
-
-        # --- Options group ---
-        options_group = Adw.PreferencesGroup()
-
+        """Show OpenDocument export options."""
         settings = self.window.settings
-        init_images = getattr(settings, "odf_include_images", True)
-        init_open = getattr(settings, "odf_open_after_export", False)
+        init_images = settings.odf_include_images
+        init_open = settings.odf_open_after_export
         switch_state = {"images": init_images, "open_after": init_open}
-
-        images_row = Adw.SwitchRow()
-        images_row.set_title(_("Include images"))
-        images_row.set_subtitle(_("Embed page images alongside text"))
-        images_row.set_active(init_images)
-        images_row.connect(
-            _NOTIFY_ACTIVE,
-            lambda row, _p: self._update_odf_setting(
-                "odf_include_images", row.get_active(), switch_state, "images"
+        self._show_export_options_dialog(
+            _("Export to OpenDocument"),
+            (
+                (
+                    _("Preserve Text Layout"),
+                    _("Turn off for easier paragraph, table, and column editing"),
+                    init_images,
+                    lambda value: self._update_export_setting(
+                        "odf_include_images",
+                        value,
+                        switch_state,
+                        "images",
+                        settings._save_odf_settings,
+                    ),
+                ),
+                (
+                    _("Open after export"),
+                    _("Open file in the default application"),
+                    init_open,
+                    lambda value: self._update_export_setting(
+                        "odf_open_after_export",
+                        value,
+                        switch_state,
+                        "open_after",
+                        settings._save_odf_settings,
+                    ),
+                ),
             ),
-        )
-        options_group.add(images_row)
-
-        open_row = Adw.SwitchRow()
-        open_row.set_title(_("Open after export"))
-        open_row.set_subtitle(_("Open file in the default application"))
-        open_row.set_active(init_open)
-        open_row.connect(
-            _NOTIFY_ACTIVE,
-            lambda row, _p: self._update_odf_setting(
-                "odf_open_after_export", row.get_active(), switch_state, "open_after"
-            ),
-        )
-        options_group.add(open_row)
-
-        content_box.append(options_group)
-
-        # --- Export button ---
-        btn_content = Adw.ButtonContent()
-        btn_content.set_icon_name("document-save-symbolic")
-        btn_content.set_label(_("Export"))
-
-        export_btn = Gtk.Button()
-        export_btn.set_child(btn_content)
-        export_btn.add_css_class("suggested-action")
-        export_btn.add_css_class("pill")
-        export_btn.set_halign(Gtk.Align.CENTER)
-        set_a11y_label(export_btn, _("Export"))
-        export_btn.connect(
-            "clicked",
-            lambda _b: self._on_export_clicked(
+            lambda dialog: self._on_export_clicked(
                 switch_state["images"],
                 switch_state["open_after"],
                 file_path,
                 dialog,
             ),
         )
-        content_box.append(export_btn)
-
-        toolbar_view.set_content(content_box)
-        dialog.set_child(toolbar_view)
-
-        dialog.present(self.window)
-
-    def _update_odf_setting(self, attr: str, value: bool, switch_state: dict, key: str) -> None:
-        """Persist an ODF export setting and update local switch state."""
-        switch_state[key] = value
-        settings = self.window.settings
-        setattr(settings, attr, value)
-        settings._save_odf_settings()
-        settings._config.save()
 
     def _on_export_clicked(
         self,
@@ -123,217 +74,180 @@ class ConclusionExportMixin:
         """Handle click on the Export button.
 
         Args:
-            include_images: Whether the Include images switch is active
+            include_images: Whether fixed-layout editable text mode is active
             open_after: Whether to open the file after export
             file_path: Source PDF file path
             options_dialog: The options dialog to close
         """
-        export_mode = "formatted_images" if include_images else "formatted"
-        logger.info(f"ODF Export: mode={export_mode}, open_after={open_after}")
-
-        self._odf_export_mode = export_mode
-        self._odf_open_after = open_after
+        export_mode = "positioned" if include_images else "structured"
+        logger.info("ODF export: mode=%s, open_after=%s", export_mode, open_after)
 
         options_dialog.force_close()
-        self._show_odf_file_dialog(file_path)
+        self._show_odf_file_dialog(file_path, include_images, open_after)
 
-    def _show_odf_file_dialog(self, file_path: str) -> None:
-        """Show file save dialog for ODF export.
-
-        Args:
-            file_path: Source PDF file path
-        """
-        from gi.repository import Gio
-
-        save_dialog = Gtk.FileDialog.new()
-        save_dialog.set_title(_("Export to OpenDocument"))
-        save_dialog.set_modal(True)
-
+    def _show_odf_file_dialog(self, file_path: str, include_images: bool, open_after: bool) -> None:
+        """Show the OpenDocument destination picker."""
         base_name = os.path.splitext(os.path.basename(file_path))[0]
-        suffix = self._MODE_FILENAME_SUFFIX.get(
-            getattr(self, "_odf_export_mode", "formatted"), "_fmt"
-        )
-        save_dialog.set_initial_name(f"{base_name}{suffix}.odt")
-
-        filters = Gio.ListStore.new(Gtk.FileFilter)
-        odf_filter = Gtk.FileFilter()
-        odf_filter.set_name(_("OpenDocument Text (*.odt)"))
-        odf_filter.add_pattern("*.odt")
-        odf_filter.add_mime_type("application/vnd.oasis.opendocument.text")
-        filters.append(odf_filter)
-        save_dialog.set_filters(filters)
-        save_dialog.set_default_filter(odf_filter)
-
-        save_dialog.save(
-            parent=self.window,
-            cancellable=None,
-            callback=lambda d, r: self._on_odf_save_response(d, r, file_path),
+        suffix = "_fmt_img" if include_images else "_fmt"
+        self._show_export_file_dialog(
+            title=_("Export to OpenDocument"),
+            initial_name=f"{base_name}{suffix}.odt",
+            filter_name=_("OpenDocument Text (*.odt)"),
+            patterns=("*.odt",),
+            mime_type="application/vnd.oasis.opendocument.text",
+            callback=lambda output_path: self._export_odf_file(
+                output_path, file_path, include_images, open_after
+            ),
+            error_context="ODF",
+            extensions=(".odt",),
+            default_extension=".odt",
         )
 
-    def _on_odf_save_response(self, dialog: Gtk.FileDialog, result, file_path: str) -> None:
-        """Handle ODF save dialog response.
-
-        Args:
-            dialog: File dialog
-            result: Async result
-            file_path: Source PDF file path
-        """
-        try:
-            file = dialog.save_finish(result)
-            output_path = file.get_path()
-            if not output_path.lower().endswith(".odt"):
-                output_path += ".odt"
-            self._export_odf_file(output_path, file_path)
-        except Exception as e:
-            if "Dismissed" not in str(e):
-                logger.error(f"Error exporting to ODF: {e}")
-                self.window.show_toast(_EXPORT_FAILED_MSG)
-
-    def _export_odf_file(self, output_path: str, file_path: str) -> None:
-        """Export content to ODF using the TSV-based formatted converter.
-
-        Runs the conversion in a background thread while showing a loading dialog.
-
-        Args:
-            output_path: Destination ODF file path
-            file_path: Source PDF file path (with OCR text layer)
-        """
-        import threading
-
-        from gi.repository import GLib
-
-        cancel_event = threading.Event()
-
-        # Build and show the loading dialog
-        loading_dialog = Adw.Dialog()
-        loading_dialog.set_title(_("Exporting…"))
-        loading_dialog.set_content_width(300)
-        loading_dialog.set_can_close(False)
-
-        toolbar_view = Adw.ToolbarView()
-        header = Adw.HeaderBar()
-        header.set_show_start_title_buttons(False)
-        header.set_show_end_title_buttons(False)
-        toolbar_view.add_top_bar(header)
-
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16)
-        box.set_margin_start(32)
-        box.set_margin_end(32)
-        box.set_margin_top(24)
-        box.set_margin_bottom(32)
-        box.set_halign(Gtk.Align.CENTER)
-        box.set_valign(Gtk.Align.CENTER)
-
-        spinner = Gtk.Spinner()
-        spinner.set_size_request(48, 48)
-        spinner.start()
-        spinner.set_halign(Gtk.Align.CENTER)
-        box.append(spinner)
-
-        label = Gtk.Label(label=_("Exporting to OpenDocument…"))
-        label.add_css_class("title-4")
-        box.append(label)
-
-        cancel_btn = Gtk.Button(label=_("Cancel"))
-        cancel_btn.add_css_class("destructive-action")
-        cancel_btn.add_css_class("pill")
-        cancel_btn.set_halign(Gtk.Align.CENTER)
-        cancel_btn.set_margin_top(8)
-        set_a11y_label(cancel_btn, _("Cancel"))
-        cancel_btn.connect("clicked", lambda _b: cancel_event.set())
-        box.append(cancel_btn)
-
-        toolbar_view.set_content(box)
-        loading_dialog.set_child(toolbar_view)
-        loading_dialog.present(self.window)
-
-        include_images = getattr(self, "_odf_export_mode", "formatted") == "formatted_images"
-
-        def _do_export() -> None:
-            from bigocrpdf.utils.odf_builder import ExportCancelled
-
-            success = False
-            cancelled = False
-            try:
-                from bigocrpdf.utils.tsv_odf_converter import convert_pdf_to_odf
-
-                convert_pdf_to_odf(
-                    file_path,
-                    output_path,
-                    include_images=include_images,
-                    cancel_event=cancel_event,
-                )
-                success = True
-            except ExportCancelled:
-                cancelled = True
-                logger.info("ODF export cancelled by user")
-            except Exception as e:
-                logger.error(f"ODF conversion failed: {e}")
-
-            # Clean up partial file on cancel or failure
-            if not success and os.path.exists(output_path):
-                try:
-                    os.remove(output_path)
-                except OSError:
-                    pass
-
-            GLib.idle_add(self._on_export_finished, loading_dialog, success, cancelled, output_path)
-
-        threading.Thread(target=_do_export, daemon=True).start()
-
-    def _on_export_finished(
-        self, dialog: Adw.Dialog, success: bool, cancelled: bool, output_path: str
+    def _export_odf_file(
+        self,
+        output_path: str,
+        file_path: str,
+        include_images: bool,
+        open_after: bool,
     ) -> None:
-        """Handle export thread completion on the main thread."""
-        dialog.force_close()
-        if cancelled:
-            self.window.show_toast(_("Export cancelled"))
-        else:
-            self._report_export_result(success, output_path)
-        return False
-
-    def _report_export_result(self, success: bool, output_path: str) -> None:
-        """Report the export result to user and optionally open the file.
-
-        Args:
-            success: Whether export succeeded
-            output_path: Destination file path
-        """
-        if success:
-            self.window.show_toast(_("Exported to {}").format(os.path.basename(output_path)))
-            if getattr(self, "_odf_open_after", False):
-                from bigocrpdf.utils.pdf_utils import open_file_with_default_app
-
-                open_file_with_default_app(output_path)
-        else:
-            self.window.show_toast(_EXPORT_FAILED_MSG)
+        """Export content to ODF in the shared cancellable worker flow."""
+        self._run_single_export(
+            output_path,
+            file_path,
+            _("Exporting to OpenDocument…"),
+            "ODF",
+            open_after,
+            lambda cancel_event: self._bulk_convert_one(
+                file_path,
+                output_path,
+                "odf",
+                {"include_images": include_images},
+                cancel_event,
+            ),
+        )
 
     # ── Shared export helpers ─────────────────────────────────────────
 
-    @staticmethod
-    def _is_user_dismissed(exc: Exception) -> bool:
-        """Tell whether a Gtk.FileDialog error came from the user closing it."""
-        # FileDialog raises a GError whose message starts with "Dismissed by user".
-        # There is no public symbolic constant in the introspected bindings.
-        return "Dismissed" in str(exc)
+    def _show_export_options_dialog(
+        self,
+        title: str,
+        rows: tuple[tuple[str, str, bool, Callable[[bool], None]], ...],
+        on_export: Callable[[Adw.Dialog], None],
+    ) -> None:
+        """Show the common two-switch export options dialog."""
+        dialog = Adw.Dialog(title=title, content_width=380)
+        toolbar_view = Adw.ToolbarView()
+        toolbar_view.add_top_bar(Adw.HeaderBar())
+        content = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL,
+            spacing=24,
+            margin_start=24,
+            margin_end=24,
+            margin_top=12,
+            margin_bottom=24,
+        )
+        options = Adw.PreferencesGroup()
+        for row_title, subtitle, active, on_changed in rows:
+            row = Adw.SwitchRow(title=row_title, subtitle=subtitle, active=active)
+            row.connect(
+                "notify::active",
+                lambda switch, _param, callback=on_changed: callback(switch.get_active()),
+            )
+            options.add(row)
+        content.append(options)
+
+        button_content = Adw.ButtonContent(icon_name="document-save-symbolic", label=_("Export"))
+        export_button = Gtk.Button(
+            child=button_content,
+            halign=Gtk.Align.CENTER,
+            css_classes=["suggested-action", "pill"],
+        )
+        set_a11y_label(export_button, _("Export"))
+        export_button.connect("clicked", lambda _button: on_export(dialog))
+        content.append(export_button)
+        toolbar_view.set_content(content)
+        dialog.set_child(toolbar_view)
+        dialog.present(self.window)
+
+    def _update_export_setting(
+        self,
+        attr: str,
+        value: bool,
+        state: dict[str, bool],
+        key: str,
+        save_settings: Callable[[], None],
+    ) -> None:
+        """Persist one export option and update its dialog-local snapshot."""
+        state[key] = value
+        setattr(self.window.settings, attr, value)
+        save_settings()
+        self.window.settings._config.save()
+
+    def _show_export_file_dialog(
+        self,
+        *,
+        title: str,
+        initial_name: str,
+        filter_name: str,
+        patterns: tuple[str, ...],
+        mime_type: str,
+        callback: Callable[[str], None],
+        error_context: str,
+        extensions: tuple[str, ...],
+        default_extension: str,
+    ) -> None:
+        """Show a native save dialog and normalize its local destination."""
+        dialog = Gtk.FileDialog(title=title, modal=True, initial_name=initial_name)
+        file_filter = Gtk.FileFilter(name=filter_name)
+        for pattern in patterns:
+            file_filter.add_pattern(pattern)
+        file_filter.add_mime_type(mime_type)
+        filters = Gio.ListStore.new(Gtk.FileFilter)
+        filters.append(file_filter)
+        dialog.set_filters(filters)
+        dialog.set_default_filter(file_filter)
+
+        def on_saved(save_dialog: Gtk.FileDialog, result: Gio.AsyncResult) -> None:
+            try:
+                file = save_dialog.save_finish(result)
+            except GLib.Error as error:
+                if not self._is_user_dismissed(error):
+                    logger.error("Error choosing %s export destination: %s", error_context, error)
+                    self.window.ui.show_toast(_("Export failed"))
+                return
+
+            output_path = file.get_path()
+            if output_path is None:
+                logger.error("%s export destination has no local path", error_context)
+                self.window.ui.show_toast(_("Remote locations are not supported"))
+                return
+            if not output_path.lower().endswith(extensions):
+                output_path += default_extension
+            callback(output_path)
+
+        dialog.save(parent=self.window, cancellable=None, callback=on_saved)
 
     @staticmethod
-    def _unique_path(path: str) -> str:
-        """Return *path*, or ``path (1)``, ``path (2)``, … until it doesn't exist.
+    def _is_user_dismissed(error: GLib.Error) -> bool:
+        """Return whether the user dismissed a GTK asynchronous dialog."""
+        return error.matches(Gtk.DialogError.quark(), Gtk.DialogError.DISMISSED)
 
-        Used by bulk export to avoid silently overwriting a file at the
-        destination — single-file flows already get FileDialog's native
-        overwrite confirmation.
-        """
-        if not os.path.exists(path):
-            return path
+    @staticmethod
+    def _reserve_unique_path(path: str) -> str:
+        """Reserve a non-existing bulk-export destination without races."""
         stem, ext = os.path.splitext(path)
-        for n in range(1, 1000):
-            candidate = f"{stem} ({n}){ext}"
-            if not os.path.exists(candidate):
-                return candidate
-        # Extremely unlikely; fall back to overwrite rather than loop forever.
-        return path
+        candidate = path
+        suffix = 1
+        while True:
+            try:
+                flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_CLOEXEC", 0)
+                descriptor = os.open(candidate, flags, 0o600)
+            except FileExistsError:
+                candidate = f"{stem} ({suffix}){ext}"
+                suffix += 1
+                continue
+            os.close(descriptor)
+            return candidate
 
     def _build_progress_dialog(
         self,
@@ -348,8 +262,6 @@ class ConclusionExportMixin:
         and ``cancel_event`` is a :class:`threading.Event` set when the user
         clicks Cancel.
         """
-        import threading
-
         cancel_event = threading.Event()
 
         dialog = Adw.Dialog()
@@ -371,11 +283,7 @@ class ConclusionExportMixin:
         box.set_halign(Gtk.Align.CENTER)
         box.set_valign(Gtk.Align.CENTER)
 
-        spinner = Gtk.Spinner()
-        spinner.set_size_request(40, 40)
-        spinner.start()
-        spinner.set_halign(Gtk.Align.CENTER)
-        box.append(spinner)
+        box.append(create_spinner(40))
 
         title_label = Gtk.Label(label=title_text)
         title_label.add_css_class("title-4")
@@ -439,85 +347,42 @@ class ConclusionExportMixin:
 
     def _show_markdown_export_options_dialog(self, file_path: str) -> None:
         """Show export options dialog for Markdown export."""
-        dialog = Adw.Dialog()
-        dialog.set_title(_("Export to Markdown"))
-        dialog.set_content_width(380)
-
-        toolbar_view = Adw.ToolbarView()
-        toolbar_view.add_top_bar(Adw.HeaderBar())
-
-        content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=24)
-        content_box.set_margin_start(24)
-        content_box.set_margin_end(24)
-        content_box.set_margin_top(12)
-        content_box.set_margin_bottom(24)
-
-        options_group = Adw.PreferencesGroup()
-
         settings = self.window.settings
-        init_fm = getattr(settings, "md_include_front_matter", False)
-        init_open = getattr(settings, "md_open_after_export", False)
+        init_fm = settings.md_include_front_matter
+        init_open = settings.md_open_after_export
         state = {"front_matter": init_fm, "open_after": init_open}
-
-        fm_row = Adw.SwitchRow()
-        fm_row.set_title(_("Include YAML front-matter"))
-        fm_row.set_subtitle(_("Adds title, source path, page count and date"))
-        fm_row.set_active(init_fm)
-        fm_row.connect(
-            _NOTIFY_ACTIVE,
-            lambda row, _p: self._update_md_setting(
-                "md_include_front_matter", row.get_active(), state, "front_matter"
+        self._show_export_options_dialog(
+            _("Export to Markdown"),
+            (
+                (
+                    _("Include YAML front-matter"),
+                    _("Adds title, source path, page count and date"),
+                    init_fm,
+                    lambda value: self._update_export_setting(
+                        "md_include_front_matter",
+                        value,
+                        state,
+                        "front_matter",
+                        settings._save_md_settings,
+                    ),
+                ),
+                (
+                    _("Open after export"),
+                    _("Open file in the default application"),
+                    init_open,
+                    lambda value: self._update_export_setting(
+                        "md_open_after_export",
+                        value,
+                        state,
+                        "open_after",
+                        settings._save_md_settings,
+                    ),
+                ),
             ),
-        )
-        options_group.add(fm_row)
-
-        open_row = Adw.SwitchRow()
-        open_row.set_title(_("Open after export"))
-        open_row.set_subtitle(_("Open file in the default application"))
-        open_row.set_active(init_open)
-        open_row.connect(
-            _NOTIFY_ACTIVE,
-            lambda row, _p: self._update_md_setting(
-                "md_open_after_export", row.get_active(), state, "open_after"
-            ),
-        )
-        options_group.add(open_row)
-
-        content_box.append(options_group)
-
-        btn_content = Adw.ButtonContent()
-        btn_content.set_icon_name("document-save-symbolic")
-        btn_content.set_label(_("Export"))
-
-        export_btn = Gtk.Button()
-        export_btn.set_child(btn_content)
-        export_btn.add_css_class("suggested-action")
-        export_btn.add_css_class("pill")
-        export_btn.set_halign(Gtk.Align.CENTER)
-        set_a11y_label(export_btn, _("Export"))
-        export_btn.connect(
-            "clicked",
-            lambda _b: self._on_md_export_clicked(
+            lambda dialog: self._on_md_export_clicked(
                 state["front_matter"], state["open_after"], file_path, dialog
             ),
         )
-        content_box.append(export_btn)
-
-        toolbar_view.set_content(content_box)
-        dialog.set_child(toolbar_view)
-        dialog.present(self.window)
-
-    def _update_md_setting(self, attr: str, value: bool, state: dict, key: str) -> None:
-        """Persist a Markdown export setting and update local state."""
-        state[key] = value
-        settings = self.window.settings
-        setattr(settings, attr, value)
-        save_md = getattr(settings, "_save_md_settings", None)
-        if callable(save_md):
-            save_md()
-        config = getattr(settings, "_config", None)
-        if config is not None and hasattr(config, "save"):
-            config.save()
 
     def _on_md_export_clicked(
         self,
@@ -538,57 +403,21 @@ class ConclusionExportMixin:
     def _show_markdown_file_dialog(
         self, file_path: str, include_front_matter: bool, open_after: bool
     ) -> None:
-        """Show file save dialog for Markdown export."""
-        from gi.repository import Gio
-
-        save_dialog = Gtk.FileDialog.new()
-        save_dialog.set_title(_("Export to Markdown"))
-        save_dialog.set_modal(True)
-
+        """Show the Markdown destination picker."""
         base_name = os.path.splitext(os.path.basename(file_path))[0]
-        save_dialog.set_initial_name(f"{base_name}.md")
-
-        filters = Gio.ListStore.new(Gtk.FileFilter)
-        md_filter = Gtk.FileFilter()
-        md_filter.set_name(_("Markdown (*.md)"))
-        md_filter.add_pattern("*.md")
-        md_filter.add_pattern("*.markdown")
-        md_filter.add_mime_type("text/markdown")
-        filters.append(md_filter)
-        save_dialog.set_filters(filters)
-        save_dialog.set_default_filter(md_filter)
-
-        save_dialog.save(
-            parent=self.window,
-            cancellable=None,
-            callback=lambda d, r: self._on_md_save_response(
-                d, r, file_path, include_front_matter, open_after
+        self._show_export_file_dialog(
+            title=_("Export to Markdown"),
+            initial_name=f"{base_name}.md",
+            filter_name=_("Markdown (*.md)"),
+            patterns=("*.md", "*.markdown"),
+            mime_type="text/markdown",
+            callback=lambda output_path: self._export_markdown_file(
+                output_path, file_path, include_front_matter, open_after
             ),
+            error_context="Markdown",
+            extensions=(".md", ".markdown"),
+            default_extension=".md",
         )
-
-    def _on_md_save_response(
-        self,
-        dialog: Gtk.FileDialog,
-        result,
-        file_path: str,
-        include_front_matter: bool,
-        open_after: bool,
-    ) -> None:
-        """Handle the Markdown save dialog response."""
-        try:
-            file = dialog.save_finish(result)
-            output_path = file.get_path()
-            if output_path is None:
-                logger.error("Markdown export destination has no local path (remote URI)")
-                self.window.show_toast(_("Remote locations are not supported"))
-                return
-            if not output_path.lower().endswith((".md", ".markdown")):
-                output_path += ".md"
-            self._export_markdown_file(output_path, file_path, include_front_matter, open_after)
-        except Exception as e:
-            if not self._is_user_dismissed(e):
-                logger.error(f"Error exporting to Markdown: {e}")
-                self.window.show_toast(_EXPORT_FAILED_MSG)
 
     def _export_markdown_file(
         self,
@@ -601,60 +430,64 @@ class ConclusionExportMixin:
 
         Mirrors the ODF flow: a cancellable progress dialog stays on screen
         until the conversion finishes (or the user cancels) so large PDFs
-        don't appear to freeze the app. Writes go through a sibling
-        ``.tmp`` file and ``os.replace`` so an existing target file is
-        preserved if conversion fails or the user cancels.
+        don't appear to freeze the app. The completed text is published
+        atomically so an existing target survives conversion or write failure.
         """
-        import threading
-
-        from gi.repository import GLib
-
-        from bigocrpdf.utils.odf_builder import ExportCancelled
-
-        loading_dialog, _update, cancel_event = self._build_progress_dialog(
+        self._run_single_export(
+            output_path,
+            file_path,
             _("Exporting to Markdown…"),
-            os.path.basename(file_path),
+            "Markdown",
+            open_after,
+            lambda cancel_event: self._bulk_convert_one(
+                file_path,
+                output_path,
+                "md",
+                {"include_front_matter": include_front_matter},
+                cancel_event,
+            ),
         )
 
-        def _do_export() -> None:
-            from bigocrpdf.utils.tsv_odf_converter import convert_pdf_to_markdown
+    def _run_single_export(
+        self,
+        output_path: str,
+        file_path: str,
+        title: str,
+        format_name: str,
+        open_after: bool,
+        convert: Callable[[threading.Event], None],
+    ) -> None:
+        """Run one cancellable export and publish its result on the GTK thread."""
+        from bigocrpdf.utils.odf_builder import ExportCancelled
 
+        dialog, _update, cancel_event = self._build_progress_dialog(
+            title, os.path.basename(file_path)
+        )
+
+        def worker() -> None:
             success = False
             cancelled = False
-            tmp_path = output_path + ".tmp"
             try:
-                text = convert_pdf_to_markdown(
-                    file_path,
-                    include_front_matter=include_front_matter,
-                    cancel_event=cancel_event,
-                )
-                if cancel_event.is_set():
-                    raise ExportCancelled
-                os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
-                with open(tmp_path, "w", encoding="utf-8") as fh:
-                    fh.write(text)
-                os.replace(tmp_path, output_path)
+                convert(cancel_event)
                 success = True
             except ExportCancelled:
                 cancelled = True
-                logger.info("Markdown export cancelled by user")
-            except Exception as e:
-                logger.error(f"Markdown conversion failed: {e}")
-
-            self._safe_remove(tmp_path)
+                logger.info("%s export cancelled by user", format_name)
+            except Exception:
+                logger.exception("%s conversion failed", format_name)
 
             GLib.idle_add(
-                self._on_md_export_finished,
-                loading_dialog,
+                self._on_single_export_finished,
+                dialog,
                 success,
                 cancelled,
                 output_path,
                 open_after,
             )
 
-        threading.Thread(target=_do_export, daemon=True).start()
+        threading.Thread(target=worker, daemon=True).start()
 
-    def _on_md_export_finished(
+    def _on_single_export_finished(
         self,
         dialog: Adw.Dialog,
         success: bool,
@@ -662,18 +495,16 @@ class ConclusionExportMixin:
         output_path: str,
         open_after: bool = False,
     ) -> bool:
-        """Report Markdown export result on the main thread."""
+        """Report a single-file export result on the main thread."""
         dialog.force_close()
         if cancelled:
-            self.window.show_toast(_("Export cancelled"))
+            self.window.ui.show_toast(_("Export cancelled"))
         elif success:
-            self.window.show_toast(_("Exported to {}").format(os.path.basename(output_path)))
+            self.window.ui.show_toast(_("Exported to {}").format(os.path.basename(output_path)))
             if open_after:
-                from bigocrpdf.utils.pdf_utils import open_file_with_default_app
-
-                open_file_with_default_app(output_path)
+                self._open_file(output_path)
         else:
-            self.window.show_toast(_EXPORT_FAILED_MSG)
+            self.window.ui.show_toast(_("Export failed"))
         return False
 
     # ── Bulk export ────────────────────────────────────────────────────
@@ -684,8 +515,6 @@ class ConclusionExportMixin:
         Uses ``Gio.Menu`` + ``Gtk.PopoverMenu`` for native keyboard nav
         and accessibility — matches the per-row export button's pattern.
         """
-        from gi.repository import Gio
-
         menu_model = Gio.Menu()
         menu_model.append(_("OpenDocument (.odt)"), "bulk.odt")
         menu_model.append(_("Markdown (.md)"), "bulk.md")
@@ -713,8 +542,6 @@ class ConclusionExportMixin:
         if not files:
             return
 
-        from gi.repository import Gio
-
         dialog = Gtk.FileDialog.new()
         dialog.set_title(_("Choose destination folder"))
         dialog.set_modal(True)
@@ -722,14 +549,15 @@ class ConclusionExportMixin:
         def _on_folder_chosen(d: Gtk.FileDialog, result: Gio.AsyncResult) -> None:
             try:
                 folder = d.select_folder_finish(result)
-            except Exception as e:
-                if not self._is_user_dismissed(e):
-                    logger.error(f"Folder picker failed: {e}")
-                    self.window.show_toast(_EXPORT_FAILED_MSG)
+            except GLib.Error as error:
+                if not self._is_user_dismissed(error):
+                    logger.error("Folder picker failed: %s", error)
+                    self.window.ui.show_toast(_("Export failed"))
                 return
+
             folder_path = folder.get_path()
             if folder_path is None:
-                self.window.show_toast(_("Remote locations are not supported"))
+                self.window.ui.show_toast(_("Remote locations are not supported"))
                 return
             self._run_bulk_export(files, folder_path, fmt)
 
@@ -742,22 +570,24 @@ class ConclusionExportMixin:
         toggle from another dialog can't make some files honour different
         options than others.
         """
-        import threading
-
         # Cheap early checks so the user gets a clear error instead of
         # discovering after every file fails individually.
         if not os.path.isdir(dest_folder):
-            self.window.show_toast(_("Destination folder not found"))
+            self.window.ui.show_toast(_("Destination folder not found"))
             return
         if not os.access(dest_folder, os.W_OK):
-            self.window.show_toast(_("Destination folder is not writable"))
+            self.window.ui.show_toast(_("Destination folder is not writable"))
             return
 
         settings = self.window.settings
-        options = {
-            "include_front_matter": getattr(settings, "md_include_front_matter", False),
-            "include_images": getattr(settings, "odf_include_images", True),
-        }
+        if fmt == "md":
+            options = {"include_front_matter": settings.md_include_front_matter}
+        elif fmt == "odf":
+            options = {"include_images": settings.odf_include_images}
+        else:
+            logger.error("Unknown bulk export format: %s", fmt)
+            self.window.ui.show_toast(_("Export failed"))
+            return
 
         total = len(files)
         loading_dialog, update_progress, cancel_event = self._build_progress_dialog(
@@ -784,12 +614,13 @@ class ConclusionExportMixin:
 
     @staticmethod
     def _safe_remove(path: str) -> None:
-        """Best-effort removal of a partial output file."""
-        if os.path.exists(path):
-            try:
-                os.remove(path)
-            except OSError:
-                pass
+        """Remove a partial output without hiding cleanup failures."""
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            return
+        except OSError as error:
+            logger.warning("Could not remove partial export %s: %s", path, error)
 
     def _bulk_convert_one(
         self,
@@ -816,97 +647,106 @@ class ConclusionExportMixin:
                 include_front_matter=options.get("include_front_matter", False),
                 cancel_event=cancel_event,
             )
-            tmp_path = out_path + ".tmp"
-            with open(tmp_path, "w", encoding="utf-8") as fh:
-                fh.write(text)
-            os.replace(tmp_path, out_path)
+            write_text_atomically(out_path, text)
             return
+        if fmt == "odf":
+            from bigocrpdf.utils.tsv_odf_converter import convert_pdf_to_odf
 
-        from bigocrpdf.utils.tsv_odf_converter import convert_pdf_to_odf
-
-        convert_pdf_to_odf(
-            pdf_path,
-            out_path,
-            include_images=options.get("include_images", True),
-            cancel_event=cancel_event,
-        )
+            convert_pdf_to_odf(
+                pdf_path,
+                out_path,
+                include_images=options.get("include_images", True),
+                cancel_event=cancel_event,
+            )
+            return
+        raise ValueError(f"unsupported export format: {fmt}")
 
     def _bulk_export_worker(
         self,
         files: list[str],
         dest_folder: str,
         fmt: str,
-        options: dict,
-        cancel_event,
-        update_progress,
+        options: dict[str, bool],
+        cancel_event: threading.Event,
+        update_progress: Callable[[int, str], bool],
         loading_dialog: Adw.Dialog,
     ) -> None:
-        """Thread body: convert each file and report aggregate results."""
-        from gi.repository import GLib
-
+        """Convert each selected file and publish the aggregate result."""
         from bigocrpdf.utils.odf_builder import ExportCancelled
 
-        if fmt not in self._BULK_EXTENSIONS:
-            logger.error("Unknown bulk export format: %s", fmt)
-            GLib.idle_add(loading_dialog.force_close)
-            GLib.idle_add(self.window.show_toast, _EXPORT_FAILED_MSG)
-            return
-        ext = self._BULK_EXTENSIONS[fmt]
-        results: dict = {"ok": 0, "failed": [], "saved_paths": []}
+        extension = self._BULK_EXTENSIONS[fmt]
+        saved = 0
+        failed = 0
+        cancelled = False
 
-        for idx, pdf_path in enumerate(files, start=1):
+        for index, pdf_path in enumerate(files, start=1):
             if cancel_event.is_set():
+                cancelled = True
                 break
 
-            basename = os.path.splitext(os.path.basename(pdf_path))[0] + ext
-            out_path = self._unique_path(os.path.join(dest_folder, basename))
-            GLib.idle_add(update_progress, idx, os.path.basename(out_path))
-
+            basename = os.path.splitext(os.path.basename(pdf_path))[0] + extension
             try:
-                self._bulk_convert_one(pdf_path, out_path, fmt, options, cancel_event)
+                output_path = self._reserve_unique_path(os.path.join(dest_folder, basename))
+            except OSError:
+                logger.exception("Could not reserve bulk export destination for %s", pdf_path)
+                failed += 1
+                continue
+
+            GLib.idle_add(update_progress, index, os.path.basename(output_path))
+            try:
+                self._bulk_convert_one(pdf_path, output_path, fmt, options, cancel_event)
             except ExportCancelled:
-                # User pressed Cancel mid-file — bail out without recording
-                # this file as a failure, and clean up the partial output.
-                self._safe_remove(out_path)
+                self._safe_remove(output_path)
+                cancelled = True
                 break
             except Exception:
                 logger.exception("Bulk export failed for %s", pdf_path)
-                results["failed"].append(os.path.basename(pdf_path))
-                self._safe_remove(out_path)
+                failed += 1
+                self._safe_remove(output_path)
             else:
-                results["ok"] += 1
-                results["saved_paths"].append(out_path)
+                saved += 1
 
         GLib.idle_add(
             self._on_bulk_export_finished,
             loading_dialog,
-            results,
-            cancel_event.is_set(),
+            saved,
+            failed,
+            cancelled,
+            len(files),
             dest_folder,
         )
 
     def _on_bulk_export_finished(
         self,
         dialog: Adw.Dialog,
-        results: dict,
+        saved: int,
+        failed: int,
         cancelled: bool,
+        total: int,
         dest_folder: str,
     ) -> bool:
-        """Close the progress dialog and report the outcome to the user."""
+        """Close the progress dialog and report the batch outcome."""
         dialog.force_close()
-        ok = results["ok"]
-        failed_count = len(results["failed"])
         folder_name = os.path.basename(dest_folder) or dest_folder
 
         if cancelled:
-            self.window.show_toast(
-                _("Cancelled — saved {ok} of {total}").format(ok=ok, total=ok + failed_count)
+            self.window.ui.show_toast(
+                _("Cancelled — saved {ok} of {total}").format(ok=saved, total=total)
             )
-        elif failed_count:
-            self.window.show_toast(_("Saved {ok}; {n} failed").format(ok=ok, n=failed_count))
+        elif failed:
+            self.window.ui.show_toast(
+                _("Saved {ok}; {n} failed").format(
+                    ok=saved,
+                    n=failed,
+                )
+            )
         else:
-            self.window.show_toast(
-                _("Saved {ok} files to {folder}").format(ok=ok, folder=folder_name)
+            self.window.ui.show_toast(
+                ngettext(
+                    "Saved {count} file to {folder}",
+                    "Saved {count} files to {folder}",
+                    saved,
+                ).format(count=saved, folder=folder_name)
             )
         return False
 
@@ -918,7 +758,8 @@ class ConclusionExportMixin:
         """
         from bigocrpdf.utils.pdf_utils import open_file_with_default_app
 
-        open_file_with_default_app(file_path)
+        if not open_file_with_default_app(file_path):
+            self.window.ui.show_toast(_("Failed to open file"))
 
     def _reveal_in_file_manager(self, file_path: str) -> None:
         """Open the system file manager with the given file selected.
@@ -929,7 +770,7 @@ class ConclusionExportMixin:
         """
         import subprocess
 
-        file_uri = f"file://{os.path.abspath(file_path)}"
+        file_uri = Gio.File.new_for_path(file_path).get_uri()
         try:
             subprocess.Popen(
                 [
@@ -946,76 +787,8 @@ class ConclusionExportMixin:
                 stderr=subprocess.DEVNULL,
             )
         except FileNotFoundError:
-            # dbus-send not available; open parent folder instead
-            from bigocrpdf.utils.pdf_utils import open_file_with_default_app
-
-            open_file_with_default_app(os.path.dirname(file_path))
+            self._open_file(os.path.dirname(file_path))
 
     def _show_extracted_text(self, file_path: str) -> None:
-        """Show extracted text dialog.
-
-        Args:
-            file_path: Path to the PDF file
-        """
-        if hasattr(self.window, "ui") and hasattr(self.window.ui, "show_extracted_text"):
-            self.window.ui.show_extracted_text(file_path)
-        else:
-            logger.warning("Text viewer dialog not available")
-            self._show_simple_text_dialog(file_path)
-
-    def _show_simple_text_dialog(self, file_path: str) -> None:
-        """Show a simple text dialog as fallback.
-
-        Args:
-            file_path: Path to the PDF file
-        """
-        extracted_text = self._get_extracted_text_for_file(file_path)
-        dialog = Adw.AlertDialog(
-            heading=_("Extracted Text"),
-            body=extracted_text[:500] + "..." if len(extracted_text) > 500 else extracted_text,
-        )
-        dialog.add_response("ok", _("OK"))
-        dialog.present(self.window)
-
-    def _get_extracted_text_for_file(self, file_path: str) -> str:
-        """Get extracted text for a file.
-
-        Args:
-            file_path: Path to the PDF file
-
-        Returns:
-            Extracted text or placeholder message
-        """
-        if (
-            hasattr(self.window.settings, "extracted_text")
-            and file_path in self.window.settings.extracted_text
-        ):
-            return self.window.settings.extracted_text[file_path]
-
-        sidecar_file = os.path.splitext(file_path)[0] + ".txt"
-        if os.path.exists(sidecar_file):
-            try:
-                with open(sidecar_file, encoding="utf-8") as f:
-                    return f.read()
-            except Exception as e:
-                logger.error(f"Error reading sidecar file: {e}")
-
-        return _("No text content was detected in this file during OCR processing.")
-
-    def reset_page(self) -> None:
-        """Reset the conclusion page to initial state."""
-        if self.result_file_count:
-            self.result_file_count.set_text("0")
-        if self.result_page_count:
-            self.result_page_count.set_text("0")
-        if self.result_time:
-            self.result_time.set_text("00:00")
-        if self.result_file_size:
-            self.result_file_size.set_text("0 KB")
-        if self.result_size_change:
-            self.result_size_change.set_text("--")
-            self.result_size_change.remove_css_class("success")
-            self.result_size_change.remove_css_class("warning")
-
-        if self.output_list_box:
-            self._clear_output_list()
+        """Show extracted text using the main UI's dialog owner."""
+        self.window.ui.dialogs_manager.show_extracted_text(file_path)

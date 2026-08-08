@@ -2,6 +2,9 @@
 """
 Standalone OCR worker script.
 
+allow-noisy-log: this subprocess worker writes JSON to stdout and worker
+diagnostics to stderr as part of its process contract.
+
 This script is called via subprocess to run OCR in an isolated environment,
 avoiding GTK/GLib interference with ONNX Runtime.
 
@@ -14,19 +17,20 @@ Output:
 """
 
 import argparse
+import gc
 import json
 import os
 import sys
-
-# Add parent paths for imports
-from pathlib import Path
 from typing import Any
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
-
-from bigocrpdf.utils.python_compat import (
-    setup_python_compatibility,
+from bigocrpdf.services.rapidocr_service.ocr_worker_engine import (
+    _build_ocr_engine_params,
+    _create_ocr_engine,
+    _create_ocr_engine_with_runtime,
+    _lang_rec_from_code,
 )
+
+__all__ = ["_build_ocr_engine_params"]
 
 # Setup Python version compatibility moved to main() to avoid output pollution
 
@@ -36,28 +40,9 @@ def run_ocr_batch(
 ) -> list:
     """Run OCR on multiple images with shared RapidOCR instance."""
     import cv2
+    from rapidocr import EngineType, LangRec, RapidOCR
 
-    # Import rapidocr with fallback
-    try:
-        from rapidocr import EngineType, LangRec, RapidOCR
-    except ModuleNotFoundError:
-        from bigocrpdf.utils.python_compat import get_module_from_attribute
-
-        EngineType, LangRec, RapidOCR = get_module_from_attribute(
-            "rapidocr", "EngineType", "LangRec", "RapidOCR"
-        )
-
-    # Map language string to enum
-    lang_map = {
-        "latin": LangRec.LATIN,
-        "en": LangRec.EN,
-        "ch": LangRec.CH,
-        "chinese_cht": LangRec.CHINESE_CHT,
-        "japan": LangRec.JAPAN,
-        "korean": LangRec.KOREAN,
-        "arabic": LangRec.ARABIC,
-    }
-    lang_rec = lang_map.get(language, LangRec.LATIN)
+    lang_rec = _lang_rec_from_code(LangRec, language)
 
     # Create single RapidOCR instance for all images
     params = {
@@ -80,26 +65,13 @@ def run_ocr_batch(
                 results.append({"success": False, "error": f"Failed to load: {image_path}"})
                 continue
 
-            result = rapid(img)
-
-            boxes = []
-            txts = []
-            scores = []
-
-            if hasattr(result, "boxes") and result.boxes is not None:
-                boxes = [
-                    box.tolist() if hasattr(box, "tolist") else list(box) for box in result.boxes
-                ]
-                txts = list(result.txts) if result.txts else []
-                scores = [float(s) for s in result.scores] if result.scores else []
+            serialized = _serialize_ocr_result(rapid(img), empty_when_no_boxes=True)
 
             results.append(
                 {
                     "success": True,
-                    "boxes": boxes,
-                    "txts": txts,
-                    "scores": scores,
-                    "count": len(txts),
+                    **serialized,
+                    "count": len(serialized["txts"]),
                 }
             )
         except Exception as e:
@@ -123,6 +95,13 @@ def run_ocr_full(
     font_path: str = "",
     threads: int = 4,
     full_resolution: bool = False,
+    model_type: str = "small",
+    rec_batch_num: int = 1,
+    use_textline_cls: bool = False,
+    gpu_backend: str = "off",
+    gpu_device_id: int = 0,
+    gpu_fp16: bool = True,
+    gpu_fallback_to_cpu: bool = True,
 ) -> dict:
     """Run OCR on a single image with full parameter control.
 
@@ -150,222 +129,118 @@ def run_ocr_full(
     try:
         import cv2
 
-        try:
-            from rapidocr import EngineType, LangRec, OCRVersion, RapidOCR
-        except ModuleNotFoundError:
-            from bigocrpdf.utils.python_compat import get_module_from_attribute
-
-            EngineType, LangRec, RapidOCR = get_module_from_attribute(
-                "rapidocr", "EngineType", "LangRec", "RapidOCR"
-            )
-            OCRVersion = get_module_from_attribute("rapidocr", "OCRVersion")[0]
-
-        # Map language string to enum
-        lang_map = {
-            "latin": LangRec.LATIN,
-            "en": LangRec.EN,
-            "ch": LangRec.CH,
-            "chinese_cht": LangRec.CHINESE_CHT,
-            "japan": LangRec.JAPAN,
-            "korean": LangRec.KOREAN,
-            "arabic": LangRec.ARABIC,
-        }
-        lang_rec = lang_map.get(language, LangRec.LATIN)
-
         img = cv2.imread(image_path)
         if img is None:
             return {"error": f"Could not load image: {image_path}"}
 
-        engine_type = EngineType.OPENVINO if use_openvino else EngineType.ONNXRUNTIME
-
-        # Detection limit_type: "min" bypasses the 2000px hardcoded cap in
-        # TextDetector.get_preprocess(), enabling full-resolution detection.
-        # "max" (default) uses the adaptive cap (faster, less accurate for large images).
-        limit_type = "min" if full_resolution else "max"
-
-        params = {
-            # Detection settings
-            "Det.engine_type": engine_type,
-            "Det.box_thresh": box_thresh,
-            "Det.unclip_ratio": unclip_ratio,
-            "Det.score_mode": score_mode,
-            "Det.limit_side_len": limit_side_len,
-            "Det.limit_type": limit_type,
-            # Recognition settings
-            "Rec.engine_type": engine_type,
-            "Rec.lang_type": lang_rec,
-            "Rec.ocr_version": OCRVersion.PPOCRV5,
-            "Rec.rec_batch_num": 1,
-            # Classifier settings (use same engine even if disabled)
-            "Cls.engine_type": engine_type,
-            # Global settings
-            "Global.use_cls": False,
-            "Global.text_score": text_score,
-            "Global.max_side_len": limit_side_len,
-        }
-
-        # Engine-specific threading configuration
-        # NOTE: Must use EngineConfig.<engine> path, not Det/Rec.engine_cfg,
-        # because RapidOCR._initialize() overwrites engine_cfg from EngineConfig.
-        if use_openvino:
-            params["EngineConfig.openvino.inference_num_threads"] = threads
-        else:
-            params["EngineConfig.onnxruntime.intra_op_num_threads"] = threads
-            params["EngineConfig.onnxruntime.inter_op_num_threads"] = 2
-
-        # Add model paths if provided
-        if rec_model_path:
-            params["Rec.model_path"] = rec_model_path
-        if rec_keys_path:
-            params["Rec.rec_keys_path"] = rec_keys_path
-        if det_model_path:
-            params["Det.model_path"] = det_model_path
-        if font_path and os.path.exists(font_path):
-            params["Global.font_path"] = font_path
-
-        ocr = RapidOCR(params=params)
+        ocr = _create_ocr_engine(
+            retry_with_cpu=False,
+            language=language,
+            limit_side_len=limit_side_len,
+            use_openvino=use_openvino,
+            box_thresh=box_thresh,
+            unclip_ratio=unclip_ratio,
+            text_score=text_score,
+            score_mode=score_mode,
+            rec_model_path=rec_model_path,
+            rec_keys_path=rec_keys_path,
+            det_model_path=det_model_path,
+            font_path=font_path,
+            threads=threads,
+            full_resolution=full_resolution,
+            model_type=model_type,
+            rec_batch_num=rec_batch_num,
+            use_textline_cls=use_textline_cls,
+            gpu_backend=gpu_backend,
+            gpu_device_id=gpu_device_id,
+            gpu_fp16=gpu_fp16,
+            gpu_fallback_to_cpu=gpu_fallback_to_cpu,
+        )
         # Pass text_score and box_thresh both at init AND per-call to ensure
         # they are definitely applied (per-call overrides take precedence)
-        result = ocr(img, use_cls=False, text_score=text_score, box_thresh=box_thresh)
-
-        if result.boxes is None:
-            return {"boxes": None}
-
-        boxes = [b.tolist() if hasattr(b, "tolist") else list(b) for b in result.boxes]
-        txts = list(result.txts) if result.txts else []
-        scores = [float(s) for s in result.scores] if result.scores else []
-
-        return {"boxes": boxes, "txts": txts, "scores": scores}
+        result = ocr(
+            img,
+            use_cls=use_textline_cls,
+            text_score=text_score,
+            box_thresh=box_thresh,
+        )
+        return _serialize_ocr_result(result)
 
     except Exception as e:
         return {"error": str(e)}
 
 
-def _create_ocr_engine(
-    language: str = "latin",
-    limit_side_len: int = 4000,
-    use_openvino: bool = True,
-    box_thresh: float = 0.5,
-    unclip_ratio: float = 1.2,
-    text_score: float = 0.3,
-    score_mode: str = "slow",
-    rec_model_path: str = "",
-    rec_keys_path: str = "",
-    det_model_path: str = "",
-    font_path: str = "",
-    threads: int = 4,
-    full_resolution: bool = False,
-) -> object:
-    """Create a RapidOCR engine with full parameters and fallback support.
-
-    This factory is shared by all OCR modes (single, batch, persistent)
-    to ensure consistent parameter handling.
-
-    Includes fallback logic: if the primary engine fails to initialize,
-    it will try the alternative engine (OpenVINO ↔ ONNX Runtime).
-    """
-    try:
-        from rapidocr import EngineType, LangRec, OCRVersion, RapidOCR
-    except ModuleNotFoundError:
-        from bigocrpdf.utils.python_compat import get_module_from_attribute
-
-        EngineType, LangRec, RapidOCR = get_module_from_attribute(
-            "rapidocr", "EngineType", "LangRec", "RapidOCR"
-        )
-        OCRVersion = get_module_from_attribute("rapidocr", "OCRVersion")[0]
-
-    lang_map = {
-        "latin": LangRec.LATIN,
-        "en": LangRec.EN,
-        "ch": LangRec.CH,
-        "chinese_cht": LangRec.CHINESE_CHT,
-        "japan": LangRec.JAPAN,
-        "korean": LangRec.KOREAN,
-        "arabic": LangRec.ARABIC,
+def _serialize_ocr_result(
+    result: Any,
+    *,
+    empty_when_no_boxes: bool = False,
+) -> dict[str, Any]:
+    boxes = getattr(result, "boxes", None) if empty_when_no_boxes else result.boxes
+    if boxes is None:
+        return {"boxes": [], "txts": [], "scores": []} if empty_when_no_boxes else {"boxes": None}
+    return {
+        "boxes": [box.tolist() if hasattr(box, "tolist") else list(box) for box in boxes],
+        "txts": list(result.txts) if result.txts else [],
+        "scores": [float(score) for score in result.scores] if result.scores else [],
     }
-    lang_rec = lang_map.get(language, LangRec.LATIN)
 
-    def _build_params(engine_type, use_openvino_threads: bool):
-        """Build parameter dict for the given engine type."""
-        limit_type = "min" if full_resolution else "max"
-        p = {
-            "Det.engine_type": engine_type,
-            "Det.box_thresh": box_thresh,
-            "Det.unclip_ratio": unclip_ratio,
-            "Det.score_mode": score_mode,
-            "Det.limit_side_len": limit_side_len,
-            "Det.limit_type": limit_type,
-            "Rec.engine_type": engine_type,
-            "Rec.lang_type": lang_rec,
-            "Rec.ocr_version": OCRVersion.PPOCRV5,
-            "Rec.rec_batch_num": 1,
-            # Classifier settings (use same engine even if disabled)
-            "Cls.engine_type": engine_type,
-            "Global.use_cls": False,
-            "Global.text_score": text_score,
-            "Global.max_side_len": limit_side_len,
-        }
 
-        if use_openvino_threads:
-            p["EngineConfig.openvino.inference_num_threads"] = threads
-        else:
-            p["EngineConfig.onnxruntime.intra_op_num_threads"] = threads
-            p["EngineConfig.onnxruntime.inter_op_num_threads"] = 2
+def _set_openvino_request(session_owner: Any, enabled: bool, threads: int) -> None:
+    if enabled:
+        if session_owner.session is not None:
+            return
 
-        if rec_model_path:
-            p["Rec.model_path"] = rec_model_path
-        if rec_keys_path:
-            p["Rec.rec_keys_path"] = rec_keys_path
-        if det_model_path:
-            p["Det.model_path"] = det_model_path
-        if font_path and os.path.exists(font_path):
-            p["Global.font_path"] = font_path
+        from openvino import Core
 
-        return p
+        # Retain the model, but rebuild the large compiled request only when needed.
+        compiled = Core().compile_model(
+            model=session_owner.model,
+            device_name="CPU",
+            config={"INFERENCE_NUM_THREADS": str(threads)},
+        )
+        session_owner.session = compiled.create_infer_request()
+        return
 
-    # Determine primary and fallback engine types
-    if use_openvino:
-        primary_engine = EngineType.OPENVINO
-        fallback_engine = EngineType.ONNXRUNTIME
-        primary_name = "OpenVINO"
-        fallback_name = "ONNX Runtime"
-    else:
-        primary_engine = EngineType.ONNXRUNTIME
-        fallback_engine = EngineType.OPENVINO
-        primary_name = "ONNX Runtime"
-        fallback_name = "OpenVINO"
+    if session_owner.session is None:
+        return
+    session_owner.session = None
+    gc.collect()
 
-    # Try primary engine first
+
+def _run_ocr_engine(
+    engine: Any,
+    image: Any,
+    text_score: float,
+    box_thresh: float,
+    low_memory_openvino: bool,
+    threads: int,
+) -> Any:
+    if not low_memory_openvino:
+        return engine(image, use_cls=False, text_score=text_score, box_thresh=box_thresh)
+
+    detector_session = engine.text_det.session
+    _set_openvino_request(detector_session, True, threads)
+    recognize_txt = engine.recognize_txt
+
+    def recognize_without_detector(images):
+        _set_openvino_request(detector_session, False, threads)
+        return recognize_txt(images)
+
+    engine.recognize_txt = recognize_without_detector
     try:
-        params = _build_params(primary_engine, use_openvino)
-        return RapidOCR(params=params)
-    except Exception as primary_err:
-        primary_msg = str(primary_err).lower()
-        # Check if this is a "not installed" error that warrants fallback
-        if "not installed" in primary_msg or "no module" in primary_msg or "import" in primary_msg:
-            import sys
-
-            print(f"[OCR Worker] {primary_name} failed: {primary_err}", file=sys.stderr)
-            print(f"[OCR Worker] Trying fallback to {fallback_name}...", file=sys.stderr)
-
-            # Try fallback engine
-            try:
-                params = _build_params(fallback_engine, not use_openvino)
-                return RapidOCR(params=params)
-            except Exception as fallback_err:
-                # Both engines failed
-                raise RuntimeError(
-                    f"Both OCR engines failed.\n"
-                    f"{primary_name}: {primary_err}\n"
-                    f"{fallback_name}: {fallback_err}"
-                ) from fallback_err
-        else:
-            # Not an installation error, re-raise
-            raise
+        return engine(image, use_cls=False, text_score=text_score, box_thresh=box_thresh)
+    finally:
+        engine.recognize_txt = recognize_txt
+        _set_openvino_request(detector_session, False, threads)
 
 
 def _ocr_single_image(
-    engine: Any, image_path: str, text_score: float = 0.3, box_thresh: float = 0.5
+    engine: Any,
+    image_path: str,
+    text_score: float = 0.3,
+    box_thresh: float = 0.5,
+    low_memory_openvino: bool = False,
+    threads: int = 2,
 ) -> dict:
     """Run OCR on a single image using a pre-created engine.
 
@@ -379,21 +254,46 @@ def _ocr_single_image(
         if img is None:
             return {"error": f"Could not load image: {image_path}"}
 
-        result = engine(img, use_cls=False, text_score=text_score, box_thresh=box_thresh)
+        result = _run_ocr_engine(
+            engine,
+            img,
+            text_score,
+            box_thresh,
+            low_memory_openvino,
+            threads,
+        )
 
         # Release image memory immediately
         del img
 
-        if result.boxes is None:
-            return {"boxes": None}
-
-        boxes = [b.tolist() if hasattr(b, "tolist") else list(b) for b in result.boxes]
-        txts = list(result.txts) if result.txts else []
-        scores = [float(s) for s in result.scores] if result.scores else []
-
-        return {"boxes": boxes, "txts": txts, "scores": scores}
+        return _serialize_ocr_result(result)
     except Exception as e:
         return {"error": str(e)}
+
+
+def _engine_options_from_args(args: argparse.Namespace, threads: int) -> dict[str, Any]:
+    return {
+        "language": args.language,
+        "limit_side_len": args.limit_side_len,
+        "use_openvino": not args.no_openvino,
+        "box_thresh": args.box_thresh,
+        "unclip_ratio": args.unclip_ratio,
+        "text_score": args.text_score,
+        "score_mode": args.score_mode,
+        "rec_model_path": args.rec_model_path,
+        "rec_keys_path": args.rec_keys_path,
+        "det_model_path": args.det_model_path,
+        "font_path": args.font_path,
+        "threads": threads,
+        "full_resolution": args.full_resolution,
+        "model_type": args.model_type,
+        "rec_batch_num": args.rec_batch_num,
+        "use_textline_cls": args.use_textline_cls,
+        "gpu_backend": args.gpu_backend,
+        "gpu_device_id": args.gpu_device_id,
+        "gpu_fp16": args.gpu_fp16,
+        "gpu_fallback_to_cpu": not args.no_gpu_fallback,
+    }
 
 
 def run_persistent(args: argparse.Namespace) -> None:
@@ -405,52 +305,49 @@ def run_persistent(args: argparse.Namespace) -> None:
 
     Memory usage: ~400 MB (single model instance) vs ~2+ GB (subprocess per page).
     """
-    import sys
 
     # Redirect any stray library output away from our JSON protocol
     real_stdout = sys.stdout
     sys.stdout = sys.stderr
 
-    # Setup Python version compatibility AFTER redirecting stdout
-    setup_python_compatibility()
-
-    use_openvino = not args.no_openvino
     threads = args.threads if args.threads > 0 else max(2, os.cpu_count() or 4)
 
     try:
-        engine = _create_ocr_engine(
-            language=args.language,
-            limit_side_len=args.limit_side_len,
-            use_openvino=use_openvino,
-            box_thresh=args.box_thresh,
-            unclip_ratio=args.unclip_ratio,
-            text_score=args.text_score,
-            score_mode=args.score_mode,
-            rec_model_path=args.rec_model_path,
-            rec_keys_path=args.rec_keys_path,
-            det_model_path=args.det_model_path,
-            font_path=args.font_path,
-            threads=threads,
-            full_resolution=args.full_resolution,
+        engine, runtime = _create_ocr_engine_with_runtime(
+            **_engine_options_from_args(args, threads)
         )
     except Exception as e:
         real_stdout.write(json.dumps({"fatal": str(e)}) + "\n")
         real_stdout.flush()
         return
 
+    low_memory_openvino = (
+        args.low_memory_openvino
+        and runtime["engine_label"] == "openvino_cpu"
+        and not args.use_textline_cls
+    )
+    if low_memory_openvino:
+        engine.text_cls = None
+        gc.collect()
+
     # Signal readiness
-    real_stdout.write(json.dumps({"ready": True}) + "\n")
+    real_stdout.write(json.dumps({"ready": True, "runtime": runtime}) + "\n")
     real_stdout.flush()
 
     # Process images from stdin (one path per line)
-    import gc
-
     for line in sys.stdin:
         path = line.strip()
         if not path:
             continue
 
-        result = _ocr_single_image(engine, path, args.text_score, args.box_thresh)
+        result = _ocr_single_image(
+            engine,
+            path,
+            args.text_score,
+            args.box_thresh,
+            low_memory_openvino,
+            threads,
+        )
         real_stdout.write(json.dumps(result) + "\n")
         real_stdout.flush()
 
@@ -466,12 +363,17 @@ def main():
         pass
 
     parser = argparse.ArgumentParser(description="Standalone OCR worker")
-    parser.add_argument("images", nargs="*", help="Path to image file(s)")
+    parser.add_argument("images", nargs="*", help="Paths to image files")
     parser.add_argument("--batch", action="store_true", help="Batch mode (multiple images)")
     parser.add_argument("--persistent", action="store_true", help="Persistent mode (stdin/stdout)")
     parser.add_argument("--language", default="latin", help="Language code")
     parser.add_argument("--limit_side_len", type=int, default=4000, help="Max side length")
     parser.add_argument("--no-openvino", action="store_true", help="Disable OpenVINO")
+    parser.add_argument(
+        "--low-memory-openvino",
+        action="store_true",
+        help="Release OpenVINO detector buffers before recognition",
+    )
     parser.add_argument("--box-thresh", type=float, default=0.5, help="Box threshold")
     parser.add_argument("--unclip-ratio", type=float, default=1.2, help="Unclip ratio")
     parser.add_argument("--text-score", type=float, default=0.3, help="Text score threshold")
@@ -480,6 +382,33 @@ def main():
     parser.add_argument("--rec-keys-path", default="", help="Recognition keys path")
     parser.add_argument("--det-model-path", default="", help="Detection model path")
     parser.add_argument("--font-path", default="", help="Font path")
+    parser.add_argument("--model-type", default="small", help="RapidOCR ModelType name")
+    parser.add_argument(
+        "--rec-batch-num",
+        type=int,
+        default=1,
+        help="RapidOCR recognition batch size",
+    )
+    parser.add_argument(
+        "--use-textline-cls",
+        action="store_true",
+        help="Enable RapidOCR text-line orientation classifier",
+    )
+    parser.add_argument(
+        "--gpu-backend",
+        default="off",
+        choices=["off", "auto", "paddle", "torch", "tensorrt", "onnxruntime_cuda_experimental"],
+        help="Optional experimental GPU backend",
+    )
+    parser.add_argument("--gpu-device-id", type=int, default=0, help="GPU device id")
+    parser.add_argument(
+        "--gpu-fp16", action="store_true", help="Use FP16 for supported GPU engines"
+    )
+    parser.add_argument(
+        "--no-gpu-fallback",
+        action="store_true",
+        help="Fail instead of falling back to CPU when the requested GPU backend is unavailable",
+    )
     parser.add_argument("--threads", type=int, default=0, help="Number of threads (0=auto)")
     parser.add_argument(
         "--full-resolution",
@@ -495,28 +424,13 @@ def main():
     if args.persistent:
         run_persistent(args)
     else:
-        # For non-persistent modes, setup compatibility immediately
-        setup_python_compatibility()
-
         if args.batch:
             results = run_ocr_batch(args.images, args.language, args.limit_side_len, use_openvino)
             print(json.dumps({"batch": True, "results": results}))
         elif args.images:
             result = run_ocr_full(
                 image_path=args.images[0],
-                language=args.language,
-                limit_side_len=args.limit_side_len,
-                use_openvino=use_openvino,
-                box_thresh=args.box_thresh,
-                unclip_ratio=args.unclip_ratio,
-                text_score=args.text_score,
-                score_mode=args.score_mode,
-                rec_model_path=args.rec_model_path,
-                rec_keys_path=args.rec_keys_path,
-                det_model_path=args.det_model_path,
-                font_path=args.font_path,
-                threads=threads,
-                full_resolution=args.full_resolution,
+                **_engine_options_from_args(args, threads),
             )
             print(json.dumps(result))
         else:

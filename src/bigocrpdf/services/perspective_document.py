@@ -46,148 +46,178 @@ def _refine_corners_with_edges(
     edge_margin = 10  # pixels from image edge = "touching boundary"
 
     # Only refine when at least one corner touches the image boundary
-    on_edge = (
-        (corners[:, 0] < edge_margin)
-        | (corners[:, 0] > w - edge_margin)
-        | (corners[:, 1] < edge_margin)
-        | (corners[:, 1] > h - edge_margin)
-    )
+    on_edge = _corners_on_image_edge(corners, w, h, edge_margin)
     if not np.any(on_edge):
         return corners  # All corners are well inside the image
 
     # ---- 1. Get the contour ----
-    if contour is None:
-        contours, _ = cv2.findContours(doc_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        if not contours:
-            return corners
-        contour = max(contours, key=cv2.contourArea)
-
-    # Flatten to Nx2
-    pts = contour.reshape(-1, 2).astype(np.float64)
-    n_pts = len(pts)
-    if n_pts < 20:
+    pts = _document_contour_points(doc_mask, contour)
+    if pts is None:
         return corners
 
     # ---- 2. Find contour-index of points closest to each corner ----
-    corner_indices = []
-    for ci in range(4):
-        dists = np.linalg.norm(pts - corners[ci].astype(np.float64), axis=1)
-        corner_indices.append(int(np.argmin(dists)))
-
-    # Sort indices so we walk around contour in order
-    # Contour may be CW or CCW; we just need consistent side assignment
-    sorted_ci = sorted(range(4), key=lambda k: corner_indices[k])
-    sorted_corner_idx = [corner_indices[k] for k in sorted_ci]
+    sorted_ci, sorted_corner_idx = _sorted_corner_indices(pts, corners)
 
     # ---- 3. Split contour into 4 sides and fit lines ----
-    def _extract_side(idx_start: int, idx_end: int) -> np.ndarray:
-        """Extract contour points between two indices (wrapping around)."""
-        if idx_end > idx_start:
-            return pts[idx_start : idx_end + 1]
-        else:
-            return np.vstack([pts[idx_start:], pts[: idx_end + 1]])
-
-    # Build 4 sides between adjacent sorted corner indices
-    sides: list[np.ndarray] = []
-    for i in range(4):
-        s = sorted_corner_idx[i]
-        e = sorted_corner_idx[(i + 1) % 4]
-        side_pts = _extract_side(s, e)
-        sides.append(side_pts)
-
-    # Fit a line to each side: cv2.fitLine returns (vx, vy, x0, y0)
-    # We need at least 5 points per side for a meaningful fit
-    fitted_lines: list[tuple[float, float, float, float] | None] = []
-    for side_pts in sides:
-        if len(side_pts) < 5:
-            fitted_lines.append(None)
-            continue
-        # Use CHAIN_APPROX_NONE to get dense points but subsample if too many
-        if len(side_pts) > 200:
-            step = len(side_pts) // 200
-            side_pts = side_pts[::step]
-        line = cv2.fitLine(side_pts.astype(np.float32), cv2.DIST_L2, 0, 0.01, 0.01)
-        vx = float(line[0][0])
-        vy = float(line[1][0])
-        x0 = float(line[2][0])
-        y0 = float(line[3][0])
-        fitted_lines.append((vx, vy, x0, y0))
+    fitted_lines = _fit_contour_side_lines(_contour_sides(pts, sorted_corner_idx))
 
     # ---- 4. Compute corners as intersections of adjacent lines ----
-    def _line_intersect_from_fit(
-        l1: tuple[float, float, float, float],
-        l2: tuple[float, float, float, float],
-    ) -> tuple[float, float] | None:
-        """Intersection of two lines given as (vx, vy, x0, y0)."""
-        vx1, vy1, x01, y01 = l1
-        vx2, vy2, x02, y02 = l2
-        # Line 1: P1 = (x01, y01) + t*(vx1, vy1)
-        # Line 2: P2 = (x02, y02) + s*(vx2, vy2)
-        denom = vx1 * vy2 - vy1 * vx2
-        if abs(denom) < 1e-9:
-            return None  # Parallel lines
-        dx = x02 - x01
-        dy = y02 - y01
-        t = (dx * vy2 - dy * vx2) / denom
-        ix = x01 + t * vx1
-        iy = y01 + t * vy1
-        # Reject intersections far outside image
-        if -w * 0.15 <= ix <= w * 1.15 and -h * 0.15 <= iy <= h * 1.15:
-            return (ix, iy)
-        return None
+    refined, n_refined = _refined_edge_corners(corners, on_edge, sorted_ci, fitted_lines, w, h)
+    if n_refined <= 0:
+        return corners
 
+    if _valid_refined_quad(refined, w, h):
+        logger.info(
+            f"Contour-refined {n_refined} corner(s): "
+            f"TL=({refined[0, 0]:.0f},{refined[0, 1]:.0f}), "
+            f"TR=({refined[1, 0]:.0f},{refined[1, 1]:.0f}), "
+            f"BR=({refined[2, 0]:.0f},{refined[2, 1]:.0f}), "
+            f"BL=({refined[3, 0]:.0f},{refined[3, 1]:.0f})"
+        )
+        return refined
+
+    return corners
+
+
+def _corners_on_image_edge(
+    corners: np.ndarray,
+    width: int,
+    height: int,
+    edge_margin: int,
+) -> np.ndarray:
+    return (
+        (corners[:, 0] < edge_margin)
+        | (corners[:, 0] > width - edge_margin)
+        | (corners[:, 1] < edge_margin)
+        | (corners[:, 1] > height - edge_margin)
+    )
+
+
+def _document_contour_points(
+    doc_mask: np.ndarray,
+    contour: np.ndarray | None,
+) -> np.ndarray | None:
+    if contour is None:
+        contours, _ = cv2.findContours(doc_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        if not contours:
+            return None
+        contour = max(contours, key=cv2.contourArea)
+
+    assert contour is not None
+    pts = contour.reshape(-1, 2).astype(np.float64)
+    return pts if len(pts) >= 20 else None
+
+
+def _sorted_corner_indices(
+    pts: np.ndarray,
+    corners: np.ndarray,
+) -> tuple[list[int], list[int]]:
+    corner_indices = []
+    for corner in corners:
+        dists = np.linalg.norm(pts - corner.astype(np.float64), axis=1)
+        corner_indices.append(int(np.argmin(dists)))
+
+    sorted_ci = sorted(range(4), key=lambda k: corner_indices[k])
+    return sorted_ci, [corner_indices[k] for k in sorted_ci]
+
+
+def _contour_sides(pts: np.ndarray, sorted_corner_idx: list[int]) -> list[np.ndarray]:
+    sides: list[np.ndarray] = []
+    for i in range(4):
+        start = sorted_corner_idx[i]
+        end = sorted_corner_idx[(i + 1) % 4]
+        sides.append(_contour_side(pts, start, end))
+    return sides
+
+
+def _contour_side(pts: np.ndarray, idx_start: int, idx_end: int) -> np.ndarray:
+    if idx_end > idx_start:
+        return pts[idx_start : idx_end + 1]
+    return np.vstack([pts[idx_start:], pts[: idx_end + 1]])
+
+
+def _fit_contour_side_lines(
+    sides: list[np.ndarray],
+) -> list[tuple[float, float, float, float] | None]:
+    fitted_lines: list[tuple[float, float, float, float] | None] = []
+    for side_pts in sides:
+        fitted_lines.append(_fit_contour_side_line(side_pts))
+    return fitted_lines
+
+
+def _fit_contour_side_line(side_pts: np.ndarray) -> tuple[float, float, float, float] | None:
+    if len(side_pts) < 5:
+        return None
+    if len(side_pts) > 200:
+        side_pts = side_pts[:: len(side_pts) // 200]
+    line = cv2.fitLine(side_pts.astype(np.float32), cv2.DIST_L2, 0, 0.01, 0.01)
+    return float(line[0][0]), float(line[1][0]), float(line[2][0]), float(line[3][0])
+
+
+def _refined_edge_corners(
+    corners: np.ndarray,
+    on_edge: np.ndarray,
+    sorted_ci: list[int],
+    fitted_lines: list[tuple[float, float, float, float] | None],
+    width: int,
+    height: int,
+) -> tuple[np.ndarray, int]:
     refined = corners.copy()
     n_refined = 0
-
-    # Each corner is the intersection of the line before and after it
     for i in range(4):
-        # Which corner (in original TL/TR/BR/BL order) does sorted_ci[i] map to?
         orig_ci = sorted_ci[i]
         if not on_edge[orig_ci]:
             continue
-
-        # Sides meeting at this corner: side that ENDS here and side that STARTS here
-        side_before = (i - 1) % 4
-        side_after = i
-
-        l_before = fitted_lines[side_before]
-        l_after = fitted_lines[side_after]
+        l_before = fitted_lines[(i - 1) % 4]
+        l_after = fitted_lines[i]
         if l_before is None or l_after is None:
             continue
-
-        pt = _line_intersect_from_fit(l_before, l_after)
-        if pt is not None:
-            refined[orig_ci] = np.array(pt, dtype=np.float32)
+        point = _line_intersect_from_fit(l_before, l_after, width, height)
+        if point is not None:
+            refined[orig_ci] = np.array(point, dtype=np.float32)
             n_refined += 1
+    return refined, n_refined
 
-    if n_refined > 0:
-        # Validate: refined quad must be convex and area > 15% of image
-        def _is_convex_quad(q: np.ndarray) -> bool:
-            for i in range(4):
-                o = q[i]
-                a = q[(i + 1) % 4] - o
-                b = q[(i + 2) % 4] - o
-                if np.cross(a, b) <= 0:
-                    return False
-            return True
 
-        if _is_convex_quad(refined):
-            refined_area = cv2.contourArea(refined)
-            if refined_area > h * w * 0.15:
-                logger.info(
-                    f"Contour-refined {n_refined} corner(s): "
-                    f"TL=({refined[0, 0]:.0f},{refined[0, 1]:.0f}), "
-                    f"TR=({refined[1, 0]:.0f},{refined[1, 1]:.0f}), "
-                    f"BR=({refined[2, 0]:.0f},{refined[2, 1]:.0f}), "
-                    f"BL=({refined[3, 0]:.0f},{refined[3, 1]:.0f})"
-                )
-                return refined
-            else:
-                logger.debug("Refined quad too small — keeping original corners")
-        else:
-            logger.debug("Refined quad is non-convex — keeping original corners")
+def _line_intersect_from_fit(
+    l1: tuple[float, float, float, float],
+    l2: tuple[float, float, float, float],
+    width: int,
+    height: int,
+) -> tuple[float, float] | None:
+    vx1, vy1, x01, y01 = l1
+    vx2, vy2, x02, y02 = l2
+    denom = vx1 * vy2 - vy1 * vx2
+    if abs(denom) < 1e-9:
+        return None
+    dx = x02 - x01
+    dy = y02 - y01
+    t = (dx * vy2 - dy * vx2) / denom
+    ix = x01 + t * vx1
+    iy = y01 + t * vy1
+    if -width * 0.15 <= ix <= width * 1.15 and -height * 0.15 <= iy <= height * 1.15:
+        return ix, iy
+    return None
 
-    return corners
+
+def _valid_refined_quad(refined: np.ndarray, width: int, height: int) -> bool:
+    if not _is_convex_quad(refined):
+        logger.debug("Refined quad is non-convex — keeping original corners")
+        return False
+    if cv2.contourArea(refined) <= height * width * 0.15:
+        logger.debug("Refined quad too small — keeping original corners")
+        return False
+    return True
+
+
+def _is_convex_quad(q: np.ndarray) -> bool:
+    for i in range(4):
+        origin = q[i]
+        a = q[(i + 1) % 4] - origin
+        b = q[(i + 2) % 4] - origin
+        if np.cross(a, b) <= 0:
+            return False
+    return True
 
 
 def detect_photo_document_borders(
@@ -518,6 +548,15 @@ def needs_perspective_correction(image: np.ndarray, threshold: float = 0.03) -> 
     if contour is None:
         # No document contour found - assume it's already flat
         return False
+
+    return _contour_needs_perspective_correction(contour, threshold)
+
+
+def _contour_needs_perspective_correction(
+    contour: np.ndarray,
+    threshold: float,
+) -> bool:
+    """Return whether an already-detected contour exceeds the angular threshold."""
 
     pts = order_points(contour)
     (tl, tr, br, bl) = pts

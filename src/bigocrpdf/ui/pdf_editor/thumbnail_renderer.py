@@ -7,11 +7,14 @@ thread-pooled background rendering and LRU caching for performance.
 
 import os
 import subprocess
-import tempfile
 import threading
+import time
+import weakref
 from collections import OrderedDict
 from collections.abc import Callable
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor
+from dataclasses import dataclass, field
+from itertools import count
 
 import gi
 
@@ -22,6 +25,58 @@ from gi.repository import Gdk, GdkPixbuf, GLib, Poppler
 
 from bigocrpdf.utils.logger import logger
 
+DocumentIdentity = tuple[str, int | None, int | None, int | None, int | None]
+ThumbnailCallback = Callable[[GdkPixbuf.Pixbuf | None], None]
+ThumbnailCacheKey = tuple[DocumentIdentity, int, int, int, int]
+
+
+@dataclass
+class _ThumbnailJob:
+    """One shared render and its independently cancelable subscribers."""
+
+    cache_key: ThumbnailCacheKey
+    callbacks: dict[int, tuple["ThumbnailRequest", ThumbnailCallback]]
+    cancel_event: threading.Event = field(default_factory=threading.Event)
+    future: Future[None] | None = None
+    process: subprocess.Popen[bytes] | None = None
+
+
+class ThumbnailRequest:
+    """Cancelable subscription to one thumbnail result."""
+
+    def __init__(
+        self,
+        renderer: "ThumbnailRenderer",
+        cache_key: ThumbnailCacheKey,
+        request_id: int,
+    ) -> None:
+        self._renderer_ref = weakref.ref(renderer)
+        self._cache_key = cache_key
+        self._request_id = request_id
+        self._lock = threading.Lock()
+        self._cancelled = False
+        self._finished = False
+
+    def cancel(self) -> None:
+        with self._lock:
+            if self._cancelled or self._finished:
+                return
+            self._cancelled = True
+        renderer = self._renderer_ref()
+        if renderer is not None:
+            renderer._cancel_request(self._cache_key, self._request_id)
+
+    def _claim_delivery(self) -> bool:
+        with self._lock:
+            if self._cancelled or self._finished:
+                return False
+            self._finished = True
+            return True
+
+    def _finish_without_delivery(self) -> None:
+        with self._lock:
+            self._finished = True
+
 
 class ThumbnailRenderer:
     """Renders PDF page thumbnails with caching and lazy loading.
@@ -30,35 +85,74 @@ class ThumbnailRenderer:
     bounded thread pool. Rendered pixbufs are cached in an LRU cache.
     """
 
-    def __init__(self, cache_size: int = 200, default_size: int = 200) -> None:
+    def __init__(
+        self,
+        cache_size: int = 200,
+        default_size: int = 200,
+        max_cache_bytes: int = 128 * 1024 * 1024,
+    ) -> None:
         """Initialize the thumbnail renderer.
 
         Args:
             cache_size: Maximum number of thumbnails to cache
             default_size: Default thumbnail width in pixels
+            max_cache_bytes: Approximate maximum pixel memory retained by the LRU cache
         """
-        self._cache: OrderedDict[str, GdkPixbuf.Pixbuf] = OrderedDict()
+        self._cache: OrderedDict[ThumbnailCacheKey, GdkPixbuf.Pixbuf] = OrderedDict()
+        self._cache_costs: dict[ThumbnailCacheKey, int] = {}
+        self._cache_bytes = 0
         self._cache_size = cache_size
+        self._max_cache_bytes = max_cache_bytes
         self._default_size = default_size
-        self._documents: dict[str, Poppler.Document] = {}
+        self._documents: dict[DocumentIdentity, Poppler.Document] = {}
         self._lock = threading.Lock()
         self._pool = ThreadPoolExecutor(max_workers=4)
-        self._pending: set[str] = set()  # Track in-flight cache keys
+        self._jobs: dict[ThumbnailCacheKey, _ThumbnailJob] = {}
+        self._request_ids = count(1)
+        self._document_generations: dict[str, int] = {}
         self._tls = threading.local()  # Thread-local document cache
         self._doc_version = 0  # Bumped on cache clear to invalidate stale docs
+        self._shutdown = False
 
-    def _get_cache_key(self, pdf_path: str, page_num: int, size: int, rotation: int) -> str:
-        return f"{pdf_path}:{page_num}:{size}:{rotation}"
+    @staticmethod
+    def _canonical_path(path: str) -> str:
+        return os.path.realpath(os.path.abspath(path))
+
+    def _get_document_identity(self, path: str) -> DocumentIdentity:
+        canonical_path = self._canonical_path(path)
+        try:
+            file_stat = os.stat(canonical_path, follow_symlinks=False)
+        except OSError:
+            return canonical_path, None, None, None, None
+        return (
+            canonical_path,
+            file_stat.st_dev,
+            file_stat.st_ino,
+            file_stat.st_size,
+            file_stat.st_mtime_ns,
+        )
+
+    def _get_cache_key(
+        self, pdf_path: str, page_num: int, size: int, rotation: int
+    ) -> ThumbnailCacheKey:
+        identity = self._get_document_identity(pdf_path)
+        with self._lock:
+            generation = self._document_generations.get(identity[0], 0)
+        return identity, generation, page_num, size, rotation
 
     def _get_document(self, pdf_path: str) -> Poppler.Document | None:
         """Get or load a Poppler document (main thread only, for metadata)."""
-        if pdf_path in self._documents:
-            return self._documents[pdf_path]
+        identity = self._get_document_identity(pdf_path)
+        if identity in self._documents:
+            return self._documents[identity]
 
         try:
-            uri = GLib.filename_to_uri(pdf_path, None)
+            uri = GLib.filename_to_uri(identity[0], None)
             doc = Poppler.Document.new_from_file(uri, None)
-            self._documents[pdf_path] = doc
+            self._documents = {
+                key: value for key, value in self._documents.items() if key[0] != identity[0]
+            }
+            self._documents[identity] = doc
             return doc
         except Exception as e:
             logger.error(f"Failed to load PDF {pdf_path}: {e}")
@@ -66,124 +160,104 @@ class ThumbnailRenderer:
 
     def _evict_cache(self) -> None:
         """Evict oldest items from cache."""
-        while len(self._cache) > self._cache_size:
-            self._cache.popitem(last=False)
+        while len(self._cache) > self._cache_size or self._cache_bytes > self._max_cache_bytes:
+            cache_key, _pixbuf = self._cache.popitem(last=False)
+            self._cache_bytes -= self._cache_costs.pop(cache_key, 0)
+
+    @staticmethod
+    def _pixbuf_cost(pixbuf: GdkPixbuf.Pixbuf) -> int:
+        try:
+            return max(0, int(pixbuf.get_rowstride()) * int(pixbuf.get_height()))
+        except (AttributeError, TypeError, ValueError):
+            return 0
+
+    def _store_cache_locked(
+        self,
+        cache_key: ThumbnailCacheKey,
+        pixbuf: GdkPixbuf.Pixbuf,
+    ) -> None:
+        if cache_key in self._cache:
+            self._cache_bytes -= self._cache_costs.pop(cache_key, 0)
+        self._cache[cache_key] = pixbuf
+        cost = self._pixbuf_cost(pixbuf)
+        self._cache_costs[cache_key] = cost
+        self._cache_bytes += cost
+        self._evict_cache()
 
     def render_page_thumbnail_async(
         self,
         pdf_path: str,
         page_num: int,
-        callback: Callable[[GdkPixbuf.Pixbuf | None], None],
+        callback: ThumbnailCallback,
         size: int | None = None,
         rotation: int = 0,
-    ) -> None:
+    ) -> ThumbnailRequest:
         """Render a thumbnail asynchronously using a thread pool."""
         if size is None:
             size = self._default_size
 
         cache_key = self._get_cache_key(pdf_path, page_num, size, rotation)
+        request_id = next(self._request_ids)
+        request = ThumbnailRequest(self, cache_key, request_id)
+        cached_pixbuf: GdkPixbuf.Pixbuf | None = None
 
         # Check cache
         with self._lock:
+            if self._shutdown:
+                raise RuntimeError("thumbnail renderer is shut down")
             if cache_key in self._cache:
                 self._cache.move_to_end(cache_key)
-                pixbuf = self._cache[cache_key]
-                GLib.idle_add(lambda pb=pixbuf: callback(pb))
-                return
-            # Skip if already being rendered
-            if cache_key in self._pending:
-                return
-            self._pending.add(cache_key)
-
-        # Submit to thread pool
-        self._pool.submit(
-            self._render_worker, pdf_path, page_num, size, rotation, callback, cache_key
-        )
-
-    def batch_preload(
-        self,
-        pdf_path: str,
-        page_count: int,
-        callback: Callable[[], None] | None = None,
-        size: int | None = None,
-    ) -> None:
-        """Pre-render all pages of a PDF using pdftoppm (30x faster than Poppler GI).
-
-        Renders all pages in a single pdftoppm invocation and caches the
-        resulting pixbufs. Subsequent per-page requests will hit the cache.
-
-        Args:
-            pdf_path: Path to the PDF file
-            page_count: Total number of pages
-            callback: Optional callback invoked on main thread when done
-            size: Thumbnail width in pixels
-        """
-        if size is None:
-            size = self._default_size
-        self._pool.submit(self._batch_worker, pdf_path, page_count, size, callback)
-
-    def _batch_worker(
-        self,
-        pdf_path: str,
-        page_count: int,
-        size: int,
-        callback: Callable[[], None] | None,
-    ) -> None:
-        """Worker: render all pages via pdftoppm and populate cache."""
-        try:
-            with tempfile.TemporaryDirectory() as tmpdir:
-                prefix = os.path.join(tmpdir, "p")
-                result = subprocess.run(
-                    [
-                        "pdftoppm",
-                        "-jpeg",
-                        "-r",
-                        "150",
-                        "-scale-to-x",
-                        str(size),
-                        "-scale-to-y",
-                        "-1",
+                cached_pixbuf = self._cache[cache_key]
+            else:
+                job = self._jobs.get(cache_key)
+                if job is not None and not job.cancel_event.is_set():
+                    job.callbacks[request_id] = (request, callback)
+                    return request
+                job = _ThumbnailJob(
+                    cache_key=cache_key,
+                    callbacks={request_id: (request, callback)},
+                )
+                self._jobs[cache_key] = job
+                try:
+                    job.future = self._pool.submit(
+                        self._render_worker,
                         pdf_path,
-                        prefix,
-                    ],
-                    capture_output=True,
-                    timeout=120,
-                )
-                if result.returncode != 0:
-                    logger.warning(
-                        f"pdftoppm failed ({result.returncode}), falling back to Poppler"
+                        page_num,
+                        size,
+                        rotation,
+                        job,
                     )
-                    if callback:
-                        GLib.idle_add(callback)
-                    return
+                except RuntimeError:
+                    if self._jobs.get(cache_key) is job:
+                        self._jobs.pop(cache_key, None)
+                    GLib.idle_add(self._deliver_callbacks, [(request, callback)], None)
+                return request
 
-                files = sorted(f for f in os.listdir(tmpdir) if f.endswith(".jpg"))
-                for idx, fname in enumerate(files):
-                    if idx >= page_count:
-                        break
-                    fpath = os.path.join(tmpdir, fname)
-                    try:
-                        pixbuf = GdkPixbuf.Pixbuf.new_from_file(fpath)
-                    except Exception:
-                        continue
-                    # Cache under rotation=0 (base render)
-                    cache_key = self._get_cache_key(pdf_path, idx, size, 0)
-                    with self._lock:
-                        self._cache[cache_key] = pixbuf
-                        self._pending.discard(cache_key)
+        GLib.idle_add(self._deliver_callbacks, [(request, callback)], cached_pixbuf)
+        return request
 
-                with self._lock:
-                    self._evict_cache()
+    def _cancel_request(self, cache_key: ThumbnailCacheKey, request_id: int) -> None:
+        process: subprocess.Popen[bytes] | None = None
+        future: Future[None] | None = None
+        job: _ThumbnailJob | None = None
+        with self._lock:
+            job = self._jobs.get(cache_key)
+            if job is None:
+                return
+            job.callbacks.pop(request_id, None)
+            if job.callbacks:
+                return
+            job.cancel_event.set()
+            future = job.future
+            process = job.process
 
-                logger.info(
-                    f"Batch preload: {len(files)} pages of {os.path.basename(pdf_path)} "
-                    f"rendered via pdftoppm"
-                )
-        except Exception as e:
-            logger.warning(f"Batch preload error: {e}")
-
-        if callback:
-            GLib.idle_add(callback)
+        cancelled_before_start = future is not None and future.cancel()
+        if process is not None:
+            self._request_process_termination(process)
+        if cancelled_before_start:
+            with self._lock:
+                if self._jobs.get(cache_key) is job:
+                    self._jobs.pop(cache_key, None)
 
     def _render_worker(
         self,
@@ -191,11 +265,13 @@ class ThumbnailRenderer:
         page_num: int,
         size: int,
         rotation: int,
-        callback: Callable[[GdkPixbuf.Pixbuf | None], None],
-        cache_key: str,
-    ):
+        job: _ThumbnailJob,
+    ) -> None:
         """Worker thread: render PDF page to pixbuf via cairo surface."""
         try:
+            if job.cancel_event.is_set():
+                self._finish_cancelled_job(job)
+                return
             lower_path = pdf_path.lower()
             is_image = lower_path.endswith(
                 (
@@ -210,46 +286,111 @@ class ThumbnailRenderer:
             )
 
             if is_image:
-                # Image loading needs GdkPixbuf on main thread
-                GLib.idle_add(
-                    self._finish_render_image, pdf_path, size, rotation, callback, cache_key
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(pdf_path, size, -1, True)
+            else:
+                # Use pdftoppm for fast single-page render (25x faster than Poppler GI)
+                pixbuf = self._render_pdf_page_pdftoppm(
+                    pdf_path,
+                    page_num,
+                    size,
+                    job.cancel_event,
+                    job,
                 )
-                return
 
-            # Use pdftoppm for fast single-page render (25x faster than Poppler GI)
-            pixbuf = self._render_pdf_page_pdftoppm(pdf_path, page_num, size)
-
-            if pixbuf:
+            if job.cancel_event.is_set():
+                self._finish_cancelled_job(job)
+            elif pixbuf:
                 if rotation != 0:
                     pixbuf = self._apply_rotation(pixbuf, rotation)
-
-                with self._lock:
-                    self._cache[cache_key] = pixbuf
-                    self._pending.discard(cache_key)
-                    self._evict_cache()
-
-                GLib.idle_add(lambda pb=pixbuf: callback(pb))
+                self._complete_render(job, pixbuf)
             else:
                 logger.error(f"Failed to render page {page_num} of {pdf_path}")
-                with self._lock:
-                    self._pending.discard(cache_key)
-                GLib.idle_add(lambda: callback(self._create_error_pixbuf(size)))
+                GLib.idle_add(self._complete_render_error, job, size)
 
         except Exception as e:
-            logger.error(f"Render worker error: {e}")
-            with self._lock:
-                self._pending.discard(cache_key)
-            GLib.idle_add(lambda: callback(self._create_error_pixbuf(size)))
+            if job.cancel_event.is_set():
+                self._finish_cancelled_job(job)
+            else:
+                logger.error(f"Render worker error: {e}")
+                GLib.idle_add(self._complete_render_error, job, size)
+
+    def _complete_render_error(self, job: _ThumbnailJob, size: int) -> bool:
+        if job.cancel_event.is_set():
+            self._finish_cancelled_job(job)
+            return False
+        self._complete_render(job, self._create_error_pixbuf(size), cache_result=False)
+        return False
+
+    def _complete_render(
+        self,
+        job: _ThumbnailJob,
+        pixbuf: GdkPixbuf.Pixbuf,
+        *,
+        cache_result: bool = True,
+    ) -> None:
+        cache_key = job.cache_key
+        identity, generation, _page_num, _size, _rotation = cache_key
+        current_identity = self._get_document_identity(identity[0])
+        with self._lock:
+            if self._jobs.get(cache_key) is not job:
+                return
+            self._jobs.pop(cache_key, None)
+            job.process = None
+            callbacks = list(job.callbacks.values())
+            job.callbacks.clear()
+            current_generation = self._document_generations.get(identity[0], 0)
+            is_current = identity == current_identity and generation == current_generation
+            if is_current and cache_result and not job.cancel_event.is_set():
+                self._store_cache_locked(cache_key, pixbuf)
+
+        if not callbacks:
+            return
+        if not is_current or job.cancel_event.is_set():
+            GLib.idle_add(self._deliver_callbacks, callbacks, None)
+            return
+        GLib.idle_add(self._deliver_callbacks, callbacks, pixbuf)
+
+    def _finish_cancelled_job(self, job: _ThumbnailJob) -> None:
+        """Forget a canceled job without publishing or invoking its subscribers."""
+        with self._lock:
+            if self._jobs.get(job.cache_key) is job:
+                self._jobs.pop(job.cache_key, None)
+            job.process = None
+            callbacks = list(job.callbacks.values())
+            job.callbacks.clear()
+        for request, _callback in callbacks:
+            request._finish_without_delivery()
+
+    @staticmethod
+    def _deliver_callbacks(
+        callbacks: list[tuple[ThumbnailRequest, ThumbnailCallback]],
+        pixbuf: GdkPixbuf.Pixbuf | None,
+    ) -> bool:
+        for request, callback in callbacks:
+            if not request._claim_delivery():
+                continue
+            try:
+                callback(pixbuf)
+            except Exception as error:
+                logger.error(f"Thumbnail callback failed: {error}")
+        return False
 
     def _render_pdf_page_pdftoppm(
-        self, pdf_path: str, page_num: int, size: int
+        self,
+        pdf_path: str,
+        page_num: int,
+        size: int,
+        cancel_event: threading.Event,
+        job: _ThumbnailJob | None,
     ) -> GdkPixbuf.Pixbuf | None:
         """Render a single PDF page via pdftoppm (native C, ~25x faster)."""
+        process: subprocess.Popen[bytes] | None = None
         try:
             page_1based = page_num + 1
-            result = subprocess.run(
+            process = subprocess.Popen(
                 [
                     "pdftoppm",
+                    "-cropbox",
                     "-jpeg",
                     "-r",
                     "150",
@@ -264,19 +405,71 @@ class ThumbnailRenderer:
                     "-singlefile",
                     pdf_path,
                 ],
-                capture_output=True,
-                timeout=30,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
             )
-            if result.returncode == 0 and result.stdout:
+            if job is not None:
+                with self._lock:
+                    if self._jobs.get(job.cache_key) is job:
+                        job.process = process
+            deadline = time.monotonic() + 30.0
+            while True:
+                if cancel_event.is_set():
+                    self._terminate_and_reap(process)
+                    return None
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise subprocess.TimeoutExpired(process.args, 30)
+                try:
+                    stdout, _stderr = process.communicate(timeout=min(0.1, remaining))
+                    break
+                except subprocess.TimeoutExpired:
+                    continue
+            if process.returncode == 0 and stdout:
                 loader = GdkPixbuf.PixbufLoader.new_with_type("jpeg")
-                loader.write(result.stdout)
+                loader.write(stdout)
                 loader.close()
                 return loader.get_pixbuf()
+        except subprocess.TimeoutExpired as error:
+            if process is not None:
+                self._terminate_and_reap(process)
+            logger.warning(f"pdftoppm single-page timed out: {error}")
         except Exception as e:
             logger.warning(f"pdftoppm single-page failed: {e}")
+        finally:
+            if job is not None:
+                with self._lock:
+                    if job.process is process:
+                        job.process = None
 
         # Fallback to Poppler GI
+        if cancel_event.is_set():
+            return None
         return self._render_pdf_to_pixbuf(pdf_path, page_num, size)
+
+    @staticmethod
+    def _request_process_termination(process: subprocess.Popen[bytes]) -> None:
+        """Ask a running renderer to stop; its owner thread performs reaping."""
+        try:
+            if process.poll() is None:
+                process.terminate()
+        except OSError:
+            return
+
+    @classmethod
+    def _terminate_and_reap(cls, process: subprocess.Popen[bytes]) -> None:
+        """Terminate and reap a pdftoppm child without leaving a zombie."""
+        cls._request_process_termination(process)
+        try:
+            process.communicate(timeout=1.0)
+        except subprocess.TimeoutExpired:
+            try:
+                process.kill()
+            except OSError:
+                pass
+            process.communicate()
+        except OSError:
+            pass
 
     def _get_thread_document(self, pdf_path: str) -> Poppler.Document | None:
         """Get a Poppler document cached per worker thread.
@@ -289,14 +482,18 @@ class ThumbnailRenderer:
         if not hasattr(self._tls, "docs") or getattr(self._tls, "ver", -1) != ver:
             self._tls.docs = {}
             self._tls.ver = ver
-        if pdf_path not in self._tls.docs:
+        identity = self._get_document_identity(pdf_path)
+        if identity not in self._tls.docs:
             try:
-                uri = GLib.filename_to_uri(pdf_path, None)
-                self._tls.docs[pdf_path] = Poppler.Document.new_from_file(uri, None)
+                uri = GLib.filename_to_uri(identity[0], None)
+                self._tls.docs = {
+                    key: value for key, value in self._tls.docs.items() if key[0] != identity[0]
+                }
+                self._tls.docs[identity] = Poppler.Document.new_from_file(uri, None)
             except Exception as e:
                 logger.error(f"Failed to load PDF in worker: {e}")
                 return None
-        return self._tls.docs[pdf_path]
+        return self._tls.docs[identity]
 
     def _render_pdf_to_pixbuf(
         self, pdf_path: str, page_num: int, size: int
@@ -347,35 +544,15 @@ class ThumbnailRenderer:
             logger.error(f"Error rendering PDF page with Poppler: {e}")
             return None
 
-    def _finish_render_image(self, path, size, rotation, callback, cache_key):
-        """Finish image rendering on main thread."""
-        try:
-            # Load at target size directly to avoid full-res decode
-            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, size, -1, True)
-            if rotation != 0:
-                pixbuf = self._apply_rotation(pixbuf, rotation)
-
-            with self._lock:
-                self._cache[cache_key] = pixbuf
-                self._pending.discard(cache_key)
-                self._evict_cache()
-
-            callback(pixbuf)
-        except Exception as e:
-            logger.error(f"Image load error: {e}")
-            with self._lock:
-                self._pending.discard(cache_key)
-            callback(self._create_error_pixbuf(size))
-
-    def _apply_rotation(self, pixbuf, rotation):
+    def _apply_rotation(self, pixbuf: GdkPixbuf.Pixbuf, rotation: int) -> GdkPixbuf.Pixbuf:
         """Apply rotation to pixbuf."""
         rot = rotation % 360
         if rot == 90:
-            return pixbuf.rotate_simple(GdkPixbuf.PixbufRotation.CLOCKWISE)
+            return pixbuf.rotate_simple(GdkPixbuf.PixbufRotation.CLOCKWISE) or pixbuf
         elif rot == 180:
-            return pixbuf.rotate_simple(GdkPixbuf.PixbufRotation.UPSIDEDOWN)
+            return pixbuf.rotate_simple(GdkPixbuf.PixbufRotation.UPSIDEDOWN) or pixbuf
         elif rot == 270:
-            return pixbuf.rotate_simple(GdkPixbuf.PixbufRotation.COUNTERCLOCKWISE)
+            return pixbuf.rotate_simple(GdkPixbuf.PixbufRotation.COUNTERCLOCKWISE) or pixbuf
         return pixbuf
 
     def _create_error_pixbuf(self, size: int) -> GdkPixbuf.Pixbuf:
@@ -403,7 +580,10 @@ class ThumbnailRenderer:
         texture = Gdk.MemoryTexture.new(
             size, height, Gdk.MemoryFormat.B8G8R8A8_PREMULTIPLIED, GLib.Bytes.new(data), stride
         )
-        return Gdk.pixbuf_get_from_texture(texture)
+        pixbuf = Gdk.pixbuf_get_from_texture(texture)
+        if pixbuf is None:
+            raise RuntimeError("could not create the error thumbnail")
+        return pixbuf
 
     def get_page_count(self, pdf_path: str) -> int:
         """Get the number of pages in a PDF."""
@@ -413,26 +593,107 @@ class ThumbnailRenderer:
         doc = self._get_document(pdf_path)
         return doc.get_n_pages() if doc else 0
 
+    def clear_page_cache(self, pdf_path: str, page_num: int) -> None:
+        """Evict cached variants for one page without disrupting other renders."""
+        canonical_path = self._canonical_path(pdf_path)
+        with self._lock:
+            cache_keys = [
+                key for key in self._cache if key[0][0] == canonical_path and key[2] == page_num
+            ]
+            for cache_key in cache_keys:
+                del self._cache[cache_key]
+                self._cache_bytes -= self._cache_costs.pop(cache_key, 0)
+
     def clear_document_cache(self, pdf_path: str) -> None:
         """Clear cached thumbnails for a document and invalidate thread-local docs."""
-        self._doc_version += 1
+        canonical_path = self._canonical_path(pdf_path)
+        jobs_to_cancel: list[_ThumbnailJob] = []
         with self._lock:
-            to_del = [k for k in self._cache if k.startswith(f"{pdf_path}:")]
-            for k in to_del:
-                del self._cache[k]
-            # Also clear main-thread Poppler doc
-            self._documents.pop(pdf_path, None)
+            self._doc_version += 1
+            self._document_generations[canonical_path] = (
+                self._document_generations.get(canonical_path, 0) + 1
+            )
+            cache_keys = [key for key in self._cache if key[0][0] == canonical_path]
+            for cache_key in cache_keys:
+                del self._cache[cache_key]
+                self._cache_bytes -= self._cache_costs.pop(cache_key, 0)
+            pending_keys = [key for key in self._jobs if key[0][0] == canonical_path]
+            for cache_key in pending_keys:
+                job = self._jobs.pop(cache_key)
+                job.cancel_event.set()
+                for request, _callback in job.callbacks.values():
+                    request._finish_without_delivery()
+                job.callbacks.clear()
+                jobs_to_cancel.append(job)
+            self._documents = {
+                identity: document
+                for identity, document in self._documents.items()
+                if identity[0] != canonical_path
+            }
+        self._cancel_jobs(jobs_to_cancel)
 
     def clear_all(self) -> None:
-        """Clear all caches and shut down the thread pool."""
-        self._doc_version += 1
-        self._pool.shutdown(wait=True, cancel_futures=True)
+        """Clear all caches without blocking the GTK main loop on active workers."""
+        jobs_to_cancel: list[_ThumbnailJob] = []
         with self._lock:
+            if self._shutdown:
+                return
+            self._doc_version += 1
+            paths = {
+                *(cache_key[0][0] for cache_key in self._cache),
+                *(cache_key[0][0] for cache_key in self._jobs),
+                *(identity[0] for identity in self._documents),
+                *self._document_generations,
+            }
+            for path in paths:
+                self._document_generations[path] = self._document_generations.get(path, 0) + 1
             self._cache.clear()
+            self._cache_costs.clear()
+            self._cache_bytes = 0
             self._documents.clear()
-            self._pending.clear()
-        # Re-create pool for potential reuse
+            for job in self._jobs.values():
+                job.cancel_event.set()
+                for request, _callback in job.callbacks.values():
+                    request._finish_without_delivery()
+                job.callbacks.clear()
+                jobs_to_cancel.append(job)
+            self._jobs.clear()
+        self._cancel_jobs(jobs_to_cancel)
+        old_pool = self._pool
         self._pool = ThreadPoolExecutor(max_workers=4)
+        old_pool.shutdown(wait=False, cancel_futures=True)
+
+    def shutdown(self, *, wait: bool = True) -> None:
+        """Cancel every job and terminate the non-daemon executor."""
+        jobs_to_cancel: list[_ThumbnailJob] = []
+        with self._lock:
+            if self._shutdown:
+                return
+            self._shutdown = True
+            self._doc_version += 1
+            self._cache.clear()
+            self._cache_costs.clear()
+            self._cache_bytes = 0
+            self._documents.clear()
+            self._document_generations.clear()
+            for job in self._jobs.values():
+                job.cancel_event.set()
+                for request, _callback in job.callbacks.values():
+                    request._finish_without_delivery()
+                job.callbacks.clear()
+                jobs_to_cancel.append(job)
+            self._jobs.clear()
+            pool = self._pool
+        self._cancel_jobs(jobs_to_cancel)
+        pool.shutdown(wait=wait, cancel_futures=True)
+
+    def _cancel_jobs(self, jobs: list[_ThumbnailJob]) -> None:
+        """Cancel queued jobs and interrupt active pdftoppm children."""
+        for job in jobs:
+            if job.future is not None:
+                job.future.cancel()
+            if job.process is not None:
+                self._request_process_termination(job.process)
 
 
 # Global instance
@@ -444,3 +705,12 @@ def get_thumbnail_renderer() -> ThumbnailRenderer:
     if _renderer is None:
         _renderer = ThumbnailRenderer()
     return _renderer
+
+
+def shutdown_thumbnail_renderer(*, wait: bool = True) -> None:
+    """Release the process-wide renderer and all executor threads."""
+    global _renderer
+    renderer = _renderer
+    _renderer = None
+    if renderer is not None:
+        renderer.shutdown(wait=wait)

@@ -1,7 +1,7 @@
 """
 RapidOCR Integration Module for BigOcrPdf.
 
-This module provides high-quality OCR processing using RapidOCR with PP-OCRv5 models.
+This module provides high-quality OCR processing using RapidOCR with PP-OCRv6 models.
 It replaces the previous OCRmyPDF/Tesseract implementation.
 
 Main components:

@@ -12,6 +12,7 @@ import sys
 from typing import Final
 
 # Import gettext for translatable strings (lazy import to avoid circular)
+from bigocrpdf import __version__
 from bigocrpdf.utils.i18n import _
 
 # ============================================================================
@@ -21,7 +22,7 @@ from bigocrpdf.utils.i18n import _
 APP_NAME: Final[str] = "Big OCR PDF"
 APP_ID: Final[str] = "br.com.biglinux.bigocrpdf"
 IMAGE_APP_ID: Final[str] = "br.com.biglinux.bigocrimage"
-APP_VERSION: Final[str] = "3.0.0"
+APP_VERSION: Final[str] = __version__
 APP_DESCRIPTION_KEY: Final[str] = "Add OCR to your PDF documents to make them searchable"
 APP_WEBSITE: Final[str] = "https://www.biglinux.com.br"
 APP_ISSUES: Final[str] = "https://github.com/biglinux/bigocrpdf/issues"
@@ -44,9 +45,6 @@ APP_DESCRIPTION = APP_DESCRIPTION_KEY
 # ============================================================================
 
 # Re-export numeric constants from constants.py for backward compatibility
-
-# Time window (seconds) to consider a file as recently created
-FILE_RECENCY_THRESHOLD_SECONDS: Final[int] = 300  # 5 minutes
 
 
 # ============================================================================
@@ -86,7 +84,7 @@ def init_config() -> None:
 # Logging Configuration
 # ============================================================================
 
-LOG_LEVEL: int = logging.INFO
+LOG_LEVEL: int = logging.WARNING
 LOG_FORMAT: Final[str] = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 LOGGER_NAME: Final[str] = "BigOcrPdf"
 
@@ -95,8 +93,6 @@ LOGGER_NAME: Final[str] = "BigOcrPdf"
 # Window Configuration
 # ============================================================================
 
-DEFAULT_WINDOW_WIDTH: Final[int] = 1300
-DEFAULT_WINDOW_HEIGHT: Final[int] = 680
 WINDOW_STATE_KEY: Final[str] = "window"
 IMAGE_WINDOW_STATE_KEY: Final[str] = "image_window"
 
@@ -167,9 +163,9 @@ def setup_environment() -> argparse.Namespace:
         print(f"{APP_NAME} {APP_VERSION}")
         sys.exit(0)
 
-    # Set debug mode
-    if args.debug:
-        LOG_LEVEL = logging.DEBUG
+    LOG_LEVEL = logging.DEBUG if args.debug or args.verbose else logging.WARNING
+    logging.getLogger().setLevel(LOG_LEVEL)
+    logging.getLogger(LOGGER_NAME).setLevel(LOG_LEVEL)
 
     # Create config directory if it doesn't exist
     os.makedirs(CONFIG_DIR, exist_ok=True)

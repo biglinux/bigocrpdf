@@ -1,25 +1,39 @@
-"""Conclusion Page Statistics and File List Mixin."""
+"""Conclusion page statistics and generated-file list."""
+# Host attributes are supplied by the conclusion page's explicit mixin composition.
+# pyright: reportAttributeAccessIssue=false
 
 import os
 import time
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, Gtk
+from gi.repository import Adw, Gio, Gtk
 
 if TYPE_CHECKING:
     from bigocrpdf.window import BigOcrPdfWindow
 
-from bigocrpdf.config import FILE_RECENCY_THRESHOLD_SECONDS
-from bigocrpdf.ui.components import create_icon_button
+from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.comparison import PDFComparisonResult, get_batch_statistics
 from bigocrpdf.utils.format_utils import format_file_size
-from bigocrpdf.utils.i18n import _
+from bigocrpdf.utils.i18n import _, ngettext
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.utils.pdf_utils import get_pdf_page_count
+
+OutputFile = tuple[str, int, int, PDFComparisonResult | None]
+
+
+def _icon_button(icon_name: str, tooltip: str, on_click: Callable[[], None]) -> Gtk.Button:
+    button = Gtk.Button.new_from_icon_name(icon_name)
+    button.add_css_class("circular")
+    button.add_css_class("flat")
+    button.set_tooltip_text(tooltip)
+    set_a11y_label(button, tooltip)
+    button.connect("clicked", lambda _button: on_click())
+    return button
 
 
 class ConclusionStatsFileListMixin:
@@ -48,155 +62,76 @@ class ConclusionStatsFileListMixin:
         self._bulk_export_button: Gtk.MenuButton | None = None
         self._selection_mode: bool = False
         self._selected_files: set[str] = set()
+        self._output_files: list[OutputFile] = []
 
     def update_conclusion_page(self) -> None:
-        """Update the conclusion page with results from OCR processing"""
-        if not self._validate_components():
-            return
+        """Update statistics and rows from one consistent output snapshot."""
+        comparisons = {
+            result.output_path: result for result in self.window.settings.comparison_results
+        }
+        self._output_files = []
+        for output_file in self.window.settings.processed_files:
+            try:
+                file_size = os.path.getsize(output_file)
+            except OSError as error:
+                logger.warning("Could not read output file %s: %s", output_file, error)
+                continue
+            self._output_files.append(
+                (
+                    output_file,
+                    get_pdf_page_count(output_file),
+                    file_size,
+                    comparisons.get(output_file),
+                )
+            )
 
-        # Initialize extracted text dictionary
-        self._ensure_extracted_text_dict()
-
-        # Update statistics
         self._update_statistics()
-
-        # Update file list
         self._update_file_list()
 
-    def _validate_components(self) -> bool:
-        """Validate that conclusion page components are initialized
-
-        Returns:
-            True if components are valid, False otherwise
-        """
-        if not self.result_file_count:
-            logger.warning("Conclusion page components not initialized")
-            return False
-        return True
-
-    def _ensure_extracted_text_dict(self) -> None:
-        """Ensure the extracted_text dictionary exists"""
-        if not hasattr(self.window.settings, "extracted_text"):
-            self.window.settings.extracted_text = {}
-
     def _update_statistics(self) -> None:
-        """Update the statistics display"""
-        # Get processed file count from OCR processor
-        file_count = self.window.ocr_processor.get_processed_count()
+        """Update result totals from the collected output snapshot."""
+        file_count = self.window.processing.ocr_processor.get_successful_input_count()
         self.result_file_count.set_text(str(file_count))
 
-        # Calculate and update other statistics
-        page_count, total_file_size = self._calculate_file_statistics()
-
-        self.result_page_count.set_text(str(page_count))
-        self.result_file_size.set_text(format_file_size(total_file_size))
-
-        # Update processing time
+        total_pages = sum(pages for _path, pages, _size, _comparison in self._output_files)
+        total_size = sum(size for _path, _pages, size, _comparison in self._output_files)
+        self.result_page_count.set_text(str(total_pages))
+        self.result_file_size.set_text(format_file_size(total_size))
         self._update_processing_time()
+        self._update_size_change(total_size)
 
-        # Update size change from comparisons
-        self._update_size_change()
-
-    def _update_size_change(self) -> None:
-        """Update the size change label from comparison results."""
+    def _update_size_change(self, total_output: int) -> None:
+        """Update the aggregate input/output size comparison."""
         if not self.result_size_change:
             return
 
-        # Get comparison results if available
-        if not hasattr(self.window.settings, "comparison_results"):
-            self.result_size_change.set_text("--")
-            return
-
+        self.result_size_change.remove_css_class("success")
+        self.result_size_change.remove_css_class("warning")
         results = self.window.settings.comparison_results
         if not results:
             self.result_size_change.set_text("--")
             return
 
-        # Calculate aggregate statistics
-        stats = get_batch_statistics(results)
-        total_input = stats["total_input_size_bytes"]
-
-        # Use actual file sizes from processed_files instead of comparison output sizes.
-        # When PDFs are split into parts, comparisons only track one part's size,
-        # but processed_files contains all split parts with correct sizes.
-        _, total_output = self._calculate_file_statistics()
-
+        total_input = get_batch_statistics(results)["total_input_size_bytes"]
         if total_input <= 0:
             self.result_size_change.set_text("--")
             return
 
         change_percent = round(((total_output - total_input) / total_input) * 100, 1)
-
-        # Format size change with color indication
-        change_text = f"{format_file_size(total_input)} → {format_file_size(total_output)}"
         sign = "+" if change_percent >= 0 else ""
-        change_text += f" ({sign}{change_percent:.1f}%)"
-
-        self.result_size_change.set_text(change_text)
-
-        # Add visual indication via CSS class
-        self.result_size_change.remove_css_class("success")
-        self.result_size_change.remove_css_class("warning")
+        self.result_size_change.set_text(
+            f"{format_file_size(total_input)} → {format_file_size(total_output)} "
+            f"({sign}{change_percent:.1f}%)"
+        )
         if change_percent < 0:
-            self.result_size_change.add_css_class("success")  # Got smaller
+            self.result_size_change.add_css_class("success")
         elif change_percent > 50:
-            self.result_size_change.add_css_class("warning")  # Got much bigger
-
-        # Update processing time
-        self._update_processing_time()
-
-    def _calculate_file_statistics(self) -> tuple[int, int]:
-        """Calculate page count and total file size
-
-        Returns:
-            Tuple of (page_count, total_file_size)
-        """
-        page_count = 0
-        total_file_size = 0
-
-        for output_file in self.window.settings.processed_files:
-            if not os.path.exists(output_file):
-                continue
-
-            # Verify the file was created during this OCR run
-            if not self._is_recent_file(output_file):
-                continue
-
-            try:
-                # Get file size
-                file_size = os.path.getsize(output_file)
-                total_file_size += file_size
-
-                # Get page count
-                pages = get_pdf_page_count(output_file)
-                if pages:
-                    page_count += pages
-
-            except Exception as e:
-                logger.error(f"Error processing output file {output_file}: {e}")
-
-        return page_count, total_file_size
-
-    def _is_recent_file(self, file_path: str) -> bool:
-        """Check if file was created recently (within 5 minutes)
-
-        Args:
-            file_path: Path to the file to check
-
-        Returns:
-            True if file is recent, False otherwise
-        """
-        try:
-            file_creation_time = os.path.getctime(file_path)
-            return time.time() - file_creation_time <= FILE_RECENCY_THRESHOLD_SECONDS
-        except Exception:
-            # If we can't get creation time, assume it's valid
-            return True
+            self.result_size_change.add_css_class("warning")
 
     def _update_processing_time(self) -> None:
         """Update the processing time display"""
-        if hasattr(self.window, "process_start_time"):
-            elapsed_time = time.time() - self.window.process_start_time
+        if self.window.processing.process_start_time:
+            elapsed_time = time.time() - self.window.processing.process_start_time
             minutes = int(elapsed_time / 60)
             seconds = int(elapsed_time % 60)
             self.result_time.set_text(f"{minutes:02d}:{seconds:02d}")
@@ -204,61 +139,21 @@ class ConclusionStatsFileListMixin:
             self.result_time.set_text("--:--")
 
     def _update_file_list(self) -> None:
-        """Update the file list with processed files"""
-        # Clear existing list
+        """Rebuild the generated-file list from the collected output snapshot."""
         self._clear_output_list()
+        visible_files = {path for path, _pages, _size, _comparison in self._output_files}
+        self._selected_files.intersection_update(visible_files)
 
-        # Add each processed file
-        for output_file in self.window.settings.processed_files:
-            if os.path.exists(output_file) and self._is_recent_file(output_file):
-                self._add_file_to_list(output_file)
+        for output_file, pages, file_size, comparison in self._output_files:
+            self.output_list_box.append(
+                self._create_file_row(output_file, pages, file_size, comparison)
+            )
+        self._refresh_selection_ui()
 
     def _clear_output_list(self) -> None:
-        """Clear the output file list"""
-        while True:
-            child = self.output_list_box.get_first_child()
-            if child:
-                self.output_list_box.remove(child)
-            else:
-                break
-
-    def _add_file_to_list(self, output_file: str) -> None:
-        """Add a file to the output file list
-
-        Args:
-            output_file: Path to the output file
-        """
-        try:
-            # Get file information
-            file_size = os.path.getsize(output_file)
-            pages = get_pdf_page_count(output_file)
-
-            # Find comparison result for this file
-            comparison = self._get_comparison_for_file(output_file)
-
-            # Create row for the file
-            row = self._create_file_row(output_file, pages, file_size, comparison)
-            self.output_list_box.append(row)
-
-        except Exception as e:
-            logger.error(f"Error adding file to list {output_file}: {e}")
-
-    def _get_comparison_for_file(self, output_file: str) -> PDFComparisonResult | None:
-        """Get comparison result for a specific output file.
-
-        Args:
-            output_file: Path to the output file
-
-        Returns:
-            PDFComparisonResult or None if not found
-        """
-        if not hasattr(self.window.settings, "comparison_results"):
-            return None
-
-        for comparison in self.window.settings.comparison_results:
-            if comparison.output_path == output_file:
-                return comparison
-        return None
+        """Remove all generated-file rows."""
+        while child := self.output_list_box.get_first_child():
+            self.output_list_box.remove(child)
 
     def _create_file_row(
         self,
@@ -309,7 +204,6 @@ class ConclusionStatsFileListMixin:
             self._selected_files.clear()
         if self._selection_action_bar is not None:
             self._selection_action_bar.set_visible(self._selection_mode)
-        self._refresh_selection_ui()
         self._update_file_list()
 
     def _on_row_check_toggled(self, check: Gtk.CheckButton, file_path: str) -> None:
@@ -322,9 +216,7 @@ class ConclusionStatsFileListMixin:
 
     def _on_select_all_clicked(self) -> None:
         """Mark every visible file as selected."""
-        for output_file in self.window.settings.processed_files:
-            if os.path.exists(output_file) and self._is_recent_file(output_file):
-                self._selected_files.add(output_file)
+        self._selected_files.update(path for path, _pages, _size, _comparison in self._output_files)
         self._update_file_list()
         self._refresh_selection_ui()
 
@@ -332,7 +224,6 @@ class ConclusionStatsFileListMixin:
         """Drop all selections without leaving selection mode."""
         self._selected_files.clear()
         self._update_file_list()
-        self._refresh_selection_ui()
 
     def _refresh_selection_ui(self) -> None:
         """Sync the action bar label and bulk-export button sensitivity."""
@@ -358,21 +249,22 @@ class ConclusionStatsFileListMixin:
             comparison: Optional comparison result for size change
         """
         # Add page count
-        page_label = Gtk.Label()
-        page_label.set_markup(f"<small>{_('{pages} pg.').format(pages=pages)}</small>")
+        page_label = Gtk.Label(
+            label=ngettext("{count} page", "{count} pages", pages).format(count=pages)
+        )
+        page_label.add_css_class("caption")
         row.add_suffix(page_label)
 
         # Add size label
-        size_label = Gtk.Label()
-        size_label.set_markup(f"<small>{format_file_size(file_size)}</small>")
+        size_label = Gtk.Label(label=format_file_size(file_size))
+        size_label.add_css_class("caption")
         row.add_suffix(size_label)
 
         # Add size change indicator with theme-aware CSS classes
         if comparison and comparison.input_size_bytes > 0:
             change_pct = comparison.size_change_percent
             sign = "+" if change_pct >= 0 else ""
-            change_label = Gtk.Label()
-            change_label.set_markup(f"<small>({sign}{change_pct:.0f}%)</small>")
+            change_label = Gtk.Label(label=f"({sign}{change_pct:.0f}%)")
             change_label.add_css_class("caption")
             if change_pct < 0:
                 change_label.add_css_class("success")
@@ -381,80 +273,37 @@ class ConclusionStatsFileListMixin:
             row.add_suffix(change_label)
 
     def _create_file_action_buttons(self, output_file: str) -> Gtk.Box:
-        """Create action buttons for a file row
-
-        Args:
-            output_file: Path to the output file
-
-        Returns:
-            A Gtk.Box containing the action buttons
-        """
-        # Create a button container for better spacing and organization
-        button_container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
-        button_container.set_halign(Gtk.Align.END)
-
-        # Add open button
-        open_button = self._create_open_button(output_file)
-        button_container.append(open_button)
-
-        # Add reveal in file manager button
-        reveal_button = create_icon_button(
-            icon_name="folder-open-symbolic",
-            tooltip=_("Show in file manager"),
-            on_click=lambda: self._reveal_in_file_manager(output_file),
-        )
-        button_container.append(reveal_button)
-
-        # Add view text button
-        text_button = self._create_text_button(output_file)
-        button_container.append(text_button)
-
-        # Add unified export menu (ODF + Markdown + future formats)
-        export_button = self._create_export_menu_button(output_file)
-        button_container.append(export_button)
-
-        return button_container
-
-    def _create_open_button(self, output_file: str) -> Gtk.Button:
-        """Create an open file button
-
-        Args:
-            output_file: Path to the file to open
-
-        Returns:
-            A Gtk.Button for opening the file
-        """
-        button = create_icon_button(
-            icon_name="document-open-symbolic",
-            tooltip=_("Open the processed file"),
-            on_click=lambda: self._open_file(output_file),
-        )
-        button.set_margin_end(12)
-        button.set_margin_start(12)
-        return button
-
-    def _create_text_button(self, output_file: str) -> Gtk.Button:
-        """Create a view text button
-
-        Args:
-            output_file: Path to the file
-
-        Returns:
-            A Gtk.Button for viewing extracted text
-        """
-        return create_icon_button(
-            icon_name="format-text-uppercase-symbolic",
-            tooltip=_("View the text found in this document"),
-            on_click=lambda: self._show_extracted_text(output_file),
+        """Create the actions shown beside one generated file."""
+        buttons = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL,
+            spacing=4,
+            halign=Gtk.Align.END,
         )
 
-    def _export_to_odf(self, file_path: str) -> None:
-        """Export extracted text to ODF file."""
-        self._show_odf_export_options_dialog(file_path)
-
-    def _export_to_markdown(self, file_path: str) -> None:
-        """Show export options dialog for Markdown export."""
-        self._show_markdown_export_options_dialog(file_path)
+        open_button = _icon_button(
+            "document-open-symbolic",
+            _("Open the processed file"),
+            lambda: self._open_file(output_file),
+        )
+        open_button.set_margin_start(12)
+        open_button.set_margin_end(12)
+        buttons.append(open_button)
+        buttons.append(
+            _icon_button(
+                "folder-open-symbolic",
+                _("Show in file manager"),
+                lambda: self._reveal_in_file_manager(output_file),
+            )
+        )
+        buttons.append(
+            _icon_button(
+                "format-text-uppercase-symbolic",
+                _("View the text found in this document"),
+                lambda: self._show_extracted_text(output_file),
+            )
+        )
+        buttons.append(self._create_export_menu_button(output_file))
+        return buttons
 
     def _create_export_menu_button(self, output_file: str) -> Gtk.MenuButton:
         """Unified export menu for a single OCR'd file.
@@ -462,8 +311,6 @@ class ConclusionStatsFileListMixin:
         Backed by ``Gio.Menu`` + a popover-menu so keyboard navigation
         (Up/Down/Enter) and screen-reader semantics come for free.
         """
-        from gi.repository import Gio
-
         menu_model = Gio.Menu()
         menu_model.append(_("OpenDocument (.odt)"), "row.odt")
         menu_model.append(_("Markdown (.md)"), "row.md")
@@ -476,10 +323,14 @@ class ConclusionStatsFileListMixin:
 
         group = Gio.SimpleActionGroup()
         odt_action = Gio.SimpleAction.new("odt", None)
-        odt_action.connect("activate", lambda *_a: self._export_to_odf(output_file))
+        odt_action.connect(
+            "activate", lambda *_a: self._show_odf_export_options_dialog(output_file)
+        )
         group.add_action(odt_action)
         md_action = Gio.SimpleAction.new("md", None)
-        md_action.connect("activate", lambda *_a: self._export_to_markdown(output_file))
+        md_action.connect(
+            "activate", lambda *_a: self._show_markdown_export_options_dialog(output_file)
+        )
         group.add_action(md_action)
         button.insert_action_group("row", group)
         return button

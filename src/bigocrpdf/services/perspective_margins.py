@@ -271,101 +271,19 @@ def gentle_margin_perspective_correction(
     if image is None or image.size == 0:
         return None
 
-    if len(image.shape) == 3:
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    else:
-        gray = image.copy()
-
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) if len(image.shape) == 3 else image.copy()
     h, w = gray.shape[:2]
     if h < 200 or w < 200:
         return None
 
-    # ── Binarize ────────────────────────────────────────────────────
-    blur = cv2.GaussianBlur(gray, (5, 5), 0)
-    binary = cv2.adaptiveThreshold(
-        blur,
-        255,
-        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-        cv2.THRESH_BINARY_INV,
-        51,
-        20,
-    )
-
-    # ── Horizontal text projection in vertical strips ───────────────
-    n_strips = 20
-    strip_h = h // n_strips
-
-    left_margins: list[float] = []
-    right_margins: list[float] = []
-    strip_ys: list[float] = []
-
-    for i in range(n_strips):
-        y_start = i * strip_h
-        y_end = min((i + 1) * strip_h, h)
-        strip = binary[y_start:y_end, :]
-
-        h_proj = np.sum(strip > 0, axis=0)
-        text_cols = np.where(h_proj > strip_h * 0.05)[0]
-
-        if len(text_cols) > 10:
-            left = float(np.percentile(text_cols, 2))
-            right = float(np.percentile(text_cols, 98))
-            # Reject strips with very narrow text (noise / logos)
-            if (right - left) > w * 0.15:
-                left_margins.append(left)
-                right_margins.append(right)
-                strip_ys.append((y_start + y_end) / 2.0)
-
-    if len(strip_ys) < 8:
+    margins = _gentle_margin_samples(gray, h, w)
+    if margins is None:
         return None
-
-    # ── Filter out header/footer strips ─────────────────────────────
-    n_total = len(strip_ys)
-    skip = max(2, n_total // 7)  # Skip ~15% on each end
-    body_slice = slice(skip, n_total - skip)
-
-    ys_body = np.array(strip_ys[body_slice])
-    lm_body = np.array(left_margins[body_slice])
-    rm_body = np.array(right_margins[body_slice])
-
-    if len(ys_body) < 5:
-        # Fall back to all strips if body slice is too small
-        ys_body = np.array(strip_ys)
-        lm_body = np.array(left_margins)
-        rm_body = np.array(right_margins)
-
-    # ── Regression-based outlier removal on each margin ──────────────
-    def _robust_mask(ys_arr: np.ndarray, vals: np.ndarray) -> np.ndarray:
-        coeffs = np.polyfit(ys_arr, vals, 1)
-        residuals = np.abs(vals - np.polyval(coeffs, ys_arr))
-        mad = float(np.median(residuals))
-        if mad > 0:
-            return residuals < 2.5 * 1.4826 * mad
-        return np.ones(len(ys_arr), dtype=bool)
-
-    mask = _robust_mask(ys_body, lm_body) & _robust_mask(ys_body, rm_body)
-    ys_body, lm_body, rm_body = ys_body[mask], lm_body[mask], rm_body[mask]
-
-    if len(ys_body) < 4:
+    ys_body, lm_body, rm_body = margins
+    fit = _gentle_margin_fit(ys_body, lm_body, rm_body, w)
+    if fit is None:
         return None
-
-    # ── Fit left/right margin regression ─────────────────────────────
-    lc = np.polyfit(ys_body, lm_body, 1)
-    rc = np.polyfit(ys_body, rm_body, 1)
-
-    # ── Reject noisy fits ────────────────────────────────────────────
-    # If either margin regression has high residual standard deviation
-    # relative to the image width, the margin data is too noisy for
-    # reliable perspective detection (e.g. tables, mixed layouts).
-    for coeffs, vals, label in [(lc, lm_body, "left"), (rc, rm_body, "right")]:
-        residuals = vals - np.polyval(coeffs, ys_body)
-        std_res = float(np.sqrt(np.mean(residuals**2)))
-        if std_res > w * 0.05:
-            logger.debug(
-                f"Gentle perspective: {label} margin fit too noisy "
-                f"(std_res={std_res:.0f}px, limit={w * 0.05:.0f}px)"
-            )
-            return None
+    lc, rc = fit
 
     # ── Decompose slopes into rotation + perspective ─────────────────
     # Rotation shifts both margins in the same direction (average slope).
@@ -385,26 +303,10 @@ def gentle_margin_perspective_correction(
         f"perspective L={persp_slope_l:+.4f} R={persp_slope_r:+.4f}"
     )
 
-    # Measure convergence from perspective-only component (derotated).
-    # Use image centre as pivot to avoid intercept issues.
-    y_mid = h / 2.0
-    mid_left = float(np.polyval(lc, y_mid))
-    mid_right = float(np.polyval(rc, y_mid))
-    mid_width = mid_right - mid_left
-    if mid_width <= 0:
+    convergence = _gentle_margin_convergence(lc, rc, h, persp_slope_l, persp_slope_r)
+    if convergence is None:
         return None
-
-    # Perspective-only widths at top and bottom (relative to centre row)
-    half_h = h / 2.0
-    persp_delta_l = persp_slope_l * half_h  # left margin shift from centre
-    persp_delta_r = persp_slope_r * half_h  # right margin shift from centre
-    width_top = mid_width - persp_delta_l + persp_delta_r  # y=0
-    width_bot = mid_width + persp_delta_l - persp_delta_r  # y=h
-
-    if min(width_top, width_bot) <= 0:
-        return None
-
-    convergence_pct = abs(width_bot - width_top) / min(width_top, width_bot) * 100
+    convergence_pct, mid_left, mid_right = convergence
 
     if convergence_pct < min_convergence_pct or convergence_pct > max_convergence_pct:
         logger.debug(
@@ -413,76 +315,12 @@ def gentle_margin_perspective_correction(
         )
         return None
 
-    # ── Width linearity check ────────────────────────────────────────
-    # True camera perspective produces a smooth linear width gradient.
-    # Form/table layouts create step-like width changes → low R².
-    # Require R² > 0.6 to avoid false positives from layout artifacts.
-    widths_body = rm_body - lm_body
-    if len(widths_body) >= 4:
-        wc = np.polyfit(ys_body, widths_body, 1)
-        w_pred = np.polyval(wc, ys_body)
-        ss_res = float(np.sum((widths_body - w_pred) ** 2))
-        ss_tot = float(np.sum((widths_body - np.mean(widths_body)) ** 2))
-        w_r2 = 1.0 - ss_res / ss_tot if ss_tot > 0 else 0.0
-        if w_r2 < 0.6:
-            logger.debug(
-                f"Gentle perspective: width R²={w_r2:.2f} too low "
-                f"(layout variation, not perspective)"
-            )
-            return None
+    if not _gentle_margin_width_is_linear(ys_body, lm_body, rm_body):
+        return None
 
-    # ── Full projective correction via warpPerspective ─────────────
-    # src_pts = actual margin positions (where content IS in the image).
-    # dst_pts = rotation-only positions (perspective removed, rotation kept).
-    # This corrects ONLY keystone distortion; deskew handles rotation.
     correction_pct = min(convergence_pct, max_correction_pct)
-    ratio = correction_pct / convergence_pct
-
-    # Actual margin positions (full regression)
-    src_left_top = float(np.polyval(lc, 0))
-    src_left_bot = float(np.polyval(lc, h))
-    src_right_top = float(np.polyval(rc, 0))
-    src_right_bot = float(np.polyval(rc, h))
-
-    # Rotation-only positions: same intercepts at y_mid, but slope = rot_slope
-    # dst_left(y) = mid_left + rot_slope * (y - y_mid)
-    # dst_right(y) = mid_right + rot_slope * (y - y_mid)
-    dst_left_top = mid_left + rot_slope * (0 - y_mid)
-    dst_left_bot = mid_left + rot_slope * (h - y_mid)
-    dst_right_top = mid_right + rot_slope * (0 - y_mid)
-    dst_right_bot = mid_right + rot_slope * (h - y_mid)
-
-    src_pts = np.array(
-        [
-            [src_left_top, 0.0],
-            [src_right_top, 0.0],
-            [src_right_bot, float(h)],
-            [src_left_bot, float(h)],
-        ],
-        dtype=np.float32,
-    )
-
-    dst_pts = np.array(
-        [
-            [dst_left_top, 0.0],
-            [dst_right_top, 0.0],
-            [dst_right_bot, float(h)],
-            [dst_left_bot, float(h)],
-        ],
-        dtype=np.float32,
-    )
-
-    # Apply partial correction: interpolate destination from source toward
-    # the ideal target.  ratio=0 → identity, ratio=1 → full correction.
-    partial_dst = (src_pts + ratio * (dst_pts - src_pts)).astype(np.float32)
-
-    M = cv2.getPerspectiveTransform(src_pts, partial_dst)
-    corrected = cv2.warpPerspective(
-        image,
-        M,
-        (w, h),
-        flags=cv2.INTER_LINEAR,
-        borderMode=cv2.BORDER_REPLICATE,
+    corrected = _warp_gentle_margin_perspective(
+        image, w, h, lc, rc, rot_slope, mid_left, mid_right, correction_pct / convergence_pct
     )
 
     logger.info(
@@ -491,6 +329,184 @@ def gentle_margin_perspective_correction(
         f"correction {correction_pct:.1f}%"
     )
     return corrected
+
+
+def _gentle_margin_samples(
+    gray: np.ndarray,
+    height: int,
+    width: int,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray] | None:
+    blur = cv2.GaussianBlur(gray, (5, 5), 0)
+    binary = cv2.adaptiveThreshold(
+        blur,
+        255,
+        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv2.THRESH_BINARY_INV,
+        51,
+        20,
+    )
+    strip_ys, left_margins, right_margins = _collect_margin_strips(binary, height, width)
+    if len(strip_ys) < 8:
+        return None
+    ys_body, lm_body, rm_body = _body_margin_arrays(strip_ys, left_margins, right_margins)
+    mask = _robust_margin_mask(ys_body, lm_body) & _robust_margin_mask(ys_body, rm_body)
+    ys_body, lm_body, rm_body = ys_body[mask], lm_body[mask], rm_body[mask]
+    if len(ys_body) < 4:
+        return None
+    return ys_body, lm_body, rm_body
+
+
+def _collect_margin_strips(
+    binary: np.ndarray,
+    height: int,
+    width: int,
+) -> tuple[list[float], list[float], list[float]]:
+    n_strips = 20
+    strip_h = height // n_strips
+    strip_ys: list[float] = []
+    left_margins: list[float] = []
+    right_margins: list[float] = []
+    for i in range(n_strips):
+        y_start = i * strip_h
+        y_end = min((i + 1) * strip_h, height)
+        text_cols = np.where(np.sum(binary[y_start:y_end, :] > 0, axis=0) > strip_h * 0.05)[0]
+        if len(text_cols) <= 10:
+            continue
+        left = float(np.percentile(text_cols, 2))
+        right = float(np.percentile(text_cols, 98))
+        if (right - left) > width * 0.15:
+            left_margins.append(left)
+            right_margins.append(right)
+            strip_ys.append((y_start + y_end) / 2.0)
+    return strip_ys, left_margins, right_margins
+
+
+def _body_margin_arrays(
+    strip_ys: list[float],
+    left_margins: list[float],
+    right_margins: list[float],
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    n_total = len(strip_ys)
+    body_slice = slice(max(2, n_total // 7), n_total - max(2, n_total // 7))
+    ys_body = np.array(strip_ys[body_slice])
+    lm_body = np.array(left_margins[body_slice])
+    rm_body = np.array(right_margins[body_slice])
+    if len(ys_body) >= 5:
+        return ys_body, lm_body, rm_body
+    return np.array(strip_ys), np.array(left_margins), np.array(right_margins)
+
+
+def _robust_margin_mask(ys_arr: np.ndarray, vals: np.ndarray) -> np.ndarray:
+    coeffs = np.polyfit(ys_arr, vals, 1)
+    residuals = np.abs(vals - np.polyval(coeffs, ys_arr))
+    mad = float(np.median(residuals))
+    if mad > 0:
+        return residuals < 2.5 * 1.4826 * mad
+    return np.ones(len(ys_arr), dtype=bool)
+
+
+def _gentle_margin_fit(
+    ys_body: np.ndarray,
+    lm_body: np.ndarray,
+    rm_body: np.ndarray,
+    width: int,
+) -> tuple[np.ndarray, np.ndarray] | None:
+    lc = np.polyfit(ys_body, lm_body, 1)
+    rc = np.polyfit(ys_body, rm_body, 1)
+    for coeffs, vals, label in [(lc, lm_body, "left"), (rc, rm_body, "right")]:
+        residuals = vals - np.polyval(coeffs, ys_body)
+        std_res = float(np.sqrt(np.mean(residuals**2)))
+        if std_res > width * 0.05:
+            logger.debug(
+                f"Gentle perspective: {label} margin fit too noisy "
+                f"(std_res={std_res:.0f}px, limit={width * 0.05:.0f}px)"
+            )
+            return None
+    return lc, rc
+
+
+def _gentle_margin_convergence(
+    lc: np.ndarray,
+    rc: np.ndarray,
+    height: int,
+    persp_slope_l: float,
+    persp_slope_r: float,
+) -> tuple[float, float, float] | None:
+    y_mid = height / 2.0
+    mid_left = float(np.polyval(lc, y_mid))
+    mid_right = float(np.polyval(rc, y_mid))
+    mid_width = mid_right - mid_left
+    if mid_width <= 0:
+        return None
+
+    half_h = height / 2.0
+    width_top = mid_width - persp_slope_l * half_h + persp_slope_r * half_h
+    width_bot = mid_width + persp_slope_l * half_h - persp_slope_r * half_h
+    if min(width_top, width_bot) <= 0:
+        return None
+    return abs(width_bot - width_top) / min(width_top, width_bot) * 100, mid_left, mid_right
+
+
+def _gentle_margin_width_is_linear(
+    ys_body: np.ndarray,
+    lm_body: np.ndarray,
+    rm_body: np.ndarray,
+) -> bool:
+    widths_body = rm_body - lm_body
+    if len(widths_body) < 4:
+        return True
+    coeffs = np.polyfit(ys_body, widths_body, 1)
+    predicted = np.polyval(coeffs, ys_body)
+    ss_res = float(np.sum((widths_body - predicted) ** 2))
+    ss_tot = float(np.sum((widths_body - np.mean(widths_body)) ** 2))
+    width_r2 = 1.0 - ss_res / ss_tot if ss_tot > 0 else 0.0
+    if width_r2 >= 0.6:
+        return True
+    logger.debug(
+        f"Gentle perspective: width R²={width_r2:.2f} too low (layout variation, not perspective)"
+    )
+    return False
+
+
+def _warp_gentle_margin_perspective(
+    image: np.ndarray,
+    width: int,
+    height: int,
+    lc: np.ndarray,
+    rc: np.ndarray,
+    rot_slope: float,
+    mid_left: float,
+    mid_right: float,
+    ratio: float,
+) -> np.ndarray:
+    y_mid = height / 2.0
+    src_pts = np.array(
+        [
+            [float(np.polyval(lc, 0)), 0.0],
+            [float(np.polyval(rc, 0)), 0.0],
+            [float(np.polyval(rc, height)), float(height)],
+            [float(np.polyval(lc, height)), float(height)],
+        ],
+        dtype=np.float32,
+    )
+    dst_pts = np.array(
+        [
+            [mid_left + rot_slope * (0 - y_mid), 0.0],
+            [mid_right + rot_slope * (0 - y_mid), 0.0],
+            [mid_right + rot_slope * (height - y_mid), float(height)],
+            [mid_left + rot_slope * (height - y_mid), float(height)],
+        ],
+        dtype=np.float32,
+    )
+    partial_dst = (src_pts + ratio * (dst_pts - src_pts)).astype(np.float32)
+    matrix = cv2.getPerspectiveTransform(src_pts, partial_dst)
+    return cv2.warpPerspective(
+        image,
+        matrix,
+        (width, height),
+        flags=cv2.INTER_LINEAR,
+        borderMode=cv2.BORDER_REPLICATE,
+    )
 
 
 def trim_white_borders(image: np.ndarray, threshold: int = 250) -> np.ndarray:

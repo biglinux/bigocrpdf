@@ -1,12 +1,8 @@
-"""
-PDF assembly and merging utilities.
-
-Functions for creating text layer commands, merging text layers with original PDFs,
-overlaying OCR text on pages, and converting to PDF/A.
-"""
+"""PDF assembly and merging utilities."""
 
 import logging
 from pathlib import Path
+from typing import Any
 
 import pikepdf
 from reportlab.pdfbase import pdfmetrics
@@ -17,27 +13,13 @@ from bigocrpdf.services.rapidocr_service.pdf_extractor import (
     extract_content_streams,
     merge_page_fonts,
 )
-from bigocrpdf.utils.pdf_utils import set_root_page_layout
+from bigocrpdf.utils import pdf_utils
 
 logger = logging.getLogger(__name__)
 
-# Re-exported from utils.pdf_utils so the lightweight PDF editor can apply the
-# same /PageLayout without importing this reportlab-heavy module.
-__all__ = ["set_root_page_layout"]
-
 
 def escape_pdf_text(text: str) -> str:
-    """Escape text for inclusion in PDF literal string.
-
-    Handles characters outside the WinAnsiEncoding range by replacing
-    them with closest ASCII equivalents where possible.
-
-    Args:
-        text: Raw text to escape
-
-    Returns:
-        Escaped text safe for PDF string (latin-1 compatible)
-    """
+    """Escape text for inclusion in a PDF literal string."""
     text = text.replace("\\", "\\\\")
     text = text.replace("(", "\\(")
     text = text.replace(")", "\\)")
@@ -69,15 +51,41 @@ def escape_pdf_text(text: str) -> str:
     for char, replacement in _UNICODE_REPLACEMENTS.items():
         text = text.replace(char, replacement)
 
-    # Filter remaining non-latin-1 characters
-    result = []
-    for ch in text:
+    return text
+
+
+def _pdf_text_operand(text: str) -> str:
+    """Return a PDF text operand, preserving Unicode without lossy replacement."""
+    escaped = escape_pdf_text(text)
+    try:
+        escaped.encode("latin-1")
+    except UnicodeEncodeError:
+        utf16_hex = ("\ufeff" + text).encode("utf-16-be").hex().upper()
+        return f"<{utf16_hex}>"
+    return f"({escaped})"
+
+
+def _pdf_actual_text_operand(text: str) -> str:
+    """Return an exact Unicode PDF string for marked-content /ActualText."""
+    utf16_hex = ("\ufeff" + text).encode("utf-16-be").hex().upper()
+    return f"<{utf16_hex}>"
+
+
+def _pdf_font_placeholder_operand(text: str) -> str:
+    """Return invisible Type1-compatible glyph text for a searchable ActualText span."""
+    chars: list[str] = []
+    for char in text:
+        if char.isspace():
+            chars.append(" ")
+            continue
         try:
-            ch.encode("latin-1")
-            result.append(ch)
+            char.encode("latin-1")
         except UnicodeEncodeError:
-            result.append("?")
-    return "".join(result)
+            chars.append("x")
+        else:
+            chars.append(char)
+    placeholder = "".join(chars).strip() or "x"
+    return f"({escape_pdf_text(placeholder)})"
 
 
 def _build_text_boxes(
@@ -174,12 +182,14 @@ def _emit_line_commands(line_boxes: list[dict]) -> list[str]:
     h_scale = max(30.0, min(300.0, h_scale))
 
     return [
+        "/GSOcrInvisible gs",
         "BT",
-        "3 Tr",
         f"1 0 0 1 {line_x:.2f} {line_y:.2f} Tm",
         f"/FOcr {line_font:.1f} Tf",
         f"{h_scale:.1f} Tz",
-        f"({escape_pdf_text(line_text)}) Tj",
+        f"/Span << /ActualText {_pdf_actual_text_operand(line_text)} >> BDC",
+        f"{_pdf_font_placeholder_operand(line_text)} Tj",
+        "EMC",
         "ET",
     ]
 
@@ -214,13 +224,7 @@ def create_text_layer_commands(
 
 
 def append_text_to_page(pdf: pikepdf.Pdf, page: pikepdf.Page, text_commands: list[str]) -> None:
-    """Append text layer commands to a PDF page.
-
-    Args:
-        pdf: pikepdf Pdf object (owner of the page)
-        page: pikepdf Page object to modify
-        text_commands: List of PDF content stream commands
-    """
+    """Append text layer commands to a PDF page."""
     if not text_commands:
         return
 
@@ -229,6 +233,8 @@ def append_text_to_page(pdf: pikepdf.Pdf, page: pikepdf.Page, text_commands: lis
         page["/Resources"] = pikepdf.Dictionary()
     if "/Font" not in page.Resources:
         page.Resources["/Font"] = pikepdf.Dictionary()
+    if "/ExtGState" not in page.Resources:
+        page.Resources["/ExtGState"] = pikepdf.Dictionary()
 
     # Add OCR font with unique name to avoid conflicts
     if "/FOcr" not in page.Resources.Font:
@@ -238,6 +244,14 @@ def append_text_to_page(pdf: pikepdf.Pdf, page: pikepdf.Page, text_commands: lis
                 "/Subtype": pikepdf.Name("/Type1"),
                 "/BaseFont": pikepdf.Name("/Helvetica"),
                 "/Encoding": pikepdf.Name("/WinAnsiEncoding"),
+            }
+        )
+    if "/GSOcrInvisible" not in page.Resources.ExtGState:
+        page.Resources.ExtGState["/GSOcrInvisible"] = pikepdf.Dictionary(
+            {
+                "/Type": pikepdf.Name("/ExtGState"),
+                "/CA": 0,
+                "/ca": 0,
             }
         )
 
@@ -250,7 +264,7 @@ def append_text_to_page(pdf: pikepdf.Pdf, page: pikepdf.Page, text_commands: lis
     q_stream = pikepdf.Stream(pdf, b"q\n")
     Q_stream = pikepdf.Stream(pdf, b"\nQ\n")
     new_stream = pikepdf.Stream(pdf, text_content.encode("latin-1", errors="replace"))
-    if contents is None:
+    if contents is None or _content_stream_is_empty(contents):
         page["/Contents"] = new_stream
     elif isinstance(contents, pikepdf.Array):
         # Wrap: q + existing_streams... + Q + text_overlay
@@ -260,13 +274,18 @@ def append_text_to_page(pdf: pikepdf.Pdf, page: pikepdf.Page, text_commands: lis
         page["/Contents"] = pikepdf.Array([q_stream, contents, Q_stream, new_stream])
 
 
-def _collect_q_group(ops: list[tuple], start: int) -> tuple[list[tuple], int]:
-    """Collect a full q...Q graphics state group from the ops list.
+def _content_stream_is_empty(contents) -> bool:
+    if isinstance(contents, pikepdf.Array):
+        return all(_content_stream_is_empty(stream) for stream in contents)
+    try:
+        return not contents.read_bytes().strip()
+    except (AttributeError, pikepdf.PdfError):
+        return False
 
-    Returns:
-        (group_ops, end_index) where end_index is the position after the group.
-    """
-    group: list[tuple] = [ops[start]]
+
+def _collect_q_group(ops: list[Any], start: int) -> tuple[list[Any], int]:
+    """Collect a full q...Q graphics state group from the ops list."""
+    group: list[Any] = [ops[start]]
     depth = 1
     j = start + 1
     while j < len(ops) and depth > 0:
@@ -280,38 +299,47 @@ def _collect_q_group(ops: list[tuple], start: int) -> tuple[list[tuple], int]:
     return group, j
 
 
-def _is_invisible_text_group(group: list[tuple]) -> bool:
-    """Check if a q/Q group contains only invisible text (render mode 3)."""
-    has_invisible_bt = False
-    has_image_or_visible = False
+def _is_invisible_text_group(group: list[Any]) -> bool:
+    """Check if a q/Q group contains only invisible OCR text."""
+    has_invisible_text = False
+    has_visible_content = False
     in_bt = False
-    bt_has_3tr = False
+    bt_is_invisible = False
+    graphics_state_is_invisible = False
 
     for g_operands, g_operator in group:
         g_op = str(g_operator)
-        if g_op == "BT":
+        if g_op == "gs" and _is_ocr_invisible_graphics_state(g_operands):
+            graphics_state_is_invisible = True
+        elif g_op == "BT":
             in_bt = True
-            bt_has_3tr = False
+            bt_is_invisible = graphics_state_is_invisible
         elif g_op == "ET":
-            if bt_has_3tr:
-                has_invisible_bt = True
             in_bt = False
         elif g_op == "Tr" and in_bt and g_operands:
-            if int(g_operands[0]) == 3:
-                bt_has_3tr = True
+            bt_is_invisible = graphics_state_is_invisible or int(g_operands[0]) == 3
+        elif g_op in {"Tj", "TJ"} and in_bt:
+            if bt_is_invisible:
+                has_invisible_text = True
+            else:
+                has_visible_content = True
         elif g_op == "Do":
-            has_image_or_visible = True
+            has_visible_content = True
 
-    return has_invisible_bt and not has_image_or_visible
+    return has_invisible_text and not has_visible_content
 
 
-def _collect_bt_block(ops: list[tuple], start: int) -> tuple[list[tuple], int]:
+def _is_ocr_invisible_graphics_state(operands: list) -> bool:
+    return bool(operands) and str(operands[0]) == "/GSOcrInvisible"
+
+
+def _collect_bt_block(ops: list[Any], start: int) -> tuple[list[Any], int]:
     """Collect a top-level BT...ET text block.
 
     Returns:
         (block_ops, end_index) where end_index is the position after the block.
     """
-    group: list[tuple] = [ops[start]]
+    group: list[Any] = [ops[start]]
     j = start + 1
     while j < len(ops) and str(ops[j][1]) != "ET":
         group.append(ops[j])
@@ -322,9 +350,21 @@ def _collect_bt_block(ops: list[tuple], start: int) -> tuple[list[tuple], int]:
     return group, j
 
 
-def _bt_block_is_invisible(group: list[tuple]) -> bool:
-    """Check if a BT/ET block uses render mode 3 (invisible text)."""
-    return any(str(g_op) == "Tr" and g_ops and int(g_ops[0]) == 3 for g_ops, g_op in group)
+def _bt_block_is_invisible(group: list[Any]) -> bool:
+    """Check if a BT/ET block contains invisible text and no visible text."""
+    is_invisible = False
+    has_invisible_text = False
+    has_visible_text = False
+    for operands, operator in group:
+        op = str(operator)
+        if op == "Tr" and operands:
+            is_invisible = int(operands[0]) == 3
+        elif op in {"Tj", "TJ"}:
+            if is_invisible:
+                has_invisible_text = True
+            else:
+                has_visible_text = True
+    return has_invisible_text and not has_visible_text
 
 
 def strip_invisible_text(page: pikepdf.Page, pdf: pikepdf.Pdf) -> int:
@@ -342,32 +382,39 @@ def strip_invisible_text(page: pikepdf.Page, pdf: pikepdf.Pdf) -> int:
     Returns:
         Number of operator groups removed.
     """
-    # Quick byte-level check: if no "3 Tr" (invisible text render mode)
-    # exists in the content streams, skip the expensive full parse.
-    contents = page.get("/Contents")
-    if contents is None:
+    if not _page_may_have_invisible_text(page):
         return 0
-    try:
-        streams = list(contents) if isinstance(contents, pikepdf.Array) else [contents]
-        has_invisible = False
-        for stream in streams:
-            if b"3 Tr" in stream.read_bytes():
-                has_invisible = True
-                break
-        if not has_invisible:
-            return 0
-    except Exception:
-        pass  # Fall through to full parse on error
 
     try:
         ops = list(pikepdf.parse_content_stream(page))
     except Exception:
         return 0
 
-    if not ops:
-        return 0
+    filtered, removed = _filter_invisible_text_ops(ops)
+    if removed > 0:
+        new_content = pikepdf.unparse_content_stream(filtered)
+        page["/Contents"] = pikepdf.Stream(pdf, new_content)
 
-    filtered: list[tuple] = []
+    return removed
+
+
+def _page_may_have_invisible_text(page: pikepdf.Page) -> bool:
+    contents = page.get("/Contents")
+    if contents is None:
+        return False
+
+    try:
+        streams = list(contents) if isinstance(contents, pikepdf.Array) else [contents]
+        return any(
+            b"3 Tr" in (raw := stream.read_bytes()) or b"/GSOcrInvisible" in raw
+            for stream in streams
+        )
+    except Exception:
+        return True
+
+
+def _filter_invisible_text_ops(ops: list[Any]) -> tuple[list[Any], int]:
+    filtered: list[Any] = []
     removed = 0
     i = 0
 
@@ -396,11 +443,7 @@ def strip_invisible_text(page: pikepdf.Page, pdf: pikepdf.Pdf) -> int:
             filtered.append(ops[i])
             i += 1
 
-    if removed > 0:
-        new_content = pikepdf.unparse_content_stream(filtered)
-        page["/Contents"] = pikepdf.Stream(pdf, new_content)
-
-    return removed
+    return filtered, removed
 
 
 def merge_single_page(
@@ -445,8 +488,9 @@ def merge_single_page(
     orig_page["/Contents"] = pikepdf.Array(text_streams + orig_streams)
 
     # Copy fonts from text layer to original page resources
-    if "/Resources" in text_page:
-        merge_page_fonts(orig_page, text_page["/Resources"], original_pdf)
+    text_resources = text_page.get("/Resources")
+    if isinstance(text_resources, pikepdf.Dictionary):
+        merge_page_fonts(orig_page, text_resources, original_pdf)
 
     logger.debug(
         f"Page {page_num + 1}: merged {len(text_streams)} text streams "
@@ -597,19 +641,13 @@ def convert_to_pdfa(input_pdf: Path, output_pdf: Path, page_layout: str = "defau
 
         with pikepdf.open(input_pdf) as pdf:
             # 0. Apply viewer page layout (no-op for "default")
-            set_root_page_layout(pdf, page_layout)
+            pdf_utils.set_root_page_layout(pdf, page_layout)
 
-            # 1. Add MarkInfo (required for PDF/A-2)
-            if pikepdf.Name.MarkInfo not in pdf.Root:
-                pdf.Root.MarkInfo = pikepdf.Dictionary(Marked=True)
-            else:
-                pdf.Root.MarkInfo[pikepdf.Name.Marked] = True
-
-            # 2. Create and embed sRGB ICC stream
+            # 1. Create and embed sRGB ICC stream
             icc_stream = pdf.make_stream(icc_data)
             icc_stream[pikepdf.Name.N] = 3  # Number of color components (RGB)
 
-            # 3. Build OutputIntent dictionary
+            # 2. Build OutputIntent dictionary
             output_intent = pikepdf.Dictionary(
                 Type=pikepdf.Name.OutputIntent,
                 S=pikepdf.Name("/GTS_PDFA1"),
@@ -619,10 +657,10 @@ def convert_to_pdfa(input_pdf: Path, output_pdf: Path, page_layout: str = "defau
                 DestOutputProfile=icc_stream,
             )
 
-            # 4. Add OutputIntents array to document catalog
+            # 3. Add OutputIntents array to document catalog
             pdf.Root.OutputIntents = pikepdf.Array([output_intent])
 
-            # 5. Set XMP metadata with PDF/A-2b conformance
+            # 4. Set XMP metadata with PDF/A-2b conformance
             with pdf.open_metadata(set_pikepdf_as_editor=False) as meta:
                 meta["pdfaid:part"] = "2"
                 meta["pdfaid:conformance"] = "B"
@@ -634,7 +672,7 @@ def convert_to_pdfa(input_pdf: Path, output_pdf: Path, page_layout: str = "defau
                 meta["xmp:CreatorTool"] = "BigOCRPDF"
                 meta["pdf:Producer"] = "BigOCRPDF (pikepdf)"
 
-            # 6. Save preserving all streams as-is (no image re-encoding)
+            # 5. Save preserving all streams as-is (no image re-encoding)
             #    force_version="1.7" sets PDF header to 1.7 (PDF/A-2 requires ≥1.7)
             pdf.save(
                 output_pdf,

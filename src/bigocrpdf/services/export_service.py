@@ -9,6 +9,7 @@ import os
 import subprocess
 from pathlib import Path
 
+from bigocrpdf.utils.durable_writes import write_text_atomically
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
@@ -37,6 +38,7 @@ def save_text_file(
     try:
         # Try structured export using pdftotext TSV pipeline
         text_to_save = extracted_text
+        used_structured_text = False
         if os.path.isfile(output_file) and output_file.lower().endswith(".pdf"):
             try:
                 from bigocrpdf.utils.tsv_odf_converter import convert_pdf_to_text
@@ -44,11 +46,12 @@ def save_text_file(
                 structured = convert_pdf_to_text(output_file)
                 if structured.strip():
                     text_to_save = structured
+                    used_structured_text = True
             except Exception as e:
                 logger.warning(f"Structured text extraction failed, using raw text: {e}")
 
         # Detect and split book spreads if OCR data is available
-        if text_to_save is extracted_text and ocr_boxes:
+        if not used_structured_text and ocr_boxes:
             from bigocrpdf.utils.spread_detector import (
                 detect_and_split_spreads,
                 split_text_by_spreads,
@@ -67,8 +70,7 @@ def save_text_file(
         base_name = os.path.splitext(os.path.basename(output_file))[0]
         txt_path = os.path.join(txt_dir, f"{base_name}.txt")
 
-        with open(txt_path, "w", encoding="utf-8") as f:
-            f.write(text_to_save)
+        write_text_atomically(txt_path, text_to_save)
 
         logger.info(_("Saved extracted text to: {0}").format(txt_path))
         return txt_path
@@ -84,9 +86,8 @@ def save_odf_file(
     ocr_boxes: list,
     source_pdf: str,
     include_images: bool = True,
-    use_formatting: bool = True,
 ) -> str | None:
-    """Save OCR'd PDF as a structured ODF document using pdftotext TSV.
+    """Save an OCR'd PDF as a fixed-layout or reflowable structured ODF document.
 
     Uses pdftotext -tsv on the OCR'd PDF (output_file) to extract
     word-level positions, then assembles headings, paragraphs, tables
@@ -97,8 +98,7 @@ def save_odf_file(
         extracted_text: The extracted text content (unused, kept for API compat).
         ocr_boxes: List of OCR boxes (unused, kept for API compat).
         source_pdf: Path to the original source PDF (unused).
-        include_images: Whether to embed page images in the ODF document.
-        use_formatting: Whether to use coordinate-based formatting (unused).
+        include_images: Whether to position editable text using PDF coordinates.
 
     Returns:
         Path to the saved ODF file, or None on failure.
@@ -121,30 +121,3 @@ def save_odf_file(
     except Exception as e:
         logger.error(f"Unexpected error saving ODF file: {e}")
         return None
-
-
-def _boxes_to_ocr_data(ocr_boxes: list) -> list:
-    """Convert OCR boxes to OCRTextData objects.
-
-    Args:
-        ocr_boxes: List of raw OCR box objects
-
-    Returns:
-        List of OCRTextData objects
-    """
-    from bigocrpdf.utils.odf_exporter import OCRTextData
-
-    return [
-        OCRTextData(
-            text=box.text,
-            x=box.x,
-            y=box.y,
-            width=box.width,
-            height=box.height,
-            confidence=getattr(box, "confidence", 1.0),
-            page_num=getattr(box, "page_num", 1),
-            is_bold=getattr(box, "is_bold", False),
-            is_underlined=getattr(box, "is_underlined", False),
-        )
-        for box in ocr_boxes
-    ]

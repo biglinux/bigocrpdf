@@ -29,19 +29,19 @@ _MIN_FREE_BYTES = 100 * 1024 * 1024  # 100 MB absolute minimum
 _tracked_files: set[str] = set()
 _tracked_dirs: set[str] = set()
 _cleanup_registered = False
+_sigterm_registered = False
+_run_cache_dir: Path | None = None
 
 
 def _register_cleanup() -> None:
     """Register atexit and SIGTERM handlers exactly once."""
-    global _cleanup_registered
-    if _cleanup_registered:
-        return
-    _cleanup_registered = True
-
-    atexit.register(cleanup_all)
+    global _cleanup_registered, _sigterm_registered
+    if not _cleanup_registered:
+        _cleanup_registered = True
+        atexit.register(cleanup_all)
 
     # SIGTERM handler can only be set from the main thread
-    if threading.current_thread() is threading.main_thread():
+    if not _sigterm_registered and threading.current_thread() is threading.main_thread():
         prev_handler = signal.getsignal(signal.SIGTERM)
 
         def _on_sigterm(signum, frame):
@@ -53,6 +53,7 @@ def _register_cleanup() -> None:
                 raise SystemExit(1)
 
         signal.signal(signal.SIGTERM, _on_sigterm)
+        _sigterm_registered = True
 
 
 # ---------------------------------------------------------------------------
@@ -110,11 +111,12 @@ def choose_temp_base(needed_bytes: int = 0) -> Path:
     """Choose the best base directory for temporary files.
 
     Strategy:
-      1. If *needed_bytes* < 50 % of free space on /tmp → use /tmp (fast, tmpfs).
+      1. If *needed_bytes* < 50 % of free space on the system temp dir → use it.
       2. Otherwise try ~/.cache/bigocrpdf if it has enough room.
-      3. Fall back to /tmp regardless (let the OS handle it).
+      3. Fall back to the system temp dir regardless (let the OS handle it).
     """
-    tmp_free = get_free_space("/tmp")
+    system_temp_dir = tempfile.gettempdir()
+    tmp_free = get_free_space(system_temp_dir)
 
     # Prefer /tmp when plenty of headroom
     if needed_bytes == 0 or (tmp_free > 0 and needed_bytes < tmp_free * _TMPFS_HEADROOM_RATIO):
@@ -123,11 +125,28 @@ def choose_temp_base(needed_bytes: int = 0) -> Path:
     # Try persistent cache dir
     cache_free = get_free_space(str(_APP_CACHE_DIR.parent))
     if cache_free > needed_bytes + _MIN_FREE_BYTES:
-        _APP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-        return _APP_CACHE_DIR
+        return _get_run_cache_dir()
 
-    # Fallback — /tmp is still best-effort
-    return Path(tempfile.gettempdir())
+    # Fallback — the system temp dir is still best-effort
+    return Path(system_temp_dir)
+
+
+def _get_run_cache_dir() -> Path:
+    """Return this process's private cache namespace."""
+    global _run_cache_dir
+    if _run_cache_dir is not None and _run_cache_dir.is_dir():
+        return _run_cache_dir
+
+    _APP_CACHE_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
+    run_dir = Path(
+        tempfile.mkdtemp(
+            prefix=f"run-{os.getpid()}-",
+            dir=_APP_CACHE_DIR,
+        )
+    )
+    _tracked_dirs.add(str(run_dir))
+    _run_cache_dir = run_dir
+    return run_dir
 
 
 # ---------------------------------------------------------------------------
@@ -188,22 +207,43 @@ def untrack_dir(path: str) -> None:
     _tracked_dirs.discard(path)
 
 
-def remove_file(path: str) -> None:
-    """Remove a tracked temp file immediately."""
-    _tracked_files.discard(path)
+def remove_tracked_file(path: str) -> bool:
+    """Remove an exact file only when this process registered its ownership."""
+    if path not in _tracked_files:
+        return False
     try:
         os.unlink(path)
+    except FileNotFoundError:
+        _tracked_files.discard(path)
+        return True
     except OSError:
-        pass
+        return False
+    _tracked_files.discard(path)
+    return True
+
+
+def remove_file(path: str) -> None:
+    """Remove a tracked temp file immediately."""
+    try:
+        os.unlink(path)
+    except FileNotFoundError:
+        _tracked_files.discard(path)
+    except OSError:
+        return
+    else:
+        _tracked_files.discard(path)
 
 
 def remove_dir(path: str) -> None:
     """Remove a tracked temp directory immediately."""
-    _tracked_dirs.discard(path)
     try:
-        shutil.rmtree(path, ignore_errors=True)
+        shutil.rmtree(path)
+    except FileNotFoundError:
+        _tracked_dirs.discard(path)
     except OSError:
-        pass
+        return
+    else:
+        _tracked_dirs.discard(path)
 
 
 # ---------------------------------------------------------------------------
@@ -211,39 +251,40 @@ def remove_dir(path: str) -> None:
 # ---------------------------------------------------------------------------
 
 
+def _cleanup_tracked_files() -> None:
+    """Remove tracked temporary files."""
+    for path in list(_tracked_files):
+        try:
+            os.unlink(path)
+        except FileNotFoundError:
+            _tracked_files.discard(path)
+        except OSError:
+            continue
+        else:
+            _tracked_files.discard(path)
+            logger.debug(f"Cleaned temp file: {path}")
+
+
+def _cleanup_tracked_dirs() -> None:
+    """Remove tracked temporary directories."""
+    for path in list(_tracked_dirs):
+        try:
+            shutil.rmtree(path)
+        except FileNotFoundError:
+            _tracked_dirs.discard(path)
+        except OSError:
+            continue
+        else:
+            _tracked_dirs.discard(path)
+            logger.debug(f"Cleaned temp dir: {path}")
+
+
 def cleanup_all() -> None:
     """Remove all tracked temp files and directories.
 
     Safe to call multiple times (idempotent).
     """
-    for f in list(_tracked_files):
-        try:
-            if os.path.exists(f):
-                os.unlink(f)
-                logger.debug(f"Cleaned temp file: {f}")
-        except OSError:
-            pass
-    _tracked_files.clear()
-
-    for d in list(_tracked_dirs):
-        try:
-            if os.path.isdir(d):
-                shutil.rmtree(d, ignore_errors=True)
-                logger.debug(f"Cleaned temp dir: {d}")
-        except OSError:
-            pass
-    _tracked_dirs.clear()
-
-    # Also sweep stale bigocrpdf files in ~/.cache/bigocrpdf
-    try:
-        if _APP_CACHE_DIR.is_dir():
-            for item in _APP_CACHE_DIR.iterdir():
-                try:
-                    if item.is_file():
-                        item.unlink()
-                    elif item.is_dir():
-                        shutil.rmtree(item, ignore_errors=True)
-                except OSError:
-                    pass
-    except OSError:
-        pass
+    global _run_cache_dir
+    _cleanup_tracked_files()
+    _cleanup_tracked_dirs()
+    _run_cache_dir = None

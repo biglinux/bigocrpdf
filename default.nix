@@ -1,16 +1,20 @@
 {
+  lib,
   python3Packages,
   gtk4,
   libadwaita,
   pkg-config,
   wrapGAppsHook4,
   gobject-introspection,
+  gettext,
   poppler_utils,
   ghostscript,
-  fribidi,
   jbig2enc ? null,
 }:
 
+assert lib.versionAtLeast python3Packages.python.version "3.12";
+assert lib.versionAtLeast gtk4.version "4.22";
+assert lib.versionAtLeast libadwaita.version "1.8";
 python3Packages.buildPythonApplication {
   pname = "bigocrpdf";
   version = "3.0.0";
@@ -35,6 +39,7 @@ python3Packages.buildPythonApplication {
   ];
 
   nativeBuildInputs = [
+    gettext
     pkg-config
     wrapGAppsHook4
     gobject-introspection
@@ -45,35 +50,17 @@ python3Packages.buildPythonApplication {
     libadwaita
     poppler_utils
     ghostscript
-    fribidi
   ] ++ (if jbig2enc != null then [ jbig2enc ] else []);
 
   postInstall = ''
-    # Install desktop files
-    mkdir -p $out/share/applications
-    cp $src/usr/share/applications/*.desktop $out/share/applications/ || true
-
-    # Install icons
-    mkdir -p $out/share/icons
-    cp -r $src/usr/share/icons/* $out/share/icons/ || true
-
-    # Install service menus
-    mkdir -p $out/share/kio/servicemenus
-    cp $src/usr/share/kio/servicemenus/*.desktop $out/share/kio/servicemenus/ || true
-
-    # Install locale files
-    mkdir -p $out/share/locale
-    cp -r $src/usr/share/locale/* $out/share/locale/ || true
-
-    # Install bin wrappers
-    mkdir -p $out/bin
-    cp $src/usr/bin/* $out/bin/ || true
+    bash $src/tools/stage-data.sh "$out"
   '';
 
   meta = {
     description = "OCR toolkit for Linux — searchable PDFs, image OCR, PDF editor";
     homepage = "https://github.com/biglinux/bigocrpdf";
-    license = "GPL-3.0-or-later";
+    license = lib.licenses.gpl3Plus;
     mainProgram = "bigocrpdf";
+    platforms = lib.platforms.linux;
   };
 }

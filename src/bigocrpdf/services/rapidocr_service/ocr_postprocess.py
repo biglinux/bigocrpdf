@@ -10,6 +10,7 @@ import logging
 import os
 import tempfile
 from collections.abc import Callable
+from dataclasses import dataclass
 
 import cv2
 import numpy as np
@@ -31,6 +32,71 @@ _REFINE_MIN_BOX_WIDTH = 200
 _REFINE_CROP_PADDING = 30
 # Minimum average confidence for re-OCR results to replace the original.
 _REFINE_MIN_REPLACEMENT_SCORE = 0.5
+_PAGE_RETRY_CONFIDENCE_THRESHOLD = 0.75
+
+
+@dataclass(frozen=True)
+class PageRetryDecision:
+    """Decision for whole-page OCR retry."""
+
+    should_retry: bool
+    reason: str = ""
+
+
+def ocr_confidence_mean(ocr_raw: dict | None) -> float:
+    """Return mean OCR confidence for a raw OCR result."""
+    if not ocr_raw or not ocr_raw.get("scores"):
+        return 0.0
+    scores = [float(score) for score in ocr_raw["scores"]]
+    return sum(scores) / len(scores)
+
+
+def should_retry_page_ocr(
+    ocr_raw: dict | None,
+    *,
+    page_has_image_content: bool = True,
+    min_confidence: float = _PAGE_RETRY_CONFIDENCE_THRESHOLD,
+) -> PageRetryDecision:
+    """Decide whether a page should be OCR'd again with stronger settings."""
+    if not page_has_image_content:
+        return PageRetryDecision(False)
+    if not ocr_raw or not ocr_raw.get("boxes"):
+        return PageRetryDecision(True, "no_boxes")
+    mean_confidence = ocr_confidence_mean(ocr_raw)
+    if mean_confidence < min_confidence:
+        return PageRetryDecision(True, "low_confidence")
+    return PageRetryDecision(False)
+
+
+def choose_better_ocr_result(original: dict | None, retry: dict | None) -> dict | None:
+    """Prefer retry OCR only when it improves usable text/confidence."""
+    if not retry or not retry.get("boxes"):
+        return original
+    if not original or not original.get("boxes"):
+        return retry
+    retry_text_chars = sum(len(text) for text in retry.get("txts", []))
+    original_text_chars = sum(len(text) for text in original.get("txts", []))
+    if retry_text_chars > original_text_chars:
+        return retry
+    if retry_text_chars == original_text_chars and ocr_confidence_mean(retry) > ocr_confidence_mean(
+        original
+    ):
+        return retry
+    return original
+
+
+def apply_ocr_box_offset(ocr_raw: dict | None, offset: tuple[int, int]) -> dict | None:
+    """Return OCR raw result with every box shifted by the crop offset."""
+    if not ocr_raw or not ocr_raw.get("boxes"):
+        return ocr_raw
+    offset_x, offset_y = offset
+    if offset_x == 0 and offset_y == 0:
+        return ocr_raw
+    shifted = dict(ocr_raw)
+    shifted["boxes"] = [
+        [[point[0] + offset_x, point[1] + offset_y] for point in box] for box in ocr_raw["boxes"]
+    ]
+    return shifted
 
 
 def fix_vertical_overlaps(results: list[OCRResult]) -> list[OCRResult]:
@@ -158,10 +224,14 @@ def _reocr_region(
     cx1, cx2 = max(0, x_min - pad), min(img_w, x_max + pad)
 
     crop = img[cy1:cy2, cx1:cx2]
+    if crop.size == 0:
+        return None
+
     fd, crop_path = tempfile.mkstemp(suffix=".jpg")
     os.close(fd)
     try:
-        cv2.imwrite(crop_path, crop)
+        if not cv2.imwrite(crop_path, crop):
+            return None
         crop_result = ocr_fn(crop_path)
     finally:
         try:

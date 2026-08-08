@@ -7,6 +7,7 @@ creating searchable PDFs while preserving the original image appearance.
 
 import logging
 import math
+from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -22,11 +23,6 @@ if TYPE_CHECKING:
     from bigocrpdf.services.rapidocr_service.config import OCRConfig, OCRResult
 
 logger = logging.getLogger(__name__)
-
-
-def _escape_pdf(text: str) -> str:
-    """Escape special PDF string characters."""
-    return text.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
 
 
 @dataclass
@@ -73,6 +69,60 @@ class PageTextLayer:
     height_pts: float = A4[1]
     image_width_px: int = 0
     image_height_px: int = 0
+
+
+def _line_text_with_spacing(
+    line_boxes: list[TextBox],
+    font_name: str,
+    line_font_size: float,
+) -> str:
+    space_width = pdfmetrics.stringWidth(" ", font_name, line_font_size)
+    if space_width <= 0:
+        space_width = line_font_size * 0.25
+
+    parts: list[str] = []
+    for i, box in enumerate(line_boxes):
+        parts.append(box.text)
+        if i < len(line_boxes) - 1:
+            next_box = line_boxes[i + 1]
+            gap = next_box.x - (box.x + box.width)
+            num_spaces = max(1, round(gap / space_width)) if gap > 0 else 1
+            parts.append(" " * num_spaces)
+    return "".join(parts)
+
+
+def _line_horizontal_scale(
+    line_text: str,
+    line_width: float,
+    font_name: str,
+    line_font_size: float,
+) -> float:
+    natural_width = pdfmetrics.stringWidth(line_text, font_name, line_font_size)
+    if natural_width > 0 and line_width > 0:
+        return line_width / natural_width * 100.0
+    return 100.0
+
+
+def _normalize_ocr_quadrilateral(
+    box: object,
+) -> (
+    tuple[tuple[float, float], tuple[float, float], tuple[float, float], tuple[float, float]] | None
+):
+    """Validate nested or legacy flat OCR coordinates as four numeric points."""
+    if not isinstance(box, (list, tuple)) or len(box) < 4:
+        return None
+    raw_points = (
+        box[:4]
+        if isinstance(box[0], (list, tuple))
+        else ((box[0], box[1]), (box[2], box[1]), (box[2], box[3]), (box[0], box[3]))
+    )
+    try:
+        points = tuple((float(point[0]), float(point[1])) for point in raw_points)
+    except (IndexError, TypeError, ValueError):
+        return None
+    if len(points) != 4 or not all(math.isfinite(value) for point in points for value in point):
+        return None
+    return points[0], points[1], points[2], points[3]
 
 
 class TextLayerRenderer:
@@ -192,22 +242,14 @@ class TextLayerRenderer:
             if not text:
                 continue
 
-            coords = result.box
             confidence = result.confidence
-
-            if len(coords) < 4:
+            quadrilateral = _normalize_ocr_quadrilateral(result.box)
+            if quadrilateral is None:
                 continue
 
             try:
-                if isinstance(coords[0], (list, tuple)):
-                    # Quadrilateral: TL, TR, BR, BL (RapidOCR order)
-                    tl, tr, br, bl = coords[0], coords[1], coords[2], coords[3]
-                else:
-                    # Flat [x1,y1,x2,y2] — build axis-aligned quad
-                    tl = [coords[0], coords[1]]
-                    tr = [coords[2], coords[1]]
-                    br = [coords[2], coords[3]]
-                    bl = [coords[0], coords[3]]
+                # Quadrilateral: TL, TR, BR, BL (RapidOCR order)
+                tl, tr, br, bl = quadrilateral
 
                 # Text width along reading direction (bottom edge length)
                 dx = br[0] - bl[0]
@@ -254,23 +296,6 @@ class TextLayerRenderer:
                 continue
 
         return layer
-
-    def _sort_for_reading_order(
-        self, results: list["OCRResult"], page_width: float = 0
-    ) -> list["OCRResult"]:
-        """Sort OCR results in reading order (top-to-bottom, left-to-right).
-
-        Args:
-            results: OCR results with bounding boxes.
-            page_width: Page width in pixels (unused, kept for API compat).
-
-        Returns:
-            Sorted list of OCR results.
-        """
-        return sorted(
-            results,
-            key=lambda r: (min(p[1] for p in r.box), min(p[0] for p in r.box)),
-        )
 
     @staticmethod
     def _snap_baselines(boxes: list[TextBox]) -> None:
@@ -355,99 +380,73 @@ class TextLayerRenderer:
         if image_offset:
             canvas.translate(image_offset[0], image_offset[1])
 
-        # Apply transform if rotation is needed to match PDF coordinate system
-        # layer.width/height correspond to the View dimensions (Upright)
+        self._apply_page_rotation(canvas, layer, rotation)
 
+        # PDF text render mode 3 makes the text invisible without alpha states.
+        font_name = self._font_name or "Helvetica"
+        count = self._render_text_lines(canvas, layer.boxes, font_name)
+        canvas.restoreState()
+        return count
+
+    @staticmethod
+    def _apply_page_rotation(
+        canvas: canvas.Canvas,
+        layer: PageTextLayer,
+        rotation: int,
+    ) -> None:
         if rotation == 90:
-            # Rotate 90 deg CW (relative to PDF coords)
-            # Map Text(x,y) -> Page(W-y, x)
-            # layer.height_pts is approx Page Width
             canvas.translate(layer.height_pts, 0)
             canvas.rotate(90)
         elif rotation == 180:
-            # Rotate 180
-            # Map Text(x,y) -> Page(W-x, H-y)
             canvas.translate(layer.width_pts, layer.height_pts)
             canvas.rotate(180)
         elif rotation == 270:
-            # Rotate 270 (90 CCW)
-            # Map Text(x,y) -> Page(y, H-x)
-            # layer.width_pts is approx Page Height
             canvas.translate(0, layer.width_pts)
             canvas.rotate(270)
 
-        # Draw invisible text
-        canvas.setFillColorRGB(0, 0, 0, 0)  # Transparent fill
-        canvas.setStrokeColorRGB(0, 0, 0, 0)  # Transparent stroke
-
-        count = 0
-        font_name = self._font_name or "Helvetica"
-
-        # Group boxes by snapped baseline (same y = same line).
-        # Rendering all same-line text in one BT/ET block ensures
-        # that pdftotext treats them as a single line.
-        from collections import defaultdict
-
+    @staticmethod
+    def _text_lines(boxes: list[TextBox]) -> list[tuple[float, list[TextBox]]]:
         lines: dict[float, list[TextBox]] = defaultdict(list)
-        for box in layer.boxes:
+        for box in boxes:
             lines[box.y].append(box)
+        return sorted(lines.items(), reverse=True)
 
-        for y_val, line_boxes in sorted(lines.items(), reverse=True):
-            # Sort by x position (left to right reading order)
+    def _render_text_lines(
+        self,
+        canvas: canvas.Canvas,
+        boxes: list[TextBox],
+        font_name: str,
+    ) -> int:
+        count = 0
+        for y_val, line_boxes in self._text_lines(boxes):
             line_boxes.sort(key=lambda b: b.x)
-
             try:
-                canvas.saveState()
-
-                # Build a single text string for the entire line by
-                # joining all boxes with proportional spacing.  This
-                # produces ONE Tf + ONE Tz + ONE Tj per BT/ET block,
-                # which PDF extractors (Okular, pdfgrep, pdftotext)
-                # reliably treat as a single line.  Multiple Td/Tf/Tz
-                # changes within a BT/ET (the previous approach) caused
-                # extractors to insert spurious line breaks.
-                line_font_size = sum(b.font_size for b in line_boxes) / len(line_boxes)
-                space_w = pdfmetrics.stringWidth(" ", font_name, line_font_size)
-                if space_w <= 0:
-                    space_w = line_font_size * 0.25
-
-                # Assemble text with proportional spaces between boxes
-                parts: list[str] = []
-                for i, box in enumerate(line_boxes):
-                    parts.append(box.text)
-                    if i < len(line_boxes) - 1:
-                        nxt = line_boxes[i + 1]
-                        gap = nxt.x - (box.x + box.width)
-                        if gap > 0:
-                            num_spaces = max(1, round(gap / space_w))
-                        else:
-                            num_spaces = 1
-                        parts.append(" " * num_spaces)
-
-                line_text = "".join(parts)
-                line_x = line_boxes[0].x
-                line_y = line_boxes[0].y
-                line_width = (line_boxes[-1].x + line_boxes[-1].width) - line_boxes[0].x
-
-                natural_w = pdfmetrics.stringWidth(line_text, font_name, line_font_size)
-                if natural_w > 0 and line_width > 0:
-                    h_scale = line_width / natural_w * 100.0
-                else:
-                    h_scale = 100.0
-
-                text_obj = canvas.beginText()
-                text_obj._code.append("3 Tr")
-                text_obj.setTextOrigin(line_x, line_y)
-                text_obj.setFont(font_name, line_font_size)
-                text_obj.setHorizScale(h_scale)
-                text_obj.textOut(line_text)
-                count += len(line_boxes)
-
-                canvas.drawText(text_obj)
-                canvas.restoreState()
+                count += self._render_text_line(canvas, line_boxes, font_name)
             except Exception as e:
                 logger.debug(f"Failed to render line at y={y_val:.1f}: {e}")
-                continue
-
-        canvas.restoreState()
         return count
+
+    @staticmethod
+    def _render_text_line(
+        canvas: canvas.Canvas,
+        line_boxes: list[TextBox],
+        font_name: str,
+    ) -> int:
+        canvas.saveState()
+        line_font_size = sum(b.font_size for b in line_boxes) / len(line_boxes)
+        line_text = _line_text_with_spacing(line_boxes, font_name, line_font_size)
+        line_x = line_boxes[0].x
+        line_y = line_boxes[0].y
+        line_width = (line_boxes[-1].x + line_boxes[-1].width) - line_boxes[0].x
+        h_scale = _line_horizontal_scale(line_text, line_width, font_name, line_font_size)
+
+        text_obj = canvas.beginText()
+        text_obj.setTextRenderMode(3)
+        text_obj.setTextOrigin(line_x, line_y)
+        text_obj.setFont(font_name, line_font_size)
+        text_obj.setHorizScale(h_scale)
+        text_obj.textOut(line_text)
+
+        canvas.drawText(text_obj)
+        canvas.restoreState()
+        return len(line_boxes)

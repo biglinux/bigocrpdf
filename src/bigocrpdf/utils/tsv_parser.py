@@ -64,6 +64,7 @@ class DocElement:
     raw_lines: list[str] = field(default_factory=list)
     indent_chars: int = 0
     y_top: float = 0.0  # Top-down Y position (matches pdftotext TSV coordinates)
+    text_align: str = ""  # Geometry-derived ODT alignment: center or end.
 
 
 # ── Constants ──
@@ -71,7 +72,7 @@ class DocElement:
 FOOTER_REGION_Y = 780.0
 Y_TOLERANCE = 5.0
 X_GAP_SPLIT = 300.0
-COLUMN_GAP_THRESHOLD = 30.0
+COLUMN_GAP_THRESHOLD = 15.0
 MAX_TABLE_GAP = 200.0
 HEADER_MISALIGN_TOLERANCE = 100.0
 CENTER_CLUSTER_TOLERANCE = 30.0
@@ -103,7 +104,7 @@ def parse_tsv_pages(pdf_path: str) -> dict[int, list[Word]]:
 
     pages: dict[int, list[Word]] = {}
     reader = csv.reader(io.StringIO(result.stdout), delimiter="\t", quoting=csv.QUOTE_NONE)
-    next(reader)  # skip header
+    next(reader, None)  # skip header
 
     for row in reader:
         if len(row) < 12 or row[0] != "5":
@@ -111,17 +112,18 @@ def parse_tsv_pages(pdf_path: str) -> dict[int, list[Word]]:
         text = row[11].strip() if len(row) > 11 else ""
         if not text or "\t" in text or "\n" in text:
             continue
-        page = int(row[1])
-        w = Word(
-            text=text,
-            left=float(row[6]),
-            top=float(row[7]),
-            width=float(row[8]),
-            height=float(row[9]),
-        )
-        if page not in pages:
-            pages[page] = []
-        pages[page].append(w)
+        try:
+            page = int(row[1])
+            w = Word(
+                text=text,
+                left=float(row[6]),
+                top=float(row[7]),
+                width=float(row[8]),
+                height=float(row[9]),
+            )
+        except ValueError:
+            continue
+        pages.setdefault(page, []).append(w)
 
     return pages
 

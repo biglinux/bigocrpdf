@@ -68,11 +68,25 @@ def _find_valley(
     valley_threshold = avg_peak * 0.3
     valley_start = None
     valley_end = None
+    best_width = 0
+    run_start = None
     for b in range(center_start, center_end):
         if coverage[b] <= valley_threshold:
-            if valley_start is None:
-                valley_start = b
-            valley_end = b
+            if run_start is None:
+                run_start = b
+        elif run_start is not None:
+            run_width = b - run_start
+            if run_width > best_width:
+                valley_start = run_start
+                valley_end = b - 1
+                best_width = run_width
+            run_start = None
+
+    if run_start is not None:
+        run_width = center_end - run_start
+        if run_width > best_width:
+            valley_start = run_start
+            valley_end = center_end - 1
 
     if valley_start is None or valley_end is None:
         return None
@@ -225,16 +239,13 @@ def _collect_table_candidates(
     candidate_lines = []
     idx = start_idx
     while idx < len(lines):
-        groups = _get_column_groups(lines[idx].words, gap=COLUMN_GAP_THRESHOLD)
-        is_valid = len(groups) >= 3
-        if not is_valid and len(groups) == 2:
-            gap = groups[1][0].left - groups[0][-1].right
-            is_valid = gap >= TABLE_TWO_COL_GAP
-        if is_valid:
-            candidate_lines.append((idx, lines[idx], groups))
-            idx += 1
-        else:
+        line = lines[idx]
+        if not is_table_line(line):
             break
+        candidate_lines.append(
+            (idx, line, _get_column_groups(line.words, gap=COLUMN_GAP_THRESHOLD))
+        )
+        idx += 1
     return candidate_lines
 
 
@@ -304,36 +315,48 @@ def _scan_backward_headers(
     header_x_threshold = table_min_x + 50
 
     for j in range(start_idx - 1, max(start_idx - 4, -1), -1):
-        prev_line = lines[j]
-        y_gap = lines[j + 1].y - prev_line.y
-        if y_gap > 25:
-            break
-        if prev_line.min_x < header_x_threshold:
-            break
-        # Header words must show column-like gaps (not continuous text)
-        word_groups = _get_column_groups(prev_line.words, gap=HEADER_WORD_GAP)
-        if len(word_groups) < 2:
-            break
-        row = _distribute_words_to_columns(prev_line.words, col_centers)
-        populated = sum(1 for c in row if c)
-        if populated < 2:
+        row = _pre_header_row(lines, j, header_x_threshold, col_centers)
+        if row is None:
             break
         header_rows.insert(0, row)
         n_pre_headers += 1
 
-    # Merge multiple pre-header rows into a single row
-    if len(header_rows) > 1:
-        merged = [""] * len(col_centers)
-        for row in header_rows:
-            for ci, cell in enumerate(row):
-                if cell and ci < len(merged):
-                    if merged[ci]:
-                        merged[ci] += " " + cell
-                    else:
-                        merged[ci] = cell
-        header_rows = [merged]
+    header_rows = _merge_pre_header_rows(header_rows, len(col_centers))
 
     return header_rows, n_pre_headers
+
+
+def _pre_header_row(
+    lines: list[TextLine],
+    line_idx: int,
+    header_x_threshold: float,
+    col_centers: list[float],
+) -> list[str] | None:
+    prev_line = lines[line_idx]
+    y_gap = lines[line_idx + 1].y - prev_line.y
+    if y_gap > 25 or prev_line.min_x < header_x_threshold:
+        return None
+
+    word_groups = _get_column_groups(prev_line.words, gap=HEADER_WORD_GAP)
+    if len(word_groups) < 2:
+        return None
+
+    row = _distribute_words_to_columns(prev_line.words, col_centers)
+    if sum(1 for cell in row if cell) < 2:
+        return None
+    return row
+
+
+def _merge_pre_header_rows(header_rows: list[list[str]], n_cols: int) -> list[list[str]]:
+    if len(header_rows) <= 1:
+        return header_rows
+
+    merged = [""] * n_cols
+    for row in header_rows:
+        for col_idx, cell in enumerate(row):
+            if cell and col_idx < len(merged):
+                merged[col_idx] = f"{merged[col_idx]} {cell}" if merged[col_idx] else cell
+    return [merged]
 
 
 def _merge_complementary_headers(

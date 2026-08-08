@@ -14,7 +14,7 @@ from dataclasses import fields
 from pathlib import Path
 
 from .backend import ProfessionalPDFOCR
-from .config import OCRConfig, ProcessingStats
+from .config import OCRConfig
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,6 @@ _MODEL_AFFECTING_FIELDS = frozenset(
     {
         "language",
         "dpi",
-        "use_server_models",
         "engine_type",
         "model_base_path",
         "font_base_path",
@@ -90,7 +89,6 @@ class RapidOCREngine:
         """Initialize with OCR configuration."""
         self.config = config
         self.cancel_event = threading.Event()  # Cooperative cancellation
-        self._stats = ProcessingStats()
 
     def process(
         self,
@@ -128,10 +126,6 @@ class RapidOCREngine:
             full_text = stats.full_text or ""
             stats.total_words = len(full_text.split())
             stats.total_chars = len(full_text)
-            stats.total_time = stats.processing_time_seconds
-
-            # Update internal stats for GUI compatibility
-            self._stats = stats
 
             logger.info("OCR Processing completed successfully via backend")
             return stats
