@@ -41,9 +41,7 @@ def _pos(name, w, h, x=0.0, y=0.0):
 
 
 def _info(idx, w, h, comp, obj=0):
-    return PdfImageInfo(
-        idx=idx, img_type="image", width=w, height=h, comp_size=comp, object_id=obj
-    )
+    return PdfImageInfo(idx=idx, img_type="image", width=w, height=h, comp_size=comp, object_id=obj)
 
 
 class TestMatchPositionsToImages(unittest.TestCase):
@@ -93,6 +91,21 @@ class TestMatchPositionsToImages(unittest.TestCase):
 
         self.assertEqual(pairs[0][1].idx, 1)  # /A -> obj 8
         self.assertEqual(pairs[1][1].idx, 0)  # /B -> obj 7
+
+    def test_repeated_draw_reuses_exact_object_match(self) -> None:
+        positions = [_pos("/A", 20, 20), _pos("/A", 200, 200)]
+        infos = [_info(0, 100, 100, comp=1000, obj=7)]
+
+        pairs = match_positions_to_images(
+            positions,
+            infos,
+            {"/A": 7},
+            {"/A": (100, 100)},
+        )
+
+        matches = [pair[1] for pair in pairs]
+        self.assertTrue(all(match is not None for match in matches))
+        self.assertEqual([match.idx for match in matches if match is not None], [0, 0])
 
     def test_greedy_single_use_on_colliding_dims(self) -> None:
         """Two identical-dim images, no object ids: each info used at most once."""
@@ -223,14 +236,18 @@ class TestPlacementWiring(unittest.TestCase):
         host = _RecordingBackend()
         with pikepdf.open(self.pdf_path) as pdf:
             MixedContentMixin._ocr_image_pages(
-                host, pdf, positions, extracted, 2, ProcessingStats(), [], None, None,
+                host,
+                pdf,
+                positions,
+                extracted,
+                2,
+                ProcessingStats(),
+                [],
+                None,
+                None,
                 pdfimages_map=pdfimages_map,
             )
 
         seen = dict(host.calls)
         self.assertEqual(seen[scan_name], "img-001.png")  # scan box <- scan file
         self.assertEqual(seen[logo_name], "img-000.png")  # logo box <- logo file
-
-
-if __name__ == "__main__":
-    unittest.main()

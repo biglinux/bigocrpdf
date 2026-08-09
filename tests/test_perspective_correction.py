@@ -1,5 +1,7 @@
 """Tests for perspective correction orchestrator."""
 
+from unittest.mock import patch
+
 import numpy as np
 
 from bigocrpdf.services.perspective_correction import PerspectiveCorrector
@@ -47,3 +49,50 @@ class TestPerspectiveCorrector:
         original = np.full((100, 100, 3), 128, dtype=np.uint8)
         corrected = original.copy()
         assert PerspectiveCorrector._validate_correction(original, corrected, "test") is True
+
+    def test_contour_correction_rejects_internal_document_frame(self):
+        image = np.zeros((1000, 800, 3), dtype=np.uint8)
+        contour = np.array(
+            [[40, 200], [760, 200], [760, 940], [40, 940]],
+            dtype=np.float32,
+        )
+
+        with (
+            patch(
+                "bigocrpdf.services.perspective_correction.detect_document_contour",
+                return_value=contour,
+            ),
+            patch("bigocrpdf.services.perspective_correction.four_point_transform") as transform,
+        ):
+            result = PerspectiveCorrector()._try_contour_correction(image)
+
+        assert result is image
+        transform.assert_not_called()
+
+    def test_contour_correction_uses_the_detected_contour_for_validation(self):
+        image = np.zeros((100, 100, 3), dtype=np.uint8)
+        contour = np.array([[5, 5], [95, 5], [90, 95], [10, 95]], dtype=np.float32)
+
+        with (
+            patch(
+                "bigocrpdf.services.perspective_correction.detect_document_contour",
+                return_value=contour,
+            ) as detect,
+            patch(
+                "bigocrpdf.services.perspective_correction._contour_needs_perspective_correction",
+                return_value=False,
+            ) as needs_correction,
+        ):
+            result = PerspectiveCorrector()._try_contour_correction(image)
+
+        assert result is image
+        detect.assert_called_once_with(image)
+        needs_correction.assert_called_once()
+        np.testing.assert_array_equal(needs_correction.call_args.args[0], contour)
+
+
+def test_validate_correction_rejects_validation_errors():
+    original = np.zeros((20, 20, 3), dtype=np.uint8)
+    invalid = np.empty((0, 0, 3), dtype=np.uint8)
+
+    assert PerspectiveCorrector._validate_correction(original, invalid, "test") is False

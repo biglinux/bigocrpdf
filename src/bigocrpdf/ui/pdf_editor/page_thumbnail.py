@@ -11,12 +11,13 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
+gi.require_version("Gdk", "4.0")
 from gi.repository import Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk
 
 from bigocrpdf.ui.pdf_editor.page_model import PageState
-from bigocrpdf.ui.pdf_editor.thumbnail_renderer import get_thumbnail_renderer
+from bigocrpdf.ui.pdf_editor.page_thumbnail_export import PageThumbnailExporter
+from bigocrpdf.ui.pdf_editor.thumbnail_renderer import ThumbnailRequest, get_thumbnail_renderer
 from bigocrpdf.utils.i18n import _
-from bigocrpdf.utils.tooltip_helper import get_tooltip_helper
 
 
 class PageThumbnail(Gtk.Box):
@@ -67,8 +68,14 @@ class PageThumbnail(Gtk.Box):
         self._size = size
         self._selected = False
         self._thumbnail_loaded = False
+        self._thumbnail_loading = False
+        self._thumbnail_generation = 0
+        self._thumbnail_retry_count = 0
+        self._thumbnail_request: ThumbnailRequest | None = None
         self._current_rotation: int | None = None
         self.on_before_mutate: Callable[[], None] | None = None
+        self._grid_handler_ids: list[int] = []
+        self._exporter = PageThumbnailExporter(self)
 
         # Calculate height for A4 aspect ratio
         self._height = int(size * 1.414)
@@ -109,7 +116,7 @@ class PageThumbnail(Gtk.Box):
         self._spinner.set_size_request(32, 32)
         self._spinner.set_halign(Gtk.Align.CENTER)
         self._spinner.set_valign(Gtk.Align.CENTER)
-        self._spinner.start()
+        self._spinner.set_visible(False)
 
         # Image widget
         self._image = Gtk.Picture()
@@ -158,9 +165,7 @@ class PageThumbnail(Gtk.Box):
         self._ocr_check = Gtk.CheckButton()
         # Active means NOT deleted (Included)
         self._ocr_check.set_active(not self._page_state.deleted)
-        get_tooltip_helper().add_tooltip(
-            self._ocr_check, _("Include this page in the final document")
-        )
+        self._ocr_check.set_tooltip_text(_("Include this page in the final document"))
         self._ocr_check.update_property(
             [Gtk.AccessibleProperty.LABEL],
             [_("Include page {} in the final document").format(self._page_state.page_number)],
@@ -179,7 +184,7 @@ class PageThumbnail(Gtk.Box):
         self._rotate_left_btn.set_icon_name("object-rotate-left-symbolic")
         self._rotate_left_btn.add_css_class("flat")
         self._rotate_left_btn.add_css_class("circular")
-        get_tooltip_helper().add_tooltip(self._rotate_left_btn, _("Rotate this page to the left"))
+        self._rotate_left_btn.set_tooltip_text(_("Rotate this page to the left"))
         self._rotate_left_btn.update_property(
             [Gtk.AccessibleProperty.LABEL],
             [_("Rotate page {} to the left").format(self._page_state.page_number)],
@@ -192,7 +197,7 @@ class PageThumbnail(Gtk.Box):
         self._rotate_right_btn.set_icon_name("object-rotate-right-symbolic")
         self._rotate_right_btn.add_css_class("flat")
         self._rotate_right_btn.add_css_class("circular")
-        get_tooltip_helper().add_tooltip(self._rotate_right_btn, _("Rotate this page to the right"))
+        self._rotate_right_btn.set_tooltip_text(_("Rotate this page to the right"))
         self._rotate_right_btn.update_property(
             [Gtk.AccessibleProperty.LABEL],
             [_("Rotate page {} to the right").format(self._page_state.page_number)],
@@ -227,9 +232,7 @@ class PageThumbnail(Gtk.Box):
 
         self.insert_action_group("thumbnail", action_group)
 
-        get_tooltip_helper().add_tooltip(
-            self._flip_btn, _("Mirror this page (Horizontal/Vertical)")
-        )
+        self._flip_btn.set_tooltip_text(_("Mirror this page (Horizontal/Vertical)"))
         self._flip_btn.update_property(
             [Gtk.AccessibleProperty.LABEL],
             [_("Mirror page {}").format(self._page_state.page_number)],
@@ -351,179 +354,17 @@ class PageThumbnail(Gtk.Box):
         self._ctx_popover.set_pointing_to(rect)
         self._ctx_popover.popup()
 
-    _COMMON_IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp"}
-
-    def _save_page_as_image(self) -> None:
-        """Save the current page as an image.
-
-        Single-image pages: extracts original if common format, else renders.
-        Multi-content pages: renders the full page at 300 DPI.
-        """
-        import glob
-        import os
-        import shutil
-        import subprocess
-        import tempfile
-
-        from bigocrpdf.utils.logger import logger
-
-        source = self._page_state.source_file or self._pdf_path
-        page_num = self._page_state.page_number
-        tmpdir = tempfile.mkdtemp(prefix="bigocrpdf_save_")
-        use_render = True
-
-        # Check if single-image page with a common format
-        img_count = 0
-        try:
-            result = subprocess.run(
-                ["pdfimages", "-list", "-f", str(page_num), "-l", str(page_num), source],
-                capture_output=True,
-                text=True,
-                check=False,
-                timeout=10,
-            )
-            for line in result.stdout.splitlines()[2:]:
-                if line.split():
-                    img_count += 1
-        except Exception:
-            pass
-
-        extracted = None
-        ext = ".png"
-
-        if img_count == 1:
-            prefix = os.path.join(tmpdir, "img")
-            try:
-                subprocess.run(
-                    [
-                        "pdfimages",
-                        "-all",
-                        "-f",
-                        str(page_num),
-                        "-l",
-                        str(page_num),
-                        source,
-                        prefix,
-                    ],
-                    check=True,
-                    timeout=30,
-                    capture_output=True,
-                )
-                files = sorted(glob.glob(f"{prefix}-*"))
-                if files:
-                    candidate_ext = os.path.splitext(files[0])[1].lower()
-                    if candidate_ext in self._COMMON_IMAGE_EXTS:
-                        extracted = files[0]
-                        ext = candidate_ext
-                        use_render = False
-            except Exception as e:
-                logger.error(f"pdfimages failed: {e}")
-
-        if use_render:
-            # Render page at 300 DPI (multi-content or exotic format)
-            prefix = os.path.join(tmpdir, "page")
-            try:
-                subprocess.run(
-                    [
-                        "pdftoppm",
-                        "-png",
-                        "-r",
-                        "300",
-                        "-f",
-                        str(page_num),
-                        "-l",
-                        str(page_num),
-                        source,
-                        prefix,
-                    ],
-                    check=True,
-                    timeout=30,
-                    capture_output=True,
-                )
-                files = sorted(glob.glob(f"{prefix}-*"))
-                if files:
-                    extracted = files[0]
-                    ext = ".png"
-            except Exception as e:
-                logger.error(f"pdftoppm failed: {e}")
-
-        if not extracted:
-            shutil.rmtree(tmpdir, ignore_errors=True)
-            return
-
-        base = os.path.splitext(os.path.basename(source))[0]
-        default_name = f"{base}_page{page_num}{ext}"
-
-        file_dialog = Gtk.FileDialog()
-        file_dialog.set_initial_name(default_name)
-        window = self.get_root()
-
-        def _on_save(_dialog, result):
-            try:
-                gfile = _dialog.save_finish(result)
-            except GLib.Error:
-                shutil.rmtree(tmpdir, ignore_errors=True)
-                return
-            if gfile is None:
-                shutil.rmtree(tmpdir, ignore_errors=True)
-                return
-            try:
-                shutil.copy2(extracted, gfile.get_path())
-                logger.info(f"Saved page image: {gfile.get_path()}")
-            finally:
-                shutil.rmtree(tmpdir, ignore_errors=True)
-
-        file_dialog.save(window, None, _on_save)
-
-    def _save_page_as_pdf(self) -> None:
-        """Save the current page as a single-page PDF (original, unmodified)."""
-        import os
-
-        source = self._page_state.source_file or self._pdf_path
-        page_num = self._page_state.page_number
-        base = os.path.splitext(os.path.basename(source))[0]
-        default_name = f"{base}_page{page_num}.pdf"
-
-        file_dialog = Gtk.FileDialog()
-        file_dialog.set_initial_name(default_name)
-        window = self.get_root()
-
-        def _on_save(_dialog, result):
-            try:
-                gfile = _dialog.save_finish(result)
-            except GLib.Error:
-                return
-            if gfile is None:
-                return
-            self._extract_page_pdf(source, page_num, gfile.get_path())
-
-        file_dialog.save(window, None, _on_save)
-
-    @staticmethod
-    def _extract_page_pdf(source: str, page_num: int, save_path: str) -> None:
-        """Extract a single page from a PDF and save as a new PDF."""
-        import pikepdf
-
-        from bigocrpdf.utils.logger import logger
-
-        try:
-            with pikepdf.open(source) as pdf:
-                new_pdf = pikepdf.Pdf.new()
-                new_pdf.pages.append(pdf.pages[page_num - 1])
-                new_pdf.save(save_path)
-            logger.info(f"Saved page {page_num} as PDF: {save_path}")
-        except Exception as e:
-            logger.error(f"Failed to extract page as PDF: {e}")
-
     def _on_ocr_toggled(self, check: Gtk.CheckButton) -> None:
         """Handle Include checkbox toggle.
 
         Args:
             check: The checkbox widget
         """
+        active = check.get_active()
+        if self._page_state.deleted == (not active) and self._page_state.included_for_ocr == active:
+            return
         if self.on_before_mutate:
             self.on_before_mutate()
-        active = check.get_active()
         # Active = Included = Not Deleted
         self._page_state.deleted = not active
         # Also sync OCR state (if kept, default to OCR enabled)
@@ -558,6 +399,10 @@ class PageThumbnail(Gtk.Box):
             parts.append(_("Excluded"))
         if self._page_state.rotation:
             parts.append(_("Rotated {deg}°").format(deg=self._page_state.rotation))
+        if self._page_state.flip_horizontal:
+            parts.append(_("Horizontal Flip"))
+        if self._page_state.flip_vertical:
+            parts.append(_("Vertical Flip"))
         self.update_property(
             [Gtk.AccessibleProperty.LABEL],
             [" — ".join(parts)],
@@ -599,54 +444,118 @@ class PageThumbnail(Gtk.Box):
 
     def load_thumbnail(self) -> None:
         """Load the thumbnail image asynchronously."""
-        if self._thumbnail_loaded:
+        if self._thumbnail_loaded or self._thumbnail_loading:
             return
 
+        self._thumbnail_loading = True
+        self._thumbnail_generation += 1
+        generation = self._thumbnail_generation
+        requested_rotation = self._page_state.rotation
+        self._spinner.set_visible(True)
+        self._spinner.start()
         renderer = get_thumbnail_renderer()
-        renderer.render_page_thumbnail_async(
+        self._thumbnail_request = renderer.render_page_thumbnail_async(
             self._pdf_path,
             self._page_state.page_number - 1,  # Convert to 0-indexed
-            self._on_thumbnail_loaded,
+            lambda pixbuf: self._on_thumbnail_loaded(
+                pixbuf,
+                generation=generation,
+                requested_rotation=requested_rotation,
+            ),
             self._size,
-            self._page_state.rotation,
+            requested_rotation,
         )
 
-    def _on_thumbnail_loaded(self, pixbuf: GdkPixbuf.Pixbuf | None) -> None:
+    def _on_thumbnail_loaded(
+        self,
+        pixbuf: GdkPixbuf.Pixbuf | None,
+        *,
+        generation: int,
+        requested_rotation: int | None = None,
+    ) -> None:
         """Handle thumbnail rendering completion.
 
         Args:
             pixbuf: The rendered thumbnail pixbuf
+            generation: Widget request generation that owns this callback
+            requested_rotation: Rotation applied by the renderer
         """
-        self._thumbnail_loaded = True
-        self._current_rotation = self._page_state.rotation
+        if generation != self._thumbnail_generation:
+            return
+        self._thumbnail_request = None
+        self._thumbnail_loading = False
         self._spinner.stop()
         self._spinner.set_visible(False)
 
-        if pixbuf is not None:
-            texture = Gdk.Texture.new_for_pixbuf(pixbuf)
-            self._image.set_paintable(texture)
-            self._page_state.thumbnail_pixbuf = pixbuf
-        else:
-            self._image.set_resource(
-                "/org/gtk/libgtk/icons/32x32/status/image-missing-symbolic.png"
-            )
+        if pixbuf is None:
+            self._thumbnail_loaded = False
+            self._current_rotation = None
+            self._page_state.thumbnail_pixbuf = None
+            self._image.set_paintable(None)
+            self._image.set_visible(False)
+            if getattr(self, "_thumbnail_retry_count", 0) < 2:
+                self._thumbnail_retry_count = getattr(self, "_thumbnail_retry_count", 0) + 1
+                GLib.timeout_add(50, self._retry_invalidated_thumbnail, generation)
+            return
 
+        self._thumbnail_retry_count = 0
+        displayed_pixbuf = pixbuf
+        if self._page_state.flip_horizontal:
+            displayed_pixbuf = displayed_pixbuf.flip(True) or displayed_pixbuf
+        if self._page_state.flip_vertical:
+            displayed_pixbuf = displayed_pixbuf.flip(False) or displayed_pixbuf
+        texture = Gdk.Texture.new_for_pixbuf(displayed_pixbuf)
+        self._image.set_paintable(texture)
+        self._page_state.thumbnail_pixbuf = displayed_pixbuf
+        self._thumbnail_loaded = True
+        self._current_rotation = requested_rotation
         self._image.set_visible(True)
 
         if self._current_rotation != self._page_state.rotation:
             self.reload_thumbnail()
 
+    def _retry_invalidated_thumbnail(self, generation: int) -> bool:
+        """Retry a render invalidated by an atomic source-file replacement."""
+        if (
+            generation == self._thumbnail_generation
+            and not self._thumbnail_loaded
+            and not self._thumbnail_loading
+        ):
+            self.load_thumbnail()
+        return False
+
     def reload_thumbnail(self) -> None:
         """Force reload of the thumbnail."""
-        self._thumbnail_loaded = False
-        self._spinner.set_visible(True)
-        self._spinner.start()
-        self._image.set_visible(False)
+        self._discard_thumbnail(show_spinner=True)
 
         renderer = get_thumbnail_renderer()
-        renderer.clear_document_cache(self._pdf_path)
+        renderer.clear_page_cache(
+            self._pdf_path,
+            self._page_state.page_number - 1,
+        )
 
         self.load_thumbnail()
+
+    def unload_thumbnail(self) -> None:
+        """Release off-screen thumbnail pixels and invalidate any widget callback."""
+        self._discard_thumbnail(show_spinner=False)
+
+    def _discard_thumbnail(self, *, show_spinner: bool) -> None:
+        self._thumbnail_generation += 1
+        if self._thumbnail_request is not None:
+            self._thumbnail_request.cancel()
+            self._thumbnail_request = None
+        self._thumbnail_loading = False
+        self._thumbnail_loaded = False
+        self._thumbnail_retry_count = 0
+        self._current_rotation = None
+        self._page_state.thumbnail_pixbuf = None
+        self._image.set_paintable(None)
+        self._image.set_visible(False)
+        self._spinner.stop()
+        self._spinner.set_visible(show_spinner)
+        if show_spinner:
+            self._spinner.start()
 
     def rotate_thumbnail_in_place(self, degrees: int) -> None:
         """Rotate the existing thumbnail image in memory.
@@ -671,6 +580,9 @@ class PageThumbnail(Gtk.Box):
             else:
                 return
 
+            if new_pixbuf is None:
+                self.reload_thumbnail()
+                return
             texture = Gdk.Texture.new_for_pixbuf(new_pixbuf)
             self._image.set_paintable(texture)
             self._page_state.thumbnail_pixbuf = new_pixbuf
@@ -693,6 +605,9 @@ class PageThumbnail(Gtk.Box):
             pixbuf = self._page_state.thumbnail_pixbuf
             new_pixbuf = pixbuf.flip(horizontal)
 
+            if new_pixbuf is None:
+                self.reload_thumbnail()
+                return
             texture = Gdk.Texture.new_for_pixbuf(new_pixbuf)
             self._image.set_paintable(texture)
             self._page_state.thumbnail_pixbuf = new_pixbuf
@@ -731,13 +646,13 @@ class PageThumbnail(Gtk.Box):
         Used during batch operations like zoom changes where the
         cache is cleared once externally.
         """
+        self._discard_thumbnail(show_spinner=False)
         self._size = size
         self._height = int(size * 1.414)
         self._image_box.set_size_request(size, self._height)
         self._image.set_size_request(size, self._height)
         self.set_size_request(size + 16, self._height + 50)
-        # Mark for reload but don't start it — caller handles batch reload
-        self._thumbnail_loaded = False
+        # The caller schedules a bounded reload after layout settles.
 
     def update_from_state(self) -> None:
         self._update_appearance()
@@ -745,3 +660,13 @@ class PageThumbnail(Gtk.Box):
 
         if self._thumbnail_loaded and self._page_state.rotation != self._current_rotation:
             self.reload_thumbnail()
+
+    @property
+    def pdf_path(self) -> str:
+        return self._pdf_path
+
+    def _save_page_as_image(self) -> None:
+        self._exporter._save_page_as_image()
+
+    def _save_page_as_pdf(self) -> None:
+        self._exporter._save_page_as_pdf()

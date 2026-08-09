@@ -1,0 +1,1558 @@
+{
+  "imports": [
+    "bigocrpdf",
+    "bigocrpdf.config",
+    "bigocrpdf.cli",
+    "bigocrpdf.services.settings",
+    "bigocrpdf.services.pdf_operations",
+    "bigocrpdf.services.rapidocr_service.config"
+  ],
+  "invocations": {
+    "help": {
+      "status": 0,
+      "stderr": "",
+      "stdout": "usage: bigocrpdf-cli [-h] [--version] [-v]\n                     {ocr,split,merge,compress,rotate,delete,extract,insert,reorder,info,export-odf,export-txt,export-md,edit} ...\n\nBigOcrPdf - comprehensive PDF toolbox.\n\npositional arguments:\n  {ocr,split,merge,compress,rotate,delete,extract,insert,reorder,info,export-odf,export-txt,export-md,edit}\n                        Available commands\n    ocr                 OCR processing for PDF files\n    split               Split PDF into smaller files\n    merge               Merge multiple PDFs into one\n    compress            Compress PDF to reduce file size\n    rotate              Rotate pages in a PDF\n    delete              Remove pages from a PDF\n    extract             Extract pages to a new PDF\n    insert              Insert pages from another PDF\n    reorder             Reorder or reverse pages\n    info                Show PDF metadata and page count\n    export-odf          Export OCR'd PDF as ODF document\n    export-txt          Export OCR'd PDF as formatted text\n    export-md           Export OCR'd PDF as Markdown\n    edit                Open interactive GUI editor\n\noptions:\n  -h, --help            show this help message and exit\n  --version             Print version information and exit\n  -v, --verbose         Verbose logging (DEBUG)\n"
+    },
+    "missing_info": {
+      "status": 1,
+      "stderr": "Error: /definitely/missing-bigocrpdf.pdf not found\n",
+      "stdout": ""
+    },
+    "no_args": {
+      "status": 0,
+      "stderr": "",
+      "stdout": "usage: bigocrpdf-cli [-h] [--version] [-v]\n                     {ocr,split,merge,compress,rotate,delete,extract,insert,reorder,info,export-odf,export-txt,export-md,edit} ...\n\nBigOcrPdf - comprehensive PDF toolbox.\n\npositional arguments:\n  {ocr,split,merge,compress,rotate,delete,extract,insert,reorder,info,export-odf,export-txt,export-md,edit}\n                        Available commands\n    ocr                 OCR processing for PDF files\n    split               Split PDF into smaller files\n    merge               Merge multiple PDFs into one\n    compress            Compress PDF to reduce file size\n    rotate              Rotate pages in a PDF\n    delete              Remove pages from a PDF\n    extract             Extract pages to a new PDF\n    insert              Insert pages from another PDF\n    reorder             Reorder or reverse pages\n    info                Show PDF metadata and page count\n    export-odf          Export OCR'd PDF as ODF document\n    export-txt          Export OCR'd PDF as formatted text\n    export-md           Export OCR'd PDF as Markdown\n    edit                Open interactive GUI editor\n\noptions:\n  -h, --help            show this help message and exit\n  --version             Print version information and exit\n  -v, --verbose         Verbose logging (DEBUG)\n"
+    },
+    "version": {
+      "status": 0,
+      "stderr": "",
+      "stdout": "bigocrpdf-cli 3.0.0\n"
+    }
+  },
+  "parser": {
+    "prog": "bigocrpdf-cli",
+    "root": [
+      {
+        "choices": null,
+        "class": "_HelpAction",
+        "default": "<SUPPRESS>",
+        "dest": "help",
+        "nargs": 0,
+        "options": [
+          "-h",
+          "--help"
+        ],
+        "required": false,
+        "type": null
+      },
+      {
+        "choices": null,
+        "class": "_VersionAction",
+        "default": "<SUPPRESS>",
+        "dest": "version",
+        "nargs": 0,
+        "options": [
+          "--version"
+        ],
+        "required": false,
+        "type": null
+      },
+      {
+        "choices": null,
+        "class": "_StoreTrueAction",
+        "default": false,
+        "dest": "verbose",
+        "nargs": 0,
+        "options": [
+          "-v",
+          "--verbose"
+        ],
+        "required": false,
+        "type": null
+      }
+    ],
+    "subcommands": {
+      "compress": [
+        {
+          "choices": null,
+          "class": "_HelpAction",
+          "default": "<SUPPRESS>",
+          "dest": "help",
+          "nargs": 0,
+          "options": [
+            "-h",
+            "--help"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "input",
+          "nargs": null,
+          "options": [],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "output",
+          "nargs": null,
+          "options": [
+            "-o",
+            "--output"
+          ],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": 60,
+          "dest": "quality",
+          "nargs": null,
+          "options": [
+            "--quality"
+          ],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": 150,
+          "dest": "dpi",
+          "nargs": null,
+          "options": [
+            "--dpi"
+          ],
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "delete": [
+        {
+          "choices": null,
+          "class": "_HelpAction",
+          "default": "<SUPPRESS>",
+          "dest": "help",
+          "nargs": 0,
+          "options": [
+            "-h",
+            "--help"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "input",
+          "nargs": null,
+          "options": [],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "output",
+          "nargs": null,
+          "options": [
+            "-o",
+            "--output"
+          ],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "pages",
+          "nargs": null,
+          "options": [
+            "--pages"
+          ],
+          "required": true,
+          "type": "str"
+        }
+      ],
+      "edit": [
+        {
+          "choices": null,
+          "class": "_HelpAction",
+          "default": "<SUPPRESS>",
+          "dest": "help",
+          "nargs": 0,
+          "options": [
+            "-h",
+            "--help"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "input",
+          "nargs": null,
+          "options": [],
+          "required": true,
+          "type": "Path"
+        }
+      ],
+      "export-md": [
+        {
+          "choices": null,
+          "class": "_HelpAction",
+          "default": "<SUPPRESS>",
+          "dest": "help",
+          "nargs": 0,
+          "options": [
+            "-h",
+            "--help"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "input",
+          "nargs": null,
+          "options": [],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "output",
+          "nargs": null,
+          "options": [
+            "-o",
+            "--output"
+          ],
+          "required": false,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "front_matter",
+          "nargs": 0,
+          "options": [
+            "--front-matter"
+          ],
+          "required": false,
+          "type": null
+        }
+      ],
+      "export-odf": [
+        {
+          "choices": null,
+          "class": "_HelpAction",
+          "default": "<SUPPRESS>",
+          "dest": "help",
+          "nargs": 0,
+          "options": [
+            "-h",
+            "--help"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "input",
+          "nargs": null,
+          "options": [],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "output",
+          "nargs": null,
+          "options": [
+            "-o",
+            "--output"
+          ],
+          "required": false,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "preserve_text_layout",
+          "nargs": 0,
+          "options": [
+            "--preserve-text-layout"
+          ],
+          "required": false,
+          "type": null
+        }
+      ],
+      "export-txt": [
+        {
+          "choices": null,
+          "class": "_HelpAction",
+          "default": "<SUPPRESS>",
+          "dest": "help",
+          "nargs": 0,
+          "options": [
+            "-h",
+            "--help"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "input",
+          "nargs": null,
+          "options": [],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "output",
+          "nargs": null,
+          "options": [
+            "-o",
+            "--output"
+          ],
+          "required": false,
+          "type": "Path"
+        }
+      ],
+      "extract": [
+        {
+          "choices": null,
+          "class": "_HelpAction",
+          "default": "<SUPPRESS>",
+          "dest": "help",
+          "nargs": 0,
+          "options": [
+            "-h",
+            "--help"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "input",
+          "nargs": null,
+          "options": [],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "output",
+          "nargs": null,
+          "options": [
+            "-o",
+            "--output"
+          ],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "pages",
+          "nargs": null,
+          "options": [
+            "--pages"
+          ],
+          "required": true,
+          "type": "str"
+        }
+      ],
+      "info": [
+        {
+          "choices": null,
+          "class": "_HelpAction",
+          "default": "<SUPPRESS>",
+          "dest": "help",
+          "nargs": 0,
+          "options": [
+            "-h",
+            "--help"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "input",
+          "nargs": null,
+          "options": [],
+          "required": true,
+          "type": "Path"
+        }
+      ],
+      "insert": [
+        {
+          "choices": null,
+          "class": "_HelpAction",
+          "default": "<SUPPRESS>",
+          "dest": "help",
+          "nargs": 0,
+          "options": [
+            "-h",
+            "--help"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "input",
+          "nargs": null,
+          "options": [],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "output",
+          "nargs": null,
+          "options": [
+            "-o",
+            "--output"
+          ],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "insert_from",
+          "nargs": null,
+          "options": [
+            "--from"
+          ],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": 0,
+          "dest": "at",
+          "nargs": null,
+          "options": [
+            "--at"
+          ],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "pages",
+          "nargs": null,
+          "options": [
+            "--pages"
+          ],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "merge": [
+        {
+          "choices": null,
+          "class": "_HelpAction",
+          "default": "<SUPPRESS>",
+          "dest": "help",
+          "nargs": 0,
+          "options": [
+            "-h",
+            "--help"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "inputs",
+          "nargs": "+",
+          "options": [],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "output",
+          "nargs": null,
+          "options": [
+            "-o",
+            "--output"
+          ],
+          "required": true,
+          "type": "Path"
+        }
+      ],
+      "ocr": [
+        {
+          "choices": null,
+          "class": "_HelpAction",
+          "default": "<SUPPRESS>",
+          "dest": "help",
+          "nargs": 0,
+          "options": [
+            "-h",
+            "--help"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "input",
+          "nargs": null,
+          "options": [],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "output",
+          "nargs": null,
+          "options": [
+            "-o",
+            "--output"
+          ],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "pages",
+          "nargs": null,
+          "options": [
+            "--pages"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": 0,
+          "dest": "workers",
+          "nargs": null,
+          "options": [
+            "--workers"
+          ],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": 300,
+          "dest": "dpi",
+          "nargs": null,
+          "options": [
+            "--dpi"
+          ],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "replace_existing_ocr",
+          "nargs": 0,
+          "options": [
+            "--replace-existing-ocr"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "force_full_ocr",
+          "nargs": 0,
+          "options": [
+            "--force-full-ocr"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": "small",
+          "dest": "model_type",
+          "nargs": null,
+          "options": [
+            "--model-type"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": [
+            "openvino",
+            "onnxruntime"
+          ],
+          "class": "_StoreAction",
+          "default": "openvino",
+          "dest": "engine_type",
+          "nargs": null,
+          "options": [
+            "--engine-type"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": [
+            "ocr",
+            "geometric",
+            "auto",
+            "auto_verified"
+          ],
+          "class": "_StoreAction",
+          "default": "auto",
+          "dest": "pdf_mode",
+          "nargs": null,
+          "options": [
+            "--pdf-mode"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": 1,
+          "dest": "rec_batch_num",
+          "nargs": null,
+          "options": [
+            "--rec-batch-num"
+          ],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "use_textline_cls",
+          "nargs": 0,
+          "options": [
+            "--use-textline-cls"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": [
+            "off",
+            "auto",
+            "paddle",
+            "torch",
+            "tensorrt",
+            "onnxruntime_cuda_experimental"
+          ],
+          "class": "_StoreAction",
+          "default": "off",
+          "dest": "gpu_backend",
+          "nargs": null,
+          "options": [
+            "--gpu-backend"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": 0,
+          "dest": "gpu_device_id",
+          "nargs": null,
+          "options": [
+            "--gpu-device-id"
+          ],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "choices": null,
+          "class": "BooleanOptionalAction",
+          "default": true,
+          "dest": "gpu_fp16",
+          "nargs": 0,
+          "options": [
+            "--gpu-fp16",
+            "--no-gpu-fp16"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "no_gpu_fallback",
+          "nargs": 0,
+          "options": [
+            "--no-gpu-fallback"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "no_dewarp",
+          "nargs": 0,
+          "options": [
+            "--no-dewarp"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "no_deskew",
+          "nargs": 0,
+          "options": [
+            "--no-deskew"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "no_perspective",
+          "nargs": 0,
+          "options": [
+            "--no-perspective"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "no_orientation",
+          "nargs": 0,
+          "options": [
+            "--no-orientation"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": null,
+          "dest": "scanner",
+          "nargs": 0,
+          "options": [
+            "--scanner"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "no_scanner",
+          "nargs": 0,
+          "options": [
+            "--no-scanner"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "auto_contrast",
+          "nargs": 0,
+          "options": [
+            "--auto-contrast"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "auto_brightness",
+          "nargs": 0,
+          "options": [
+            "--auto-brightness"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "denoise",
+          "nargs": 0,
+          "options": [
+            "--denoise"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "border_clean",
+          "nargs": 0,
+          "options": [
+            "--border-clean"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "vintage",
+          "nargs": 0,
+          "options": [
+            "--vintage"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "vintage_bw",
+          "nargs": 0,
+          "options": [
+            "--vintage-bw"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": true,
+          "dest": "pdfa",
+          "nargs": 0,
+          "options": [
+            "--pdfa"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreFalseAction",
+          "default": true,
+          "dest": "pdfa",
+          "nargs": 0,
+          "options": [
+            "--no-pdfa"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": [
+            "default",
+            "single",
+            "continuous",
+            "two_page"
+          ],
+          "class": "_StoreAction",
+          "default": "default",
+          "dest": "page_layout",
+          "nargs": null,
+          "options": [
+            "--page-layout"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "choices": [
+            "original",
+            "jpeg",
+            "png",
+            "webp"
+          ],
+          "class": "_StoreAction",
+          "default": "original",
+          "dest": "image_format",
+          "nargs": null,
+          "options": [
+            "--image-format"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": 85,
+          "dest": "image_quality",
+          "nargs": null,
+          "options": [
+            "--image-quality"
+          ],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "save_preprocessed",
+          "nargs": null,
+          "options": [
+            "--save-preprocessed"
+          ],
+          "required": false,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "dewarp_only",
+          "nargs": 0,
+          "options": [
+            "--dewarp-only"
+          ],
+          "required": false,
+          "type": null
+        }
+      ],
+      "reorder": [
+        {
+          "choices": null,
+          "class": "_HelpAction",
+          "default": "<SUPPRESS>",
+          "dest": "help",
+          "nargs": 0,
+          "options": [
+            "-h",
+            "--help"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "input",
+          "nargs": null,
+          "options": [],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "output",
+          "nargs": null,
+          "options": [
+            "-o",
+            "--output"
+          ],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "order",
+          "nargs": null,
+          "options": [
+            "--order"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "reverse",
+          "nargs": 0,
+          "options": [
+            "--reverse"
+          ],
+          "required": false,
+          "type": null
+        }
+      ],
+      "rotate": [
+        {
+          "choices": null,
+          "class": "_HelpAction",
+          "default": "<SUPPRESS>",
+          "dest": "help",
+          "nargs": 0,
+          "options": [
+            "-h",
+            "--help"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "input",
+          "nargs": null,
+          "options": [],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "output",
+          "nargs": null,
+          "options": [
+            "-o",
+            "--output"
+          ],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": [
+            90,
+            180,
+            270
+          ],
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "angle",
+          "nargs": null,
+          "options": [
+            "--angle"
+          ],
+          "required": true,
+          "type": "int"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "pages",
+          "nargs": null,
+          "options": [
+            "--pages"
+          ],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "split": [
+        {
+          "choices": null,
+          "class": "_HelpAction",
+          "default": "<SUPPRESS>",
+          "dest": "help",
+          "nargs": 0,
+          "options": [
+            "-h",
+            "--help"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "input",
+          "nargs": null,
+          "options": [],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "output",
+          "nargs": null,
+          "options": [
+            "-o",
+            "--output"
+          ],
+          "required": true,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "pages",
+          "nargs": null,
+          "options": [
+            "--pages"
+          ],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "size",
+          "nargs": null,
+          "options": [
+            "--size"
+          ],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "ranges",
+          "nargs": null,
+          "options": [
+            "--ranges"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": "",
+          "dest": "prefix",
+          "nargs": null,
+          "options": [
+            "--prefix"
+          ],
+          "required": false,
+          "type": "str"
+        }
+      ]
+    }
+  },
+  "parsers": {
+    "pages:": [],
+    "pages:0,-2": {
+      "exception": "ValueError",
+      "message": "Invalid page specification '0'. Use numbers and ranges like '1-5' or '1,3,7'."
+    },
+    "pages:1": [
+      1
+    ],
+    "pages:1-3": [
+      1,
+      2,
+      3
+    ],
+    "pages:3,1,3": [
+      1,
+      3
+    ],
+    "pages:4-2": {
+      "exception": "ValueError",
+      "message": "Invalid page specification '4-2'. Use numbers and ranges like '1-5' or '1,3,7'."
+    },
+    "pages:bad": {
+      "exception": "ValueError",
+      "message": "Invalid page specification 'bad'. Use numbers and ranges like '1-5' or '1,3,7'."
+    },
+    "ranges:": [],
+    "ranges:0,-2": {
+      "exception": "ValueError",
+      "message": "Invalid range specification '0'. Use numbers and ranges like '1-5' or '1,3,7'."
+    },
+    "ranges:1": [
+      [
+        1,
+        1
+      ]
+    ],
+    "ranges:1-3": [
+      [
+        1,
+        3
+      ]
+    ],
+    "ranges:3,1,3": [
+      [
+        3,
+        3
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        3,
+        3
+      ]
+    ],
+    "ranges:4-2": {
+      "exception": "ValueError",
+      "message": "Invalid range specification '4-2'. Use numbers and ranges like '1-5' or '1,3,7'."
+    },
+    "ranges:bad": {
+      "exception": "ValueError",
+      "message": "Invalid range specification 'bad'. Use numbers and ranges like '1-5' or '1,3,7'."
+    }
+  },
+  "settings": {
+    "attributes": [
+      "lang",
+      "ocr_language",
+      "replace_existing_ocr",
+      "enhance_embedded_images",
+      "destination_folder",
+      "save_in_same_folder",
+      "pdf_suffix",
+      "use_original_filename",
+      "overwrite_existing",
+      "include_date",
+      "include_year",
+      "include_month",
+      "include_day",
+      "include_time",
+      "date_format_order",
+      "save_txt",
+      "separate_txt_folder",
+      "txt_folder",
+      "save_odf",
+      "odf_include_images",
+      "odf_open_after_export",
+      "md_include_front_matter",
+      "md_open_after_export",
+      "image_export_format",
+      "image_export_quality",
+      "image_export_preserve_original",
+      "auto_detect_quality",
+      "convert_to_pdfa",
+      "max_file_size_mb",
+      "page_layout",
+      "enable_bilevel_compression",
+      "force_bilevel_compression",
+      "dpi",
+      "enable_preprocessing",
+      "enable_deskew",
+      "enable_baseline_dewarp",
+      "enable_perspective_correction",
+      "enable_orientation_detection",
+      "enable_auto_contrast",
+      "enable_auto_brightness",
+      "enable_denoise",
+      "enable_scanner_effect",
+      "scanner_effect_strength",
+      "enable_border_clean",
+      "enable_vintage_look",
+      "vintage_bw",
+      "text_score_threshold",
+      "box_thresh",
+      "unclip_ratio",
+      "ocr_profile",
+      "detection_full_resolution",
+      "parallel_workers",
+      "quick_start_mode"
+    ],
+    "config": {
+      "date": {
+        "format_order": {
+          "day": 2,
+          "month": 1,
+          "year": 3
+        },
+        "include_date": true,
+        "include_day": true,
+        "include_month": true,
+        "include_time": true,
+        "include_year": true
+      },
+      "image_export": {
+        "auto_detect_quality": false,
+        "format": "compat-image_export_format",
+        "preserve_original": false,
+        "quality": 92
+      },
+      "md_export": {
+        "include_front_matter": true,
+        "open_after_export": true
+      },
+      "ocr": {
+        "alignment": "alignrotate",
+        "enhance_embedded_images": true,
+        "quality": "normal",
+        "replace_existing_ocr": true
+      },
+      "odf_export": {
+        "include_images": false,
+        "open_after_export": true,
+        "save_odf": true
+      },
+      "output": {
+        "convert_to_pdfa": false,
+        "destination_folder": "$HOME/output",
+        "enable_bilevel_compression": false,
+        "force_bilevel_compression": true,
+        "max_file_size_mb": 7,
+        "overwrite_existing": true,
+        "page_layout": "compat-page_layout",
+        "save_in_same_folder": false,
+        "suffix": "compat-pdf_suffix",
+        "use_original_filename": true
+      },
+      "rapidocr": {
+        "box_thresh": 0.625,
+        "detection_full_resolution": true,
+        "dpi": 307,
+        "enable_auto_brightness": true,
+        "enable_auto_contrast": true,
+        "enable_baseline_dewarp": false,
+        "enable_border_clean": true,
+        "enable_denoise": true,
+        "enable_deskew": false,
+        "enable_orientation_detection": false,
+        "enable_perspective_correction": false,
+        "enable_preprocessing": true,
+        "enable_scanner_effect": false,
+        "enable_vintage_look": true,
+        "language": "english",
+        "ocr_profile": "compat-ocr_profile",
+        "scanner_effect_strength": 1.125,
+        "text_score_threshold": 0.425,
+        "unclip_ratio": 1.725,
+        "vintage_bw": true
+      },
+      "text_extraction": {
+        "save_txt": true,
+        "separate_folder": true,
+        "txt_folder": "compat-txt_folder"
+      },
+      "ui": {
+        "quick_start_mode": false
+      },
+      "version": 1,
+      "window": {
+        "height": 600,
+        "width": 820
+      }
+    },
+    "defaults": {
+      "auto_detect_quality": true,
+      "box_thresh": 0.5,
+      "convert_to_pdfa": true,
+      "date_format_order": {
+        "day": 3,
+        "month": 2,
+        "year": 1
+      },
+      "destination_folder": "",
+      "detection_full_resolution": false,
+      "dpi": 300,
+      "enable_auto_brightness": false,
+      "enable_auto_contrast": false,
+      "enable_baseline_dewarp": true,
+      "enable_bilevel_compression": true,
+      "enable_border_clean": false,
+      "enable_denoise": false,
+      "enable_deskew": true,
+      "enable_orientation_detection": true,
+      "enable_perspective_correction": true,
+      "enable_preprocessing": false,
+      "enable_scanner_effect": true,
+      "enable_vintage_look": false,
+      "enhance_embedded_images": false,
+      "force_bilevel_compression": false,
+      "image_export_format": "original",
+      "image_export_preserve_original": true,
+      "image_export_quality": 85,
+      "include_date": false,
+      "include_day": false,
+      "include_month": false,
+      "include_time": false,
+      "include_year": false,
+      "lang": "latin",
+      "max_file_size_mb": 0,
+      "md_include_front_matter": false,
+      "md_open_after_export": false,
+      "ocr_language": "latin",
+      "ocr_profile": "balanced",
+      "odf_include_images": true,
+      "odf_open_after_export": false,
+      "overwrite_existing": false,
+      "page_layout": "default",
+      "parallel_workers": 0,
+      "pdf_suffix": "ocr",
+      "quick_start_mode": true,
+      "replace_existing_ocr": false,
+      "save_in_same_folder": true,
+      "save_odf": false,
+      "save_txt": false,
+      "scanner_effect_strength": 1.0,
+      "separate_txt_folder": false,
+      "text_score_threshold": 0.3,
+      "txt_folder": "",
+      "unclip_ratio": 1.6,
+      "use_original_filename": false,
+      "vintage_bw": false
+    },
+    "display_name": "line one\nline two.pdf",
+    "public_methods": [
+      "add_files",
+      "cleanup_temp_files",
+      "display_name",
+      "get_pdf_suffix",
+      "load_settings",
+      "reset_processing_state",
+      "reset_to_defaults",
+      "save_settings"
+    ],
+    "queue_results": [
+      1,
+      0
+    ],
+    "reloaded": {
+      "auto_detect_quality": false,
+      "box_thresh": 0.625,
+      "convert_to_pdfa": false,
+      "date_format_order": {
+        "day": 2,
+        "month": 1,
+        "year": 3
+      },
+      "destination_folder": "$HOME/output",
+      "detection_full_resolution": true,
+      "dpi": 307,
+      "enable_auto_brightness": true,
+      "enable_auto_contrast": true,
+      "enable_baseline_dewarp": false,
+      "enable_bilevel_compression": false,
+      "enable_border_clean": true,
+      "enable_denoise": true,
+      "enable_deskew": false,
+      "enable_orientation_detection": false,
+      "enable_perspective_correction": false,
+      "enable_preprocessing": true,
+      "enable_scanner_effect": false,
+      "enable_vintage_look": true,
+      "enhance_embedded_images": true,
+      "force_bilevel_compression": true,
+      "image_export_format": "compat-image_export_format",
+      "image_export_preserve_original": false,
+      "image_export_quality": 92,
+      "include_date": true,
+      "include_day": true,
+      "include_month": true,
+      "include_time": true,
+      "include_year": true,
+      "lang": "english",
+      "max_file_size_mb": 7,
+      "md_include_front_matter": true,
+      "md_open_after_export": true,
+      "ocr_language": "english",
+      "ocr_profile": "compat-ocr_profile",
+      "odf_include_images": false,
+      "odf_open_after_export": true,
+      "overwrite_existing": true,
+      "page_layout": "compat-page_layout",
+      "parallel_workers": 0,
+      "pdf_suffix": "compat-pdf_suffix",
+      "quick_start_mode": false,
+      "replace_existing_ocr": true,
+      "save_in_same_folder": false,
+      "save_odf": true,
+      "save_txt": true,
+      "scanner_effect_strength": 1.125,
+      "separate_txt_folder": true,
+      "text_score_threshold": 0.425,
+      "txt_folder": "compat-txt_folder",
+      "unclip_ratio": 1.725,
+      "use_original_filename": true,
+      "vintage_bw": true
+    },
+    "selected_payload": {
+      "selected_files": [
+        "$HOME/line one\nline two.pdf"
+      ],
+      "version": 1
+    }
+  },
+  "version": "3.0.0"
+}

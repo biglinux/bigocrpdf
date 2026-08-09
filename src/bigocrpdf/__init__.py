@@ -1,54 +1,34 @@
 """
 BigOcrPdf - Python package for adding OCR to PDF files
 
+allow-noisy-log: startup dependency diagnostics are user-facing stderr output.
+
 This package provides a GTK4 application for adding OCR to PDF files,
 making them searchable and their text selectable.
 """
 
-import locale
 import os
 import sys
+from dataclasses import dataclass
 
-# Handle direct execution from source directory
-if __package__ is None:
-    import pathlib
-
-    parent_dir = pathlib.Path(__file__).parent.parent
-    if str(parent_dir) not in sys.path:
-        sys.path.insert(0, str(parent_dir))
-    __package__ = "bigocrpdf"
+from bigocrpdf.utils.i18n import setup_i18n
 
 __version__ = "3.0.0"
-__author__ = "BigLinux Team"
-__license__ = "GPL-3.0"
+
+# The real floor, not the version we develop against.  Widgets introduced after
+# this point are used through bigocrpdf.utils.adw_compat, which falls back when
+# they are absent -- an AppImage runs on whatever its build container shipped,
+# and Ubuntu 24.04 carries GTK 4.14 with libadwaita 1.5.
+_MIN_GTK_VERSION = (4, 14)
+_MIN_ADW_VERSION = (1, 5)
 
 
-def setup_i18n() -> None:
-    """Initialize internationalization."""
-    try:
-        locale.setlocale(locale.LC_ALL, "")
-        # Keep LC_NUMERIC as C to avoid breaking onnxruntime/RapidOCR
-        # which expects dot as decimal separator (not comma as in pt_BR)
-        locale.setlocale(locale.LC_NUMERIC, "C")
-    except locale.Error:
-        # Fallback to C locale if system locale is not properly configured
-        locale.setlocale(locale.LC_ALL, "C")
+@dataclass(frozen=True)
+class OcrDependencyState:
+    """Resolved startup availability of the OCR engine."""
 
-
-def _setup_python_compatibility() -> bool:
-    """Setup Python version compatibility for OCR modules.
-
-    Returns:
-        True if setup succeeded, False if there are compatibility issues.
-    """
-    try:
-        from bigocrpdf.utils.python_compat import setup_python_compatibility
-
-        setup_python_compatibility()
-        return True
-    except Exception as e:
-        print(f"Warning: Python compatibility setup failed: {e}", file=sys.stderr)
-        return False
+    is_available: bool
+    error: str = ""
 
 
 def _get_install_cmd(package: str) -> str:
@@ -74,7 +54,25 @@ def _check_ocr_dependencies() -> tuple[bool, str]:
 
     # Try to import rapidocr
     try:
-        from rapidocr import RapidOCR  # noqa: F401
+        from rapidocr import OCRVersion, RapidOCR  # noqa: F401
+
+        if not hasattr(OCRVersion, "PPOCRV6"):
+            return False, "Installed RapidOCR does not support PP-OCRv6. Upgrade python-rapidocr."
+
+        from bigocrpdf.services.rapidocr_service.config import OCRConfig
+
+        config = OCRConfig()
+        if config.get_det_model_path() is None or config.get_rec_model_path() is None:
+            # Naming the directory that was actually searched turns an opaque
+            # failure into something a user or packager can act on, which
+            # matters most in relocatable builds where it is not /usr/share.
+            return False, (
+                "Required PP-OCRv6 small models are not installed.\n\n"
+                f"Looked in: {config.model_base_path}\n\n"
+                "Install the rapidocr-models-v6-small package, or point "
+                "BIGOCRPDF_RAPIDOCR_DIR at a directory containing models/ and "
+                "fonts/, then restart the application."
+            )
 
         return True, ""
     except ImportError as e:
@@ -111,7 +109,7 @@ def _check_ocr_dependencies() -> tuple[bool, str]:
 
 
 def _check_gtk_dependencies() -> bool:
-    """Check if GTK dependencies are available.
+    """Check if supported GTK dependencies are available.
 
     Returns:
         True if dependencies are met, False otherwise
@@ -122,16 +120,46 @@ def _check_gtk_dependencies() -> bool:
         gi.require_version("Gtk", "4.0")
         gi.require_version("Adw", "1")
 
-        from gi.repository import (
-            Adw,  # noqa: F401
-            Gtk,  # noqa: F401
+        from gi.repository import Adw, Gtk
+
+        gtk_version = (
+            Gtk.get_major_version(),
+            Gtk.get_minor_version(),
+            Gtk.get_micro_version(),
         )
+        adw_version = (
+            Adw.get_major_version(),
+            Adw.get_minor_version(),
+            Adw.get_micro_version(),
+        )
+
+        errors = []
+        if gtk_version[:2] < _MIN_GTK_VERSION:
+            errors.append(
+                f"GTK {_MIN_GTK_VERSION[0]}.{_MIN_GTK_VERSION[1]} or newer is required "
+                f"(found {'.'.join(map(str, gtk_version))})"
+            )
+        if adw_version[:2] < _MIN_ADW_VERSION:
+            errors.append(
+                f"libadwaita {_MIN_ADW_VERSION[0]}.{_MIN_ADW_VERSION[1]} or newer is required "
+                f"(found {'.'.join(map(str, adw_version))})"
+            )
+
+        if errors:
+            print("Error: Unsupported graphical runtime:", file=sys.stderr)
+            for error in errors:
+                print(f"  {error}", file=sys.stderr)
+            return False
 
         return True
     except (ImportError, ValueError) as e:
         # We can't use translations yet as dependencies are missing
         print(f"Error: Missing dependencies: {e}", file=sys.stderr)
-        print("Please make sure GTK4 and libadwaita are installed", file=sys.stderr)
+        print(
+            f"Please install GTK {_MIN_GTK_VERSION[0]}.{_MIN_GTK_VERSION[1]} or newer "
+            f"and libadwaita {_MIN_ADW_VERSION[0]}.{_MIN_ADW_VERSION[1]} or newer",
+            file=sys.stderr,
+        )
         return False
 
 
@@ -141,48 +169,44 @@ def main() -> int:
     Returns:
         The application exit code.
     """
-    # 1. Setup Python compatibility first
-    _setup_python_compatibility()
-
-    # 2. Setup Locale
+    # Configure locale before building translated UI.
     setup_i18n()
 
-    # 3. Import modules that might depend on compatibility/locale
-    from bigocrpdf.application import BigOcrPdfApp
     from bigocrpdf.config import (
         CONFIG_DIR,
         SELECTED_FILE_PATH,
         setup_environment,
     )
-    from bigocrpdf.utils.logger import logger
+    from bigocrpdf.utils.logger import logger, setup_logger
 
-    # 4. Setup environment and parse command line arguments
+    # Parse arguments before configuring the requested log level.
     args = setup_environment()
-
-    # 5. Check dependencies
-    # Check GTK first as we need it for UI
-    if not _check_gtk_dependencies():
-        return 1
+    setup_logger()
 
     # Check for image mode flag
     if getattr(args, "image_mode", False):
         if "--image-mode" in sys.argv:
             sys.argv.remove("--image-mode")
-        from bigocrpdf.__init__ import main_image
-
         return main_image()
+
+    # Check GTK first as we need it for UI
+    if not _check_gtk_dependencies():
+        return 1
+
+    from bigocrpdf.application import BigOcrPdfApp
 
     # Check OCR dependencies next
     ocr_ok, ocr_error = _check_ocr_dependencies()
+    ocr_dependency = OcrDependencyState(is_available=ocr_ok, error=ocr_error)
     if not ocr_ok:
         logger.error(f"OCR Dependency Error: {ocr_error}")
         # Continue anyway - the GUI can still show the error gracefully or run in limited mode
         print(f"\n*** OCR Dependency Error ***\n{ocr_error}\n", file=sys.stderr)
 
-    # 6. Set up configuration directory
+    # Set up configuration directory
     os.makedirs(CONFIG_DIR, exist_ok=True)
 
-    # 7. Always start with a clean file queue
+    # Always start with a clean file queue
     try:
         if os.path.exists(SELECTED_FILE_PATH):
             os.remove(SELECTED_FILE_PATH)
@@ -190,10 +214,10 @@ def main() -> int:
     except Exception as e:
         logger.error(f"Error clearing file queue: {e}")
 
-    # 8. Run application
+    # Run application
     try:
         # Initialize the GTK application
-        app = BigOcrPdfApp()
+        app = BigOcrPdfApp(ocr_dependency=ocr_dependency)
 
         # Add files from command line if provided
         if hasattr(args, "files") and args.files:
@@ -214,37 +238,35 @@ def main_image() -> int:
     Returns:
         The application exit code.
     """
-    # 1. Setup Python compatibility first
-    _setup_python_compatibility()
-
-    # 2. Setup Locale
     setup_i18n()
 
-    # 3. Import the standalone image application
-    from bigocrpdf.image_application import ImageOcrApp
-    from bigocrpdf.utils.logger import logger
+    from bigocrpdf.utils.logger import logger, setup_logger
 
-    # 4. Check dependencies
+    setup_logger()
     if not _check_gtk_dependencies():
         return 1
 
+    from bigocrpdf.image_application import ImageOcrApp
+
     # Check OCR dependencies
     ocr_ok, ocr_error = _check_ocr_dependencies()
+    ocr_dependency = OcrDependencyState(is_available=ocr_ok, error=ocr_error)
     if not ocr_ok:
         logger.error(f"OCR Dependency Error: {ocr_error}")
         print(f"\n*** OCR Dependency Error ***\n{ocr_error}\n", file=sys.stderr)
 
-    # 5. Run application with its own application_id
     try:
-        app = ImageOcrApp()
+        app = ImageOcrApp(ocr_dependency=ocr_dependency)
         return app.run(sys.argv)
     except Exception as e:
         logger.error(f"Critical error starting Image OCR: {e}")
         return 1
 
 
-__all__ = ["main", "main_image", "__version__", "__author__", "__license__", "setup_i18n"]
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+__all__ = [
+    "OcrDependencyState",
+    "main",
+    "main_image",
+    "__version__",
+    "setup_i18n",
+]

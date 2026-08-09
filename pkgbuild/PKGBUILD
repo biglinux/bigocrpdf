@@ -1,20 +1,21 @@
 # Maintainer: Bruno Goncalves <bigbruno@gmail.com>
+# shellcheck shell=bash disable=SC2034,SC2154
 
 pkgname=bigocrpdf
 pkgdesc="The simplest way to apply OCR to your PDF files, making it possible to search and copy texts from scanned files."
 
 depends=(
-	'gtk4'
-	'libadwaita'
-	'python'
+	'gtk4>=4.14'
+	'libadwaita>=1.5'
+	'hicolor-icon-theme'
+	'python>=3.12'
 	'python-gobject'
 	'python-cairo'
 	# RapidOCR core
 	'python-rapidocr'
 	'rapidocr-fonts'
-	# Default language models (Latin covers most Western languages)
-	'rapidocr-models-mobile-latin'
-	'rapidocr-models-mobile-base'
+	# Unified PP-OCRv6 model (Chinese, English, Japanese and Latin scripts)
+	'rapidocr-models-v6-small'
 	# OCR inference backend
 	'python-openvino'
 	# PDF processing
@@ -29,134 +30,57 @@ depends=(
 	'python-scipy'
 	# ODF export
 	'python-odfpy'
-	# BiDi text support (Arabic, Hebrew)
-	'fribidi'
-	# JBIG2 encoding for compact PDF output
-	'jbig2enc'
 )
 
 makedepends=(
+	'gettext'
+	'git'
 	'python-build'
 	'python-installer'
 	'python-setuptools'
 	'python-wheel'
 )
 
-pkgver=$(date +%y.%m.%d)
-pkgrel=$(date +%H%M)
+pkgver=3.0.0
+pkgrel=1
 arch=('any')
 license=('GPL-3.0-or-later')
 url="https://github.com/biglinux/bigocrpdf"
-_git_source="git+https://github.com/biglinux/bigocrpdf.git"
-_pkgbuild_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+options=('!strip')
 
-_find_local_source() {
-	local candidate resolved
-
-	for candidate in "${BIGOCRPDF_LOCAL_SOURCE:-}" "${_pkgbuild_dir}/.." "${_pkgbuild_dir}"; do
-		[ -n "$candidate" ] || continue
-		resolved="$(cd -- "$candidate" 2>/dev/null && pwd -P)" || continue
-
-		if [ -f "${resolved}/pyproject.toml" ] &&
-			[ -d "${resolved}/src/bigocrpdf" ] &&
-			[ -f "${resolved}/usr/bin/bigocrpdf" ]; then
-			printf '%s\n' "$resolved"
-			return 0
-		fi
-	done
-
-	return 1
-}
-
-_local_source="$(_find_local_source || true)"
+source=("${pkgname}::git+${url}.git#tag=v${pkgver}")
+sha256sums=('SKIP')
 
 optdepends=(
+	# Resource detection
+	'python-psutil: accurate available-memory detection'
+	# Screenshot capture
+	'spectacle: screenshot capture on KDE Plasma'
+	'gnome-screenshot: screenshot capture on GNOME'
+	'flameshot: cross-desktop screenshot capture'
 	# File manager integration
 	'python-nautilus: GNOME Files (Nautilus) context menu integration'
 	'nemo-python: Nemo file manager context menu integration'
-	# RapidOCR language models
-	'rapidocr-models-mobile-arabic: Arabic script OCR'
-	'rapidocr-models-mobile-korean: Korean OCR'
-	'rapidocr-models-mobile-cyrillic: Cyrillic script OCR (Russian, Ukrainian, etc.)'
-	'rapidocr-models-mobile-devanagari: Devanagari script OCR (Hindi, etc.)'
-	'rapidocr-models-mobile-english: English OCR (optimized)'
-	'rapidocr-models-mobile-greek: Greek OCR'
-	'rapidocr-models-mobile-slavic: Slavic languages OCR'
-	'rapidocr-models-mobile-tamil: Tamil OCR'
-	'rapidocr-models-mobile-telugu: Telugu OCR'
-	'rapidocr-models-mobile-thai: Thai OCR'
-	# Server models for higher accuracy
-	'rapidocr-models-server: Server models for higher accuracy'
 	# Alternative inference backend
 	'python-onnxruntime: Alternative inference backend (fallback)'
 	# PDF/A ICC profile fallback
 	'ghostscript: sRGB ICC profile for PDF/A-2b conversion'
+	# Optional best compression for bilevel PDF output
+	'jbig2enc: smaller Black & White PDF output; CCITT G4 is used when absent'
 )
 
-if [ -n "$_local_source" ]; then
-	source=()
-	md5sums=()
-else
-	source=("${pkgname}::${_git_source}")
-	md5sums=('SKIP')
-fi
-
-prepare() {
-	if [ -n "$_local_source" ]; then
-		rm -rf "${srcdir}/${pkgname}"
-		mkdir -p "${srcdir}/${pkgname}"
-		(
-			cd "$_local_source"
-			tar \
-				--exclude='./.git' \
-				--exclude='./.codex' \
-				--exclude='./build' \
-				--exclude='./dist' \
-				--exclude='./pkgbuild/pkg' \
-				--exclude='./pkgbuild/src' \
-				--exclude='./pkgbuild/*.pkg.tar*' \
-				--exclude='./src/*.egg-info' \
-				-cf - .
-		) | tar -xf - -C "${srcdir}/${pkgname}"
-	fi
-}
-
 build() {
-	cd "${srcdir}/${pkgname}"
+	cd "${srcdir}/${pkgname}" || return 1
 	rm -rf "${srcdir}/dist"
 	python -m build --wheel --no-isolation --skip-dependency-check --outdir "${srcdir}/dist"
 }
 
 package() {
-	cd "${srcdir}/${pkgname}"
+	cd "${srcdir}/${pkgname}" || return 1
 
 	# Install Python wheel
 	python -m installer --destdir="$pkgdir" "${srcdir}"/dist/*.whl
 
-	# Install additional files (icons, desktop files, translations, etc.)
-	# Exclude bin directory to avoid conflict with python-installer (bigocrpdf)
-	# and handle bigocrimage separately
-	if [ -d "usr/share" ]; then
-		cp -a usr/share "${pkgdir}/usr/"
-	fi
-
-	# Manually install bigocrimage script
-	if [ -f "usr/bin/bigocrimage" ]; then
-		install -Dm755 usr/bin/bigocrimage "${pkgdir}/usr/bin/bigocrimage"
-	fi
-	
-	# Manually install bigocrpdf script (separate from wheel to preserve custom wrapper)
-	if [ -f "usr/bin/bigocrpdf" ]; then
-		install -Dm755 usr/bin/bigocrpdf "${pkgdir}/usr/bin/bigocrpdf"
-	fi
-
-	# Install license file
-	if [ -f "LICENSE" ]; then
-		install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
-	fi
-
-	# Install documentation
-	if [ -f "README.md" ]; then
-		install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
-	fi
+	# Install metadata and compile gettext catalogs without modifying the source tree.
+	bash tools/stage-data.sh "$pkgdir"
 }

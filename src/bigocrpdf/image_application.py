@@ -11,15 +11,21 @@ gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Adw, Gio, GLib, Gtk
 
+from bigocrpdf import OcrDependencyState
+from bigocrpdf.config import (
+    APP_DEVELOPERS,
+    APP_ISSUES,
+    APP_VERSION,
+    APP_WEBSITE,
+    IMAGE_APP_ICON_NAME,
+    IMAGE_APP_ID,
+    SHORTCUTS,
+)
 from bigocrpdf.ui.image_ocr_window import ImageOcrWindow
 from bigocrpdf.ui.widgets import load_css
 from bigocrpdf.utils.i18n import _
+from bigocrpdf.utils.icons import setup_icons
 from bigocrpdf.utils.logger import logger
-
-# Constants for the standalone image app (avoid circular import from config)
-IMAGE_APP_ID = "br.com.biglinux.bigocrimage"
-IMAGE_APP_ICON = "bigocrimage"
-IMAGE_APP_VERSION = "3.0.0"
 
 
 class ImageOcrApp(Adw.Application):
@@ -29,12 +35,13 @@ class ImageOcrApp(Adw.Application):
     it appears as a separate application in the Wayland taskbar.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, *, ocr_dependency: OcrDependencyState) -> None:
         """Initialize the image OCR application."""
         super().__init__(
             application_id=IMAGE_APP_ID,
             flags=Gio.ApplicationFlags.HANDLES_OPEN,
         )
+        self.ocr_dependency = ocr_dependency
 
         # Add version command line option
         self.add_main_option(
@@ -49,9 +56,15 @@ class ImageOcrApp(Adw.Application):
         self.connect("activate", self.on_activate)
         self.connect("open", self.on_open)
         self.connect("handle-local-options", self.on_handle_local_options)
+        self.connect("shutdown", self._on_shutdown)
 
         # Set up application icon
         self._setup_actions()
+
+    def do_startup(self) -> None:
+        """Register the bundled icon theme before any widget is created."""
+        Adw.Application.do_startup(self)
+        setup_icons()
 
     def _setup_actions(self) -> None:
         """Set up application actions."""
@@ -62,43 +75,53 @@ class ImageOcrApp(Adw.Application):
 
         # Quit action
         quit_action = Gio.SimpleAction.new("quit", None)
-        quit_action.connect("activate", lambda *_: self.quit())
+        quit_action.connect("activate", self._on_quit_action)
         self.add_action(quit_action)
 
-        # Paste from clipboard action
-        paste_action = Gio.SimpleAction.new("paste-clipboard", None)
-        paste_action.connect("activate", self._on_paste_action)
-        self.add_action(paste_action)
-
         # Set keyboard shortcuts
-        self.set_accels_for_action("app.quit", ["<Control>q"])
-        self.set_accels_for_action("app.about", ["F1"])
-        self.set_accels_for_action("app.paste-clipboard", ["<Control>v"])
+        self.set_accels_for_action("app.quit", [SHORTCUTS.get("quit", "<Control>q")])
+        self.set_accels_for_action("app.about", [SHORTCUTS.get("about", "F1")])
+        self.set_accels_for_action(
+            "win.paste-clipboard",
+            [SHORTCUTS.get("paste-clipboard", "<Control>v")],
+        )
+        self.set_accels_for_action(
+            "win.cancel-processing",
+            [SHORTCUTS.get("cancel-processing", "Escape")],
+        )
 
-    def _on_paste_action(self, _action: Gio.SimpleAction, _param: None) -> None:
-        """Handle paste from clipboard action."""
-        win = self.get_active_window()
-        if win and hasattr(win, "paste_from_clipboard"):
-            win.paste_from_clipboard()
+    def _prepare_image_windows_for_shutdown(self) -> None:
+        """Cancel window-owned workers before application teardown."""
+        for window in self.get_windows():
+            if isinstance(window, ImageOcrWindow):
+                window.prepare_close()
+
+    def _on_quit_action(self, *_args: object) -> None:
+        """Prepare image windows before the explicit quit action."""
+        self._prepare_image_windows_for_shutdown()
+        self.quit()
+
+    def _on_shutdown(self, *_args: object) -> None:
+        """Defensively prepare windows for non-action shutdown paths."""
+        self._prepare_image_windows_for_shutdown()
 
     def on_handle_local_options(self, app: Adw.Application, options: GLib.VariantDict) -> int:
         """Handle command line options."""
         if options.contains("version"):
-            print(f"Big Image OCR {IMAGE_APP_VERSION}")
+            print(f"Big Image OCR {APP_VERSION}")
             return 0
         return -1
 
     def on_activate(self, app: Adw.Application) -> None:
         """Callback for application activation."""
-        try:
-            load_css()
-            win = self.get_active_window()
-            if not win:
-                win = ImageOcrWindow(app)
-                logger.info("Started Image OCR application")
-            win.present()
-        except Exception as e:
-            logger.error(f"Error activating Image OCR: {e}")
+        load_css()
+        win = self.get_active_window()
+        if not isinstance(win, ImageOcrWindow):
+            win = ImageOcrWindow(app, ocr_dependency=self.ocr_dependency)
+            logger.info("Started Image OCR application")
+        win.present()
+        if not self.ocr_dependency.is_available:
+            GLib.idle_add(win.show_ocr_unavailable_dialog)
 
     def on_open(
         self,
@@ -108,20 +131,18 @@ class ImageOcrApp(Adw.Application):
         _hint: str,
     ) -> None:
         """Handle opening files."""
-        logger.info(f"on_open called with {n_files} files")
+        logger.debug(f"on_open called with {n_files} files")
         self.on_activate(app)
         win = self.get_active_window()
 
-        if win and files:
+        if isinstance(win, ImageOcrWindow) and files:
             file_path = files[0].get_path()
-            logger.info(f"on_open: file_path={file_path}, uri={files[0].get_uri()}")
-            if file_path and hasattr(win, "open_image"):
+            logger.debug(f"on_open: file_path={file_path}, uri={files[0].get_uri()}")
+            if file_path:
                 win.open_image(file_path)
-                logger.info(f"Opened image: {file_path}")
+                logger.debug(f"Opened image: {file_path}")
             else:
-                logger.warning(
-                    f"Could not open: path={file_path}, has_open_image={hasattr(win, 'open_image')}"
-                )
+                logger.warning(f"Could not open image URI: {files[0].get_uri()}")
         else:
             logger.warning(f"on_open: win={win}, files={files}")
 
@@ -129,10 +150,12 @@ class ImageOcrApp(Adw.Application):
         """Show the About dialog."""
         about = Adw.AboutDialog.new()
         about.set_application_name("Big Image OCR")
-        about.set_application_icon(IMAGE_APP_ICON)
-        about.set_version(IMAGE_APP_VERSION)
+        about.set_application_icon(IMAGE_APP_ICON_NAME)
+        about.set_version(APP_VERSION)
+        about.set_developer_name(_("BigLinux Team"))
         about.set_comments(_("Extract text from images using OCR"))
-        about.set_website("https://www.biglinux.com.br")
-        about.set_developers(["BigLinux https://github.com/biglinux/bigocrpdf"])
+        about.set_website(APP_WEBSITE)
+        about.set_issue_url(APP_ISSUES)
+        about.set_developers(APP_DEVELOPERS)
         about.set_license_type(Gtk.License.GPL_3_0)
         about.present(self.get_active_window())

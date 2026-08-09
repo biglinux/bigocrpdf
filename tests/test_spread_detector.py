@@ -66,6 +66,16 @@ class TestFindCenterGap:
         # Gap between 7.5 and 45 is at ~26, which is < center_lo (35)
         assert gap is None
 
+    def test_overlapping_boxes_do_not_form_a_gap(self):
+        boxes = [
+            _make_box(10, 45),
+            _make_box(12, 45),
+            _make_box(43, 45),
+            _make_box(45, 45),
+        ]
+
+        assert _find_center_gap(boxes) is None
+
 
 class TestDetectAndSplitSpreads:
     """Tests for detect_and_split_spreads."""

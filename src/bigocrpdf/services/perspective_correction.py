@@ -22,11 +22,11 @@ import cv2
 import numpy as np
 
 from bigocrpdf.services.perspective_document import (
+    _contour_needs_perspective_correction,
     correct_photo_perspective,
     detect_document_contour,
     detect_photo_document_borders,
     four_point_transform,
-    needs_perspective_correction,
 )
 from bigocrpdf.services.perspective_margins import (
     correct_perspective_from_margins,
@@ -47,6 +47,8 @@ _BINARIZATION_THRESHOLD = 128
 # Area ratio bounds for contour correction sanity check
 _MIN_AREA_RATIO = 0.5
 _MAX_AREA_RATIO = 1.5
+# A page boundary should remain close to every image edge.
+_MAX_CONTOUR_INSET_RATIO = 0.15
 # Number of horizontal regions for regional skew detection
 _N_SKEW_REGIONS = 5
 
@@ -131,9 +133,9 @@ class PerspectiveCorrector:
                 f"corrected_sharpness={sharpness_corr:.1f}, valid={is_valid}"
             )
             return is_valid
-        except Exception as e:
+        except (cv2.error, TypeError, ValueError) as e:
             logger.debug(f"{method} validation failed: {e}")
-            return True  # On error, accept the correction
+            return False
 
     def _try_contour_correction(self, image: np.ndarray) -> np.ndarray | None:
         """Try perspective correction from document contour.
@@ -144,8 +146,20 @@ class PerspectiveCorrector:
         if contour is None:
             return None
 
+        image_height, image_width = image.shape[:2]
+        x, y, width, height = cv2.boundingRect(contour.astype(np.float32))
+        insets = (
+            x / image_width,
+            y / image_height,
+            (image_width - x - width) / image_width,
+            (image_height - y - height) / image_height,
+        )
+        if max(insets) > _MAX_CONTOUR_INSET_RATIO:
+            logger.debug("Detected contour is an internal frame. Skipping perspective correction.")
+            return image
+
         if self.skew_threshold > 0:
-            if not needs_perspective_correction(image, np.radians(self.skew_threshold)):
+            if not _contour_needs_perspective_correction(contour, np.radians(self.skew_threshold)):
                 logger.debug("Document appears flat. Skipping perspective correction.")
                 return image
 

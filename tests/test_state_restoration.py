@@ -42,6 +42,11 @@ _MOCKED_MODULES = [
     "bigocrpdf.ui.pdf_editor.thumbnail_renderer",
 ]
 _saved_modules = {m: sys.modules.get(m) for m in _MOCKED_MODULES}
+_EDITOR_MODULE_PREFIX = "bigocrpdf.ui.pdf_editor."
+_EDITOR_WINDOW_MODULE = f"{_EDITOR_MODULE_PREFIX}editor_window"
+_saved_editor_modules = {
+    name: module for name, module in sys.modules.items() if name.startswith(_EDITOR_MODULE_PREFIX)
+}
 
 mock_gi = MagicMock()
 mock_adw = MagicMock()
@@ -71,13 +76,28 @@ sys.modules["bigocrpdf.ui.pdf_editor.thumbnail_renderer"] = MagicMock()
 # Now import the modules to test
 from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
 
+_mocked_editor_window_module = sys.modules[_EDITOR_WINDOW_MODULE]
+
 # Restore original modules to avoid contaminating other test files
 for _mod_name, _original in _saved_modules.items():
     if _original is not None:
         sys.modules[_mod_name] = _original
     else:
         sys.modules.pop(_mod_name, None)
-del _saved_modules, _MOCKED_MODULES
+for _mod_name in tuple(sys.modules):
+    if not _mod_name.startswith(_EDITOR_MODULE_PREFIX):
+        continue
+    if _mod_name in _saved_editor_modules:
+        sys.modules[_mod_name] = _saved_editor_modules[_mod_name]
+    else:
+        sys.modules.pop(_mod_name, None)
+del (
+    _saved_modules,
+    _saved_editor_modules,
+    _MOCKED_MODULES,
+    _EDITOR_MODULE_PREFIX,
+    _EDITOR_WINDOW_MODULE,
+)
 
 
 class TestStateRestoration(unittest.TestCase):
@@ -89,8 +109,10 @@ class TestStateRestoration(unittest.TestCase):
         self.mock_status_bar = MagicMock()
 
         # Patch PageGrid and other UI components
-        patcher = patch(
-            "bigocrpdf.ui.pdf_editor.editor_window.PageGrid", return_value=self.mock_grid
+        patcher = patch.object(
+            _mocked_editor_window_module,
+            "PageGrid",
+            return_value=self.mock_grid,
         )
         self.addCleanup(patcher.stop)
         self.mock_page_grid_cls = patcher.start()
@@ -115,24 +137,18 @@ class TestStateRestoration(unittest.TestCase):
 
         # Verify Window restores this state
         with (
-            patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_ui"),
-            patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_actions"),
-            patch(
-                "bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_keyboard_shortcuts"
-            ),
-            patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_drag_drop"),
+            patch.object(PDFEditorWindow, "_setup_ui"),
+            patch.object(PDFEditorWindow, "_setup_actions"),
+            patch.object(PDFEditorWindow, "_setup_keyboard_shortcuts"),
+            patch.object(PDFEditorWindow, "_setup_drag_drop"),
             patch("os.path.basename", return_value="test.pdf"),
         ):
             # Initialize with initial_state
             window = PDFEditorWindow(self.mock_app, "test.pdf", initial_state=saved_state)
 
             # Check if document was loaded from state
-            self.assertIsNotNone(window.document)
-            self.assertEqual(len(window.document.pages), 1)
-            self.assertEqual(window.document.pages[0].rotation, 90)
-
-            print("State restoration test passed!")
-
-
-if __name__ == "__main__":
-    unittest.main()
+            document = window.document
+            self.assertIsNotNone(document)
+            assert document is not None
+            self.assertEqual(len(document.pages), 1)
+            self.assertEqual(document.pages[0].rotation, 90)

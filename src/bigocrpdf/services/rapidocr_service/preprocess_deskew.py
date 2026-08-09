@@ -9,6 +9,7 @@ Extracted from preprocessor.py to follow single-responsibility principle.
 """
 
 import logging
+from typing import NamedTuple
 
 import cv2
 import numpy as np
@@ -246,8 +247,11 @@ def _detect_skew_hough(gray: np.ndarray, w: int) -> list[float]:
     )
     hough_angles: list[float] = []
     if lines is not None:
-        for line in lines:
-            x1, y1, x2, y2 = line[0]
+        line_vectors = np.asarray(lines)
+        if line_vectors.size % 4:
+            logger.debug(f"Ignoring malformed Hough line array with shape {line_vectors.shape}")
+            return hough_angles
+        for x1, y1, x2, y2 in line_vectors.reshape(-1, 4):
             dx = abs(x2 - x1)
             dy = abs(y2 - y1)
             if dx > dy * 3 and dx > 0:
@@ -294,7 +298,7 @@ def detect_skew(img: np.ndarray) -> float:
         return median_angle
 
     try:
-        from bigocrpdf.services.contour_analysis import detect_skew_from_contours
+        from bigocrpdf.services.contour_dewarp import detect_skew_from_contours
 
         contour_angle = detect_skew_from_contours(img)
         if abs(contour_angle) > 0.5:
@@ -334,6 +338,83 @@ def fallback_deskew(img: np.ndarray, enable_auto_detect: bool = True) -> np.ndar
                 result = rotate_image(result, skew2)
             return result
     return img
+
+
+class AngleFit(NamedTuple):
+    angles: np.ndarray
+    ys: np.ndarray
+    weights: np.ndarray
+    weight_sum: float
+    y_mean: float
+    angle_mean: float
+    angle_top: float
+    angle_bottom: float
+    angle_span: float
+    residuals: np.ndarray
+    r_squared: float
+    has_y_variance: bool
+
+
+def _weighted_angle_fit(
+    angles: np.ndarray,
+    ys: np.ndarray,
+    weights: np.ndarray,
+    height: int,
+) -> AngleFit:
+    weight_sum = float(weights.sum())
+    y_mean = float(np.sum(weights * ys) / weight_sum)
+    angle_mean = float(np.sum(weights * angles) / weight_sum)
+    cov = float(np.sum(weights * (ys - y_mean) * (angles - angle_mean)))
+    var_y = float(np.sum(weights * (ys - y_mean) ** 2))
+
+    if var_y < 1e-6:
+        residuals = angles - angle_mean
+        return AngleFit(
+            angles,
+            ys,
+            weights,
+            weight_sum,
+            y_mean,
+            angle_mean,
+            angle_mean,
+            angle_mean,
+            0.0,
+            residuals,
+            0.0,
+            False,
+        )
+
+    slope = cov / var_y
+    angle_top = angle_mean + slope * (0 - y_mean)
+    angle_bottom = angle_mean + slope * (height - y_mean)
+    predicted = angle_mean + slope * (ys - y_mean)
+    residuals = angles - predicted
+    ss_res = float(np.sum(weights * residuals**2))
+    ss_tot = float(np.sum(weights * (angles - angle_mean) ** 2))
+    r_squared = 1.0 - ss_res / ss_tot if ss_tot > 1e-6 else 0.0
+
+    return AngleFit(
+        angles,
+        ys,
+        weights,
+        weight_sum,
+        y_mean,
+        angle_mean,
+        angle_top,
+        angle_bottom,
+        abs(angle_bottom - angle_top),
+        residuals,
+        r_squared,
+        True,
+    )
+
+
+def _weighted_median_angle(fit: AngleFit) -> float:
+    sorted_idx = np.argsort(fit.angles)
+    cum_w = np.cumsum(fit.weights[sorted_idx])
+    median_idx = int(np.searchsorted(cum_w, fit.weight_sum / 2.0))
+    median_idx = min(median_idx, len(fit.angles) - 1)
+    return float(fit.angles[sorted_idx[median_idx]])
 
 
 def ocr_box_deskew(img: np.ndarray, enable_auto_detect: bool = True) -> np.ndarray:
@@ -382,121 +463,80 @@ def ocr_box_deskew(img: np.ndarray, enable_auto_detect: bool = True) -> np.ndarr
         logger.debug(f"OCR box deskew: only {len(boxes)} boxes, falling back")
         return fallback_deskew(img, enable_auto_detect)
 
-    # Measure angle of each text box from its top edge (box[0]→box[1])
-    angles = []
-    ys = []
-    weights = []
-    for b in boxes:
-        box = b["box"]  # 4×2 array: [TL, TR, BR, BL]
-        dx = box[1][0] - box[0][0]
-        dy = box[1][1] - box[0][1]
-        width = float(np.hypot(dx, dy))
-
-        # Filter: wide text regions only (>5% page width, <50% for full lines)
-        if width < w * 0.05:
-            continue
-
-        angle = float(np.degrees(np.arctan2(dy, dx)))
-        if abs(angle) > 15.0:
-            continue
-
-        y_center = float(np.mean(box[:, 1]))
-        angles.append(angle)
-        ys.append(y_center)
-        weights.append(width)  # Weight by box width (longer = more reliable)
-
-    if len(angles) < 5:
-        logger.debug(f"OCR box deskew: only {len(angles)} valid boxes, falling back")
+    arr_a, arr_y, arr_w = measure_box_angles(boxes, w)
+    if len(arr_a) < 5:
+        logger.debug(f"OCR box deskew: only {len(arr_a)} valid boxes, falling back")
         return fallback_deskew(img, enable_auto_detect)
 
-    arr_a = np.array(angles)
-    arr_y = np.array(ys)
-    arr_w = np.array(weights)
+    fit = _weighted_angle_fit(arr_a, arr_y, arr_w, h)
+    return _apply_ocr_box_angle_fit(img, fit, detect_text_boxes, w, h)
 
-    # Weighted linear regression: angle = slope * y + intercept
-    w_sum = arr_w.sum()
-    y_mean = float(np.sum(arr_w * arr_y) / w_sum)
-    a_mean = float(np.sum(arr_w * arr_a) / w_sum)
-    cov = float(np.sum(arr_w * (arr_y - y_mean) * (arr_a - a_mean)))
-    var_y = float(np.sum(arr_w * (arr_y - y_mean) ** 2))
 
-    if var_y < 1e-6:
-        # All boxes at same Y — just do uniform deskew
-        if abs(a_mean) > 0.5:
-            logger.debug(f"OCR box deskew: uniform {a_mean:.2f}°")
-            return rotate_image(img, a_mean)
+def _apply_ocr_box_angle_fit(img: np.ndarray, fit: AngleFit, detect_text_boxes, w: int, h: int):
+    if not fit.has_y_variance:
+        if abs(fit.angle_mean) > 0.5:
+            logger.debug(f"OCR box deskew: uniform {fit.angle_mean:.2f}°")
+            return rotate_image(img, fit.angle_mean)
         return img
 
-    slope = cov / var_y
-    angle_top = a_mean + slope * (0 - y_mean)
-    angle_bot = a_mean + slope * (h - y_mean)
-    angle_span = abs(angle_bot - angle_top)
-
-    # R² — how much of angle variance is explained by linear gradient
-    predicted = a_mean + slope * (arr_y - y_mean)
-    residuals = arr_a - predicted
-    ss_res = float(np.sum(arr_w * residuals**2))
-    ss_tot = float(np.sum(arr_w * (arr_a - a_mean) ** 2))
-    r_squared = 1.0 - ss_res / ss_tot if ss_tot > 1e-6 else 0.0
-
     logger.debug(
-        f"OCR box deskew: {len(angles)} boxes, mean={a_mean:.2f}°, "
-        f"top={angle_top:.2f}°→bot={angle_bot:.2f}°, "
-        f"span={angle_span:.2f}°, R²={r_squared:.3f}"
+        f"OCR box deskew: {len(fit.angles)} boxes, mean={fit.angle_mean:.2f}°, "
+        f"top={fit.angle_top:.2f}°→bot={fit.angle_bottom:.2f}°, "
+        f"span={fit.angle_span:.2f}°, R²={fit.r_squared:.3f}"
     )
 
-    result = img
-
-    if angle_span > 3.0 and r_squared > 0.4 and len(angles) >= 20:
-        # Angular gradient detected — apply perspective angular correction.
-        result = correct_angular_perspective(result, angle_top, angle_bot)
-
-        # Re-measure after correction for refinement pass
-        boxes2 = detect_text_boxes(result)
-        a2, y2, _ = measure_box_angles(boxes2, w)
-        if len(a2) >= 5:
-            coeffs2 = np.polyfit(y2, a2, 1)
-            at2 = float(np.polyval(coeffs2, 0))
-            ab2 = float(np.polyval(coeffs2, h))
-            span2 = abs(ab2 - at2)
-            mean2 = float(np.mean(a2))
-
-            if span2 > 1.5:
-                # Still has angular gradient — apply refinement
-                logger.debug(f"OCR box deskew: refinement pass span={span2:.2f}° mean={mean2:.2f}°")
-                result = correct_angular_perspective(result, at2, ab2)
-                # Re-measure for uniform residual
-                boxes3 = detect_text_boxes(result)
-                a3, _, _ = measure_box_angles(boxes3, w)
-                if len(a3) >= 3:
-                    mean3 = float(np.median(a3))
-                    if abs(mean3) > 0.3:
-                        logger.debug(f"OCR box deskew: uniform residual {mean3:.2f}°")
-                        result = rotate_image(result, mean3)
-            elif abs(mean2) > 0.3:
-                logger.debug(f"OCR box deskew: uniform residual {mean2:.2f}°")
-                result = rotate_image(result, mean2)
-        else:
-            # Fall back: estimate residual from regression
-            residual_median = float(np.median(residuals))
-            total_residual = a_mean - (angle_top + angle_bot) / 2.0 + residual_median
-            if abs(total_residual) > 0.3:
-                result = rotate_image(result, total_residual)
-
-    elif abs(a_mean) > 0.5:
-        # Uniform skew — simple rotation using weighted median
-        sorted_idx = np.argsort(arr_a)
-        cum_w = np.cumsum(arr_w[sorted_idx])
-        median_idx = int(np.searchsorted(cum_w, w_sum / 2.0))
-        median_idx = min(median_idx, len(arr_a) - 1)
-        w_median = float(arr_a[sorted_idx[median_idx]])
-
+    if fit.angle_span > 3.0 and fit.r_squared > 0.4 and len(fit.angles) >= 20:
+        return _refine_ocr_box_perspective(img, fit, detect_text_boxes, w, h)
+    if abs(fit.angle_mean) > 0.5:
+        w_median = _weighted_median_angle(fit)
         skew_angle = float(np.clip(w_median, -5.0, 5.0))
         logger.debug(f"OCR box deskew: uniform skew correction {skew_angle:.2f}°")
-        result = rotate_image(result, skew_angle)
-    else:
-        logger.debug("OCR box deskew: no correction needed")
+        return rotate_image(img, skew_angle)
 
+    logger.debug("OCR box deskew: no correction needed")
+    return img
+
+
+def _refine_ocr_box_perspective(
+    img: np.ndarray,
+    fit: AngleFit,
+    detect_text_boxes,
+    w: int,
+    h: int,
+) -> np.ndarray:
+    result = correct_angular_perspective(img, fit.angle_top, fit.angle_bottom)
+    boxes2 = detect_text_boxes(result)
+    a2, y2, _ = measure_box_angles(boxes2, w)
+    if len(a2) < 5:
+        residual_median = float(np.median(fit.residuals))
+        total_residual = fit.angle_mean - (fit.angle_top + fit.angle_bottom) / 2.0 + residual_median
+        return rotate_image(result, total_residual) if abs(total_residual) > 0.3 else result
+
+    coeffs2 = np.polyfit(y2, a2, 1)
+    at2 = float(np.polyval(coeffs2, 0))
+    ab2 = float(np.polyval(coeffs2, h))
+    span2 = abs(ab2 - at2)
+    mean2 = float(np.mean(a2))
+
+    if span2 > 1.5:
+        logger.debug(f"OCR box deskew: refinement pass span={span2:.2f}° mean={mean2:.2f}°")
+        result = correct_angular_perspective(result, at2, ab2)
+        return _apply_ocr_box_residual_rotation(result, detect_text_boxes, w)
+    if abs(mean2) > 0.3:
+        logger.debug(f"OCR box deskew: uniform residual {mean2:.2f}°")
+        return rotate_image(result, mean2)
+    return result
+
+
+def _apply_ocr_box_residual_rotation(result: np.ndarray, detect_text_boxes, w: int) -> np.ndarray:
+    boxes3 = detect_text_boxes(result)
+    a3, _, _ = measure_box_angles(boxes3, w)
+    if len(a3) < 3:
+        return result
+    mean3 = float(np.median(a3))
+    if abs(mean3) > 0.3:
+        logger.debug(f"OCR box deskew: uniform residual {mean3:.2f}°")
+        return rotate_image(result, mean3)
     return result
 
 
@@ -537,7 +577,7 @@ def _probmap_remeasure(
     )
 
     prob, sx, sy = _get_probmap(img, max_side=probmap_max_side)
-    bl = _extract_baselines(prob, prob.shape[0], prob.shape[1])
+    bl = _extract_baselines(prob, prob.shape[1])
     del prob
     bl = _scale_baselines(bl, sx, sy)
     angles, ys, _ = _measure_baseline_angles(bl, min_width)
@@ -590,6 +630,28 @@ def probmap_angle_deskew(img: np.ndarray, probmap_max_side: int = 0) -> np.ndarr
 
     Falls back to ``ocr_box_deskew`` if probmap extraction fails.
     """
+    h, w = img.shape[:2]
+    min_width = w * 0.20
+    measured = _probmap_measured_angles(img, min_width, probmap_max_side)
+    if measured is None:
+        return ocr_box_deskew(img)
+
+    angles, ys, widths = measured
+    if len(angles) < 3:
+        logger.debug(
+            f"Probmap deskew: only {len(angles)} valid baselines, falling back to OCR boxes"
+        )
+        return ocr_box_deskew(img)
+
+    fit = _weighted_angle_fit(np.array(angles), np.array(ys), np.array(widths), h)
+    return _apply_probmap_angle_fit(img, fit, min_width, probmap_max_side)
+
+
+def _probmap_measured_angles(
+    img: np.ndarray,
+    min_width: float,
+    probmap_max_side: int,
+) -> tuple[list[float], list[float], list[float]] | None:
     try:
         from bigocrpdf.services.rapidocr_service.dewarp_probmap import (
             _extract_baselines,
@@ -598,100 +660,71 @@ def probmap_angle_deskew(img: np.ndarray, probmap_max_side: int = 0) -> np.ndarr
         )
     except ImportError:
         logger.debug("Probmap not available for deskew, falling back to OCR boxes")
-        return ocr_box_deskew(img)
-
-    h, w = img.shape[:2]
+        return None
 
     try:
         prob, scale_x, scale_y = _get_probmap(img, max_side=probmap_max_side)
         inf_h, inf_w = prob.shape[:2]
-        baselines = _extract_baselines(prob, inf_h, inf_w)
+        baselines = _extract_baselines(prob, inf_w)
         del prob
     except Exception as exc:
         logger.debug(f"Probmap deskew failed: {exc}, falling back to OCR boxes")
-        return ocr_box_deskew(img)
+        return None
 
     if len(baselines) < 3:
         logger.debug(f"Probmap deskew: only {len(baselines)} baselines, falling back to OCR boxes")
-        return ocr_box_deskew(img)
+        return None
 
     baselines = _scale_baselines(baselines, scale_x, scale_y)
     if len(baselines) < 3:
-        return ocr_box_deskew(img)
+        return None
+    return _measure_baseline_angles(baselines, min_width)
 
-    min_width = w * 0.20
-    angles, ys, widths = _measure_baseline_angles(baselines, min_width)
 
-    if len(angles) < 3:
-        logger.debug(
-            f"Probmap deskew: only {len(angles)} valid baselines, falling back to OCR boxes"
-        )
-        return ocr_box_deskew(img)
-
-    arr_a = np.array(angles)
-    arr_y = np.array(ys)
-    arr_w = np.array(widths)
-
-    w_sum = arr_w.sum()
-    y_mean = float(np.sum(arr_w * arr_y) / w_sum)
-    a_mean = float(np.sum(arr_w * arr_a) / w_sum)
-
-    cov = float(np.sum(arr_w * (arr_y - y_mean) * (arr_a - a_mean)))
-    var_y = float(np.sum(arr_w * (arr_y - y_mean) ** 2))
-
-    if var_y < 1e-6:
-        if abs(a_mean) > 0.5:
-            logger.debug(f"Probmap deskew: uniform {a_mean:.2f}° (all same Y)")
-            return rotate_image(img, a_mean)
+def _apply_probmap_angle_fit(
+    img: np.ndarray,
+    fit: AngleFit,
+    min_width: float,
+    probmap_max_side: int,
+) -> np.ndarray:
+    if not fit.has_y_variance:
+        if abs(fit.angle_mean) > 0.5:
+            logger.debug(f"Probmap deskew: uniform {fit.angle_mean:.2f}° (all same Y)")
+            return rotate_image(img, fit.angle_mean)
         return img
 
-    slope = cov / var_y
-    angle_top = a_mean + slope * (0 - y_mean)
-    angle_bot = a_mean + slope * (h - y_mean)
-    angle_span = abs(angle_bot - angle_top)
-
-    predicted = a_mean + slope * (arr_y - y_mean)
-    residuals = arr_a - predicted
-    ss_res = float(np.sum(arr_w * residuals**2))
-    ss_tot = float(np.sum(arr_w * (arr_a - a_mean) ** 2))
-    r_squared = 1.0 - ss_res / ss_tot if ss_tot > 1e-6 else 0.0
-
     logger.debug(
-        f"Probmap deskew: {len(angles)} baselines, mean={a_mean:.2f}°, "
-        f"top={angle_top:.2f}°→bot={angle_bot:.2f}°, "
-        f"span={angle_span:.2f}°, R²={r_squared:.3f}"
+        f"Probmap deskew: {len(fit.angles)} baselines, mean={fit.angle_mean:.2f}°, "
+        f"top={fit.angle_top:.2f}°→bot={fit.angle_bottom:.2f}°, "
+        f"span={fit.angle_span:.2f}°, R²={fit.r_squared:.3f}"
     )
 
-    if angle_span > 3.0 and r_squared > 0.4 and len(angles) >= 10:
-        result = correct_angular_perspective(img, angle_top, angle_bot)
-        if angle_span < 5.0:
-            if abs(a_mean) > 0.3:
-                result = rotate_image(result, a_mean)
+    h = img.shape[0]
+    if fit.angle_span > 3.0 and fit.r_squared > 0.4 and len(fit.angles) >= 10:
+        result = correct_angular_perspective(img, fit.angle_top, fit.angle_bottom)
+        if fit.angle_span < 5.0:
+            if abs(fit.angle_mean) > 0.3:
+                result = rotate_image(result, fit.angle_mean)
         else:
             result = _refine_perspective(result, h, min_width, probmap_max_side)
         return result
 
-    if abs(a_mean) > 0.5:
-        sorted_idx = np.argsort(arr_a)
-        cum_w = np.cumsum(arr_w[sorted_idx])
-        median_idx = int(np.searchsorted(cum_w, w_sum / 2.0))
-        median_idx = min(median_idx, len(arr_a) - 1)
-        w_median = float(arr_a[sorted_idx[median_idx]])
-
-        # Reject noisy detections: when few baselines have high angular
-        # spread, the weighted median is unreliable.  Compute the median
-        # absolute deviation (MAD) of the angles — if MAD exceeds 3° the
-        # baselines disagree too much for a confident correction.
-        mad = float(np.median(np.abs(arr_a - w_median)))
-        if mad > 3.0:
-            logger.debug(
-                f"Probmap deskew: high angle dispersion (MAD={mad:.2f}°, n={len(angles)}), skipping"
-            )
-            return img
-
-        skew_angle = float(np.clip(w_median, -5.0, 5.0))
-        logger.debug(f"Probmap deskew: uniform skew correction {skew_angle:.2f}°")
-        return rotate_image(img, skew_angle)
+    if abs(fit.angle_mean) > 0.5:
+        return _apply_probmap_uniform_rotation(img, fit)
 
     logger.debug("Probmap deskew: no correction needed")
     return img
+
+
+def _apply_probmap_uniform_rotation(img: np.ndarray, fit: AngleFit) -> np.ndarray:
+    w_median = _weighted_median_angle(fit)
+    mad = float(np.median(np.abs(fit.angles - w_median)))
+    if mad > 3.0:
+        logger.debug(
+            f"Probmap deskew: high angle dispersion (MAD={mad:.2f}°, n={len(fit.angles)}), skipping"
+        )
+        return img
+
+    skew_angle = float(np.clip(w_median, -5.0, 5.0))
+    logger.debug(f"Probmap deskew: uniform skew correction {skew_angle:.2f}°")
+    return rotate_image(img, skew_angle)

@@ -5,8 +5,7 @@ This module provides shared utility functions for text extraction and handling.
 Centralizes text-related functionality to avoid code duplication.
 """
 
-import os
-
+from bigocrpdf.utils.durable_writes import read_regular_file_bytes
 from bigocrpdf.utils.logger import logger
 
 
@@ -19,29 +18,27 @@ def read_text_from_sidecar(sidecar_path: str) -> str | None:
     Returns:
         Text content, or None if file doesn't exist or can't be read
     """
-    if not sidecar_path or not os.path.exists(sidecar_path):
+    if not sidecar_path:
         return None
 
     try:
-        with open(sidecar_path, encoding="utf-8") as f:
-            text = f.read()
-
-        if text:
-            logger.info(f"Read {len(text)} characters from sidecar file")
-            return text
-
-    except UnicodeDecodeError:
-        # Try with different encoding
-        try:
-            with open(sidecar_path, encoding="latin-1") as f:
-                text = f.read()
-            if text:
-                logger.info(f"Read {len(text)} characters from sidecar (latin-1)")
-                return text
-        except Exception as e:
-            logger.error(f"Error reading sidecar with fallback encoding: {e}")
-    except Exception as e:
+        content = read_regular_file_bytes(sidecar_path)
+    except FileNotFoundError:
+        return None
+    except OSError as e:
         logger.error(f"Error reading sidecar file: {e}")
+        return None
+
+    try:
+        text = content.decode("utf-8")
+        encoding = "UTF-8"
+    except UnicodeDecodeError:
+        text = content.decode("latin-1")
+        encoding = "Latin-1"
+
+    if text.strip():
+        logger.info("Read %d characters from %s sidecar", len(text), encoding)
+        return text
 
     return None
 

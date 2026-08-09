@@ -1,25 +1,17 @@
-"""
-BigOcrPdf - Settings Service
-
-This module handles configuration settings and file management for the application.
-The three sub-objects (FileQueueManager, OutputConfig, PreprocessingConfig) live
-in their own modules; OcrSettings acts as a transparent facade.
-"""
+"""Application settings, queue state, and persistence."""
 
 from __future__ import annotations
 
+import json
 import os
+import stat
 import time
+from copy import deepcopy
 from typing import Any
 
 from bigocrpdf.config import (
     CONFIG_DIR,
     SELECTED_FILE_PATH,
-)
-from bigocrpdf.services.file_queue import FileQueueManager
-from bigocrpdf.services.output_config import DEFAULT_DATE_FORMAT, DEFAULT_SUFFIX, OutputConfig
-from bigocrpdf.services.preprocessing_config import (
-    PreprocessingConfig,
 )
 from bigocrpdf.services.rapidocr_service.config import (
     DEFAULT_AUTO_DETECT_QUALITY,
@@ -48,60 +40,196 @@ from bigocrpdf.services.rapidocr_service.config import (
     DEFAULT_TEXT_SCORE_THRESHOLD,
     DEFAULT_UNCLIP_RATIO,
     DEFAULT_VINTAGE_BW,
+    DEFAULT_WORKERS,
+    OCRConfig,
 )
-from bigocrpdf.utils.config_manager import get_config_manager
-from bigocrpdf.utils.i18n import _
+from bigocrpdf.utils.config_manager import DEFAULT_CONFIG, get_config_manager
+from bigocrpdf.utils.i18n import _, ngettext
 from bigocrpdf.utils.logger import logger
 
-# Sub-object attribute names used by OcrSettings delegation
-_SUB_OBJECTS = ("file_queue", "output", "preprocessing")
+DEFAULT_SUFFIX = "ocr"
+DEFAULT_DATE_FORMAT = {"year": 1, "month": 2, "day": 3}
 
 
-def _build_delegation_map(*sub_instances: object) -> dict[str, str]:
-    """Build a static {attr_name: sub_object_field} map once at init time."""
-    mapping: dict[str, str] = {}
-    for sub, name in zip(sub_instances, _SUB_OBJECTS, strict=True):
-        for attr in vars(sub):
-            if not attr.startswith("_"):
-                mapping[attr] = name
-        # Also include public methods
-        for attr in dir(type(sub)):
-            if not attr.startswith("_") and callable(getattr(sub, attr, None)):
-                mapping.setdefault(attr, name)
-    return mapping
+def _deduplicate_file_paths(file_paths: list[str]) -> list[str]:
+    """Keep the first spelling of each filesystem identity."""
+    unique_paths: list[str] = []
+    seen: set[str] = set()
+    for file_path in file_paths:
+        identity = os.path.realpath(file_path)
+        if identity in seen:
+            continue
+        seen.add(identity)
+        unique_paths.append(file_path)
+    return unique_paths
+
+
+# Flat attributes remain the compatibility API, but each persisted preference is
+# declared once instead of repeated across initialization, loading, and saving.
+_PERSISTED_SETTINGS: dict[str, tuple[str, Any]] = {
+    "replace_existing_ocr": ("ocr.replace_existing_ocr", False),
+    "enhance_embedded_images": ("ocr.enhance_embedded_images", False),
+    "pdf_suffix": ("output.suffix", DEFAULT_SUFFIX),
+    "use_original_filename": ("output.use_original_filename", False),
+    "overwrite_existing": ("output.overwrite_existing", False),
+    "save_in_same_folder": (
+        "output.save_in_same_folder",
+        DEFAULT_CONFIG["output"]["save_in_same_folder"],
+    ),
+    "destination_folder": ("output.destination_folder", ""),
+    "include_date": ("date.include_date", False),
+    "include_year": ("date.include_year", False),
+    "include_month": ("date.include_month", False),
+    "include_day": ("date.include_day", False),
+    "include_time": ("date.include_time", False),
+    "date_format_order": ("date.format_order", DEFAULT_DATE_FORMAT),
+    "save_txt": ("text_extraction.save_txt", False),
+    "separate_txt_folder": ("text_extraction.separate_folder", False),
+    "txt_folder": ("text_extraction.txt_folder", ""),
+    "save_odf": ("odf_export.save_odf", False),
+    "odf_include_images": ("odf_export.include_images", True),
+    "odf_open_after_export": ("odf_export.open_after_export", False),
+    "md_include_front_matter": ("md_export.include_front_matter", False),
+    "md_open_after_export": ("md_export.open_after_export", False),
+    "dpi": ("rapidocr.dpi", DEFAULT_DPI),
+    "enable_preprocessing": ("rapidocr.enable_preprocessing", DEFAULT_ENABLE_PREPROCESSING),
+    "enable_deskew": ("rapidocr.enable_deskew", DEFAULT_ENABLE_DESKEW),
+    "enable_baseline_dewarp": (
+        "rapidocr.enable_baseline_dewarp",
+        DEFAULT_ENABLE_BASELINE_DEWARP,
+    ),
+    "enable_perspective_correction": (
+        "rapidocr.enable_perspective_correction",
+        DEFAULT_ENABLE_PERSPECTIVE_CORRECTION,
+    ),
+    "enable_orientation_detection": (
+        "rapidocr.enable_orientation_detection",
+        DEFAULT_ENABLE_ORIENTATION_DETECTION,
+    ),
+    "enable_auto_contrast": ("rapidocr.enable_auto_contrast", DEFAULT_ENABLE_AUTO_CONTRAST),
+    "enable_auto_brightness": (
+        "rapidocr.enable_auto_brightness",
+        DEFAULT_ENABLE_AUTO_BRIGHTNESS,
+    ),
+    "enable_denoise": ("rapidocr.enable_denoise", DEFAULT_ENABLE_DENOISE),
+    "enable_scanner_effect": (
+        "rapidocr.enable_scanner_effect",
+        DEFAULT_ENABLE_SCANNER_EFFECT,
+    ),
+    "scanner_effect_strength": (
+        "rapidocr.scanner_effect_strength",
+        DEFAULT_SCANNER_EFFECT_STRENGTH,
+    ),
+    "enable_border_clean": ("rapidocr.enable_border_clean", DEFAULT_ENABLE_BORDER_CLEAN),
+    "enable_vintage_look": ("rapidocr.enable_vintage_look", DEFAULT_ENABLE_VINTAGE_LOOK),
+    "vintage_bw": ("rapidocr.vintage_bw", DEFAULT_VINTAGE_BW),
+    "text_score_threshold": (
+        "rapidocr.text_score_threshold",
+        DEFAULT_TEXT_SCORE_THRESHOLD,
+    ),
+    "box_thresh": ("rapidocr.box_thresh", DEFAULT_BOX_THRESH),
+    "unclip_ratio": ("rapidocr.unclip_ratio", DEFAULT_UNCLIP_RATIO),
+    "ocr_profile": ("rapidocr.ocr_profile", "balanced"),
+    "detection_full_resolution": (
+        "rapidocr.detection_full_resolution",
+        DEFAULT_DETECTION_FULL_RESOLUTION,
+    ),
+    "image_export_format": ("image_export.format", DEFAULT_IMAGE_EXPORT_FORMAT),
+    "image_export_quality": ("image_export.quality", DEFAULT_IMAGE_EXPORT_QUALITY),
+    "image_export_preserve_original": ("image_export.preserve_original", True),
+    "auto_detect_quality": ("image_export.auto_detect_quality", DEFAULT_AUTO_DETECT_QUALITY),
+    "convert_to_pdfa": ("output.convert_to_pdfa", True),
+    "max_file_size_mb": ("output.max_file_size_mb", DEFAULT_MAX_FILE_SIZE_MB),
+    "page_layout": ("output.page_layout", DEFAULT_PAGE_LAYOUT),
+    "enable_bilevel_compression": (
+        "output.enable_bilevel_compression",
+        DEFAULT_ENABLE_BILEVEL_COMPRESSION,
+    ),
+    "force_bilevel_compression": (
+        "output.force_bilevel_compression",
+        DEFAULT_FORCE_BILEVEL_COMPRESSION,
+    ),
+    "quick_start_mode": ("ui.quick_start_mode", True),
+}
+
+_ODF_SETTING_NAMES = ("save_odf", "odf_include_images", "odf_open_after_export")
+_MD_SETTING_NAMES = ("md_include_front_matter", "md_open_after_export")
 
 
 class OcrSettings:
-    """Facade over FileQueueManager, OutputConfig, and PreprocessingConfig.
+    """Flat application settings and transient document state."""
 
-    All attribute reads/writes are transparently delegated to the
-    appropriate sub-object, so existing code that accesses
-    ``settings.enable_deskew`` or ``settings.selected_files`` continues
-    to work without any changes.
-    """
+    destination_folder: str
+    save_in_same_folder: bool
+    pdf_suffix: str
+    use_original_filename: bool
+    overwrite_existing: bool
+    include_date: bool
+    include_year: bool
+    include_month: bool
+    include_day: bool
+    include_time: bool
+    date_format_order: dict[str, int]
+    save_txt: bool
+    separate_txt_folder: bool
+    txt_folder: str
+    save_odf: bool
+    odf_include_images: bool
+    odf_open_after_export: bool
+    md_include_front_matter: bool
+    md_open_after_export: bool
+    image_export_format: str
+    image_export_quality: int
+    image_export_preserve_original: bool
+    auto_detect_quality: bool
+    convert_to_pdfa: bool
+    max_file_size_mb: int
+    page_layout: str
+    enable_bilevel_compression: bool
+    force_bilevel_compression: bool
+    dpi: int
+    enable_preprocessing: bool
+    enable_deskew: bool
+    enable_baseline_dewarp: bool
+    enable_perspective_correction: bool
+    enable_orientation_detection: bool
+    enable_auto_contrast: bool
+    enable_auto_brightness: bool
+    enable_denoise: bool
+    enable_scanner_effect: bool
+    scanner_effect_strength: float
+    enable_border_clean: bool
+    enable_vintage_look: bool
+    vintage_bw: bool
+    text_score_threshold: float
+    box_thresh: float
+    unclip_ratio: float
+    ocr_profile: str
+    detection_full_resolution: bool
+    replace_existing_ocr: bool
+    enhance_embedded_images: bool
+    quick_start_mode: bool
 
     def __init__(self) -> None:
-        # Use object.__setattr__ during init to bypass delegation
-        sup = object.__setattr__.__get__(self)
-        sup("_config", get_config_manager())
-        fq = FileQueueManager()
-        out = OutputConfig()
-        pre = PreprocessingConfig()
-        sup("file_queue", fq)
-        sup("output", out)
-        sup("preprocessing", pre)
+        self.selected_files: list[str] = []
+        self.page_ranges: dict[str, tuple[int, int] | None] = {}
+        self.processed_files: list[str] = []
+        self.original_file_paths: dict[str, str] = {}
+        self.file_modifications: dict[str, dict[str, Any]] = {}
+        self.pages_count = 0
 
-        # Static delegation map: {attr_name: sub_object_field} — O(1) lookup
-        sup("_delegation_map", _build_delegation_map(fq, out, pre))
+        self.ocr_language = DEFAULT_LANGUAGE
+        self.parallel_workers = DEFAULT_WORKERS
+        for attribute, (_key, default) in _PERSISTED_SETTINGS.items():
+            setattr(self, attribute, deepcopy(default))
+
+        self._config = get_config_manager()
 
         # Attributes that stay directly on OcrSettings (cross-cutting / transient)
-        sup("lang", DEFAULT_LANGUAGE)
-        sup("extracted_text", {})
-        sup("comparison_results", [])
-        sup("ocr_boxes", {})
-
-        # Enable delegation for all subsequent attribute access
-        sup("_initialized", True)
+        self.lang: str = DEFAULT_LANGUAGE
+        self.extracted_text: dict[str, str] = {}
+        self.comparison_results: list[Any] = []
+        self.ocr_boxes: dict[str, list[Any]] = {}
 
         # Ensure config directory exists
         os.makedirs(CONFIG_DIR, exist_ok=True)
@@ -109,46 +237,19 @@ class OcrSettings:
         # Load settings from JSON config manager
         self.load_settings()
 
-    # -- Delegation machinery --------------------------------------------------
-
-    def __getattr__(self, name: str) -> object:
-        """Delegate attribute reads to sub-objects via static map (O(1) lookup)."""
-        try:
-            dmap = object.__getattribute__(self, "_delegation_map")
-        except AttributeError:
-            raise AttributeError(f"'{type(self).__name__}' has no attribute '{name}'") from None
-        sub_name = dmap.get(name)
-        if sub_name is not None:
-            sub = object.__getattribute__(self, sub_name)
-            return getattr(sub, name)
-        raise AttributeError(f"'{type(self).__name__}' has no attribute '{name}'")
-
-    def __setattr__(self, name: str, value: object) -> None:
-        """Delegate attribute writes to the sub-object that owns *name* (O(1) lookup)."""
-        if not self.__dict__.get("_initialized"):
-            object.__setattr__(self, name, value)
-            return
-        dmap = object.__getattribute__(self, "_delegation_map")
-        sub_name = dmap.get(name)
-        if sub_name is not None:
-            sub = object.__getattribute__(self, sub_name)
-            setattr(sub, name, value)
-            return
-        object.__setattr__(self, name, value)
-
     def load_settings(self) -> None:
-        """Load all settings from JSON configuration"""
-        self._load_language_settings()
-        self._load_output_settings()
-        self._load_date_settings()
-        self._load_text_extraction_settings()
-        self._load_odf_settings()
-        self._load_md_settings()
-        self._load_preprocessing_settings()
-        self._load_image_export_settings()
-        self._load_pdf_output_settings()
-        self._load_bilevel_settings()
-        self.quick_start_mode = self._config.get("ui.quick_start_mode", True)
+        """Load all settings from JSON configuration."""
+        if not self._config.reload():
+            raise OSError("Could not refresh settings from disk")
+        stored_language = self._config.get("rapidocr.language")
+        if not isinstance(stored_language, str) or not stored_language.strip():
+            stored_language = self._config.get("ocr.language", DEFAULT_LANGUAGE)
+        if not isinstance(stored_language, str) or not stored_language.strip():
+            stored_language = DEFAULT_LANGUAGE
+        self.lang = stored_language
+        self.ocr_language = stored_language
+        self._load_persisted_settings()
+        self.file_modifications = {}
 
         # Load selected files from legacy file (file list not stored in JSON)
         self._load_selected_files()
@@ -159,207 +260,48 @@ class OcrSettings:
 
         logger.info("Settings loaded from JSON configuration")
 
-    def _load_language_settings(self) -> None:
-        config_lang = self._config.get("ocr.language")
-        if config_lang:
-            self.lang = config_lang
-        else:
-            detected_lang = self._detect_default_language()
-            self.lang = detected_lang
-            self._config.set("ocr.language", detected_lang, save_immediately=True)
-            logger.info(f"Saved detected language to config: {detected_lang}")
-        self.ocr_language = self.lang
-        self.replace_existing_ocr = self._config.get("ocr.replace_existing_ocr", False)
-        self.enhance_embedded_images = self._config.get("ocr.enhance_embedded_images", False)
-
-    def _load_output_settings(self) -> None:
-        self.pdf_suffix = self._config.get("output.suffix", DEFAULT_SUFFIX)
-        self.use_original_filename = self._config.get("output.use_original_filename", False)
-        self.overwrite_existing = self._config.get("output.overwrite_existing", False)
-        self.save_in_same_folder = self._config.get("output.save_in_same_folder", False)
-        self.destination_folder = self._config.get("output.destination_folder", "")
-
-    def _load_date_settings(self) -> None:
-        self.include_date = self._config.get("date.include_date", False)
-        self.include_year = self._config.get("date.include_year", False)
-        self.include_month = self._config.get("date.include_month", False)
-        self.include_day = self._config.get("date.include_day", False)
-        self.include_time = self._config.get("date.include_time", False)
-        self.date_format_order = self._config.get("date.format_order", DEFAULT_DATE_FORMAT.copy())
-
-    def _load_text_extraction_settings(self) -> None:
-        self.save_txt = self._config.get("text_extraction.save_txt", False)
-        self.separate_txt_folder = self._config.get("text_extraction.separate_folder", False)
-        self.txt_folder = self._config.get("text_extraction.txt_folder", "")
-        self.file_modifications: dict[str, dict[str, Any]] = {}
-
-    def _load_odf_settings(self) -> None:
-        self.save_odf = self._config.get("odf_export.save_odf", False)
-        self.odf_include_images = self._config.get("odf_export.include_images", True)
-        self.odf_use_formatting = self._config.get("odf_export.use_formatting", True)
-        self.odf_open_after_export = self._config.get("odf_export.open_after_export", False)
+    def _snapshot_ocr_config(self) -> OCRConfig:
+        """Snapshot the persisted OCR preferences for one processing request."""
+        return OCRConfig(
+            language=self.ocr_language,
+            dpi=self.dpi,
+            enable_preprocessing=self.enable_preprocessing,
+            enable_perspective_correction=self.enable_perspective_correction,
+            enable_deskew=self.enable_deskew,
+            enable_baseline_dewarp=self.enable_baseline_dewarp,
+            enable_orientation_detection=self.enable_orientation_detection,
+            enable_auto_contrast=self.enable_auto_contrast,
+            enable_auto_brightness=self.enable_auto_brightness,
+            enable_denoise=self.enable_denoise,
+            enable_scanner_effect=self.enable_scanner_effect,
+            scanner_effect_strength=self.scanner_effect_strength,
+            enable_border_clean=self.enable_border_clean,
+            enable_vintage_look=self.enable_vintage_look,
+            vintage_bw=self.vintage_bw,
+            text_score_threshold=self.text_score_threshold,
+            box_thresh=self.box_thresh,
+            unclip_ratio=self.unclip_ratio,
+            detection_full_resolution=self.detection_full_resolution,
+            convert_to_pdfa=self.convert_to_pdfa,
+            max_file_size_mb=self.max_file_size_mb,
+            page_layout=self.page_layout,
+            enable_bilevel_compression=self.enable_bilevel_compression,
+            force_bilevel_compression=self.force_bilevel_compression,
+            image_export_format=self.image_export_format,
+            image_export_quality=self.image_export_quality,
+            auto_detect_quality=self.auto_detect_quality,
+            workers=self.parallel_workers,
+            replace_existing_ocr=self.replace_existing_ocr,
+            enhance_embedded_images=self.enhance_embedded_images,
+        )
 
     def _load_md_settings(self) -> None:
-        self.md_include_front_matter = self._config.get("md_export.include_front_matter", False)
-        self.md_open_after_export = self._config.get("md_export.open_after_export", False)
+        self._load_persisted_settings(_MD_SETTING_NAMES)
 
-    def _load_preprocessing_settings(self) -> None:
-        self.dpi = self._config.get("rapidocr.dpi", DEFAULT_DPI)
-        self.enable_preprocessing = self._config.get(
-            "rapidocr.enable_preprocessing", DEFAULT_ENABLE_PREPROCESSING
-        )
-        self.enable_deskew = self._config.get("rapidocr.enable_deskew", DEFAULT_ENABLE_DESKEW)
-        self.enable_baseline_dewarp = self._config.get(
-            "rapidocr.enable_baseline_dewarp", DEFAULT_ENABLE_BASELINE_DEWARP
-        )
-        self.enable_perspective_correction = self._config.get(
-            "rapidocr.enable_perspective_correction", DEFAULT_ENABLE_PERSPECTIVE_CORRECTION
-        )
-        self.enable_orientation_detection = self._config.get(
-            "rapidocr.enable_orientation_detection", DEFAULT_ENABLE_ORIENTATION_DETECTION
-        )
-        self.enable_auto_contrast = self._config.get(
-            "rapidocr.enable_auto_contrast", DEFAULT_ENABLE_AUTO_CONTRAST
-        )
-        self.enable_auto_brightness = self._config.get(
-            "rapidocr.enable_auto_brightness", DEFAULT_ENABLE_AUTO_BRIGHTNESS
-        )
-        self.enable_denoise = self._config.get("rapidocr.enable_denoise", DEFAULT_ENABLE_DENOISE)
-        self.enable_scanner_effect = self._config.get(
-            "rapidocr.enable_scanner_effect", DEFAULT_ENABLE_SCANNER_EFFECT
-        )
-        self.scanner_effect_strength = self._config.get(
-            "rapidocr.scanner_effect_strength", DEFAULT_SCANNER_EFFECT_STRENGTH
-        )
-        self.enable_border_clean = self._config.get(
-            "rapidocr.enable_border_clean", DEFAULT_ENABLE_BORDER_CLEAN
-        )
-        self.enable_vintage_look = self._config.get(
-            "rapidocr.enable_vintage_look", DEFAULT_ENABLE_VINTAGE_LOOK
-        )
-        self.vintage_bw = self._config.get("rapidocr.vintage_bw", DEFAULT_VINTAGE_BW)
-        self.text_score_threshold = self._config.get(
-            "rapidocr.text_score_threshold", DEFAULT_TEXT_SCORE_THRESHOLD
-        )
-        self.box_thresh = self._config.get("rapidocr.box_thresh", DEFAULT_BOX_THRESH)
-        self.unclip_ratio = self._config.get("rapidocr.unclip_ratio", DEFAULT_UNCLIP_RATIO)
-        self.ocr_profile = self._config.get("rapidocr.ocr_profile", "balanced")
-        self.detection_full_resolution = self._config.get(
-            "rapidocr.detection_full_resolution", DEFAULT_DETECTION_FULL_RESOLUTION
-        )
-
-    def _load_image_export_settings(self) -> None:
-        self.image_export_format = self._config.get(
-            "image_export.format", DEFAULT_IMAGE_EXPORT_FORMAT
-        )
-        self.image_export_quality = self._config.get(
-            "image_export.quality", DEFAULT_IMAGE_EXPORT_QUALITY
-        )
-        self.image_export_preserve_original = self._config.get(
-            "image_export.preserve_original", True
-        )
-        self.auto_detect_quality = self._config.get(
-            "image_export.auto_detect_quality", DEFAULT_AUTO_DETECT_QUALITY
-        )
-
-    def _load_pdf_output_settings(self) -> None:
-        self.convert_to_pdfa = self._config.get("output.convert_to_pdfa", True)
-        self.max_file_size_mb = self._config.get(
-            "output.max_file_size_mb", DEFAULT_MAX_FILE_SIZE_MB
-        )
-        self.page_layout = self._config.get("output.page_layout", DEFAULT_PAGE_LAYOUT)
-
-    def _load_bilevel_settings(self) -> None:
-        self.enable_bilevel_compression = self._config.get(
-            "output.enable_bilevel_compression", DEFAULT_ENABLE_BILEVEL_COMPRESSION
-        )
-        self.force_bilevel_compression = self._config.get(
-            "output.force_bilevel_compression", DEFAULT_FORCE_BILEVEL_COMPRESSION
-        )
-
-    def _detect_default_language(self) -> str:
-        """Detect system language and find best match in RapidOCR models.
-
-        Maps Linux 2-letter locale codes to RapidOCR script names.
-
-        Returns:
-            Detected language code for RapidOCR, or 'latin' as fallback
-        """
-        try:
-            # Get system language from LANG environment variable
-            lang = os.environ.get("LANG", "")
-            short_lang = lang[:2].lower() if lang else ""
-
-            # Map common 2-letter ISO 639-1 codes to RapidOCR script names
-            mapping = {
-                # Latin script languages
-                "pt": "latin",  # Portuguese
-                "es": "latin",  # Spanish
-                "en": "english",  # English (has dedicated model)
-                "fr": "latin",  # French
-                "de": "latin",  # German
-                "it": "latin",  # Italian
-                "nl": "latin",  # Dutch
-                "pl": "slavic",  # Polish (Slavic)
-                "sv": "latin",  # Swedish
-                "no": "latin",  # Norwegian
-                "da": "latin",  # Danish
-                "fi": "latin",  # Finnish
-                "cs": "slavic",  # Czech (Slavic)
-                "sk": "slavic",  # Slovak (Slavic)
-                "hr": "slavic",  # Croatian (Slavic)
-                "tr": "latin",  # Turkish
-                "ro": "latin",  # Romanian
-                "hu": "latin",  # Hungarian
-                # Cyrillic script languages
-                "ru": "cyrillic",  # Russian
-                "uk": "cyrillic",  # Ukrainian
-                "bg": "cyrillic",  # Bulgarian
-                # Greek
-                "el": "greek",  # Greek
-                # Arabic script
-                "ar": "arabic",  # Arabic
-                "he": "arabic",  # Hebrew (uses Arabic model)
-                # Korean
-                "ko": "korean",  # Korean
-                # Thai
-                "th": "thai",  # Thai
-                # Devanagari script
-                "hi": "devanagari",  # Hindi
-                # Tamil
-                "ta": "tamil",  # Tamil
-                # Telugu
-                "te": "telugu",  # Telugu
-            }
-
-            target_script = mapping.get(short_lang, "latin")
-
-            # Check if target language model is installed
-            try:
-                from bigocrpdf.services.rapidocr_service import ModelDiscovery
-
-                discovery = ModelDiscovery()
-                available = discovery.get_available_languages()
-                # Extract just the language codes from tuples (code, name)
-                available_codes = [code for code, _name in available]
-
-                if target_script in available_codes:
-                    logger.info(f"Detected system language script: {target_script}")
-                    return target_script
-                elif available_codes:
-                    # Use first available language
-                    fallback = available_codes[0]
-                    logger.info(f"Detected script {target_script} not installed, using {fallback}")
-                    return fallback
-
-            except ImportError:
-                logger.warning("ModelDiscovery not available, using default language")
-
-            return DEFAULT_LANGUAGE
-
-        except Exception as e:
-            logger.warning(f"Failed to detect system language: {e}")
-            return DEFAULT_LANGUAGE
+    def _load_persisted_settings(self, attributes=None) -> None:
+        for attribute in attributes or _PERSISTED_SETTINGS:
+            key, default = _PERSISTED_SETTINGS[attribute]
+            setattr(self, attribute, self._config.get(key, deepcopy(default)))
 
     def add_files(self, file_paths: list[str]) -> int:
         """Add files to the selected files list
@@ -373,26 +315,177 @@ class OcrSettings:
         if not file_paths:
             return 0
 
-        logger.info(_("Attempting to add {0} files").format(len(file_paths)))
+        logger.info(
+            ngettext(
+                "Attempting to add {count} file",
+                "Attempting to add {count} files",
+                len(file_paths),
+            ).format(count=len(file_paths))
+        )
 
         # Filter and collect valid files (PDFs and Images)
         valid_files = self._filter_valid_files(file_paths)
 
         # Add valid files and update count
         if valid_files:
+            previous_count = len(self.selected_files)
             self.selected_files.extend(valid_files)
-
-            self._save_selected_files()
+            if not self._save_selected_files():
+                del self.selected_files[previous_count:]
+                return 0
 
             # Only initialize destination if it's not already set by the user
             if not self.destination_folder:
                 self._initialize_destination_folder()
 
-            logger.info(_("Successfully added {0} files").format(len(valid_files)))
+            logger.info(
+                ngettext(
+                    "Successfully added {count} file",
+                    "Successfully added {count} files",
+                    len(valid_files),
+                ).format(count=len(valid_files))
+            )
         else:
             logger.warning(_("No valid files were found to add"))
 
         return len(valid_files)
+
+    def _add_generated_file(self, file_path: str, original_path: str) -> bool:
+        """Queue a generated PDF and publish its display-name source atomically."""
+        was_queued = any(
+            os.path.realpath(queued_path) == os.path.realpath(file_path)
+            for queued_path in self.selected_files
+        )
+        if self.add_files([file_path]) != 1:
+            if not was_queued:
+                from bigocrpdf.utils.temp_manager import remove_tracked_file
+
+                remove_tracked_file(file_path)
+            return False
+        self.original_file_paths[file_path] = original_path
+        return True
+
+    def _remove_file(self, file_path: str) -> bool:
+        """Remove a queued file and all state owned by that queue entry."""
+        previous_state = self._snapshot_queue_state()
+        was_generated = file_path in self.original_file_paths
+        try:
+            self.selected_files.remove(file_path)
+        except ValueError:
+            return False
+        self.page_ranges.pop(file_path, None)
+        self.file_modifications.pop(file_path, None)
+        self.original_file_paths.pop(file_path, None)
+        if not self._save_selected_files():
+            self._restore_queue_state(previous_state)
+            return False
+        if was_generated:
+            from bigocrpdf.utils.temp_manager import remove_tracked_file
+
+            remove_tracked_file(file_path)
+        return True
+
+    def _replace_file(self, file_path: str, replacement_path: str) -> bool:
+        """Replace an edited queue entry with its materialized PDF."""
+        previous_state = self._snapshot_queue_state()
+        try:
+            index = self.selected_files.index(file_path)
+        except ValueError:
+            return False
+        was_generated = file_path in self.original_file_paths
+        self.selected_files[index] = replacement_path
+        original_path = self.original_file_paths.pop(file_path, file_path)
+        self.original_file_paths[replacement_path] = original_path
+        self.page_ranges.pop(file_path, None)
+        self.file_modifications.pop(file_path, None)
+        if not self._save_selected_files():
+            self._restore_queue_state(previous_state)
+            return False
+        if was_generated and replacement_path != file_path:
+            from bigocrpdf.utils.temp_manager import remove_tracked_file
+
+            remove_tracked_file(file_path)
+        return True
+
+    def _move_file(self, source_index: int, target_index: int) -> bool:
+        """Move a queued file and persist the new order."""
+        file_count = len(self.selected_files)
+        if (
+            source_index == target_index
+            or not 0 <= source_index < file_count
+            or not 0 <= target_index < file_count
+        ):
+            return False
+
+        previous_order = self.selected_files.copy()
+        file_path = self.selected_files.pop(source_index)
+        self.selected_files.insert(target_index, file_path)
+        if self._save_selected_files():
+            return True
+
+        self.selected_files[:] = previous_order
+        return False
+
+    def _clear_files(self) -> bool:
+        """Clear the queue and all state owned by its entries."""
+        had_queue_state = bool(
+            self.selected_files
+            or self.page_ranges
+            or self.file_modifications
+            or self.original_file_paths
+        )
+        if not had_queue_state:
+            return False
+        previous_state = self._snapshot_queue_state()
+        generated_files = tuple(self.original_file_paths)
+        self.selected_files.clear()
+        self.page_ranges.clear()
+        self.file_modifications.clear()
+        self.original_file_paths.clear()
+        if not self._save_selected_files():
+            self._restore_queue_state(previous_state)
+            return False
+        if generated_files:
+            from bigocrpdf.utils.temp_manager import remove_tracked_file
+
+            for file_path in generated_files:
+                remove_tracked_file(file_path)
+        return True
+
+    def _snapshot_queue_state(
+        self,
+    ) -> tuple[
+        list[str],
+        dict[str, tuple[int, int] | None],
+        dict[str, dict[str, Any]],
+        dict[str, str],
+    ]:
+        """Copy queue-owned state for rollback around durable publication."""
+        return (
+            list(self.selected_files),
+            dict(self.page_ranges),
+            dict(self.file_modifications),
+            dict(self.original_file_paths),
+        )
+
+    def _restore_queue_state(
+        self,
+        state: tuple[
+            list[str],
+            dict[str, tuple[int, int] | None],
+            dict[str, dict[str, Any]],
+            dict[str, str],
+        ],
+    ) -> None:
+        """Restore a queue snapshot without replacing externally observed containers."""
+        selected_files, page_ranges, file_modifications, original_file_paths = state
+        self.selected_files[:] = selected_files
+        self.page_ranges.clear()
+        self.page_ranges.update(page_ranges)
+        self.file_modifications.clear()
+        self.file_modifications.update(file_modifications)
+        self.original_file_paths.clear()
+        self.original_file_paths.update(original_file_paths)
 
     def _filter_valid_files(self, file_paths: list[str]) -> list[str]:
         """Filter a list of paths to only include valid files (PDF and Images)
@@ -404,6 +497,7 @@ class OcrSettings:
             List of valid file paths
         """
         valid_files: list[str] = []
+        queued_identities = {os.path.realpath(path) for path in self.selected_files}
 
         for file_path in file_paths:
             # Skip empty paths
@@ -432,14 +526,16 @@ class OcrSettings:
                 logger.warning(_("Unsupported file type: {0}").format(file_path))
                 continue
 
-            # Skip duplicates
-            if file_path in self.selected_files:
+            # Skip duplicate filesystem identities, including aliases in this batch.
+            identity = os.path.realpath(file_path)
+            if identity in queued_identities:
                 logger.info(_("File already in list: {0}").format(file_path))
                 continue
 
             # File is valid, add it
             logger.info(_("Adding valid file: {0}").format(file_path))
             valid_files.append(file_path)
+            queued_identities.add(identity)
 
         return valid_files
 
@@ -463,7 +559,8 @@ class OcrSettings:
             self.save_in_same_folder = save_in_same_folder
 
             # Save all settings to JSON
-            self._save_all_settings()
+            if not self._save_all_settings():
+                raise OSError("Could not persist settings")
 
             logger.info(_("Settings saved successfully"))
 
@@ -471,175 +568,32 @@ class OcrSettings:
             logger.error(_("Error saving settings: {0}").format(e))
             raise
 
-    def _save_all_settings(self) -> None:
-        """Save all settings to JSON configuration"""
+    def _save_all_settings(self) -> bool:
+        """Save all settings to JSON configuration."""
         self.ocr_language = self.lang
-        self._save_language_settings()
-        self._save_output_settings()
-        self._save_date_settings()
-        self._save_text_extraction_settings()
+        self._config.set("rapidocr.language", self.ocr_language, save_immediately=False)
+        self._save_persisted_settings()
         self._save_editor_settings()
-        self._save_odf_settings()
-        self._save_md_settings()
-        self._save_preprocessing_settings()
-        self._save_image_export_settings()
-        self._save_pdf_output_settings()
-        self._save_bilevel_settings()
-        self._config.set("ui.quick_start_mode", self.quick_start_mode, save_immediately=False)
-        self._config.save()
+        if not self._config.save():
+            return False
         logger.debug("All settings saved to JSON configuration")
-
-    def _save_language_settings(self) -> None:
-        self._config.set("ocr.language", self.lang, save_immediately=False)
-        self._config.set(
-            "ocr.replace_existing_ocr", self.replace_existing_ocr, save_immediately=False
-        )
-        self._config.set(
-            "ocr.enhance_embedded_images", self.enhance_embedded_images, save_immediately=False
-        )
-
-    def _save_output_settings(self) -> None:
-        self._config.set("output.suffix", self.pdf_suffix, save_immediately=False)
-        self._config.set(
-            "output.use_original_filename", self.use_original_filename, save_immediately=False
-        )
-        self._config.set(
-            "output.overwrite_existing", self.overwrite_existing, save_immediately=False
-        )
-        self._config.set(
-            "output.save_in_same_folder", self.save_in_same_folder, save_immediately=False
-        )
-        self._config.set(
-            "output.destination_folder", self.destination_folder, save_immediately=False
-        )
-
-    def _save_date_settings(self) -> None:
-        self._config.set("date.include_date", self.include_date, save_immediately=False)
-        self._config.set("date.include_year", self.include_year, save_immediately=False)
-        self._config.set("date.include_month", self.include_month, save_immediately=False)
-        self._config.set("date.include_day", self.include_day, save_immediately=False)
-        self._config.set("date.include_time", self.include_time, save_immediately=False)
-        self._config.set("date.format_order", self.date_format_order, save_immediately=False)
-
-    def _save_text_extraction_settings(self) -> None:
-        self._config.set("text_extraction.save_txt", self.save_txt, save_immediately=False)
-        self._config.set(
-            "text_extraction.separate_folder", self.separate_txt_folder, save_immediately=False
-        )
-        self._config.set("text_extraction.txt_folder", self.txt_folder, save_immediately=False)
+        return True
 
     def _save_editor_settings(self) -> None:
         if self.page_ranges:
             self._config.set("editor.page_ranges", self.page_ranges, save_immediately=False)
 
     def _save_odf_settings(self) -> None:
-        self._config.set("odf_export.save_odf", self.save_odf, save_immediately=False)
-        self._config.set(
-            "odf_export.include_images", self.odf_include_images, save_immediately=False
-        )
-        self._config.set(
-            "odf_export.use_formatting", self.odf_use_formatting, save_immediately=False
-        )
-        self._config.set(
-            "odf_export.open_after_export", self.odf_open_after_export, save_immediately=False
-        )
+        self._save_persisted_settings(_ODF_SETTING_NAMES)
 
     def _save_md_settings(self) -> None:
-        self._config.set(
-            "md_export.include_front_matter",
-            getattr(self, "md_include_front_matter", False),
-            save_immediately=False,
-        )
-        self._config.set(
-            "md_export.open_after_export",
-            getattr(self, "md_open_after_export", False),
-            save_immediately=False,
-        )
+        self._save_persisted_settings(_MD_SETTING_NAMES)
 
-    def _save_preprocessing_settings(self) -> None:
-        self._config.set("rapidocr.dpi", self.dpi, save_immediately=False)
-        self._config.set("rapidocr.language", self.ocr_language, save_immediately=False)
-        self._config.set(
-            "rapidocr.enable_preprocessing", self.enable_preprocessing, save_immediately=False
-        )
-        self._config.set("rapidocr.enable_deskew", self.enable_deskew, save_immediately=False)
-        self._config.set(
-            "rapidocr.enable_baseline_dewarp",
-            self.enable_baseline_dewarp,
-            save_immediately=False,
-        )
-        self._config.set(
-            "rapidocr.enable_perspective_correction",
-            self.enable_perspective_correction,
-            save_immediately=False,
-        )
-        self._config.set(
-            "rapidocr.enable_orientation_detection",
-            self.enable_orientation_detection,
-            save_immediately=False,
-        )
-        self._config.set(
-            "rapidocr.enable_auto_contrast", self.enable_auto_contrast, save_immediately=False
-        )
-        self._config.set(
-            "rapidocr.enable_auto_brightness", self.enable_auto_brightness, save_immediately=False
-        )
-        self._config.set("rapidocr.enable_denoise", self.enable_denoise, save_immediately=False)
-        self._config.set(
-            "rapidocr.enable_scanner_effect", self.enable_scanner_effect, save_immediately=False
-        )
-        self._config.set(
-            "rapidocr.scanner_effect_strength",
-            self.scanner_effect_strength,
-            save_immediately=False,
-        )
-        self._config.set(
-            "rapidocr.enable_border_clean", self.enable_border_clean, save_immediately=False
-        )
-        self._config.set(
-            "rapidocr.enable_vintage_look", self.enable_vintage_look, save_immediately=False
-        )
-        self._config.set("rapidocr.vintage_bw", self.vintage_bw, save_immediately=False)
-        self._config.set(
-            "rapidocr.text_score_threshold", self.text_score_threshold, save_immediately=False
-        )
-        self._config.set("rapidocr.box_thresh", self.box_thresh, save_immediately=False)
-        self._config.set("rapidocr.unclip_ratio", self.unclip_ratio, save_immediately=False)
-        self._config.set("rapidocr.ocr_profile", self.ocr_profile, save_immediately=False)
-        self._config.set(
-            "rapidocr.detection_full_resolution",
-            self.detection_full_resolution,
-            save_immediately=False,
-        )
-
-    def _save_image_export_settings(self) -> None:
-        self._config.set("image_export.format", self.image_export_format, save_immediately=False)
-        self._config.set("image_export.quality", self.image_export_quality, save_immediately=False)
-        self._config.set(
-            "image_export.preserve_original",
-            self.image_export_preserve_original,
-            save_immediately=False,
-        )
-        self._config.set(
-            "image_export.auto_detect_quality", self.auto_detect_quality, save_immediately=False
-        )
-
-    def _save_pdf_output_settings(self) -> None:
-        self._config.set("output.convert_to_pdfa", self.convert_to_pdfa, save_immediately=False)
-        self._config.set("output.max_file_size_mb", self.max_file_size_mb, save_immediately=False)
-        self._config.set("output.page_layout", self.page_layout, save_immediately=False)
-
-    def _save_bilevel_settings(self) -> None:
-        self._config.set(
-            "output.enable_bilevel_compression",
-            self.enable_bilevel_compression,
-            save_immediately=False,
-        )
-        self._config.set(
-            "output.force_bilevel_compression",
-            self.force_bilevel_compression,
-            save_immediately=False,
-        )
+    def _save_persisted_settings(self, attributes=None) -> None:
+        for attribute in attributes or _PERSISTED_SETTINGS:
+            key, default = _PERSISTED_SETTINGS[attribute]
+            value = getattr(self, attribute, deepcopy(default))
+            self._config.set(key, value, save_immediately=False)
 
     def get_pdf_suffix(self) -> str:
         """Get the formatted PDF suffix with date elements if enabled
@@ -701,15 +655,31 @@ class OcrSettings:
         # Otherwise just return the suffix
         return suffix
 
-    def _save_selected_files(self) -> None:
-        """Save the current list of selected files to the configuration file"""
+    def _save_selected_files(self) -> bool:
+        """Publish the current selected-file list and report durable success."""
         try:
-            with open(SELECTED_FILE_PATH, "w", encoding="utf-8") as f:
-                for file_path in self.selected_files:
-                    f.write(f"{file_path}\n")
-            logger.info(_("Saved {0} selected files").format(len(self.selected_files)))
+            from bigocrpdf.utils.durable_writes import write_text_atomically
+
+            payload = {
+                "version": 1,
+                "selected_files": self.selected_files,
+            }
+            write_text_atomically(
+                SELECTED_FILE_PATH,
+                json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+            )
+            selected_count = len(self.selected_files)
+            logger.info(
+                ngettext(
+                    "Saved {count} selected file",
+                    "Saved {count} selected files",
+                    selected_count,
+                ).format(count=selected_count)
+            )
         except Exception as e:
             logger.error(_("Error saving selected files: {0}").format(e))
+            return False
+        return True
 
     def _load_selected_files(self) -> None:
         """Load selected files from configuration"""
@@ -717,19 +687,44 @@ class OcrSettings:
         self.selected_files = []
         self.pages_count = 0
 
-        if not os.path.exists(SELECTED_FILE_PATH):
-            return
-
         try:
-            with open(SELECTED_FILE_PATH, encoding="utf-8") as f:
-                file_lines = f.readlines()
-                if file_lines:  # Check if there are any lines
-                    self.selected_files = [line.strip() for line in file_lines if line.strip()]
+            with open(
+                SELECTED_FILE_PATH,
+                encoding="utf-8",
+                opener=lambda path, flags: os.open(
+                    path,
+                    flags
+                    | getattr(os, "O_CLOEXEC", 0)
+                    | getattr(os, "O_NOFOLLOW", 0)
+                    | getattr(os, "O_NONBLOCK", 0),
+                ),
+            ) as selected_file:
+                if not stat.S_ISREG(os.fstat(selected_file.fileno()).st_mode):
+                    raise OSError("selected-file list is not a regular file")
+                raw = selected_file.read()
+            try:
+                payload = json.loads(raw)
+            except json.JSONDecodeError:
+                # Backward compatibility with the legacy newline-delimited file.
+                self.selected_files = [line.strip() for line in raw.splitlines() if line.strip()]
+            else:
+                if not isinstance(payload, dict) or payload.get("version") != 1:
+                    raise ValueError("unsupported selected-file list format")
+                stored_files = payload.get("selected_files")
+                if not isinstance(stored_files, list) or not all(
+                    isinstance(file_path, str) for file_path in stored_files
+                ):
+                    raise ValueError("invalid selected-file list")
+                self.selected_files = stored_files
 
             # Filter to only existing files
-            self.selected_files = [f for f in self.selected_files if os.path.exists(f)]
+            self.selected_files = _deduplicate_file_paths(
+                [f for f in self.selected_files if os.path.exists(f)]
+            )
 
-        except Exception as e:
+        except FileNotFoundError:
+            return
+        except (OSError, ValueError) as e:
             logger.error(_("Error loading selected files: {0}").format(e))
             # Ensure selected_files is always a list
             self.selected_files = []
@@ -756,8 +751,8 @@ class OcrSettings:
         """Reset processing-related state for a new OCR run.
 
         Args:
-            full: If True, also clears the file queue (selected_files,
-                  original_file_paths). Use ``full=True``
+            full: If True, also clears the file queue and its per-file state.
+                  Use ``full=True``
                   when the user cancels processing and returns to the
                   settings page to start from scratch.
         """
@@ -766,28 +761,23 @@ class OcrSettings:
         self.comparison_results: list[Any] = []
 
         # Clear extracted text to free memory
-        if hasattr(self, "extracted_text") and self.extracted_text:
+        if self.extracted_text:
             text_count = len(self.extracted_text)
             total_chars = sum(len(text) for text in self.extracted_text.values())
             self.extracted_text.clear()
             logger.info(
                 f"Cleared {text_count} extracted texts ({total_chars} characters) from memory"
             )
-        else:
-            self.extracted_text: dict[str, str] = {}
 
         # Clear OCR boxes data
-        if hasattr(self, "ocr_boxes") and self.ocr_boxes:
+        if self.ocr_boxes:
             box_count = len(self.ocr_boxes)
             self.ocr_boxes.clear()
             logger.info(f"Cleared {box_count} OCR boxes from memory")
-        else:
-            self.ocr_boxes: dict[str, list[Any]] = {}
 
         # Full reset also clears the input file queue
         if full:
-            self.selected_files = []
-            self.original_file_paths: dict[str, str] = {}
+            self._clear_files()
 
         logger.info(_("Processing state reset successfully"))
 
@@ -797,81 +787,14 @@ class OcrSettings:
         return os.path.basename(original or file_path)
 
     def cleanup_temp_files(self, processed_files: list[str]) -> None:
-        """Clean up temporary files after OCR processing
-
-        Args:
-            processed_files: List of processed output files
-        """
-        try:
-            for output_file in processed_files:
-                if not output_file or not os.path.exists(output_file):
-                    continue
-
-                # Clean up .temp directory for this file
-                temp_dir = os.path.join(os.path.dirname(output_file), ".temp")
-                if os.path.exists(temp_dir):
-                    self._cleanup_temp_directory(temp_dir, output_file)
-
-            # Clean up editor merge temp files (bigocr_merge_*.pdf)
-            if self.original_file_paths:
-                for temp_path, _original_path in list(self.original_file_paths.items()):
-                    if os.path.exists(temp_path) and "bigocr_merge_" in os.path.basename(temp_path):
-                        try:
-                            os.remove(temp_path)
-                            logger.info(f"Removed merge temp file: {os.path.basename(temp_path)}")
-                        except OSError as e:
-                            logger.warning(f"Could not remove merge temp file: {e}")
-                self.original_file_paths.clear()
-
-            logger.info(_("Temporary files cleanup completed"))
-
-        except Exception as e:
-            logger.error(f"Error cleaning up temporary files: {e}")
-
-    def _cleanup_temp_directory(self, temp_dir: str, output_file: str) -> None:
-        """Clean up specific temporary directory
-
-        Args:
-            temp_dir: Path to temporary directory
-            output_file: Output file path to match temp files
-        """
-        import glob
-
-        try:
-            # Get base name for matching temp files
-            base_name = os.path.basename(os.path.splitext(output_file)[0])
-
-            # Find temp files related to this output file
-            temp_pattern = os.path.join(temp_dir, f"temp_{base_name}*")
-            temp_files = glob.glob(temp_pattern)
-
-            # Remove matching temp files
-            for temp_file in temp_files:
-                try:
-                    os.remove(temp_file)
-                    logger.info(f"Removed temporary file: {os.path.basename(temp_file)}")
-                except Exception as e:
-                    logger.warning(f"Could not remove temp file {temp_file}: {e}")
-
-            # Try to remove temp directory if empty
-            try:
-                if os.path.exists(temp_dir) and not os.listdir(temp_dir):
-                    os.rmdir(temp_dir)
-                    logger.info("Removed empty temporary directory")
-            except OSError as e:
-                logger.debug("Could not remove temp directory: %s", e)
-
-        except Exception as e:
-            logger.error(f"Error cleaning temp directory {temp_dir}: {e}")
+        """Retain the public hook while queue ownership releases exact temp inputs."""
+        del processed_files
 
     def reset_to_defaults(self) -> None:
         """Reset all settings to their default values and save."""
-        # Clear the config file
-        self._config._config = self._config._get_default_config()
-        self._config.save()
+        if not self._config.reset_to_defaults():
+            raise OSError("Could not reset settings")
 
-        # Disable delegation during re-init
-        object.__setattr__(self, "_initialized", False)
         OcrSettings.__init__(self)
 
         logger.info("All settings have been reset to defaults")

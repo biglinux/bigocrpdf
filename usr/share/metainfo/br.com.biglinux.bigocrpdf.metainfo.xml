@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>br.com.biglinux.bigocrpdf</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>BigOCRPDF</name>
+  <summary>Make scanned PDFs searchable with OCR</summary>
+  <description>
+    <p>
+      BigOCRPDF recognizes text in scanned PDF documents and creates searchable,
+      copyable PDF files while preserving the original pages.
+    </p>
+    <p>
+      It also recognizes text in images and screen captures, and includes tools
+      to reorder, rotate, merge, split, and compress PDF pages.
+    </p>
+  </description>
+  <launchable type="desktop-id">br.com.biglinux.bigocrpdf.desktop</launchable>
+  <provides>
+    <binary>bigocrpdf</binary>
+    <mediatype>application/pdf</mediatype>
+  </provides>
+  <developer id="br.com.biglinux">
+    <name>BigLinux Team</name>
+  </developer>
+  <url type="homepage">https://www.biglinux.com.br</url>
+  <url type="bugtracker">https://github.com/biglinux/bigocrpdf/issues</url>
+  <url type="vcs-browser">https://github.com/biglinux/bigocrpdf</url>
+  <translation type="gettext">bigocrpdf</translation>
+  <releases>
+    <release version="3.0.0" date="2026-08-02" />
+  </releases>
+  <content_rating type="oars-1.1" />
+</component>

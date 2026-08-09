@@ -1,21 +1,20 @@
 """Sidebar UI creation and settings callbacks for SettingsPageManager."""
+# Host attributes are supplied by SettingsPageManager's explicit mixin composition.
+# pyright: reportAttributeAccessIssue=false
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from collections.abc import Callable
 
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, GLib, Gtk
+from gi.repository import Adw, Gtk
 
 from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
-
-if TYPE_CHECKING:
-    pass
 
 
 class SettingsSidebarMixin:
@@ -44,29 +43,27 @@ class SettingsSidebarMixin:
 
         group = Adw.PreferencesGroup()
 
-        self._create_language_widgets(group)
-
-        self._proc_row = Adw.ActionRow(title=_("Image Corrections"))
-        self._proc_row.add_prefix(Gtk.Image.new_from_icon_name("applications-graphics-symbolic"))
-        self._proc_row.add_suffix(Gtk.Image.new_from_icon_name("go-next-symbolic"))
-        self._proc_row.set_activatable(True)
-        self._proc_row.connect("activated", self._on_corrections_row_activated)
+        self._proc_row = self._dialog_row(
+            _("Image Corrections"),
+            "applications-graphics-symbolic",
+            self._show_corrections_dialog,
+        )
         self._create_preprocessing_widgets()
         group.add(self._proc_row)
 
-        self._out_row = Adw.ActionRow(title=_("Output Settings"))
-        self._out_row.add_prefix(Gtk.Image.new_from_icon_name("document-save-symbolic"))
-        self._out_row.add_suffix(Gtk.Image.new_from_icon_name("go-next-symbolic"))
-        self._out_row.set_activatable(True)
-        self._out_row.connect("activated", self._on_output_row_activated)
+        self._out_row = self._dialog_row(
+            _("Output Settings"),
+            "document-save-symbolic",
+            self._show_output_dialog,
+        )
         self._create_output_widgets()
         group.add(self._out_row)
 
-        self._adv_row = Adw.ActionRow(title=_("Advanced"))
-        self._adv_row.add_prefix(Gtk.Image.new_from_icon_name("preferences-system-symbolic"))
-        self._adv_row.add_suffix(Gtk.Image.new_from_icon_name("go-next-symbolic"))
-        self._adv_row.set_activatable(True)
-        self._adv_row.connect("activated", self._on_advanced_row_activated)
+        self._adv_row = self._dialog_row(
+            _("Advanced"),
+            "preferences-system-symbolic",
+            self._show_advanced_dialog,
+        )
         self._create_advanced_widgets()
         group.add(self._adv_row)
 
@@ -75,45 +72,20 @@ class SettingsSidebarMixin:
         scrolled_window.set_child(settings_box)
         return scrolled_window
 
-    def _create_language_widgets(self, group: Adw.PreferencesGroup) -> None:
-        """Create language selection widgets and add to group."""
-        from bigocrpdf.utils.tooltip_helper import get_tooltip_helper
+    @staticmethod
+    def _dialog_row(title: str, icon_name: str, callback: Callable[[], None]) -> Adw.ActionRow:
+        row = Adw.ActionRow(title=title)
+        row.set_use_markup(False)
+        row.add_prefix(Gtk.Image.new_from_icon_name(icon_name))
 
-        tooltip = get_tooltip_helper()
-
-        self.lang_combo = Adw.ComboRow(title=_("Language"))
-        set_a11y_label(self.lang_combo, _("Language"))
-        lang_icon = Gtk.Image.new_from_icon_name("preferences-desktop-locale-symbolic")
-        self.lang_combo.add_prefix(lang_icon)
-
-        lang_help_btn = Gtk.Button(
-            icon_name="help-about-symbolic",
-            valign=Gtk.Align.CENTER,
-            css_classes=["flat", "circular"],
-        )
-        lang_help_btn.set_tooltip_text(_("Language help"))
-        set_a11y_label(lang_help_btn, _("Language help"))
-        lang_help_btn.connect("clicked", self._on_language_help_clicked)
-        self.lang_combo.add_suffix(lang_help_btn)
-
-        languages = self.window.ocr_processor.get_available_ocr_languages()
-        self._available_languages = languages
-        lang_model = Gtk.StringList()
-        for _i, (_lang_code, lang_name) in enumerate(languages):
-            lang_model.append(lang_name)
-        self.lang_combo.set_model(lang_model)
-        self._lang_signal_connected = False
-
-        group.add(self.lang_combo)
-        self.lang_dropdown = self.lang_combo
-
-        tooltip.add_tooltip(
-            self.lang_combo,
-            _(
-                "Choose the language of your document's text.\n"
-                "The correct language helps recognize text more accurately."
-            ),
-        )
+        button = Gtk.Button.new_from_icon_name("go-next-symbolic")
+        button.add_css_class("flat")
+        button.set_tooltip_text(title)
+        set_a11y_label(button, title)
+        button.connect("clicked", lambda _button: callback())
+        row.add_suffix(button)
+        row.set_activatable_widget(button)
+        return row
 
     def _create_preprocessing_widgets(self) -> None:
         """Create image preprocessing switch widgets (not added to any parent)."""
@@ -145,13 +117,13 @@ class SettingsSidebarMixin:
             _("{active} of {total} enabled").format(active=active, total=total)
         )
 
-    def _on_corrections_row_activated(self, _row: Adw.ActionRow) -> None:
+    def _show_corrections_dialog(self) -> None:
         """Open the image corrections configuration dialog."""
         from bigocrpdf.ui.corrections_dialog import show_image_corrections_dialog
 
         show_image_corrections_dialog(self.window, self._correction_switches)
 
-    def _on_output_row_activated(self, _row: Adw.ActionRow) -> None:
+    def _show_output_dialog(self) -> None:
         """Open the output settings configuration dialog."""
         from bigocrpdf.ui.output_dialog import show_output_settings_dialog
 
@@ -160,23 +132,18 @@ class SettingsSidebarMixin:
     def _update_output_subtitle(self) -> None:
         """Update the Output Settings row subtitle with summary."""
         parts = []
-        try:
-            if hasattr(self, "image_quality_combo"):
-                idx = self.image_quality_combo.get_selected()
-                model = self.image_quality_combo.get_model()
-                if model and idx < model.get_n_items():
-                    parts.append(model.get_string(idx))
-            active = sum(
-                1
-                for k in ("pdfa",)
-                if self._output_widgets.get(k) and self._output_widgets[k].get_active()
-            )
-            if active:
-                parts.append(_("{n} options enabled").format(n=active))
-        except Exception as e:
-            logger.debug(f"Could not update output subtitle: {e}")
-        text = ", ".join(parts) if parts else ""
-        self._out_row.set_subtitle(GLib.markup_escape_text(text, -1) if text else "")
+        idx = self.image_quality_combo.get_selected()
+        model = self.image_quality_combo.get_model()
+        if model and idx < model.get_n_items():
+            parts.append(model.get_string(idx))
+        active = sum(
+            1
+            for key in ("pdfa",)
+            if self._output_widgets.get(key) and self._output_widgets[key].get_active()
+        )
+        if active:
+            parts.append(_("{n} options enabled").format(n=active))
+        self._out_row.set_subtitle(", ".join(parts))
 
     def _create_output_widgets(self) -> None:
         """Create output settings widgets (not added to any parent)."""
@@ -246,7 +213,7 @@ class SettingsSidebarMixin:
             elif isinstance(w, Adw.ComboRow):
                 w.connect("notify::selected", lambda *_: self._update_output_subtitle())
 
-    def _on_advanced_row_activated(self, _row: Adw.ActionRow) -> None:
+    def _show_advanced_dialog(self) -> None:
         """Open the advanced settings configuration dialog."""
         from bigocrpdf.ui.advanced_dialog import show_advanced_settings_dialog
 
@@ -255,11 +222,10 @@ class SettingsSidebarMixin:
     def _update_advanced_subtitle(self) -> None:
         """Update the Advanced row subtitle with summary."""
         parts = []
-        if hasattr(self, "ocr_precision_combo"):
-            idx = self.ocr_precision_combo.get_selected()
-            model = self.ocr_precision_combo.get_model()
-            if model and idx < model.get_n_items():
-                parts.append(model.get_string(idx))
+        idx = self.ocr_precision_combo.get_selected()
+        model = self.ocr_precision_combo.get_model()
+        if model and idx < model.get_n_items():
+            parts.append(model.get_string(idx))
         active = sum(
             1
             for k in ("replace_ocr", "full_resolution")
@@ -310,17 +276,6 @@ class SettingsSidebarMixin:
 
     def _load_all_sidebar_settings(self) -> None:
         """Load all sidebar settings into UI widgets on map."""
-        if self.lang_combo:
-            self.lang_combo.set_can_focus(True)
-            current_lang = self.window.settings.lang
-            for i, (code, _name) in enumerate(self._available_languages):
-                if code == current_lang:
-                    self.lang_combo.set_selected(i)
-                    break
-            if not self._lang_signal_connected:
-                self._lang_signal_connected = True
-                self.lang_combo.connect("notify::selected", self._on_language_changed)
-
         self._load_preprocessing_settings()
         self._load_advanced_ocr_settings()
         self._load_image_export_settings()
@@ -336,177 +291,54 @@ class SettingsSidebarMixin:
         self.window.settings.save_in_same_folder = not use_custom_folder
         self.window.settings._save_all_settings()
 
-    def _on_language_changed(self, combo, _param) -> None:
-        """Handle language selection change."""
-        selected = combo.get_selected()
-        languages = self.window.ocr_processor.get_available_ocr_languages()
-        if selected < len(languages):
-            lang_code, _ = languages[selected]
-            self.window.settings.lang = lang_code
-            logger.info(f"Language changed to: {lang_code}")
-            self.window.settings._save_all_settings()
-
-    def _on_language_help_clicked(self, _button: Gtk.Button) -> None:
-        """Show a modern dialog with supported languages for each OCR model."""
-        from bigocrpdf.services.rapidocr_service.discovery import ModelDiscovery
-
-        available_languages = self.window.ocr_processor.get_available_ocr_languages()
-
-        content_box = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL,
-            spacing=16,
-            margin_top=12,
-            margin_bottom=24,
-            margin_start=16,
-            margin_end=16,
-        )
-
-        desc_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
-        desc_box.add_css_class("card")
-
-        info_icon = Gtk.Image.new_from_icon_name("dialog-information-symbolic")
-        info_icon.set_pixel_size(24)
-        info_icon.set_margin_start(16)
-        info_icon.set_margin_top(12)
-        info_icon.set_margin_bottom(12)
-        info_icon.set_valign(Gtk.Align.CENTER)
-        info_icon.add_css_class("accent")
-        desc_box.append(info_icon)
-
-        desc_label = Gtk.Label(
-            label=_(
-                "Choose the model that matches the language of your documents for the best results."
-            ),
-            wrap=True,
-            wrap_mode=2,
-            xalign=0,
-        )
-        desc_label.set_margin_top(12)
-        desc_label.set_margin_bottom(12)
-        desc_label.set_margin_end(16)
-        desc_box.append(desc_label)
-        content_box.append(desc_box)
-
-        for lang_code, lang_name in available_languages:
-            details = ModelDiscovery.LANGUAGE_DETAILS.get(lang_code, "")
-            if not details:
-                continue
-            languages = sorted([lang.strip() for lang in details.split(",") if lang.strip()])
-            lang_count = len(languages)
-
-            section_group = Adw.PreferencesGroup(
-                title=f"{lang_name}",
-                description=_("{count} languages").format(count=lang_count),
-            )
-
-            num_cols = 3
-            grid = Gtk.Grid()
-            grid.set_row_spacing(2)
-            grid.set_column_spacing(8)
-            grid.set_column_homogeneous(True)
-            grid.set_margin_start(12)
-            grid.set_margin_end(12)
-            grid.set_margin_top(8)
-            grid.set_margin_bottom(8)
-
-            for idx, language in enumerate(languages):
-                row_idx = idx // num_cols
-                col_idx = idx % num_cols
-                label = Gtk.Label(label=language)
-                label.set_xalign(0)
-                label.set_margin_top(4)
-                label.set_margin_bottom(4)
-                label.set_margin_start(8)
-                grid.attach(label, col_idx, row_idx, 1, 1)
-
-            grid_row = Gtk.ListBoxRow()
-            grid_row.set_activatable(False)
-            grid_row.set_child(grid)
-
-            grid_listbox = Gtk.ListBox()
-            grid_listbox.set_selection_mode(Gtk.SelectionMode.NONE)
-            grid_listbox.add_css_class("boxed-list")
-            grid_listbox.append(grid_row)
-
-            section_group.add(grid_listbox)
-            content_box.append(section_group)
-
-        scrolled = Gtk.ScrolledWindow(
-            hscrollbar_policy=Gtk.PolicyType.NEVER,
-            vscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
-            vexpand=True,
-        )
-        scrolled.set_child(content_box)
-
-        header = Adw.HeaderBar()
-        toolbar_view = Adw.ToolbarView()
-        toolbar_view.add_top_bar(header)
-        toolbar_view.set_content(scrolled)
-
-        dialog = Adw.Dialog(
-            title=_("Supported Languages"),
-            content_width=550,
-            content_height=600,
-        )
-        dialog.set_child(toolbar_view)
-        dialog.present(self.window)
-
     def _load_preprocessing_settings(self) -> None:
         """Load preprocessing settings from OcrSettings."""
         settings = self.window.settings
         try:
-            if hasattr(self, "deskew_switch"):
-                self.deskew_switch.set_can_focus(True)
-                self.deskew_switch.set_active(settings.enable_deskew)
-            if hasattr(self, "dewarp_switch"):
-                self.dewarp_switch.set_can_focus(True)
-                self.dewarp_switch.set_active(getattr(settings, "enable_baseline_dewarp", True))
-            if hasattr(self, "perspective_switch"):
-                self.perspective_switch.set_can_focus(True)
-                self.perspective_switch.set_active(
-                    getattr(settings, "enable_perspective_correction", False)
-                )
-            if hasattr(self, "orientation_switch"):
-                self.orientation_switch.set_can_focus(True)
-                self.orientation_switch.set_active(settings.enable_orientation_detection)
-            if hasattr(self, "scanner_switch"):
-                self.scanner_switch.set_can_focus(True)
-                self.scanner_switch.set_active(getattr(settings, "enable_scanner_effect", True))
-            if hasattr(self, "enhance_embedded_switch"):
-                self.enhance_embedded_switch.set_can_focus(True)
-                self.enhance_embedded_switch.set_active(
-                    getattr(settings, "enhance_embedded_images", False)
-                )
-
-            if not self._preprocessing_signal_connected:
-                self._preprocessing_signal_connected = True
-                if hasattr(self, "deskew_switch"):
-                    self.deskew_switch.connect("notify::active", self._on_preprocessing_changed)
-                if hasattr(self, "dewarp_switch"):
-                    self.dewarp_switch.connect("notify::active", self._on_preprocessing_changed)
-                if hasattr(self, "perspective_switch"):
-                    self.perspective_switch.connect(
-                        "notify::active", self._on_preprocessing_changed
-                    )
-                if hasattr(self, "orientation_switch"):
-                    self.orientation_switch.connect(
-                        "notify::active", self._on_preprocessing_changed
-                    )
-                if hasattr(self, "scanner_switch"):
-                    self.scanner_switch.connect("notify::active", self._on_preprocessing_changed)
-                if hasattr(self, "enhance_embedded_switch"):
-                    self.enhance_embedded_switch.connect(
-                        "notify::active", self._on_preprocessing_changed
-                    )
+            self._load_preprocessing_switch_values(settings)
+            self._connect_preprocessing_switches()
         except Exception as e:
             logger.error(f"Error loading preprocessing settings: {e}")
 
         self._update_corrections_subtitle()
 
+    def _load_preprocessing_switch_values(self, settings) -> None:
+        switch_settings = (
+            ("deskew_switch", "enable_deskew"),
+            ("dewarp_switch", "enable_baseline_dewarp"),
+            ("perspective_switch", "enable_perspective_correction"),
+            ("orientation_switch", "enable_orientation_detection"),
+            ("scanner_switch", "enable_scanner_effect"),
+            ("enhance_embedded_switch", "enhance_embedded_images"),
+        )
+        for widget_name, setting_name in switch_settings:
+            if hasattr(self, widget_name):
+                switch = getattr(self, widget_name)
+                switch.set_can_focus(True)
+                switch.set_active(getattr(settings, setting_name))
+
+    def _connect_preprocessing_switches(self) -> None:
+        if self._preprocessing_signal_connected:
+            return
+
+        self._preprocessing_signal_connected = True
+        for widget_name in (
+            "deskew_switch",
+            "dewarp_switch",
+            "perspective_switch",
+            "orientation_switch",
+            "scanner_switch",
+            "enhance_embedded_switch",
+        ):
+            getattr(self, widget_name).connect(
+                "notify::active",
+                self._on_preprocessing_changed,
+            )
+
     def _get_precision_index_from_settings(self, settings) -> int:
         """Get dropdown index based on current text_score and box_thresh values."""
-        text_score = getattr(settings, "text_score_threshold", 0.3)
-        box_thresh = getattr(settings, "box_thresh", 0.5)
+        text_score = settings.text_score_threshold
+        box_thresh = settings.box_thresh
         for idx, (ts, bt) in enumerate(self.PRECISION_PRESETS):
             if abs(text_score - ts) < 0.05 and abs(box_thresh - bt) < 0.05:
                 return idx
@@ -516,15 +348,12 @@ class SettingsSidebarMixin:
         """Load advanced OCR settings from OcrSettings."""
         settings = self.window.settings
         try:
-            if hasattr(self, "ocr_precision_combo"):
-                self.ocr_precision_combo.set_can_focus(True)
-                precision_idx = self._get_precision_index_from_settings(settings)
-                self.ocr_precision_combo.set_selected(precision_idx)
-                if not self._precision_signal_connected:
-                    self.ocr_precision_combo.connect(
-                        "notify::selected", self._on_ocr_precision_changed
-                    )
-                    self._precision_signal_connected = True
+            self.ocr_precision_combo.set_can_focus(True)
+            precision_idx = self._get_precision_index_from_settings(settings)
+            self.ocr_precision_combo.set_selected(precision_idx)
+            if not self._precision_signal_connected:
+                self.ocr_precision_combo.connect("notify::selected", self._on_ocr_precision_changed)
+                self._precision_signal_connected = True
         except Exception as e:
             logger.error(f"Error loading advanced OCR settings: {e}")
 
@@ -547,46 +376,51 @@ class SettingsSidebarMixin:
         """Load image export settings from OcrSettings."""
         settings = self.window.settings
         try:
-            if hasattr(self, "image_quality_combo"):
-                self.image_quality_combo.set_can_focus(True)
-                if getattr(settings, "force_bilevel_compression", False):
-                    self.image_quality_combo.set_selected(6)
-                else:
-                    fmt = getattr(settings, "image_export_format", "original").lower()
-                    if fmt == "original":
-                        self.image_quality_combo.set_selected(0)
-                    else:
-                        quality = getattr(settings, "image_export_quality", 85)
-                        idx = self._get_quality_index_from_value(quality)
-                        self.image_quality_combo.set_selected(idx)
-                if not self._quality_signal_connected:
-                    self.image_quality_combo.connect(
-                        "notify::selected", self._on_image_quality_changed
-                    )
-                    self._quality_signal_connected = True
-
-            if hasattr(self, "pdfa_switch_row"):
-                self.pdfa_switch_row.set_can_focus(True)
-                pdfa_enabled = getattr(settings, "convert_to_pdfa", False)
-                self.pdfa_switch_row.set_active(pdfa_enabled)
-                if not self._pdfa_signal_connected:
-                    self.pdfa_switch_row.connect("notify::active", self._on_pdfa_changed)
-                    self._pdfa_signal_connected = True
-
-            if hasattr(self, "page_layout_combo"):
-                self.page_layout_combo.set_can_focus(True)
-                layout = getattr(settings, "page_layout", "default")
-                try:
-                    idx = self._page_layout_values.index(layout)
-                except ValueError:
-                    idx = 0
-                self.page_layout_combo.set_selected(idx)
-                if not self._page_layout_signal_connected:
-                    self.page_layout_combo.connect("notify::selected", self._on_page_layout_changed)
-                    self._page_layout_signal_connected = True
+            self._load_image_quality_combo(settings)
+            self._load_pdfa_switch(settings)
+            self._load_page_layout_combo(settings)
         except Exception as e:
             logger.error(f"Error loading image export settings: {e}")
         self._update_output_subtitle()
+
+    def _load_image_quality_combo(self, settings) -> None:
+        self.image_quality_combo.set_can_focus(True)
+        self.image_quality_combo.set_selected(self._image_quality_index_from_settings(settings))
+        if not self._quality_signal_connected:
+            self.image_quality_combo.connect("notify::selected", self._on_image_quality_changed)
+            self._quality_signal_connected = True
+
+    def _image_quality_index_from_settings(self, settings) -> int:
+        if settings.force_bilevel_compression:
+            return 6
+
+        fmt = settings.image_export_format.lower()
+        if fmt == "original":
+            return 0
+
+        quality = settings.image_export_quality
+        return self._get_quality_index_from_value(quality)
+
+    def _load_pdfa_switch(self, settings) -> None:
+        self.pdfa_switch_row.set_can_focus(True)
+        self.pdfa_switch_row.set_active(settings.convert_to_pdfa)
+        if not self._pdfa_signal_connected:
+            self.pdfa_switch_row.connect("notify::active", self._on_pdfa_changed)
+            self._pdfa_signal_connected = True
+
+    def _load_page_layout_combo(self, settings) -> None:
+        self.page_layout_combo.set_can_focus(True)
+        self.page_layout_combo.set_selected(self._page_layout_index_from_settings(settings))
+        if not self._page_layout_signal_connected:
+            self.page_layout_combo.connect("notify::selected", self._on_page_layout_changed)
+            self._page_layout_signal_connected = True
+
+    def _page_layout_index_from_settings(self, settings) -> int:
+        layout = settings.page_layout
+        try:
+            return self._page_layout_values.index(layout)
+        except ValueError:
+            return 0
 
     def _get_quality_index_from_value(self, quality: int) -> int:
         """Map quality percentage to dropdown index."""
@@ -604,6 +438,8 @@ class SettingsSidebarMixin:
     def _on_image_quality_changed(self, combo: Adw.ComboRow, _pspec) -> None:
         """Handle unified quality selector changes."""
         selected = combo.get_selected()
+        if selected == Gtk.INVALID_LIST_POSITION:
+            return
         if selected == 0:
             self.window.settings.image_export_format = "original"
             self.window.settings.force_bilevel_compression = False
@@ -640,10 +476,8 @@ class SettingsSidebarMixin:
     def _load_max_size_setting(self) -> None:
         """Load maximum output size setting from OcrSettings."""
         try:
-            if not hasattr(self, "max_size_combo"):
-                return
             self.max_size_combo.set_can_focus(True)
-            current_val = getattr(self.window.settings, "max_file_size_mb", 0)
+            current_val = self.window.settings.max_file_size_mb
             selected_idx = 0
             for idx, val in enumerate(self._max_size_values):
                 if val == current_val:
@@ -665,12 +499,8 @@ class SettingsSidebarMixin:
     def _load_replace_ocr_setting(self) -> None:
         """Load replace existing OCR setting from OcrSettings."""
         try:
-            if not hasattr(self, "replace_ocr_switch"):
-                return
             self.replace_ocr_switch.set_can_focus(True)
-            self.replace_ocr_switch.set_active(
-                getattr(self.window.settings, "replace_existing_ocr", False)
-            )
+            self.replace_ocr_switch.set_active(self.window.settings.replace_existing_ocr)
             if not self._replace_ocr_signal_connected:
                 self._replace_ocr_signal_connected = True
                 self.replace_ocr_switch.connect("notify::active", self._on_replace_ocr_changed)
@@ -685,12 +515,8 @@ class SettingsSidebarMixin:
     def _load_full_resolution_setting(self) -> None:
         """Load full resolution detection setting from OcrSettings."""
         try:
-            if not hasattr(self, "full_resolution_switch"):
-                return
             self.full_resolution_switch.set_can_focus(True)
-            self.full_resolution_switch.set_active(
-                getattr(self.window.settings, "detection_full_resolution", False)
-            )
+            self.full_resolution_switch.set_active(self.window.settings.detection_full_resolution)
             if not self._full_res_signal_connected:
                 self._full_res_signal_connected = True
                 self.full_resolution_switch.connect(

@@ -2,42 +2,20 @@
 
 from __future__ import annotations
 
-import os
 from typing import TYPE_CHECKING
 
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, GdkPixbuf, Gtk
+from gi.repository import Adw, GObject, Gtk
 
+from bigocrpdf.ui.widgets import load_svg_picture
 from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.i18n import _
 
 if TYPE_CHECKING:
     pass
-
-_ILLUSTRATIONS_DIR = os.path.join(os.path.dirname(__file__), "..", "resources", "illustrations")
-
-
-def _load_svg_picture(filename: str, size: int = 92) -> Gtk.Image:
-    """Load an SVG illustration rendered to a fixed pixel size."""
-    path = os.path.join(_ILLUSTRATIONS_DIR, filename)
-    if os.path.exists(path):
-        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, size, size, True)
-        image = Gtk.Image.new_from_pixbuf(pixbuf)
-    else:
-        image = Gtk.Image()
-    image.set_pixel_size(size)
-    image.set_halign(Gtk.Align.CENTER)
-    image.set_valign(Gtk.Align.CENTER)
-    image.set_hexpand(False)
-    image.set_vexpand(False)
-    image.update_property(
-        [Gtk.AccessibleProperty.LABEL], [""]
-    )
-    return image
-
 
 _CORRECTIONS = [
     {
@@ -111,9 +89,8 @@ def show_image_corrections_dialog(
     """
     dialog = Adw.Dialog()
     dialog.set_title(_("Image Corrections"))
-    dialog.set_content_width(680)
-    dialog.set_content_height(800)
-    dialog.set_presentation_mode(Adw.DialogPresentationMode.FLOATING)
+    dialog.set_content_width(600)
+    dialog.set_content_height(600)
 
     toolbar = Adw.ToolbarView()
     header = Adw.HeaderBar()
@@ -159,7 +136,7 @@ def show_image_corrections_dialog(
         row.set_margin_end(16)
 
         # Left: SVG illustration
-        picture = _load_svg_picture(correction["svg"])
+        picture = load_svg_picture(correction["svg"])
         picture.set_valign(Gtk.Align.CENTER)
         row.append(picture)
 
@@ -184,24 +161,14 @@ def show_image_corrections_dialog(
 
         # Right: switch
         toggle = Gtk.Switch()
-        toggle.set_active(switch_row.get_active())
         toggle.set_valign(Gtk.Align.CENTER)
         set_a11y_label(toggle, correction["title"])
-
-        # Sync toggle ↔ original switch row (bidirectional)
-        def _make_sync(sw_row, tgl):
-            def _on_toggle_changed(switch, _pspec):
-                if sw_row.get_active() != switch.get_active():
-                    sw_row.set_active(switch.get_active())
-
-            def _on_row_changed(src_row, _pspec):
-                if tgl.get_active() != src_row.get_active():
-                    tgl.set_active(src_row.get_active())
-
-            tgl.connect("notify::active", _on_toggle_changed)
-            sw_row.connect("notify::active", _on_row_changed)
-
-        _make_sync(switch_row, toggle)
+        switch_row.bind_property(
+            "active",
+            toggle,
+            "active",
+            GObject.BindingFlags.BIDIRECTIONAL | GObject.BindingFlags.SYNC_CREATE,
+        )
         row.append(toggle)
 
         card.append(row)

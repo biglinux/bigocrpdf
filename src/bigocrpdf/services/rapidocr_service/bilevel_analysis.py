@@ -37,14 +37,14 @@ def is_bilevel_candidate(
     Returns:
         True if the image is a good bilevel candidate.
     """
+    if img.size == 0:
+        return False
+
     gray = _to_grayscale(img)
 
     near_black = int(np.count_nonzero(gray < _DARK_CUTOFF))
     near_white = int(np.count_nonzero(gray > _LIGHT_CUTOFF))
     total = gray.size
-
-    if total == 0:
-        return False
 
     bilevel_ratio = (near_black + near_white) / total
     logger.debug(

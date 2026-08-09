@@ -18,6 +18,8 @@ import io
 import logging
 import math
 import os
+import stat
+import tempfile
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
@@ -25,6 +27,11 @@ from pathlib import Path
 import pikepdf
 
 from bigocrpdf.constants import MIN_IMAGE_DIMENSION_PX
+from bigocrpdf.services.rapidocr_service.ocr_document_io import (
+    OcrPdfPublication,
+    publish_ocr_pdf_publications,
+    publish_pdf_with_ocr_invalidation,
+)
 from bigocrpdf.utils.i18n import _
 
 logger = logging.getLogger(__name__)
@@ -122,6 +129,51 @@ class OperationResult:
     error_code: ErrorCode = ErrorCode.NONE
 
 
+def _save_pdf_atomically(pdf: pikepdf.Pdf, output_path: Path, **save_options) -> None:
+    """Save a PDF beside its destination and publish it only when complete."""
+    output_mode = None
+    try:
+        output_stat = output_path.lstat()
+    except FileNotFoundError:
+        pass
+    else:
+        if stat.S_ISREG(output_stat.st_mode):
+            output_mode = stat.S_IMODE(output_stat.st_mode)
+
+    descriptor, staged_name = tempfile.mkstemp(
+        prefix=f".{output_path.name}.",
+        suffix=".tmp",
+        dir=output_path.parent,
+    )
+    staged_path = Path(staged_name)
+    try:
+        if output_mode is not None:
+            os.fchmod(descriptor, output_mode)
+        os.close(descriptor)
+        descriptor = -1
+        pdf.save(str(staged_path), **save_options)
+        publish_pdf_with_ocr_invalidation(
+            staged_path,
+            output_path,
+            overwrite=True,
+        )
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+        try:
+            staged_path.unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
+def _save_and_close_pdf_atomically(pdf: pikepdf.Pdf, output_path: Path) -> None:
+    """Publish a newly built PDF and close it on every exit path."""
+    try:
+        _save_pdf_atomically(pdf, output_path)
+    finally:
+        pdf.close()
+
+
 # ---------------------------------------------------------------------------
 # Info / Inspection
 # ---------------------------------------------------------------------------
@@ -172,6 +224,14 @@ def get_pdf_info(pdf_path: str | Path) -> PDFInfo:
 # ---------------------------------------------------------------------------
 
 
+def _save_split_part(pdf: pikepdf.Pdf, path: Path) -> None:
+    """Save and close one staged split part."""
+    try:
+        pdf.save(path)
+    finally:
+        pdf.close()
+
+
 def split_by_pages(
     pdf_path: str | Path,
     output_dir: str | Path,
@@ -202,34 +262,48 @@ def split_by_pages(
 
     result = SplitResult()
 
-    with pikepdf.open(pdf_path) as src:
-        total = len(src.pages)
-        result.total_pages = total
-        parts = math.ceil(total / pages_per_file)
-        result.parts = parts
+    with tempfile.TemporaryDirectory(prefix=".bigocr_split_", dir=output_dir) as staging:
+        staging_dir = Path(staging)
+        publications: list[tuple[Path, Path]] = []
+        with pikepdf.open(pdf_path) as src:
+            total = len(src.pages)
+            result.total_pages = total
+            parts = math.ceil(total / pages_per_file)
 
-        for part_idx in range(parts):
-            start = part_idx * pages_per_file
-            end = min(start + pages_per_file, total)
+            for part_idx in range(parts):
+                start = part_idx * pages_per_file
+                end = min(start + pages_per_file, total)
 
-            dst = pikepdf.Pdf.new()
-            for page_num in range(start, end):
-                dst.pages.append(src.pages[page_num])
+                dst = pikepdf.Pdf.new()
+                for page_num in range(start, end):
+                    dst.pages.append(src.pages[page_num])
 
-            out_name = f"{prefix}_part{part_idx + 1:03d}.pdf"
-            out_path = str(output_dir / out_name)
-            dst.save(out_path)
-            dst.close()
-
-            result.output_files.append(out_path)
-            logger.info(
-                "Split part %d/%d: pages %d-%d → %s",
-                part_idx + 1,
-                parts,
-                start + 1,
-                end,
-                out_name,
-            )
+                out_name = f"{prefix}_part{part_idx + 1:03d}.pdf"
+                staged_path = staging_dir / out_name
+                out_path = output_dir / out_name
+                _save_split_part(dst, staged_path)
+                publications.append((staged_path, out_path))
+                logger.info(
+                    "Prepared split part %d/%d: pages %d-%d → %s",
+                    part_idx + 1,
+                    parts,
+                    start + 1,
+                    end,
+                    out_name,
+                )
+        published = publish_ocr_pdf_publications(
+            [
+                OcrPdfPublication(
+                    staged_pdf=staged_path,
+                    requested_pdf=out_path,
+                    unavailable_reason="pdf-split-without-structured-mapping",
+                )
+                for staged_path, out_path in publications
+            ],
+            overwrite=False,
+        )
+        result.output_files = [str(path) for path in published]
+        result.parts = len(published)
 
     return result
 
@@ -269,65 +343,80 @@ def split_by_size(
 
     result = SplitResult()
 
-    with pikepdf.open(pdf_path) as src:
-        total = len(src.pages)
-        result.total_pages = total
+    with tempfile.TemporaryDirectory(prefix=".bigocr_split_", dir=output_dir) as staging:
+        staging_dir = Path(staging)
+        publications: list[tuple[Path, Path]] = []
+        with pikepdf.open(pdf_path) as src:
+            total = len(src.pages)
+            result.total_pages = total
 
-        part_pages: list[int] = []
-        part_idx = 0
+            part_pages: list[int] = []
+            part_idx = 0
 
-        def _flush(pages: list[int]) -> None:
-            nonlocal part_idx
-            if not pages:
-                return
-            part_idx += 1
-            dst = pikepdf.Pdf.new()
-            for pn in pages:
-                dst.pages.append(src.pages[pn])
+            def _flush(pages: list[int]) -> None:
+                nonlocal part_idx
+                if not pages:
+                    return
+                part_idx += 1
+                dst = pikepdf.Pdf.new()
+                for pn in pages:
+                    dst.pages.append(src.pages[pn])
 
-            out_name = f"{prefix}_part{part_idx:03d}.pdf"
-            out_path = str(output_dir / out_name)
-            dst.save(out_path)
-            dst.close()
+                out_name = f"{prefix}_part{part_idx:03d}.pdf"
+                staged_path = staging_dir / out_name
+                out_path = output_dir / out_name
+                _save_split_part(dst, staged_path)
 
-            actual_mb = os.path.getsize(out_path) / (1024 * 1024)
-            result.output_files.append(out_path)
-            logger.info(
-                "Split part %d: %d pages, %.2f MB → %s",
-                part_idx,
-                len(pages),
-                actual_mb,
-                out_name,
-            )
+                actual_mb = staged_path.stat().st_size / (1024 * 1024)
+                publications.append((staged_path, out_path))
+                logger.info(
+                    "Split part %d: %d pages, %.2f MB → %s",
+                    part_idx,
+                    len(pages),
+                    actual_mb,
+                    out_name,
+                )
 
-        # Pre-compute per-page size estimates (O(n) total)
-        page_sizes: list[int] = []
-        for i in range(total):
-            single = pikepdf.Pdf.new()
-            single.pages.append(src.pages[i])
-            buf = io.BytesIO()
-            single.save(buf)
-            page_sizes.append(buf.tell())
-            single.close()
+            # Pre-compute per-page size estimates (O(n) total)
+            page_sizes: list[int] = []
+            for i in range(total):
+                single = pikepdf.Pdf.new()
+                single.pages.append(src.pages[i])
+                buf = io.BytesIO()
+                single.save(buf)
+                page_sizes.append(buf.tell())
+                single.close()
 
-        for page_num in range(total):
-            part_pages.append(page_num)
+            for page_num in range(total):
+                part_pages.append(page_num)
 
-            # Estimate size by summing per-page sizes (O(n) total).
-            # Individual page sizes overestimate the combined PDF
-            # (shared fonts/images counted per page), so splits are
-            # conservative — safe but may produce slightly more parts.
-            est_size = sum(page_sizes[pn] for pn in part_pages)
+                # Estimate size by summing per-page sizes (O(n) total).
+                # Individual page sizes overestimate the combined PDF
+                # (shared fonts/images counted per page), so splits are
+                # conservative — safe but may produce slightly more parts.
+                est_size = sum(page_sizes[pn] for pn in part_pages)
 
-            # If we exceed the limit and have more than one page,
-            # flush all pages EXCEPT the last one.
-            if est_size > max_bytes and len(part_pages) > 1:
-                _flush(part_pages[:-1])
-                part_pages = [page_num]
+                # If we exceed the limit and have more than one page,
+                # flush all pages EXCEPT the last one.
+                if est_size > max_bytes and len(part_pages) > 1:
+                    _flush(part_pages[:-1])
+                    part_pages = [page_num]
 
-        # Flush remaining pages
-        _flush(part_pages)
-        result.parts = part_idx
+            # Flush remaining pages
+            _flush(part_pages)
+        published = publish_ocr_pdf_publications(
+            [
+                OcrPdfPublication(
+                    staged_pdf=staged_path,
+                    requested_pdf=out_path,
+                    unavailable_reason="pdf-split-without-structured-mapping",
+                )
+                for staged_path, out_path in publications
+            ],
+            overwrite=False,
+        )
+        result.output_files = [str(path) for path in published]
+        result.parts = len(published)
 
     return result
 
@@ -359,30 +448,44 @@ def split_by_ranges(
 
     result = SplitResult()
 
-    with pikepdf.open(pdf_path) as src:
-        total = len(src.pages)
-        result.total_pages = total
+    with tempfile.TemporaryDirectory(prefix=".bigocr_split_", dir=output_dir) as staging:
+        staging_dir = Path(staging)
+        publications: list[tuple[Path, Path]] = []
+        with pikepdf.open(pdf_path) as src:
+            total = len(src.pages)
+            result.total_pages = total
 
-        for _idx, (start, end) in enumerate(ranges, 1):
-            start_0 = max(0, start - 1)
-            end_0 = min(end, total)
+            for _idx, (start, end) in enumerate(ranges, 1):
+                start_0 = max(0, start - 1)
+                end_0 = min(end, total)
 
-            if start_0 >= total or start_0 >= end_0:
-                logger.warning("Skipping invalid range (%d, %d)", start, end)
-                continue
+                if start_0 >= total or start_0 >= end_0:
+                    logger.warning("Skipping invalid range (%d, %d)", start, end)
+                    continue
 
-            dst = pikepdf.Pdf.new()
-            for pn in range(start_0, end_0):
-                dst.pages.append(src.pages[pn])
+                dst = pikepdf.Pdf.new()
+                for pn in range(start_0, end_0):
+                    dst.pages.append(src.pages[pn])
 
-            out_name = f"{prefix}_pages{start}-{end}.pdf"
-            out_path = str(output_dir / out_name)
-            dst.save(out_path)
-            dst.close()
-
-            result.output_files.append(out_path)
-            result.parts += 1
-            logger.info("Extracted pages %d-%d → %s", start, end, out_name)
+                out_name = f"{prefix}_pages{start}-{end}.pdf"
+                staged_path = staging_dir / out_name
+                out_path = output_dir / out_name
+                _save_split_part(dst, staged_path)
+                publications.append((staged_path, out_path))
+                logger.info("Prepared pages %d-%d → %s", start, end, out_name)
+        published = publish_ocr_pdf_publications(
+            [
+                OcrPdfPublication(
+                    staged_pdf=staged_path,
+                    requested_pdf=out_path,
+                    unavailable_reason="pdf-split-without-structured-mapping",
+                )
+                for staged_path, out_path in publications
+            ],
+            overwrite=False,
+        )
+        result.output_files = [str(path) for path in published]
+        result.parts = len(published)
 
     return result
 
@@ -413,6 +516,7 @@ def merge_pdfs(
 
     dst = pikepdf.Pdf.new()
     total_pages = 0
+    merged_files = 0
     open_sources: list[pikepdf.Pdf] = []
 
     try:
@@ -428,14 +532,21 @@ def merge_pdfs(
             for page in src.pages:
                 dst.pages.append(page)
             total_pages += count
+            merged_files += 1
             logger.info("Merged %d pages from %s", count, path.name)
 
-        dst.save(str(output_path))
+        if merged_files == 0:
+            return OperationResult(
+                success=False,
+                message=_("No readable input files were provided."),
+            )
+
+        _save_pdf_atomically(dst, output_path)
         logger.info("Merged PDF saved: %s (%d pages)", output_path, total_pages)
 
         return OperationResult(
             success=True,
-            message=f"Merged {len(input_paths)} files → {total_pages} pages",
+            message=f"Merged {merged_files} files → {total_pages} pages",
             output_path=str(output_path),
             pages_affected=total_pages,
         )
@@ -475,8 +586,6 @@ def extract_pages(
     try:
         with pikepdf.open(pdf_path) as src:
             total = len(src.pages)
-            dst = pikepdf.Pdf.new()
-
             valid = [p for p in pages if 1 <= p <= total]
             if not valid:
                 return OperationResult(
@@ -484,11 +593,11 @@ def extract_pages(
                     message=f"No valid pages in {pages} (document has {total} pages)",
                 )
 
+            dst = pikepdf.Pdf.new()
             for p in valid:
                 dst.pages.append(src.pages[p - 1])
 
-            dst.save(str(output_path))
-            dst.close()
+            _save_and_close_pdf_atomically(dst, output_path)
 
             logger.info("Extracted pages %s → %s", valid, output_path)
             return OperationResult(
@@ -550,8 +659,7 @@ def delete_pages(
                     dst.pages.append(src.pages[i])
                     kept += 1
 
-            dst.save(str(output_path))
-            dst.close()
+            _save_and_close_pdf_atomically(dst, output_path)
 
             logger.info(
                 "Deleted pages %s, kept %d pages → %s",
@@ -607,7 +715,7 @@ def insert_pages(
             source_total = len(source.pages)
 
             # Determine which pages to insert
-            if source_pages:
+            if source_pages is not None:
                 insert_indices = [p - 1 for p in source_pages if 1 <= p <= source_total]
             else:
                 insert_indices = list(range(source_total))
@@ -638,8 +746,7 @@ def insert_pages(
             for i in range(insert_pos, target_total):
                 dst.pages.append(target.pages[i])
 
-            dst.save(str(output_path))
-            dst.close()
+            _save_and_close_pdf_atomically(dst, output_path)
 
             logger.info(
                 "Inserted %d pages at position %d → %s",
@@ -694,23 +801,22 @@ def rotate_pages(
     try:
         with pikepdf.open(pdf_path) as pdf:
             total = len(pdf.pages)
-            rotated = 0
+            pages_to_rotate = {p for p in pages if 1 <= p <= total}
 
-            for p in pages:
-                if 1 <= p <= total:
-                    page = pdf.pages[p - 1]
-                    current = int(page.get("/Rotate", 0))
-                    page.Rotate = (current + angle) % 360
-                    rotated += 1
-
-            if rotated == 0:
+            if not pages_to_rotate:
                 return OperationResult(
                     success=False,
                     message=f"No valid pages to rotate (document has {total} pages)",
                 )
 
-            pdf.save(str(output_path))
+            for p in pages_to_rotate:
+                page = pdf.pages[p - 1]
+                current = int(page.get("/Rotate", 0))
+                page.Rotate = (current + angle) % 360
 
+            _save_pdf_atomically(pdf, output_path)
+
+            rotated = len(pages_to_rotate)
             logger.info("Rotated %d pages by %d° → %s", rotated, angle, output_path)
             return OperationResult(
                 success=True,
@@ -771,8 +877,9 @@ def compress_pdf(
 
             # Remove unreferenced objects and enable stream compression
             pdf.remove_unreferenced_resources()
-            pdf.save(
-                str(output_path),
+            _save_pdf_atomically(
+                pdf,
+                output_path,
                 compress_streams=True,
                 object_stream_mode=pikepdf.ObjectStreamMode.generate,
             )
@@ -819,7 +926,6 @@ def _compress_page_images(
     """
     if seen_objgen is None:
         seen_objgen = set()
-    import io
 
     try:
         from PIL import Image
@@ -838,83 +944,9 @@ def _compress_page_images(
     for key in list(xobjects.keys()):
         try:
             obj = xobjects[key]
-            if not isinstance(obj, pikepdf.Stream):
+            if not _should_compress_xobject(obj, seen_objgen):
                 continue
-            if obj.get("/Subtype") != pikepdf.Name.Image:
-                continue
-
-            # Skip already-processed shared XObjects
-            objgen = obj.objgen
-            if objgen in seen_objgen:
-                continue
-            seen_objgen.add(objgen)
-
-            width = int(obj.get("/Width", 0))
-            height = int(obj.get("/Height", 0))
-
-            if width < MIN_IMAGE_DIMENSION_PX or height < MIN_IMAGE_DIMENSION_PX:
-                continue
-
-            # Use pikepdf.PdfImage for reliable decoding
-            try:
-                pdf_image = pikepdf.PdfImage(obj)
-                pil_img = pdf_image.as_pil_image()
-            except (pikepdf.PdfError, OSError, ValueError):
-                continue
-
-            # Determine original data size for comparison
-            try:
-                original_size = len(obj.read_raw_bytes())
-            except (pikepdf.PdfError, OSError):
-                original_size = width * height * 3  # rough estimate
-
-            # Determine current effective DPI from page media box
-            try:
-                mbox = page.MediaBox
-                page_width_pt = float(mbox[2]) - float(mbox[0])
-                page_height_pt = float(mbox[3]) - float(mbox[1])
-                if page_width_pt > 0 and page_height_pt > 0:
-                    current_dpi = max(
-                        width / (page_width_pt / 72),
-                        height / (page_height_pt / 72),
-                    )
-                else:
-                    current_dpi = 300
-            except (AttributeError, TypeError, ValueError, ZeroDivisionError):
-                current_dpi = 300
-
-            # Downsample if current DPI is significantly higher than target
-            if current_dpi > target_dpi * 1.2:
-                scale = target_dpi / current_dpi
-                new_w = max(MIN_IMAGE_DIMENSION_PX, int(width * scale))
-                new_h = max(MIN_IMAGE_DIMENSION_PX, int(height * scale))
-                pil_img = pil_img.resize((new_w, new_h), Image.Resampling.LANCZOS)
-
-            # Re-encode as JPEG
-            if pil_img.mode in ("RGBA", "LA", "P"):
-                pil_img = pil_img.convert("RGB")
-            elif pil_img.mode == "L":
-                pass  # Keep grayscale
-
-            buf = io.BytesIO()
-            pil_img.save(buf, format="JPEG", quality=quality, optimize=True)
-            jpeg_data = buf.getvalue()
-
-            # Only replace if the new size is actually smaller
-            if len(jpeg_data) < original_size * 0.90:
-                new_img = pikepdf.Stream(pdf, jpeg_data)
-                new_img["/Type"] = pikepdf.Name.XObject
-                new_img["/Subtype"] = pikepdf.Name.Image
-                new_img["/Width"] = pil_img.width
-                new_img["/Height"] = pil_img.height
-                if pil_img.mode == "L":
-                    new_img["/ColorSpace"] = pikepdf.Name.DeviceGray
-                else:
-                    new_img["/ColorSpace"] = pikepdf.Name.DeviceRGB
-                new_img["/BitsPerComponent"] = 8
-                new_img["/Filter"] = pikepdf.Name.DCTDecode
-
-                xobjects[key] = new_img
+            if _compress_xobject_image(pdf, page, xobjects, key, obj, quality, target_dpi, Image):
                 count += 1
 
         except (pikepdf.PdfError, OSError, ValueError) as e:
@@ -922,6 +954,101 @@ def _compress_page_images(
             continue
 
     return count
+
+
+def _should_compress_xobject(obj, seen_objgen: set) -> bool:
+    if not isinstance(obj, pikepdf.Stream):
+        return False
+    if obj.get("/Subtype") != pikepdf.Name.Image:
+        return False
+    if obj.objgen in seen_objgen:
+        return False
+    seen_objgen.add(obj.objgen)
+    width = int(obj.get("/Width", 0))
+    height = int(obj.get("/Height", 0))
+    return width >= MIN_IMAGE_DIMENSION_PX and height >= MIN_IMAGE_DIMENSION_PX
+
+
+def _compress_xobject_image(
+    pdf: pikepdf.Pdf,
+    page: pikepdf.Page,
+    xobjects,
+    key,
+    obj,
+    quality: int,
+    target_dpi: int,
+    Image,
+) -> bool:
+    width = int(obj.get("/Width", 0))
+    height = int(obj.get("/Height", 0))
+    try:
+        pil_img = pikepdf.PdfImage(obj).as_pil_image()
+    except (pikepdf.PdfError, OSError, ValueError):
+        return False
+
+    original_size = _xobject_raw_size(obj, width, height)
+    pil_img = _downsample_image_for_dpi(pil_img, width, height, page, target_dpi, Image)
+    jpeg_data = _encode_pdf_image_as_jpeg(pil_img, quality)
+    if len(jpeg_data) >= original_size * 0.90:
+        return False
+
+    xobjects[key] = _new_jpeg_xobject(pdf, jpeg_data, pil_img)
+    return True
+
+
+def _xobject_raw_size(obj, width: int, height: int) -> int:
+    try:
+        return len(obj.read_raw_bytes())
+    except (pikepdf.PdfError, OSError):
+        return width * height * 3
+
+
+def _downsample_image_for_dpi(
+    pil_img, width: int, height: int, page: pikepdf.Page, target_dpi: int, Image
+):
+    current_dpi = _page_image_dpi(page, width, height)
+    if current_dpi <= target_dpi * 1.2:
+        return pil_img
+    scale = target_dpi / current_dpi
+    new_w = max(MIN_IMAGE_DIMENSION_PX, int(width * scale))
+    new_h = max(MIN_IMAGE_DIMENSION_PX, int(height * scale))
+    return pil_img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+
+
+def _page_image_dpi(page: pikepdf.Page, width: int, height: int) -> float:
+    try:
+        mbox = page.MediaBox
+        page_width_pt = float(mbox[2]) - float(mbox[0])
+        page_height_pt = float(mbox[3]) - float(mbox[1])
+        if page_width_pt > 0 and page_height_pt > 0:
+            return max(width / (page_width_pt / 72), height / (page_height_pt / 72))
+    except (AttributeError, TypeError, ValueError, ZeroDivisionError):
+        pass
+    return 300
+
+
+def _encode_pdf_image_as_jpeg(pil_img, quality: int) -> bytes:
+    import io
+
+    if pil_img.mode in ("RGBA", "LA", "P"):
+        pil_img = pil_img.convert("RGB")
+    buf = io.BytesIO()
+    pil_img.save(buf, format="JPEG", quality=quality, optimize=True)
+    return buf.getvalue()
+
+
+def _new_jpeg_xobject(pdf: pikepdf.Pdf, jpeg_data: bytes, pil_img) -> pikepdf.Stream:
+    new_img = pikepdf.Stream(pdf, jpeg_data)
+    new_img["/Type"] = pikepdf.Name.XObject
+    new_img["/Subtype"] = pikepdf.Name.Image
+    new_img["/Width"] = pil_img.width
+    new_img["/Height"] = pil_img.height
+    new_img["/ColorSpace"] = (
+        pikepdf.Name.DeviceGray if pil_img.mode == "L" else pikepdf.Name.DeviceRGB
+    )
+    new_img["/BitsPerComponent"] = 8
+    new_img["/Filter"] = pikepdf.Name.DCTDecode
+    return new_img
 
 
 # ---------------------------------------------------------------------------
@@ -964,8 +1091,7 @@ def reorder_pages(
             for p in valid:
                 dst.pages.append(src.pages[p - 1])
 
-            dst.save(str(output_path))
-            dst.close()
+            _save_and_close_pdf_atomically(dst, output_path)
 
             logger.info("Reordered %d pages → %s", len(valid), output_path)
             return OperationResult(

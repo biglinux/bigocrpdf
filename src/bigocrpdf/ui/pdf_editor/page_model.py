@@ -43,19 +43,24 @@ class PageState:
             self.rotation = round(self.rotation / 90) * 90 % 360
 
     def rotate(self, degrees: int) -> None:
-        """Rotate page by specified degrees."""
+        """Rotate the displayed page while preserving canonical flip axes."""
+        degrees = degrees % 360
+        if degrees not in (0, 90, 180, 270):
+            degrees = round(degrees / 90) * 90 % 360
+        if degrees in (90, 270):
+            self.flip_horizontal, self.flip_vertical = (
+                self.flip_vertical,
+                self.flip_horizontal,
+            )
         self.rotation = (self.rotation + degrees) % 360
-        if self.rotation not in (0, 90, 180, 270):
-            # Round to nearest valid rotation
-            self.rotation = round(self.rotation / 90) * 90 % 360
 
     def rotate_left(self) -> None:
         """Rotate page 90 degrees counter-clockwise."""
-        self.rotation = (self.rotation - 90) % 360
+        self.rotate(-90)
 
     def rotate_right(self) -> None:
         """Rotate page 90 degrees clockwise."""
-        self.rotation = (self.rotation + 90) % 360
+        self.rotate(90)
 
     def toggle_flip_horizontal(self) -> None:
         """Toggle horizontal flip state."""
@@ -124,7 +129,9 @@ class PDFDocument:
 
     def __post_init__(self) -> None:
         """Initialize pages list if not provided."""
-        if not self.pages and self.total_pages > 0:
+        if self.pages:
+            self.total_pages = len(self.pages)
+        elif self.total_pages > 0:
             self.pages = [
                 PageState(
                     page_number=i + 1,
@@ -169,6 +176,7 @@ class PDFDocument:
 
     def update_positions(self) -> None:
         """Update positions to be sequential after changes."""
+        self.total_pages = len(self.pages)
         active_pages = self.get_active_pages()
         for i, page in enumerate(active_pages):
             page.position = i
@@ -196,10 +204,15 @@ class PDFDocument:
         Returns:
             New PDFDocument instance
         """
-        doc = cls(
-            path=data.get("path", ""),
-            total_pages=data.get("total_pages", 0),
+        serialized_pages = data.get("pages")
+        pages = (
+            [PageState.from_dict(page) for page in serialized_pages]
+            if serialized_pages is not None
+            else []
         )
-        doc.pages = [PageState.from_dict(p) for p in data.get("pages", [])]
-        doc.split_points = data.get("split_points", [])
-        return doc
+        return cls(
+            path=data.get("path", ""),
+            pages=pages,
+            split_points=data.get("split_points", []),
+            total_pages=len(pages) if serialized_pages is not None else data.get("total_pages", 0),
+        )

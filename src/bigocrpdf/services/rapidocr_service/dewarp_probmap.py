@@ -41,17 +41,20 @@ Architecture:
 
 import logging
 import threading
+from typing import cast
 
 import cv2
 import numpy as np
 from scipy import ndimage
 from scipy.interpolate import UnivariateSpline
 
+from bigocrpdf.services.rapidocr_service.resource_paths import find_model_dir
+
 logger = logging.getLogger(__name__)
 
 # ── Constants ──────────────────────────────────────────────────────
 
-_DBNET_MODEL_PATH = "/usr/share/rapidocr/models/ch_PP-OCRv5_mobile_det.onnx"
+_DBNET_MODEL_NAME = "PP-OCRv6_det_small.onnx"
 _DBNET_MAX_SIDE = 1536
 _DBNET_PROB_THRESHOLD = 0.3
 
@@ -60,7 +63,6 @@ _MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32)
 _STD = np.array([0.229, 0.224, 0.225], dtype=np.float32)
 
 # Deskew thresholds
-_MIN_DESKEW_ANGLE = 0.3  # degrees — skip rotation if below this
 _MAX_DESKEW_ANGLE = 15.0  # degrees — reject outlier segments above this
 
 # Curvature thresholds
@@ -126,14 +128,17 @@ def _get_model():
     with _ov_lock:
         if _ov_model is not None:
             return _ov_model
+        # Resolved here rather than at import so a relocatable build picks up
+        # the models it ships with.
+        model_path = find_model_dir() / _DBNET_MODEL_NAME
         try:
             import openvino as ov
 
             core = ov.Core()
-            _ov_model = core.compile_model(_DBNET_MODEL_PATH, "CPU")
+            _ov_model = core.compile_model(str(model_path), "CPU")
             logger.debug("DBNet model loaded via OpenVINO for probmap dewarp")
         except Exception as exc:
-            raise RuntimeError(f"Failed to load DBNet model at {_DBNET_MODEL_PATH}: {exc}") from exc
+            raise RuntimeError(f"Failed to load DBNet model at {model_path}: {exc}") from exc
     return _ov_model
 
 
@@ -182,37 +187,10 @@ def detect_deskew_angle(gray: np.ndarray) -> float:
     # Find contours and measure angles
     contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    max_h_seg = int(h * _SEG_MAX_H_RATIO)
-    min_w_seg = int(w * _SEG_MIN_W_RATIO)
-    max_w_seg = int(w * _SEG_MAX_W_RATIO)
-
     angles = []
     for cnt in contours:
-        rect = cv2.minAreaRect(cnt)
-        (_, _), (rw, rh), angle = rect
-
-        # Normalise OpenCV angle convention
-        if rw < rh:
-            angle = angle + 90.0
-            actual_w, actual_h = rh, rw
-        else:
-            actual_w, actual_h = rw, rh
-
-        # Geometry filters
-        if actual_h < _SEG_MIN_H_PX or actual_h > max_h_seg:
-            continue
-        if actual_w < min_w_seg or actual_w > max_w_seg:
-            continue
-        if actual_w < actual_h * _SEG_MIN_ASPECT:
-            continue
-
-        # Normalise to [-90, 90) range
-        if angle > _ANGLE_NORM_THRESHOLD:
-            angle -= 90
-        elif angle < -_ANGLE_NORM_THRESHOLD:
-            angle += 90
-
-        if abs(angle) < _MAX_DESKEW_ANGLE:
+        angle = _deskew_segment_angle(cnt, h, w)
+        if angle is not None:
             angles.append(angle)
 
     if len(angles) < 3:
@@ -244,10 +222,49 @@ def detect_deskew_angle(gray: np.ndarray) -> float:
     return result
 
 
+def _deskew_segment_angle(contour: np.ndarray, h: int, w: int) -> float | None:
+    (_, _), (rect_w, rect_h), angle = cv2.minAreaRect(contour)
+    actual_w, actual_h, angle = _normalise_min_area_rect_angle(rect_w, rect_h, angle)
+
+    if not _is_valid_deskew_segment(actual_w, actual_h, h, w):
+        return None
+
+    angle = _normalise_deskew_angle(angle)
+    if abs(angle) < _MAX_DESKEW_ANGLE:
+        return angle
+    return None
+
+
+def _normalise_min_area_rect_angle(
+    rect_w: float,
+    rect_h: float,
+    angle: float,
+) -> tuple[float, float, float]:
+    if rect_w < rect_h:
+        return rect_h, rect_w, angle + 90.0
+    return rect_w, rect_h, angle
+
+
+def _is_valid_deskew_segment(actual_w: float, actual_h: float, h: int, w: int) -> bool:
+    if actual_h < _SEG_MIN_H_PX or actual_h > int(h * _SEG_MAX_H_RATIO):
+        return False
+    if actual_w < int(w * _SEG_MIN_W_RATIO) or actual_w > int(w * _SEG_MAX_W_RATIO):
+        return False
+    return actual_w >= actual_h * _SEG_MIN_ASPECT
+
+
+def _normalise_deskew_angle(angle: float) -> float:
+    if angle > _ANGLE_NORM_THRESHOLD:
+        return angle - 90
+    if angle < -_ANGLE_NORM_THRESHOLD:
+        return angle + 90
+    return angle
+
+
 # ── Stage 2: Probability-Map Curvature Correction ─────────────────
 
 
-def _get_probmap(img_bgr: np.ndarray, max_side: int = 0) -> np.ndarray:
+def _get_probmap(img_bgr: np.ndarray, max_side: int = 0) -> tuple[np.ndarray, float, float]:
     """Run DBNet inference and return the text probability map.
 
     Preprocessing follows PaddleOCR convention:
@@ -264,7 +281,8 @@ def _get_probmap(img_bgr: np.ndarray, max_side: int = 0) -> np.ndarray:
                   Lower values (e.g. 1024) reduce RAM on constrained systems.
 
     Returns:
-        Probability map as float32 array, shape (H, W), range [0, 1].
+        Probability map plus the horizontal and vertical scale factors needed
+        to map inference coordinates back to the source image.
     """
     model = _get_model()
     h, w = img_bgr.shape[:2]
@@ -290,7 +308,7 @@ def _get_probmap(img_bgr: np.ndarray, max_side: int = 0) -> np.ndarray:
     return prob.copy(), scale_x, scale_y
 
 
-def _extract_baselines(prob: np.ndarray, h: int, w: int) -> list:
+def _extract_baselines(prob: np.ndarray, w: int) -> list:
     """Extract text baselines from the probability map.
 
     Steps:
@@ -310,7 +328,7 @@ def _extract_baselines(prob: np.ndarray, h: int, w: int) -> list:
 
     Args:
         prob: Text probability map, float32 shape (H, W).
-        h, w: Image dimensions.
+        w: Image width.
 
     Returns:
         Sorted list of (y_centre, spline, x_start, x_end) tuples.
@@ -319,7 +337,7 @@ def _extract_baselines(prob: np.ndarray, h: int, w: int) -> list:
     kern_erode = cv2.getStructuringElement(cv2.MORPH_RECT, (1, _BASELINE_ERODE_KERN_H))
     eroded = cv2.erode(binary, kern_erode, iterations=1)
 
-    labeled, n_comp = ndimage.label(eroded)
+    labeled, n_comp = cast(tuple[np.ndarray, int], ndimage.label(eroded))
     if n_comp == 0:
         return []
 
@@ -628,7 +646,7 @@ def probmap_dewarp(img_bgr: np.ndarray, max_side: int = 0) -> np.ndarray:
         f"Probmap dewarp: probmap {inf_w}×{inf_h} "
         f"(scale {scale_x:.2f}×{scale_y:.2f}), extracting baselines..."
     )
-    baselines = _extract_baselines(prob, inf_h, inf_w)
+    baselines = _extract_baselines(prob, inf_w)
     del prob  # Free inference-resolution probmap early
 
     if len(baselines) < 2:
@@ -644,7 +662,7 @@ def probmap_dewarp(img_bgr: np.ndarray, max_side: int = 0) -> np.ndarray:
     logger.info(f"Probmap dewarp: {len(baselines)} baselines found, building remap...")
     map_x, map_y, max_curvature = _build_curvature_remap(baselines, h, w)
 
-    if map_x is None or max_curvature < _MIN_CURVATURE_PX:
+    if map_x is None or map_y is None or max_curvature < _MIN_CURVATURE_PX:
         logger.debug(
             f"Probmap dewarp: max curvature {max_curvature:.1f}px "
             f"below threshold {_MIN_CURVATURE_PX}px, skipping remap"

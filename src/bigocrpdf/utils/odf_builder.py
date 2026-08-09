@@ -6,488 +6,563 @@ and image extraction/embedding from source PDFs.
 
 from __future__ import annotations
 
-import io
-import re
+import os
+import tempfile
 import threading
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import Any
 
+from bigocrpdf.utils.durable_writes import publish_file_atomically
 from bigocrpdf.utils.logger import logger  # noqa: I001
 from bigocrpdf.utils.tsv_parser import DocElement
-
-if TYPE_CHECKING:
-    from PIL import Image
-
-# Max pixel width for images embedded in ODF (~180 DPI on A4).
-_MAX_IMAGE_WIDTH = 1500
-# Pixel-count threshold above which non-JPEG images are saved as JPEG.
-_JPEG_THRESHOLD = 256 * 256
-
-
-def _pil_to_jpeg(pil_img: Image.Image, w: int, h: int) -> tuple[bytes, str, int, int]:
-    """Convert a PIL image to JPEG bytes, downscaling if oversized.
-
-    Returns (jpeg_bytes, "image/jpeg", out_w, out_h).
-    """
-    from PIL import Image as PILImage
-
-    if pil_img.mode in ("RGBA", "P"):
-        pil_img = pil_img.convert("RGB")
-    elif pil_img.mode not in ("RGB", "L"):
-        pil_img = pil_img.convert("RGB")
-
-    if w > _MAX_IMAGE_WIDTH:
-        scale = _MAX_IMAGE_WIDTH / w
-        new_w, new_h = int(w * scale), int(h * scale)
-        pil_img = pil_img.resize((new_w, new_h), PILImage.Resampling.LANCZOS)
-        w, h = new_w, new_h
-
-    buf = io.BytesIO()
-    pil_img.save(buf, format="JPEG", quality=85)
-    return buf.getvalue(), "image/jpeg", w, h
 
 
 class ExportCancelled(Exception):
     """Raised when the user cancels the ODF export."""
 
 
-def _extract_pdf_images(
-    pdf_path: str,
-    cancel_event: threading.Event | None = None,
-) -> dict[int, list[tuple[bytes, str, int, int, float]]]:
-    """Extract actual images from a PDF, mapped by page number.
+def _make_odf_paragraph_style(doc, name, para_kw, text_kw):
+    from odf.style import ParagraphProperties, Style, TextProperties
 
-    Parses each page's content stream to find which XObject names are
-    actually referenced (``/Name Do``), then extracts only those image
-    streams using pikepdf — no re-encoding for JPEG, no subprocess.
-
-    Args:
-        pdf_path: Path to the PDF file.
-
-    Returns:
-        Dict mapping 1-based page number to list of
-        (image_bytes, mime_type, w_px, h_px, y_top) tuples.
-        ``y_top`` is the top-down Y position matching pdftotext TSV
-        coordinates.
-    """
-    try:
-        import pikepdf
-    except ImportError:
-        logger.warning("pikepdf not available; cannot embed images")
-        return {}
-
-    MIN_DIM = 50  # Skip icons/masks smaller than 50px
-
-    def _image_positions(page: pikepdf.Page) -> dict[str, float]:
-        """Return {XObject_name: y_top} from the content stream."""
-        positions: dict[str, float] = {}
-        try:
-            mediabox = page.get("/MediaBox")
-            page_h = float(mediabox[3]) if mediabox else 792.0
-        except Exception:
-            page_h = 792.0
-
-        try:
-            ops = pikepdf.parse_content_stream(page)
-        except Exception:
-            return positions
-
-        last_cm: list[float] | None = None
-        for operands, operator in ops:
-            op = str(operator)
-            if op == "cm" and len(operands) == 6:
-                last_cm = [float(x) for x in operands]
-            elif op == "Do" and operands:
-                name = str(operands[0]).lstrip("/")
-                if last_cm is not None:
-                    f_val = last_cm[5]
-                    d_val = abs(last_cm[3])
-                    positions[name] = page_h - (f_val + d_val)
-                else:
-                    positions[name] = 0.0
-                last_cm = None
-        return positions
-
-    def _used_xobject_names(page: pikepdf.Page) -> set[str]:
-        """Return XObject names actually invoked in the page content stream."""
-        names: set[str] = set()
-        try:
-            contents = page.get("/Contents")
-            if contents is None:
-                return names
-            if isinstance(contents, pikepdf.Array):
-                raw = b"".join(s.read_bytes() for s in contents)
-            else:
-                raw = contents.read_bytes()
-        except Exception:
-            raw = b""
-        for m in re.finditer(rb"/(\S+)\s+Do\b", raw):
-            names.add(m.group(1).decode("latin-1", errors="replace"))
-        return names
-
-    result: dict[int, list[tuple[bytes, str, int, int, float]]] = {}
-    try:
-        with pikepdf.open(pdf_path) as pdf:
-            for page_num, page in enumerate(pdf.pages, 1):
-                if cancel_event is not None and cancel_event.is_set():
-                    raise ExportCancelled()
-                used_names = _used_xobject_names(page)
-                img_positions = _image_positions(page)
-                resources = page.get("/Resources", {})
-                xobjects = resources.get("/XObject", {})
-                for name, ref in xobjects.items():
-                    clean_name = str(name).lstrip("/")
-                    if clean_name not in used_names:
-                        continue
-                    obj = ref
-                    if not hasattr(obj, "keys"):
-                        continue
-                    subtype = str(obj.get("/Subtype", ""))
-                    if subtype != "/Image":
-                        continue
-                    w = int(obj.get("/Width", 0))
-                    h = int(obj.get("/Height", 0))
-                    if w < MIN_DIM or h < MIN_DIM:
-                        continue
-
-                    y_top = img_positions.get(clean_name, 0.0)
-
-                    fltr = obj.get("/Filter", "")
-                    if isinstance(fltr, pikepdf.Array):
-                        filters = [str(f) for f in fltr]
-                    else:
-                        filters = [str(fltr)] if fltr else []
-
-                    # Check if inner filter is DCTDecode (JPEG) wrapped
-                    # in any transport encoding (ASCII85, Flate, etc.)
-                    is_dct = "/DCTDecode" in filters
-
-                    try:
-                        if is_dct and len(filters) == 1:
-                            # Pure JPEG — extract raw bytes directly
-                            raw = obj.read_raw_bytes()
-                            result.setdefault(page_num, []).append((raw, "image/jpeg", w, h, y_top))
-                        elif is_dct:
-                            # JPEG behind transport encoding (ASCII85, Flate…)
-                            pil_img = pikepdf.PdfImage(obj).as_pil_image()
-                            data, mime, ow, oh = _pil_to_jpeg(pil_img, w, h)
-                            result.setdefault(page_num, []).append((data, mime, ow, oh, y_top))
-                        else:
-                            # Non-JPEG: use JPEG for large photographic images
-                            pil_img = pikepdf.PdfImage(obj).as_pil_image()
-                            is_photo = w * h >= _JPEG_THRESHOLD and pil_img.mode in (
-                                "RGB",
-                                "RGBA",
-                                "L",
-                            )
-                            if is_photo:
-                                data, mime, ow, oh = _pil_to_jpeg(pil_img, w, h)
-                            else:
-                                buf = io.BytesIO()
-                                pil_img.save(buf, format="PNG")
-                                data, mime, ow, oh = buf.getvalue(), "image/png", w, h
-                            result.setdefault(page_num, []).append((data, mime, ow, oh, y_top))
-                    except Exception as e:
-                        logger.debug(
-                            "Could not extract image %s on page %d: %s",
-                            name,
-                            page_num,
-                            e,
-                        )
-    except Exception as e:
-        logger.warning("Failed to extract images from PDF: %s", e)
-        return {}
-
-    total = sum(len(v) for v in result.values())
-    logger.info("Extracted %d images across %d pages for ODF embedding", total, len(result))
-    return result
+    style = Style(name=name, family="paragraph")
+    style.addElement(ParagraphProperties(**para_kw))
+    style.addElement(TextProperties(**text_kw))
+    doc.automaticstyles.addElement(style)
+    return style
 
 
-def create_odf(
-    pages_elements: list[list[DocElement]],
-    output_path: str,
-    page_images: dict[int, list[tuple[bytes, str, int, int]]] | None = None,
-    cancel_event: threading.Event | None = None,
-):
-    """Generate a structured ODF document."""
-    from odf.opendocument import OpenDocumentText
+def _configure_odf_document(
+    doc,
+    page_size_cm: tuple[float, float] | None = None,
+    body_font_size_pt: float = 9.0,
+) -> dict:
     from odf.style import (
+        Columns,
         FontFace,
         MasterPage,
         PageLayout,
         PageLayoutProperties,
-        ParagraphProperties,
+        SectionProperties,
         Style,
-        TableCellProperties,
         TableProperties,
         TextProperties,
     )
-    from odf.text import LineBreak, P
 
-    doc = OpenDocumentText()
-
-    # Page layout (A4)
-    pl = PageLayout(name="A4")
-    pl.addElement(
+    page_width_cm, page_height_cm = page_size_cm or (21.0, 29.7)
+    margin_cm = 1.5
+    content_width_cm = max(page_width_cm - 2 * margin_cm, 4.0)
+    page_layout = PageLayout(name="SourcePage")
+    page_layout.addElement(
         PageLayoutProperties(
-            pagewidth="21cm",
-            pageheight="29.7cm",
-            margintop="2cm",
-            marginbottom="2cm",
-            marginleft="2.5cm",
-            marginright="2cm",
+            pagewidth=f"{page_width_cm:.2f}cm",
+            pageheight=f"{page_height_cm:.2f}cm",
+            margintop=f"{margin_cm:.2f}cm",
+            marginbottom=f"{margin_cm:.2f}cm",
+            marginleft=f"{margin_cm:.2f}cm",
+            marginright=f"{margin_cm:.2f}cm",
         )
     )
-    doc.automaticstyles.addElement(pl)
-    mp = MasterPage(name="Standard", pagelayoutname="A4")
-    doc.masterstyles.addElement(mp)
+    doc.automaticstyles.addElement(page_layout)
+    doc.masterstyles.addElement(MasterPage(name="Standard", pagelayoutname="SourcePage"))
 
-    # Font
-    ff = FontFace(
+    font_face = FontFace(
         name="Liberation Sans",
         fontfamily="Liberation Sans",
         fontfamilygeneric="swiss",
         fontpitch="variable",
     )
-    doc.fontfacedecls.addElement(ff)
+    doc.fontfacedecls.addElement(font_face)
 
-    # Paragraph styles
-    def _make_style(name, para_kw, text_kw):
-        s = Style(name=name, family="paragraph")
-        s.addElement(ParagraphProperties(**para_kw))
-        s.addElement(TextProperties(**text_kw))
-        doc.automaticstyles.addElement(s)
-        return s
+    styles = _odf_paragraph_styles(doc, body_font_size_pt)
+    styles["bold"] = Style(name="Bold", family="text")
+    styles["bold"].addElement(TextProperties(fontweight="bold"))
+    doc.automaticstyles.addElement(styles["bold"])
 
-    h1_s = _make_style(
-        "H1",
-        {
-            "textalign": "left",
-            "margintop": "0.6cm",
-            "marginbottom": "0.3cm",
-            "keepwithnext": "always",
-        },
-        {"fontsize": "13pt", "fontweight": "bold", "fontfamily": "Liberation Sans"},
+    styles["page_break"] = _make_odf_paragraph_style(doc, "PB", {"breakbefore": "page"}, {})
+    styles["column_break"] = _make_odf_paragraph_style(
+        doc, "ColumnBreak", {"breakbefore": "column"}, {}
     )
-    h2_s = _make_style(
-        "H2",
-        {
-            "textalign": "left",
-            "margintop": "0.5cm",
-            "marginbottom": "0.2cm",
-            "keepwithnext": "always",
-        },
-        {"fontsize": "11.5pt", "fontweight": "bold", "fontfamily": "Liberation Sans"},
-    )
-    h3_s = _make_style(
-        "H3",
-        {
-            "textalign": "left",
-            "margintop": "0.3cm",
-            "marginbottom": "0.15cm",
-            "keepwithnext": "always",
-            "marginleft": "0.5cm",
-        },
-        {"fontsize": "11pt", "fontweight": "bold", "fontfamily": "Liberation Sans"},
-    )
-    body_s = _make_style(
-        "Body",
-        {
-            "textalign": "left",
-            "marginbottom": "0.15cm",
-            "lineheight": "140%",
-        },
-        {"fontsize": "11pt", "fontfamily": "Liberation Sans"},
-    )
-    body_indent_s = _make_style(
-        "BodyI",
-        {
-            "textalign": "left",
-            "marginbottom": "0.15cm",
-            "lineheight": "140%",
-            "textindent": "1.25cm",
-        },
-        {"fontsize": "11pt", "fontfamily": "Liberation Sans"},
-    )
-    body_center_s = _make_style(
-        "BodyC",
-        {
-            "textalign": "center",
-            "marginbottom": "0.05cm",
-            "lineheight": "130%",
-        },
-        {"fontsize": "11pt", "fontfamily": "Liberation Sans"},
-    )
-    body_right_s = _make_style(
-        "BodyR",
-        {
-            "textalign": "end",
-            "marginbottom": "0.05cm",
-            "lineheight": "130%",
-        },
-        {"fontsize": "11pt", "fontfamily": "Liberation Sans"},
-    )
-    kv_s = _make_style(
-        "KV",
-        {
-            "textalign": "left",
-            "marginbottom": "0.05cm",
-            "lineheight": "130%",
-        },
-        {"fontsize": "11pt", "fontfamily": "Liberation Sans"},
-    )
+    styles["two_columns"] = Style(name="TwoColumns", family="section")
+    section_properties = SectionProperties()
+    section_properties.addElement(Columns(columncount=2, columngap="0.6cm"))
+    styles["two_columns"].addElement(section_properties)
+    doc.automaticstyles.addElement(styles["two_columns"])
+    styles["table"] = Style(name="Tbl", family="table")
+    styles["table"].addElement(TableProperties(width=f"{content_width_cm:.2f}cm", align="center"))
+    styles["table_width_cm"] = content_width_cm
+    doc.automaticstyles.addElement(styles["table"])
 
-    bold_s = Style(name="Bold", family="text")
-    bold_s.addElement(TextProperties(fontweight="bold"))
-    doc.automaticstyles.addElement(bold_s)
-
-    pb_s = Style(name="PB", family="paragraph")
-    pb_s.addElement(ParagraphProperties(breakbefore="page"))
-    doc.automaticstyles.addElement(pb_s)
-
-    tbl_s = Style(name="Tbl", family="table")
-    tbl_s.addElement(TableProperties(width="16.5cm", align="center"))
-    doc.automaticstyles.addElement(tbl_s)
-
-    cell_s = Style(name="Cell", family="table-cell")
-    cell_s.addElement(
-        TableCellProperties(
-            padding="0.12cm",
-            borderbottom="0.5pt solid #dddddd",
-            verticalalign="middle",
-        )
-    )
-    doc.automaticstyles.addElement(cell_s)
-
-    hdr_cell_s = Style(name="HCell", family="table-cell")
-    hdr_cell_s.addElement(
-        TableCellProperties(
-            padding="0.12cm",
-            borderbottom="1pt solid #888888",
-            verticalalign="middle",
-        )
-    )
-    doc.automaticstyles.addElement(hdr_cell_s)
-
-    cell_txt_s = _make_style(
+    styles["cell"] = _odf_table_cell_style(doc, "Cell", "0.5pt solid #dddddd")
+    styles["header_cell"] = _odf_table_cell_style(doc, "HCell", "1pt solid #888888")
+    styles["cell_text"] = _make_odf_paragraph_style(
+        doc,
         "CellText",
         {"textalign": "center", "marginbottom": "0cm"},
-        {"fontsize": "10pt", "fontfamily": "Liberation Sans"},
+        {"fontsize": f"{max(body_font_size_pt - 0.5, 6.0):.2f}pt", "fontfamily": "Liberation Sans"},
     )
-    cell_txt_l = _make_style(
+    styles["cell_text_left"] = _make_odf_paragraph_style(
+        doc,
         "CellTextL",
         {"textalign": "left", "marginbottom": "0cm"},
-        {"fontsize": "10pt", "fontfamily": "Liberation Sans"},
+        {"fontsize": f"{max(body_font_size_pt - 0.5, 6.0):.2f}pt", "fontfamily": "Liberation Sans"},
     )
+    styles["image_frame"] = Style(name="ImgFrame", family="graphic")
+    return styles
 
-    style_map = {
-        "heading1": h1_s,
-        "heading2": h2_s,
-        "heading3": h3_s,
-        "paragraph": body_s,
-        "paragraph_indent": body_indent_s,
-        "paragraph_center": body_center_s,
-        "paragraph_right": body_right_s,
-        "kv": kv_s,
+
+def _odf_paragraph_styles(doc, body_font_size_pt: float) -> dict:
+    body_size = f"{body_font_size_pt:.2f}pt"
+    heading1_size = f"{body_font_size_pt * 4 / 3:.2f}pt"
+    heading2_size = f"{body_font_size_pt * 7 / 6:.2f}pt"
+    heading3_size = f"{body_font_size_pt * 19 / 18:.2f}pt"
+    body_text = {"fontsize": body_size, "fontfamily": "Liberation Sans"}
+    styles = {
+        "heading1": _make_odf_paragraph_style(
+            doc,
+            "H1",
+            {
+                "textalign": "left",
+                "margintop": "0.25cm",
+                "marginbottom": "0.12cm",
+                "keepwithnext": "always",
+            },
+            {"fontsize": heading1_size, "fontweight": "bold", "fontfamily": "Liberation Sans"},
+        ),
+        "heading2": _make_odf_paragraph_style(
+            doc,
+            "H2",
+            {
+                "textalign": "left",
+                "margintop": "0.2cm",
+                "marginbottom": "0.1cm",
+                "keepwithnext": "always",
+            },
+            {"fontsize": heading2_size, "fontweight": "bold", "fontfamily": "Liberation Sans"},
+        ),
+        "heading3": _make_odf_paragraph_style(
+            doc,
+            "H3",
+            {
+                "textalign": "left",
+                "margintop": "0.15cm",
+                "marginbottom": "0.08cm",
+                "keepwithnext": "always",
+                "marginleft": "0.5cm",
+            },
+            {"fontsize": heading3_size, "fontweight": "bold", "fontfamily": "Liberation Sans"},
+        ),
+        "paragraph": _make_odf_paragraph_style(
+            doc,
+            "Body",
+            {"textalign": "left", "marginbottom": "0.05cm", "lineheight": "115%"},
+            body_text,
+        ),
+        "paragraph_indent": _make_odf_paragraph_style(
+            doc,
+            "BodyI",
+            {
+                "textalign": "left",
+                "marginbottom": "0.05cm",
+                "lineheight": "115%",
+                "textindent": "1.25cm",
+            },
+            body_text,
+        ),
+        "paragraph_center": _make_odf_paragraph_style(
+            doc,
+            "BodyC",
+            {"textalign": "center", "marginbottom": "0.03cm", "lineheight": "115%"},
+            body_text,
+        ),
+        "paragraph_right": _make_odf_paragraph_style(
+            doc,
+            "BodyR",
+            {"textalign": "end", "marginbottom": "0.03cm", "lineheight": "115%"},
+            body_text,
+        ),
+        "kv": _make_odf_paragraph_style(
+            doc,
+            "KV",
+            {"textalign": "left", "marginbottom": "0.03cm", "lineheight": "115%"},
+            body_text,
+        ),
+        "preformatted": _make_odf_paragraph_style(
+            doc,
+            "Preformatted",
+            {"textalign": "left", "marginbottom": "0.08cm", "lineheight": "105%"},
+            {"fontsize": body_size, "fontfamily": "Liberation Mono"},
+        ),
     }
+    styles["heading1_center"] = _make_odf_paragraph_style(
+        doc,
+        "H1C",
+        {
+            "textalign": "center",
+            "margintop": "0.25cm",
+            "marginbottom": "0.12cm",
+            "keepwithnext": "always",
+        },
+        {"fontsize": heading1_size, "fontweight": "bold", "fontfamily": "Liberation Sans"},
+    )
+    styles["heading2_center"] = _make_odf_paragraph_style(
+        doc,
+        "H2C",
+        {
+            "textalign": "center",
+            "margintop": "0.2cm",
+            "marginbottom": "0.1cm",
+            "keepwithnext": "always",
+        },
+        {"fontsize": heading2_size, "fontweight": "bold", "fontfamily": "Liberation Sans"},
+    )
+    styles["heading3_center"] = _make_odf_paragraph_style(
+        doc,
+        "H3C",
+        {
+            "textalign": "center",
+            "margintop": "0.15cm",
+            "marginbottom": "0.08cm",
+            "keepwithnext": "always",
+        },
+        {"fontsize": heading3_size, "fontweight": "bold", "fontfamily": "Liberation Sans"},
+    )
+    return styles
 
-    tbl_counter = [0]
-    img_counter = [0]
 
-    # Embed page images if provided
-    from odf.draw import Frame
-    from odf.draw import Image as OdfImage
+def _odf_table_cell_style(doc, name: str, border_bottom: str):
+    from odf.style import Style, TableCellProperties
 
-    _embed_images = bool(page_images)
-    img_frame_s = Style(name="ImgFrame", family="graphic")
-    if _embed_images:
-        doc.automaticstyles.addElement(img_frame_s)
+    style = Style(name=name, family="table-cell")
+    style.addElement(
+        TableCellProperties(
+            padding="0.06cm",
+            borderbottom=border_bottom,
+            verticalalign="middle",
+        )
+    )
+    doc.automaticstyles.addElement(style)
+    return style
 
-    _MIME_EXT = {"image/jpeg": ".jpg", "image/png": ".png"}
+
+def create_odf(
+    pages_elements: list[list[DocElement]],
+    output_path: str,
+    page_images: dict[int, list[tuple[bytes, str, int, int, float]]] | None = None,
+    page_size_cm: tuple[float, float] | None = None,
+    body_font_size_pt: float = 9.0,
+    cancel_event: threading.Event | None = None,
+):
+    """Generate a structured ODF document."""
+    from odf.opendocument import OpenDocumentText
+
+    doc: Any = OpenDocumentText()
+    styles = _configure_odf_document(doc, page_size_cm, body_font_size_pt)
+    if page_images:
+        doc.automaticstyles.addElement(styles["image_frame"])
+
+    counters = {"table": [0], "image": [0]}
 
     for page_idx, elements in enumerate(pages_elements):
         if cancel_event is not None and cancel_event.is_set():
             raise ExportCancelled()
-        if page_idx > 0 and elements:
-            doc.text.addElement(P(stylename=pb_s))
+        _render_odf_page(doc, elements, page_idx, page_images, styles, counters)
 
-        page_num = page_idx + 1
+    if cancel_event is not None and cancel_event.is_set():
+        raise ExportCancelled()
 
-        # Build image render items for this page (with Y position)
-        img_items: list[tuple[float, tuple[bytes, str, int, int]]] = []
-        if _embed_images and page_num in page_images:
-            for img_data, mime, w_px, h_px, y_top in page_images[page_num]:
-                img_items.append((y_top, (img_data, mime, w_px, h_px)))
+    target = Path(output_path)
+    descriptor, temp_name = tempfile.mkstemp(
+        prefix=f".{target.name}.",
+        suffix=target.suffix or ".odt",
+        dir=target.parent,
+    )
+    os.close(descriptor)
+    temp_path = Path(temp_name)
+    try:
+        doc.save(str(temp_path))
+        publish_file_atomically(temp_path, target, overwrite=True)
+    finally:
+        temp_path.unlink(missing_ok=True)
+    logger.info("Saved ODF: %s", target)
 
-        def _render_image(img_tuple: tuple[bytes, str, int, int], _pg: int = page_num) -> None:
-            img_data, mime, w_px, h_px = img_tuple
-            try:
-                frame_w_cm = min(16.0, w_px * 2.54 / 150)
-                frame_h_cm = frame_w_cm * (h_px / w_px) if w_px > 0 else 8.0
 
-                img_counter[0] += 1
-                ext = _MIME_EXT.get(mime, ".png")
-                pic_name = f"Pictures/img{img_counter[0]}{ext}"
+def create_positioned_text_odf(
+    pages_words,
+    output_path: str,
+    page_geometries: list[tuple[float, float, float, float]],
+    cancel_event: threading.Event | None = None,
+) -> str:
+    """Create an editable fixed-layout ODT from positioned PDF words."""
+    from odf.draw import Frame, TextBox
+    from odf.opendocument import OpenDocumentText
+    from odf.style import (
+        GraphicProperties,
+        MasterPage,
+        PageLayout,
+        PageLayoutProperties,
+        ParagraphProperties,
+        Style,
+        TextProperties,
+    )
+    from odf.text import P
 
-                img_p = P(stylename=body_center_s)
-                frame = Frame(
-                    stylename=img_frame_s,
-                    width=f"{frame_w_cm:.2f}cm",
-                    height=f"{frame_h_cm:.2f}cm",
-                    anchortype="as-char",
+    from bigocrpdf.utils.tsv_parser import TextLine, group_into_lines
+
+    page_numbers = list(range(1, len(page_geometries) + 1))
+    doc: Any = OpenDocumentText()
+    page_break_styles = []
+    for page_index, (_width_pt, _height_pt, width_cm, height_cm) in enumerate(page_geometries):
+        page_layout = PageLayout(name=f"PositionedPage{page_index + 1}")
+        page_layout.addElement(
+            PageLayoutProperties(
+                pagewidth=f"{width_cm:.2f}cm",
+                pageheight=f"{height_cm:.2f}cm",
+                margin="0cm",
+            )
+        )
+        doc.automaticstyles.addElement(page_layout)
+        master_name = "Standard" if page_index == 0 else f"PositionedMaster{page_index + 1}"
+        doc.masterstyles.addElement(MasterPage(name=master_name, pagelayoutname=page_layout))
+        page_break_styles.append(
+            Style(
+                name=f"PositionedBreak{page_index + 1}",
+                family="paragraph",
+                masterpagename=master_name,
+            )
+        )
+        page_break_styles[-1].addElement(ParagraphProperties(breakbefore="page"))
+        doc.automaticstyles.addElement(page_break_styles[-1])
+    frame_style = Style(name="PositionedTextFrame", family="graphic")
+    frame_style.addElement(GraphicProperties(wrap="run-through", stroke="none", fill="none"))
+    doc.automaticstyles.addElement(frame_style)
+    text_styles = {}
+    anchored_frames = []
+    for page_index, page_number in enumerate(page_numbers):
+        if cancel_event is not None and cancel_event.is_set():
+            raise ExportCancelled()
+        width_pt, height_pt, width_cm, height_cm = page_geometries[page_index]
+        scale_x = width_cm / width_pt
+        scale_y = height_cm / height_pt
+        source_lines = group_into_lines(pages_words.get(page_number, []))
+        positioned_runs = []
+        for source_line in source_lines:
+            run_words = []
+            for word in source_line.words:
+                if run_words:
+                    gap = word.left - run_words[-1].right
+                    run_height = max(item.height for item in run_words)
+                    if gap > max(run_height * 2.0, 18.0):
+                        positioned_runs.append(TextLine(run_words, source_line.y))
+                        run_words = []
+                run_words.append(word)
+            if run_words:
+                positioned_runs.append(TextLine(run_words, source_line.y))
+
+        for line_index, line in enumerate(positioned_runs):
+            if not line.text.strip():
+                continue
+            line_height_pt = max((word.height for word in line.words), default=9.0)
+            font_size_pt = round(min(max(line_height_pt * 0.75, 5.0), 24.0), 1)
+            if font_size_pt not in text_styles:
+                style = Style(name=f"PositionedText{len(text_styles) + 1}", family="paragraph")
+                style.addElement(
+                    ParagraphProperties(margin="0cm", padding="0cm", lineheight="100%")
                 )
-                href = doc.addPicture(pic_name, mime, img_data)
-                frame.addElement(OdfImage(href=href))
-                img_p.addElement(frame)
-                doc.text.addElement(img_p)
-            except Exception as e:
-                logger.debug("Could not embed image for page %d: %s", _pg, e)
-
-        def _render_element(elem: DocElement) -> None:
-            if elem.kind == "table":
-                _render_table(
-                    doc,
-                    elem.rows,
-                    tbl_s,
-                    cell_s,
-                    hdr_cell_s,
-                    cell_txt_s,
-                    cell_txt_l,
-                    bold_s,
-                    tbl_counter,
+                style.addElement(
+                    TextProperties(fontsize=f"{font_size_pt:.1f}pt", fontfamily="Liberation Sans")
                 )
-                return
-            s = style_map.get(elem.kind, body_s)
-            p = P(stylename=s)
-            if elem.raw_lines and len(elem.raw_lines) > 1:
-                for li, line_text in enumerate(elem.raw_lines):
-                    if li > 0:
-                        p.addElement(LineBreak())
-                    p.addText(line_text.strip())
-            else:
-                p.addText(elem.text)
-            doc.text.addElement(p)
+                doc.automaticstyles.addElement(style)
+                text_styles[font_size_pt] = style
+            frame = Frame(
+                stylename=frame_style,
+                name=f"Page{page_index + 1}Line{line_index + 1}",
+                anchortype="page",
+                anchorpagenumber=page_index + 1,
+                zindex=0,
+                x=f"{max(line.min_x * scale_x, 0):.3f}cm",
+                y=f"{max(line.y * scale_y, 0):.3f}cm",
+                width=f"{max((line.max_x - line.min_x) * scale_x + line_height_pt * scale_x * 1.5, 0.3):.3f}cm",
+                height=f"{max(line_height_pt * scale_y * 1.8, 0.25):.3f}cm",
+            )
+            text_box = TextBox()
+            text_box.addElement(P(stylename=text_styles[font_size_pt], text=line.text))
+            frame.addElement(text_box)
+            anchored_frames.append(frame)
 
-        if not img_items:
-            for elem in elements:
-                _render_element(elem)
-        else:
-            # Interleave images with text based on Y position
-            img_idx = 0
-            img_items.sort(key=lambda x: x[0])
-            for elem in elements:
-                while img_idx < len(img_items) and img_items[img_idx][0] <= elem.y_top:
-                    _render_image(img_items[img_idx][1])
-                    img_idx += 1
-                _render_element(elem)
-            while img_idx < len(img_items):
-                _render_image(img_items[img_idx][1])
-                img_idx += 1
+    if cancel_event is not None and cancel_event.is_set():
+        raise ExportCancelled()
 
-    doc.save(output_path)
-    logger.info("Saved ODF: %s", output_path)
+    for frame in anchored_frames:
+        doc.text.addElement(frame)
+    doc.text.addElement(P())
+    for page_index in range(1, len(page_numbers)):
+        doc.text.addElement(P(stylename=page_break_styles[page_index]))
+
+    target = Path(output_path)
+    descriptor, temp_name = tempfile.mkstemp(
+        prefix=f".{target.name}.", suffix=target.suffix or ".odt", dir=target.parent
+    )
+    os.close(descriptor)
+    temp_path = Path(temp_name)
+    try:
+        doc.save(str(temp_path))
+        publish_file_atomically(temp_path, target, overwrite=True)
+    finally:
+        temp_path.unlink(missing_ok=True)
+    logger.info("Saved positioned-text ODF: %s", target)
+    return str(target)
 
 
-def _render_table(doc, rows, tbl_s, cell_s, hdr_cell_s, cell_txt_s, cell_txt_l, bold_s, counter):
+def _render_odf_page(
+    doc,
+    elements: list[DocElement],
+    page_idx: int,
+    page_images: dict[int, list[tuple[bytes, str, int, int, float]]] | None,
+    styles: dict,
+    counters: dict[str, list[int]],
+) -> None:
+    from odf.text import P
+
+    if page_idx > 0:
+        doc.text.addElement(P(stylename=styles["page_break"]))
+
+    img_items = _page_image_items(page_idx + 1, page_images)
+    if not img_items:
+        column_break = _column_break_index(elements)
+        if column_break is not None:
+            from odf.text import Section
+
+            section = Section(name=f"PageColumns{page_idx + 1}", stylename=styles["two_columns"])
+            doc.text.addElement(section)
+            for elem in elements[:column_break]:
+                _render_odf_element(doc, elem, styles, counters["table"], section)
+            section.addElement(P(stylename=styles["column_break"]))
+            for elem in elements[column_break:]:
+                _render_odf_element(doc, elem, styles, counters["table"], section)
+            return
+        for elem in elements:
+            _render_odf_element(doc, elem, styles, counters["table"])
+        return
+
+    _render_odf_elements_with_images(doc, elements, img_items, styles, counters)
+
+
+def _page_image_items(
+    page_num: int,
+    page_images: dict[int, list[tuple[bytes, str, int, int, float]]] | None,
+) -> list[tuple[float, tuple[bytes, str, int, int]]]:
+    if not page_images or page_num not in page_images:
+        return []
+    return [
+        (y_top, (img_data, mime, width_px, height_px))
+        for img_data, mime, width_px, height_px, y_top in page_images[page_num]
+    ]
+
+
+def _render_odf_elements_with_images(
+    doc,
+    elements: list[DocElement],
+    img_items: list[tuple[float, tuple[bytes, str, int, int]]],
+    styles: dict,
+    counters: dict[str, list[int]],
+) -> None:
+    img_idx = 0
+    img_items.sort(key=lambda x: x[0])
+    for elem in elements:
+        while img_idx < len(img_items) and img_items[img_idx][0] <= elem.y_top:
+            _render_odf_image(doc, img_items[img_idx][1], styles, counters["image"])
+            img_idx += 1
+        _render_odf_element(doc, elem, styles, counters["table"])
+    while img_idx < len(img_items):
+        _render_odf_image(doc, img_items[img_idx][1], styles, counters["image"])
+        img_idx += 1
+
+
+def _render_odf_image(
+    doc,
+    img_tuple: tuple[bytes, str, int, int],
+    styles: dict,
+    img_counter: list[int],
+) -> None:
+    from odf.draw import Frame
+    from odf.draw import Image as OdfImage
+    from odf.text import P
+
+    img_data, mime, width_px, height_px = img_tuple
+    try:
+        frame_w_cm = min(16.0, width_px * 2.54 / 150)
+        frame_h_cm = frame_w_cm * (height_px / width_px) if width_px > 0 else 8.0
+        img_counter[0] += 1
+        extension = {"image/jpeg": ".jpg", "image/png": ".png"}.get(mime, ".png")
+        img_p = P(stylename=styles["paragraph_center"])
+        frame = Frame(
+            stylename=styles["image_frame"],
+            width=f"{frame_w_cm:.2f}cm",
+            height=f"{frame_h_cm:.2f}cm",
+            anchortype="as-char",
+        )
+        href = doc.addPicture(f"Pictures/img{img_counter[0]}{extension}", mime, img_data)
+        frame.addElement(OdfImage(href=href))
+        img_p.addElement(frame)
+        doc.text.addElement(img_p)
+    except Exception as e:
+        logger.debug("Could not embed image: %s", e)
+
+
+def _column_break_index(elements: list[DocElement]) -> int | None:
+    """Find the reading-order reset produced by the column detector."""
+    for index in range(1, len(elements)):
+        if elements[index - 1].y_top - elements[index].y_top > 100:
+            return index
+    return None
+
+
+def _render_odf_element(
+    doc, elem: DocElement, styles: dict, tbl_counter: list[int], container=None
+) -> None:
+    from odf.text import LineBreak, P
+
+    if elem.kind == "table":
+        _render_table(
+            doc,
+            elem.rows,
+            styles["table"],
+            styles["cell"],
+            styles["header_cell"],
+            styles["cell_text"],
+            styles["cell_text_left"],
+            styles["bold"],
+            styles["table_width_cm"],
+            tbl_counter,
+            container,
+        )
+        return
+
+    style_key = f"{elem.kind}_{elem.text_align}" if elem.text_align else elem.kind
+    paragraph = P(stylename=styles.get(style_key, styles.get(elem.kind, styles["paragraph"])))
+    if elem.kind == "preformatted" and elem.raw_lines and len(elem.raw_lines) > 1:
+        for line_index, line_text in enumerate(elem.raw_lines):
+            if line_index > 0:
+                paragraph.addElement(LineBreak())
+            paragraph.addText(line_text.strip())
+    else:
+        paragraph.addText(elem.text)
+    (container or doc.text).addElement(paragraph)
+
+
+def _render_table(
+    doc,
+    rows,
+    tbl_s,
+    cell_s,
+    hdr_cell_s,
+    cell_txt_s,
+    cell_txt_l,
+    bold_s,
+    table_width_cm,
+    counter,
+    container=None,
+):
     """Render a table into the ODF document."""
     from odf.style import Style, TableColumnProperties
     from odf.table import Table, TableCell, TableColumn, TableRow
@@ -501,7 +576,7 @@ def _render_table(doc, rows, tbl_s, cell_s, hdr_cell_s, cell_txt_s, cell_txt_l, 
     tid = counter[0]
     table = Table(stylename=tbl_s, name=f"Table{tid}")
 
-    col_w = f"{16.5 / max_cols:.2f}cm"
+    col_w = f"{table_width_cm / max_cols:.2f}cm"
     for ci in range(max_cols):
         cs = Style(name=f"T{tid}C{ci}", family="table-column")
         cs.addElement(TableColumnProperties(columnwidth=col_w))
@@ -526,4 +601,4 @@ def _render_table(doc, rows, tbl_s, cell_s, hdr_cell_s, cell_txt_s, cell_txt_l, 
             row.addElement(cell)
         table.addElement(row)
 
-    doc.text.addElement(table)
+    (container or doc.text).addElement(table)

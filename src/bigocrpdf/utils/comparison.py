@@ -144,9 +144,16 @@ def get_batch_statistics(results: list[PDFComparisonResult]) -> dict[str, Any]:
             "total_files": 0,
             "total_input_size_bytes": 0,
             "total_output_size_bytes": 0,
+            "total_input_size_mb": 0.0,
+            "total_output_size_mb": 0.0,
             "total_size_change_bytes": 0,
+            "total_size_change_mb": 0.0,
+            "average_size_change_percent": 0.0,
             "total_pages": 0,
             "total_words": 0,
+            "files_larger": 0,
+            "files_smaller": 0,
+            "files_same_size": 0,
         }
 
     total_input = sum(r.input_size_bytes for r in results)
@@ -165,7 +172,7 @@ def get_batch_statistics(results: list[PDFComparisonResult]) -> dict[str, Any]:
         "total_size_change_bytes": total_output - total_input,
         "total_size_change_mb": round((total_output - total_input) / (1024 * 1024), 2),
         "average_size_change_percent": (
-            round(((total_output - total_input) / total_input) * 100, 1) if total_input > 0 else 0
+            round(((total_output - total_input) / total_input) * 100, 1) if total_input > 0 else 0.0
         ),
         "total_pages": total_pages,
         "total_words": total_words,

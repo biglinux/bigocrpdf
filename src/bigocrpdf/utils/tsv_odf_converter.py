@@ -9,6 +9,8 @@ and plain-text formatting to:
 
 import re
 import threading
+from collections.abc import Callable
+from statistics import median
 
 from bigocrpdf.utils.column_detector import (
     detect_page_columns,
@@ -17,12 +19,13 @@ from bigocrpdf.utils.column_detector import (
     split_words_by_columns,
 )
 from bigocrpdf.utils.logger import logger
-from bigocrpdf.utils.odf_builder import _extract_pdf_images, create_odf
+from bigocrpdf.utils.odf_builder import create_odf, create_positioned_text_odf
 from bigocrpdf.utils.tsv_parser import (
     MIN_TABLE_ROWS,
     PARA_INDENT_MAX,
     PARA_INDENT_THRESHOLD,
     DocElement,
+    TextLine,
     Word,
     filter_words,
     group_into_lines,
@@ -55,8 +58,10 @@ def process_page(words: list[Word], page_num: int) -> list[DocElement]:
 
 def _classify_paragraph_text(text: str, para_is_indented: bool) -> str:
     """Return DocumentElement kind for paragraph text."""
+    if _is_preformatted_text(text):
+        return "preformatted"
     ht = is_heading_text(text)
-    if ht:
+    if ht and _is_plausible_heading_text(text):
         return ht
     if is_kv_line(text) and not re.match(r"^[A-Z]\d*(\.\d+)*\s*[-\u2013\u2014.]", text):
         return "kv"
@@ -108,8 +113,10 @@ def _classify_standalone_line(
     is_section: bool,
 ) -> str | None:
     """Return element kind if line should be emitted as a standalone element."""
+    if _is_preformatted_text(text):
+        return "preformatted"
     ht = is_heading_text(text)
-    if ht:
+    if ht and _is_plausible_heading_text(text):
         return ht
     if not has_para_buf and not is_section and is_kv_line(text):
         return "kv"
@@ -144,6 +151,9 @@ def _build_paragraph_element(
     return DocElement(kind, text, raw_lines=rlines, indent_chars=ind, y_top=y)
 
 
+IndentCalculator = Callable[[float], int]
+
+
 def _process_single_column(words: list[Word]) -> list[DocElement]:
     """Process a single column of words into document elements."""
     lines = group_into_lines(words)
@@ -165,82 +175,178 @@ def _process_single_column(words: list[Word]) -> list[DocElement]:
     para_line_idx: list[int] = []
     para_is_indented = False
 
-    def flush():
-        nonlocal para_is_indented
-        if para_buf:
-            elem = _build_paragraph_element(
-                para_buf, para_line_idx, lines, _indent, para_is_indented
-            )
-            if elem:
-                elements.append(elem)
-            para_buf.clear()
-            para_line_idx.clear()
-        para_is_indented = False
-
     while i < len(lines):
-        line = lines[i]
-        text = line.text.strip()
-        if not text:
-            i += 1
-            continue
-
-        # Table detection (highest priority)
-        table_elem, new_i, was_table = _try_consume_table(lines, i, para_buf, para_line_idx)
-        if table_elem is not None:
-            flush()
-            elements.append(table_elem)
-            i = new_i
-            continue
-        if was_table:
-            flush()
-            para_buf.append(text)
-            para_line_idx.append(i)
-            i += 1
-            continue
-
-        # Section identifier flushes current paragraph
-        is_section = bool(_SECTION_RE.match(text))
-        if para_buf and is_section:
-            flush()
-
-        # Standalone element (heading, KV, centered/right)
-        kind = _classify_standalone_line(
-            text, line, body_margin, page_right, bool(para_buf), is_section
+        i, para_is_indented = _process_column_line(
+            elements,
+            lines,
+            i,
+            para_buf,
+            para_line_idx,
+            _indent,
+            para_is_indented,
+            body_margin,
+            page_right,
         )
-        if kind:
-            flush()
-            ind = _indent(line.min_x)
-            elements.append(
-                DocElement(
-                    kind,
-                    text,
-                    raw_lines=[" " * ind + text],
-                    indent_chars=ind,
-                    y_top=line.y,
-                )
-            )
-            i += 1
-            continue
 
-        # Detect first-line indent as paragraph boundary
-        if (
-            body_margin is not None
-            and body_margin + PARA_INDENT_THRESHOLD < line.min_x < body_margin + PARA_INDENT_MAX
-        ):
-            if para_buf:
-                flush()
-            para_is_indented = True
-
-        para_buf.append(text)
-        para_line_idx.append(i)
-        if i + 1 < len(lines):
-            y_gap = lines[i + 1].y - line.y
-            if y_gap > line.words[0].height * 2.0:
-                flush()
-        i += 1
-
-    flush()
+    _flush_paragraph(elements, para_buf, para_line_idx, lines, _indent, para_is_indented)
     return elements
+
+
+def _process_column_line(
+    elements: list[DocElement],
+    lines: list[TextLine],
+    line_index: int,
+    para_buf: list[str],
+    para_line_idx: list[int],
+    indent_fn: IndentCalculator,
+    para_is_indented: bool,
+    body_margin: float | None,
+    page_right: float,
+) -> tuple[int, bool]:
+    line = lines[line_index]
+    text = line.text.strip()
+    if not text:
+        return line_index + 1, para_is_indented
+
+    table_result = _consume_table_line(
+        elements, lines, line_index, para_buf, para_line_idx, indent_fn, para_is_indented
+    )
+    if table_result is not None:
+        return table_result
+
+    is_section = bool(_SECTION_RE.match(text))
+    if para_buf and is_section:
+        para_is_indented = _flush_paragraph(
+            elements, para_buf, para_line_idx, lines, indent_fn, para_is_indented
+        )
+
+    kind = _classify_standalone_line(
+        text, line, body_margin, page_right, bool(para_buf), is_section
+    )
+    if kind:
+        return line_index + 1, _append_standalone_line(
+            elements, para_buf, para_line_idx, lines, indent_fn, para_is_indented, kind, text, line
+        )
+
+    para_is_indented = _start_indented_paragraph_if_needed(
+        elements,
+        lines,
+        line_index,
+        para_buf,
+        para_line_idx,
+        indent_fn,
+        para_is_indented,
+        body_margin,
+    )
+    para_buf.append(text)
+    para_line_idx.append(line_index)
+    if _has_paragraph_gap_after(lines, line_index):
+        para_is_indented = _flush_paragraph(
+            elements, para_buf, para_line_idx, lines, indent_fn, para_is_indented
+        )
+    return line_index + 1, para_is_indented
+
+
+def _consume_table_line(
+    elements: list[DocElement],
+    lines: list[TextLine],
+    line_index: int,
+    para_buf: list[str],
+    para_line_idx: list[int],
+    indent_fn: IndentCalculator,
+    para_is_indented: bool,
+) -> tuple[int, bool] | None:
+    text = lines[line_index].text.strip()
+    table_elem, new_index, was_table = _try_consume_table(
+        lines, line_index, para_buf, para_line_idx
+    )
+    if table_elem is not None:
+        para_is_indented = _flush_paragraph(
+            elements, para_buf, para_line_idx, lines, indent_fn, para_is_indented
+        )
+        elements.append(table_elem)
+        return new_index, para_is_indented
+    if not was_table:
+        return None
+    para_is_indented = _flush_paragraph(
+        elements, para_buf, para_line_idx, lines, indent_fn, para_is_indented
+    )
+    para_buf.append(text)
+    para_line_idx.append(line_index)
+    return line_index + 1, para_is_indented
+
+
+def _append_standalone_line(
+    elements: list[DocElement],
+    para_buf: list[str],
+    para_line_idx: list[int],
+    lines: list[TextLine],
+    indent_fn: IndentCalculator,
+    para_is_indented: bool,
+    kind: str,
+    text: str,
+    line: TextLine,
+) -> bool:
+    para_is_indented = _flush_paragraph(
+        elements, para_buf, para_line_idx, lines, indent_fn, para_is_indented
+    )
+    indent_chars = indent_fn(line.min_x)
+    elements.append(
+        DocElement(
+            kind,
+            text,
+            raw_lines=[" " * indent_chars + text],
+            indent_chars=indent_chars,
+            y_top=line.y,
+        )
+    )
+    return para_is_indented
+
+
+def _start_indented_paragraph_if_needed(
+    elements: list[DocElement],
+    lines: list[TextLine],
+    line_index: int,
+    para_buf: list[str],
+    para_line_idx: list[int],
+    indent_fn: IndentCalculator,
+    para_is_indented: bool,
+    body_margin: float | None,
+) -> bool:
+    if body_margin is None:
+        return para_is_indented
+
+    min_x = lines[line_index].min_x
+    if not (body_margin + PARA_INDENT_THRESHOLD < min_x < body_margin + PARA_INDENT_MAX):
+        return para_is_indented
+
+    if para_buf:
+        _flush_paragraph(elements, para_buf, para_line_idx, lines, indent_fn, para_is_indented)
+    return True
+
+
+def _has_paragraph_gap_after(lines: list[TextLine], line_index: int) -> bool:
+    if line_index + 1 >= len(lines):
+        return False
+    line = lines[line_index]
+    return lines[line_index + 1].y - line.y > line.words[0].height * 2.0
+
+
+def _flush_paragraph(
+    elements: list[DocElement],
+    para_buf: list[str],
+    para_line_idx: list[int],
+    lines: list[TextLine],
+    indent_fn: IndentCalculator,
+    para_is_indented: bool,
+) -> bool:
+    if para_buf:
+        elem = _build_paragraph_element(para_buf, para_line_idx, lines, indent_fn, para_is_indented)
+        if elem:
+            elements.append(elem)
+        para_buf.clear()
+        para_line_idx.clear()
+    return False
 
 
 def fix_cross_page_breaks(
@@ -261,6 +367,8 @@ def fix_cross_page_breaks(
             and first.text.lstrip()[:1].islower()
         ):
             last.text = last.text.rstrip() + " " + first.text.lstrip()
+            if last.raw_lines:
+                last.raw_lines.extend(first.raw_lines or [first.text.lstrip()])
             all_pages[i + 1].pop(0)
     return all_pages
 
@@ -274,31 +382,61 @@ def convert_pdf_to_odf(
     include_images: bool = False,
     cancel_event: "threading.Event | None" = None,
 ) -> str:
-    """Convert an OCR'd PDF to a structured ODF document."""
+    """Convert a PDF to a fixed-layout or reflowable structured ODF document."""
     pages_words = parse_tsv_pages(pdf_path)
-    if not pages_words:
-        logger.warning("No text found in PDF: %s", pdf_path)
-        from odf.opendocument import OpenDocumentText
+    page_geometries = _pdf_page_geometries(pdf_path)
+    if include_images:
+        if not page_geometries:
+            raise ValueError(f"Could not read PDF page geometry for positioned ODT: {pdf_path}")
+        return create_positioned_text_odf(pages_words, odf_path, page_geometries, cancel_event)
 
-        doc = OpenDocumentText()
-        doc.save(odf_path)
+    if not pages_words and not page_geometries:
+        logger.warning("No text found in PDF: %s", pdf_path)
+        create_odf([], odf_path, cancel_event=cancel_event)
         return odf_path
 
     all_elements: list[list[DocElement]] = []
-    for page_num in sorted(pages_words.keys()):
-        elements = process_page(pages_words[page_num], page_num)
+    page_numbers = range(1, len(page_geometries) + 1) if page_geometries else sorted(pages_words)
+    for page_num in page_numbers:
+        elements = process_page(pages_words.get(page_num, []), page_num)
         all_elements.append(elements)
 
     all_elements = fix_cross_page_breaks(all_elements)
 
-    page_images: dict[int, list[tuple[bytes, str, int, int]]] | None = None
-    if include_images:
-        page_images = _extract_pdf_images(pdf_path, cancel_event=cancel_event)
-        if not page_images:
-            logger.warning("Could not extract images; proceeding without images")
-
-    create_odf(all_elements, odf_path, page_images=page_images, cancel_event=cancel_event)
+    create_odf(
+        all_elements,
+        odf_path,
+        page_size_cm=page_geometries[0][2:] if page_geometries else None,
+        body_font_size_pt=_body_font_size_from_words(pages_words),
+        cancel_event=cancel_event,
+    )
     return odf_path
+
+
+def _body_font_size_from_words(pages_words: dict[int, list[Word]]) -> float:
+    heights = [word.height for words in pages_words.values() for word in words if word.height > 0]
+    return min(max(median(heights), 6.5), 10.5) if heights else 9.0
+
+
+def _pdf_page_geometries(pdf_path: str) -> list[tuple[float, float, float, float]]:
+    """Read every PDF page ratio without invoking an office suite."""
+    import pikepdf
+
+    try:
+        with pikepdf.open(pdf_path) as pdf:
+            sizes = []
+            for page in pdf.pages:
+                media_box = page.mediabox
+                width = abs(float(media_box[2]) - float(media_box[0]))
+                height = abs(float(media_box[3]) - float(media_box[1]))
+                if width <= 0 or height <= 0:
+                    return []
+                ratio = width / height
+                width_cm, height_cm = (29.7 * ratio, 29.7) if ratio <= 1 else (29.7, 29.7 / ratio)
+                sizes.append((width, height, width_cm, height_cm))
+            return sizes
+    except (OSError, ValueError, pikepdf.PdfError):
+        return []
 
 
 # ── Plain-text Generation ──
@@ -338,42 +476,49 @@ def create_text(pages_elements: list[list[DocElement]]) -> str:
         prev_kind = ""
         for elem in elements:
             kind = elem.kind
-
-            if kind in ("heading1", "heading2", "heading3"):
-                if lines and lines[-1] != "":
-                    lines.append("")
-                if elem.raw_lines:
-                    lines.extend(elem.raw_lines)
-                else:
-                    lines.append(elem.text)
-                lines.append("")
-            elif kind == "kv":
-                if prev_kind not in ("kv", ""):
-                    lines.append("")
-                if elem.raw_lines:
-                    lines.extend(elem.raw_lines)
-                else:
-                    lines.append(elem.text)
-            elif kind == "table":
-                if lines and lines[-1] != "":
-                    lines.append("")
-                lines.extend(_format_table_text(elem.rows))
-                lines.append("")
-            else:
-                if lines and lines[-1] != "":
-                    lines.append("")
-                if elem.raw_lines:
-                    lines.extend(elem.raw_lines)
-                else:
-                    prefix = " " * elem.indent_chars if elem.indent_chars else ""
-                    lines.append(prefix + elem.text)
-
+            _append_text_element(lines, elem, prev_kind)
             prev_kind = kind
 
     while lines and lines[-1] == "":
         lines.pop()
 
     return "\n".join(lines) + "\n"
+
+
+def _append_text_element(lines: list[str], elem: DocElement, prev_kind: str) -> None:
+    if elem.kind in ("heading1", "heading2", "heading3"):
+        _append_blank_before(lines)
+        _append_doc_element_lines(lines, elem)
+        lines.append("")
+    elif elem.kind == "kv":
+        if prev_kind not in ("kv", ""):
+            lines.append("")
+        _append_doc_element_lines(lines, elem)
+    elif elem.kind == "table":
+        _append_blank_before(lines)
+        lines.extend(_format_table_text(elem.rows))
+        lines.append("")
+    else:
+        _append_blank_before(lines)
+        _append_doc_element_lines(lines, elem, with_indent=True)
+
+
+def _append_blank_before(lines: list[str]) -> None:
+    if lines and lines[-1] != "":
+        lines.append("")
+
+
+def _append_doc_element_lines(
+    lines: list[str],
+    elem: DocElement,
+    with_indent: bool = False,
+) -> None:
+    if elem.raw_lines:
+        lines.extend(elem.raw_lines)
+        return
+
+    prefix = " " * elem.indent_chars if with_indent and elem.indent_chars else ""
+    lines.append(prefix + elem.text)
 
 
 def convert_pdf_to_text(pdf_path: str) -> str:
@@ -462,7 +607,7 @@ def _build_front_matter(pdf_path: str, page_count: int) -> list[str]:
 
     title = os.path.splitext(os.path.basename(pdf_path))[0]
     # UTC so the date doesn't drift across timezones (and tests stay stable).
-    today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+    today = datetime.datetime.now(datetime.UTC).date().isoformat()
     return [
         "---",
         f'title: "{_yaml_escape(title)}"',
@@ -476,6 +621,28 @@ def _build_front_matter(pdf_path: str, page_count: int) -> list[str]:
 
 
 _MD_HEADING_PREFIX = {"heading1": "# ", "heading2": "## ", "heading3": "### "}
+_BOX_DRAWING_CHARS = frozenset("┌┐└┘├┤┬┴┼│─═╔╗╚╝║")
+_NON_HEADING_LABEL_RE = re.compile(r"^(?:page\s+\d|fax\s+(?:no|number)\b)", re.IGNORECASE)
+
+
+def _is_preformatted_text(text: str) -> bool:
+    box_drawing_count = sum(character in _BOX_DRAWING_CHARS for character in text)
+    return box_drawing_count >= 3 or ("{" in text and ";" in text and "}" in text)
+
+
+def _is_plausible_heading_text(text: str) -> bool:
+    text = text.strip()
+    if not text or _NON_HEADING_LABEL_RE.match(text):
+        return False
+    if ":" in text and not text.endswith(":"):
+        return False
+    letters = [character for character in text if character.isalpha()]
+    digits = sum(character.isdigit() for character in text)
+    if digits and digits / max(len(letters) + digits, 1) >= 0.1:
+        return False
+    if len(text.split()) == 1 and letters and not re.search(r"[AEIOUY]", text, re.IGNORECASE):
+        return False
+    return True
 
 
 def _ensure_blank_line(lines: list[str]) -> None:
@@ -488,6 +655,10 @@ def _emit_heading(lines: list[str], elem: DocElement) -> None:
     _ensure_blank_line(lines)
     lines.append(_MD_HEADING_PREFIX[elem.kind] + _escape_md(elem.text.strip()))
     lines.append("")
+
+
+def _is_plausible_markdown_heading(elem: DocElement) -> bool:
+    return _is_plausible_heading_text(elem.text)
 
 
 def _emit_table(lines: list[str], elem: DocElement) -> None:
@@ -527,9 +698,35 @@ def _emit_paragraph(lines: list[str], elem: DocElement) -> None:
     lines.append("")
 
 
+def _is_preformatted(elem: DocElement) -> bool:
+    text = "\n".join(elem.raw_lines) if elem.raw_lines else elem.text
+    return elem.kind == "preformatted" or _is_preformatted_text(text)
+
+
+def _emit_code_block(lines: list[str], elem: DocElement) -> None:
+    _ensure_blank_line(lines)
+    raw_lines = elem.raw_lines or elem.text.splitlines() or [elem.text]
+    lines.append("```")
+    lines.extend(line.rstrip() for line in raw_lines)
+    lines.append("```")
+    lines.append("")
+
+
+def _emit_code_group(lines: list[str], elements: list[DocElement]) -> None:
+    _ensure_blank_line(lines)
+    lines.append("```")
+    for element in elements:
+        raw_lines = element.raw_lines or element.text.splitlines() or [element.text]
+        lines.extend(line.rstrip() for line in raw_lines)
+    lines.append("```")
+    lines.append("")
+
+
 def _emit_element(lines: list[str], elem: DocElement) -> None:
     """Dispatch a single DocElement to the appropriate Markdown emitter."""
-    if elem.kind in _MD_HEADING_PREFIX:
+    if _is_preformatted(elem):
+        _emit_code_block(lines, elem)
+    elif elem.kind in _MD_HEADING_PREFIX and _is_plausible_markdown_heading(elem):
         _emit_heading(lines, elem)
     elif elem.kind == "table":
         _emit_table(lines, elem)
@@ -548,8 +745,17 @@ def create_markdown(pages_elements: list[list[DocElement]]) -> str:
             _ensure_blank_line(lines)
             lines.append("---")
             lines.append("")
-        for elem in elements:
-            _emit_element(lines, elem)
+        element_index = 0
+        while element_index < len(elements):
+            if not _is_preformatted(elements[element_index]):
+                _emit_element(lines, elements[element_index])
+                element_index += 1
+                continue
+            group_end = element_index + 1
+            while group_end < len(elements) and _is_preformatted(elements[group_end]):
+                group_end += 1
+            _emit_code_group(lines, elements[element_index:group_end])
+            element_index = group_end
 
     while lines and lines[-1] == "":
         lines.pop()
@@ -590,6 +796,9 @@ def convert_pdf_to_markdown(
             raise ExportCancelled
         elements = process_page(pages_words[page_num], page_num)
         all_elements.append(elements)
+
+    if cancel_event is not None and cancel_event.is_set():
+        raise ExportCancelled
 
     all_elements = fix_cross_page_breaks(all_elements)
 

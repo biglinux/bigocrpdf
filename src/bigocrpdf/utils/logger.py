@@ -7,7 +7,7 @@ This module sets up logging for the application.
 import logging
 
 # Default values if config is not available
-DEFAULT_LOG_LEVEL: int = logging.INFO
+DEFAULT_LOG_LEVEL: int = logging.WARNING
 DEFAULT_LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 DEFAULT_LOGGER_NAME: str = "BigOcrPdf"
 
@@ -20,7 +20,7 @@ def setup_logger(
     """Set up and configure the application logger.
 
     Args:
-        log_level: Logging level to use (default: INFO).
+        log_level: Logging level to use (default: WARNING).
         log_format: Logging format string (default: standard format).
         logger_name: Name for the logger (default: BigOcrPdf).
 
@@ -53,12 +53,20 @@ def setup_logger(
         except ImportError:
             logger_name = DEFAULT_LOGGER_NAME
 
-    # Configure basic logging settings
-    logging.basicConfig(level=log_level, format=log_format)
+    root_logger = logging.getLogger()
+    if root_logger.handlers:
+        root_logger.setLevel(log_level)
+        formatter = logging.Formatter(log_format)
+        for handler in root_logger.handlers:
+            handler.setLevel(log_level)
+            handler.setFormatter(formatter)
+    else:
+        logging.basicConfig(level=log_level, format=log_format)
 
-    # Create and return the logger
-    return logging.getLogger(logger_name)
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(log_level)
+    return logger
 
 
-# Create a singleton logger instance
-logger = setup_logger()
+# Importing a module must not configure process-wide logging.
+logger = logging.getLogger(DEFAULT_LOGGER_NAME)

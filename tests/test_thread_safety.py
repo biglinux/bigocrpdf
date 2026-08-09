@@ -9,8 +9,10 @@ class TestProcessorThreadSafety:
 
     def _make_processor(self):
         """Create a processor with mocked settings."""
-        with patch("bigocrpdf.services.processor.get_checkpoint_manager"), \
-             patch("bigocrpdf.services.processor.get_history_manager"):
+        with (
+            patch("bigocrpdf.services.processor.get_checkpoint_manager"),
+            patch("bigocrpdf.services.processor.get_history_manager"),
+        ):
             from bigocrpdf.services.processor import OcrProcessor
 
             settings = MagicMock()
@@ -81,15 +83,99 @@ class TestProcessorThreadSafety:
         proc.settings.selected_files = ["a.pdf", "b.pdf"]
         proc.settings.ocr_language = "latin"
         proc.settings.dpi = 300
-        proc.settings.destination_folder = "/tmp"
+        proc.settings.destination_folder = "/tmp"  # nosec B108
         proc.settings.save_in_same_folder = False
+        proc.settings.file_modifications = {"a.pdf": {"pages": [{"rotation": 90}]}}
+        checkpoint = MagicMock()
+        proc._checkpoint_manager = checkpoint
 
-        with patch("bigocrpdf.services.processor.get_checkpoint_manager"):
-            proc._setup_processing()
+        proc._setup_processing()
 
         assert proc._file_progress == 0.0
         assert proc._current_status == ""
         assert proc._current_filename == ""
+        checkpoint.start_session.assert_called_once_with(
+            ["a.pdf", "b.pdf"],
+            {
+                "ocr_language": "latin",
+                "dpi": 300,
+                "destination_folder": "/tmp",  # nosec B108
+                "save_in_same_folder": False,
+            },
+            {"a.pdf": {"pages": [{"rotation": 90}]}},
+        )
+
+    def test_active_worker_rejects_overlapping_processing_run(self):
+        proc = self._make_processor()
+        active_thread = MagicMock()
+        active_thread.is_alive.return_value = True
+        proc._processing_thread = active_thread
+        proc.settings.selected_files = ["queued.pdf"]
+        proc._setup_processing = MagicMock()
+
+        assert proc.process_with_api() is False
+
+        proc._setup_processing.assert_not_called()
+        assert proc._processing_thread is active_thread
+
+    def test_force_cleanup_retains_worker_ownership_until_thread_exits(self):
+        proc = self._make_processor()
+        active_thread = MagicMock()
+        active_thread.is_alive.return_value = True
+        proc._processing_thread = active_thread
+
+        proc.force_cleanup()
+
+        assert proc._processing_thread is active_thread
+        assert proc.has_active_worker() is True
+
+    def test_idle_callback_waits_for_worker_release(self):
+        proc = self._make_processor()
+        active_thread = MagicMock()
+        active_thread.is_alive.return_value = True
+        proc._processing_thread = active_thread
+        callback = MagicMock()
+
+        proc.run_when_idle(callback)
+
+        callback.assert_not_called()
+        assert proc._idle_callbacks == [callback]
+
+    def test_thread_start_failure_rolls_back_processing_session(self):
+        proc = self._make_processor()
+        proc.settings.selected_files = ["queued.pdf"]
+        proc.settings.ocr_language = "latin"
+        proc.settings.dpi = 300
+        proc.settings.destination_folder = "/tmp"  # nosec B108
+        proc.settings.save_in_same_folder = False
+        proc.settings.file_modifications = {}
+        checkpoint = MagicMock()
+        proc._checkpoint_manager = checkpoint
+
+        with patch("bigocrpdf.services.processor.threading.Thread") as thread_type:
+            thread_type.return_value.start.side_effect = RuntimeError("cannot start")
+            assert proc.process_with_api() is False
+
+        assert proc._is_processing is False
+        assert proc._processing_started is False
+        assert proc._processing_thread is None
+        checkpoint.discard_session.assert_called_once_with()
+
+    def test_resume_restores_only_pending_file_modifications(self):
+        proc = self._make_processor()
+        checkpoint = MagicMock()
+        checkpoint.resume_session.return_value = (["pending.pdf"], {})
+        checkpoint.get_file_modifications.return_value = {
+            "done.pdf": {"pages": [{"rotation": 180}]},
+            "pending.pdf": {"pages": [{"rotation": 90}]},
+        }
+        proc._checkpoint_manager = checkpoint
+        proc.settings.file_modifications = {"stale.pdf": {"pages": []}}
+
+        assert proc.resume_previous_session() is True
+
+        assert proc.settings.selected_files == ["pending.pdf"]
+        assert proc.settings.file_modifications == {"pending.pdf": {"pages": [{"rotation": 90}]}}
 
 
 class TestEngineCacheThreadSafety:
@@ -113,9 +199,7 @@ class TestEngineCacheThreadSafety:
         config = OCRConfig()
         errors = []
 
-        with patch(
-            "bigocrpdf.services.rapidocr_service.engine.ProfessionalPDFOCR"
-        ) as mock_cls:
+        with patch("bigocrpdf.services.rapidocr_service.engine.ProfessionalPDFOCR") as mock_cls:
             mock_engine = MagicMock()
             mock_engine.config = config
             mock_cls.return_value = mock_engine

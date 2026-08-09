@@ -1,6 +1,7 @@
 """Mixed Content PDF Processing Mixin — PDFs with both text and images."""
+# Host attributes are supplied by ProfessionalPDFOCR's explicit mixin composition.
+# pyright: reportAttributeAccessIssue=false
 
-import re
 import subprocess
 import tempfile
 import time
@@ -9,98 +10,102 @@ from pathlib import Path
 
 import pikepdf
 
+from bigocrpdf.constants import PDF_TOOL_TIMEOUT_SECS
 from bigocrpdf.services.rapidocr_service.config import ProcessingStats
+from bigocrpdf.services.rapidocr_service.ocr_runtime_diagnostics import (
+    record_ocr_runtime_diagnostics,
+)
 from bigocrpdf.services.rapidocr_service.pdf_assembly import strip_invisible_text
 from bigocrpdf.services.rapidocr_service.pdf_extractor import (
+    ImagePosition,
     PdfImageInfo,
-    _get_page_xobjects,
     extract_image_positions,
-    match_positions_to_images,
     page_has_ocr_text,
     parse_pdfimages_list,
+)
+from bigocrpdf.services.rapidocr_service.pipeline_mixed_content_pages import (
+    _index_extracted_images,
+    _mixed_excluded_pages,
+    _mixed_progress_bands,
+    _mixed_render_candidates,
+    _pdf_page_size,
+    _position_image_pairs,
+    _reflow_text,
+    _render_mixed_page_image,
+)
+from bigocrpdf.services.rapidocr_service.resource_manager import (
+    enforce_image_resource_limits,
+    select_pdf_page_render_dpi,
 )
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
-_MULTI_BLANK_RE = re.compile(r"\n{4,}")
-
-
-def _index_extracted_images(paths: list[Path]) -> dict[int, Path]:
-    """Map each pdfimages *global* image index to its extracted file path.
-
-    ``pdfimages`` names files ``<prefix>-NNN.<ext>`` where ``NNN`` is the same
-    global counter reported in the ``pdfimages -list`` "num" column.  Indexing
-    by that number — instead of by position in the (filtered) file list — stays
-    correct even when ``_extract_and_filter_images`` drops small-PNG masks and
-    shifts later entries.
-    """
-    out: dict[int, Path] = {}
-    for raw in paths:
-        p = Path(raw)
-        _, _, num = p.stem.rpartition("-")
-        try:
-            out[int(num)] = p
-        except ValueError:
-            continue
-    return out
-
-
-def _try_join_line(para: str, stripped_next: str) -> str | None:
-    """Try joining next line to current paragraph via hyphen or mid-sentence.
-
-    Returns the joined string, or None if lines should not be joined.
-    """
-    para_end = para.rstrip()
-    if not para_end or not stripped_next:
-        return None
-
-    # Hyphenated word break
-    if (
-        para_end.endswith("-")
-        and len(para_end) > 1
-        and para_end[-2].isalpha()
-        and stripped_next[0].islower()
-    ):
-        return para_end[:-1] + stripped_next
-
-    # Mid-sentence continuation
-    last_ch = para_end[-1]
-    if (last_ch.isalpha() or last_ch == ",") and stripped_next[0].islower():
-        return para_end + " " + stripped_next
-
-    return None
-
-
-def _reflow_text(text: str) -> str:
-    """Conservative reflow: join only mid-sentence continuations."""
-    lines = text.split("\n")
-    reflowed: list[str] = []
-    i = 0
-    while i < len(lines):
-        line = lines[i]
-        if not line.strip():
-            reflowed.append("")
-            i += 1
-            continue
-
-        para = line.rstrip()
-        i += 1
-        while i < len(lines):
-            if not lines[i].strip():
-                break
-            joined = _try_join_line(para, lines[i].strip())
-            if joined is None:
-                break
-            para = joined
-            i += 1
-
-        reflowed.append(para)
-
-    return _MULTI_BLANK_RE.sub("\n\n\n", "\n".join(reflowed))
-
 
 class MixedContentMixin:
     """Mixin providing mixed-content PDF processing (text + image pages)."""
+
+    def _run_mixed_ocr_pass(
+        self,
+        input_pdf: Path,
+        pdf,
+        images_dir: Path,
+        temp_dir: str,
+        image_positions: dict,
+        pdfimages_map: dict[int, list[PdfImageInfo]],
+        render_candidates: set[int],
+        excluded_pages: set[int],
+        stats: ProcessingStats,
+        ocr_texts: list[str],
+        ocr_proc: subprocess.Popen,
+        progress_callback: Callable[[int, int, str], None] | None,
+    ) -> None:
+        positioned_image_positions = {
+            page_num: imgs
+            for page_num, imgs in image_positions.items()
+            if page_num not in render_candidates
+        }
+        render_pages = render_candidates - excluded_pages
+        render_band, pos_band = _mixed_progress_bands(render_pages, positioned_image_positions)
+
+        if render_pages:
+            self._ocr_rendered_pages(
+                input_pdf,
+                pdf,
+                sorted(render_pages),
+                stats,
+                ocr_texts,
+                ocr_proc,
+                progress_callback,
+                temp_dir=temp_dir,
+                progress_start=5,
+                progress_band=render_band,
+            )
+
+        extracted_images = []
+        if positioned_image_positions:
+            if progress_callback:
+                progress_callback(5 + render_band, 100, _("Extracting images..."))
+            extracted_images = self._extract_and_filter_images(input_pdf, images_dir)
+
+        self._ocr_image_pages(
+            pdf,
+            positioned_image_positions,
+            extracted_images,
+            sum(len(imgs) for imgs in positioned_image_positions.values()),
+            stats,
+            ocr_texts,
+            ocr_proc,
+            progress_callback,
+            excluded_pages=excluded_pages,
+            pdfimages_map=pdfimages_map,
+            progress_start=5 + render_band,
+            progress_band=pos_band,
+        )
+
+    def _raise_if_mixed_cancelled(self) -> None:
+        if hasattr(self, "cancel_event") and self.cancel_event.is_set():
+            logger.info("Processing cancelled by user in mixed content mode")
+            raise InterruptedError("Processing cancelled by user")
 
     def _process_mixed_content_pdf(
         self,
@@ -119,40 +124,31 @@ class MixedContentMixin:
 
         image_positions = extract_image_positions(input_pdf)
         pdfimages_map, masked_pages = parse_pdfimages_list(input_pdf)
+        enforce_image_resource_limits(
+            (
+                (page_num, image.width, image.height)
+                for page_num, images in pdfimages_map.items()
+                for image in images
+            ),
+            self.config,
+        )
 
         if not image_positions and not pdfimages_map:
             logger.info("No images found in PDF. Copying original.")
+            with pikepdf.open(input_pdf) as source_pdf:
+                stats.pages_total = len(source_pdf.pages)
+            stats.pages_processed = stats.pages_total
             shutil.copy2(input_pdf, output_pdf)
             stats.warnings.append("No images found to OCR in mixed content PDF")
             self._calculate_final_stats(stats, start_time)
             return stats
 
-        # Pages that pdfimages finds but extract_image_positions misses
-        # (e.g. images inside nested Form XObjects).
         missed_pages = set(pdfimages_map.keys()) - set(image_positions.keys())
-
-        # Pages with JBIG2 masks (DjVu-like) are better handled via
-        # pdftoppm rendering (composites BG+FG+mask into readable image)
-        # than by OCR'ing the degraded BG component separately.
-        render_candidates = missed_pages | (masked_pages & set(image_positions.keys()))
-
-        # Detect pages with multiple overlapping full-page images
-        # (e.g. DjVu-like BG+FG layers without masks).  Rendering via
-        # pdftoppm composites them correctly, whereas trying to OCR each
-        # layer separately produces duplicate / misaligned text.
         with pikepdf.open(input_pdf) as pdf_scan:
             total_pages = len(pdf_scan.pages)
-            for pg_num, imgs in image_positions.items():
-                if len(imgs) < 2 or pg_num in render_candidates:
-                    continue
-                page_obj = pdf_scan.pages[pg_num - 1]
-                mb = page_obj.mediabox
-                page_area = (float(mb[2]) - float(mb[0])) * (float(mb[3]) - float(mb[1]))
-                if page_area <= 0:
-                    continue
-                full_count = sum(1 for p in imgs if (p.width * p.height) / page_area > 0.5)
-                if full_count >= 2:
-                    render_candidates.add(pg_num)
+            render_candidates = _mixed_render_candidates(
+                pdf_scan, image_positions, pdfimages_map, masked_pages
+            )
         stats.pages_total = total_pages
 
         total_images = sum(len(imgs) for imgs in image_positions.values())
@@ -178,73 +174,32 @@ class MixedContentMixin:
             images_dir = Path(temp_dir) / "images"
             images_dir.mkdir()
 
-            ocr_proc = self._launch_ocr_subprocess()
+            ocr_proc = self._ocr_subprocess.launch()
             try:
-                self._wait_for_ocr_ready(ocr_proc)
+                worker_runtime = self._ocr_subprocess.wait_until_ready(ocr_proc)
+                record_ocr_runtime_diagnostics(
+                    stats,
+                    self.config,
+                    self._check_openvino_available,
+                    int(ocr_proc._bigocr_threads),
+                    1,
+                    worker_runtime,
+                )
                 with pikepdf.open(input_pdf, allow_overwriting_input=True) as pdf:
-                    # Build set of excluded pages from editor modifications
-                    excluded_pages: set[int] = set()
-                    if self.config.page_modifications:
-                        for mod in self.config.page_modifications:
-                            pn = mod.get("page_number")
-                            if pn and (mod.get("deleted") or not mod.get("included_for_ocr", True)):
-                                excluded_pages.add(pn)
-
-                    # Only send non-masked positioned pages to _ocr_image_pages.
-                    # Masked pages go to _ocr_rendered_pages instead.
-                    positioned_image_positions = {
-                        p: imgs for p, imgs in image_positions.items() if p not in render_candidates
-                    }
-                    positioned_total = sum(
-                        len(imgs) for imgs in positioned_image_positions.values()
-                    )
-
-                    # Compute progress proportions.  Both render and
-                    # positioned paths share a 5–85 % progress band.
-                    render_pages = render_candidates - excluded_pages
-                    n_render = len(render_pages) if render_pages else 0
-                    n_positioned = len(positioned_image_positions)
-                    n_total_ocr = n_render + n_positioned or 1
-                    render_band = int(80 * n_render / n_total_ocr)  # share of 80 pp
-                    pos_band = 80 - render_band
-
-                    # OCR render_candidates via pdftoppm rendering (page-by-page,
-                    # no bulk image extraction needed).
-                    if render_pages:
-                        self._ocr_rendered_pages(
-                            input_pdf,
-                            pdf,
-                            sorted(render_pages),
-                            stats,
-                            ocr_texts,
-                            ocr_proc,
-                            progress_callback,
-                            temp_dir=temp_dir,
-                            progress_start=5,
-                            progress_band=render_band,
-                        )
-
-                    # Extract images only for pages that need position-based OCR.
-                    extracted_images: list[Path] = []
-                    if positioned_image_positions:
-                        ext_pct = 5 + render_band
-                        if progress_callback:
-                            progress_callback(ext_pct, 100, _("Extracting images..."))
-                        extracted_images = self._extract_and_filter_images(input_pdf, images_dir)
-
-                    self._ocr_image_pages(
+                    excluded_pages = _mixed_excluded_pages(self.config.page_modifications)
+                    self._run_mixed_ocr_pass(
+                        input_pdf,
                         pdf,
-                        positioned_image_positions,
-                        extracted_images,
-                        positioned_total,
+                        images_dir,
+                        temp_dir,
+                        image_positions,
+                        pdfimages_map,
+                        render_candidates,
+                        excluded_pages,
                         stats,
                         ocr_texts,
                         ocr_proc,
                         progress_callback,
-                        excluded_pages=excluded_pages,
-                        pdfimages_map=pdfimages_map,
-                        progress_start=5 + render_band,
-                        progress_band=pos_band,
                     )
 
                     # Remove excluded pages before saving
@@ -256,14 +211,20 @@ class MixedContentMixin:
 
                     if progress_callback:
                         progress_callback(90, 100, _("Saving PDF..."))
+                    positioned_pages = {
+                        page_num
+                        for page_num in image_positions
+                        if page_num not in render_candidates
+                    }
+                    render_pages = render_candidates - excluded_pages
                     stats.pages_processed = (
-                        len(positioned_image_positions)
+                        len(positioned_pages)
                         + len(render_pages)
                         - len(excluded_pages & all_image_pages)
                     )
                     pdf.save(output_pdf)
             finally:
-                self._stop_ocr_subprocess(ocr_proc)
+                self._ocr_subprocess.stop(ocr_proc)
 
         self._post_process_mixed(output_pdf, stats, native_text, ocr_texts, progress_callback)
         self._calculate_final_stats(stats, start_time)
@@ -302,101 +263,122 @@ class MixedContentMixin:
         _pdfmap = pdfimages_map or {}
 
         for page_num in sorted(image_positions.keys()):
-            if hasattr(self, "cancel_event") and self.cancel_event.is_set():
-                logger.info("Processing cancelled by user in mixed content mode")
-                raise InterruptedError("Processing cancelled by user")
+            processed_images += MixedContentMixin._ocr_positioned_image_page(
+                self,
+                pdf,
+                page_num,
+                image_positions[page_num],
+                _pdfmap.get(page_num, []),
+                extracted_images,
+                processed_images,
+                total_images,
+                stats,
+                ocr_texts,
+                ocr_proc,
+                progress_callback,
+                _excluded,
+                progress_start,
+                progress_band,
+            )
 
-            page_imgs = image_positions[page_num]
-            page_img_infos: list[PdfImageInfo] = _pdfmap.get(page_num, [])
+    def _ocr_positioned_image_page(
+        self,
+        pdf,
+        page_num: int,
+        page_imgs: list[ImagePosition],
+        page_img_infos: list[PdfImageInfo],
+        extracted_images: list[Path],
+        processed_images: int,
+        total_images: int,
+        stats: ProcessingStats,
+        ocr_texts: list[str],
+        ocr_proc: subprocess.Popen,
+        progress_callback: Callable[[int, int, str], None] | None,
+        excluded_pages: set[int],
+        progress_start: int,
+        progress_band: int,
+    ) -> int:
+        MixedContentMixin._raise_if_mixed_cancelled(self)
+        if page_num in excluded_pages:
+            logger.info(f"Page {page_num}: excluded from OCR, skipping ({len(page_imgs)} image(s))")
+            return 0
 
-            # Skip excluded pages entirely (no preprocessing, no OCR)
-            if page_num in _excluded:
-                logger.info(
-                    f"Page {page_num}: excluded from OCR, skipping ({len(page_imgs)} image(s))"
-                )
+        page = pdf.pages[page_num - 1]
+        if not MixedContentMixin._prepare_page_for_reocr(self, pdf, page, page_num, len(page_imgs)):
+            return 0
+        if progress_callback:
+            progress_callback(
+                progress_start + int(progress_band * processed_images / max(total_images, 1)),
+                100,
+                _("OCR page {0}...").format(page_num),
+            )
+
+        page_width, page_height = _pdf_page_size(page)
+        return MixedContentMixin._ocr_positioned_image_pairs(
+            self,
+            pdf,
+            page,
+            page_num,
+            page_width,
+            page_height,
+            _position_image_pairs(page, page_imgs, page_img_infos),
+            _index_extracted_images(extracted_images),
+            stats,
+            ocr_texts,
+            ocr_proc,
+        )
+
+    def _prepare_page_for_reocr(self, pdf, page, page_num: int, image_count: int) -> bool:
+        if not page_has_ocr_text(page):
+            return True
+        if not self.config.replace_existing_ocr:
+            logger.info(
+                f"Page {page_num}: already has OCR text layer, skipping ({image_count} image(s))"
+            )
+            return False
+        stripped = strip_invisible_text(page, pdf)
+        if stripped:
+            logger.info(f"Page {page_num}: stripped {stripped} old OCR text block(s) before re-OCR")
+        return True
+
+    def _ocr_positioned_image_pairs(
+        self,
+        pdf,
+        page,
+        page_num: int,
+        page_width: float,
+        page_height: float,
+        pairs: list[tuple[ImagePosition, PdfImageInfo | None]],
+        idx_to_path: dict[int, Path],
+        stats: ProcessingStats,
+        ocr_texts: list[str],
+        ocr_proc: subprocess.Popen,
+    ) -> int:
+        processed = 0
+        for img_pos, info in pairs:
+            img_path = idx_to_path.get(info.idx) if info is not None else None
+            if img_path is None:
+                logger.warning(f"Page {page_num}: no extracted image for position {img_pos.name}")
                 continue
-
-            page = pdf.pages[page_num - 1]
-            mediabox = page.mediabox
-            page_height = float(mediabox[3]) - float(mediabox[1])
-            page_width = float(mediabox[2]) - float(mediabox[0])
-
-            if page_has_ocr_text(page):
-                if not self.config.replace_existing_ocr:
-                    logger.info(
-                        f"Page {page_num}: already has OCR text layer, skipping "
-                        f"({len(page_imgs)} image(s))"
-                    )
-                    continue
-                stripped = strip_invisible_text(page, pdf)
-                if stripped:
-                    logger.info(
-                        f"Page {page_num}: stripped {stripped} old OCR text block(s) before re-OCR"
-                    )
-
-            if progress_callback:
-                pct = progress_start + int(progress_band * processed_images / max(total_images, 1))
-                progress_callback(pct, 100, _("OCR page {0}...").format(page_num))
-
-            # Correlate each image position with the extracted file it actually
-            # belongs to — by PDF object number (exact), else pixel dimensions.
-            # Pairing by sort order (largest comp_size first, zipped by index)
-            # cross-pairs images: on a page carrying both a full-page scan and a
-            # small logo/stamp, the scan's OCR text lands in the logo's tiny box
-            # and gets crammed into a thin strip, scrambling the text layer.
-            xobjs = _get_page_xobjects(page)
-            obj_by_name = {n: d["obj"] for n, d in xobjs.items()}
-            dims_by_name = {n: (d["width"], d["height"]) for n, d in xobjs.items()}
-            pairs = match_positions_to_images(
-                page_imgs, page_img_infos, obj_by_name, dims_by_name
-            )
-
-            idx_to_path = _index_extracted_images(extracted_images)
-
-            # Last-resort pool for positions the matcher could not pair
-            # (no object id and ambiguous/colliding dimensions): largest first.
-            used = {id(info) for _, info in pairs if info is not None}
-            leftover = sorted(
-                (i for i in page_img_infos if id(i) not in used),
-                key=lambda i: i.comp_size,
-                reverse=True,
-            )
-
-            for img_pos, info in pairs:
-                if info is None and leftover:
-                    info = leftover.pop(0)
-                img_path = idx_to_path.get(info.idx) if info is not None else None
-                if img_path is None:
-                    logger.warning(
-                        f"Page {page_num}: no extracted image for position {img_pos.name}"
-                    )
-                    continue
-                logger.debug(
-                    f"Page {page_num}: {img_pos.name} "
-                    f"({img_pos.width:.0f}x{img_pos.height:.0f}pt) <- "
-                    f"image idx{info.idx} ({info.width}x{info.height}px, obj {info.object_id})"
+            try:
+                texts = self._ocr_image_in_page(
+                    img_path,
+                    img_pos,
+                    pdf,
+                    page,
+                    page_num,
+                    page_width,
+                    page_height,
+                    stats,
+                    ocr_proc=ocr_proc,
+                    skip_preprocessing=not getattr(self.config, "enhance_embedded_images", False),
                 )
-                try:
-                    texts = self._ocr_image_in_page(
-                        img_path,
-                        img_pos,
-                        pdf,
-                        page,
-                        page_num,
-                        page_width,
-                        page_height,
-                        stats,
-                        ocr_proc=ocr_proc,
-                        skip_preprocessing=not getattr(
-                            self.config, "enhance_embedded_images", False
-                        ),
-                    )
-                    ocr_texts.extend(texts)
-                    if texts:
-                        processed_images += 1
-                except Exception as e:
-                    logger.error(f"Error processing image {img_path}: {e}")
-                    stats.warnings.append(f"Failed to OCR image: {e}")
+                ocr_texts.extend(texts)
+                processed += 1 if texts else 0
+            except Exception as e:
+                logger.error(f"Error processing image {img_path}: {e}")
+                stats.warnings.append(f"Failed to OCR image: {e}")
+        return processed
 
     def _ocr_rendered_pages(
         self,
@@ -415,107 +397,126 @@ class MixedContentMixin:
 
         For pages whose images are inside nested Form XObjects (invisible
         to ``extract_image_positions``), we render the composited page at
-        150 DPI and add OCR text as an overlay.
+        configured fallback DPI and add OCR text as an overlay.
         """
-        import cv2
 
         render_dir = Path(temp_dir) / "rendered"
         render_dir.mkdir(exist_ok=True)
 
         for render_idx, page_num in enumerate(page_nums):
-            if hasattr(self, "cancel_event") and self.cancel_event.is_set():
-                raise InterruptedError("Processing cancelled by user")
-
-            if page_num < 1 or page_num > len(pdf.pages):
-                continue
-
-            page = pdf.pages[page_num - 1]
-
-            if page_has_ocr_text(page):
-                if not self.config.replace_existing_ocr:
-                    logger.info(f"Page {page_num}: rendered — already has OCR, skipping")
-                    continue
-                stripped = strip_invisible_text(page, pdf)
-                if stripped:
-                    logger.info(
-                        f"Page {page_num}: stripped {stripped} old OCR block(s) before re-OCR"
-                    )
-
-            if progress_callback:
-                pct = progress_start + int(progress_band * render_idx / max(len(page_nums), 1))
-                progress_callback(pct, 100, _("OCR page {0} (rendered)...").format(page_num))
-
-            # Render single page via pdftoppm (PPM, 150 DPI)
-            out_prefix = str(render_dir / f"p{page_num}")
-            try:
-                subprocess.run(
-                    [
-                        "pdftoppm",
-                        "-r",
-                        "150",
-                        "-f",
-                        str(page_num),
-                        "-l",
-                        str(page_num),
-                        str(input_pdf),
-                        out_prefix,
-                    ],
-                    check=True,
-                    capture_output=True,
-                    timeout=30,
-                )
-            except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
-                logger.warning(f"pdftoppm failed for page {page_num}: {exc}")
-                continue
-
-            # Find the rendered file (pdftoppm names: prefix-NNNNNN.ppm)
-            rendered_files = sorted(render_dir.glob(f"p{page_num}-*.ppm"))
-            if not rendered_files:
-                logger.warning(f"No rendered image for page {page_num}")
-                continue
-
-            rendered_path = rendered_files[0]
-            img = cv2.imread(str(rendered_path))
-            if img is None:
-                logger.warning(f"Could not read rendered image: {rendered_path}")
-                rendered_path.unlink(missing_ok=True)
-                continue
-
-            # OCR the rendered image
-            ocr_results = self._ocr_via_persistent(img, ocr_proc)
-
-            # Clean up rendered file
-            rendered_path.unlink(missing_ok=True)
-
-            if not ocr_results:
-                logger.debug(f"Page {page_num}: rendered — no OCR text found")
-                continue
-
-            # Position text over the entire page
-            mediabox = page.mediabox
-            page_width = float(mediabox[2]) - float(mediabox[0])
-            page_height = float(mediabox[3]) - float(mediabox[1])
-            img_h, img_w = img.shape[:2]
-            scale_x = page_width / img_w
-            scale_y = page_height / img_h
-
-            text_commands = self._create_text_layer_commands(
-                ocr_results,
-                0.0,  # x offset (full page)
-                0.0,  # y offset (full page)
-                page_width,
-                page_height,
-                scale_x,
-                scale_y,
+            MixedContentMixin._ocr_rendered_page(
+                self,
+                input_pdf,
+                pdf,
+                page_num,
+                render_idx,
+                len(page_nums),
+                render_dir,
+                stats,
+                ocr_texts,
+                ocr_proc,
+                progress_callback,
+                progress_start,
+                progress_band,
             )
-            self._append_text_to_page(pdf, page, text_commands)
 
-            stats.total_text_regions += len(ocr_results)
-            formatted = self._format_ocr_text(ocr_results, float(img_w))
-            if formatted:
-                ocr_texts.append(formatted)
+    def _ocr_rendered_page(
+        self,
+        input_pdf: Path,
+        pdf,
+        page_num: int,
+        render_idx: int,
+        total_render_pages: int,
+        render_dir: Path,
+        stats: ProcessingStats,
+        ocr_texts: list[str],
+        ocr_proc: subprocess.Popen,
+        progress_callback: Callable[[int, int, str], None] | None,
+        progress_start: int,
+        progress_band: int,
+    ) -> None:
+        import cv2
 
-            logger.info(f"Page {page_num}: rendered OCR — {len(ocr_results)} text regions")
+        MixedContentMixin._raise_if_mixed_cancelled(self)
+        if page_num < 1 or page_num > len(pdf.pages):
+            return
+        page = pdf.pages[page_num - 1]
+        if not MixedContentMixin._prepare_rendered_page_for_reocr(self, pdf, page, page_num):
+            return
+        if progress_callback:
+            progress_callback(
+                progress_start + int(progress_band * render_idx / max(total_render_pages, 1)),
+                100,
+                _("OCR page {0} (rendered)...").format(page_num),
+            )
+
+        preferred_dpi = int(getattr(self.config, "fallback_render_dpi", 300))
+        render_dpi = select_pdf_page_render_dpi(
+            input_pdf,
+            page_num,
+            preferred_dpi,
+            float(getattr(self.config, "max_render_megapixels", 45)),
+        )
+        if render_dpi != preferred_dpi:
+            logger.info(
+                f"Page {page_num}: reducing mixed-page render DPI {preferred_dpi} -> {render_dpi}"
+            )
+        rendered_path = _render_mixed_page_image(input_pdf, render_dir, page_num, render_dpi)
+        if rendered_path is None:
+            return
+        img = cv2.imread(str(rendered_path))
+        rendered_path.unlink(missing_ok=True)
+        if img is None:
+            logger.warning(f"Could not read rendered image: {rendered_path}")
+            return
+
+        ocr_results = self._ocr_via_persistent(img, ocr_proc)
+        if not ocr_results:
+            logger.debug(f"Page {page_num}: rendered — no OCR text found")
+            return
+
+        MixedContentMixin._append_rendered_page_ocr(
+            self, pdf, page, page_num, img, ocr_results, stats, ocr_texts
+        )
+
+    def _prepare_rendered_page_for_reocr(self, pdf, page, page_num: int) -> bool:
+        if not page_has_ocr_text(page):
+            return True
+        if not self.config.replace_existing_ocr:
+            logger.info(f"Page {page_num}: rendered — already has OCR, skipping")
+            return False
+        stripped = strip_invisible_text(page, pdf)
+        if stripped:
+            logger.info(f"Page {page_num}: stripped {stripped} old OCR block(s) before re-OCR")
+        return True
+
+    def _append_rendered_page_ocr(
+        self,
+        pdf,
+        page,
+        page_num: int,
+        img,
+        ocr_results,
+        stats: ProcessingStats,
+        ocr_texts: list[str],
+    ) -> None:
+        page_width, page_height = _pdf_page_size(page)
+        img_h, img_w = img.shape[:2]
+        text_commands = self._create_text_layer_commands(
+            ocr_results,
+            0.0,
+            0.0,
+            page_width,
+            page_height,
+            page_width / img_w,
+            page_height / img_h,
+        )
+        self._append_text_to_page(pdf, page, text_commands)
+        stats.total_text_regions += len(ocr_results)
+        formatted = self._text_formatting.format(ocr_results, float(img_w))
+        if formatted:
+            ocr_texts.append(formatted)
+        logger.info(f"Page {page_num}: rendered OCR — {len(ocr_results)} text regions")
 
     def _post_process_mixed(
         self,
@@ -589,8 +590,14 @@ class MixedContentMixin:
 
         cmd = ["pdfimages", "-all", str(input_pdf), str(images_dir / "img")]
         try:
-            subprocess.run(cmd, check=True, capture_output=True, text=True)
-        except subprocess.CalledProcessError as e:
+            subprocess.run(
+                cmd,
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=PDF_TOOL_TIMEOUT_SECS,
+            )
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
             logger.error(f"pdfimages failed: {e.stderr}")
             raise RuntimeError(f"Failed to extract images: {e}") from e
 
@@ -613,8 +620,14 @@ class MixedContentMixin:
             # Re-extract without -all: produces PBM/PPM/PGM (universally readable)
             cmd_pbm = ["pdfimages", str(input_pdf), str(images_dir / "img")]
             try:
-                subprocess.run(cmd_pbm, check=True, capture_output=True, text=True)
-            except subprocess.CalledProcessError as e:
+                subprocess.run(
+                    cmd_pbm,
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=PDF_TOOL_TIMEOUT_SECS,
+                )
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
                 logger.error(f"pdfimages fallback failed: {e.stderr}")
                 raise RuntimeError(f"Failed to extract images: {e}") from e
 

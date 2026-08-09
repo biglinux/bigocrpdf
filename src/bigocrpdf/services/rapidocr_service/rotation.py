@@ -10,6 +10,7 @@ This module provides a single source of truth for:
 """
 
 import logging
+import math
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -28,6 +29,7 @@ class PageRotation:
         editor_rotation: Rotation applied in editor (0, 90, 180, 270)
         deleted: Whether page is marked for deletion
         mediabox: PDF MediaBox as [x0, y0, x1, y1] or None
+        user_unit: PDF /UserUnit scale applied to MediaBox coordinates
     """
 
     page_number: int
@@ -36,6 +38,7 @@ class PageRotation:
     deleted: bool = False
     included_for_ocr: bool = True
     mediabox: list[float] | None = None
+    user_unit: float = 1.0
 
     @property
     def effective_rotation(self) -> int:
@@ -63,10 +66,13 @@ class PageRotation:
     def pdf_dimensions(self) -> tuple[float, float]:
         """Get PDF page dimensions from mediabox.
 
-        Returns (width, height) in PDF points.
+        Returns the physical (width, height) in effective PDF points.
         """
         if self.mediabox:
-            return (self.mediabox[2] - self.mediabox[0], self.mediabox[3] - self.mediabox[1])
+            return (
+                abs(self.mediabox[2] - self.mediabox[0]) * self.user_unit,
+                abs(self.mediabox[3] - self.mediabox[1]) * self.user_unit,
+            )
         return (595.0, 842.0)  # Default A4
 
 
@@ -108,12 +114,16 @@ def extract_page_rotations(pdf_path: Path) -> list[PageRotation]:
             mediabox = None
             if hasattr(page, "mediabox") and page.mediabox:
                 mediabox = [float(x) for x in page.mediabox]
+            user_unit = float(page.get("/UserUnit", 1))
+            if not math.isfinite(user_unit) or user_unit <= 0:
+                raise ValueError(f"Page {page_num} has an invalid PDF UserUnit")
 
             rotations.append(
                 PageRotation(
                     page_number=page_num,
                     original_pdf_rotation=rotation,
                     mediabox=mediabox,
+                    user_unit=user_unit,
                 )
             )
 

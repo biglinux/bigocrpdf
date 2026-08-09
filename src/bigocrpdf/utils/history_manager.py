@@ -6,12 +6,15 @@ It stores metadata like file path, processing time, size before/after, etc.
 """
 
 import json
+import math
 import os
+import stat
 import time
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
 from bigocrpdf.config import CONFIG_DIR
+from bigocrpdf.utils.durable_writes import write_text_file_atomically
 from bigocrpdf.utils.logger import logger
 
 # History configuration
@@ -54,9 +57,43 @@ class HistoryEntry:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "HistoryEntry":
-        """Create an entry from a dictionary."""
-        return cls(**data)
+    def from_dict(cls, data: object) -> "HistoryEntry":
+        """Create an entry from a validated legacy or current dictionary."""
+        if not isinstance(data, dict):
+            raise TypeError("history entry must be an object")
+
+        input_path = data.get("input_path")
+        output_path = data.get("output_path")
+        if not isinstance(input_path, str) or not isinstance(output_path, str):
+            raise ValueError("history paths must be strings")
+
+        timestamp = _history_number(data.get("timestamp", time.time()), "timestamp")
+        input_size = _history_integer(data.get("input_size_bytes", 0), "input_size_bytes")
+        output_size = _history_integer(data.get("output_size_bytes", 0), "output_size_bytes")
+        pages = _history_integer(data.get("pages_processed", 0), "pages_processed")
+        processing_time = _history_number(
+            data.get("processing_time_seconds", 0.0), "processing_time_seconds"
+        )
+        language = data.get("language", "latin")
+        success = data.get("success", True)
+        error_message = data.get("error_message", "")
+        if not isinstance(language, str) or not isinstance(error_message, str):
+            raise ValueError("history language and error_message must be strings")
+        if type(success) is not bool:
+            raise ValueError("history success must be a boolean")
+
+        return cls(
+            input_path=input_path,
+            output_path=output_path,
+            timestamp=timestamp,
+            input_size_bytes=input_size,
+            output_size_bytes=output_size,
+            pages_processed=pages,
+            processing_time_seconds=processing_time,
+            language=language,
+            success=success,
+            error_message=error_message,
+        )
 
 
 class HistoryManager:
@@ -69,16 +106,38 @@ class HistoryManager:
 
     def _load_history(self) -> None:
         """Load history from disk."""
-        if not os.path.exists(HISTORY_FILE):
-            self._entries = []
-            return
-
         try:
-            with open(HISTORY_FILE, encoding="utf-8") as f:
+            with open(
+                HISTORY_FILE,
+                encoding="utf-8",
+                opener=lambda path, flags: os.open(
+                    path,
+                    flags
+                    | getattr(os, "O_CLOEXEC", 0)
+                    | getattr(os, "O_NOFOLLOW", 0)
+                    | getattr(os, "O_NONBLOCK", 0),
+                ),
+            ) as f:
+                if not stat.S_ISREG(os.fstat(f.fileno()).st_mode):
+                    raise OSError("history path is not a regular file")
                 data = json.load(f)
-                self._entries = [HistoryEntry.from_dict(entry) for entry in data.get("entries", [])]
+            if not isinstance(data, dict):
+                raise ValueError("history root must be an object")
+            raw_entries = data.get("entries", [])
+            if not isinstance(raw_entries, list):
+                raise ValueError("history entries must be a list")
+
+            entries: list[HistoryEntry] = []
+            for index, raw_entry in enumerate(raw_entries):
+                try:
+                    entries.append(HistoryEntry.from_dict(raw_entry))
+                except (TypeError, ValueError) as e:
+                    logger.warning(f"Ignoring invalid history entry {index}: {e}")
+            self._entries = entries[:MAX_HISTORY_ENTRIES]
             logger.debug(f"Loaded {len(self._entries)} history entries")
-        except (json.JSONDecodeError, KeyError) as e:
+        except FileNotFoundError:
+            self._entries = []
+        except (json.JSONDecodeError, OSError, TypeError, ValueError) as e:
             logger.warning(f"Failed to load history: {e}")
             self._entries = []
 
@@ -87,10 +146,12 @@ class HistoryManager:
         try:
             os.makedirs(CONFIG_DIR, exist_ok=True)
             data = {"entries": [entry.to_dict() for entry in self._entries]}
-            with open(HISTORY_FILE, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
+            write_text_file_atomically(
+                HISTORY_FILE,
+                lambda history_file: json.dump(data, history_file, indent=2),
+            )
             logger.debug(f"Saved {len(self._entries)} history entries")
-        except OSError as e:
+        except (OSError, TypeError, ValueError) as e:
             logger.error(f"Failed to save history: {e}")
 
     def add_entry(
@@ -121,10 +182,11 @@ class HistoryManager:
         input_size = 0
         output_size = 0
         try:
-            if os.path.exists(input_path):
-                input_size = os.path.getsize(input_path)
-            if os.path.exists(output_path):
-                output_size = os.path.getsize(output_path)
+            input_size = os.path.getsize(input_path)
+        except OSError:
+            pass
+        try:
+            output_size = os.path.getsize(output_path)
         except OSError:
             pass
 
@@ -154,6 +216,23 @@ class HistoryManager:
     def count(self) -> int:
         """Get the number of entries in history."""
         return len(self._entries)
+
+
+def _history_integer(value: object, field_name: str) -> int:
+    if type(value) is not int or value < 0:
+        raise ValueError(f"history {field_name} must be a non-negative integer")
+    return value
+
+
+def _history_number(value: object, field_name: str) -> float:
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(value)
+        or value < 0
+    ):
+        raise ValueError(f"history {field_name} must be a non-negative number")
+    return float(value)
 
 
 # Global history manager instance

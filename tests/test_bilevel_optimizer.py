@@ -3,6 +3,8 @@
 import tempfile
 import unittest
 from pathlib import Path
+from typing import cast
+from unittest.mock import patch
 
 import numpy as np
 import pikepdf
@@ -20,17 +22,14 @@ from bigocrpdf.services.rapidocr_service.jbig2_encoder import jbig2enc_available
 
 
 def _create_test_pdf(
+    tmpdir: Path,
     num_pages: int = 2,
     width: int = 200,
     height: int = 100,
     bilevel: bool = True,
 ) -> Path:
-    """Create a test PDF with standalone image pages.
-
-    Returns the path to the created PDF.
-    """
-    tmpdir = tempfile.mkdtemp()
-    pdf_path = Path(tmpdir) / "test.pdf"
+    """Create a test PDF with standalone image pages."""
+    pdf_path = tmpdir / "test.pdf"
 
     c = canvas.Canvas(str(pdf_path))
     for i in range(num_pages):
@@ -47,7 +46,7 @@ def _create_test_pdf(
             img[:, :, 2] = 128
 
         pil_img = Image.fromarray(img)
-        img_path = Path(tmpdir) / f"page_{i}.png"
+        img_path = tmpdir / f"page_{i}.png"
         pil_img.save(img_path, "PNG")
 
         w_pt = width / 150 * 72
@@ -60,14 +59,20 @@ def _create_test_pdf(
     return pdf_path
 
 
-class TestOptimizeBilevelImages(unittest.TestCase):
+class _PdfTestCase(unittest.TestCase):
+    def create_test_pdf(self, **kwargs) -> Path:
+        tmpdir = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        return _create_test_pdf(tmpdir, **kwargs)
+
+
+class TestOptimizeBilevelImages(_PdfTestCase):
     def test_nonexistent_pdf(self):
         result = optimize_bilevel_images(Path("/nonexistent.pdf"), {1: "jbig2"})
         self.assertEqual(result, 0)
 
     @unittest.skipUnless(jbig2enc_available(), "jbig2enc not installed")
     def test_optimizes_bilevel_pages(self):
-        pdf_path = _create_test_pdf(num_pages=2, bilevel=True)
+        pdf_path = self.create_test_pdf(num_pages=2, bilevel=True)
         encodings = {1: "jbig2", 2: "jbig2"}
 
         before_size = pdf_path.stat().st_size
@@ -79,29 +84,46 @@ class TestOptimizeBilevelImages(unittest.TestCase):
 
     @unittest.skipUnless(jbig2enc_available(), "jbig2enc not installed")
     def test_jbig2_filter_applied(self):
-        pdf_path = _create_test_pdf(num_pages=1, bilevel=True)
+        pdf_path = self.create_test_pdf(num_pages=1, bilevel=True)
         optimize_bilevel_images(pdf_path, {1: "jbig2"})
 
         with pikepdf.open(pdf_path) as pdf:
             page = pdf.pages[0]
-            xobjects = page.Resources.XObject
-            for key in xobjects:
-                obj = xobjects[key]
+            xobjects = cast(pikepdf.Dictionary, page.Resources.XObject)
+            for _, obj in xobjects.items():
                 if obj.get("/Subtype") == Name.Image:
                     self.assertEqual(obj.get("/Filter"), Name.JBIG2Decode)
-                    self.assertEqual(int(obj.get("/BitsPerComponent")), 1)
+                    self.assertEqual(int(obj.get("/BitsPerComponent", 0)), 1)
 
     def test_optimizes_all_pages_regardless_of_flags(self):
         """Optimizer processes all pages, not just standalone ones."""
-        pdf_path = _create_test_pdf(num_pages=2, bilevel=True)
+        pdf_path = self.create_test_pdf(num_pages=2, bilevel=True)
         encodings = {1: "jbig2", 2: "jbig2"}
 
         count = optimize_bilevel_images(pdf_path, encodings)
         # Both pages should be optimized
         self.assertEqual(count, 2)
 
+    def test_falls_back_to_ccitt_without_jbig2enc(self):
+        pdf_path = self.create_test_pdf(num_pages=1, bilevel=True)
+
+        with patch(
+            "bigocrpdf.services.rapidocr_service.bilevel_optimizer.jbig2enc_available",
+            return_value=False,
+        ):
+            count = optimize_bilevel_images(pdf_path, {1: "jbig2"})
+
+        self.assertEqual(count, 1)
+        with pikepdf.open(pdf_path) as pdf:
+            page = pdf.pages[0]
+            xobjects = cast(pikepdf.Dictionary, page.Resources.XObject)
+            for _, obj in xobjects.items():
+                if obj.get("/Subtype") == Name.Image:
+                    self.assertEqual(obj.get("/Filter"), Name.CCITTFaxDecode)
+                    self.assertEqual(int(obj.get("/BitsPerComponent", 0)), 1)
+
     def test_skips_non_bilevel_without_force(self):
-        pdf_path = _create_test_pdf(num_pages=1, bilevel=False)
+        pdf_path = self.create_test_pdf(num_pages=1, bilevel=False)
         encodings = {}  # No bilevel encoding
 
         count = optimize_bilevel_images(pdf_path, encodings)
@@ -109,19 +131,33 @@ class TestOptimizeBilevelImages(unittest.TestCase):
 
     @unittest.skipUnless(jbig2enc_available(), "jbig2enc not installed")
     def test_force_bilevel_converts_color(self):
-        pdf_path = _create_test_pdf(num_pages=1, bilevel=False)
+        pdf_path = self.create_test_pdf(num_pages=1, bilevel=False)
         encodings = {}
 
         count = optimize_bilevel_images(pdf_path, encodings, force_bilevel=True)
         self.assertEqual(count, 1)
 
+    def test_save_failure_reports_no_optimized_images(self):
+        pdf_path = self.create_test_pdf(num_pages=1, bilevel=True)
 
-class TestGetPageXobjects(unittest.TestCase):
+        with (
+            patch(
+                "bigocrpdf.services.rapidocr_service.bilevel_optimizer.jbig2enc_available",
+                return_value=False,
+            ),
+            patch.object(pikepdf.Pdf, "save", side_effect=OSError("disk full")),
+        ):
+            count = optimize_bilevel_images(pdf_path, {1: "jbig2"})
+
+        self.assertEqual(count, 0)
+
+
+class TestGetPageXobjects(_PdfTestCase):
     def test_returns_xobjects_for_pdf_page(self):
-        pdf_path = _create_test_pdf(num_pages=1)
+        pdf_path = self.create_test_pdf(num_pages=1)
         with pikepdf.open(pdf_path) as pdf:
             xobjects = _get_page_xobjects(pdf.pages[0])
-            self.assertIsNotNone(xobjects)
+            assert xobjects is not None
             self.assertGreater(len(xobjects), 0)
 
 
@@ -130,7 +166,7 @@ class TestEmbedFunctions(unittest.TestCase):
         pdf = pikepdf.new()
         page = pdf.add_blank_page(page_size=(100, 100))
         page["/Resources"] = pikepdf.Dictionary({"/XObject": pikepdf.Dictionary()})
-        xobjects = page.Resources.XObject
+        xobjects = cast(pikepdf.Dictionary, page.Resources.XObject)
 
         # Create a dummy image first
         dummy_stream = pikepdf.Stream(pdf, b"\xff" * 100)
@@ -143,14 +179,14 @@ class TestEmbedFunctions(unittest.TestCase):
 
         obj = xobjects["/Im0"]
         self.assertEqual(obj.get("/Filter"), Name.JBIG2Decode)
-        self.assertEqual(int(obj.get("/Width")), 10)
-        self.assertEqual(int(obj.get("/BitsPerComponent")), 1)
+        self.assertEqual(int(obj.get("/Width", 0)), 10)
+        self.assertEqual(int(obj.get("/BitsPerComponent", 0)), 1)
 
     def test_embed_ccitt(self):
         pdf = pikepdf.new()
         page = pdf.add_blank_page(page_size=(100, 100))
         page["/Resources"] = pikepdf.Dictionary({"/XObject": pikepdf.Dictionary()})
-        xobjects = page.Resources.XObject
+        xobjects = cast(pikepdf.Dictionary, page.Resources.XObject)
 
         dummy_stream = pikepdf.Stream(pdf, b"\xff" * 100)
         dummy_stream["/Subtype"] = Name.Image
@@ -160,13 +196,9 @@ class TestEmbedFunctions(unittest.TestCase):
 
         obj = xobjects["/Im0"]
         self.assertEqual(obj.get("/Filter"), Name.CCITTFaxDecode)
-        self.assertEqual(int(obj.get("/Width")), 200)
-        self.assertEqual(int(obj.get("/Height")), 100)
+        self.assertEqual(int(obj.get("/Width", 0)), 200)
+        self.assertEqual(int(obj.get("/Height", 0)), 100)
         decode_parms = obj.get("/DecodeParms")
-        self.assertIsNotNone(decode_parms)
-        self.assertEqual(int(decode_parms.get("/K")), -1)
-        self.assertEqual(int(decode_parms.get("/Columns")), 200)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert decode_parms is not None
+        self.assertEqual(int(decode_parms.get("/K", 0)), -1)
+        self.assertEqual(int(decode_parms.get("/Columns", 0)), 200)

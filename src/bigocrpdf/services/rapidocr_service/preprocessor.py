@@ -12,6 +12,7 @@ This is the SINGLE source of truth for ImagePreprocessor class.
 """
 
 import logging
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 import cv2
@@ -68,8 +69,16 @@ class ImagePreprocessor:
         # (perspective warp, dewarp, deskew) — even if dimensions stay the same,
         # the coordinate space changes and standalone mode must be used.
         self.geometry_applied: bool = False
+        self.crop_applied: bool = False
+        self.crop_offset_px: tuple[int, int] = (0, 0)
+        self.crop_original_size_px: tuple[int, int] | None = None
 
-    def process(self, img: np.ndarray) -> np.ndarray:
+    def process(
+        self,
+        img: np.ndarray,
+        *,
+        cancel_check: Callable[[], None] | None = None,
+    ) -> np.ndarray:
         """Apply preprocessing to image.
 
         Geometric corrections run INDEPENDENTLY of enable_preprocessing.
@@ -90,18 +99,33 @@ class ImagePreprocessor:
 
         # Reset per-image geometry tracking
         self.geometry_applied = False
+        self.crop_applied = False
+        self.crop_offset_px = (0, 0)
+        self.crop_original_size_px = None
 
         # === PHASE 1: GEOMETRIC CORRECTIONS (INDEPENDENT) ===
-        result = self._apply_geometric_corrections(result)
+        self._check_cancel(cancel_check)
+        result = self._apply_geometric_corrections(
+            result,
+            cancel_check=cancel_check,
+        )
 
         # === PHASE 2: COLOR/ENHANCEMENT PROCESSING ===
+        self._check_cancel(cancel_check)
         if self.enable_color_processing:
             result = apply_color_enhancements(result, self.config)
 
         # === PHASE 3: INDEPENDENT EFFECTS ===
+        self._check_cancel(cancel_check)
         result = apply_independent_effects(result, self.config)
+        self._check_cancel(cancel_check)
 
         return result
+
+    @staticmethod
+    def _check_cancel(cancel_check: Callable[[], None] | None) -> None:
+        if cancel_check is not None:
+            cancel_check()
 
     def detect_orientation(self, img: np.ndarray) -> int:
         """Detect document orientation (0, 90, 180, or 270 degrees).
@@ -117,7 +141,12 @@ class ImagePreprocessor:
         """
         return correct_orientation(img, angle)
 
-    def _apply_geometric_corrections(self, img: np.ndarray) -> np.ndarray:
+    def _apply_geometric_corrections(
+        self,
+        img: np.ndarray,
+        *,
+        cancel_check: Callable[[], None] | None = None,
+    ) -> np.ndarray:
         """Apply geometric corrections (perspective, deskew, dewarp, illumination).
 
         Sets ``self.geometry_applied = True`` if any correction changes the
@@ -136,8 +165,10 @@ class ImagePreprocessor:
         # Fallback: 3D Coons patch + baseline refinement
         # Must run before deskew/perspective: curved pages confuse deskew.
         if getattr(self.config, "enable_baseline_dewarp", False):
+            self._check_cancel(cancel_check)
             before = result
             result, probmap_analyzed = self._try_probmap_dewarp(result)
+            self._check_cancel(cancel_check)
             if result is img and not probmap_analyzed:
                 # Probmap couldn't analyze (import/runtime error),
                 # try 3D/baseline fallback
@@ -147,19 +178,24 @@ class ImagePreprocessor:
 
         # Step 2: Perspective correction if enabled (must run BEFORE deskew)
         if self.config.enable_perspective_correction:
+            self._check_cancel(cancel_check)
             before = result
             result = self._correct_perspective(result)
+            self._check_cancel(cancel_check)
             if result is not before:
                 self.geometry_applied = True
 
         # Step 3: Trim dark borders from photographed documents
         # Runs ALWAYS — dark margins from camera photos confuse OCR text detection.
+        self._check_cancel(cancel_check)
         result = self._trim_dark_borders(result)
 
         # Step 4: Probmap-guided deskew + angular perspective correction
         if self.config.enable_deskew:
+            self._check_cancel(cancel_check)
             before = result
             result = probmap_angle_deskew(result, self.probmap_max_side)
+            self._check_cancel(cancel_check)
             if result is not before:
                 self.geometry_applied = True
 
@@ -237,6 +273,9 @@ class ImagePreprocessor:
             f"Trimmed dark borders: {img.shape[:2]} -> {result.shape[:2]} "
             f"(top={y_min}, bottom={h - y_max}, left={x_min}, right={w - x_max})"
         )
+        self.crop_applied = True
+        self.crop_offset_px = (x_min, y_min)
+        self.crop_original_size_px = (w, h)
         return result
 
     def _try_probmap_dewarp(self, image: np.ndarray) -> tuple[np.ndarray, bool]:
@@ -302,7 +341,7 @@ class ImagePreprocessor:
             Dewarped image, or original image if dewarp not applicable
         """
         try:
-            from bigocrpdf.services.contour_analysis import dewarp_3d
+            from bigocrpdf.services.contour_dewarp import dewarp_3d
 
             result = dewarp_3d(image)
             if result is not None:
@@ -337,7 +376,7 @@ class ImagePreprocessor:
             Dewarped image, or original image if dewarp not applicable
         """
         try:
-            from bigocrpdf.services.contour_analysis import dewarp_baseline
+            from bigocrpdf.services.contour_dewarp import dewarp_baseline
 
             result = dewarp_baseline(image)
             if result is not None:

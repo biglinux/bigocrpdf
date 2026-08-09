@@ -3,7 +3,7 @@ name = "bigocrpdf"
 version = "3.0.0"
 description = "Add OCR to your PDF documents to make them searchable - Powered by RapidOCR"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = "GPL-3.0-or-later"
 authors = [
     {name = "BigLinux Team", email = "contact@biglinux.com.br"}
@@ -15,8 +15,6 @@ classifiers = [
     "Intended Audience :: End Users/Desktop",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -26,7 +24,7 @@ dependencies = [
     "PyGObject>=3.42.0",
     "pycairo>=1.20.0",
     # RapidOCR engine
-    "rapidocr>=3.5.0",
+    "rapidocr>=3.9.0",
     # PDF processing
     "pikepdf>=8.0.0",
     "reportlab>=4.0.0",
@@ -50,6 +48,7 @@ bigocrpdf-cli = "bigocrpdf.cli:main"
 
 [project.gui-scripts]
 bigocrpdf = "bigocrpdf:main"
+bigocrimage = "bigocrpdf:main_image"
 
 [project.urls]
 Homepage = "https://www.biglinux.com.br"
@@ -64,12 +63,22 @@ build-backend = "setuptools.build_meta"
 where = ["src"]
 
 [tool.setuptools.package-data]
-bigocrpdf = ["resources/*.css", "resources/illustrations/*.svg"]
+bigocrpdf = [
+    "resources/*.css",
+    "resources/illustrations/*.svg",
+    "resources/icontheme/*/index.theme",
+    "resources/icontheme/*/*/*/*.svg",
+]
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py312"
 line-length = 100
 src = ["src"]
+extend-exclude = [
+    ".bigocrpdf-cpython-3.14",
+    ".bigocrpdf-debian-runtime",
+    ".bigocrpdf-venv",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "C4", "UP"]
@@ -82,7 +91,7 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "benchmarks/tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"

@@ -4,17 +4,18 @@ from __future__ import annotations
 
 import os
 from collections.abc import Callable
+from typing import cast
 
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, Gdk, GObject, Gtk
+gi.require_version("Gdk", "4.0")
+from gi.repository import Adw, Gdk, GObject, Gtk, Pango
 
 from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.config_manager import get_config_manager
-from bigocrpdf.utils.i18n import _
-from bigocrpdf.utils.tooltip_helper import get_tooltip_helper
+from bigocrpdf.utils.i18n import _, ngettext
 
 
 class MultiPdfOpenDialog(Adw.Window):
@@ -62,18 +63,19 @@ class MultiPdfOpenDialog(Adw.Window):
         page.set_margin_start(24)
         page.set_margin_end(24)
 
-        heading = Gtk.Label()
-        heading.set_markup(
-            "<span size='large' weight='bold'>"
-            + _("How would you like to open these files?")
-            + "</span>"
-        )
+        heading = Gtk.Label(label=_("How would you like to open these files?"))
+        heading.add_css_class("title-2")
         heading.set_wrap(True)
         heading.set_xalign(0)
         page.append(heading)
 
+        file_count = len(self._file_paths)
         body = Gtk.Label(
-            label=_("{count} PDF files were selected.").format(count=len(self._file_paths))
+            label=ngettext(
+                "{count} PDF file was selected.",
+                "{count} PDF files were selected.",
+                file_count,
+            ).format(count=file_count)
         )
         body.set_wrap(True)
         body.set_xalign(0)
@@ -131,10 +133,8 @@ class MultiPdfOpenDialog(Adw.Window):
         page.set_margin_start(18)
         page.set_margin_end(18)
 
-        heading = Gtk.Label()
-        heading.set_markup(
-            "<span size='large' weight='bold'>" + _("Choose import order") + "</span>"
-        )
+        heading = Gtk.Label(label=_("Choose import order"))
+        heading.add_css_class("title-2")
         heading.set_wrap(True)
         heading.set_xalign(0)
         page.append(heading)
@@ -217,7 +217,7 @@ class MultiPdfOpenDialog(Adw.Window):
         number.set_xalign(1)
         drag_area.append(number)
 
-        icon = Gtk.Image.new_from_icon_name("application-pdf-symbolic")
+        icon = Gtk.Image.new_from_icon_name("x-office-document-symbolic")
         drag_area.append(icon)
 
         labels = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
@@ -225,12 +225,12 @@ class MultiPdfOpenDialog(Adw.Window):
 
         name = Gtk.Label(label=os.path.basename(path))
         name.set_xalign(0)
-        name.set_ellipsize(3)
+        name.set_ellipsize(Pango.EllipsizeMode.END)
         labels.append(name)
 
         folder = Gtk.Label(label=os.path.dirname(path))
         folder.set_xalign(0)
-        folder.set_ellipsize(3)
+        folder.set_ellipsize(Pango.EllipsizeMode.END)
         folder.add_css_class("caption")
         folder.add_css_class("dim-label")
         labels.append(folder)
@@ -243,7 +243,7 @@ class MultiPdfOpenDialog(Adw.Window):
         up_button.set_icon_name("go-up-symbolic")
         up_button.set_sensitive(index > 0)
         up_button.add_css_class("flat")
-        get_tooltip_helper().add_tooltip(up_button, _("Move up"))
+        up_button.set_tooltip_text(_("Move up"))
         set_a11y_label(up_button, _("Move up"))
         up_button.connect("clicked", lambda _button, i=index: self._move_file(i, -1))
         box.append(up_button)
@@ -252,7 +252,7 @@ class MultiPdfOpenDialog(Adw.Window):
         down_button.set_icon_name("go-down-symbolic")
         down_button.set_sensitive(index < len(self._file_paths) - 1)
         down_button.add_css_class("flat")
-        get_tooltip_helper().add_tooltip(down_button, _("Move down"))
+        down_button.set_tooltip_text(_("Move down"))
         set_a11y_label(down_button, _("Move down"))
         down_button.connect("clicked", lambda _button, i=index: self._move_file(i, 1))
         box.append(down_button)
@@ -268,7 +268,7 @@ class MultiPdfOpenDialog(Adw.Window):
         widget.add_controller(drag_source)
 
     def _setup_file_drop_target(self, row: Gtk.ListBoxRow, index: int) -> None:
-        drop_target = Gtk.DropTarget.new(GObject.TYPE_INT, Gdk.DragAction.MOVE)
+        drop_target = Gtk.DropTarget.new(cast(type, GObject.TYPE_INT), Gdk.DragAction.MOVE)
         drop_target.connect("drop", self._on_file_drop, index)
         row.add_controller(drop_target)
 

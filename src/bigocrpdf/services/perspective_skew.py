@@ -5,6 +5,7 @@ and applying rotation or mesh-based dewarping to correct it.
 """
 
 import logging
+from collections.abc import Sequence
 
 import cv2
 import numpy as np
@@ -49,36 +50,8 @@ def _detect_line_angles(image: np.ndarray, min_lines: int = 5) -> list[tuple[int
     line_data: list[tuple[int, float]] = []
 
     for peak_y in peaks:
-        strip_height = max(15, h // 150)
-        y_start = max(0, peak_y - strip_height // 2)
-        y_end = min(h, peak_y + strip_height // 2)
-        strip = binary[y_start:y_end, :]
-
-        contours, _ = cv2.findContours(strip, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        if len(contours) < 3:
-            continue
-
-        centers = []
-        for cnt in contours:
-            M = cv2.moments(cnt)
-            if M["m00"] > 0:
-                cx = int(M["m10"] / M["m00"])
-                cy = int(M["m01"] / M["m00"])
-                centers.append((cx, cy))
-
-        if len(centers) < 3:
-            continue
-
-        centers_arr = np.array(centers, dtype=np.float32)
-        vx, vy, _, _ = cv2.fitLine(centers_arr, cv2.DIST_L2, 0, 0.01, 0.01)
-        angle = np.degrees(np.arctan2(vy[0], vx[0]))
-
-        if angle > 45:
-            angle -= 90
-        elif angle < -45:
-            angle += 90
-
-        if abs(angle) < 15:
+        angle = _line_angle_at_peak(binary, int(peak_y), h)
+        if angle is not None:
             line_data.append((peak_y, angle))
 
     if len(line_data) < min_lines:
@@ -86,6 +59,49 @@ def _detect_line_angles(image: np.ndarray, min_lines: int = 5) -> list[tuple[int
         return None
 
     return line_data
+
+
+def _line_angle_at_peak(binary: np.ndarray, peak_y: int, h: int) -> float | None:
+    strip_height = max(15, h // 150)
+    y_start = max(0, peak_y - strip_height // 2)
+    y_end = min(h, peak_y + strip_height // 2)
+    strip = binary[y_start:y_end, :]
+
+    contours, _ = cv2.findContours(strip, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    centers = _contour_centers(contours)
+    if len(centers) < 3:
+        return None
+
+    angle = _fit_centers_angle(centers)
+    if abs(angle) < 15:
+        return angle
+    return None
+
+
+def _contour_centers(contours: Sequence[cv2.typing.MatLike]) -> list[tuple[int, int]]:
+    centers = []
+    for cnt in contours:
+        moment = cv2.moments(cnt)
+        if moment["m00"] > 0:
+            centers.append(
+                (
+                    int(moment["m10"] / moment["m00"]),
+                    int(moment["m01"] / moment["m00"]),
+                )
+            )
+    return centers
+
+
+def _fit_centers_angle(centers: list[tuple[int, int]]) -> float:
+    centers_arr = np.array(centers, dtype=np.float32)
+    vx, vy, _, _ = cv2.fitLine(centers_arr, cv2.DIST_L2, 0, 0.01, 0.01)
+    angle = np.degrees(np.arctan2(vy[0], vx[0]))
+
+    if angle > 45:
+        return float(angle - 90)
+    if angle < -45:
+        return float(angle + 90)
+    return float(angle)
 
 
 def detect_skew_angle(image: np.ndarray) -> float | None:

@@ -3,7 +3,8 @@
 import os
 import tempfile
 import threading
-from unittest.mock import patch
+from pathlib import Path
+from unittest.mock import call, patch
 
 import pytest
 
@@ -142,6 +143,19 @@ class TestCreateMarkdown:
         assert "## Section" in md
         assert "### Sub" in md
 
+    @pytest.mark.parametrize(
+        "text",
+        ["FAX NO. (614) 466-5087", "PAGE 1 OF 2", "JUN 30 SEP 22", "DIVISION: FULL PARTIAL"],
+    )
+    def test_form_labels_and_page_metadata_are_not_headings(self, text):
+        markdown = create_markdown([[DocElement("heading2", text)]])
+        assert not markdown.startswith("## ")
+        assert text.replace("*", r"\*") in markdown
+
+    def test_section_label_ending_in_colon_remains_heading(self):
+        markdown = create_markdown([[DocElement("heading2", "SPECIAL INSTRUCTIONS:")]])
+        assert markdown.startswith("## SPECIAL INSTRUCTIONS:")
+
     def test_paragraph_text_emitted(self):
         pages = [[DocElement("paragraph", "Hello world.")]]
         md = create_markdown(pages)
@@ -207,6 +221,36 @@ class TestCreateMarkdown:
         md = create_markdown(pages)
         # Hard break = two trailing spaces before the newline.
         assert "Rua X 123  \nBairro Y  \nCEP 00000-000" in md
+
+    def test_box_drawing_diagram_is_code_not_heading(self):
+        pages = [
+            [
+                DocElement(
+                    "heading2",
+                    "┌─ QOI_OP_INDEX ─┐ │ Byte[0] │ └───────────────┘",
+                    raw_lines=["┌─ QOI_OP_INDEX ─┐", "│ Byte[0] │", "└───────────────┘"],
+                )
+            ]
+        ]
+
+        markdown = create_markdown(pages)
+
+        assert "##" not in markdown
+        assert markdown.startswith("```\n┌─ QOI_OP_INDEX ─┐")
+        assert markdown.endswith("└───────────────┘\n```\n")
+
+    def test_adjacent_diagram_fragments_share_one_code_fence(self):
+        pages = [
+            [
+                DocElement("heading2", "┌── A ──┐", raw_lines=["┌── A ──┐", "└───────┘"]),
+                DocElement("paragraph", "┌── B ──┐", raw_lines=["┌── B ──┐", "└───────┘"]),
+            ]
+        ]
+
+        markdown = create_markdown(pages)
+
+        assert markdown.count("```") == 2
+        assert "└───────┘\n┌── B ──┐" in markdown
 
 
 class TestConvertPdfToMarkdown:
@@ -279,6 +323,27 @@ class TestConvertPdfToMarkdown:
             with pytest.raises(ExportCancelled):
                 convert_pdf_to_markdown(_mock_pdf_path("x.pdf"), cancel_event=event)
 
+    def test_cancel_event_set_during_last_page_raises(self):
+        event = threading.Event()
+        fake_words = {1: ["w1"]}
+
+        def process_last_page(_words, _page_num):
+            event.set()
+            return [DocElement("paragraph", "partial")]
+
+        with (
+            patch(
+                "bigocrpdf.utils.tsv_odf_converter.parse_tsv_pages",
+                return_value=fake_words,
+            ),
+            patch(
+                "bigocrpdf.utils.tsv_odf_converter.process_page",
+                side_effect=process_last_page,
+            ),
+        ):
+            with pytest.raises(ExportCancelled):
+                convert_pdf_to_markdown(_mock_pdf_path("x.pdf"), cancel_event=event)
+
     def test_cancel_event_unset_runs_normally(self):
         event = threading.Event()  # not set
         fake_words = {1: ["w1"]}
@@ -314,7 +379,7 @@ class TestUniquePath:
 
         with tempfile.TemporaryDirectory() as tmp:
             target = os.path.join(tmp, "doc.md")
-            assert ConclusionExportMixin._unique_path(target) == target
+            assert ConclusionExportMixin._reserve_unique_path(target) == target
 
     def test_auto_suffix_on_conflict(self):
         from bigocrpdf.ui.conclusion_export_mixin import ConclusionExportMixin
@@ -322,24 +387,107 @@ class TestUniquePath:
         with tempfile.TemporaryDirectory() as tmp:
             target = os.path.join(tmp, "doc.md")
             open(target, "w").close()
-            p1 = ConclusionExportMixin._unique_path(target)
+            p1 = ConclusionExportMixin._reserve_unique_path(target)
             assert p1.endswith("doc (1).md")
             open(p1, "w").close()
-            p2 = ConclusionExportMixin._unique_path(target)
+            p2 = ConclusionExportMixin._reserve_unique_path(target)
             assert p2.endswith("doc (2).md")
 
 
+def test_bulk_markdown_temp_symlink_cannot_overwrite_target(tmp_path: Path) -> None:
+    from bigocrpdf.ui.conclusion_export_mixin import ConclusionExportMixin
+
+    victim = tmp_path / "victim.txt"
+    victim.write_text("KEEP", encoding="utf-8")
+    output = tmp_path / "export.md"
+    predictable_temp = tmp_path / "export.md.tmp"
+    predictable_temp.symlink_to(victim)
+
+    with patch(
+        "bigocrpdf.utils.tsv_odf_converter.convert_pdf_to_markdown",
+        return_value="# Exported\n",
+    ):
+        ConclusionExportMixin._bulk_convert_one(
+            object(),
+            "input.pdf",
+            str(output),
+            "md",
+            {},
+            threading.Event(),
+        )
+
+    assert output.read_text(encoding="utf-8") == "# Exported\n"
+    assert victim.read_text(encoding="utf-8") == "KEEP"
+    assert predictable_temp.is_symlink()
+
+
 class TestIsUserDismissed:
-    def test_dismissed_message_detected(self):
+    def test_gtk_dismissed_error_detected(self):
+        import gi
+
+        gi.require_version("Gtk", "4.0")
+        from gi.repository import GLib, Gtk
+
         from bigocrpdf.ui.conclusion_export_mixin import ConclusionExportMixin
 
-        assert ConclusionExportMixin._is_user_dismissed(RuntimeError("Dismissed by user"))
+        error = GLib.Error.new_literal(
+            Gtk.DialogError.quark(),
+            "Dismissed by user",
+            Gtk.DialogError.DISMISSED,
+        )
+        assert ConclusionExportMixin._is_user_dismissed(error)
 
-    def test_other_errors_pass_through(self):
+    def test_other_gtk_dialog_errors_pass_through(self):
+        import gi
+
+        gi.require_version("Gtk", "4.0")
+        from gi.repository import GLib, Gtk
+
         from bigocrpdf.ui.conclusion_export_mixin import ConclusionExportMixin
 
-        assert not ConclusionExportMixin._is_user_dismissed(RuntimeError("Disk full"))
-        assert not ConclusionExportMixin._is_user_dismissed(FileNotFoundError("nope"))
+        error = GLib.Error.new_literal(
+            Gtk.DialogError.quark(),
+            "Dialog failed",
+            Gtk.DialogError.FAILED,
+        )
+        assert not ConclusionExportMixin._is_user_dismissed(error)
+
+
+def test_odf_export_options_are_forwarded_without_shared_controller_state() -> None:
+    from types import SimpleNamespace
+    from unittest.mock import MagicMock
+
+    from bigocrpdf.ui.conclusion_export_mixin import ConclusionExportMixin
+
+    owner = SimpleNamespace(_show_odf_file_dialog=MagicMock())
+    dialog = MagicMock()
+
+    ConclusionExportMixin._on_export_clicked(owner, True, False, "first.pdf", dialog)
+    ConclusionExportMixin._on_export_clicked(owner, False, True, "second.pdf", dialog)
+
+    assert owner._show_odf_file_dialog.call_args_list == [
+        call("first.pdf", True, False),
+        call("second.pdf", False, True),
+    ]
+    assert not hasattr(owner, "_odf_export_mode")
+    assert not hasattr(owner, "_odf_open_after")
+
+
+def test_single_markdown_export_uses_the_same_converter_as_bulk_export() -> None:
+    from types import SimpleNamespace
+    from unittest.mock import MagicMock
+
+    from bigocrpdf.ui.conclusion_export_mixin import ConclusionExportMixin
+
+    owner = SimpleNamespace(_run_single_export=MagicMock(), _bulk_convert_one=MagicMock())
+    ConclusionExportMixin._export_markdown_file(owner, "out.md", "in.pdf", True, False)
+
+    convert = owner._run_single_export.call_args.args[-1]
+    cancel_event = MagicMock()
+    convert(cancel_event)
+    owner._bulk_convert_one.assert_called_once_with(
+        "in.pdf", "out.md", "md", {"include_front_matter": True}, cancel_event
+    )
 
 
 class TestSaveMdSettings:

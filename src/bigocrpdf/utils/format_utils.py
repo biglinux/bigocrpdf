@@ -15,10 +15,7 @@ def format_file_size(size_bytes: int) -> str:
     Returns:
         Formatted size string (e.g., "1.5 MB")
     """
-    if size_bytes < 0:
-        return "0 B"
-
-    if size_bytes == 0:
+    if isinstance(size_bytes, bool) or size_bytes <= 0:
         return "0 B"
 
     units = ["B", "KB", "MB", "GB", "TB"]
@@ -50,7 +47,7 @@ def format_elapsed_time(seconds: int) -> str:
     Returns:
         Formatted time string (e.g., "2m 30s" or "45s")
     """
-    if seconds < 0:
+    if isinstance(seconds, bool) or seconds < 0:
         seconds = 0
 
     if seconds < 60:

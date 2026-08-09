@@ -8,14 +8,13 @@ Centralizes PDF-related functionality to avoid code duplication.
 import glob
 import os
 import subprocess
+from contextlib import ExitStack
+from functools import lru_cache
 from typing import Any
 
 # Note: pdftoppm is no longer used. PDF rendering uses Poppler GI library directly.
 # Only pdfinfo and pdfimages are still used as subprocesses.
 from bigocrpdf.utils.logger import logger
-
-# Cache for PDF page counts to avoid repeated subprocess calls
-_page_count_cache: dict[str, int] = {}
 
 
 def get_pdf_page_count(file_path: str, use_cache: bool = True) -> int:
@@ -31,17 +30,18 @@ def get_pdf_page_count(file_path: str, use_cache: bool = True) -> int:
     if not file_path or not os.path.exists(file_path):
         return 0
 
-    # Check cache first
-    if use_cache and file_path in _page_count_cache:
-        return _page_count_cache[file_path]
+    if not use_cache:
+        return _get_page_count_uncached(file_path)
+    try:
+        stat = os.stat(file_path)
+    except OSError:
+        return 0
+    return _get_page_count_cached(file_path, stat.st_mtime_ns, stat.st_size)
 
-    page_count = _get_page_count_uncached(file_path)
 
-    # Cache the result
-    if use_cache and page_count > 0:
-        _page_count_cache[file_path] = page_count
-
-    return page_count
+@lru_cache(maxsize=256)
+def _get_page_count_cached(file_path: str, _mtime_ns: int, _size: int) -> int:
+    return _get_page_count_uncached(file_path)
 
 
 def _get_page_count_uncached(file_path: str) -> int:
@@ -122,10 +122,7 @@ def get_pdf_info(file_path: str) -> dict[str, Any]:
     except OSError:
         pass
 
-    # Get page count
-    info["pages"] = get_pdf_page_count(file_path)
-
-    # Get PDF metadata using pdfinfo
+    # Get page count and metadata from one pdfinfo snapshot.
     try:
         result = subprocess.run(
             ["pdfinfo", file_path],
@@ -141,12 +138,17 @@ def get_pdf_info(file_path: str) -> dict[str, Any]:
                 key = key.strip().lower()
                 value = value.strip()
 
-                if key == "title" and value:
+                if key == "pages":
+                    try:
+                        info["pages"] = int(value)
+                    except ValueError:
+                        logger.debug("Invalid PDF page count: %s", value)
+                elif key == "title" and value:
                     info["title"] = value
                 elif key == "author" and value:
                     info["author"] = value
 
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError) as e:
         logger.debug(f"Could not get PDF metadata: {e}")
 
     return info
@@ -173,10 +175,9 @@ def extract_images_for_odf(
         return images, ocr_texts
 
     try:
-        from bigocrpdf.utils.temp_manager import mkdtemp, track_dir
+        from bigocrpdf.utils.temp_manager import mkdtemp
 
         temp_dir = mkdtemp(prefix="odf_images_")
-        track_dir(temp_dir)
         image_prefix = os.path.join(temp_dir, "image")
 
         result = subprocess.run(
@@ -347,40 +348,47 @@ def images_to_pdf(image_paths: list[str], output_path: str | None = None) -> str
     if not image_paths:
         raise ValueError("No image paths provided")
 
-    images: list[Image.Image] = []
-    for path in image_paths:
+    with ExitStack() as resources:
+        images: list[Image.Image] = []
+        for path in image_paths:
+            try:
+                source = resources.enter_context(Image.open(path))
+                image = ImageOps.exif_transpose(source)
+                if image is not source:
+                    resources.callback(image.close)
+                if image.mode != "RGB":
+                    image = image.convert("RGB")
+                    resources.callback(image.close)
+                images.append(image)
+            except Exception as e:
+                logger.error(f"Failed to open image {path}: {e}")
+
+        if not images:
+            raise ValueError("No valid images could be opened")
+
+        owns_output = output_path is None
+        if owns_output:
+            from bigocrpdf.utils.temp_manager import mkstemp
+
+            base = os.path.splitext(os.path.basename(image_paths[0]))[0]
+            if len(image_paths) > 1:
+                base = f"{base}_+{len(image_paths) - 1}"
+            fd, output_path = mkstemp(prefix=f"bigocr_{base}_", suffix=".pdf")
+            os.close(fd)
+
         try:
-            img = Image.open(path)
-            img = ImageOps.exif_transpose(img)
-            if img.mode in ("RGBA", "LA", "P"):
-                img = img.convert("RGB")
-            elif img.mode != "RGB":
-                img = img.convert("RGB")
-            images.append(img)
+            first_img = images[0]
+            rest = images[1:]
+            first_img.save(output_path, format="PDF", save_all=True, append_images=rest)
         except Exception as e:
-            logger.error(f"Failed to open image {path}: {e}")
+            if owns_output:
+                from bigocrpdf.utils.temp_manager import remove_file
 
-    if not images:
-        raise ValueError("No valid images could be opened")
+                remove_file(output_path)
+            raise RuntimeError(f"Failed to create PDF from images: {e}") from e
 
-    if output_path is None:
-        # Create a temp file with a descriptive name
-        from bigocrpdf.utils.temp_manager import mkstemp
-
-        base = os.path.splitext(os.path.basename(image_paths[0]))[0]
-        if len(image_paths) > 1:
-            base = f"{base}_+{len(image_paths) - 1}"
-        fd, output_path = mkstemp(prefix=f"bigocr_{base}_", suffix=".pdf")
-        os.close(fd)
-
-    try:
-        first_img = images[0]
-        rest = images[1:] if len(images) > 1 else []
-        first_img.save(output_path, format="PDF", save_all=True, append_images=rest)
         logger.info(f"Created PDF from {len(images)} image(s): {output_path}")
         return output_path
-    except Exception as e:
-        raise RuntimeError(f"Failed to create PDF from images: {e}") from e
 
 
 # Map the user-facing page-layout setting to a PDF catalog ``/PageLayout``
