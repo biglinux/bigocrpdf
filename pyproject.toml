@@ -20,18 +20,22 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Topic :: Utilities",
 ]
+# Floors are the oldest versions the test suite actually exercises. Claiming
+# support for older ones is a promise nothing checks: OpenCV 4 and 5 disagree
+# on the shape HoughLinesP returns, and Pillow dropped Image.ANTIALIAS in 10.
+# tests/test_library_contracts.py pins the behaviours these floors imply.
 dependencies = [
     "PyGObject>=3.42.0",
     "pycairo>=1.20.0",
     # RapidOCR engine
     "rapidocr>=3.9.0",
     # PDF processing
-    "pikepdf>=8.0.0",
+    "pikepdf>=10.0.0",
     "reportlab>=4.0.0",
     # Image processing
-    "opencv-python>=4.8.0",
-    "Pillow>=10.0.0",
-    "numpy>=1.24.0",
+    "opencv-python>=5.0.0",
+    "Pillow>=11.0.0",
+    "numpy>=2.0.0",
     # Dewarp dependencies
     "scipy>=1.11.0",
     # ODF export
@@ -94,5 +98,15 @@ line-ending = "auto"
 testpaths = ["tests", "benchmarks/tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short"
+# --strict-markers turns a misspelled marker into an error instead of a test
+# that silently always runs.  The -m expression selects the fast layer; an
+# explicit -m on the command line overrides it, which is how tools/quality.sh
+# and tools/benchmark.sh reach the slower layers.
+addopts = "-v --tb=short --strict-markers -m 'not slow and not real_ocr and not benchmark and not network'"
 pythonpath = ["src"]
+markers = [
+    "slow: needs LibreOffice or rasterization; seconds per test",
+    "real_ocr: runs the actual OCR engine and needs the models on disk; minutes",
+    "benchmark: drives the benchmark harness end to end; very slow",
+    "network: downloads external datasets",
+]
