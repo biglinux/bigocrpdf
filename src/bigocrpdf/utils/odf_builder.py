@@ -517,10 +517,15 @@ def _column_break_index(elements: list[DocElement]) -> int | None:
     return None
 
 
+# Element kinds the layout analyser produces for headings, and the outline
+# level each maps to.
+_HEADING_OUTLINE_LEVELS = {"heading1": 1, "heading2": 2, "heading3": 3}
+
+
 def _render_odf_element(
     doc, elem: DocElement, styles: dict, tbl_counter: list[int], container=None
 ) -> None:
-    from odf.text import LineBreak, P
+    from odf.text import H, LineBreak, P
 
     if elem.kind == "table":
         _render_table(
@@ -539,7 +544,19 @@ def _render_odf_element(
         return
 
     style_key = f"{elem.kind}_{elem.text_align}" if elem.text_align else elem.kind
-    paragraph = P(stylename=styles.get(style_key, styles.get(elem.kind, styles["paragraph"])))
+    style = styles.get(style_key, styles.get(elem.kind, styles["paragraph"]))
+    outline_level = _HEADING_OUTLINE_LEVELS.get(elem.kind)
+    if outline_level is not None:
+        # A heading has to be a heading, not a paragraph that happens to be
+        # bold and larger. Only text:h gives an outline in the navigator, an
+        # automatic table of contents, and heading semantics to a screen
+        # reader -- and the analyser had already identified 29 of them in an
+        # eighteen-page contract that exported as a flat wall of paragraphs.
+        heading = H(outlinelevel=outline_level, stylename=style)
+        heading.addText(elem.text)
+        (container or doc.text).addElement(heading)
+        return
+    paragraph = P(stylename=style)
     if elem.kind == "preformatted" and elem.raw_lines and len(elem.raw_lines) > 1:
         for line_index, line_text in enumerate(elem.raw_lines):
             if line_index > 0:
