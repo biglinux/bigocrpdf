@@ -418,6 +418,32 @@ def _body_font_size_from_words(pages_words: dict[int, list[Word]]) -> float:
     return min(max(median(heights), 6.5), 10.5) if heights else 9.0
 
 
+# Longest side an exported page may have, in centimetres: A4's height. Photo
+# and scan PDFs routinely declare page boxes of a metre or more, which is a
+# valid page but not a usable document.
+_MAX_PAGE_SIDE_CM = 29.7
+_CM_PER_POINT = 2.54 / 72.0
+
+
+def _page_size_cm(width_pt: float, height_pt: float) -> tuple[float, float]:
+    """The page's real size in centimetres, shrunk only if it is absurd.
+
+    Every page used to be stretched to 29.7 cm on its longer side whatever it
+    measured, so a US Letter document came out 6.3% too large and every word in
+    the fixed-layout export landed 6.3% away from where it belongs -- 42 points
+    off by the foot of the page. Scaling down an oversized page is still
+    needed; scaling a normal one up never was.
+    """
+    width_cm = width_pt * _CM_PER_POINT
+    height_cm = height_pt * _CM_PER_POINT
+    longest = max(width_cm, height_cm)
+    if longest > _MAX_PAGE_SIDE_CM:
+        shrink = _MAX_PAGE_SIDE_CM / longest
+        width_cm *= shrink
+        height_cm *= shrink
+    return width_cm, height_cm
+
+
 def _pdf_page_geometries(pdf_path: str) -> list[tuple[float, float, float, float]]:
     """Read every PDF page ratio without invoking an office suite."""
     import pikepdf
@@ -431,9 +457,7 @@ def _pdf_page_geometries(pdf_path: str) -> list[tuple[float, float, float, float
                 height = abs(float(media_box[3]) - float(media_box[1]))
                 if width <= 0 or height <= 0:
                     return []
-                ratio = width / height
-                width_cm, height_cm = (29.7 * ratio, 29.7) if ratio <= 1 else (29.7, 29.7 / ratio)
-                sizes.append((width, height, width_cm, height_cm))
+                sizes.append((width, height, *_page_size_cm(width, height)))
             return sizes
     except (OSError, ValueError, pikepdf.PdfError):
         return []
