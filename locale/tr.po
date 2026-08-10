@@ -61,7 +61,8 @@ msgstr "Panozda desteklenen dosya yok."
 #, python-brace-format
 msgid "{count} file added from clipboard"
 msgid_plural "{count} files added from clipboard"
-msgstr[0] "{count} dosya panodan eklendi,Panodan {count} dosya eklendi"
+msgstr[0] "{count} dosya panodan eklendi"
+msgstr[1] "Panodan {count} dosya eklendi"
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 175
 #: src/bigocrpdf/window_controller.py:260
 msgid "Multiple Images Pasted"
@@ -72,6 +73,7 @@ msgstr "Birden Fazla Görüntü Yapıştırıldı"
 msgid "You pasted {count} image. How would you like to add it?"
 msgid_plural "You pasted {count} images. How would you like to add them?"
 msgstr[0] ""
+msgstr[1] ""
 "{count} resim yapıştırdınız. Nasıl eklemek istersiniz?,{count} resim yapıştırdınız. Bunları nasıl "
 "eklemek istersiniz?"
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 224
@@ -124,19 +126,22 @@ msgstr "PDF Düzenleyici - Birleştirilmiş PDF"
 #, python-brace-format
 msgid "Combined PDF ({count} file)"
 msgid_plural "Combined PDF ({count} files)"
-msgstr[0] "Birleşik PDF ({count} dosya),Birleşik PDF ({count} dosya)"
+msgstr[0] "Birleşik PDF ({count} dosya)"
+msgstr[1] "Birleşik PDF ({count} dosya)"
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 191
 #: src/bigocrpdf/application.py:346
 #, python-brace-format
 msgid "Added {count} file from command line"
 msgid_plural "Added {count} files from command line"
-msgstr[0] "Komut satırından {count} dosya eklendi,Komut satırından {count} dosya eklendi"
+msgstr[0] "Komut satırından {count} dosya eklendi"
+msgstr[1] "Komut satırından {count} dosya eklendi"
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 270
 #: src/bigocrpdf/application.py:376
 #, python-brace-format
 msgid "Opened {count} file"
 msgid_plural "Opened {count} files"
-msgstr[0] "{count} dosya açıldı,{count} dosya açıldı"
+msgstr[0] "{count} dosya açıldı"
+msgstr[1] "{count} dosya açıldı"
 # File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 258
 #: src/bigocrpdf/application.py:391 src/bigocrpdf/application.py:396
 #: src/bigocrpdf/services/settings.py:507
@@ -542,7 +547,8 @@ msgstr "Kaydedildi {ok}; {n} başarısız oldu"
 #, python-brace-format
 msgid "Saved {count} file to {folder}"
 msgid_plural "Saved {count} files to {folder}"
-msgstr[0] "{count} dosya {folder} konumuna kaydedildi,{count} dosya {folder} klasörüne kaydedildi"
+msgstr[0] "{count} dosya {folder} konumuna kaydedildi"
+msgstr[1] "{count} dosya {folder} klasörüne kaydedildi"
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1023
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:766
 #: src/bigocrpdf/ui/settings_queue_mixin.py:724
@@ -617,7 +623,8 @@ msgstr "Ana"
 #, python-brace-format
 msgid "{count} file in queue"
 msgid_plural "{count} files in queue"
-msgstr[0] "{count} dosya kuyrukta,{count} dosya kuyrukta"
+msgstr[0] "{count} dosya kuyrukta"
+msgstr[1] "{count} dosya kuyrukta"
 # File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 213
 #: src/bigocrpdf/processing_controller.py:82
 #: src/bigocrpdf/processing_controller.py:448 src/bigocrpdf/ui/window_ui.py:234
@@ -824,13 +831,15 @@ msgstr "Bu dosya için OCR işlemi tamamlandı, ancak çıkarılan metin bulunam
 #, python-brace-format
 msgid "{count} word"
 msgid_plural "{count} words"
-msgstr[0] "{count} kelime,{count} kelime"
+msgstr[0] "{count} kelime"
+msgstr[1] "{count} kelime"
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
 #: src/bigocrpdf/ui/text_viewer_controller.py:165
 #, python-brace-format
 msgid "{count} character"
 msgid_plural "{count} characters"
-msgstr[0] "{count} karakter,{count} karakter"
+msgstr[0] "{count} karakter"
+msgstr[1] "{count} karakter"
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
 #: src/bigocrpdf/ui/text_viewer_controller.py:169
 #, python-brace-format
@@ -917,7 +926,8 @@ msgstr "Seçilen: {count}"
 #, python-brace-format
 msgid "{count} page"
 msgid_plural "{count} pages"
-msgstr[0] "{count} sayfa,{count} sayfa"
+msgstr[0] "{count} sayfa"
+msgstr[1] "{count} sayfa"
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 374
 #: src/bigocrpdf/ui/conclusion_ui_mixin.py:285
 msgid "Open the processed file"
@@ -1125,7 +1135,8 @@ msgstr "Bir PDF'ye Birleştir."
 #, python-brace-format
 msgid "Merged {count} image into one PDF"
 msgid_plural "Merged {count} images into one PDF"
-msgstr[0] "{count} resim tek bir PDF'de birleştirildi,{count} görsel tek bir PDF'de birleştirildi"
+msgstr[0] "{count} resim tek bir PDF'de birleştirildi"
+msgstr[1] "{count} görsel tek bir PDF'de birleştirildi"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1231
@@ -1147,7 +1158,8 @@ msgstr "Listeden tüm dosyaları kaldır."
 #, python-brace-format
 msgid "{count} file"
 msgid_plural "{count} files"
-msgstr[0] "{count} dosya,{count} dosya"
+msgstr[0] "{count} dosya"
+msgstr[1] "{count} dosya"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 126
@@ -1174,7 +1186,8 @@ msgstr "Dosya kuyruğunu temizle?"
 #, python-brace-format
 msgid "This will remove {count} file from the queue."
 msgid_plural "This will remove {count} files from the queue."
-msgstr[0] "Bu, {count} dosyasını kuyruktan kaldıracak.,Bu, {count} dosyasını kuyruktan kaldıracak."
+msgstr[0] "Bu, {count} dosyasını kuyruktan kaldıracak."
+msgstr[1] "Bu, {count} dosyasını kuyruktan kaldıracak."
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 202
 #: src/bigocrpdf/ui/header_bar.py:182
 msgid "Grid view (click for list)"
@@ -1304,6 +1317,7 @@ msgstr "İşlenen dosya {current}/{total}: {filename}"
 msgid "<b>OCR processing complete!</b> {total} file processed · Total time: {time}"
 msgid_plural "<b>OCR processing complete!</b> {total} files processed · Total time: {time}"
 msgstr[0] ""
+msgstr[1] ""
 "<b>OCR işlemi tamamlandı!</b> {total} dosya işlendi · Toplam süre: {time},<b>OCR işlemi "
 "tamamlandı!</b> {total} dosya işlendi · Toplam süre: {time}"
 # File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 409
@@ -1311,7 +1325,8 @@ msgstr[0] ""
 #, python-brace-format
 msgid "OCR processing complete. {total} file processed."
 msgid_plural "OCR processing complete. {total} files processed."
-msgstr[0] "OCR işlemi tamamlandı. {total} dosya işlendi.,OCR işlemi tamamlandı. {total} dosya işlendi."
+msgstr[0] "OCR işlemi tamamlandı. {total} dosya işlendi."
+msgstr[1] "OCR işlemi tamamlandı. {total} dosya işlendi."
 # File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 325
 #: src/bigocrpdf/ui/terminal_page.py:313
 #, python-brace-format
@@ -1340,6 +1355,7 @@ msgstr "Tamamlandı: {processed}/{total} · Zaman: {time}"
 msgid "Starting processing of {total} file... · Time: {time}"
 msgid_plural "Starting processing of {total} files... · Time: {time}"
 msgstr[0] ""
+msgstr[1] ""
 "{total} dosyası işlenmeye başlıyor... · Zaman: {time},{total} dosyanın işlenmesi başlatılıyor... · "
 "Zaman: {time}"
 # File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 482
@@ -1515,7 +1531,8 @@ msgstr "PDF yüklenemedi: {}"
 #, python-brace-format
 msgid "{total} page · {included} included"
 msgid_plural "{total} pages · {included} included"
-msgstr[0] "{total} sayfa · {included} dahil,{total} sayfa · {included} dahil"
+msgstr[0] "{total} sayfa · {included} dahil"
+msgstr[1] "{total} sayfa · {included} dahil"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:266
 #, python-brace-format
@@ -1526,7 +1543,8 @@ msgstr "{count} seçili"
 #, python-brace-format
 msgid "{count} page selected"
 msgid_plural "{count} pages selected"
-msgstr[0] "{count} sayfa seçildi,{count} sayfa seçildi"
+msgstr[0] "{count} sayfa seçildi"
+msgstr[1] "{count} sayfa seçildi"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:337
 msgid "Saving…"
@@ -1939,7 +1957,8 @@ msgstr "Bu dosyaları nasıl açmak istersiniz?"
 #, python-brace-format
 msgid "{count} PDF file was selected."
 msgid_plural "{count} PDF files were selected."
-msgstr[0] "{count} PDF dosyası seçildi.,{count} PDF dosyası seçildi."
+msgstr[0] "{count} PDF dosyası seçildi."
+msgstr[1] "{count} PDF dosyası seçildi."
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 86
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:88
 msgid "Open in separate windows"
@@ -2171,7 +2190,8 @@ msgstr "Görüntü listesi"
 #, python-brace-format
 msgid "{count} image"
 msgid_plural "{count} images"
-msgstr[0] "{count} resim,{count} resim"
+msgstr[0] "{count} resim"
+msgstr[1] "{count} resim"
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 792
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 793
 #: src/bigocrpdf/ui/settings_queue_mixin.py:938
@@ -2210,6 +2230,7 @@ msgstr "Birden Fazla Görüntü Bırakıldı"
 msgid "You dropped {count} image. How would you like to add it?"
 msgid_plural "You dropped {count} images. How would you like to add them?"
 msgstr[0] ""
+msgstr[1] ""
 "{count} resmi düşürdünüz. Nasıl eklemek istersiniz?,{count} görseli düşürdünüz. Bunları nasıl "
 "eklemek istersiniz?"
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 1094
@@ -2239,6 +2260,7 @@ msgstr "Birden Fazla Görüntü Seçildi"
 msgid "You selected {count} image. How would you like to add it?"
 msgid_plural "You selected {count} images. How would you like to add them?"
 msgstr[0] ""
+msgstr[1] ""
 "{count} resim seçtiniz. Nasıl eklemek istersiniz?,{count} resim seçtiniz. Bunları nasıl eklemek "
 "istersiniz?"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 553
@@ -2395,7 +2417,8 @@ msgstr "Özgeçmiş"
 #, python-brace-format
 msgid "Session resumed with {count} file"
 msgid_plural "Session resumed with {count} files"
-msgstr[0] "Oturum {count} dosyayla devam ettirildi,Oturum {count} dosyayla devam ettirildi"
+msgstr[0] "Oturum {count} dosyayla devam ettirildi"
+msgstr[1] "Oturum {count} dosyayla devam ettirildi"
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 398
 #: src/bigocrpdf/ui/session_recovery_controller.py:93
 msgid "Could not resume session"
@@ -3014,14 +3037,16 @@ msgstr "Metin dosyası kaydedilemedi: {0}"
 #, python-brace-format
 msgid "Attempting to add {count} file"
 msgid_plural "Attempting to add {count} files"
-msgstr[0] "{count} dosya eklenmeye çalışılıyor,{count} dosya eklenmeye çalışılıyor"
+msgstr[0] "{count} dosya eklenmeye çalışılıyor"
+msgstr[1] "{count} dosya eklenmeye çalışılıyor"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
 # line: 120
 #: src/bigocrpdf/services/settings.py:343
 #, python-brace-format
 msgid "Successfully added {count} file"
 msgid_plural "Successfully added {count} files"
-msgstr[0] "{count} dosya başarıyla eklendi,{count} dosya başarıyla eklendi"
+msgstr[0] "{count} dosya başarıyla eklendi"
+msgstr[1] "{count} dosya başarıyla eklendi"
 # File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 229
 #: src/bigocrpdf/services/settings.py:349
 msgid "No valid files were found to add"
@@ -3059,7 +3084,8 @@ msgstr "Ayarlar başarıyla kaydedildi."
 #, python-brace-format
 msgid "Saved {count} selected file"
 msgid_plural "Saved {count} selected files"
-msgstr[0] "Seçilen {count} dosya kaydedildi,Seçilen {count} dosya kaydedildi"
+msgstr[0] "Seçilen {count} dosya kaydedildi"
+msgstr[1] "Seçilen {count} dosya kaydedildi"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
 # line: 406
 #: src/bigocrpdf/services/settings.py:658
@@ -3183,7 +3209,8 @@ msgstr "Görüntü sıkıştırma optimize ediliyor..."
 #, python-brace-format
 msgid "{count} page re-encoded with JBIG2"
 msgid_plural "{count} pages re-encoded with JBIG2"
-msgstr[0] "{count} sayfa JBIG2 ile yeniden kodlandı,{count} sayfa JBIG2 ile yeniden kodlandı"
+msgstr[0] "{count} sayfa JBIG2 ile yeniden kodlandı"
+msgstr[1] "{count} sayfa JBIG2 ile yeniden kodlandı"
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
 # line: 746
 #: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:343
@@ -3299,6 +3326,7 @@ msgstr "Okunabilir giriş dosyası sağlanmadı."
 msgid "Started OCR processing for {count} file using RapidOCR"
 msgid_plural "Started OCR processing for {count} files using RapidOCR"
 msgstr[0] ""
+msgstr[1] ""
 "RapidOCR kullanılarak {count} dosya için OCR işlemi başlatıldı,RapidOCR kullanılarak {count} dosya "
 "için OCR işlemi başlatıldı"
 # File:
@@ -3388,6 +3416,7 @@ msgstr "OCR işleme tamamlandı"
 msgid "OCR processing completed successfully for {count} file"
 msgid_plural "OCR processing completed successfully for {count} files"
 msgstr[0] ""
+msgstr[1] ""
 "{count} dosyası için OCR işleme başarıyla tamamlandı,{count} dosya için OCR işlemi başarıyla "
 "tamamlandı"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 618

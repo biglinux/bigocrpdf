@@ -62,6 +62,8 @@ msgstr "V schránce nejsou žádné podporované soubory."
 msgid "{count} file added from clipboard"
 msgid_plural "{count} files added from clipboard"
 msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 "{count} soubor přidán ze schránky,{count} soubory přidány ze schránky,{count} souborů přidáno ze "
 "schránky"
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 175
@@ -74,6 +76,8 @@ msgstr "Vloženo více obrázků"
 msgid "You pasted {count} image. How would you like to add it?"
 msgid_plural "You pasted {count} images. How would you like to add them?"
 msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 "Vložili jste {count} obrázek. Jak to chcete přidat?,Vložili jste {count} obrázky. Jak je chcete "
 "přidat?,Vložili jste {count} obrázků. Jak je chcete přidat?"
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 224
@@ -126,13 +130,17 @@ msgstr "Editor PDF - sloučený PDF"
 #, python-brace-format
 msgid "Combined PDF ({count} file)"
 msgid_plural "Combined PDF ({count} files)"
-msgstr[0] "Kombinované PDF ({count} soubor),Kombinované PDF ({count} soubory),Kombinované PDF ({count} souborů)"
+msgstr[0] "Kombinované PDF ({count} soubor)"
+msgstr[1] "Kombinované PDF ({count} soubory)"
+msgstr[2] "Kombinované PDF ({count} souborů)"
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 191
 #: src/bigocrpdf/application.py:346
 #, python-brace-format
 msgid "Added {count} file from command line"
 msgid_plural "Added {count} files from command line"
 msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 "Přidán {count} soubor z příkazového řádku,Přidány {count} soubory z příkazového řádku,Přidáno "
 "{count} souborů z příkazového řádku"
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 270
@@ -140,7 +148,9 @@ msgstr[0] ""
 #, python-brace-format
 msgid "Opened {count} file"
 msgid_plural "Opened {count} files"
-msgstr[0] "Otevřen {count} soubor,Otevřeny {count} soubory,Otevřeno {count} souborů"
+msgstr[0] "Otevřen {count} soubor"
+msgstr[1] "Otevřeny {count} soubory"
+msgstr[2] "Otevřeno {count} souborů"
 # File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 258
 #: src/bigocrpdf/application.py:391 src/bigocrpdf/application.py:396
 #: src/bigocrpdf/services/settings.py:507
@@ -547,6 +557,8 @@ msgstr "Uloženo {ok}; {n} selhalo"
 msgid "Saved {count} file to {folder}"
 msgid_plural "Saved {count} files to {folder}"
 msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 "{count} soubor uložen do {folder},Byly uloženy {count} soubory do {folder},Bylo uloženo {count} "
 "souborů do {folder}"
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1023
@@ -623,7 +635,9 @@ msgstr "Hlavní"
 #, python-brace-format
 msgid "{count} file in queue"
 msgid_plural "{count} files in queue"
-msgstr[0] "{count} soubor ve frontě,{count} soubory ve frontě,{count} souborů ve frontě"
+msgstr[0] "{count} soubor ve frontě"
+msgstr[1] "{count} soubory ve frontě"
+msgstr[2] "{count} souborů ve frontě"
 # File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 203
 #: src/bigocrpdf/processing_controller.py:82
 #: src/bigocrpdf/processing_controller.py:448 src/bigocrpdf/ui/window_ui.py:234
@@ -829,13 +843,17 @@ msgstr "Zpracování OCR bylo dokončeno pro tento soubor, ale extrahovaný text
 #, python-brace-format
 msgid "{count} word"
 msgid_plural "{count} words"
-msgstr[0] "{count} slovo,{count} slova,{count} slov"
+msgstr[0] "{count} slovo"
+msgstr[1] "{count} slova"
+msgstr[2] "{count} slov"
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
 #: src/bigocrpdf/ui/text_viewer_controller.py:165
 #, python-brace-format
 msgid "{count} character"
 msgid_plural "{count} characters"
-msgstr[0] "{count} znak,{count} znaky,{count} znaků"
+msgstr[0] "{count} znak"
+msgstr[1] "{count} znaky"
+msgstr[2] "{count} znaků"
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
 #: src/bigocrpdf/ui/text_viewer_controller.py:169
 #, python-brace-format
@@ -934,7 +952,9 @@ msgstr "Vybráno: {count}"
 #, python-brace-format
 msgid "{count} page"
 msgid_plural "{count} pages"
-msgstr[0] "{count} stránka,{count} stránky,{count} stran"
+msgstr[0] "{count} stránka"
+msgstr[1] "{count} stránky"
+msgstr[2] "{count} stran"
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 374
 #: src/bigocrpdf/ui/conclusion_ui_mixin.py:285
 msgid "Open the processed file"
@@ -1143,6 +1163,8 @@ msgstr "Sloučit do jednoho PDF"
 msgid "Merged {count} image into one PDF"
 msgid_plural "Merged {count} images into one PDF"
 msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 "Sloučen {count} obrázek do jednoho PDF,Sloučeny {count} obrázky do jednoho PDF,Sloučeno {count} "
 "obrázků do jednoho PDF"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
@@ -1166,7 +1188,9 @@ msgstr "Odstraňte všechny soubory ze seznamu."
 #, python-brace-format
 msgid "{count} file"
 msgid_plural "{count} files"
-msgstr[0] "{count} soubor,{count} soubory,{count} souborů"
+msgstr[0] "{count} soubor"
+msgstr[1] "{count} soubory"
+msgstr[2] "{count} souborů"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 126
@@ -1194,6 +1218,8 @@ msgstr "Vymazat frontu souborů?"
 msgid "This will remove {count} file from the queue."
 msgid_plural "This will remove {count} files from the queue."
 msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 "Tím se odstraní {count} soubor z fronty.,Tím se odstraní {count} soubory z fronty.,Tím se odstraní "
 "{count} souborů z fronty."
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 202
@@ -1325,6 +1351,8 @@ msgstr "Zpracovaný soubor {current}/{total}: {filename}"
 msgid "<b>OCR processing complete!</b> {total} file processed · Total time: {time}"
 msgid_plural "<b>OCR processing complete!</b> {total} files processed · Total time: {time}"
 msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 "<b>Zpracování OCR dokončeno!</b> {total} zpracován soubor · Celkový čas: {time},<b>Zpracování OCR "
 "dokončeno!</b> {total} soubory zpracovány · Celkový čas: {time},<b>Zpracování OCR dokončeno!</b> "
 "Zpracováno {total} souborů · Celkový čas: {time}"
@@ -1334,6 +1362,8 @@ msgstr[0] ""
 msgid "OCR processing complete. {total} file processed."
 msgid_plural "OCR processing complete. {total} files processed."
 msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 "Zpracování OCR dokončeno. {total} zpracován soubor.,Zpracování OCR dokončeno. Zpracovány {total} "
 "soubory.,Zpracování OCR dokončeno. Zpracováno {total} souborů."
 # File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 325
@@ -1364,6 +1394,8 @@ msgstr "Dokončeno: {processed}/{total} · Čas: {time}"
 msgid "Starting processing of {total} file... · Time: {time}"
 msgid_plural "Starting processing of {total} files... · Time: {time}"
 msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 "Spouštění zpracování {total} souboru... · Čas: {time},Spouštění zpracování {total} souborů... · "
 "Čas: {time},Spouštění zpracování {total} souborů... · Čas: {time}"
 # File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 482
@@ -1539,6 +1571,8 @@ msgstr "Nepodařilo se načíst PDF: {}"
 msgid "{total} page · {included} included"
 msgid_plural "{total} pages · {included} included"
 msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 "{total} stránka · {included} v ceně,{total} stránky · {included} v ceně,{total} stran · {included} "
 "v ceně"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
@@ -1551,7 +1585,9 @@ msgstr "{count} vybráno"
 #, python-brace-format
 msgid "{count} page selected"
 msgid_plural "{count} pages selected"
-msgstr[0] "Vybrána {count} stránka,Vybrány {count} stránky,Vybráno {count} stránek"
+msgstr[0] "Vybrána {count} stránka"
+msgstr[1] "Vybrány {count} stránky"
+msgstr[2] "Vybráno {count} stránek"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:337
 msgid "Saving…"
@@ -1964,7 +2000,9 @@ msgstr "Jak chcete tyto soubory otevřít?"
 #, python-brace-format
 msgid "{count} PDF file was selected."
 msgid_plural "{count} PDF files were selected."
-msgstr[0] "Byl vybrán {count} soubor PDF.,Byly vybrány {count} soubory PDF.,Bylo vybráno {count} souborů PDF."
+msgstr[0] "Byl vybrán {count} soubor PDF."
+msgstr[1] "Byly vybrány {count} soubory PDF."
+msgstr[2] "Bylo vybráno {count} souborů PDF."
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 86
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:88
 msgid "Open in separate windows"
@@ -2196,7 +2234,9 @@ msgstr "Seznam obrázků"
 #, python-brace-format
 msgid "{count} image"
 msgid_plural "{count} images"
-msgstr[0] "{count} obrázek,{count} obrázky,{count} obrázků"
+msgstr[0] "{count} obrázek"
+msgstr[1] "{count} obrázky"
+msgstr[2] "{count} obrázků"
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 792
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 793
 #: src/bigocrpdf/ui/settings_queue_mixin.py:938
@@ -2235,6 +2275,8 @@ msgstr "Bylo vloženo více obrázků."
 msgid "You dropped {count} image. How would you like to add it?"
 msgid_plural "You dropped {count} images. How would you like to add them?"
 msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 "Vypadl vám {count} obrázek. Jak to chcete přidat?,Vypadly vám {count} obrázky. Jak je chcete "
 "přidat?,Vypadlo vám {count} obrázků. Jak je chcete přidat?"
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 1094
@@ -2264,6 +2306,8 @@ msgstr "Vybráno více obrázků"
 msgid "You selected {count} image. How would you like to add it?"
 msgid_plural "You selected {count} images. How would you like to add them?"
 msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 "Vybrali jste {count} obrázek. Jak to chcete přidat?,Vybrali jste {count} obrázky. Jak je chcete "
 "přidat?,Vybrali jste {count} obrázků. Jak je chcete přidat?"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 546
@@ -2421,6 +2465,8 @@ msgstr "Životopis"
 msgid "Session resumed with {count} file"
 msgid_plural "Session resumed with {count} files"
 msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 "Relace byla obnovena s {count} souborem,Relace byla obnovena se {count} soubory,Relace byla "
 "obnovena s {count} soubory"
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 398
@@ -3043,14 +3089,18 @@ msgstr "Nepodařilo se uložit textový soubor: {0}"
 #, python-brace-format
 msgid "Attempting to add {count} file"
 msgid_plural "Attempting to add {count} files"
-msgstr[0] "Pokus o přidání {count} souboru,Pokus o přidání {count} souborů,Pokus o přidání {count} souborů"
+msgstr[0] "Pokus o přidání {count} souboru"
+msgstr[1] "Pokus o přidání {count} souborů"
+msgstr[2] "Pokus o přidání {count} souborů"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
 # line: 120
 #: src/bigocrpdf/services/settings.py:343
 #, python-brace-format
 msgid "Successfully added {count} file"
 msgid_plural "Successfully added {count} files"
-msgstr[0] "Úspěšně přidán {count} soubor,Úspěšně přidány {count} soubory,Úspěšně přidáno {count} souborů"
+msgstr[0] "Úspěšně přidán {count} soubor"
+msgstr[1] "Úspěšně přidány {count} soubory"
+msgstr[2] "Úspěšně přidáno {count} souborů"
 # File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 229
 #: src/bigocrpdf/services/settings.py:349
 msgid "No valid files were found to add"
@@ -3089,6 +3139,8 @@ msgstr "Nastavení byla úspěšně uložena."
 msgid "Saved {count} selected file"
 msgid_plural "Saved {count} selected files"
 msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 "Byl uložen {count} vybraný soubor,Byly uloženy {count} vybrané soubory,Uloženo {count} vybraných "
 "souborů"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
@@ -3341,6 +3393,8 @@ msgstr "Optimalizace komprese obrázků..."
 msgid "{count} page re-encoded with JBIG2"
 msgid_plural "{count} pages re-encoded with JBIG2"
 msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 "{count} stránka překódována pomocí JBIG2,{count} stránky překódované pomocí JBIG2,{count} stránek "
 "překódovaných pomocí JBIG2"
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
@@ -3460,6 +3514,8 @@ msgstr "Nebyly zadány žádné čitelné vstupní soubory."
 msgid "Started OCR processing for {count} file using RapidOCR"
 msgid_plural "Started OCR processing for {count} files using RapidOCR"
 msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 "Bylo zahájeno zpracování OCR pro {count} soubor pomocí RapidOCR,Zahájeno zpracování OCR pro {count} "
 "soubory pomocí RapidOCR,Zahájeno zpracování OCR pro {count} souborů pomocí RapidOCR"
 # File:
@@ -3549,6 +3605,8 @@ msgstr "Zpracování OCR dokončeno"
 msgid "OCR processing completed successfully for {count} file"
 msgid_plural "OCR processing completed successfully for {count} files"
 msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 "Zpracování OCR bylo úspěšně dokončeno pro {count} soubor,Zpracování OCR bylo úspěšně dokončeno pro "
 "{count} soubory,Zpracování OCR bylo úspěšně dokončeno pro {count} souborů"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 611

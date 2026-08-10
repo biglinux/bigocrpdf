@@ -61,7 +61,8 @@ msgstr "Nincsenek támogatott fájlok a vágólapon."
 #, python-brace-format
 msgid "{count} file added from clipboard"
 msgid_plural "{count} files added from clipboard"
-msgstr[0] "{count} fájl hozzáadva a vágólapról,{count} fájl hozzáadva a vágólapról"
+msgstr[0] "{count} fájl hozzáadva a vágólapról"
+msgstr[1] "{count} fájl hozzáadva a vágólapról"
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 175
 #: src/bigocrpdf/window_controller.py:260
 msgid "Multiple Images Pasted"
@@ -72,6 +73,7 @@ msgstr "Több kép beillesztve"
 msgid "You pasted {count} image. How would you like to add it?"
 msgid_plural "You pasted {count} images. How would you like to add them?"
 msgstr[0] ""
+msgstr[1] ""
 "{count} képet illesztett be. Hogyan szeretné hozzáadni?,{count} képet illesztett be. Hogyan "
 "szeretné hozzáadni őket?"
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 224
@@ -124,19 +126,22 @@ msgstr "PDF-szerkesztő - egyesített PDF"
 #, python-brace-format
 msgid "Combined PDF ({count} file)"
 msgid_plural "Combined PDF ({count} files)"
-msgstr[0] "Kombinált PDF ({count} fájl),Kombinált PDF ({count} fájl)"
+msgstr[0] "Kombinált PDF ({count} fájl)"
+msgstr[1] "Kombinált PDF ({count} fájl)"
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 191
 #: src/bigocrpdf/application.py:346
 #, python-brace-format
 msgid "Added {count} file from command line"
 msgid_plural "Added {count} files from command line"
-msgstr[0] "{count} fájl hozzáadva a parancssorból,{count} fájl hozzáadva a parancssorból"
+msgstr[0] "{count} fájl hozzáadva a parancssorból"
+msgstr[1] "{count} fájl hozzáadva a parancssorból"
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 270
 #: src/bigocrpdf/application.py:376
 #, python-brace-format
 msgid "Opened {count} file"
 msgid_plural "Opened {count} files"
-msgstr[0] "{count} fájl megnyitva,{count} fájl megnyitva"
+msgstr[0] "{count} fájl megnyitva"
+msgstr[1] "{count} fájl megnyitva"
 # File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 258
 #: src/bigocrpdf/application.py:391 src/bigocrpdf/application.py:396
 #: src/bigocrpdf/services/settings.py:507
@@ -548,7 +553,8 @@ msgstr "Mentve {ok}; {n} sikertelen"
 #, python-brace-format
 msgid "Saved {count} file to {folder}"
 msgid_plural "Saved {count} files to {folder}"
-msgstr[0] "{count} fájl mentve ide: {folder},{count} fájl mentve ide: {folder}"
+msgstr[0] "{count} fájl mentve ide: {folder}"
+msgstr[1] "{count} fájl mentve ide: {folder}"
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1023
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:766
 #: src/bigocrpdf/ui/settings_queue_mixin.py:724
@@ -617,7 +623,8 @@ msgstr "Fő"
 #, python-brace-format
 msgid "{count} file in queue"
 msgid_plural "{count} files in queue"
-msgstr[0] "{count} fájl van a sorban,{count} fájl van a sorban"
+msgstr[0] "{count} fájl van a sorban"
+msgstr[1] "{count} fájl van a sorban"
 # File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 203
 #: src/bigocrpdf/processing_controller.py:82
 #: src/bigocrpdf/processing_controller.py:448 src/bigocrpdf/ui/window_ui.py:234
@@ -825,13 +832,15 @@ msgstr "Az OCR feldolgozás befejeződött ehhez a fájlhoz, de a kinyert szöve
 #, python-brace-format
 msgid "{count} word"
 msgid_plural "{count} words"
-msgstr[0] "{count} szó,{count} szó"
+msgstr[0] "{count} szó"
+msgstr[1] "{count} szó"
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
 #: src/bigocrpdf/ui/text_viewer_controller.py:165
 #, python-brace-format
 msgid "{count} character"
 msgid_plural "{count} characters"
-msgstr[0] "{count} karakter,{count} karakter"
+msgstr[0] "{count} karakter"
+msgstr[1] "{count} karakter"
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
 #: src/bigocrpdf/ui/text_viewer_controller.py:169
 #, python-brace-format
@@ -912,7 +921,8 @@ msgstr "Kiválasztva: {count}"
 #, python-brace-format
 msgid "{count} page"
 msgid_plural "{count} pages"
-msgstr[0] "{count} oldal,{count} oldal"
+msgstr[0] "{count} oldal"
+msgstr[1] "{count} oldal"
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 374
 #: src/bigocrpdf/ui/conclusion_ui_mixin.py:285
 msgid "Open the processed file"
@@ -1120,7 +1130,8 @@ msgstr "Egyesítés egy PDF-be"
 #, python-brace-format
 msgid "Merged {count} image into one PDF"
 msgid_plural "Merged {count} images into one PDF"
-msgstr[0] "{count} kép egy PDF-be egyesítve,{count} kép egyesített egy PDF-be"
+msgstr[0] "{count} kép egy PDF-be egyesítve"
+msgstr[1] "{count} kép egyesített egy PDF-be"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1231
@@ -1142,7 +1153,8 @@ msgstr "Távolítsa el az összes fájlt a listából."
 #, python-brace-format
 msgid "{count} file"
 msgid_plural "{count} files"
-msgstr[0] "{count} fájl,{count} fájl"
+msgstr[0] "{count} fájl"
+msgstr[1] "{count} fájl"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 126
@@ -1169,7 +1181,8 @@ msgstr "Fájl sor törlése?"
 #, python-brace-format
 msgid "This will remove {count} file from the queue."
 msgid_plural "This will remove {count} files from the queue."
-msgstr[0] "Ezzel {count} fájlt eltávolít a sorból.,Ezzel {count} fájlt eltávolít a sorból."
+msgstr[0] "Ezzel {count} fájlt eltávolít a sorból."
+msgstr[1] "Ezzel {count} fájlt eltávolít a sorból."
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 202
 #: src/bigocrpdf/ui/header_bar.py:182
 msgid "Grid view (click for list)"
@@ -1299,6 +1312,7 @@ msgstr "Feldolgozott fájl {current}/{total}: {filename}"
 msgid "<b>OCR processing complete!</b> {total} file processed · Total time: {time}"
 msgid_plural "<b>OCR processing complete!</b> {total} files processed · Total time: {time}"
 msgstr[0] ""
+msgstr[1] ""
 "<b>OCR feldolgozás befejeződött!</b> {total} fájl feldolgozva · Teljes idő: {time},<b>OCR "
 "feldolgozás befejeződött!</b> {total} fájl feldolgozva · Teljes idő: {time}"
 # File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 409
@@ -1307,6 +1321,7 @@ msgstr[0] ""
 msgid "OCR processing complete. {total} file processed."
 msgid_plural "OCR processing complete. {total} files processed."
 msgstr[0] ""
+msgstr[1] ""
 "Az OCR feldolgozás befejeződött. {total} fájl feldolgozva.,Az OCR feldolgozás befejeződött. {total} "
 "fájl feldolgozva."
 # File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 325
@@ -1337,6 +1352,7 @@ msgstr "Befejezve: {processed}/{total} · Idő: {time}"
 msgid "Starting processing of {total} file... · Time: {time}"
 msgid_plural "Starting processing of {total} files... · Time: {time}"
 msgstr[0] ""
+msgstr[1] ""
 "{total} fájl feldolgozásának megkezdése... · Idő: {time},{total} fájl feldolgozásának megkezdése... "
 "· Idő: {time}"
 # File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 482
@@ -1512,7 +1528,8 @@ msgstr "PDF betöltése nem sikerült: {}"
 #, python-brace-format
 msgid "{total} page · {included} included"
 msgid_plural "{total} pages · {included} included"
-msgstr[0] "{total} oldal · {included} tartalmazza,{total} oldal · {included} tartalmazza"
+msgstr[0] "{total} oldal · {included} tartalmazza"
+msgstr[1] "{total} oldal · {included} tartalmazza"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:266
 #, python-brace-format
@@ -1523,7 +1540,8 @@ msgstr "{count} kijelölve"
 #, python-brace-format
 msgid "{count} page selected"
 msgid_plural "{count} pages selected"
-msgstr[0] "{count} oldal kiválasztva,{count} oldal kiválasztva"
+msgstr[0] "{count} oldal kiválasztva"
+msgstr[1] "{count} oldal kiválasztva"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:337
 msgid "Saving…"
@@ -1936,7 +1954,8 @@ msgstr "Hogyan szeretné megnyitni ezeket a fájlokat?"
 #, python-brace-format
 msgid "{count} PDF file was selected."
 msgid_plural "{count} PDF files were selected."
-msgstr[0] "{count} PDF-fájl lett kiválasztva.,{count} PDF fájl lett kiválasztva."
+msgstr[0] "{count} PDF-fájl lett kiválasztva."
+msgstr[1] "{count} PDF fájl lett kiválasztva."
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 86
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:88
 msgid "Open in separate windows"
@@ -2168,7 +2187,8 @@ msgstr "Képlista"
 #, python-brace-format
 msgid "{count} image"
 msgid_plural "{count} images"
-msgstr[0] "{count} kép,{count} kép"
+msgstr[0] "{count} kép"
+msgstr[1] "{count} kép"
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 792
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 793
 #: src/bigocrpdf/ui/settings_queue_mixin.py:938
@@ -2207,6 +2227,7 @@ msgstr "Több kép lett letéve"
 msgid "You dropped {count} image. How would you like to add it?"
 msgid_plural "You dropped {count} images. How would you like to add them?"
 msgstr[0] ""
+msgstr[1] ""
 "Eldobtál {count} képet. Hogyan szeretné hozzáadni?,{count} képet dobtál el. Hogyan szeretné "
 "hozzáadni őket?"
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 1094
@@ -2236,6 +2257,7 @@ msgstr "Több kép ki van választva"
 msgid "You selected {count} image. How would you like to add it?"
 msgid_plural "You selected {count} images. How would you like to add them?"
 msgstr[0] ""
+msgstr[1] ""
 "{count} képet választott ki. Hogyan szeretné hozzáadni?,{count} képet választott ki. Hogyan "
 "szeretné hozzáadni őket?"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 546
@@ -2392,7 +2414,8 @@ msgstr "Folytatás"
 #, python-brace-format
 msgid "Session resumed with {count} file"
 msgid_plural "Session resumed with {count} files"
-msgstr[0] "A munkamenet {count} fájllal folytatódott,A munkamenet {count} fájllal folytatódott"
+msgstr[0] "A munkamenet {count} fájllal folytatódott"
+msgstr[1] "A munkamenet {count} fájllal folytatódott"
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 398
 #: src/bigocrpdf/ui/session_recovery_controller.py:93
 msgid "Could not resume session"
@@ -3016,14 +3039,16 @@ msgstr "A szövegfájl mentése nem sikerült: {0}"
 #, python-brace-format
 msgid "Attempting to add {count} file"
 msgid_plural "Attempting to add {count} files"
-msgstr[0] "{count} fájl hozzáadásának kísérlete,{count} fájl hozzáadásának kísérlete"
+msgstr[0] "{count} fájl hozzáadásának kísérlete"
+msgstr[1] "{count} fájl hozzáadásának kísérlete"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
 # line: 120
 #: src/bigocrpdf/services/settings.py:343
 #, python-brace-format
 msgid "Successfully added {count} file"
 msgid_plural "Successfully added {count} files"
-msgstr[0] "{count} fájl sikeresen hozzáadva,{count} fájl sikeresen hozzáadva"
+msgstr[0] "{count} fájl sikeresen hozzáadva"
+msgstr[1] "{count} fájl sikeresen hozzáadva"
 # File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 229
 #: src/bigocrpdf/services/settings.py:349
 msgid "No valid files were found to add"
@@ -3061,7 +3086,8 @@ msgstr "A beállítások sikeresen mentve."
 #, python-brace-format
 msgid "Saved {count} selected file"
 msgid_plural "Saved {count} selected files"
-msgstr[0] "{count} kiválasztott fájl mentve,{count} kiválasztott fájl mentve"
+msgstr[0] "{count} kiválasztott fájl mentve"
+msgstr[1] "{count} kiválasztott fájl mentve"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
 # line: 406
 #: src/bigocrpdf/services/settings.py:658
@@ -3215,7 +3241,8 @@ msgstr "Képtömörítés optimalizálása..."
 #, python-brace-format
 msgid "{count} page re-encoded with JBIG2"
 msgid_plural "{count} pages re-encoded with JBIG2"
-msgstr[0] "{count} oldal JBIG2-vel újrakódolva,{count} oldal JBIG2-vel újrakódolva"
+msgstr[0] "{count} oldal JBIG2-vel újrakódolva"
+msgstr[1] "{count} oldal JBIG2-vel újrakódolva"
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
 # line: 746
 #: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:343
@@ -3333,6 +3360,7 @@ msgstr "Nem lett megadva olvasható bemeneti fájl."
 msgid "Started OCR processing for {count} file using RapidOCR"
 msgid_plural "Started OCR processing for {count} files using RapidOCR"
 msgstr[0] ""
+msgstr[1] ""
 "{count} fájl OCR-feldolgozása megkezdődött a RapidOCR használatával,{count} fájl OCR-feldolgozása "
 "megkezdődött a RapidOCR használatával"
 # File:
@@ -3422,6 +3450,7 @@ msgstr "OCR feldolgozás befejeződött"
 msgid "OCR processing completed successfully for {count} file"
 msgid_plural "OCR processing completed successfully for {count} files"
 msgstr[0] ""
+msgstr[1] ""
 "{count} fájl OCR-feldolgozása sikeresen befejeződött,{count} fájl OCR-feldolgozása sikeresen "
 "befejeződött"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 611
