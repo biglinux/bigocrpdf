@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from benchmarks.compare_benchmarks import (
+    _record_regression_fields,
     compare_record_coverage,
     main,
     render_markdown,
@@ -15,11 +16,12 @@ def _record(
     sample_id: str,
     *,
     profile: str = "balanced_cpu",
-    dataset: str = "FUNSD",
+    dataset: str = "DharmaOCR",
     page_index: int = 0,
     cer: float = 0.1,
+    **overrides: object,
 ) -> dict[str, object]:
-    return {
+    record = {
         "id": sample_id,
         "benchmark_profile": profile,
         "dataset": dataset,
@@ -92,6 +94,8 @@ def _record(
         "text_extractor": "pdftotext",
         "text_extractor_version": "24.02",
     }
+    record.update(overrides)
+    return record
 
 
 def test_comparison_rejects_candidate_that_drops_a_hard_sample() -> None:
@@ -110,7 +114,7 @@ def test_comparison_rejects_candidate_that_drops_a_hard_sample() -> None:
     assert failed is True
     assert coverage["baseline_only_count"] == 1
     assert "coverage_mismatch: True" in markdown
-    assert "balanced_cpu / FUNSD / hard / page 0" in markdown
+    assert "balanced_cpu / DharmaOCR / hard / page 0" in markdown
 
 
 def test_comparison_accepts_identical_record_identity_sets() -> None:
@@ -472,3 +476,97 @@ def test_comparison_report_replaces_symlink_without_overwriting_target(
     assert protected.read_text(encoding="utf-8") == "keep"
     assert not report.is_symlink()
     assert "baseline SHA-256" in report.read_text(encoding="utf-8")
+
+
+def test_a_sample_that_stops_producing_boxes_fails_the_gate() -> None:
+    """The shape of the real-world failure: text one day, silence the next.
+
+    The error rate stays inside its budget here, so only the zero-output
+    invariant can catch it.
+    """
+    baseline = _record("photo", cer=0.02)
+    baseline["ocr_box_count"] = 42
+    candidate = _record("photo", cer=0.02)
+    candidate["ocr_box_count"] = 0
+
+    assert "ocr_box_count_zero" in _record_regression_fields(baseline, candidate)
+
+
+def test_pages_going_blank_fails_even_when_the_document_average_holds() -> None:
+    """An eighteen-page contract with seventeen blank pages still reads well
+    on average; per-page counting is what refuses it."""
+    baseline = _record("contrato", cer=0.02)
+    baseline["pages_with_zero_boxes"] = 0
+    candidate = _record("contrato", cer=0.02)
+    candidate["pages_with_zero_boxes"] = 17
+
+    assert "pages_with_zero_boxes" in _record_regression_fields(baseline, candidate)
+
+
+def test_a_sample_that_never_produced_boxes_is_not_a_new_regression() -> None:
+    """A blank page in the baseline is a known state, not a fresh failure."""
+    baseline = _record("blank")
+    baseline["ocr_box_count"] = 0
+    candidate = _record("blank")
+    candidate["ocr_box_count"] = 0
+
+    assert _record_regression_fields(baseline, candidate) == []
+
+
+def test_recovering_blank_pages_is_not_a_regression() -> None:
+    baseline = _record("contrato")
+    baseline["pages_with_zero_boxes"] = 5
+    candidate = _record("contrato")
+    candidate["pages_with_zero_boxes"] = 0
+
+    assert _record_regression_fields(baseline, candidate) == []
+
+
+def test_records_without_box_counts_are_ignored_by_the_invariant() -> None:
+    """Older baselines predate these fields and must stay comparable."""
+    assert _record_regression_fields(_record("legacy"), _record("legacy")) == []
+
+
+class TestOptionalDigestsDoNotBlockComparison:
+    """A recogniser with no separate dictionary file still has a comparable run.
+
+    PP-OCRv6 carries its dictionary inside the model, so the producer records
+    ``effective_dictionary_sha256`` as an explicit null. Reading that as "the
+    producer never told us" made every comparison fail on coverage -- a file
+    compared against itself included, which is what exposed it.
+    """
+
+    def test_a_null_digest_on_both_sides_is_comparable(self):
+        rows = [_record("amostra", effective_dictionary_sha256=None)]
+
+        coverage = compare_record_coverage(rows, rows)
+
+        assert coverage["configuration_missing_count"] == 0
+
+    def test_a_digest_on_one_side_only_is_still_a_mismatch(self):
+        """The property that makes the exemption safe: disagreement still fails."""
+        baseline = [_record("amostra", effective_dictionary_sha256=None)]
+        candidate = [_record("amostra", effective_dictionary_sha256="b" * 64)]
+
+        coverage = compare_record_coverage(baseline, candidate)
+
+        assert (
+            coverage["configuration_mismatch_count"] + coverage["configuration_missing_count"] > 0
+        )
+
+    def test_an_omitted_key_still_fails(self):
+        """An older producer that never wrote the field is a real gap."""
+        row = _record("amostra")
+        del row["effective_dictionary_sha256"]
+
+        coverage = compare_record_coverage([row], [row])
+
+        assert coverage["configuration_missing_count"] > 0
+
+    def test_a_required_digest_may_not_be_null(self):
+        """Only the dictionary is optional; the model digests are not."""
+        rows = [_record("amostra", effective_rec_model_sha256=None)]
+
+        coverage = compare_record_coverage(rows, rows)
+
+        assert coverage["configuration_missing_count"] > 0

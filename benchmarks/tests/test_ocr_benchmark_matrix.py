@@ -447,7 +447,7 @@ def test_summarize_records_by_dataset_and_tag_tracks_peak_rss() -> None:
         [
             {
                 "benchmark_profile": "balanced_cpu",
-                "dataset": "FUNSD",
+                "dataset": "DharmaOCR",
                 "tags": ["form", "english"],
                 "text_layer_ok": True,
                 "char_error_rate": 0.1,
@@ -460,7 +460,7 @@ def test_summarize_records_by_dataset_and_tag_tracks_peak_rss() -> None:
             },
             {
                 "benchmark_profile": "balanced_cpu",
-                "dataset": "FUNSD",
+                "dataset": "DharmaOCR",
                 "tags": ["form"],
                 "text_layer_ok": False,
                 "char_error_rate": 0.3,
@@ -475,8 +475,8 @@ def test_summarize_records_by_dataset_and_tag_tracks_peak_rss() -> None:
     )
 
     by_group = {summary["summary_group"]: summary for summary in summaries}
-    assert by_group["dataset:FUNSD"]["pages"] == 2
-    assert by_group["dataset:FUNSD"]["peak_rss_mb"] == 140.0
+    assert by_group["dataset:DharmaOCR"]["pages"] == 2
+    assert by_group["dataset:DharmaOCR"]["peak_rss_mb"] == 140.0
     assert by_group["tag:english"]["pages"] == 1
     assert by_group["tag:form"]["text_layer_ok_percent"] == 50.0
 
@@ -634,7 +634,7 @@ def test_group_summary_writers_include_group_column(tmp_path: Path) -> None:
     summaries = [
         {
             "benchmark_profile": "balanced_cpu",
-            "summary_group": "dataset:FUNSD",
+            "summary_group": "dataset:DharmaOCR",
             "pages": 2,
             "successful_pages": 2,
             "failed_pages": 0,
@@ -664,10 +664,12 @@ def test_group_summary_writers_include_group_column(tmp_path: Path) -> None:
         source_sha256=source_sha256,
     )
 
-    assert "| balanced_cpu | dataset:FUNSD | 2 | 2/2" in markdown_path.read_text(encoding="utf-8")
+    assert "| balanced_cpu | dataset:DharmaOCR | 2 | 2/2" in markdown_path.read_text(
+        encoding="utf-8"
+    )
     rows = list(csv.DictReader(csv_path.open(encoding="utf-8")))
     assert rows[0]["source_jsonl_sha256"] == source_sha256
-    assert rows[0]["summary_group"] == "dataset:FUNSD"
+    assert rows[0]["summary_group"] == "dataset:DharmaOCR"
 
 
 def test_summary_writer_replaces_symlink_without_overwriting_target(tmp_path: Path) -> None:
@@ -681,3 +683,30 @@ def test_summary_writer_replaces_symlink_without_overwriting_target(tmp_path: Pa
     assert protected.read_text(encoding="utf-8") == "keep"
     assert not report.is_symlink()
     assert "BigOCRPDF benchmark summary" in report.read_text(encoding="utf-8")
+
+
+def test_profiles_are_pairwise_distinct() -> None:
+    """Two profiles with identical settings measure the same thing twice.
+
+    ``gpu_experimental`` was byte-identical to ``balanced_cpu`` and set no GPU
+    backend, so its results were indistinguishable while its name promised
+    otherwise. A GPU profile can come back when it configures a GPU.
+    """
+    from benchmarks.ocr_benchmark import PROFILES
+
+    settings = [tuple(sorted(profile.items())) for profile in PROFILES.values()]
+
+    assert len(set(settings)) == len(settings), (
+        f"profiles must differ in at least one setting: {sorted(PROFILES)} -> {settings}"
+    )
+
+
+def test_a_profile_named_for_a_backend_configures_it() -> None:
+    """Guards against reintroducing a name that does not match its settings."""
+    from benchmarks.ocr_benchmark import PROFILES
+
+    for name, profile in PROFILES.items():
+        if "gpu" in name:
+            assert profile.get("gpu_backend") not in (None, "", "off"), (
+                f"profile {name!r} claims a GPU but does not select one"
+            )

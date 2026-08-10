@@ -33,7 +33,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 
-from benchmarks.ocr_metrics import char_error_rate, levenshtein_ratio, word_error_rate
+from benchmarks.ocr_metrics import (
+    aggregate_confidence,
+    char_error_rate,
+    levenshtein_ratio,
+    word_error_rate,
+)
 from benchmarks.validate_text_layer import build_report
 from bigocrpdf.services.rapidocr_service.ocr_document_io import load_ocr_document_sidecar
 
@@ -53,12 +58,6 @@ PROFILES: dict[str, dict[str, str]] = {
     "quality_cpu": {
         "model_type": "medium",
         "dpi": "350",
-        "engine": "openvino",
-        "rec_batch_num": "1",
-    },
-    "gpu_experimental": {
-        "model_type": "small",
-        "dpi": "300",
         "engine": "openvino",
         "rec_batch_num": "1",
     },
@@ -561,8 +560,6 @@ def benchmark_row(
             "peak_rss_sample_interval_seconds": PROCESS_RSS_SAMPLE_INTERVAL_SECONDS,
             "gpu_mem_peak_mb": None,
             "pdf_output_size_bytes": output_pdf.stat().st_size if output_pdf.exists() else 0,
-            "ocr_box_count": None,
-            "ocr_confidence_mean": None,
             "ocr_text_chars": None,
             "failure_reason": "",
             "benchmark_environment": _benchmark_environment(),
@@ -748,6 +745,13 @@ def read_ocr_sidecar_metadata(output_pdf: Path) -> dict[str, Any]:
     font_path = cast(str | None, runtime.get("font_path"))
     rec_keys_path = cast(str | None, runtime.get("rec_keys_path"))
     layout_blocks = [block for page in document.pages for block in page.layout_blocks]
+    # Per-region data has always been in the sidecar; it was simply discarded
+    # here, leaving ocr_box_count and the confidence fields permanently null.
+    confidences = [
+        float(result.confidence) for page in document.pages for result in page.text_results
+    ]
+    confidence_summary = aggregate_confidence(confidences)
+    pages_with_zero_boxes = sum(1 for page in document.pages if not page.text_results)
     auto_verified_pages = [
         cast(dict[str, Any], page_data)
         for page in document.pages
@@ -766,6 +770,20 @@ def read_ocr_sidecar_metadata(output_pdf: Path) -> dict[str, Any]:
                 "font_path",
             }
         },
+        "ocr_box_count": len(confidences),
+        "ocr_confidence_mean": confidence_summary["mean"],
+        "ocr_confidence_median": confidence_summary["median"],
+        "ocr_confidence_p10": confidence_summary["p10"],
+        "ocr_confidence_min": confidence_summary["min"],
+        # The invariant that would have caught the real-world zero-OCR failure:
+        # a CER budget cannot notice a page that produced nothing, because the
+        # document average absorbs it.
+        "pages_with_zero_boxes": pages_with_zero_boxes,
+        "preprocess_traces": [
+            page.diagnostics.get("preprocess")
+            for page in document.pages
+            if page.diagnostics.get("preprocess")
+        ],
         "effective_engine_type": runtime.get("engine_type"),
         "effective_ocr_version": runtime.get("ocr_version"),
         "effective_language_hint": runtime.get("language"),

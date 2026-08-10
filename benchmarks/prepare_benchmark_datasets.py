@@ -10,36 +10,23 @@ import json
 import os
 import re
 import shutil
-import stat
 import subprocess
 import sys
 import tempfile
 import time
-import urllib.request
-import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from PIL import Image
 
-FUNSD_DATASET_URL = "https://guillaumejaume.github.io/FUNSD/dataset.zip"
-FUNSD_DATASET_SHA256 = "c31735649e4f441bcbb4fd0f379574f7520b42286e80b01d80b445649d54761f"
-MAX_FUNSD_DOWNLOAD_BYTES = 64 * 1024 * 1024
-MAX_ZIP_MEMBERS = 5_000
-MAX_ZIP_MEMBER_BYTES = 128 * 1024 * 1024
-MAX_ZIP_TOTAL_BYTES = 512 * 1024 * 1024
-MAX_ZIP_COMPRESSION_RATIO = 200
 COPY_CHUNK_BYTES = 1024 * 1024
 MANIFEST_VERSION = 1
 SAFE_SAMPLE_ID_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}\Z")
 DETERMINISTIC_PDF_TIMESTAMP = time.gmtime(946684800)
 SUPPORTED_DATASETS = {
     "dharmaocr",
-    "funsd",
-    "portuguese_ocr",
     "portuguese_synthetic",
-    "sroie",
     "synthetic",
 }
 
@@ -55,29 +42,16 @@ class HuggingFaceDatasetSpec:
 
 
 HF_DATASET_SPECS = {
-    "sroie": HuggingFaceDatasetSpec(
-        hf_id="rth/sroie-2019-v2",
-        revision="ede4bd3cd7e687bd5580d0e3f52cda1b4e9bac1c",
-        dataset_label="SROIE",
-        language="en",
-        tags=["receipt", "small_text", "english", "numbers"],
-        text_fields=["words", "text", "ocr_words", "transcription", "ground_truth"],
-    ),
     "dharmaocr": HuggingFaceDatasetSpec(
         hf_id="Dharma-AI/DharmaOCR-Benchmark",
         revision="e8f4bb516839c1a0a32ee0234b3cbcd5aa5c10d3",
         dataset_label="DharmaOCR",
         language="pt",
         tags=["pt_br", "legal", "administrative"],
-        text_fields=["text", "transcription", "ground_truth", "gt_text", "answer"],
-    ),
-    "portuguese_ocr": HuggingFaceDatasetSpec(
-        hf_id="mazafard/portuguese-ocr-dataset",
-        revision="b94db451b02f53105c0ad540705a865b13d06109",
-        dataset_label="Portuguese OCR",
-        language="pt",
-        tags=["pt_br", "synthetic_text", "unicode"],
-        text_fields=["text", "transcription", "ground_truth", "gt_text", "label"],
+        # The transcription this benchmark publishes is the assistant turn.
+        # The plain variant comes first because the other wraps the same text
+        # in JSON, and a comparison against braces measures nothing.
+        text_fields=["assistant_without_json", "text", "transcription", "ground_truth"],
     ),
 }
 
@@ -463,10 +437,21 @@ def _copy_staged_material(
     if not destination_parent.is_relative_to(output_root):
         raise ValueError(f"Benchmark sample {sample_id} has an unsafe material path: {raw_path}")
 
+    # Degraded variants share their clean sample's ground truth on purpose --
+    # the degradation moved pixels, not text -- so the same file is published
+    # once per row that cites it. Re-publishing identical bytes is that case
+    # and is fine; different bytes at the same path is a real collision and
+    # must still fail, which is why this compares rather than just overwriting.
+    if destination.exists() and _file_sha256(destination) == _file_sha256(source):
+        return
+
     flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_CLOEXEC", 0)
     flags |= getattr(os, "O_NOFOLLOW", 0)
+    # Opened before the try so that only a file this call created can be
+    # cleaned up by it. Inside, a refused O_EXCL would send the cleanup after
+    # whatever was already sitting at that path.
+    destination_fd = os.open(destination, flags, 0o600)
     try:
-        destination_fd = os.open(destination, flags, 0o600)
         with source.open("rb") as input_file, os.fdopen(destination_fd, "wb") as output_file:
             shutil.copyfileobj(input_file, output_file, COPY_CHUNK_BYTES)
             output_file.flush()
@@ -475,283 +460,6 @@ def _copy_staged_material(
     except Exception:
         destination.unlink(missing_ok=True)
         raise
-
-
-def ensure_funsd_raw_dataset(raw_root: Path, *, download: bool) -> Path:
-    """Ensure the FUNSD dataset exists under the raw data root."""
-    raw_dir = raw_root / "funsd"
-    if raw_dir.is_symlink():
-        raise ValueError(f"FUNSD dataset root cannot be a symbolic link: {raw_dir}")
-    zip_path = raw_dir / "dataset.zip"
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    if raw_dir.is_symlink():
-        raise ValueError(f"FUNSD dataset root cannot be a symbolic link: {raw_dir}")
-
-    if not any(_iter_funsd_split_dirs(raw_dir)):
-        if not zip_path.exists():
-            if not download:
-                raise FileNotFoundError(
-                    f"FUNSD is not available under {raw_dir}; rerun without --no-download"
-                )
-            if not FUNSD_DATASET_URL.startswith("https://"):
-                raise ValueError(f"Unsupported FUNSD download URL: {FUNSD_DATASET_URL}")
-            _download_verified_file(
-                FUNSD_DATASET_URL,
-                zip_path,
-                expected_sha256=FUNSD_DATASET_SHA256,
-                max_bytes=MAX_FUNSD_DOWNLOAD_BYTES,
-            )
-        _verify_file_sha256(zip_path, FUNSD_DATASET_SHA256)
-        with zipfile.ZipFile(zip_path) as archive:
-            _extract_zip_safely(archive, raw_dir)
-        _write_funsd_verification_marker(raw_dir)
-
-    if not any(_iter_funsd_split_dirs(raw_dir)):
-        raise FileNotFoundError(f"FUNSD images/annotations were not found under {raw_dir}")
-    return raw_dir
-
-
-def _funsd_tree_sha256(raw_dir: Path) -> str:
-    digest = hashlib.sha256()
-    material_paths: list[Path] = []
-    for split_dir in _iter_funsd_split_dirs(raw_dir):
-        for child_dir in (split_dir / "images", split_dir / "annotations"):
-            for path in child_dir.iterdir():
-                if path.name.startswith("."):
-                    continue
-                _validate_funsd_path(raw_dir, path, expected_directory=False)
-                if path.is_file():
-                    material_paths.append(path)
-    for path in sorted(material_paths):
-        relative_path = path.relative_to(raw_dir).as_posix().encode("utf-8")
-        digest.update(len(relative_path).to_bytes(4, "big"))
-        digest.update(relative_path)
-        digest.update(bytes.fromhex(_file_sha256(path)))
-    return digest.hexdigest()
-
-
-def _funsd_archive_tree_sha256(zip_path: Path) -> str:
-    digest = hashlib.sha256()
-    with zipfile.ZipFile(zip_path) as archive:
-        members = sorted(
-            (
-                member
-                for member in archive.infolist()
-                if not member.is_dir()
-                and not Path(member.filename).name.startswith(".")
-                and any(
-                    part.endswith("_data")
-                    and index + 1 < len(Path(member.filename).parts)
-                    and Path(member.filename).parts[index + 1] in {"images", "annotations"}
-                    for index, part in enumerate(Path(member.filename).parts)
-                )
-            ),
-            key=lambda member: member.filename,
-        )
-        for member in members:
-            relative_path = member.filename.encode("utf-8")
-            member_digest = hashlib.sha256()
-            with archive.open(member) as source:
-                while chunk := source.read(COPY_CHUNK_BYTES):
-                    member_digest.update(chunk)
-            digest.update(len(relative_path).to_bytes(4, "big"))
-            digest.update(relative_path)
-            digest.update(member_digest.digest())
-    return digest.hexdigest()
-
-
-def _write_funsd_verification_marker(raw_dir: Path) -> None:
-    marker = {
-        "schema_version": 1,
-        "archive_url": FUNSD_DATASET_URL,
-        "archive_sha256": FUNSD_DATASET_SHA256,
-        "tree_sha256": _funsd_tree_sha256(raw_dir),
-    }
-    _write_text_atomically(
-        raw_dir / ".bigocrpdf-funsd-source.json",
-        json.dumps(marker, sort_keys=True) + "\n",
-    )
-
-
-def _funsd_source_metadata(raw_dir: Path) -> dict[str, str]:
-    tree_sha256 = _funsd_tree_sha256(raw_dir)
-    zip_path = raw_dir / "dataset.zip"
-    try:
-        _verify_file_sha256(zip_path, FUNSD_DATASET_SHA256)
-        archive_tree_sha256 = _funsd_archive_tree_sha256(zip_path)
-    except (OSError, ValueError, zipfile.BadZipFile):
-        archive_tree_sha256 = None
-    if archive_tree_sha256 == tree_sha256:
-        return {
-            "kind": "funsd",
-            "verification": "verified_official_archive",
-            "url": FUNSD_DATASET_URL,
-            "sha256": FUNSD_DATASET_SHA256,
-            "tree_sha256": tree_sha256,
-        }
-    return {
-        "kind": "funsd_local",
-        "verification": "unverified_local_tree",
-        "tree_sha256": tree_sha256,
-    }
-
-
-def _snapshot_funsd_source(raw_dir: Path, snapshot_dir: Path) -> Path:
-    """Copy one concrete FUNSD source tree without following symbolic links."""
-    directory_flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
-    directory_flags |= getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
-    file_flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0)
-    file_flags |= getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
-    try:
-        root_fd = os.open(raw_dir, directory_flags)
-    except OSError as error:
-        raise ValueError(f"FUNSD dataset root is not safe: {raw_dir}") from error
-    snapshot_dir.mkdir(mode=0o700)
-    copied_files = 0
-    copied_bytes = 0
-
-    def copy_directory(source_fd: int, destination: Path) -> None:
-        nonlocal copied_files, copied_bytes
-        for name in sorted(os.listdir(source_fd)):
-            if name.startswith("."):
-                continue
-            try:
-                file_stat = os.stat(name, dir_fd=source_fd, follow_symlinks=False)
-            except OSError as error:
-                raise ValueError(f"FUNSD source changed while snapshotting: {name}") from error
-            target = destination / name
-            if stat.S_ISDIR(file_stat.st_mode):
-                try:
-                    child_fd = os.open(name, directory_flags, dir_fd=source_fd)
-                except OSError as error:
-                    raise ValueError(
-                        f"FUNSD directory is not safe while snapshotting: {name}"
-                    ) from error
-                target.mkdir(mode=0o700)
-                try:
-                    copy_directory(child_fd, target)
-                finally:
-                    os.close(child_fd)
-                continue
-            if not stat.S_ISREG(file_stat.st_mode):
-                raise ValueError(f"FUNSD source contains a non-regular material: {name}")
-
-            copied_files += 1
-            if copied_files > MAX_ZIP_MEMBERS:
-                raise ValueError("FUNSD source contains too many files")
-            try:
-                input_fd = os.open(name, file_flags, dir_fd=source_fd)
-            except OSError as error:
-                raise ValueError(
-                    f"FUNSD material is not safe while snapshotting: {name}"
-                ) from error
-            output_flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
-            output_flags |= getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
-            output_fd = os.open(target, output_flags, 0o600)
-            file_bytes = 0
-            try:
-                with os.fdopen(output_fd, "wb") as output:
-                    while chunk := os.read(input_fd, COPY_CHUNK_BYTES):
-                        file_bytes += len(chunk)
-                        copied_bytes += len(chunk)
-                        if file_bytes > MAX_ZIP_MEMBER_BYTES:
-                            raise ValueError(f"FUNSD material is too large: {name}")
-                        if copied_bytes > MAX_ZIP_TOTAL_BYTES:
-                            raise ValueError("FUNSD source exceeds the snapshot size limit")
-                        output.write(chunk)
-            except Exception:
-                target.unlink(missing_ok=True)
-                raise
-            finally:
-                os.close(input_fd)
-
-    try:
-        copy_directory(root_fd, snapshot_dir)
-    finally:
-        os.close(root_fd)
-    return snapshot_dir
-
-
-def prepare_funsd_dataset(
-    out_dir: Path,
-    raw_root: Path,
-    max_samples: int,
-    *,
-    download: bool,
-) -> list[dict[str, Any]]:
-    """Prepare FUNSD images, one-page PDFs, ground truth, and manifest rows."""
-    raw_dir = ensure_funsd_raw_dataset(raw_root, download=download)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(
-        prefix=".bigocrpdf-funsd-",
-        dir=out_dir.parent,
-    ) as stage_name:
-        stage_dir = Path(stage_name)
-        snapshot_dir = _snapshot_funsd_source(raw_dir, stage_dir / "_source")
-        source_metadata = _funsd_source_metadata(snapshot_dir)
-        images_dir = stage_dir / "images"
-        pdfs_dir = stage_dir / "pdfs"
-        ground_truth_dir = stage_dir / "ground_truth"
-        for directory in [images_dir, pdfs_dir, ground_truth_dir]:
-            directory.mkdir(parents=True, exist_ok=True)
-
-        rows: list[dict[str, Any]] = []
-        for split_dir in _iter_funsd_split_dirs(snapshot_dir):
-            split_name = split_dir.name.replace("_data", "")
-            annotations_dir = split_dir / "annotations"
-            images_source_dir = split_dir / "images"
-            for annotation_path in sorted(annotations_dir.glob("*.json")):
-                if len(rows) >= max_samples:
-                    break
-                if annotation_path.name.startswith("."):
-                    continue
-                _validate_funsd_path(
-                    snapshot_dir,
-                    annotation_path,
-                    expected_directory=False,
-                )
-                image_source = _find_matching_image(images_source_dir, annotation_path.stem)
-                if image_source is None:
-                    continue
-                _validate_funsd_path(
-                    snapshot_dir,
-                    image_source,
-                    expected_directory=False,
-                )
-                sample_id = f"funsd_{split_name}_{annotation_path.stem}"
-                image_path = images_dir / f"{sample_id}{image_source.suffix.lower()}"
-                pdf_path = pdfs_dir / f"{sample_id}.pdf"
-                gt_path = ground_truth_dir / f"{sample_id}.txt"
-
-                shutil.copyfile(image_source, image_path)
-                if not _write_image_pdf(image_path, pdf_path):
-                    image_path.unlink(missing_ok=True)
-                    continue
-                words = extract_funsd_words(json.loads(annotation_path.read_text(encoding="utf-8")))
-                gt_path.write_text(" ".join(words), encoding="utf-8")
-                rows.append(
-                    {
-                        "id": sample_id,
-                        "dataset": "FUNSD",
-                        "image": _relative(image_path, stage_dir),
-                        "pdf": _relative(pdf_path, stage_dir),
-                        "gt_text": _relative(gt_path, stage_dir),
-                        "language": "en",
-                        "tags": ["form", "noisy_scan", "english"],
-                        "source": {
-                            **source_metadata,
-                            "split": split_name,
-                        },
-                    }
-                )
-            if len(rows) >= max_samples:
-                break
-        return _publish_staged_rows(
-            stage_dir,
-            out_dir,
-            rows,
-            "funsd",
-        )
 
 
 def prepare_huggingface_dataset(
@@ -822,214 +530,6 @@ def prepare_huggingface_dataset(
         )
 
 
-def extract_funsd_words(annotation: dict[str, Any]) -> list[str]:
-    """Extract FUNSD ground-truth words in annotation order."""
-    words: list[str] = []
-    for form_entry in annotation.get("form") or []:
-        for word in form_entry.get("words") or []:
-            text = str(word.get("text") or "").strip()
-            if text:
-                words.append(text)
-        if not form_entry.get("words"):
-            text = str(form_entry.get("text") or "").strip()
-            if text:
-                words.extend(text.split())
-    return words
-
-
-def _iter_funsd_split_dirs(raw_dir: Path) -> list[Path]:
-    split_dirs: list[Path] = []
-    for path in raw_dir.rglob("*_data"):
-        images_dir = path / "images"
-        annotations_dir = path / "annotations"
-        if not images_dir.is_dir() or not annotations_dir.is_dir():
-            continue
-        _validate_funsd_path(raw_dir, path, expected_directory=True)
-        _validate_funsd_path(raw_dir, images_dir, expected_directory=True)
-        _validate_funsd_path(raw_dir, annotations_dir, expected_directory=True)
-        split_dirs.append(path)
-    return sorted(split_dirs)
-
-
-def _validate_funsd_path(
-    raw_dir: Path,
-    path: Path,
-    *,
-    expected_directory: bool,
-) -> None:
-    """Reject links and escapes anywhere below the designated FUNSD root."""
-    try:
-        relative_path = path.relative_to(raw_dir)
-    except ValueError as error:
-        raise ValueError(f"FUNSD path is outside its raw tree: {path}") from error
-    current = raw_dir
-    for component in relative_path.parts:
-        current /= component
-        if current.is_symlink():
-            raise ValueError(f"FUNSD path cannot contain a symbolic link: {current}")
-    try:
-        resolved_root = raw_dir.resolve(strict=True)
-        resolved_path = path.resolve(strict=True)
-    except OSError as error:
-        raise ValueError(f"FUNSD path does not exist: {path}") from error
-    if not resolved_path.is_relative_to(resolved_root):
-        raise ValueError(f"FUNSD path is outside its raw tree: {path}")
-    if expected_directory:
-        if not path.is_dir():
-            raise ValueError(f"FUNSD directory is invalid: {path}")
-    elif not path.is_file():
-        raise ValueError(f"FUNSD material is invalid: {path}")
-
-
-def _find_matching_image(images_dir: Path, stem: str) -> Path | None:
-    if stem.startswith("."):
-        return None
-    for suffix in [".png", ".jpg", ".jpeg"]:
-        candidate = images_dir / f"{stem}{suffix}"
-        if candidate.is_symlink():
-            raise ValueError(f"FUNSD material cannot be a symbolic link: {candidate}")
-        if candidate.is_file() and not candidate.name.startswith("."):
-            return candidate
-    return None
-
-
-def _extract_zip_safely(  # noqa: C901 - security checks remain adjacent to extraction
-    archive: zipfile.ZipFile, destination: Path
-) -> None:
-    members = archive.infolist()
-    if len(members) > MAX_ZIP_MEMBERS:
-        raise ValueError(f"Archive contains too many members: {len(members)} > {MAX_ZIP_MEMBERS}")
-
-    destination_root = destination.resolve()
-    total_uncompressed_bytes = 0
-    member_paths: set[Path] = set()
-    for member in members:
-        member_path = destination / member.filename
-        resolved_member_path = member_path.resolve()
-        if not resolved_member_path.is_relative_to(destination_root):
-            raise ValueError(f"Unsafe archive member path: {member.filename}")
-        if resolved_member_path in member_paths:
-            raise ValueError(f"Duplicate archive member path: {member.filename}")
-        member_paths.add(resolved_member_path)
-
-        unix_mode = member.external_attr >> 16
-        file_type = stat.S_IFMT(unix_mode)
-        if file_type not in {0, stat.S_IFREG, stat.S_IFDIR}:
-            raise ValueError(f"Unsupported archive member type: {member.filename}")
-        if member.flag_bits & 0x1:
-            raise ValueError(f"Encrypted archive member is not supported: {member.filename}")
-        if member.file_size > MAX_ZIP_MEMBER_BYTES:
-            raise ValueError(f"Archive member is too large: {member.filename}")
-        if member.file_size > max(member.compress_size, 1) * MAX_ZIP_COMPRESSION_RATIO:
-            raise ValueError(f"Archive member compression ratio is too high: {member.filename}")
-
-        total_uncompressed_bytes += member.file_size
-        if total_uncompressed_bytes > MAX_ZIP_TOTAL_BYTES:
-            raise ValueError("Archive uncompressed size exceeds the safety limit")
-
-    destination.mkdir(parents=True, exist_ok=True)
-    extracted_bytes = 0
-    for member in members:
-        target = destination / member.filename
-        if member.is_dir():
-            target.mkdir(parents=True, exist_ok=True)
-            continue
-
-        target.parent.mkdir(parents=True, exist_ok=True)
-        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
-        if hasattr(os, "O_NOFOLLOW"):
-            flags |= os.O_NOFOLLOW
-        try:
-            target_fd = os.open(target, flags, 0o600)
-        except FileExistsError as exc:
-            raise ValueError(f"Archive member would overwrite a file: {member.filename}") from exc
-
-        member_bytes = 0
-        try:
-            with archive.open(member) as source, os.fdopen(target_fd, "wb") as output:
-                while chunk := source.read(COPY_CHUNK_BYTES):
-                    member_bytes += len(chunk)
-                    extracted_bytes += len(chunk)
-                    if member_bytes > member.file_size or member_bytes > MAX_ZIP_MEMBER_BYTES:
-                        raise ValueError(
-                            f"Archive member exceeded its declared size: {member.filename}"
-                        )
-                    if extracted_bytes > MAX_ZIP_TOTAL_BYTES:
-                        raise ValueError("Archive extraction exceeded the safety limit")
-                    output.write(chunk)
-            if member_bytes != member.file_size:
-                raise ValueError(f"Archive member size mismatch: {member.filename}")
-        except Exception:
-            target.unlink(missing_ok=True)
-            raise
-
-
-def _download_verified_file(
-    url: str,
-    destination: Path,
-    *,
-    expected_sha256: str,
-    max_bytes: int,
-) -> None:
-    """Download one HTTPS artifact atomically after size and digest verification."""
-    if not url.startswith("https://"):
-        raise ValueError(f"Unsupported download URL: {url}")
-
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    temp_fd, temp_name = tempfile.mkstemp(
-        prefix=f".{destination.name}.",
-        suffix=".download",
-        dir=destination.parent,
-    )
-    temp_path = Path(temp_name)
-    digest = hashlib.sha256()
-    downloaded_bytes = 0
-    try:
-        request = urllib.request.Request(url, headers={"User-Agent": "BigOCRPDF benchmark tool"})
-        # The only caller passes the pinned HTTPS FUNSD URL; redirects remain HTTPS
-        # and the complete body is verified against FUNSD_DATASET_SHA256.
-        with urllib.request.urlopen(  # nosec B310  # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
-            request,
-            timeout=30,
-        ) as response:
-            final_url = response.geturl()
-            if not final_url.startswith("https://"):
-                raise ValueError(f"Download redirected to an unsupported URL: {final_url}")
-            content_length = response.headers.get("Content-Length")
-            if content_length is not None and int(content_length) > max_bytes:
-                raise ValueError("Download exceeds the configured size limit")
-
-            with os.fdopen(temp_fd, "wb") as output:
-                while chunk := response.read(COPY_CHUNK_BYTES):
-                    downloaded_bytes += len(chunk)
-                    if downloaded_bytes > max_bytes:
-                        raise ValueError("Download exceeded the configured size limit")
-                    digest.update(chunk)
-                    output.write(chunk)
-                output.flush()
-                os.fsync(output.fileno())
-        if digest.hexdigest() != expected_sha256:
-            raise ValueError("Downloaded artifact failed SHA-256 verification")
-        os.replace(temp_path, destination)
-        _fsync_directory(destination.parent)
-    except Exception:
-        try:
-            os.close(temp_fd)
-        except OSError:
-            pass
-        temp_path.unlink(missing_ok=True)
-        raise
-
-
-def _verify_file_sha256(path: Path, expected_sha256: str) -> None:
-    digest = hashlib.sha256()
-    with path.open("rb") as source:
-        while chunk := source.read(COPY_CHUNK_BYTES):
-            digest.update(chunk)
-    if digest.hexdigest() != expected_sha256:
-        raise ValueError(f"Dataset archive failed SHA-256 verification: {path}")
-
-
 def _fsync_directory(directory: Path) -> None:
     flags = os.O_RDONLY
     if hasattr(os, "O_DIRECTORY"):
@@ -1060,7 +560,7 @@ def _load_huggingface_dataset(hf_id: str, revision: str, *, download: bool) -> A
     except ModuleNotFoundError as exc:
         raise RuntimeError(
             "Optional Hugging Face dataset support requires the `datasets` package. "
-            "Install it in a development environment or use --datasets synthetic,funsd."
+            "Install it in a development environment or use --datasets synthetic."
         ) from exc
 
     if download:
@@ -1131,20 +631,16 @@ def _image_path_from_huggingface_value(image_value: Any) -> Path | None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=Path("data/benchmarks"))
-    parser.add_argument("--raw-dir", type=Path, default=Path("data/raw"))
     parser.add_argument(
         "--datasets",
         default="portuguese_synthetic",
-        help=(
-            "Comma-separated datasets: synthetic, portuguese_synthetic, funsd, "
-            "sroie, dharmaocr, portuguese_ocr."
-        ),
+        help="Comma-separated datasets: synthetic, portuguese_synthetic, dharmaocr.",
     )
     parser.add_argument("--max-samples-per-dataset", type=int, default=50)
     parser.add_argument(
         "--no-download",
         action="store_true",
-        help="Use only datasets already present under --raw-dir.",
+        help="Use only datasets already cached locally.",
     )
     args = parser.parse_args()
 
@@ -1158,15 +654,6 @@ def main() -> int:
     rows: list[dict[str, Any]] = []
     if requested & {"synthetic", "portuguese_synthetic"}:
         rows.extend(prepare_synthetic_dataset(args.out, args.max_samples_per_dataset))
-    if "funsd" in requested:
-        rows.extend(
-            prepare_funsd_dataset(
-                args.out,
-                args.raw_dir,
-                args.max_samples_per_dataset,
-                download=not args.no_download,
-            )
-        )
     for dataset_key in sorted(requested & set(HF_DATASET_SPECS)):
         rows.extend(
             prepare_huggingface_dataset(
@@ -1176,6 +663,17 @@ def main() -> int:
                 download=not args.no_download,
             )
         )
+
+    if not rows:
+        # A dataset can publish images and no transcription -- one of the
+        # Portuguese sets on the Hub does exactly that. Every row is then
+        # dropped for having no ground truth, and printing a manifest path
+        # afterwards reports success for a corpus that can measure nothing.
+        sys.stderr.write(
+            f"No usable samples from: {', '.join(sorted(requested))}. "
+            "Every row lacked ground-truth text; nothing was written.\n"
+        )
+        return 1
 
     manifest_path = write_manifest(args.out, rows)
     write_readme(args.out, rows, requested)

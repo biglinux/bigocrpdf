@@ -182,3 +182,8 @@ log.txt
 models-language.txt
 test_output/
 uv.lock
+
+# Benchmark corpora and OCR output: downloaded or generated, never versioned.
+# The baseline JSONL under benchmarks/baselines/ is text and is committed.
+data/
+build/bench/

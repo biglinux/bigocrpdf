@@ -44,6 +44,11 @@ REQUIRED_METRICS = (
     "text_layer_ok",
 )
 MAX_ERROR_RATE_REGRESSION = 0.01
+# A sample that used to yield text and now yields none is never acceptable,
+# whatever the error-rate budget says. An averaged CER cannot see it: the real
+# failure this project shipped produced zero boxes on every page, and a 1%
+# threshold against a baseline that had never seen the file catches nothing.
+MAX_NEW_EMPTY_OUTPUTS = 0
 MAX_TIME_REGRESSION = 0.20
 MAX_PEAK_RSS_REGRESSION = 0.20
 SHA256_FIELDS = {
@@ -53,6 +58,10 @@ SHA256_FIELDS = {
     "effective_dictionary_sha256",
     "effective_font_sha256",
 }
+# Digests of files a configuration need not have. Recorded as null when absent,
+# which is a fact about the configuration rather than a gap in the record --
+# and still compared, so one side having a dictionary and the other not fails.
+OPTIONAL_SHA256_FIELDS = {"effective_dictionary_sha256"}
 REQUIRED_OCR_CONFIG_FIELDS = {
     "language",
     "dpi",
@@ -279,6 +288,14 @@ def _has_complete_contract_value(value: Any) -> bool:
 def _comparison_field_complete(row: dict[str, Any], field: str) -> bool:
     value = _comparison_value(row, field)
     if field in SHA256_FIELDS:
+        # A recogniser whose dictionary is built into the model has no separate
+        # file to digest, and the producer records that as an explicit null.
+        # Reading "there is nothing to hash" as "the producer never told us"
+        # failed every run against every baseline -- including a file compared
+        # with itself. Absence of the key still fails, so an older producer
+        # that simply omitted the field is still caught.
+        if field in OPTIONAL_SHA256_FIELDS and field in row and value is None:
+            return True
         return _is_sha256(value)
     if field == "effective_ocr_config":
         return _ocr_config_complete(row, value)
@@ -441,6 +458,35 @@ def _record_regression_fields(
             regressions.append(key)
     if baseline_row.get("text_layer_ok") is True and candidate_row.get("text_layer_ok") is False:
         regressions.append("text_layer_ok")
+    regressions.extend(_empty_output_regressions(baseline_row, candidate_row))
+    return regressions
+
+
+def _empty_output_regressions(
+    baseline_row: dict[str, Any],
+    candidate_row: dict[str, Any],
+) -> list[str]:
+    """Detections and pages that stopped producing anything at all.
+
+    Zero tolerance, independently of MAX_ERROR_RATE_REGRESSION: going from
+    text to silence is a different kind of failure from getting the text
+    slightly wrong, and only this notices it.
+    """
+    regressions: list[str] = []
+
+    baseline_boxes = _metric_number(baseline_row, "ocr_box_count")
+    candidate_boxes = _metric_number(candidate_row, "ocr_box_count")
+    if baseline_boxes and candidate_boxes is not None and candidate_boxes <= 0:
+        regressions.append("ocr_box_count_zero")
+
+    baseline_blank = baseline_row.get("pages_with_zero_boxes")
+    candidate_blank = candidate_row.get("pages_with_zero_boxes")
+    if isinstance(baseline_blank, int) and isinstance(candidate_blank, int):
+        # Per page, because an eighteen-page contract whose pages 2-18 came
+        # back blank still averages acceptably at document level.
+        if candidate_blank - baseline_blank > MAX_NEW_EMPTY_OUTPUTS:
+            regressions.append("pages_with_zero_boxes")
+
     return regressions
 
 
