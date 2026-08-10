@@ -568,6 +568,7 @@ def _page_success_result(
     crop_applied: bool,
     crop_offset_px: tuple[int, int],
     crop_original_size_px: tuple[int, int] | None,
+    preprocess_trace: dict[str, Any],
 ) -> dict[str, Any]:
     return {
         "page_num": page_num,
@@ -587,6 +588,7 @@ def _page_success_result(
         "crop_applied": crop_applied,
         "crop_offset_px": crop_offset_px,
         "crop_original_size_px": crop_original_size_px,
+        "preprocess_trace": preprocess_trace,
         "success": True,
     }
 
@@ -682,6 +684,7 @@ def process_page(args: dict[str, Any]) -> dict[str, Any]:
             preprocessor.crop_applied,
             preprocessor.crop_offset_px,
             preprocessor.crop_original_size_px,
+            preprocessor.trace.as_dict(),
         )
 
         del original_img, processed_img

@@ -21,6 +21,8 @@ def record_ocr_runtime_diagnostics(
     ocr_threads: int,
     chunk_size: int,
     worker_runtime: dict[str, object] | None = None,
+    ocr_workers: int = 1,
+    resource: dict[str, object] | None = None,
 ) -> None:
     """Store and log effective OCR runtime configuration."""
     diagnostics = build_ocr_runtime_diagnostics(
@@ -29,6 +31,8 @@ def record_ocr_runtime_diagnostics(
         ocr_threads,
         chunk_size,
         worker_runtime,
+        ocr_workers,
+        resource,
     )
     stats.ocr_document.diagnostics["ocr_runtime"] = diagnostics
     logger.info("OCR runtime configuration: %s", json.dumps(diagnostics, sort_keys=True))
@@ -40,8 +44,19 @@ def build_ocr_runtime_diagnostics(
     ocr_threads: int,
     chunk_size: int,
     worker_runtime: dict[str, object] | None = None,
+    ocr_workers: int = 1,
+    resource: dict[str, object] | None = None,
 ) -> dict[str, object]:
-    """Return the effective OCR runtime configuration."""
+    """Return the effective OCR runtime configuration.
+
+    Args:
+        ocr_workers: Preprocessing workers the pipeline actually started. This
+            used to be hard-coded to 1, so every benchmark record claimed a
+            single worker no matter how many ran.
+        resource: The tier and budget the pipeline computed, when the caller
+            knows it. Without it a slow run cannot be told apart from a run
+            that was correctly throttled for a small machine.
+    """
     fallback_engine_type = config.engine_type
     if fallback_engine_type != "onnxruntime" and not openvino_available:
         fallback_engine_type = "onnxruntime"
@@ -73,12 +88,13 @@ def build_ocr_runtime_diagnostics(
         "text_score_threshold": config.text_score_threshold,
         "score_mode": config.score_mode,
         "ocr_threads": ocr_threads,
-        "ocr_workers": 1,
+        "ocr_workers": ocr_workers,
         "chunk_size": chunk_size,
         "rec_model_path": _path_diagnostic(config.get_rec_model_path()),
         "rec_keys_path": _path_diagnostic(config.get_rec_keys_path()),
         "det_model_path": _path_diagnostic(config.get_det_model_path()),
         "font_path": _path_diagnostic(config.get_font_path()),
+        **({"resource": resource} if resource else {}),
     }
 
 

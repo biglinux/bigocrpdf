@@ -63,7 +63,6 @@ _MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32)
 _STD = np.array([0.229, 0.224, 0.225], dtype=np.float32)
 
 # Deskew thresholds
-_MAX_DESKEW_ANGLE = 15.0  # degrees — reject outlier segments above this
 
 # Curvature thresholds
 _MIN_CURVATURE_PX = 5.0  # pixels — skip remap if max curvature below this
@@ -71,16 +70,8 @@ _MAX_CURVATURE_PX = 60.0  # pixels — cap per-baseline displacement to avoid di
 _MIN_BASELINE_SPAN = 0.40  # fraction of page width — reject shorter baselines
 
 # Deskew segment geometry filters
-_MORPH_KERN_WIDTH_DIV = 80  # horizontal closing kernel = page_w / this
-_MORPH_VERT_KERN_H = 3  # vertical dilation kernel height
-_SEG_MAX_H_RATIO = 0.05  # max segment height as fraction of page height
-_SEG_MIN_W_RATIO = 0.02  # min segment width as fraction of page width
-_SEG_MAX_W_RATIO = 0.15  # max segment width as fraction of page width
-_SEG_MIN_H_PX = 5  # pixels — minimum segment height
 _SEG_MIN_ASPECT = 2  # min width:height ratio for text-like segment
 _ANGLE_NORM_THRESHOLD = 45.0  # degrees — boundary for angle normalisation
-_MAD_OUTLIER_FACTOR = 3.0  # × MAD for outlier rejection
-_ANGLE_NONZERO_EPS = 0.01  # degrees — treat smaller as exact zero
 
 # Baseline extraction constants
 _BASELINE_ERODE_KERN_H = 3  # vertical erode kernel height
@@ -145,96 +136,6 @@ def _get_model():
 # ── Stage 1: Classical CV Deskew ───────────────────────────────────
 
 
-def detect_deskew_angle(gray: np.ndarray) -> float:
-    """Detect page rotation angle using Otsu pseudo-box morphological analysis.
-
-    Steps:
-    1. Otsu binarisation on inverted grayscale image.
-    2. Horizontal closing (kernel width = image_width / 80) merges
-       characters into text-line segments.
-    3. Vertical dilation (1×3) connects vertically adjacent components.
-    4. External contours → ``cv2.minAreaRect`` angle for each.
-    5. Filter segments by geometry: min height 5 px, max height 5% of
-       image, min width 2% of image, max width 15%, aspect ratio ≥ 2:1,
-       |angle| < 15°.
-    6. MAD outlier rejection (3×MAD from median).
-    7. Return median of surviving angles.
-
-    The method agrees with DBNet neural box angles (within ~0.3°) while
-    being 100× faster (~25 ms vs ~2500 ms for full OCR detection).
-
-    Args:
-        gray: Grayscale image (uint8).
-
-    Returns:
-        Detected skew angle in degrees.  Positive = clockwise tilt.
-        Returns 0.0 if insufficient segments are found.
-    """
-    h, w = gray.shape
-
-    # Otsu binarisation on inverted image (text → white)
-    _, binary = cv2.threshold(cv2.bitwise_not(gray), 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-
-    # Horizontal closing: merge characters within a line
-    kern_w = max(w // _MORPH_KERN_WIDTH_DIV, 5)
-    kern_close = cv2.getStructuringElement(cv2.MORPH_RECT, (kern_w, 1))
-    closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kern_close)
-
-    # Vertical dilation: connect broken segments
-    kern_vert = cv2.getStructuringElement(cv2.MORPH_RECT, (1, _MORPH_VERT_KERN_H))
-    dilated = cv2.dilate(closed, kern_vert, iterations=1)
-
-    # Find contours and measure angles
-    contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    angles = []
-    for cnt in contours:
-        angle = _deskew_segment_angle(cnt, h, w)
-        if angle is not None:
-            angles.append(angle)
-
-    if len(angles) < 3:
-        logger.debug(f"Deskew: only {len(angles)} segments, skipping")
-        return 0.0
-
-    angles = np.array(angles)
-
-    # Discard exact-zero angles: minAreaRect returns 0° for axis-aligned
-    # bounding rects, which biases the median towards zero on pages where
-    # many short segments happen to be quantised to 0°.
-    nonzero = angles[np.abs(angles) >= _ANGLE_NONZERO_EPS]
-    if len(nonzero) >= 3:
-        angles = nonzero
-
-    median = np.median(angles)
-
-    # MAD outlier rejection (3×MAD)
-    mad = np.median(np.abs(angles - median))
-    if mad > 0.01:
-        mask = np.abs(angles - median) < _MAD_OUTLIER_FACTOR * mad
-        angles = angles[mask]
-
-    if len(angles) < 3:
-        return 0.0
-
-    result = float(np.median(angles))
-    logger.debug(f"Deskew: {result:.2f}° from {len(angles)} segments")
-    return result
-
-
-def _deskew_segment_angle(contour: np.ndarray, h: int, w: int) -> float | None:
-    (_, _), (rect_w, rect_h), angle = cv2.minAreaRect(contour)
-    actual_w, actual_h, angle = _normalise_min_area_rect_angle(rect_w, rect_h, angle)
-
-    if not _is_valid_deskew_segment(actual_w, actual_h, h, w):
-        return None
-
-    angle = _normalise_deskew_angle(angle)
-    if abs(angle) < _MAX_DESKEW_ANGLE:
-        return angle
-    return None
-
-
 def _normalise_min_area_rect_angle(
     rect_w: float,
     rect_h: float,
@@ -243,22 +144,6 @@ def _normalise_min_area_rect_angle(
     if rect_w < rect_h:
         return rect_h, rect_w, angle + 90.0
     return rect_w, rect_h, angle
-
-
-def _is_valid_deskew_segment(actual_w: float, actual_h: float, h: int, w: int) -> bool:
-    if actual_h < _SEG_MIN_H_PX or actual_h > int(h * _SEG_MAX_H_RATIO):
-        return False
-    if actual_w < int(w * _SEG_MIN_W_RATIO) or actual_w > int(w * _SEG_MAX_W_RATIO):
-        return False
-    return actual_w >= actual_h * _SEG_MIN_ASPECT
-
-
-def _normalise_deskew_angle(angle: float) -> float:
-    if angle > _ANGLE_NORM_THRESHOLD:
-        return angle - 90
-    if angle < -_ANGLE_NORM_THRESHOLD:
-        return angle + 90
-    return angle
 
 
 # ── Stage 2: Probability-Map Curvature Correction ─────────────────
@@ -688,6 +573,5 @@ def probmap_dewarp(img_bgr: np.ndarray, max_side: int = 0) -> np.ndarray:
 # ── Public API ─────────────────────────────────────────────────────
 
 __all__ = [
-    "detect_deskew_angle",
     "probmap_dewarp",
 ]

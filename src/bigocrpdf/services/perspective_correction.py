@@ -95,6 +95,34 @@ class PerspectiveCorrector:
         self.skew_threshold = skew_threshold
         self.variance_threshold = variance_threshold
         self.skip_skew = skip_skew
+        # Set by __call__; see its docstring.
+        self.last_method: str = "none"
+        self.last_rejected: list[str] = []
+
+    def _validated(
+        self,
+        original: np.ndarray,
+        corrected: np.ndarray | None,
+        method: str,
+    ) -> np.ndarray | None:
+        """Accept a correction only if it did not blur the text lines.
+
+        Until now only the mesh path was validated; photo perspective, margin
+        normalisation, the contour transform and the gentle margin were applied
+        on the detector's word alone. A detector that fires on the wrong edges
+        produces a warp that is worse than doing nothing, and nothing noticed.
+
+        Returning None lets the cascade try the next strategy instead of
+        keeping a bad result.
+        """
+        if corrected is None:
+            return None
+        if self._validate_correction(original, corrected, method):
+            self.last_method = method
+            return corrected
+        logger.debug(f"{method} rejected by validation; falling through")
+        self.last_rejected.append(f"{method}:rejected_validation")
+        return None
 
     @staticmethod
     def _validate_correction(original: np.ndarray, corrected: np.ndarray, method: str) -> bool:
@@ -154,14 +182,20 @@ class PerspectiveCorrector:
             (image_width - x - width) / image_width,
             (image_height - y - height) / image_height,
         )
+        # These two return None rather than the image, as the docstring says.
+        # Returning the image ends the whole cascade, so a contour that turned
+        # out to be an internal frame -- a table border, a scanned photo inside
+        # the page -- used to stop the gentle-margin step from ever running.
+        # Neither case is a statement that the page needs no correction; both
+        # only say this contour cannot provide one.
         if max(insets) > _MAX_CONTOUR_INSET_RATIO:
             logger.debug("Detected contour is an internal frame. Skipping perspective correction.")
-            return image
+            return None
 
         if self.skew_threshold > 0:
             if not _contour_needs_perspective_correction(contour, np.radians(self.skew_threshold)):
                 logger.debug("Document appears flat. Skipping perspective correction.")
-                return image
+                return None
 
         logger.info("Applying perspective correction from document boundary...")
         corrected = four_point_transform(image, contour)
@@ -173,7 +207,7 @@ class PerspectiveCorrector:
             return None
 
         logger.info("Perspective correction applied successfully.")
-        return corrected
+        return corrected if self._validate_correction(image, corrected, "contour") else None
 
     def _try_regional_skew(self, image: np.ndarray) -> np.ndarray | None:
         """Try mesh dewarping for varying regional skew. Returns corrected or None."""
@@ -202,45 +236,83 @@ class PerspectiveCorrector:
         return None
 
     def __call__(self, image: np.ndarray) -> np.ndarray:
-        """Correct perspective or skew distortion in a document image."""
+        """Correct perspective or skew distortion in a document image.
+
+        A strict first-hit-wins cascade: the first strategy that produces a
+        result owns the page and the rest never run.  ``last_method`` records
+        which one that was and ``last_rejected`` the ones that declined, so the
+        choice is observable from the outside -- without it, "no distortion
+        found" and "every detector failed" look identical.
+        """
+        self.last_method = "none"
+        self.last_rejected = []
+
         # Priority 0: Photo of document on dark background
         photo_corners = detect_photo_document_borders(image)
         if photo_corners is not None:
             logger.info("Detected photo of document, applying perspective correction...")
-            return correct_photo_perspective(image, photo_corners)
+            validated = self._validated(
+                image, correct_photo_perspective(image, photo_corners), "photo_borders"
+            )
+            if validated is not None:
+                return validated
+        else:
+            self.last_rejected.append("photo_borders")
 
         # Priority 1: Keystone/trapezoid from margin analysis
         perspective_distortion = detect_perspective_distortion(image)
         if perspective_distortion is not None:
             logger.info("Applying perspective correction from margin analysis...")
-            return correct_perspective_from_margins(image, perspective_distortion)
+            validated = self._validated(
+                image,
+                correct_perspective_from_margins(image, perspective_distortion),
+                "margins",
+            )
+            if validated is not None:
+                return validated
+        else:
+            self.last_rejected.append("margins")
 
         # Priority 2: Document contour
         contour_result = self._try_contour_correction(image)
         if contour_result is not None:
+            # May be the untouched input: _try_contour_correction returns the
+            # image itself for an internal frame, which ends the cascade.
+            self.last_method = (
+                "internal_frame_shortcircuit" if contour_result is image else "contour_four_point"
+            )
             return contour_result
+        self.last_rejected.append("contour")
 
         # Priority 3: Gentle margin-based
-        gentle_result = gentle_margin_perspective_correction(image)
-        if gentle_result is not None:
-            return gentle_result
+        validated = self._validated(
+            image, gentle_margin_perspective_correction(image), "gentle_margin"
+        )
+        if validated is not None:
+            return validated
+        self.last_rejected.append("gentle_margin")
 
         if not self.skip_skew:
             # Priority 4: Regional skew (mesh dewarping)
             regional_result = self._try_regional_skew(image)
             if regional_result is not None:
+                self.last_method = "regional_skew"
                 return regional_result
+            self.last_rejected.append("regional_skew")
 
             # Priority 5: Simple rotation for uniform skew
             skew_angle = detect_skew_angle(image)
             if skew_angle is None:
                 logger.debug("Could not detect any distortion. Returning original image.")
+                self.last_rejected.append("uniform_skew")
                 return image
             if abs(skew_angle) < self.skew_threshold:
                 logger.debug(f"Skew angle ({skew_angle:.2f}°) below threshold. Skipping.")
+                self.last_rejected.append("uniform_skew")
                 return image
 
             logger.info(f"Applying simple skew correction: {skew_angle:.2f}°")
+            self.last_method = "uniform_skew"
             return correct_skew(image, skew_angle)
 
         logger.debug("No perspective distortion detected.")

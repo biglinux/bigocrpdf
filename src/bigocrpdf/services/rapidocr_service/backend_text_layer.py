@@ -132,6 +132,7 @@ class BackendTextLayerMixin:
         image_rect: tuple[float, float, float, float] | None = None,
         input_pdf: Path | None = None,
         retry_level: int = 0,
+        preprocess_trace: dict | None = None,
     ) -> float:
         """Run OCR on image and render results to a PDF page.
 
@@ -240,6 +241,9 @@ class BackendTextLayerMixin:
             "pdf_rotation": pdf_rotation,
             "use_processed_for_page": use_processed_for_page,
         }
+        if preprocess_trace:
+            # Which geometric correction ran on this page, from the worker.
+            diagnostics["preprocess"] = preprocess_trace
         text_layer_quality = "ocr" if ocr_results else "absent"
         ocr_lines, verified_quality = self._auto_verify_ocr_lines(
             ocr_lines,
@@ -422,8 +426,19 @@ class BackendTextLayerMixin:
             use_processed_for_page, geometry_changed = self._determine_page_mode(
                 result, proc_w, proc_h
             )
-            if force_overlay:
+            if force_overlay and not result.get("geometry_applied", False):
+                # force_overlay preserves the original composite of a masked
+                # (JBIG2 foreground/background) page. It must not apply once a
+                # geometric correction has moved the pixels: the OCR
+                # coordinates were measured on the corrected image, and there
+                # is no inverse transform to bring them back, so drawing them
+                # over the original would displace every word on the page.
                 use_processed_for_page = False
+            elif force_overlay:
+                logger.debug(
+                    f"Page {page_num}: keeping standalone mode despite force_overlay, "
+                    "because geometric correction changed the coordinate space"
+                )
 
             if use_processed_for_page:
                 (
@@ -463,6 +478,7 @@ class BackendTextLayerMixin:
                 image_rect=page_image_rect,
                 input_pdf=Path(work_item["input_pdf"]) if work_item.get("input_pdf") else None,
                 retry_level=int(result.get("retry_level", 0)),
+                preprocess_trace=result.get("preprocess_trace"),
             )
 
             del processed_img, ocr_image

@@ -66,7 +66,10 @@ class TestPerspectiveCorrector:
         ):
             result = PerspectiveCorrector()._try_contour_correction(image)
 
-        assert result is image
+        # None, not the image: an internal frame means this contour cannot
+        # provide a correction, not that the page needs none, so the cascade
+        # must continue to the gentle-margin step.
+        assert result is None
         transform.assert_not_called()
 
     def test_contour_correction_uses_the_detected_contour_for_validation(self):
@@ -85,7 +88,7 @@ class TestPerspectiveCorrector:
         ):
             result = PerspectiveCorrector()._try_contour_correction(image)
 
-        assert result is image
+        assert result is None
         detect.assert_called_once_with(image)
         needs_correction.assert_called_once()
         np.testing.assert_array_equal(needs_correction.call_args.args[0], contour)

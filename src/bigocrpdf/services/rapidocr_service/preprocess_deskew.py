@@ -625,15 +625,28 @@ def _refine_perspective(
     return result
 
 
-def probmap_angle_deskew(img: np.ndarray, probmap_max_side: int = 0) -> np.ndarray:
+def probmap_angle_deskew(
+    img: np.ndarray,
+    probmap_max_side: int = 0,
+    *,
+    trace: dict[str, float | str] | None = None,
+) -> np.ndarray:
     """Deskew using DBNet probability-map baselines for angle measurement.
 
     Falls back to ``ocr_box_deskew`` if probmap extraction fails.
+
+    Args:
+        trace: Optional out-parameter. When given, the measured angle
+            statistics and the branch taken are written into it, which is the
+            only way a caller can tell "the page was straight" apart from "the
+            dispersion gate rejected the measurement".
     """
     h, w = img.shape[:2]
     min_width = w * 0.20
     measured = _probmap_measured_angles(img, min_width, probmap_max_side)
     if measured is None:
+        if trace is not None:
+            trace["path"] = "no_probmap"
         return ocr_box_deskew(img)
 
     angles, ys, widths = measured
@@ -641,10 +654,18 @@ def probmap_angle_deskew(img: np.ndarray, probmap_max_side: int = 0) -> np.ndarr
         logger.debug(
             f"Probmap deskew: only {len(angles)} valid baselines, falling back to OCR boxes"
         )
+        if trace is not None:
+            trace["path"] = "too_few_baselines"
+            trace["n_baselines"] = float(len(angles))
         return ocr_box_deskew(img)
 
     fit = _weighted_angle_fit(np.array(angles), np.array(ys), np.array(widths), h)
-    return _apply_probmap_angle_fit(img, fit, min_width, probmap_max_side)
+    if trace is not None:
+        trace["n_baselines"] = float(len(fit.angles))
+        trace["angle_mean"] = float(fit.angle_mean)
+        trace["angle_span"] = float(fit.angle_span)
+        trace["r_squared"] = float(fit.r_squared)
+    return _apply_probmap_angle_fit(img, fit, min_width, probmap_max_side, trace)
 
 
 def _probmap_measured_angles(
@@ -686,11 +707,16 @@ def _apply_probmap_angle_fit(
     fit: AngleFit,
     min_width: float,
     probmap_max_side: int,
+    trace: dict[str, float | str] | None = None,
 ) -> np.ndarray:
     if not fit.has_y_variance:
         if abs(fit.angle_mean) > 0.5:
             logger.debug(f"Probmap deskew: uniform {fit.angle_mean:.2f}° (all same Y)")
+            if trace is not None:
+                trace["path"] = "rotate_mean_no_y_variance"
             return rotate_image(img, fit.angle_mean)
+        if trace is not None:
+            trace["path"] = "below_threshold"
         return img
 
     logger.debug(
@@ -704,27 +730,53 @@ def _apply_probmap_angle_fit(
         result = correct_angular_perspective(img, fit.angle_top, fit.angle_bottom)
         if fit.angle_span < 5.0:
             if abs(fit.angle_mean) > 0.3:
-                result = rotate_image(result, fit.angle_mean)
+                # correct_angular_perspective already removes the mean tilt
+                # implicitly, so this residual rotation is clamped to the same
+                # +/-5 degrees the uniform path uses rather than applied raw.
+                # The weighted median matches that path too: it is dominated by
+                # the long baselines, where the angle is measured reliably,
+                # instead of by short fragments that pull an arithmetic mean.
+                residual = float(np.clip(_weighted_median_angle(fit), -5.0, 5.0))
+                result = rotate_image(result, residual)
+                if trace is not None:
+                    trace["residual_rotation"] = residual
+            if trace is not None:
+                trace["path"] = "angular_perspective"
         else:
             result = _refine_perspective(result, h, min_width, probmap_max_side)
+            if trace is not None:
+                trace["path"] = "refine_perspective"
         return result
 
     if abs(fit.angle_mean) > 0.5:
-        return _apply_probmap_uniform_rotation(img, fit)
+        return _apply_probmap_uniform_rotation(img, fit, trace)
 
     logger.debug("Probmap deskew: no correction needed")
+    if trace is not None:
+        trace["path"] = "below_threshold"
     return img
 
 
-def _apply_probmap_uniform_rotation(img: np.ndarray, fit: AngleFit) -> np.ndarray:
+def _apply_probmap_uniform_rotation(
+    img: np.ndarray,
+    fit: AngleFit,
+    trace: dict[str, float | str] | None = None,
+) -> np.ndarray:
     w_median = _weighted_median_angle(fit)
     mad = float(np.median(np.abs(fit.angles - w_median)))
+    if trace is not None:
+        trace["mad"] = mad
     if mad > 3.0:
         logger.debug(
             f"Probmap deskew: high angle dispersion (MAD={mad:.2f}°, n={len(fit.angles)}), skipping"
         )
+        if trace is not None:
+            trace["path"] = "mad_skip"
         return img
 
     skew_angle = float(np.clip(w_median, -5.0, 5.0))
     logger.debug(f"Probmap deskew: uniform skew correction {skew_angle:.2f}°")
+    if trace is not None:
+        trace["path"] = "rotate_mean"
+        trace["applied_angle"] = skew_angle
     return rotate_image(img, skew_angle)
