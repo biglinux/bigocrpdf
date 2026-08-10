@@ -211,11 +211,19 @@ def _valid_refined_quad(refined: np.ndarray, width: int, height: int) -> bool:
 
 
 def _is_convex_quad(q: np.ndarray) -> bool:
+    """Whether the four corners turn the same way all the way round.
+
+    The 2-D cross product is written out because NumPy 2.0 removed it from
+    ``np.cross``, which now raises for two-element vectors rather than
+    returning the scalar z-component. Every call raised, so quad refinement was
+    never validated and the exception took the whole perspective cascade down
+    with it -- silently, since the caller falls back to the original image.
+    """
     for i in range(4):
         origin = q[i]
         a = q[(i + 1) % 4] - origin
         b = q[(i + 2) % 4] - origin
-        if np.cross(a, b) <= 0:
+        if a[0] * b[1] - a[1] * b[0] <= 0:
             return False
     return True
 
@@ -527,29 +535,6 @@ def detect_document_contour(image: np.ndarray) -> np.ndarray | None:
                 return approx.reshape(4, 2).astype("float32")
 
     return None
-
-
-def needs_perspective_correction(image: np.ndarray, threshold: float = 0.03) -> bool:
-    """
-    Check if the image needs perspective correction.
-
-    Analyzes the document edges to determine if they are significantly
-    non-perpendicular.
-
-    Args:
-        image: Input BGR image
-        threshold: Minimum skew angle (in radians) to trigger correction
-
-    Returns:
-        True if perspective correction is needed
-    """
-    contour = detect_document_contour(image)
-
-    if contour is None:
-        # No document contour found - assume it's already flat
-        return False
-
-    return _contour_needs_perspective_correction(contour, threshold)
 
 
 def _contour_needs_perspective_correction(
