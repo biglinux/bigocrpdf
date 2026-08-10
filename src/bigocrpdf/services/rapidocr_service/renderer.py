@@ -91,16 +91,32 @@ def _line_text_with_spacing(
     return "".join(parts)
 
 
+# Bounds on the invisible run's horizontal stretch. Shared with pdf_assembly so
+# the two placement paths cannot drift apart.
+MIN_HORIZ_SCALE = 30.0
+MAX_HORIZ_SCALE = 300.0
+
+
 def _line_horizontal_scale(
     line_text: str,
     line_width: float,
     font_name: str,
     line_font_size: float,
 ) -> float:
+    """Horizontal stretch, as a percentage, bounded to the same range as path B.
+
+    A single OCR box much wider or narrower than its text -- a stray detection,
+    or a CJK line whose placeholder glyphs bear no relation to the real widths
+    -- would otherwise stretch the invisible run by a factor of ten, making the
+    selection rectangle cover half the page. ``pdf_assembly`` has always
+    clamped; this is the same bound.
+    """
     natural_width = pdfmetrics.stringWidth(line_text, font_name, line_font_size)
     if natural_width > 0 and line_width > 0:
-        return line_width / natural_width * 100.0
-    return 100.0
+        scale = line_width / natural_width * 100.0
+    else:
+        scale = 100.0
+    return max(MIN_HORIZ_SCALE, min(MAX_HORIZ_SCALE, scale))
 
 
 def _normalize_ocr_quadrilateral(
