@@ -65,7 +65,9 @@ def run_ocr_batch(
                 results.append({"success": False, "error": f"Failed to load: {image_path}"})
                 continue
 
-            serialized = _serialize_ocr_result(rapid(img), empty_when_no_boxes=True)
+            serialized = _reorient_vertical_regions(
+                rapid, img, _serialize_ocr_result(rapid(img), empty_when_no_boxes=True)
+            )
 
             results.append(
                 {
@@ -164,10 +166,58 @@ def run_ocr_full(
             text_score=text_score,
             box_thresh=box_thresh,
         )
-        return _serialize_ocr_result(result)
+        serialized = _serialize_ocr_result(result)
+        return _reorient_vertical_regions(ocr, img, serialized)
 
     except Exception as e:
         return {"error": str(e)}
+
+
+def _reorient_vertical_regions(ocr: Any, img: Any, ocr_raw: dict) -> dict:
+    """Re-read tall regions the other way up, keeping whichever reads better.
+
+    See ``vertical_text``: RapidOCR rotates every tall crop the same way, so
+    the half of vertical captions that run top-to-bottom come back upside-down
+    and unreadable. Only recognition runs again -- the region is already known.
+    """
+    import cv2
+    import numpy as np
+    from rapidocr.utils.process_img import get_rotate_crop_image
+
+    from bigocrpdf.services.rapidocr_service.vertical_text import (
+        choose_better_reading,
+        vertical_candidates,
+    )
+
+    candidates = vertical_candidates(ocr_raw)
+    if not candidates:
+        return ocr_raw
+
+    boxes, txts, scores = ocr_raw["boxes"], list(ocr_raw["txts"]), list(ocr_raw["scores"])
+    replaced = 0
+    for index in candidates:
+        try:
+            points = np.array(boxes[index], dtype=np.float32)
+            crop = get_rotate_crop_image(img, points)
+            flipped = cv2.rotate(crop, cv2.ROTATE_180)
+            rec = ocr(flipped, use_det=False, use_cls=False, use_rec=True)
+            if not rec or not rec.txts:
+                continue
+            text, score, changed = choose_better_reading(
+                txts[index], scores[index], rec.txts[0], rec.scores[0]
+            )
+            txts[index], scores[index] = text, score
+            replaced += int(changed)
+        except Exception:
+            # A region that cannot be re-read keeps its first reading; this is
+            # an improvement pass, never a reason to lose a page. Not logged:
+            # stdout here is the worker's JSON protocol.
+            continue
+
+    if replaced:
+        ocr_raw["txts"], ocr_raw["scores"] = txts, scores
+        ocr_raw["vertical_reoriented"] = replaced
+    return ocr_raw
 
 
 def _serialize_ocr_result(
@@ -263,10 +313,12 @@ def _ocr_single_image(
             threads,
         )
 
+        serialized = _reorient_vertical_regions(engine, img, _serialize_ocr_result(result))
+
         # Release image memory immediately
         del img
 
-        return _serialize_ocr_result(result)
+        return serialized
     except Exception as e:
         return {"error": str(e)}
 

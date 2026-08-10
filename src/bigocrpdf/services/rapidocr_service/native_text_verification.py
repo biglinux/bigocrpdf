@@ -9,7 +9,7 @@ from difflib import SequenceMatcher
 from html.parser import HTMLParser
 from pathlib import Path
 
-from bigocrpdf.services.rapidocr_service.config import OcrLine, OcrWord
+from bigocrpdf.services.rapidocr_service.config import OcrLine, OCRResult, OcrWord
 
 _MIN_OVERLAP_RATIO = 0.20
 _MIN_TEXT_SIMILARITY = 0.45
@@ -191,6 +191,58 @@ def verify_ocr_lines_with_native_spans(
         accepted_lines=accepted,
         rejected_lines=rejected,
     )
+
+
+def verify_ocr_results_with_native_spans(
+    ocr_results: list[OCRResult],
+    native_spans: list[NativeTextSpan],
+) -> tuple[list[OCRResult], int]:
+    """Give each region the native text it sits on, when the two agree.
+
+    Where a page keeps its native text and an image containing the same words
+    is OCR'd on top, the native layer is the authoritative reading: it is
+    exact, while OCR truncates long URLs and mangles rare characters. Measured
+    on a real certificate, OCR lost
+    ``https://assinador-web.onr.org.br/docs/UB7MR-ZF2N3-NTFLP-JMF2B`` that the
+    native layer had in full.
+
+    Substitution only, never removal: a region with no native counterpart, or
+    one whose native text disagrees, keeps exactly what OCR read. So this
+    cannot lose text -- at worst it changes nothing.
+
+    Returns the results and how many were replaced.
+    """
+    verified: list[OCRResult] = []
+    accepted = 0
+    for result in ocr_results:
+        bbox = _bbox_from_quad(result.box)
+        if bbox is None:
+            verified.append(result)
+            continue
+        candidates = _overlapping_spans(bbox, native_spans)
+        candidate_text = _normalize_text(" ".join(span.text for span in candidates))
+        if _should_accept_native_text(result.text, candidate_text):
+            verified.append(
+                OCRResult(text=candidate_text, box=result.box, confidence=result.confidence)
+            )
+            accepted += 1
+        else:
+            verified.append(result)
+    return verified, accepted
+
+
+def _bbox_from_quad(box: object) -> list[float] | None:
+    """Axis-aligned bounds of an OCR quadrilateral, or None if malformed."""
+    if not isinstance(box, (list, tuple)) or not box:
+        return None
+    try:
+        xs = [float(point[0]) for point in box]
+        ys = [float(point[1]) for point in box]
+    except (TypeError, ValueError, IndexError):
+        return None
+    if not xs or not ys:
+        return None
+    return [min(xs), min(ys), max(xs), max(ys)]
 
 
 def _word_span_from_parsed_word(

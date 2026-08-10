@@ -360,13 +360,32 @@ def _split_form_token(raw_token: str) -> list[_OcrToken]:
 
 
 def _is_form_separator(token: str, index: int) -> bool:
+    """Whether this colon separates a form label from its value.
+
+    ``Nome: Ana`` is a label and a value; ``https://onr.org.br`` and ``14:30``
+    are one thing each. Splitting them corrupts the text -- measured, a
+    certificate's validation URL was cut into ``https`` and
+    ``//assinador-web.onr.org.br/...``, and the address a reader needs to
+    follow no longer existed anywhere in the export.
+    """
     if token[index] != ":":
+        return False
+    if token[index + 1 : index + 3] == "//":
+        return False
+    if _looks_like_time(token, index):
         return False
     has_label = index > 0 and any(character.isalnum() for character in token[:index])
     has_value = index + 1 < len(token) and any(
         character.isalnum() for character in token[index + 1 :]
     )
     return has_label and has_value
+
+
+def _looks_like_time(token: str, index: int) -> bool:
+    """A colon between digits joins them: 14:30, 08:15:42."""
+    before = token[index - 1] if index > 0 else ""
+    after = token[index + 1] if index + 1 < len(token) else ""
+    return before.isdigit() and after.isdigit()
 
 
 def _synthetic_words(tokens: list[_OcrToken], top: float) -> list[Word]:

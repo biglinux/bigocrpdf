@@ -78,6 +78,9 @@ HEADER_MISALIGN_TOLERANCE = 100.0
 CENTER_CLUSTER_TOLERANCE = 30.0
 BOUNDARY_SPLIT_MIN_GAP = 2.0
 MIN_WORD_WIDTH = 2.0  # Words narrower than this are OCR artifacts
+# Longest text a sliver-width box may hold and still be treated as noise.
+# Beyond this the box shape is wrong, not the text -- see filter_words.
+MAX_ARTIFACT_TEXT_LEN = 4
 COLUMN_VALLEY_BIN = 10.0  # Bin width for column histogram
 COLUMN_MIN_VALLEY_WIDTH = 30.0  # Minimum gap for column split
 COLUMN_CENTER_RANGE = (0.25, 0.75)  # Page fraction where column gap expected
@@ -132,11 +135,22 @@ def parse_tsv_pages(pdf_path: str) -> dict[int, list[Word]]:
 
 
 def filter_words(words: list[Word], page_num: int) -> list[Word]:
-    """Remove clear OCR artifacts."""
+    """Remove clear OCR artifacts, without discarding real text.
+
+    A sliver of a box holding several characters usually means the detector
+    traced a rule or a hatch pattern rather than words. But it also describes
+    vertical text: a side caption's box is genuinely narrow, and the export
+    lays words out horizontally, so a 61-character URL down the margin arrives
+    1.8 pixels wide. Width alone would throw it away -- measured, that is
+    exactly what happened to
+    ``https://assinador-web.onr.org.br/docs/UB7MR-ZF2N3-NTFLP-JMF2B``.
+
+    So length decides: noise from a rule is a handful of characters, and
+    anything longer is content whatever shape its box has.
+    """
     result = []
     for w in words:
-        # Skip words with tiny width (OCR artifacts from lines/patterns)
-        if w.width < MIN_WORD_WIDTH and len(w.text) > 1:
+        if w.width < MIN_WORD_WIDTH and 1 < len(w.text) <= MAX_ARTIFACT_TEXT_LEN:
             continue
         result.append(w)
     return result

@@ -12,6 +12,14 @@ import pikepdf
 
 from bigocrpdf.constants import PDF_TOOL_TIMEOUT_SECS
 from bigocrpdf.services.rapidocr_service.config import ProcessingStats
+from bigocrpdf.services.rapidocr_service.native_text_verification import (
+    extract_native_text_spans,
+    verify_ocr_results_with_native_spans,
+)
+from bigocrpdf.services.rapidocr_service.ocr_document_pages import (
+    average_confidence,
+    record_ocr_page,
+)
 from bigocrpdf.services.rapidocr_service.ocr_runtime_diagnostics import (
     record_ocr_runtime_diagnostics,
 )
@@ -39,6 +47,63 @@ from bigocrpdf.services.rapidocr_service.resource_manager import (
 )
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
+
+
+def _prefer_native_text(
+    source_pdf: Path,
+    page_num: int,
+    ocr_results: list,
+    image_size_px: tuple[int, int],
+    source_rect_pts: tuple[float, float, float, float] | None = None,
+) -> list:
+    """Give each OCR region the native text underneath it, where they agree.
+
+    A mixed-content page keeps its own text and gets its images OCR'd on top,
+    so wherever an image carries words the page already states, the same text
+    exists twice -- once exact, once as OCR read it. Measured across two real
+    documents, 21% of OCR regions sat on native text.
+
+    The native reading wins because it is exact: OCR truncated
+    ``https://assinador-web.onr.org.br/docs/UB7MR-ZF2N3-NTFLP-JMF2B`` that the
+    page stated in full. Regions with no native counterpart, or whose native
+    text disagrees, are untouched, so nothing is ever lost.
+    """
+    try:
+        spans = extract_native_text_spans(
+            source_pdf, page_num, image_size_px, source_rect_pts=source_rect_pts
+        )
+        if not spans:
+            return ocr_results
+        verified, accepted = verify_ocr_results_with_native_spans(ocr_results, spans)
+        if accepted:
+            logger.info(
+                f"Page {page_num}: {accepted}/{len(ocr_results)} OCR region(s) "
+                "replaced with the exact native text underneath"
+            )
+        return verified
+    except Exception as exc:
+        # Reading the native layer is an improvement, never a requirement.
+        logger.debug(f"Page {page_num}: native text comparison unavailable: {exc}")
+        return ocr_results
+
+
+def _record_skipped_page(stats: "ProcessingStats | None", page_num: int) -> None:
+    """Note a page left untouched because it already carries an OCR layer.
+
+    Skipping is the right default -- re-OCRing over an existing layer doubles
+    every word. But it used to be silent: the run reported success with zero
+    regions and no warning, so a user whose earlier OCR was poor had no way to
+    tell that nothing had been done, nor that ``replace_existing_ocr`` is the
+    setting that would redo it.
+    """
+    if stats is None:
+        return
+    stats.warnings.append(
+        _(
+            "Page {page} already has an OCR text layer and was left unchanged. "
+            "Enable 'replace existing OCR' to process it again."
+        ).format(page=page_num)
+    )
 
 
 class MixedContentMixin:
@@ -228,6 +293,11 @@ class MixedContentMixin:
 
         self._post_process_mixed(output_pdf, stats, native_text, ocr_texts, progress_callback)
         self._calculate_final_stats(stats, start_time)
+        # Set after the shared step, which divides an accumulated *sum* by the
+        # region count. This pipeline never accumulated that sum, so every
+        # mixed-content document reported a confidence of exactly zero; the
+        # value here is already a mean and must not be divided again.
+        stats.average_confidence = average_confidence(stats)
 
         if progress_callback:
             progress_callback(100, 100, _("Done!"))
@@ -304,7 +374,9 @@ class MixedContentMixin:
             return 0
 
         page = pdf.pages[page_num - 1]
-        if not MixedContentMixin._prepare_page_for_reocr(self, pdf, page, page_num, len(page_imgs)):
+        if not MixedContentMixin._prepare_page_for_reocr(
+            self, pdf, page, page_num, len(page_imgs), stats
+        ):
             return 0
         if progress_callback:
             progress_callback(
@@ -328,13 +400,16 @@ class MixedContentMixin:
             ocr_proc,
         )
 
-    def _prepare_page_for_reocr(self, pdf, page, page_num: int, image_count: int) -> bool:
+    def _prepare_page_for_reocr(
+        self, pdf, page, page_num: int, image_count: int, stats: ProcessingStats | None = None
+    ) -> bool:
         if not page_has_ocr_text(page):
             return True
         if not self.config.replace_existing_ocr:
             logger.info(
                 f"Page {page_num}: already has OCR text layer, skipping ({image_count} image(s))"
             )
+            _record_skipped_page(stats, page_num)
             return False
         stripped = strip_invisible_text(page, pdf)
         if stripped:
@@ -441,7 +516,7 @@ class MixedContentMixin:
         if page_num < 1 or page_num > len(pdf.pages):
             return
         page = pdf.pages[page_num - 1]
-        if not MixedContentMixin._prepare_rendered_page_for_reocr(self, pdf, page, page_num):
+        if not MixedContentMixin._prepare_rendered_page_for_reocr(self, pdf, page, page_num, stats):
             return
         if progress_callback:
             progress_callback(
@@ -475,15 +550,21 @@ class MixedContentMixin:
             logger.debug(f"Page {page_num}: rendered — no OCR text found")
             return
 
+        ocr_results = _prefer_native_text(
+            input_pdf, page_num, ocr_results, (img.shape[1], img.shape[0])
+        )
         MixedContentMixin._append_rendered_page_ocr(
             self, pdf, page, page_num, img, ocr_results, stats, ocr_texts
         )
 
-    def _prepare_rendered_page_for_reocr(self, pdf, page, page_num: int) -> bool:
+    def _prepare_rendered_page_for_reocr(
+        self, pdf, page, page_num: int, stats: ProcessingStats | None = None
+    ) -> bool:
         if not page_has_ocr_text(page):
             return True
         if not self.config.replace_existing_ocr:
             logger.info(f"Page {page_num}: rendered — already has OCR, skipping")
+            _record_skipped_page(stats, page_num)
             return False
         stripped = strip_invisible_text(page, pdf)
         if stripped:
@@ -512,7 +593,13 @@ class MixedContentMixin:
             page_height / img_h,
         )
         self._append_text_to_page(pdf, page, text_commands)
-        stats.total_text_regions += len(ocr_results)
+        record_ocr_page(
+            stats,
+            page_num,
+            ocr_results,
+            (img_w, img_h),
+            getattr(self.config, "dpi", 300),
+        )
         formatted = self._text_formatting.format(ocr_results, float(img_w))
         if formatted:
             ocr_texts.append(formatted)
