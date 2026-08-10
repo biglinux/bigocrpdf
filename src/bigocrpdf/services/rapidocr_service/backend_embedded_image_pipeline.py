@@ -13,6 +13,7 @@ import pikepdf
 
 from bigocrpdf.constants import MIN_IMAGE_BOX_SIZE_PX, MIN_TEXT_BOX_HEIGHT_PX, MIN_TEXT_BOX_WIDTH_PX
 from bigocrpdf.services.rapidocr_service.config import OCRBoxData, OCRResult, ProcessingStats
+from bigocrpdf.services.rapidocr_service.ocr_document_pages import record_ocr_page
 from bigocrpdf.services.rapidocr_service.ocr_postprocess import refine_ocr_results
 from bigocrpdf.services.rapidocr_service.ocr_runtime_diagnostics import (
     record_ocr_runtime_diagnostics,
@@ -21,6 +22,7 @@ from bigocrpdf.services.rapidocr_service.pdf_extractor import (
     extract_image_positions,
     load_image_with_exif_rotation,
 )
+from bigocrpdf.services.rapidocr_service.pipeline_mixed_content import _prefer_native_text
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
@@ -124,6 +126,8 @@ class BackendEmbeddedImagePipelineMixin:
     ) -> list[str]:
         """OCR all embedded images in one page; return text overlay commands."""
         text_commands: list[str] = []
+        page_results: list[OCRResult] = []
+        page_image_size = (0, 0)
         for img_pos in img_positions:
             if img_pos.width < 15 or img_pos.height < 15:
                 continue
@@ -154,8 +158,21 @@ class BackendEmbeddedImagePipelineMixin:
             for cmd in cmds:
                 if cmd not in ("q", "Q"):
                     text_commands.append(cmd)
-            stats.total_text_regions += len(ocr_results)
+            page_results.extend(ocr_results)
+            page_image_size = (img_w, img_h)
             logger.debug(f"Page {page_num}: OCR'd {img_pos.name} ({len(ocr_results)} text regions)")
+
+        if page_results:
+            # One record per page, not per image: several images on one page
+            # are one page of OCR, and duplicate page_index entries would break
+            # the sidecar and every per-page metric derived from it.
+            record_ocr_page(
+                stats,
+                page_num,
+                page_results,
+                page_image_size,
+                getattr(self.config, "dpi", 300),
+            )
         return text_commands
 
     def _ocr_native_text_page_images(
@@ -333,6 +350,16 @@ class BackendEmbeddedImagePipelineMixin:
         scale_x = img_pos.width / img_w
         scale_y = img_pos.height / img_h
 
+        source_path = getattr(pdf, "filename", None)
+        if source_path:
+            ocr_results = _prefer_native_text(
+                Path(source_path),
+                page_num,
+                ocr_results,
+                (img_w, img_h),
+                (img_pos.x, img_pos.y, img_pos.width, img_pos.height),
+            )
+
         text_commands = self._create_text_layer_commands(
             ocr_results,
             img_pos.x,
@@ -344,7 +371,13 @@ class BackendEmbeddedImagePipelineMixin:
         )
         self._append_text_to_page(pdf, page, text_commands)
 
-        stats.total_text_regions += len(ocr_results)
+        record_ocr_page(
+            stats,
+            page_num,
+            ocr_results,
+            (img_w, img_h),
+            getattr(self.config, "dpi", 300),
+        )
 
         formatted_text = self._text_formatting.format(ocr_results, float(img_w))
 

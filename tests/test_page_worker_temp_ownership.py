@@ -12,6 +12,7 @@ from bigocrpdf.services.rapidocr_service.backend_text_layer import (
     BackendTextLayerMixin,
 )
 from bigocrpdf.services.rapidocr_service.config import ProcessingStats
+from bigocrpdf.services.rapidocr_service.geometry_trace import GeometryTrace
 from bigocrpdf.services.rapidocr_service.pipeline_chunked_ocr import ChunkedOCRMixin
 
 
@@ -23,6 +24,7 @@ def _preprocessor() -> SimpleNamespace:
         crop_applied=False,
         crop_offset_px=(0, 0),
         crop_original_size_px=None,
+        trace=GeometryTrace(),
     )
 
 

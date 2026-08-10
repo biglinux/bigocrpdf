@@ -12,7 +12,14 @@ def clean_env(monkeypatch):
         monkeypatch.delenv(var, raising=False)
 
 
-def _populate(root, models=("PP-OCRv6_det_small.onnx",), fonts=("latin.ttf",)):
+def _populate(root, models=resource_paths.DEFAULT_REQUIRED_MODELS, fonts=("latin.ttf",)):
+    """Lay out a complete resource tree.
+
+    The model set must be complete by default: ``find_model_dir`` lets any
+    directory holding every required model win outright, so a half-populated
+    fixture loses to whatever real tree the host has under /usr/share/rapidocr
+    and the test then passes only on machines without one.
+    """
     (root / "models").mkdir(parents=True, exist_ok=True)
     (root / "fonts").mkdir(parents=True, exist_ok=True)
     for name in models:
@@ -55,7 +62,8 @@ def test_models_and_fonts_resolve_independently(tmp_path, monkeypatch):
     """Only the directory holding the right file type counts."""
     root = tmp_path / "AppDir/usr/share/rapidocr"
     (root / "models").mkdir(parents=True)
-    (root / "models" / "PP-OCRv6_det_small.onnx").write_bytes(b"")
+    for name in resource_paths.DEFAULT_REQUIRED_MODELS:
+        (root / "models" / name).write_bytes(b"")
     (root / "fonts").mkdir(parents=True)  # present but empty
     monkeypatch.setenv("APPDIR", str(tmp_path / "AppDir"))
 
@@ -113,6 +121,12 @@ def test_a_stale_model_set_does_not_win_over_a_complete_one(tmp_path, monkeypatc
 
     monkeypatch.setenv("BIGOCRPDF_RAPIDOCR_DIR", str(stale))
     monkeypatch.setattr(resource_paths, "rapidocr_bundled_models", lambda: current)
+    # The host's own /usr/share/rapidocr is reachable three ways -- SYSTEM_ROOT,
+    # sys.prefix, and walking up from the module -- and holds a complete v6 set
+    # on a BigLinux box, which would win before the wheel is ever consulted.
+    # Restricting the candidates to the staged tree is what makes this a test of
+    # the selection policy rather than of the machine it runs on.
+    monkeypatch.setattr(resource_paths, "_root_candidates", lambda: [stale])
 
     assert resource_paths.find_model_dir() == current
 

@@ -49,6 +49,27 @@ def _chunk_result_render_size(
     return width_pts * user_unit, height_pts * user_unit
 
 
+def _resource_diagnostics(res_profile: Any, pipe_cfg: Any, chunk_size: int) -> dict[str, Any]:
+    """The tier and budget the pipeline chose, for the sidecar.
+
+    Both arguments are typed ``Any`` by this pipeline, so fields are read
+    defensively: a diagnostics gap is acceptable, an AttributeError that aborts
+    a page of OCR is not.
+    """
+    tier = getattr(res_profile, "tier", None)
+    return {
+        "tier": getattr(tier, "name", None),
+        "available_ram_mb": getattr(res_profile, "available_ram_mb", None),
+        "total_ram_mb": getattr(res_profile, "total_ram_mb", None),
+        "cpu_count": getattr(res_profile, "cpu_count", None),
+        "max_workers": getattr(pipe_cfg, "max_workers", None),
+        "chunk_size_base": getattr(pipe_cfg, "chunk_size", None),
+        "chunk_size_adjusted": chunk_size,
+        "gc_after_page": getattr(pipe_cfg, "gc_after_page", None),
+        "downscale_probmap": getattr(pipe_cfg, "downscale_probmap", None),
+    }
+
+
 def _needs_rendered_chunk_ocr(
     result: dict,
     page_num: int,
@@ -340,6 +361,8 @@ class ChunkedOCRMixin:
                     pipe_cfg.ocr_threads,
                     CHUNK_SIZE,
                     worker_runtime,
+                    ocr_workers=pipe_cfg.max_workers,
+                    resource=_resource_diagnostics(res_profile, pipe_cfg, CHUNK_SIZE),
                 )
 
                 for chunk_idx in range(num_chunks):

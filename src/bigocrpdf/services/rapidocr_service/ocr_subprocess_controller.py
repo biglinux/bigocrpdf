@@ -5,16 +5,22 @@
 
 import json
 import math
+import os
 import queue
 import shutil
 import subprocess
 import threading
 import time
 from collections.abc import Callable
+from pathlib import Path
 
 from bigocrpdf.services.rapidocr_service.config import OCRConfig
 from bigocrpdf.services.rapidocr_service.ocr_worker_engine import build_ocr_worker_command
-from bigocrpdf.services.rapidocr_service.resource_manager import ResourceTier, detect_resources
+from bigocrpdf.services.rapidocr_service.resource_manager import (
+    ResourceProfile,
+    ResourceTier,
+    detect_resources,
+)
 from bigocrpdf.utils.logger import logger
 
 _DEFAULT_READY_TIMEOUT_SECONDS = 300.0
@@ -96,10 +102,17 @@ class OCRSubprocessController:
         config: OCRConfig,
         cancel_event: threading.Event,
         openvino_checker: Callable[[], bool],
+        resource_profile: Callable[[], ResourceProfile] | None = None,
     ) -> None:
         self._config = config
         self._cancel_event = cancel_event
         self._openvino_checker = openvino_checker
+        # Detected once per controller -- one document -- rather than on every
+        # launch. The pipeline detects the tier once and sizes itself against
+        # it; a second reading taken later can disagree, which would configure
+        # the worker for a machine state the pipeline never saw.
+        self._detect_resources = resource_profile
+        self._cached_profile: ResourceProfile | None = None
 
     def _build_command(self, ocr_threads: int = 0) -> list[str]:
         """Build command-line args for a persistent OCR subprocess."""
@@ -117,8 +130,20 @@ class OCRSubprocessController:
             persistent=True,
             threads=ocr_threads,
             openvino_available=openvino_available,
-            low_memory_openvino=detect_resources().tier == ResourceTier.CONSTRAINED,
+            low_memory_openvino=self._resources().tier == ResourceTier.CONSTRAINED,
         )
+
+    def _resources(self) -> ResourceProfile:
+        """The machine tier, read once per controller.
+
+        ``detect_resources`` is looked up at call time rather than bound as a
+        default argument, so patching the module symbol still works -- which is
+        how the existing protocol tests drive each tier.
+        """
+        if self._cached_profile is None:
+            detect = self._detect_resources or detect_resources
+            self._cached_profile = detect()
+        return self._cached_profile
 
     @staticmethod
     def _resolve_ocr_threads(ocr_threads: int) -> int:
@@ -139,6 +164,26 @@ class OCRSubprocessController:
             background_command = [nice, "-n", "19", *background_command]
         return background_command
 
+    @staticmethod
+    def _worker_environment() -> dict[str, str]:
+        """Pin the worker to the same package this controller was loaded from.
+
+        The worker starts as ``python -m bigocrpdf...``, so it resolves the
+        package through the child's own sys.path.  Whenever a copy is also
+        installed system-wide -- a source checkout, a venv, a staged build --
+        the child can pick the other one, and a version whose argument parser
+        predates the flags sent here exits before the ready signal, surfacing
+        as "stdout closed before ready signal" with the real cause only in the
+        subprocess stderr.
+        """
+        import bigocrpdf
+
+        env = os.environ.copy()
+        package_root = str(Path(bigocrpdf.__file__).resolve().parent.parent)
+        existing = env.get("PYTHONPATH")
+        env["PYTHONPATH"] = f"{package_root}{os.pathsep}{existing}" if existing else package_root
+        return env
+
     def launch(self, ocr_threads: int = 0) -> subprocess.Popen:
         """Start an OCR subprocess without waiting for model readiness."""
         resolved_threads = self._resolve_ocr_threads(ocr_threads)
@@ -151,6 +196,7 @@ class OCRSubprocessController:
             stderr=None,
             text=True,
             bufsize=1,
+            env=self._worker_environment(),
         )
         process._bigocr_threads = resolved_threads
         return process

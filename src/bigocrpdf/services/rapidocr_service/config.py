@@ -36,7 +36,6 @@ DEFAULT_GPU_FALLBACK_TO_CPU = True
 DEFAULT_FALLBACK_RENDER_DPI = 300
 DEFAULT_RETRY_RENDER_DPI = 350
 DEFAULT_MAX_RENDER_MEGAPIXELS = 45
-DEFAULT_MAX_PAGE_MEGAPIXELS = 40.0
 DEFAULT_MAX_IMAGE_MEGAPIXELS = 128.0
 DEFAULT_MAX_PDF_PAGES = 2000
 # Geometric corrections (ON by default)
@@ -129,7 +128,6 @@ class OCRConfig:
     fallback_render_dpi: int = DEFAULT_FALLBACK_RENDER_DPI
     retry_render_dpi: int = DEFAULT_RETRY_RENDER_DPI
     max_render_megapixels: int = DEFAULT_MAX_RENDER_MEGAPIXELS
-    max_page_megapixels: float = DEFAULT_MAX_PAGE_MEGAPIXELS
     max_image_megapixels: float = DEFAULT_MAX_IMAGE_MEGAPIXELS
     max_pdf_pages: int = DEFAULT_MAX_PDF_PAGES
 

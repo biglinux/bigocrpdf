@@ -126,7 +126,6 @@ class ProfessionalPDFOCR(
         )
         enforce_pdf_resource_limits(
             resource_metrics.total_pages,
-            resource_metrics.page_dimensions,
             self.config,
             resource_metrics.image_dimensions,
         )
