@@ -185,73 +185,34 @@ class TestPdfResourceLimits:
         assert 8.0 < megapixels < 9.0
 
     def test_accepts_pdf_within_limits(self):
-        config = type("Config", (), {"max_pdf_pages": 10, "max_page_megapixels": 40, "dpi": 300})()
-        enforce_pdf_resource_limits(2, [(612, 792), (612, 792)], config)
+        config = type("Config", (), {"max_pdf_pages": 10, "dpi": 300})()
+        enforce_pdf_resource_limits(2, config)
 
     def test_accepts_embedded_image_within_limit(self):
         config = type(
             "Config",
             (),
-            {
-                "max_pdf_pages": 10,
-                "max_page_megapixels": 40,
-                "max_image_megapixels": 128,
-                "dpi": 300,
-            },
+            {"max_pdf_pages": 10, "max_image_megapixels": 128, "dpi": 300},
         )()
-        enforce_pdf_resource_limits(
-            1,
-            [(612, 792)],
-            config,
-            image_dimensions=[(1, 4000, 3000)],
-        )
+        enforce_pdf_resource_limits(1, config, image_dimensions=[(1, 4000, 3000)])
 
     def test_page_count_limit_is_disabled_by_default(self):
-        config = type("Config", (), {"max_pdf_pages": 0, "max_page_megapixels": 0, "dpi": 300})()
-        enforce_pdf_resource_limits(10_000, [(612, 792)], config)
+        config = type("Config", (), {"max_pdf_pages": 0, "dpi": 300})()
+        enforce_pdf_resource_limits(10_000, config)
 
     def test_rejects_too_many_pages(self):
-        config = type("Config", (), {"max_pdf_pages": 1, "max_page_megapixels": 40, "dpi": 300})()
+        config = type("Config", (), {"max_pdf_pages": 1, "dpi": 300})()
         with pytest.raises(ValueError, match="configured limit is 1"):
-            enforce_pdf_resource_limits(2, [(612, 792), (612, 792)], config)
-
-    @pytest.mark.parametrize(
-        "dimensions",
-        ((0, 792), (float("nan"), 792), (612, float("inf"))),
-    )
-    def test_rejects_invalid_page_dimensions(self, dimensions):
-        config = type(
-            "Config",
-            (),
-            {"max_pdf_pages": 10, "max_page_megapixels": 40, "dpi": 300},
-        )()
-
-        with pytest.raises(ValueError, match="Page 1 has invalid dimensions"):
-            enforce_pdf_resource_limits(1, [dimensions], config)
-
-    def test_rejects_too_large_rendered_page(self):
-        config = type("Config", (), {"max_pdf_pages": 10, "max_page_megapixels": 1, "dpi": 300})()
-        with pytest.raises(ValueError, match="would render"):
-            enforce_pdf_resource_limits(1, [(612, 792)], config)
+            enforce_pdf_resource_limits(2, config)
 
     def test_rejects_too_large_embedded_image(self):
         config = type(
             "Config",
             (),
-            {
-                "max_pdf_pages": 10,
-                "max_page_megapixels": 40,
-                "max_image_megapixels": 128,
-                "dpi": 300,
-            },
+            {"max_pdf_pages": 10, "max_image_megapixels": 128, "dpi": 300},
         )()
         with pytest.raises(ValueError, match=r"page 1.*200\.0 MP.*128\.0 MP"):
-            enforce_pdf_resource_limits(
-                1,
-                [(612, 792)],
-                config,
-                image_dimensions=[(1, 20_000, 10_000)],
-            )
+            enforce_pdf_resource_limits(1, config, image_dimensions=[(1, 20_000, 10_000)])
 
     def test_render_dpi_stays_preferred_when_within_budget(self):
         assert select_render_dpi_for_page(612, 792, 300, 45) == 300
@@ -268,6 +229,10 @@ class TestPdfResourceLimits:
         with pytest.raises(ValueError, match=r"minimum 150 DPI.*configured limit is 1\.0 MP"):
             select_render_dpi_for_page(612, 792, 300, 1, min_dpi=150)
 
+    def test_render_dpi_downscales_photo_sized_page_box(self):
+        """A photo PDF placing one point per source pixel must still render."""
+        assert select_render_dpi_for_page(3864, 2814, 300, 45) == 146
+
     def test_render_dpi_rejects_invalid_page_dimensions(self):
         with pytest.raises(ValueError, match="invalid dimensions"):
             select_render_dpi_for_page(0, 792, 300, 45)
@@ -281,7 +246,7 @@ class TestPdfResourceLimits:
         page["/UserUnit"] = 10
         pdf.save(pdf_path)
 
-        with pytest.raises(ValueError, match=r"minimum 150 DPI.*configured limit is 45\.0 MP"):
+        with pytest.raises(ValueError, match=r"minimum 100 DPI.*configured limit is 45\.0 MP"):
             select_pdf_page_render_dpi(pdf_path, 1, 300, 45)
 
     def test_pdf_render_budget_rejects_invalid_page_number(self, tmp_path):

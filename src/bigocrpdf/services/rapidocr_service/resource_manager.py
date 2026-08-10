@@ -246,6 +246,10 @@ def compute_pipeline_config(profile: ResourceProfile) -> PipelineConfig:
 _PDF_POINTS_PER_INCH = 72.0
 # Bytes per pixel (RGB)
 _BYTES_PER_PIXEL = 3
+# Lowest DPI worth rendering at. Oversized page boxes (photo and scan PDFs that
+# map one point per source pixel) need to drop well below the 150 DPI a real
+# paper scan would use before they fit the megapixel budget.
+_MIN_RENDER_DPI = 100
 
 
 def estimate_page_memory_mb(width_pts: float, height_pts: float, render_dpi: int = 300) -> float:
@@ -278,7 +282,7 @@ def select_render_dpi_for_page(
     height_pts: float,
     preferred_dpi: int,
     max_megapixels: float,
-    min_dpi: int = 150,
+    min_dpi: int = _MIN_RENDER_DPI,
 ) -> int:
     """Choose a render DPI that stays under the configured megapixel budget."""
     if preferred_dpi <= 0 or max_megapixels <= 0:
@@ -317,7 +321,7 @@ def select_pdf_page_render_dpi(
     page_num: int,
     preferred_dpi: int,
     max_megapixels: float,
-    min_dpi: int = 150,
+    min_dpi: int = _MIN_RENDER_DPI,
 ) -> int:
     """Choose render DPI for a PDF page, failing closed when its size cannot be inspected."""
     if max_megapixels <= 0:
@@ -350,32 +354,20 @@ def select_pdf_page_render_dpi(
 
 def enforce_pdf_resource_limits(
     total_pages: int,
-    page_dimensions: Iterable[tuple[float, float]],
     config,
     image_dimensions: Iterable[tuple[int, int, int]] = (),
 ) -> None:
-    """Fail early when a PDF would exceed configured OCR resource limits."""
+    """Fail early when a PDF would exceed configured OCR resource limits.
+
+    Page size is deliberately not checked here.  A large page is not a
+    failure: ``select_render_dpi_for_page`` lowers the render DPI until the
+    page fits ``max_render_megapixels``.  Rejecting up front at the preferred
+    DPI would refuse documents the renderer handles fine — notably photos and
+    scans whose PDF page box maps one point per source pixel.
+    """
     max_pdf_pages = int(getattr(config, "max_pdf_pages", 0))
     if max_pdf_pages > 0 and total_pages > max_pdf_pages:
         raise ValueError(f"PDF has {total_pages} pages; configured limit is {max_pdf_pages}")
-
-    max_page_megapixels = float(getattr(config, "max_page_megapixels", 0.0))
-    if max_page_megapixels > 0:
-        render_dpi = int(getattr(config, "dpi", 300))
-        for page_index, (width_pts, height_pts) in enumerate(page_dimensions, 1):
-            if (
-                not math.isfinite(width_pts)
-                or not math.isfinite(height_pts)
-                or width_pts <= 0
-                or height_pts <= 0
-            ):
-                raise ValueError(f"Page {page_index} has invalid dimensions")
-            megapixels = estimate_page_megapixels(width_pts, height_pts, render_dpi)
-            if megapixels > max_page_megapixels:
-                raise ValueError(
-                    f"Page {page_index} would render at {megapixels:.1f} MP "
-                    f"({render_dpi} DPI); configured limit is {max_page_megapixels:.1f} MP"
-                )
 
     enforce_image_resource_limits(image_dimensions, config)
 

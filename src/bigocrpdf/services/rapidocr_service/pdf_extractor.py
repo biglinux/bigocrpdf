@@ -2,7 +2,7 @@ import math
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 import pikepdf
 
@@ -20,7 +20,6 @@ from bigocrpdf.services.rapidocr_service.pdf_page_geometry import (
     get_page_image_encodings,
     load_image_with_exif_rotation,
     merge_page_fonts,
-    transform_ocr_coords_for_rotation,
 )
 from bigocrpdf.services.rapidocr_service.pdf_validation import classify_text_layer
 from bigocrpdf.services.rapidocr_service.resource_manager import select_render_dpi_for_page
@@ -42,7 +41,6 @@ __all__ = [
     "merge_page_fonts",
     "page_has_ocr_text",
     "parse_pdfimages_list",
-    "transform_ocr_coords_for_rotation",
 ]
 
 
@@ -242,45 +240,79 @@ def _append_fallback_or_skip_text_page(
     logger.info(f"Page {current_page}: {reason} found, will render with pdftoppm")
 
 
+class _PageImage(NamedTuple):
+    """One image entry from ``pdfimages -list``, with where it lands on the page."""
+
+    index: int
+    width: int
+    height: int
+    x_ppi: float
+    y_ppi: float
+
+    def page_coverage(self, page_dim: tuple[float, float]) -> tuple[float, float] | None:
+        """Fraction of the page width and height this image occupies.
+
+        ``pdfimages`` reports the placement resolution, so dividing the pixel
+        count by it recovers the size the image is drawn at, in inches.
+        """
+        if self.x_ppi <= 0 or self.y_ppi <= 0 or page_dim[0] <= 0 or page_dim[1] <= 0:
+            return None
+        drawn_w_pts = self.width / self.x_ppi * 72.0
+        drawn_h_pts = self.height / self.y_ppi * 72.0
+        return drawn_w_pts / page_dim[0], drawn_h_pts / page_dim[1]
+
+
+# An image drawn across at least this much of the page is the page's scan, not
+# an illustration sitting on it.
+_FULL_PAGE_COVERAGE = 0.9
+
+
 def _small_page_image_reason(
     page_dim: tuple[float, float] | None,
-    img_width: int,
-    img_height: int,
+    image: _PageImage,
 ) -> str | None:
+    """Explain why an embedded image cannot stand in for the whole page.
+
+    The test is geometric, not by pixel count: when the image is drawn across
+    the page it already holds every pixel the source has, and re-rendering
+    could only interpolate it larger.  Photo and scan PDFs commonly place such
+    an image at 72 ppi, which any resolution-based test misreads as low quality.
+    """
     if not page_dim:
         return None
-    expected_dpi = 300
-    expected_w = page_dim[0] / 72.0 * expected_dpi
-    expected_h = page_dim[1] / 72.0 * expected_dpi
-    expected_area = expected_w * expected_h
-    coverage = (img_width * img_height) / expected_area if expected_area > 0 else 1.0
-    width_ratio = img_width / expected_w if expected_w > 0 else 1.0
-    height_ratio = img_height / expected_h if expected_h > 0 else 1.0
-    if coverage >= 0.15 and width_ratio >= 0.45 and height_ratio >= 0.45:
+    coverage = image.page_coverage(page_dim)
+    if coverage is None:
         return None
-    if coverage < 0.15:
-        return f"area {coverage:.0%}"
-    return f"dimensions {img_width}x{img_height} ({width_ratio:.0%}w, {height_ratio:.0%}h)"
+    width_ratio, height_ratio = coverage
+    if width_ratio >= _FULL_PAGE_COVERAGE and height_ratio >= _FULL_PAGE_COVERAGE:
+        return None
+    return f"covers {width_ratio:.0%}w x {height_ratio:.0%}h of the page"
 
 
 def _add_pdfimages_mapping_line(
     line: str,
-    mapping: dict[int, list[tuple[int, int, int]]],
+    mapping: dict[int, list[_PageImage]],
     masked_pages: set[int],
 ) -> None:
+    # Trailing fields are counted from the end because the "object" column
+    # holds two tokens for regular images but one for inline ones.
     parts = line.split()
-    if len(parts) < 5:
+    if len(parts) < 15:
         return
     try:
         page_num = int(parts[0])
-        image_index = int(parts[1])
-        image_width = int(parts[3])
-        image_height = int(parts[4])
+        image = _PageImage(
+            index=int(parts[1]),
+            width=int(parts[3]),
+            height=int(parts[4]),
+            x_ppi=float(parts[-4]),
+            y_ppi=float(parts[-3]),
+        )
     except ValueError:
         return
 
     if parts[2] == "image":
-        mapping.setdefault(page_num, []).append((image_index, image_width, image_height))
+        mapping.setdefault(page_num, []).append(image)
     elif parts[2] == "mask":
         masked_pages.add(page_num)
 
@@ -500,7 +532,7 @@ class PDFImageExtractor:
         current_page: int,
         result_index: int,
         output_dir: Path,
-        image_mapping: dict[int, list[tuple[int, int, int]]],
+        image_mapping: dict[int, list[_PageImage]],
         page_dimensions: dict[int, tuple[float, float]],
         text_rich_pages: set[int],
         fallback_pages: list[int],
@@ -520,18 +552,19 @@ class PDFImageExtractor:
             )
             return
 
-        valid_img_path, best_w, best_h = image_choice
-        reason = _small_page_image_reason(page_dimensions.get(current_page), best_w, best_h)
+        valid_img_path, best_image = image_choice
+        reason = _small_page_image_reason(page_dimensions.get(current_page), best_image)
         if reason is not None:
+            size = f"{best_image.width}x{best_image.height}"
             if current_page in text_rich_pages:
                 logger.info(
-                    f"Page {current_page}: small image {best_w}x{best_h} "
+                    f"Page {current_page}: partial image {size} "
                     f"({reason}) but has vector text, skipping OCR"
                 )
             else:
                 fallback_pages.append(current_page)
                 logger.info(
-                    f"Page {current_page}: largest image {best_w}x{best_h} "
+                    f"Page {current_page}: largest image {size} "
                     f"insufficient ({reason}), will render with pdftoppm"
                 )
             return
@@ -544,12 +577,12 @@ class PDFImageExtractor:
     def _best_readable_image(
         self,
         output_dir: Path,
-        img_entries: list[tuple[int, int, int]],
-    ) -> tuple[Path, int, int] | None:
-        for idx, img_w, img_h in sorted(img_entries, key=lambda e: e[1] * e[2], reverse=True):
-            found = self._find_file_for_index(output_dir, idx)
+        img_entries: list[_PageImage],
+    ) -> tuple[Path, _PageImage] | None:
+        for image in sorted(img_entries, key=lambda e: e.width * e.height, reverse=True):
+            found = self._find_file_for_index(output_dir, image.index)
             if found and found.suffix.lower() not in self._UNSUPPORTED_EXTENSIONS:
-                return found, img_w, img_h
+                return found, image
         return None
 
     def _render_fallback_pages(
@@ -635,7 +668,7 @@ class PDFImageExtractor:
         self,
         pdf_path: Path,
         page_range: tuple[int, int] | None = None,
-    ) -> dict[int, list[tuple[int, int, int]]]:
+    ) -> dict[int, list[_PageImage]]:
         """Map page numbers to image info using pdfimages -list.
 
         When page_range is provided, uses -f/-l flags so that image
@@ -650,7 +683,7 @@ class PDFImageExtractor:
         pdftoppm to get the composited image.
 
         Returns:
-            Dict mapping page_num -> list of (image_index, width, height).
+            Dict mapping page_num -> list of _PageImage.
         """
         cmd = ["pdfimages", "-list"]
         if page_range:
@@ -667,7 +700,7 @@ class PDFImageExtractor:
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
             return {}
 
-        mapping: dict[int, list[tuple[int, int, int]]] = {}
+        mapping: dict[int, list[_PageImage]] = {}
         self.masked_pages: set[int] = set()
         lines = result.stdout.splitlines()
         start_parsing = False

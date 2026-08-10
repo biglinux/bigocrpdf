@@ -62,7 +62,6 @@ def test_ocr_config_defaults_enable_resource_guards() -> None:
     config = OCRConfig()
 
     assert config.max_pdf_pages == 2000
-    assert config.max_page_megapixels == 40.0
     assert config.max_image_megapixels == 128.0
 
 
@@ -118,13 +117,7 @@ def test_process_allows_safe_pdf_for_both_pipelines(
     pdf_path = tmp_path / "safe.pdf"
     output_path = tmp_path / "safe-ocr.pdf"
     _write_metadata_only_pdf(pdf_path, image_size=(1000, 1000))
-    engine = _backend(
-        OCRConfig(
-            max_pdf_pages=1,
-            max_page_megapixels=10,
-            max_image_megapixels=2,
-        )
-    )
+    engine = _backend(OCRConfig(max_pdf_pages=1, max_image_megapixels=2))
     expected = ProcessingStats(pages_total=1)
     mixed = Mock(return_value=expected)
     image_only = Mock(return_value=expected)
@@ -157,20 +150,32 @@ def test_process_rejects_page_count_before_pipeline_selection(
     pipeline_choice.assert_not_called()
 
 
-def test_process_rejects_page_megapixels_before_pipeline_selection(
+def test_process_accepts_photo_sized_page_box(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    pdf_path = tmp_path / "oversized-page.pdf"
+    """A page box mapping one point per source pixel reaches the pipeline.
+
+    ImageMagick and phone-photo PDFs produce page boxes that exceed the
+    megapixel budget at the preferred DPI; the renderer lowers the DPI for
+    them, so refusing the document up front would block OCR entirely.
+    """
+    pdf_path = tmp_path / "photo-page.pdf"
     _write_metadata_only_pdf(pdf_path)
-    engine = _backend(OCRConfig(max_page_megapixels=1))
-    pipeline_choice = Mock(return_value=False)
-    monkeypatch.setattr(backend_module, "should_use_mixed_content_pipeline", pipeline_choice)
+    with pikepdf.open(pdf_path, allow_overwriting_input=True) as pdf:
+        pdf.pages[0]["/MediaBox"] = pikepdf.Array([0, 0, 1920, 2560])
+        pdf.save(pdf_path)
 
-    with pytest.raises(ValueError, match=r"Page 1 would render at 8\.4 MP.*limit is 1\.0 MP"):
-        engine.process(pdf_path, tmp_path / "unused.pdf")
+    engine = _backend(OCRConfig())
+    expected = ProcessingStats(pages_total=1)
+    engine._process_image_only_pdf = Mock(return_value=expected)
+    monkeypatch.setattr(
+        backend_module,
+        "should_use_mixed_content_pipeline",
+        lambda _config, _path: False,
+    )
 
-    pipeline_choice.assert_not_called()
+    assert engine.process(pdf_path, tmp_path / "out.pdf") is expected
 
 
 def test_process_rejects_nested_oversized_image_before_pipeline_selection(
