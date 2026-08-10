@@ -12,7 +12,6 @@ import pikepdf
 from PIL import Image
 
 from bigocrpdf.constants import PDF_TOOL_TIMEOUT_SECS
-from bigocrpdf.services.rapidocr_service.config import OCRResult
 from bigocrpdf.utils.logger import logger
 
 
@@ -59,69 +58,6 @@ def render_pdf_page_to_ppm(
     return str(rendered) if rendered.is_file() else None
 
 
-def transform_ocr_coords_for_rotation(
-    ocr_results: list[OCRResult],
-    ocr_img_size: tuple[int, int],
-    pdf_page_size: tuple[float, float],
-    rotation: int,
-) -> list[OCRResult]:
-    """
-    Transform OCR coordinates to match PDF page with rotation.
-
-    OCR is performed on the corrected (upright) image.
-    PDF pages may have a /Rotate attribute that rotates the display.
-
-    Args:
-        ocr_results: OCR results with coordinates from upright image
-        ocr_img_size: (width, height) of image used for OCR
-        pdf_page_size: (width, height) from PDF MediaBox
-        rotation: PDF page /Rotate value (0, 90, 180, 270)
-
-    Returns:
-        Transformed OCR results matching PDF coordinate system
-    """
-    transformer = _rotation_point_transformer(ocr_img_size, pdf_page_size, rotation)
-    if transformer is None:
-        logger.warning(f"Unsupported rotation: {rotation}°, using no transformation")
-        return ocr_results
-    return _transform_ocr_result_boxes(ocr_results, transformer)
-
-
-def _rotation_point_transformer(
-    ocr_img_size: tuple[int, int],
-    pdf_page_size: tuple[float, float],
-    rotation: int,
-):
-    ocr_w, ocr_h = ocr_img_size
-    pdf_w, pdf_h = pdf_page_size
-
-    if rotation == 0:
-        scale_x = pdf_w / ocr_w
-        scale_y = pdf_h / ocr_h
-        return lambda point: [point[0] * scale_x, point[1] * scale_y]
-    if rotation == 90:
-        scale_x = pdf_w / ocr_h
-        scale_y = pdf_h / ocr_w
-        return lambda point: [point[1] * scale_x, (ocr_w - point[0]) * scale_y]
-    if rotation == 180:
-        scale_x = pdf_w / ocr_w
-        scale_y = pdf_h / ocr_h
-        return lambda point: [(ocr_w - point[0]) * scale_x, (ocr_h - point[1]) * scale_y]
-    if rotation == 270:
-        scale_x = pdf_w / ocr_h
-        scale_y = pdf_h / ocr_w
-        return lambda point: [(ocr_h - point[1]) * scale_x, point[0] * scale_y]
-    return None
-
-
-def _transform_ocr_result_boxes(ocr_results: list[OCRResult], point_transformer) -> list[OCRResult]:
-    transformed = []
-    for result in ocr_results:
-        new_box = [point_transformer(point) for point in result.box]
-        transformed.append(OCRResult(result.text, new_box, result.confidence))
-    return transformed
-
-
 def extract_content_streams(
     contents: Any,
     target_pdf: pikepdf.Pdf,
@@ -147,10 +83,21 @@ def merge_page_fonts(
     orig_page: pikepdf.Page,
     text_resources: pikepdf.Dictionary,
     original_pdf: pikepdf.Pdf,
-) -> None:
-    """Merge fonts from text layer resources into original page."""
+) -> dict[str, str]:
+    """Merge fonts from text layer resources into original page.
+
+    Returns the names that had to change, old name to new.
+
+    A name that already exists on the page belongs to the page, not to us.
+    Keeping it used to mean our font was silently dropped and our text read
+    through a stranger's encoding: our layer writes subset code 1 for whatever
+    character it happened to meet first, so a page carrying an unrelated
+    ``/F2+0`` decoded every accent as some other accent -- ``Jürgen`` came out
+    ``Jçrgen``. Names like ``/F1`` are as generic as they look, and re-running
+    OCR on a file we produced hits this every time.
+    """
     if "/Font" not in text_resources:
-        return
+        return {}
 
     # Ensure original page has resources
     if "/Resources" not in orig_page:
@@ -159,13 +106,32 @@ def merge_page_fonts(
     if "/Font" not in orig_page["/Resources"]:
         orig_page["/Resources"]["/Font"] = pikepdf.Dictionary()
 
-    # Copy each font if not already present
+    page_fonts = orig_page["/Resources"]["/Font"]
+    renames: dict[str, str] = {}
     for font_name, font_obj in text_resources["/Font"].items():
+        target = (
+            font_name if font_name not in page_fonts else _free_font_name(page_fonts, font_name)
+        )
         try:
-            if font_name not in orig_page["/Resources"]["/Font"]:
-                orig_page["/Resources"]["/Font"][font_name] = original_pdf.copy_foreign(font_obj)
+            page_fonts[target] = original_pdf.copy_foreign(font_obj)
         except Exception as e:
+            # Recorded only once the font is installed. A rename pointing at a
+            # font that failed to copy would send the stream to a resource
+            # that is not there, which is worse than the wrong font.
             logger.debug(f"Could not copy font {font_name}: {e}")
+            continue
+        if target != font_name:
+            renames[font_name] = target
+    return renames
+
+
+def _free_font_name(page_fonts: pikepdf.Object, wanted: str) -> str:
+    """Return a font resource name the page is not already using."""
+    stem = wanted.lstrip("/")
+    suffix = 1
+    while f"/BigOcr{stem}_{suffix}" in page_fonts:
+        suffix += 1
+    return f"/BigOcr{stem}_{suffix}"
 
 
 def load_image_with_exif_rotation(img_path: Path) -> np.ndarray | None:

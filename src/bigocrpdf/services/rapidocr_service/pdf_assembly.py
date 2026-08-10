@@ -1,6 +1,7 @@
 """PDF assembly and merging utilities."""
 
 import logging
+import re
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +14,7 @@ from bigocrpdf.services.rapidocr_service.pdf_extractor import (
     extract_content_streams,
     merge_page_fonts,
 )
+from bigocrpdf.services.rapidocr_service.renderer import MAX_HORIZ_SCALE, MIN_HORIZ_SCALE
 from bigocrpdf.utils import pdf_utils
 
 logger = logging.getLogger(__name__)
@@ -128,6 +130,11 @@ def _build_text_boxes(
 
 def _snap_baselines(boxes: list[dict]) -> None:
     """Cluster boxes by y-proximity and snap each cluster to its median y."""
+    if not boxes:
+        # A page with no detected text is ordinary, not exceptional. The
+        # renderer's copy of this function has always guarded; here only the
+        # caller's own emptiness check stood between this and an IndexError.
+        return
     sorted_boxes = sorted(boxes, key=lambda b: -b["y"])
     clusters: list[list[dict]] = []
     current: list[dict] = [sorted_boxes[0]]
@@ -179,7 +186,7 @@ def _emit_line_commands(line_boxes: list[dict]) -> list[str]:
         h_scale = line_width / natural_w * 100.0
     else:
         h_scale = 100.0
-    h_scale = max(30.0, min(300.0, h_scale))
+    h_scale = max(MIN_HORIZ_SCALE, min(MAX_HORIZ_SCALE, h_scale))
 
     return [
         "/GSOcrInvisible gs",
@@ -446,6 +453,26 @@ def _filter_invisible_text_ops(ops: list[Any]) -> tuple[list[Any], int]:
     return filtered, removed
 
 
+# A font is selected by "/Name size Tf". Only that operator is rewritten: the
+# same token elsewhere -- a marked-content property, an inline image key --
+# names something else entirely.
+_FONT_SELECT_RE = re.compile(rb"(/[^\s/\[\]<>(){}]+)(\s+[\d.+-]+\s+Tf)")
+
+
+def _rename_stream_fonts(
+    stream: pikepdf.Stream, renames: dict[str, str], pdf: pikepdf.Pdf
+) -> pikepdf.Stream:
+    """Point a text-layer stream at the font names it was actually filed under."""
+    encoded = {name.encode("ascii"): new.encode("ascii") for name, new in renames.items()}
+
+    def substitute(match: re.Match[bytes]) -> bytes:
+        return encoded.get(match.group(1), match.group(1)) + match.group(2)
+
+    data = stream.read_bytes()
+    renamed = _FONT_SELECT_RE.sub(substitute, data)
+    return stream if renamed == data else pikepdf.Stream(pdf, renamed)
+
+
 def merge_single_page(
     orig_page: pikepdf.Page,
     text_page: pikepdf.Page,
@@ -484,13 +511,15 @@ def merge_single_page(
         orig_page.get("/Contents", []), original_pdf, copy_foreign=False
     )
 
-    # Prepend text layer streams (text goes underneath original content)
-    orig_page["/Contents"] = pikepdf.Array(text_streams + orig_streams)
-
     # Copy fonts from text layer to original page resources
     text_resources = text_page.get("/Resources")
     if isinstance(text_resources, pikepdf.Dictionary):
-        merge_page_fonts(orig_page, text_resources, original_pdf)
+        renames = merge_page_fonts(orig_page, text_resources, original_pdf)
+        if renames:
+            text_streams = [_rename_stream_fonts(s, renames, original_pdf) for s in text_streams]
+
+    # Prepend text layer streams (text goes underneath original content)
+    orig_page["/Contents"] = pikepdf.Array(text_streams + orig_streams)
 
     logger.debug(
         f"Page {page_num + 1}: merged {len(text_streams)} text streams "

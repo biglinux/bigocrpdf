@@ -4,6 +4,7 @@ import subprocess
 from pathlib import Path
 
 import pikepdf
+import pytest
 from reportlab.pdfgen import canvas as reportlab_canvas
 
 from bigocrpdf.services.rapidocr_service.config import OCRConfig, OCRResult
@@ -13,6 +14,7 @@ from bigocrpdf.services.rapidocr_service.pdf_assembly import (
     append_text_to_page,
     create_text_layer_commands,
     escape_pdf_text,
+    merge_single_page,
     strip_invisible_text,
 )
 from bigocrpdf.services.rapidocr_service.pdf_extractor import (
@@ -20,6 +22,7 @@ from bigocrpdf.services.rapidocr_service.pdf_extractor import (
     has_native_text,
     page_has_ocr_text,
 )
+from bigocrpdf.services.rapidocr_service.pdf_page_geometry import merge_page_fonts
 from bigocrpdf.services.rapidocr_service.renderer import TextLayerRenderer
 from bigocrpdf.utils.pdf_utils import set_root_page_layout
 
@@ -306,3 +309,94 @@ class TestSetRootPageLayout:
         pdf = self._blank_pdf()
         assert set_root_page_layout(pdf, "two_page") is True
         assert str(pdf.Root.PageLayout) == "/TwoColumnLeft"
+
+
+class TestTextLayerFontNamesDoNotCollide:
+    """A page that already names a font must not decide what our text says.
+
+    ReportLab writes an embedded subset whose codes are assigned in order of
+    first use, so code 1 means whatever character that document met first, and
+    only its own ToUnicode says which. The merge used to keep any font name the
+    page already had and drop ours -- our codes were then read through a
+    stranger's table. Measured on a six-page scan re-run through OCR, every
+    accent changed identity: ``Jürgen`` became ``Jçrgen``, ``CATALOGAÇÃO``
+    became ``CATALOGAõãO``. ``/F1`` and ``/F2+0`` are generic enough that this
+    is not an exotic collision, and re-OCRing our own output triggers it every
+    time.
+    """
+
+    # Distinct accents in a different order on each side, so the two documents
+    # cannot agree on subset codes by accident.
+    PAGE_TEXT = "çõãêé"
+    LAYER_TEXT = "üÇÃáí"
+
+    def _draw(self, path: Path, text: str) -> Path:
+        results = [
+            OCRResult(text=text, box=[[40, 40], [560, 40], [560, 70], [40, 70]], confidence=0.99)
+        ]
+        pdf = reportlab_canvas.Canvas(str(path), pagesize=(612, 792))
+        TextLayerRenderer(OCRConfig()).render(pdf, results, (612, 792))
+        pdf.save()
+        return path
+
+    @pytest.fixture
+    def merged(self, tmp_path: Path) -> Path:
+        page = pikepdf.open(self._draw(tmp_path / "page.pdf", self.PAGE_TEXT))
+        layer = pikepdf.open(self._draw(tmp_path / "layer.pdf", self.LAYER_TEXT))
+
+        assert merge_single_page(page.pages[0], layer.pages[0], page, 0)
+
+        out = tmp_path / "merged.pdf"
+        page.save(out)
+        return out
+
+    def test_the_two_sides_really_do_collide(self, tmp_path: Path):
+        """Without a shared font name there is nothing for this to guard."""
+        page = pikepdf.open(self._draw(tmp_path / "a.pdf", self.PAGE_TEXT))
+        layer = pikepdf.open(self._draw(tmp_path / "b.pdf", self.LAYER_TEXT))
+
+        shared = set(page.pages[0].resources["/Font"].keys()) & set(
+            layer.pages[0].resources["/Font"].keys()
+        )
+
+        assert shared, "the fixture no longer reproduces the collision"
+
+    def test_our_text_survives_the_merge(self, merged: Path):
+        extracted = subprocess.run(
+            ["pdftotext", str(merged), "-"], capture_output=True, text=True, check=True
+        ).stdout
+
+        assert self.LAYER_TEXT in extracted
+
+    def test_no_accent_is_swapped_for_another(self, merged: Path):
+        """The failure was silent: same length, every accent a different one."""
+        extracted = subprocess.run(
+            ["pdftotext", str(merged), "-"], capture_output=True, text=True, check=True
+        ).stdout
+
+        stale = set(self.PAGE_TEXT) - set(self.LAYER_TEXT)
+        assert not (stale & set(extracted)), "text decoded through the page's own font"
+
+    def test_the_page_keeps_its_own_font(self, merged: Path):
+        """Renaming ours must not evict a font the page's own content uses."""
+        with pikepdf.open(merged) as pdf:
+            fonts = pdf.pages[0].resources["/Font"]
+
+            assert "/F1" in fonts
+
+    def test_a_font_that_fails_to_copy_records_no_rename(self, tmp_path: Path, monkeypatch):
+        """A rename is a promise that the font is there under the new name.
+
+        Recording it before the copy meant a failed copy sent the stream to a
+        resource the page does not have -- worse than the wrong font, which at
+        least renders something.
+        """
+        page = pikepdf.open(self._draw(tmp_path / "page.pdf", self.PAGE_TEXT))
+        layer = pikepdf.open(self._draw(tmp_path / "layer.pdf", self.LAYER_TEXT))
+        monkeypatch.setattr(
+            type(page), "copy_foreign", lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("no"))
+        )
+
+        renames = merge_page_fonts(page.pages[0], layer.pages[0].resources, page)
+
+        assert renames == {}
