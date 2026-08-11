@@ -41,14 +41,21 @@ makedepends=(
 	'python-wheel'
 )
 
-pkgver=3.0.0
+# Rolling package: the build fires on every push and the version is the build
+# date, which is also where the published artifact tags get their name
+# (bigocrpdf-26.06.18-0243-x86_64). Pinning a tag here instead broke the build
+# on a tag that was never created, and would have been wrong even if it had
+# been: .github/workflows/build-package.yml passes the pushed *branch* to the
+# builder, so a tag in the source line would build the same commit whatever
+# branch was pushed.
+pkgver=$(date +%y.%m.%d)
 pkgrel=1
 arch=('any')
 license=('GPL-3.0-or-later')
 url="https://github.com/biglinux/bigocrpdf"
 options=('!strip')
 
-source=("${pkgname}::git+${url}.git#tag=v${pkgver}")
+source=("${pkgname}::git+${url}.git")
 sha256sums=('SKIP')
 
 optdepends=(
