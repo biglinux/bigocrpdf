@@ -23,13 +23,13 @@ from gi.repository import Gtk
 
 from bigocrpdf.utils.logger import logger
 
-THEME_NAME = "bigocrpdf"
+FALLBACK_THEME_NAME = "hicolor"
 
 _registered = False
 
 
 def _search_path_candidates() -> list[Path]:
-    """Directories that may contain the bundled ``bigocrpdf`` icon theme.
+    """Directories that may contain the bundled fallback icons.
 
     The package-relative path covers both a normal install and an AppImage,
     since the resources travel with the Python package.  The remaining entries
@@ -52,19 +52,30 @@ def _search_path_candidates() -> list[Path]:
 def get_icon_search_path() -> Path | None:
     """Return the first candidate that actually holds the bundled theme."""
     for candidate in _search_path_candidates():
-        if (candidate / THEME_NAME / "index.theme").is_file():
+        if (candidate / FALLBACK_THEME_NAME / "index.theme").is_file():
             return candidate
     return None
 
 
 def setup_icons(display=None) -> bool:
-    """Make the bundled icons take precedence over the host icon theme.
+    """Offer the bundled icons as a last resort, without displacing the host theme.
+
+    The icons ship as a ``hicolor`` theme because every icon theme's lookup
+    chain ends there. Adding this directory to the search path therefore fills
+    the gaps -- measured on a host running ``bigicons-papient``, four names the
+    interface needs resolve to nothing without it and resolve with it -- while
+    any name the user's own theme provides still comes from their theme.
+
+    This used to select the bundle through ``gtk-icon-theme-name`` instead,
+    which did make the interface identical everywhere, at the price of ignoring
+    the user's chosen icons entirely: the chain became bundle -> Adwaita ->
+    hicolor, and a Papirus or Breeze user never saw one of their own icons.
 
     Must be called after a ``Gdk.Display`` exists -- that is, from the
     application ``startup`` handler -- and before any widget is built.
 
-    Returns ``True`` when the bundled theme was registered.  A missing bundle is
-    not fatal: the application simply keeps using the host theme.
+    Returns ``True`` when the bundled icons were registered.  A missing bundle
+    is not fatal: the application simply keeps using the host theme.
     """
     global _registered
     if _registered:
@@ -72,27 +83,20 @@ def setup_icons(display=None) -> bool:
 
     search_path = get_icon_search_path()
     if search_path is None:
-        logger.warning("Bundled icon theme not found; falling back to the system theme")
+        logger.warning("Bundled fallback icons not found; only the host theme will be used")
         return False
 
     from gi.repository import Gdk
 
     display = display or Gdk.Display.get_default()
     if display is None:
-        logger.warning("No display available; bundled icon theme not registered")
+        logger.warning("No display available; bundled fallback icons not registered")
         return False
 
     icon_theme = Gtk.IconTheme.get_for_display(display)
+    # Appended, so the host's own directories keep their priority.
     icon_theme.add_search_path(str(search_path))
 
-    # Selecting the theme has to go through GtkSettings: calling
-    # Gtk.IconTheme.set_theme_name() on the per-display instance is forbidden.
-    # Our index.theme inherits Adwaita and hicolor, so names we do not ship
-    # still resolve.
-    settings = Gtk.Settings.get_for_display(display)
-    if settings is not None:
-        settings.set_property("gtk-icon-theme-name", THEME_NAME)
-
     _registered = True
-    logger.debug("Registered bundled icon theme from %s", search_path)
+    logger.debug("Registered bundled fallback icons from %s", search_path)
     return True

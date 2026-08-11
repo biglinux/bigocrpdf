@@ -1,7 +1,7 @@
 # Bundled icon theme
 
-Every symbolic icon the interface references is shipped here as a private icon
-theme named `bigocrpdf`, registered at startup by
+Every symbolic icon the interface references is shipped here as a `hicolor`
+theme, added to the icon search path at startup by
 `src/bigocrpdf/utils/icons.py`.
 
 ## Why
@@ -18,12 +18,23 @@ Registering a theme rather than loading each SVG by path keeps every existing
 `icon-name` call site working, including widgets that accept only a name:
 `Adw.ButtonContent`, `Adw.StatusPage`, `Gio.MenuItem` and `Gio.Notification`.
 
-`index.theme` declares `Inherits=Adwaita,hicolor`, so any name that is not
-bundled still resolves through the host.
+## How
+
+Every icon theme's lookup chain ends at `hicolor`, so these act as the last
+resort: a name the user's theme provides comes from their theme, and a name it
+lacks comes from here. Measured on a host running `bigicons-papient`, the four
+names above resolve to nothing without this directory and resolve with it,
+while `folder-open-symbolic` and `document-send-symbolic` keep coming from the
+host theme.
+
+The bundle used to be a private theme selected through `gtk-icon-theme-name`.
+That did make the interface identical on every system, but it did so by
+discarding the user's choice: the chain became `bigocrpdf → Adwaita → hicolor`
+and a Papirus or Breeze user never saw one of their own icons.
 
 ## Adding an icon
 
-Drop the SVG in `bigocrpdf/scalable/actions/`, named exactly as the string
+Drop the SVG in `hicolor/scalable/actions/`, named exactly as the string
 passed to `set_icon_name()`. `tests/test_icons.py` fails if any name used in the
 source tree has no bundled file.
 
