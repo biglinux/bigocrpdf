@@ -23,19 +23,6 @@ class FakeEngineType:
 
 class FakeLangRec:
     LATIN = "latin"
-    PT = "pt"
-    EN = "en"
-    CH = "ch"
-    CHINESE_CHT = "chinese_cht"
-    JAPAN = "japan"
-    KOREAN = "korean"
-    ARABIC = "arabic"
-    CYRILLIC = "cyrillic"
-    DEVANAGARI = "devanagari"
-    GREEK = "greek"
-    TAMIL = "tamil"
-    TELUGU = "telugu"
-    THAI = "thai"
 
 
 class FakeOCRVersion:
@@ -61,7 +48,7 @@ def test_dewarp_detector_uses_the_shared_worker_engine(monkeypatch: pytest.Monke
         "_import_rapidocr_api",
         lambda: (FakeEngineType, FakeLangRec, FakeModelType, FakeOCRVersion, rapidocr),
     )
-    monkeypatch.setattr(ocr_worker_engine, "_lang_rec_from_code", lambda _lang, value: value)
+    monkeypatch.setattr(ocr_worker_engine, "_rec_lang", lambda _lang: "latin")
     monkeypatch.setattr(ocr_worker_engine, "_set_model_version_params", lambda *_args: None)
 
     assert dewarp_detection._get_inprocess_detector("latin", 1536) is detector
@@ -186,12 +173,14 @@ def test_one_shot_ocr_uses_the_shared_engine_owner(monkeypatch) -> None:
     }
 
 
-def test_language_aliases_map_to_specific_enums():
-    assert ocr_worker_engine._lang_rec_from_code(FakeLangRec, "pt_BR") == "pt"
-    assert ocr_worker_engine._lang_rec_from_code(FakeLangRec, "por") == "pt"
-    assert ocr_worker_engine._lang_rec_from_code(FakeLangRec, "english") == "en"
-    assert ocr_worker_engine._lang_rec_from_code(FakeLangRec, "zh_TW") == "chinese_cht"
-    assert ocr_worker_engine._lang_rec_from_code(FakeLangRec, "hi") == "devanagari"
+def test_recognition_language_is_the_unified_one():
+    """PP-OCRv6 ships one recogniser for every script, so there is one answer.
+
+    The fifteen-entry language map this replaces only ever reached the
+    per-language PP-OCRv5 recognisers, and asking for a script v6 does not
+    cover returned nothing rather than falling back.
+    """
+    assert ocr_worker_engine._rec_lang(FakeLangRec) == FakeLangRec.LATIN
 
 
 def test_model_version_is_always_v6():

@@ -79,7 +79,9 @@ class OCRConfig:
     """Configuration for RapidOCR processing.
 
     Attributes:
-        language: Language code for recognition (latin, ch, japan, korean, etc.)
+        language: Script hint for the text-layer font. PP-OCRv6 recognises
+            every script it supports with one model, so this does not
+            select a recogniser -- only which font writes the PDF text.
         dpi: Resolution for image extraction
         box_thresh: Detection threshold for text boxes
         unclip_ratio: Box expansion ratio

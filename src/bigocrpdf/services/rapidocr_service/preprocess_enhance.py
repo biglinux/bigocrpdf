@@ -472,7 +472,7 @@ def apply_scanner_effect(img: np.ndarray, strength: float = 1.0) -> np.ndarray:
          ink → 0 (black), maximizing text/background separation.
 
     This is the established state-of-art for document whitening that also
-    benefits OCR engines: PP-OCRv4/v5 text detection (DBNet) and recognition
+    benefits OCR engines: PP-OCRv6 text detection (DBNet) and recognition
     (SVTR) work best when the background is uniformly white and text edges
     are sharp.
 

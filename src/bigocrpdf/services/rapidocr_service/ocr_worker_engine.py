@@ -121,7 +121,7 @@ def _create_ocr_engine_with_runtime(
     values = dict(_OCR_ENGINE_DEFAULTS)
     values.update(overrides)
     EngineType, LangRec, ModelType, OCRVersion, RapidOCR = _import_rapidocr_api()
-    lang_rec = _lang_rec_from_code(LangRec, values["language"])
+    lang_rec = _rec_lang(LangRec)
     options = _ocr_engine_options(values)
     engine_request = SimpleNamespace(
         engine_type="openvino" if values["use_openvino"] else "onnxruntime",
@@ -232,56 +232,21 @@ def _import_rapidocr_api():
     return EngineType, LangRec, ModelType, OCRVersion, RapidOCR
 
 
-def _get_lang_enum(LangRec, *names: str):
-    for name in names:
-        if hasattr(LangRec, name):
-            return getattr(LangRec, name)
+def _rec_lang(LangRec):
+    """The recognition language for PP-OCRv6, which has exactly one.
+
+    PP-OCRv6 ships only ``multi_`` models -- a single detector and recogniser
+    covering every script it supports -- so ``lang_type`` selects nothing under
+    it. What the fifteen-entry language map actually reached was the
+    per-language PP-OCRv5 recognisers, and asking for a script v6 does not
+    cover returned no text at all rather than falling back: measured on
+    synthetic pages, Arabic produced zero boxes and Greek a character error
+    rate of 1.0.
+
+    ``OCRConfig.language`` still selects the font the text layer is written
+    with, which is a separate matter and stays.
+    """
     return LangRec.LATIN
-
-
-def _lang_rec_from_code(LangRec, language: str):
-    lang = (language or "latin").lower().replace("-", "_")
-    aliases = {
-        "pt": "pt",
-        "pt_br": "pt",
-        "por": "pt",
-        "portuguese": "pt",
-        "english": "en",
-        "zh": "ch",
-        "zh_cn": "ch",
-        "zh_tw": "chinese_cht",
-        "ja": "japan",
-        "jp": "japan",
-        "ko": "korean",
-        "ru": "cyrillic",
-        "el": "greek",
-        "hi": "devanagari",
-        "ta": "tamil",
-        "te": "telugu",
-        "th": "thai",
-        "ar": "arabic",
-    }
-    lang = aliases.get(lang, lang)
-    lang_map = {
-        "pt": _get_lang_enum(LangRec, "PT", "LATIN"),
-        "latin": _get_lang_enum(LangRec, "LATIN"),
-        "en": _get_lang_enum(LangRec, "EN", "LATIN"),
-        "ch": _get_lang_enum(LangRec, "CH"),
-        "chinese_cht": _get_lang_enum(LangRec, "CHINESE_CHT", "CH"),
-        "japan": _get_lang_enum(LangRec, "JAPAN", "CH"),
-        "korean": _get_lang_enum(LangRec, "KOREAN"),
-        "arabic": _get_lang_enum(LangRec, "ARABIC"),
-        "cyrillic": _get_lang_enum(LangRec, "CYRILLIC", "ESLAV", "LATIN"),
-        "devanagari": _get_lang_enum(LangRec, "DEVANAGARI", "LATIN"),
-        "greek": _get_lang_enum(LangRec, "EL", "GREEK", "LATIN"),
-        "tamil": _get_lang_enum(LangRec, "TA", "TAMIL", "LATIN"),
-        "telugu": _get_lang_enum(LangRec, "TE", "TELUGU", "LATIN"),
-        "thai": _get_lang_enum(LangRec, "TH", "THAI", "LATIN"),
-    }
-    selected = lang_map.get(lang, _get_lang_enum(LangRec, "LATIN"))
-    if selected == _get_lang_enum(LangRec, "LATIN") and lang not in {"latin", "en", "pt"}:
-        print(f"[OCR Worker] Language {language!r} fell back to LATIN", file=sys.stderr)
-    return selected
 
 
 def _enum_by_name(enum_cls, name: str | None, fallback: str):

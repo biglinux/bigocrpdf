@@ -67,7 +67,7 @@ def _get_inprocess_detector(language: str, limit_side_len: int):
 
         from bigocrpdf.services.rapidocr_service.ocr_worker_engine import (
             _import_rapidocr_api,
-            _lang_rec_from_code,
+            _rec_lang,
             _set_model_version_params,
         )
 
@@ -87,7 +87,7 @@ def _get_inprocess_detector(language: str, limit_side_len: int):
         full_params = {
             **det_only_params,
             "Rec.engine_type": EngineType.OPENVINO,
-            "Rec.lang_type": _lang_rec_from_code(LangRec, language),
+            "Rec.lang_type": _rec_lang(LangRec),
             "Rec.rec_batch_num": _DEWARP_REC_BATCH_NUM,
             "Cls.engine_type": EngineType.OPENVINO,
         }

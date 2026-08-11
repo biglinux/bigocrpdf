@@ -27,7 +27,7 @@ from bigocrpdf.services.rapidocr_service.ocr_worker_engine import (
     _build_ocr_engine_params,
     _create_ocr_engine,
     _create_ocr_engine_with_runtime,
-    _lang_rec_from_code,
+    _rec_lang,
 )
 
 __all__ = ["_build_ocr_engine_params"]
@@ -42,7 +42,7 @@ def run_ocr_batch(
     import cv2
     from rapidocr import EngineType, LangRec, RapidOCR
 
-    lang_rec = _lang_rec_from_code(LangRec, language)
+    lang_rec = _rec_lang(LangRec)
 
     # Create single RapidOCR instance for all images
     params = {
