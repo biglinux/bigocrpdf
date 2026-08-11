@@ -280,8 +280,11 @@ class ConclusionStatsFileListMixin:
             halign=Gtk.Align.END,
         )
 
+        # A window, not a folder: Adwaita draws document-open-symbolic as a
+        # folder with an arrow, which was indistinguishable from the
+        # folder-open-symbolic button sitting right next to it.
         open_button = _icon_button(
-            "document-open-symbolic",
+            "window-new-symbolic",
             _("Open the processed file"),
             lambda: self._open_file(output_file),
         )
@@ -316,9 +319,12 @@ class ConclusionStatsFileListMixin:
         menu_model.append(_("Markdown (.md)"), "row.md")
 
         button = Gtk.MenuButton()
-        button.set_icon_name("document-save-as-symbolic")
+        # A document leaving, not a download arrow: document-save-as-symbolic
+        # reads as "save this to disk", which is not what the menu offers.
+        button.set_icon_name("document-send-symbolic")
         button.set_tooltip_text(_("Export to other formats"))
         button.add_css_class("flat")
+        set_a11y_label(button, _("Export to other formats"))
         button.set_menu_model(menu_model)
 
         group = Gio.SimpleActionGroup()
