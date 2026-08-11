@@ -306,24 +306,45 @@ def test_unavailable_start_shortcut_reports_cause_without_starting():
     controller.processing.start.assert_not_called()
 
 
-def test_clear_file_queue_preserves_ui_when_persistence_fails():
+def test_clear_file_queue_repaints_even_when_the_model_was_already_empty():
+    """The screen and the model go out of step, so one cannot stand for the other.
+
+    Files are removed one by one as they finish, while the terminal page is up
+    and nothing repaints. By the time the user comes back the model is empty
+    and ``_clear_files`` reports "nothing to do" -- and returning early on that
+    left the finished batch still listed with the header button stuck on the
+    label it took when processing started.
+    """
     controller = _make_window_controller()
+    controller.settings.selected_files = []
     controller.settings._clear_files.return_value = False
 
     controller.clear_file_queue()
 
-    controller.ui.settings_page_manager.refresh_queue_status.assert_not_called()
-    controller.ui.custom_header_bar.update_queue_size.assert_not_called()
+    controller.ui.update_file_info.assert_called_once_with()
 
 
-def test_clear_file_queue_refreshes_ui_after_persisted_clear():
+def test_clear_file_queue_repaints_after_a_persisted_clear():
     controller = _make_window_controller()
     controller.settings._clear_files.return_value = True
 
     controller.clear_file_queue()
 
-    controller.ui.settings_page_manager.refresh_queue_status.assert_called_once_with()
-    controller.ui.custom_header_bar.update_queue_size.assert_called_once_with(0)
+    controller.ui.update_file_info.assert_called_once_with()
+
+
+def test_clear_file_queue_repaints_from_the_model_not_from_zero():
+    """``_clear_files`` also reports False after a failed save rolled the queue back.
+
+    Asserting an empty header there would claim the files were gone while they
+    are still queued, so the repaint has to read the model.
+    """
+    controller = _make_window_controller()
+    controller.settings._clear_files.return_value = False
+
+    controller.clear_file_queue()
+
+    controller.ui.custom_header_bar.update_queue_size.assert_not_called()
 
 
 @pytest.mark.parametrize(

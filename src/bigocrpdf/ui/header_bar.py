@@ -209,6 +209,11 @@ class HeaderBar(Gtk.Box):
         has_files = count > 0
         self.view_toggle_button.set_visible(has_files)
         self.start_button.set_visible(has_files)
+        # The label belongs with the rest of the button's idle state. Restoring
+        # only visibility and sensitivity left a hidden button still reading
+        # "Starting…" from the run that just ended, which came back into view
+        # with that text the moment files were added again.
+        self.start_button.set_label(_("Start OCR"))
         self._apply_ocr_availability_to_button(self.start_button)
 
     def _apply_ocr_availability_to_button(self, button: Gtk.Button) -> None:

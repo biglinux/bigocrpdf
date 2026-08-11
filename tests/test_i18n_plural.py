@@ -108,3 +108,27 @@ def test_terminal_completion_uses_matching_visual_and_a11y_plural(
 
     manager.terminal_status_bar.set_markup.assert_called_once_with(expected_markup)
     manager.window.announce_status.assert_called_once_with(expected_announcement)
+
+
+def test_header_queue_update_restores_the_idle_button_label() -> None:
+    """Publishing a queue count is what returns the button to its resting state.
+
+    It already restored visibility and sensitivity but not the label, so a
+    button hidden while it still read "Starting…" came back with that text the
+    moment files were added again -- which is exactly what a user sees after a
+    finished batch.
+    """
+    header = SimpleNamespace(
+        window=SimpleNamespace(ocr_dependency=OcrDependencyState(is_available=True)),
+        queue_size_label=MagicMock(),
+        clear_queue_button=MagicMock(),
+        view_toggle_button=MagicMock(),
+        start_button=MagicMock(),
+    )
+    header._apply_ocr_availability_to_button = lambda button: (
+        HeaderBar._apply_ocr_availability_to_button(header, button)
+    )
+
+    HeaderBar.update_queue_size(header, 0)
+
+    header.start_button.set_label.assert_called_once_with("Start OCR")
