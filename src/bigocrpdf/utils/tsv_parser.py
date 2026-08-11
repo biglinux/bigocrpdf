@@ -81,6 +81,16 @@ MIN_WORD_WIDTH = 2.0  # Words narrower than this are OCR artifacts
 # Longest text a sliver-width box may hold and still be treated as noise.
 # Beyond this the box shape is wrong, not the text -- see filter_words.
 MAX_ARTIFACT_TEXT_LEN = 4
+# Poppler does not measure ink: it derives a word's box from the font's own
+# metrics, as yMin = baseline - ascent*size and yMax = baseline - descent*size,
+# clamping to ascent 0.75 / descent -0.25 when a font declares implausible
+# values. For Helvetica metrics (0.718 / -0.207) that makes the reported height
+# 0.93 em and puts the baseline 0.78 of the way down the box.
+#
+# This is why the ink-box factor used for RapidOCR boxes (FONT_SIZE_SCALE_FACTOR)
+# must not be reused on this data: the two describe different rectangles.
+TSV_BOX_HEIGHT_EM = 0.93
+TSV_BASELINE_FRACTION = 0.78
 COLUMN_VALLEY_BIN = 10.0  # Bin width for column histogram
 COLUMN_MIN_VALLEY_WIDTH = 30.0  # Minimum gap for column split
 COLUMN_CENTER_RANGE = (0.25, 0.75)  # Page fraction where column gap expected

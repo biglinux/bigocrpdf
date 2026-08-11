@@ -1,5 +1,6 @@
 import argparse
 import logging
+import re
 import shutil
 import subprocess
 import threading
@@ -404,7 +405,12 @@ def test_positioned_odt_anchors_editable_text_per_page(tmp_path: Path) -> None:
     assert 'text:anchor-page-number="2"' in content
     assert "Page one" in content
     assert "Page two" in content
-    assert content.count('draw:z-index="0"') == 2
+    # Distinct and ascending: a shared z-index leaves the stacking order
+    # undefined, and with it which frame a click selects, the Tab order, and
+    # the order LibreOffice emits text in when exporting.
+    z_indices = [int(m) for m in re.findall(r'draw:z-index="(\d+)"', content)]
+    assert z_indices == sorted(z_indices)
+    assert len(set(z_indices)) == len(z_indices) == 2
     assert 'style:master-page-name="PositionedMaster2"' in content
     assert 'fo:margin="0cm"' in styles
     assert content.index("<draw:frame") < content.index("<text:p")

@@ -286,6 +286,141 @@ def create_odf(
     logger.info("Saved ODF: %s", target)
 
 
+# The fixed-layout export writes every line in Liberation Sans and measures it
+# with ReportLab's Helvetica metrics. That is exact rather than approximate:
+# across the ASCII range the two differ by at most 0.08% in advance width
+# (measured), because Liberation Sans is metric-compatible with Arial, which is
+# metric-compatible with Helvetica.
+POSITIONED_FONT_FAMILY = "Liberation Sans"
+_METRIC_PROXY_FONT = "Helvetica"
+
+# Liberation Sans hhea, measured: ascender 0.9053, descender -0.2119,
+# lineGap 0.0327 em, so its natural line box is 1.1499 em and LibreOffice puts
+# the first baseline ~0.94 em below the box top. These two are calibrations of
+# LibreOffice's layout, not derivations from the format; the round-trip test is
+# what pins them.
+LIBERATION_LINE_BOX_EM = 1.15
+LIBERATION_FIRST_BASELINE_EM = 0.94
+
+# How far the width fit may stray from the height estimate. The width fit is
+# exact for Helvetica-metric sources and drifts for others -- Times needs about
+# 1.11, monospace less than 1 -- so the band keeps a wrong proxy from producing
+# an absurd size while leaving the fit free to do the fine work.
+WIDTH_FIT_MIN_RATIO = 0.75
+WIDTH_FIT_MAX_RATIO = 1.30
+# Below this share of the line's extent being measurable, the fit is not
+# representative and the height estimate is used whole.
+WIDTH_FIT_MIN_COVERAGE = 0.40
+FRAME_WIDTH_SLACK = 1.06
+FONT_SIZE_QUANTUM_PT = 0.25
+_CM_PER_POINT = 2.54 / 72.0
+
+
+def _proxy_width(text: str, size_pt: float) -> float | None:
+    """Advance width of *text*, or None when the proxy font cannot measure it.
+
+    The encodability check is the measurement, not a guard around it:
+    ``stringWidth`` does not refuse text outside the font's encoding, it
+    silently returns a number -- 45.66 pt for six CJK characters at 10 pt --
+    and a fit built on that number would be confidently wrong. Latin-1 is
+    Helvetica's encoding, so text outside it has no advance width to report.
+    """
+    from reportlab.pdfbase import pdfmetrics
+
+    try:
+        text.encode("latin-1")
+    except UnicodeEncodeError:
+        return None
+    try:
+        return pdfmetrics.stringWidth(text, _METRIC_PROXY_FONT, size_pt)
+    except (KeyError, ValueError):
+        return None
+
+
+def _width_fitted_size(words) -> tuple[float | None, float]:
+    """Median per-word size that reproduces the measured widths, and its coverage.
+
+    Per word rather than per line: ``TextLine._assemble_text`` invents one or
+    two spaces per gap whatever the gap really measures, so fitting the whole
+    line would charge that reconstruction error to the glyph size.
+    """
+    from statistics import median
+
+    from bigocrpdf.utils.tsv_parser import MIN_WORD_WIDTH
+
+    fits: list[float] = []
+    measured_extent = 0.0
+    total_extent = 0.0
+    for word in words:
+        total_extent += max(word.width, 0.0)
+        if word.width <= MIN_WORD_WIDTH:
+            continue
+        unit = _proxy_width(word.text, 1.0)
+        if not unit:
+            continue
+        fits.append(word.width / unit)
+        measured_extent += word.width
+    if not fits or total_extent <= 0:
+        return None, 0.0
+    return median(fits), measured_extent / total_extent
+
+
+def positioned_font_size(line, shrink: float = 1.0) -> tuple[float, float]:
+    """Return ``(size in source points, size to write)`` for one line.
+
+    The width is what breaks a layout -- a line 15% too wide overruns its
+    column, while one 5% too tall merely looks off -- so the width fit leads and
+    the height estimate only bounds it.
+    """
+    from bigocrpdf.constants import MAX_FONT_SIZE, MIN_FONT_SIZE
+    from bigocrpdf.utils.tsv_parser import TSV_BOX_HEIGHT_EM
+
+    line_height_pt = max((word.height for word in line.words), default=9.0)
+    from_height = max(line_height_pt, 0.1) / TSV_BOX_HEIGHT_EM
+
+    from_width, coverage = _width_fitted_size(line.words)
+    if from_width is None or coverage < WIDTH_FIT_MIN_COVERAGE:
+        size_source_pt = from_height
+    else:
+        size_source_pt = min(
+            max(from_width, WIDTH_FIT_MIN_RATIO * from_height),
+            WIDTH_FIT_MAX_RATIO * from_height,
+        )
+
+    written = min(max(size_source_pt * shrink, MIN_FONT_SIZE), MAX_FONT_SIZE)
+    written = round(written / FONT_SIZE_QUANTUM_PT) * FONT_SIZE_QUANTUM_PT
+    return size_source_pt, max(written, MIN_FONT_SIZE)
+
+
+def positioned_frame_geometry(
+    line, size_source_pt: float, scale_x: float, scale_y: float
+) -> tuple[float, float, float, float]:
+    """Frame ``(x, y, width, height)`` in centimetres for one line.
+
+    The frame top is not the line top: ``line.y`` is a metric-box top for the
+    *source* font, and LibreOffice will place its own first baseline relative to
+    the frame. Recovering the source baseline and subtracting Liberation's
+    first-baseline offset is what makes the two coincide.
+    """
+    from bigocrpdf.utils.tsv_parser import TSV_BASELINE_FRACTION
+
+    line_height_pt = max((word.height for word in line.words), default=9.0)
+    baseline_pt = line.y + TSV_BASELINE_FRACTION * line_height_pt
+    y_pt = baseline_pt - LIBERATION_FIRST_BASELINE_EM * size_source_pt
+    height_pt = LIBERATION_LINE_BOX_EM * size_source_pt
+
+    source_extent_pt = max(line.max_x - line.min_x, 0.0)
+    rendered_pt = _proxy_width(line.text, size_source_pt) or 0.0
+    width_pt = max(source_extent_pt, rendered_pt) * FRAME_WIDTH_SLACK
+
+    return (
+        max(line.min_x * scale_x, 0.0),
+        max(y_pt * scale_y, 0.0),
+        max(width_pt * scale_x, 0.05),
+        max(height_pt * scale_y, 0.05),
+    )
+
+
 def create_positioned_text_odf(
     pages_words,
     output_path: str,
@@ -306,7 +441,7 @@ def create_positioned_text_odf(
     )
     from odf.text import P
 
-    from bigocrpdf.utils.tsv_parser import TextLine, group_into_lines
+    from bigocrpdf.utils.tsv_parser import TextLine, filter_words, group_into_lines
 
     page_numbers = list(range(1, len(page_geometries) + 1))
     doc: Any = OpenDocumentText()
@@ -333,7 +468,40 @@ def create_positioned_text_odf(
         page_break_styles[-1].addElement(ParagraphProperties(breakbefore="page"))
         doc.automaticstyles.addElement(page_break_styles[-1])
     frame_style = Style(name="PositionedTextFrame", family="graphic")
-    frame_style.addElement(GraphicProperties(wrap="run-through", stroke="none", fill="none"))
+    frame_style.addElement(
+        GraphicProperties(
+            wrap="run-through",
+            runthrough="foreground",
+            stroke="none",
+            fill="none",
+            # LibreOffice insets text 0.25cm horizontally and 0.125cm
+            # vertically by default, which both shifts every line and steals
+            # the width it needs. Per-side values as well as the shorthand,
+            # because the import has historically ignored the shorthand alone.
+            padding="0cm",
+            paddingtop="0cm",
+            paddingbottom="0cm",
+            paddingleft="0cm",
+            paddingright="0cm",
+            border="none",
+            # This, not the computed width, is what guarantees a line never
+            # wraps: when the font is substituted -- CJK, or a host without
+            # Liberation Sans -- no width we could compute would be right, and
+            # a wrapped line drops its tail onto the line below.
+            autogrowwidth="true",
+            autogrowheight="true",
+            wrapoption="no-wrap",
+            textareaverticalalign="top",
+            # Without these, svg:x/y are resolved against the default frame of
+            # reference rather than the page. It happens to work today only
+            # because the page margin is zero.
+            horizontalpos="from-left",
+            horizontalrel="page",
+            verticalpos="from-top",
+            verticalrel="page",
+            flowwithtext="false",
+        )
+    )
     doc.automaticstyles.addElement(frame_style)
     text_styles = {}
     anchored_frames = []
@@ -343,7 +511,11 @@ def create_positioned_text_odf(
         width_pt, height_pt, width_cm, height_cm = page_geometries[page_index]
         scale_x = width_cm / width_pt
         scale_y = height_cm / height_pt
-        source_lines = group_into_lines(pages_words.get(page_number, []))
+        # _page_size_cm shrinks pages longer than A4, and scale_y carries that
+        # shrink. The font has to shrink with it, or an oversized photo page
+        # keeps full-size text inside frames reduced to a third.
+        shrink = scale_y / _CM_PER_POINT
+        source_lines = group_into_lines(filter_words(pages_words.get(page_number, []), page_number))
         positioned_runs = []
         for source_line in source_lines:
             run_words = []
@@ -358,31 +530,50 @@ def create_positioned_text_odf(
             if run_words:
                 positioned_runs.append(TextLine(run_words, source_line.y))
 
+        # Reading order, made explicit: a later change to the run splitter must
+        # not be able to scramble it silently, because the z-index below -- and
+        # with it hit-testing, Tab order and the order LibreOffice emits text
+        # when exporting -- follows the order frames are written in.
+        positioned_runs.sort(key=lambda run: (round(run.y, 1), run.min_x))
+
         for line_index, line in enumerate(positioned_runs):
             if not line.text.strip():
                 continue
-            line_height_pt = max((word.height for word in line.words), default=9.0)
-            font_size_pt = round(min(max(line_height_pt * 0.75, 5.0), 24.0), 1)
+            size_source_pt, font_size_pt = positioned_font_size(line, shrink)
             if font_size_pt not in text_styles:
                 style = Style(name=f"PositionedText{len(text_styles) + 1}", family="paragraph")
                 style.addElement(
-                    ParagraphProperties(margin="0cm", padding="0cm", lineheight="100%")
+                    ParagraphProperties(
+                        margin="0cm",
+                        padding="0cm",
+                        lineheight="100%",
+                        textindent="0cm",
+                        # Explicitly left, not start: under an RTL interface
+                        # locale "start" right-aligns every line inside its
+                        # frame and moves the whole page.
+                        textalign="left",
+                    )
                 )
                 style.addElement(
-                    TextProperties(fontsize=f"{font_size_pt:.1f}pt", fontfamily="Liberation Sans")
+                    TextProperties(
+                        fontsize=f"{font_size_pt:.2f}pt", fontfamily=POSITIONED_FONT_FAMILY
+                    )
                 )
                 doc.automaticstyles.addElement(style)
                 text_styles[font_size_pt] = style
+            x_cm, y_cm, width_cm_frame, height_cm_frame = positioned_frame_geometry(
+                line, size_source_pt, scale_x, scale_y
+            )
             frame = Frame(
                 stylename=frame_style,
                 name=f"Page{page_index + 1}Line{line_index + 1}",
                 anchortype="page",
                 anchorpagenumber=page_index + 1,
-                zindex=0,
-                x=f"{max(line.min_x * scale_x, 0):.3f}cm",
-                y=f"{max(line.y * scale_y, 0):.3f}cm",
-                width=f"{max((line.max_x - line.min_x) * scale_x + line_height_pt * scale_x * 1.5, 0.3):.3f}cm",
-                height=f"{max(line_height_pt * scale_y * 1.8, 0.25):.3f}cm",
+                zindex=len(anchored_frames),
+                x=f"{x_cm:.3f}cm",
+                y=f"{y_cm:.3f}cm",
+                width=f"{width_cm_frame:.3f}cm",
+                height=f"{height_cm_frame:.3f}cm",
             )
             text_box = TextBox()
             text_box.addElement(P(stylename=text_styles[font_size_pt], text=line.text))
