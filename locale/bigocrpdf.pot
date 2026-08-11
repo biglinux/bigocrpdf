@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 3.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-08-11 13:41-0300\n"
+"POT-Creation-Date: 2026-08-11 14:11-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -527,7 +527,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/bigocrpdf/processing_controller.py:78
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:740
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:738
 #, python-brace-format
 msgid "Saved {ok}; {n} failed"
 msgstr ""
@@ -1014,13 +1014,13 @@ msgstr ""
 
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:216
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:507
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:557
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:591
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:555
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:589
 msgid "Export failed"
 msgstr ""
 
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:222
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:562
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:560
 #: src/bigocrpdf/ui/file_save_controller.py:69
 #: src/bigocrpdf/ui/file_selection_manager.py:97
 #: src/bigocrpdf/ui/file_selection_manager.py:181
@@ -1082,48 +1082,48 @@ msgid "Exported to {}"
 msgstr ""
 
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:519
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:318
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:315
 msgid "OpenDocument (.odt)"
 msgstr ""
 
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:520
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:319
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:316
 msgid "Markdown (.md)"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:526
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:524
 msgid "Export selected files"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:548
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:546
 msgid "Choose destination folder"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:578
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:576
 msgid "Destination folder not found"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:581
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:579
 msgid "Destination folder is not writable"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:596
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:594
 msgid "Exporting selected files…"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:736
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:734
 #, python-brace-format
 msgid "Cancelled — saved {ok} of {total}"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:748
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:746
 #, python-brace-format
 msgid "Saved {count} file to {folder}"
 msgid_plural "Saved {count} files to {folder}"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:764
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:762
 #: src/bigocrpdf/ui/settings_queue_mixin.py:753
 msgid "Failed to open file"
 msgstr ""
@@ -1211,21 +1211,21 @@ msgid_plural "{count} pages"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:288
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:285
 msgid "Open the processed file"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:297
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:294
 #: src/bigocrpdf/ui/settings_queue_mixin.py:699
 msgid "Show in file manager"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:304
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:301
 msgid "View the text found in this document"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:325
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:327
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:320
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:322
 msgid "Export to other formats"
 msgstr ""
 

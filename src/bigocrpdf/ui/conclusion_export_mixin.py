@@ -520,9 +520,7 @@ class ConclusionExportMixin:
         menu_model.append(_("Markdown (.md)"), "bulk.md")
 
         button = Gtk.MenuButton()
-        # Same icon as the per-row export menu, so the bulk and single actions
-        # stay recognisably the same thing.
-        button.set_icon_name("document-send-symbolic")
+        button.set_icon_name("document-save-as-symbolic")
         button.set_tooltip_text(_("Export selected files"))
         button.add_css_class("suggested-action")
         button.set_sensitive(False)
