@@ -105,9 +105,12 @@ if bash tools/stage-data.sh "$workdir/root-link" >/dev/null 2>&1; then
 fi
 
 bash tools/stage-data.sh "$workdir/stage"
+# Bytecode is excluded because stage-data.sh deletes it from the stage on
+# purpose, so anyone who has run the application once left a __pycache__ under
+# usr/ that this comparison would then demand back.
 while IFS= read -r -d '' file; do
 	cmp "$file" "$workdir/stage/$file"
-done < <(find usr/share -type f -print0)
+done < <(find usr/share -type f -not -name '*.py[co]' -not -path '*/__pycache__/*' -print0)
 
 desktop-file-validate "$workdir"/stage/usr/share/applications/*.desktop
 appstreamcli validate --no-net --pedantic "$workdir"/stage/usr/share/metainfo/*.metainfo.xml
