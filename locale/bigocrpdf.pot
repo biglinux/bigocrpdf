@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 3.0.0\n"
-"Report-Msgid-Bugs-To: contact@biglinux.com.br\n"
-"POT-Creation-Date: 2026-08-09 19:55-0300\n"
+"Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
+"POT-Creation-Date: 2026-08-11 13:26-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -110,7 +110,7 @@ msgstr ""
 
 #: src/bigocrpdf/application.py:501 src/bigocrpdf/processing_controller.py:254
 #: src/bigocrpdf/processing_controller.py:286 src/bigocrpdf/ui/header_bar.py:92
-#: src/bigocrpdf/ui/header_bar.py:97
+#: src/bigocrpdf/ui/header_bar.py:97 src/bigocrpdf/ui/header_bar.py:216
 msgid "Start OCR"
 msgstr ""
 
@@ -527,7 +527,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/bigocrpdf/processing_controller.py:78
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:738
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:740
 #, python-brace-format
 msgid "Saved {ok}; {n} failed"
 msgstr ""
@@ -1014,13 +1014,13 @@ msgstr ""
 
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:216
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:507
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:555
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:589
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:557
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:591
 msgid "Export failed"
 msgstr ""
 
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:222
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:560
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:562
 #: src/bigocrpdf/ui/file_save_controller.py:69
 #: src/bigocrpdf/ui/file_selection_manager.py:97
 #: src/bigocrpdf/ui/file_selection_manager.py:181
@@ -1082,48 +1082,48 @@ msgid "Exported to {}"
 msgstr ""
 
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:519
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:315
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:318
 msgid "OpenDocument (.odt)"
 msgstr ""
 
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:520
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:316
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:319
 msgid "Markdown (.md)"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:524
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:526
 msgid "Export selected files"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:546
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:548
 msgid "Choose destination folder"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:576
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:578
 msgid "Destination folder not found"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:579
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:581
 msgid "Destination folder is not writable"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:594
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:596
 msgid "Exporting selected files…"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:734
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:736
 #, python-brace-format
 msgid "Cancelled — saved {ok} of {total}"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:746
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:748
 #, python-brace-format
 msgid "Saved {count} file to {folder}"
 msgid_plural "Saved {count} files to {folder}"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:762
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:764
 #: src/bigocrpdf/ui/settings_queue_mixin.py:753
 msgid "Failed to open file"
 msgstr ""
@@ -1211,20 +1211,21 @@ msgid_plural "{count} pages"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:285
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:288
 msgid "Open the processed file"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:294
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:297
 #: src/bigocrpdf/ui/settings_queue_mixin.py:699
 msgid "Show in file manager"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:301
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:304
 msgid "View the text found in this document"
 msgstr ""
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:320
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:325
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:327
 msgid "Export to other formats"
 msgstr ""
 
@@ -1466,11 +1467,11 @@ msgstr[1] ""
 msgid "Grid view (click for list)"
 msgstr ""
 
-#: src/bigocrpdf/ui/header_bar.py:218
+#: src/bigocrpdf/ui/header_bar.py:223
 msgid "Start OCR processing"
 msgstr ""
 
-#: src/bigocrpdf/ui/header_bar.py:221 src/bigocrpdf/ui/image_ocr_window.py:1139
+#: src/bigocrpdf/ui/header_bar.py:226 src/bigocrpdf/ui/image_ocr_window.py:1139
 msgid ""
 "OCR is unavailable. Install the required engine and restart the application."
 msgstr ""

@@ -33,7 +33,7 @@ xgettext \
 	--keyword=ngettext:1,2 \
 	--package-name=bigocrpdf \
 	--package-version=3.0.0 \
-	--msgid-bugs-address=contact@biglinux.com.br \
+	--msgid-bugs-address=biglinux@biglinux.com.br \
 	--copyright-holder='BigLinux Team' \
 	--output="$workdir/bigocrpdf.pot" \
 	"${sources[@]}"
