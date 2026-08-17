@@ -264,9 +264,18 @@ def _run_ocr_engine(
     box_thresh: float,
     low_memory_openvino: bool,
     threads: int,
+    *,
+    use_cls: bool,
 ) -> Any:
+    """Run one image through the engine.
+
+    ``use_cls`` has no default on purpose: RapidOCR's ``update_params`` applies
+    any non-None value over the ``Global.use_cls`` set at construction, so a
+    constant here silently overrules what the caller asked for. Every caller
+    must state the answer.
+    """
     if not low_memory_openvino:
-        return engine(image, use_cls=False, text_score=text_score, box_thresh=box_thresh)
+        return engine(image, use_cls=use_cls, text_score=text_score, box_thresh=box_thresh)
 
     detector_session = engine.text_det.session
     _set_openvino_request(detector_session, True, threads)
@@ -278,7 +287,7 @@ def _run_ocr_engine(
 
     engine.recognize_txt = recognize_without_detector
     try:
-        return engine(image, use_cls=False, text_score=text_score, box_thresh=box_thresh)
+        return engine(image, use_cls=use_cls, text_score=text_score, box_thresh=box_thresh)
     finally:
         engine.recognize_txt = recognize_txt
         _set_openvino_request(detector_session, False, threads)
@@ -291,6 +300,7 @@ def _ocr_single_image(
     box_thresh: float = 0.5,
     low_memory_openvino: bool = False,
     threads: int = 2,
+    use_textline_cls: bool = False,
 ) -> dict:
     """Run OCR on a single image using a pre-created engine.
 
@@ -311,6 +321,7 @@ def _ocr_single_image(
             box_thresh,
             low_memory_openvino,
             threads,
+            use_cls=use_textline_cls,
         )
 
         serialized = _reorient_vertical_regions(engine, img, _serialize_ocr_result(result))
@@ -373,11 +384,19 @@ def run_persistent(args: argparse.Namespace) -> None:
         real_stdout.flush()
         return
 
+    # The text-line classifier needs its model resident, so it and the
+    # low-memory OpenVINO mode exclude each other. Say which one lost.
     low_memory_openvino = (
         args.low_memory_openvino
         and runtime["engine_label"] == "openvino_cpu"
         and not args.use_textline_cls
     )
+    if args.low_memory_openvino and args.use_textline_cls:
+        print(
+            "[OCR Worker] --use-textline-cls keeps the classifier model resident; "
+            "the low-memory OpenVINO mode stays off for this run",
+            file=sys.stderr,
+        )
     if low_memory_openvino:
         engine.text_cls = None
         gc.collect()
@@ -399,6 +418,7 @@ def run_persistent(args: argparse.Namespace) -> None:
             args.box_thresh,
             low_memory_openvino,
             threads,
+            use_textline_cls=args.use_textline_cls,
         )
         real_stdout.write(json.dumps(result) + "\n")
         real_stdout.flush()

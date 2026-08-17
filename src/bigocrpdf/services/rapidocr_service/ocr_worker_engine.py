@@ -9,24 +9,43 @@ from collections.abc import Callable
 from types import SimpleNamespace
 from typing import Any
 
-from bigocrpdf.services.rapidocr_service.config import OCRConfig
+from bigocrpdf.services.rapidocr_service.config import (
+    DEFAULT_BOX_THRESH,
+    DEFAULT_DETECTION_LIMIT_SIDE_LEN,
+    DEFAULT_LANGUAGE,
+    DEFAULT_MODEL_TYPE,
+    DEFAULT_REC_BATCH_NUM,
+    DEFAULT_SCORE_MODE,
+    DEFAULT_TEXT_SCORE_THRESHOLD,
+    DEFAULT_UNCLIP_RATIO,
+    OCRConfig,
+)
 
+# The longest side the detector may see before RapidOCR resizes for it. Under
+# ``limit_type="min"`` the library leaves an image untouched once its short side
+# already reaches this value, so a small number means "do not resize", and the
+# real ceiling stays ``Global.max_side_len``. A large number here would instead
+# scale every page *up* to it.
+_FULL_RESOLUTION_MIN_SIDE = 960
+
+# Defaults come from OCRConfig so the two cannot drift: the pipeline always
+# passes explicit values, and only direct callers land here.
 _OCR_ENGINE_DEFAULTS = {
-    "language": "latin",
-    "limit_side_len": 4000,
+    "language": DEFAULT_LANGUAGE,
+    "limit_side_len": DEFAULT_DETECTION_LIMIT_SIDE_LEN,
     "use_openvino": True,
-    "box_thresh": 0.5,
-    "unclip_ratio": 1.2,
-    "text_score": 0.3,
-    "score_mode": "slow",
+    "box_thresh": DEFAULT_BOX_THRESH,
+    "unclip_ratio": DEFAULT_UNCLIP_RATIO,
+    "text_score": DEFAULT_TEXT_SCORE_THRESHOLD,
+    "score_mode": DEFAULT_SCORE_MODE,
     "rec_model_path": "",
     "rec_keys_path": "",
     "det_model_path": "",
     "font_path": "",
     "threads": 4,
     "full_resolution": False,
-    "model_type": "small",
-    "rec_batch_num": 1,
+    "model_type": DEFAULT_MODEL_TYPE,
+    "rec_batch_num": DEFAULT_REC_BATCH_NUM,
     "use_textline_cls": False,
     "gpu_backend": "off",
     "gpu_device_id": 0,
@@ -391,7 +410,11 @@ def _build_ocr_engine_params(
         "Det.box_thresh": options.box_thresh,
         "Det.unclip_ratio": options.unclip_ratio,
         "Det.score_mode": options.score_mode,
-        "Det.limit_side_len": options.limit_side_len,
+        # RapidOCR's TextDetector.get_preprocess discards Det.limit_side_len
+        # whenever limit_type is "max" and picks 960/1500/2000 from the image
+        # size itself, so setting it there would only be a claim we do not
+        # control. Under "min" the value is honoured, and a small one keeps the
+        # page at the size we rendered it.
         "Det.limit_type": "min" if options.full_resolution else "max",
         "Rec.engine_type": engine_type,
         "Rec.lang_type": lang_rec,
@@ -401,6 +424,8 @@ def _build_ocr_engine_params(
         "Global.text_score": options.text_score,
         "Global.max_side_len": options.limit_side_len,
     }
+    if options.full_resolution:
+        params["Det.limit_side_len"] = _FULL_RESOLUTION_MIN_SIDE
     _set_model_version_params(params, OCRVersion, ModelType, options.model_type)
     _set_ocr_thread_params(params, use_openvino_threads, options.threads)
     _set_optional_ocr_model_paths(

@@ -36,6 +36,10 @@ _detector_lock = threading.Lock()
 # we only need approximate box positions for surface fitting.
 # 1536 balances speed (~2x faster than 2048) with sufficient box detection
 # accuracy for displacement field computation.
+#
+# It is spent on Global.max_side_len, which resizes the image before detection.
+# Det.limit_side_len cannot deliver it: RapidOCR ignores that value under
+# limit_type="max" and picks its own 960/1500/2000 bucket instead.
 _DEWARP_DETECT_SIDE_LEN = 1536
 _DEWARP_REC_BATCH_NUM = 1
 _DEWARP_USE_TEXTLINE_CLS = False
@@ -76,8 +80,8 @@ def _get_inprocess_detector(language: str, limit_side_len: int):
         # Try detection-only params first (much less memory: ~100 MB vs ~400 MB)
         det_only_params = {
             "Det.engine_type": EngineType.OPENVINO,
-            "Det.limit_side_len": limit_side_len,
             "Det.limit_type": "max",
+            "Global.max_side_len": limit_side_len,
             "Global.use_cls": _DEWARP_USE_TEXTLINE_CLS,
             "Global.text_score": 0.3,
             "EngineConfig.openvino.inference_num_threads": 2,

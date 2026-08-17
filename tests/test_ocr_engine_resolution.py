@@ -224,6 +224,125 @@ def test_batch_and_textline_classifier_params_are_configurable():
     assert params["Global.use_cls"] is True
 
 
+def _engine_params(*, full_resolution: bool, limit_side_len: int = 4096) -> dict:
+    """Build engine params through the legacy positional form the module accepts."""
+    return ocr_worker._build_ocr_engine_params(
+        "openvino",
+        "latin",
+        FakeOCRVersion,
+        FakeModelType,
+        True,
+        limit_side_len,
+        0.5,
+        1.6,
+        0.3,
+        "slow",
+        "",
+        "",
+        "",
+        "",
+        4,
+        full_resolution,
+        "small",
+        1,
+        False,
+        "openvino_cpu",
+    )
+
+
+def test_detector_input_size_is_only_claimed_where_rapidocr_honours_it():
+    """RapidOCR discards Det.limit_side_len under limit_type="max".
+
+    ``TextDetector.get_preprocess`` replaces it with its own 960/1500/2000
+    bucket, so configuring it there reported a resolution we did not control.
+    """
+    default_path = _engine_params(full_resolution=False)
+
+    assert default_path["Det.limit_type"] == "max"
+    assert "Det.limit_side_len" not in default_path
+    # This one is honoured, and is what really caps the page.
+    assert default_path["Global.max_side_len"] == 4096
+
+
+def test_full_resolution_keeps_the_page_at_the_size_it_was_rendered():
+    """A minimum smaller than the page means no resize, not an upscale.
+
+    Asking for the full render as a *minimum* side length scaled every page up
+    to it instead: an A4 at 300 dpi reached the detector at 22 MP.
+    """
+    full = _engine_params(full_resolution=True)
+
+    assert full["Det.limit_type"] == "min"
+    assert full["Det.limit_side_len"] == ocr_worker_engine._FULL_RESOLUTION_MIN_SIDE
+    assert full["Det.limit_side_len"] < 2480  # the short side of A4 at 300 dpi
+
+
+def test_engine_defaults_match_the_pipeline_configuration():
+    """Two defaults for one knob mean the direct callers run a different OCR."""
+    config = OCRConfig()
+    defaults = ocr_worker_engine._OCR_ENGINE_DEFAULTS
+
+    assert defaults["limit_side_len"] == config.detection_limit_side_len
+    assert defaults["unclip_ratio"] == config.unclip_ratio
+    assert defaults["box_thresh"] == config.box_thresh
+    assert defaults["text_score"] == config.text_score_threshold
+    assert defaults["score_mode"] == config.score_mode
+    assert defaults["rec_batch_num"] == config.rec_batch_num
+    assert defaults["model_type"] == config.model_type
+
+
+def test_persistent_worker_passes_the_requested_textline_classifier():
+    """The per-call value wins in RapidOCR, so a constant here silences the flag.
+
+    ``update_params`` applies any non-None ``use_cls`` over the ``Global.use_cls``
+    chosen at construction; the persistent path passed ``False`` on every page,
+    so ``--use-textline-cls`` did nothing for any PDF.
+    """
+    calls = []
+
+    def fake_engine(image, **kwargs):
+        calls.append(kwargs)
+        return SimpleNamespace(boxes=None, txts=None, scores=None)
+
+    for requested in (True, False):
+        ocr_worker._run_ocr_engine(
+            fake_engine,
+            object(),
+            0.3,
+            0.5,
+            False,
+            2,
+            use_cls=requested,
+        )
+
+    assert [call["use_cls"] for call in calls] == [True, False]
+
+
+def test_low_memory_openvino_still_forwards_the_classifier_choice():
+    """The low-memory variant swaps recognize_txt; it must not swap the answer.
+
+    Both call sites in ``_run_ocr_engine`` used to pass ``use_cls=False``, so
+    fixing only the plain one would leave the flag dead under low memory.
+    """
+    calls = []
+    # A live request keeps the OpenVINO model rebuild out of this test.
+    detector_session = SimpleNamespace(model=object(), session=object())
+
+    class FakeEngine:
+        text_det = SimpleNamespace(session=detector_session)
+
+        def recognize_txt(self, images):
+            return images
+
+        def __call__(self, _image, **kwargs):
+            calls.append(kwargs)
+            return SimpleNamespace(boxes=None, txts=None, scores=None)
+
+    ocr_worker._run_ocr_engine(FakeEngine(), object(), 0.3, 0.5, True, 2, use_cls=True)
+
+    assert calls == [{"use_cls": True, "text_score": 0.3, "box_thresh": 0.5}]
+
+
 def test_gpu_off_keeps_cpu_engine():
     config = SimpleNamespace(engine_type="openvino", gpu_backend="off")
     engine, extra, label = ocr_worker_engine.resolve_rapidocr_engine_params(config, FakeEngineType)
@@ -396,13 +515,17 @@ def test_openvino_worker_releases_detector_request_before_recognition(monkeypatc
     engine = Engine()
     original_recognize = engine.recognize_txt
 
-    assert ocr_worker._run_ocr_engine(engine, object(), 0.3, 0.5, True, 2) == ["result"]
+    assert ocr_worker._run_ocr_engine(engine, object(), 0.3, 0.5, True, 2, use_cls=False) == [
+        "result"
+    ]
     assert detector_session.session is None
     assert engine.recognize_txt == original_recognize
     assert recognized_with == [None]
     core.compile_model.assert_not_called()
 
-    assert ocr_worker._run_ocr_engine(engine, object(), 0.3, 0.5, True, 2) == ["result"]
+    assert ocr_worker._run_ocr_engine(engine, object(), 0.3, 0.5, True, 2, use_cls=False) == [
+        "result"
+    ]
     core.compile_model.assert_called_once_with(
         model=model,
         device_name="CPU",

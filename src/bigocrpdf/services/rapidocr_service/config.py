@@ -66,8 +66,13 @@ DEFAULT_AUTO_DETECT_QUALITY = True
 # Bilevel compression (JBIG2/CCITT)
 DEFAULT_ENABLE_BILEVEL_COMPRESSION = True
 DEFAULT_FORCE_BILEVEL_COMPRESSION = False
-# Detection resolution: False = capped at 2000px (faster), True = full resolution (more accurate)
-DEFAULT_DETECTION_FULL_RESOLUTION = False
+# Detection resolution. False lets RapidOCR pick its own 960/1500/2000 input
+# size, which downscales a 300 dpi page; True sends the page as rendered.
+#
+# Measured on the 50-document DharmaOCR set, OCR stage in isolation:
+# mean CER 0.1893 -> 0.1465 and mean WER 0.2955 -> 0.2587 for 4.5 -> 5.4
+# seconds per page. 18 documents improved, 2 got worse, 30 were unchanged.
+DEFAULT_DETECTION_FULL_RESOLUTION = True
 # Execution
 DEFAULT_WORKERS = 0
 DEFAULT_REPLACE_EXISTING_OCR = False
@@ -85,7 +90,10 @@ class OCRConfig:
         dpi: Resolution for image extraction
         box_thresh: Detection threshold for text boxes
         unclip_ratio: Box expansion ratio
-        detection_limit_side_len: Max side length for detection
+        detection_limit_side_len: Longest side the page is resized to before
+            detection and crop extraction (RapidOCR ``Global.max_side_len``).
+            The detector's own input size is RapidOCR's to choose unless
+            ``detection_full_resolution`` is set
         engine_type: Inference engine (openvino only)
         model_base_path: Base path for model files
         font_base_path: Base path for font files
