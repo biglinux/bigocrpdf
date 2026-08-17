@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any
 from bigocrpdf.cli_parser import _parse_page_list
 
 if TYPE_CHECKING:
-    from bigocrpdf.services.rapidocr_service.config import OCRConfig
+    from bigocrpdf.services.rapidocr_service.config import OCRConfig, OcrDocument
 
 
 def _cmd_ocr(args: argparse.Namespace, logger: logging.Logger) -> int:
@@ -244,10 +244,8 @@ def _run_full_ocr(
     """Run the full OCR pipeline."""
     from bigocrpdf.services.rapidocr_service.backend import ProfessionalPDFOCR
     from bigocrpdf.services.rapidocr_service.ocr_document_io import (
-        OcrPdfPublication,
         complete_ocr_document,
-        ocr_document_sidecar_path,
-        publish_ocr_pdf_publications,
+        publish_ocr_pdfs,
     )
 
     ocr = ProfessionalPDFOCR(config)
@@ -296,13 +294,9 @@ def _run_full_ocr(
                 progress_callback=progress_cb,
             )
             if stats.split_output_files:
-                published_outputs = publish_ocr_pdf_publications(
+                published_outputs = publish_ocr_pdfs(
                     [
-                        OcrPdfPublication(
-                            staged_pdf=Path(part),
-                            requested_pdf=requested_output.parent / Path(part).name,
-                            unavailable_reason="split-page-mapping-unavailable",
-                        )
+                        (Path(part), requested_output.parent / Path(part).name)
                         for part in stats.split_output_files
                     ],
                     overwrite=True,
@@ -315,14 +309,8 @@ def _run_full_ocr(
                     pages_total=stats.pages_total,
                     pages_processed=stats.pages_processed,
                 )
-                published_outputs = publish_ocr_pdf_publications(
-                    [
-                        OcrPdfPublication(
-                            staged_pdf=staged_output,
-                            requested_pdf=requested_output,
-                            document=structured_document,
-                        )
-                    ],
+                published_outputs = publish_ocr_pdfs(
+                    [(staged_output, requested_output)],
                     overwrite=True,
                     family_root=requested_output,
                 )
@@ -332,15 +320,12 @@ def _run_full_ocr(
         pages = stats.pages_processed
         confidence = stats.average_confidence
         logger.info(f"Done: {pages} pages, {confidence:.1%} avg confidence, {elapsed:.1f}s total")
-        if len(published_outputs) == 1 and structured_document is not None:
-            logger.info(
-                "Saved OCR document sidecar: %s",
-                ocr_document_sidecar_path(published_outputs[0]),
-            )
-        elif len(published_outputs) > 1 and stats.ocr_document.pages:
-            logger.warning(
-                "Split output uses per-part sidecar invalidation; "
-                "structured OCR export is unavailable for the parts"
+        if args.sidecar_json is not None:
+            _write_requested_sidecar_json(
+                args.sidecar_json,
+                published_outputs,
+                structured_document,
+                logger,
             )
 
         if args.save_preprocessed:
@@ -353,6 +338,42 @@ def _run_full_ocr(
         print()
         logger.error(f"Fatal error after {elapsed:.1f}s: {e}")
         return 1
+
+
+def _write_requested_sidecar_json(
+    requested_path: str,
+    published_outputs: list[Path],
+    document: "OcrDocument | None",
+    logger: logging.Logger,
+) -> None:
+    """Write the structured OCR JSON the user asked for, or say why it cannot be.
+
+    ``requested_path`` is empty when ``--sidecar-json`` was given without a
+    destination, which means the default name beside the output PDF.
+    """
+    from bigocrpdf.services.rapidocr_service.ocr_document_io import (
+        ocr_document_json_path,
+        write_ocr_document_json,
+    )
+
+    if len(published_outputs) != 1:
+        logger.warning(
+            "--sidecar-json needs one output PDF; the size limit produced %d parts "
+            "and structured OCR does not map onto them",
+            len(published_outputs),
+        )
+        return
+    if document is None:
+        logger.warning(
+            "--sidecar-json produced nothing: structured OCR does not cover every "
+            "page of the output"
+        )
+        return
+    published_pdf = published_outputs[0]
+    json_path = Path(requested_path) if requested_path else ocr_document_json_path(published_pdf)
+    write_ocr_document_json(document, published_pdf, json_path)
+    logger.info("Saved structured OCR JSON: %s", json_path)
+    print(f"Saved: {json_path}")
 
 
 def _prepare_selected_pages(input_pdf: Path, output_pdf: Path, pages: list[int]) -> Path:

@@ -13,13 +13,6 @@ from bigocrpdf.services.rapidocr_service.config import (
     OcrPage,
     ProcessingStats,
 )
-from bigocrpdf.services.rapidocr_service.ocr_document_io import (
-    load_ocr_document_sidecar,
-    ocr_document_sidecar_path,
-    render_ocr_document_sidecar,
-    save_ocr_document_sidecar,
-)
-from bigocrpdf.utils import durable_writes
 
 
 def _write_pdf(path: Path, pages: int = 1) -> None:
@@ -101,7 +94,7 @@ def test_invalid_engine_pdf_is_not_published(tmp_path: Path) -> None:
         _run_with_engine(processor, invalid_pdf)
 
     assert not target.exists()
-    assert not ocr_document_sidecar_path(target).exists()
+    assert list(tmp_path.glob("*.json")) == []
 
 
 def test_success_publishes_complete_output(tmp_path: Path) -> None:
@@ -122,42 +115,8 @@ def test_success_publishes_complete_output(tmp_path: Path) -> None:
     assert processor.get_total_pages() == 1
 
 
-def test_success_replaces_stale_sidecar_with_pdf_bound_invalidation(
-    tmp_path: Path,
-) -> None:
-    target = tmp_path / "out.pdf"
-    target.write_bytes(b"old PDF")
-    save_ocr_document_sidecar(
-        OcrDocument(
-            pages=[
-                OcrPage(
-                    page_index=1,
-                    width_px=100,
-                    height_px=100,
-                    dpi=300,
-                    native_text="stale text",
-                )
-            ]
-        ),
-        target,
-    )
-    processor = _processor(target, overwrite=True)
-
-    def succeed(_input: Path, staged: Path, _progress) -> ProcessingStats:
-        _write_pdf(staged)
-        return ProcessingStats(pages_total=1, pages_processed=1)
-
-    success, _text, _boxes, _primary_output = _run_with_engine(processor, succeed)
-
-    assert success is True
-    assert _pdf_page_count(target) == 1
-    assert ocr_document_sidecar_path(target).exists()
-    assert load_ocr_document_sidecar(target) is None
-
-
-def test_success_publishes_matching_structured_sidecar(
-    tmp_path: Path,
-) -> None:
+def test_success_publishes_the_pdf_and_nothing_beside_it(tmp_path: Path) -> None:
+    """The interface produces one file per run, structured data or not."""
     target = tmp_path / "out.pdf"
     processor = _processor(target)
     document = OcrDocument(
@@ -183,238 +142,33 @@ def test_success_publishes_matching_structured_sidecar(
     success, _text, _boxes, _primary_output = _run_with_engine(processor, succeed)
 
     assert success is True
-    loaded = load_ocr_document_sidecar(target)
-    assert loaded is not None
-    assert loaded.pages[0].native_text == "structured text"
+    assert [entry.name for entry in tmp_path.iterdir()] == ["out.pdf"]
 
 
-def test_incomplete_structured_document_publishes_invalidation(
+def test_a_json_left_beside_the_destination_is_neither_read_nor_touched(
     tmp_path: Path,
 ) -> None:
+    """Whatever else lives in the folder belongs to the user, not to us.
+
+    A file named after our old default used to force the output to a suffixed
+    name, because the PDF and its companion had to be free together. Only the
+    PDF decides now, and the stranger is left exactly as it was.
+    """
     target = tmp_path / "out.pdf"
+    stranger = tmp_path / "out.bigocr.json"
+    stranger.write_text("external metadata", encoding="utf-8")
     processor = _processor(target)
-    incomplete_document = OcrDocument(
-        pages=[
-            OcrPage(
-                page_index=1,
-                width_px=100,
-                height_px=100,
-                dpi=300,
-                native_text="only the first page",
-            )
-        ]
-    )
 
     def succeed(_input: Path, staged: Path, _progress) -> ProcessingStats:
-        _write_pdf(staged, pages=2)
-        return ProcessingStats(
-            pages_total=2,
-            pages_processed=2,
-            ocr_document=incomplete_document,
-        )
-
-    success, _text, _boxes, _primary_output = _run_with_engine(processor, succeed)
-
-    assert success is True
-    assert load_ocr_document_sidecar(target) is None
-
-
-def test_stats_cannot_make_partial_document_authoritative_for_physical_pdf(
-    tmp_path: Path,
-) -> None:
-    target = tmp_path / "out.pdf"
-    processor = _processor(target)
-    document = OcrDocument(
-        pages=[
-            OcrPage(
-                page_index=1,
-                width_px=100,
-                height_px=100,
-                dpi=300,
-                native_text="only one physical page",
-            )
-        ]
-    )
-
-    def succeed(_input: Path, staged: Path, _progress) -> ProcessingStats:
-        _write_pdf(staged, pages=2)
-        return ProcessingStats(
-            pages_total=1,
-            pages_processed=1,
-            ocr_document=document,
-        )
-
-    success, _text, _boxes, _primary_output = _run_with_engine(processor, succeed)
-
-    assert success is True
-    assert _pdf_page_count(target) == 2
-    assert load_ocr_document_sidecar(target) is None
-
-
-def test_publication_sidecar_and_pdf_use_the_same_immutable_snapshot(
-    tmp_path: Path,
-) -> None:
-    target = tmp_path / "out.pdf"
-    processor = _processor(target)
-    staged_path: Path | None = None
-    document = OcrDocument(
-        pages=[
-            OcrPage(
-                page_index=1,
-                width_px=100,
-                height_px=100,
-                dpi=300,
-                native_text="snapshot text",
-            )
-        ]
-    )
-
-    def succeed(_input: Path, staged: Path, _progress) -> ProcessingStats:
-        nonlocal staged_path
-        staged_path = staged
         _write_pdf(staged)
-        return ProcessingStats(
-            pages_total=1,
-            pages_processed=1,
-            ocr_document=document,
-        )
+        return ProcessingStats(pages_processed=1)
 
-    def render_then_replace_original(document, pdf_path, **kwargs) -> str:
-        rendered = render_ocr_document_sidecar(document, pdf_path, **kwargs)
-        assert staged_path is not None
-        _write_pdf(staged_path, pages=2)
-        return rendered
-
-    with patch(
-        "bigocrpdf.services.rapidocr_service.ocr_document_io.render_ocr_document_sidecar",
-        side_effect=render_then_replace_original,
-    ):
-        success, _text, _boxes, _primary_output = _run_with_engine(
-            processor,
-            succeed,
-        )
+    success, _text, _boxes, _primary_output = _run_with_engine(processor, succeed)
 
     assert success is True
     assert _pdf_page_count(target) == 1
-    loaded = load_ocr_document_sidecar(target)
-    assert loaded is not None
-    assert loaded.pages[0].native_text == "snapshot text"
-
-
-def test_publication_rejects_snapshot_mutated_after_sidecar_fingerprint(
-    tmp_path: Path,
-) -> None:
-    target = tmp_path / "out.pdf"
-    processor = _processor(target)
-    document = OcrDocument(
-        pages=[
-            OcrPage(
-                page_index=1,
-                width_px=100,
-                height_px=100,
-                dpi=300,
-                native_text="snapshot text",
-            )
-        ]
-    )
-
-    def succeed(_input: Path, staged: Path, _progress) -> ProcessingStats:
-        _write_pdf(staged)
-        return ProcessingStats(
-            pages_total=1,
-            pages_processed=1,
-            ocr_document=document,
-        )
-
-    def render_then_mutate_snapshot(document, pdf_path, **kwargs) -> str:
-        rendered = render_ocr_document_sidecar(document, pdf_path, **kwargs)
-        _write_pdf(Path(pdf_path), pages=2)
-        return rendered
-
-    with (
-        patch(
-            "bigocrpdf.services.rapidocr_service.ocr_document_io.render_ocr_document_sidecar",
-            side_effect=render_then_mutate_snapshot,
-        ),
-        pytest.raises(
-            durable_writes.PublicationRecoveryError,
-            match="content changed",
-        ),
-    ):
-        _run_with_engine(processor, succeed)
-
-    assert not target.exists()
-    assert not ocr_document_sidecar_path(target).exists()
-
-
-def test_sidecar_render_failure_preserves_existing_pdf_and_sidecar(
-    tmp_path: Path,
-) -> None:
-    target = tmp_path / "out.pdf"
-    target.write_bytes(b"old PDF")
-    save_ocr_document_sidecar(OcrDocument(), target)
-    old_sidecar = ocr_document_sidecar_path(target).read_bytes()
-    processor = _processor(target, overwrite=True)
-
-    def succeed(_input: Path, staged: Path, _progress) -> ProcessingStats:
-        _write_pdf(staged)
-        return ProcessingStats(pages_processed=1)
-
-    with (
-        patch(
-            "bigocrpdf.services.rapidocr_service.ocr_document_io.render_ocr_document_sidecar",
-            side_effect=OSError("simulated sidecar failure"),
-        ),
-        pytest.raises(OSError, match="simulated sidecar failure"),
-    ):
-        _run_with_engine(processor, succeed)
-
-    assert target.read_bytes() == b"old PDF"
-    assert ocr_document_sidecar_path(target).read_bytes() == old_sidecar
-
-
-def test_install_failure_between_pdf_and_sidecar_restores_the_old_pair(
-    tmp_path: Path,
-) -> None:
-    target = tmp_path / "out.pdf"
-    target.write_bytes(b"old PDF")
-    save_ocr_document_sidecar(OcrDocument(), target)
-    sidecar = ocr_document_sidecar_path(target)
-    old_sidecar = sidecar.read_bytes()
-    processor = _processor(target, overwrite=True)
-
-    def succeed(_input: Path, staged: Path, _progress) -> ProcessingStats:
-        _write_pdf(staged)
-        return ProcessingStats(pages_processed=1)
-
-    real_rename = durable_writes._rename_without_replacement
-    failure_injected = False
-
-    def fail_once_before_sidecar_install(source, destination) -> None:
-        nonlocal failure_injected
-        if (
-            not failure_injected
-            and Path(destination) == sidecar
-            and Path(source).name.endswith(".new")
-        ):
-            failure_injected = True
-            raise OSError("simulated sidecar install failure")
-        real_rename(source, destination)
-
-    with (
-        patch.object(
-            durable_writes,
-            "_rename_without_replacement",
-            side_effect=fail_once_before_sidecar_install,
-        ),
-        pytest.raises(OSError, match="simulated sidecar install failure"),
-    ):
-        _run_with_engine(processor, succeed)
-
-    assert failure_injected
-    assert target.read_bytes() == b"old PDF"
-    assert sidecar.read_bytes() == old_sidecar
-    assert list(tmp_path.glob(".bigocr-publish-*")) == []
+    assert stranger.read_text(encoding="utf-8") == "external metadata"
+    assert processor.settings.processed_files == [str(target)]
 
 
 def test_collision_preserves_existing_output_and_uses_suffix(tmp_path: Path) -> None:
@@ -433,30 +187,6 @@ def test_collision_preserves_existing_output_and_uses_suffix(tmp_path: Path) -> 
     assert target.read_bytes() == b"existing"
     assert _pdf_page_count(suffixed) == 1
     assert processor.settings.processed_files == [str(suffixed)]
-
-
-def test_sidecar_only_collision_suffixes_pdf_and_sidecar_together(
-    tmp_path: Path,
-) -> None:
-    target = tmp_path / "out.pdf"
-    original_sidecar = ocr_document_sidecar_path(target)
-    original_sidecar.write_text("external metadata", encoding="utf-8")
-    processor = _processor(target)
-
-    def succeed(_input: Path, staged: Path, _progress) -> ProcessingStats:
-        _write_pdf(staged)
-        return ProcessingStats(pages_processed=1)
-
-    success, _text, _boxes, _primary_output = _run_with_engine(processor, succeed)
-
-    published = tmp_path / "out-1.pdf"
-    assert success is True
-    assert not target.exists()
-    assert original_sidecar.read_text(encoding="utf-8") == "external metadata"
-    assert _pdf_page_count(published) == 1
-    assert ocr_document_sidecar_path(published).exists()
-    assert load_ocr_document_sidecar(published) is None
-    assert processor.settings.processed_files == [str(published)]
 
 
 def test_overwrite_replaces_existing_output_atomically(tmp_path: Path) -> None:
@@ -501,12 +231,11 @@ def test_split_outputs_publish_as_one_complete_set(tmp_path: Path) -> None:
     assert primary_output == str(tmp_path / "out-part-1.pdf")
 
 
-def test_overwrite_split_retires_prior_single_output_pair(
+def test_overwrite_split_retires_the_prior_single_output(
     tmp_path: Path,
 ) -> None:
     target = tmp_path / "out.pdf"
     _write_pdf(target)
-    save_ocr_document_sidecar(OcrDocument(), target)
     processor = _processor(target, overwrite=True)
 
     def succeed(_input: Path, staged: Path, _progress) -> ProcessingStats:
@@ -524,16 +253,15 @@ def test_overwrite_split_retires_prior_single_output_pair(
 
     assert success is True
     assert not target.exists()
-    assert not ocr_document_sidecar_path(target).exists()
+    assert list(tmp_path.glob("*.json")) == []
     assert (tmp_path / "out-01.pdf").exists()
     assert (tmp_path / "out-02.pdf").exists()
-    assert ocr_document_sidecar_path(tmp_path / "out-01.pdf").exists()
-    assert ocr_document_sidecar_path(tmp_path / "out-02.pdf").exists()
 
 
-def test_overwrite_single_retires_prior_split_output_pairs(
+def test_overwrite_single_retires_the_prior_split_parts(
     tmp_path: Path,
 ) -> None:
+    """Each part is recognised by the family recorded inside the PDF."""
     target = tmp_path / "out.pdf"
     processor = _processor(target, overwrite=True)
 
@@ -563,14 +291,14 @@ def test_overwrite_single_retires_prior_split_output_pairs(
 
     assert success is True
     assert target.exists()
-    assert ocr_document_sidecar_path(target).exists()
     assert all(not part.exists() for part in prior_parts)
-    assert all(not ocr_document_sidecar_path(part).exists() for part in prior_parts)
+    assert list(tmp_path.glob("*.json")) == []
 
 
-def test_overwrite_does_not_retire_an_unrelated_numbered_collision_pair(
+def test_overwrite_does_not_retire_an_unrelated_numbered_collision(
     tmp_path: Path,
 ) -> None:
+    """A numbered name is not proof of membership; only the metadata is."""
     target = tmp_path / "out.pdf"
     target.write_bytes(b"existing root output")
     for counter in range(1, 10):
@@ -587,9 +315,7 @@ def test_overwrite_does_not_retire_an_unrelated_numbered_collision_pair(
     )
     assert collision_success is True
     unrelated_pdf = tmp_path / "out-10.pdf"
-    unrelated_sidecar = ocr_document_sidecar_path(unrelated_pdf)
     old_pdf = unrelated_pdf.read_bytes()
-    old_sidecar = unrelated_sidecar.read_bytes()
 
     overwrite_processor = _processor(target, overwrite=True)
     success, _text, _boxes, _primary_output = _run_with_engine(
@@ -599,7 +325,6 @@ def test_overwrite_does_not_retire_an_unrelated_numbered_collision_pair(
 
     assert success is True
     assert unrelated_pdf.read_bytes() == old_pdf
-    assert unrelated_sidecar.read_bytes() == old_sidecar
 
 
 def test_success_marks_checkpoint_without_ui_callback(tmp_path: Path) -> None:

@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 3.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-08-09 19:55-0300\n"
+"POT-Creation-Date: 2026-08-16 23:28-0300\n"
 "PO-Revision-Date: 2026-08-10 15:12+0000\n"
 "Last-Translator: BigLinux Translation Team\n"
-"Language: hu\n"
 "Language-Team: Hungarian\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: hu\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.18.0\n"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
@@ -94,8 +94,10 @@ msgstr "Nem támogatott fájlformátum"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
 # line: 1493
-#: src/bigocrpdf/application.py:405 src/bigocrpdf/ui/text_viewer_controller.py:228
-#: src/bigocrpdf/ui/text_viewer_controller.py:230 src/bigocrpdf/ui/widgets.py:81
+#: src/bigocrpdf/application.py:405
+#: src/bigocrpdf/ui/text_viewer_controller.py:220
+#: src/bigocrpdf/ui/text_viewer_controller.py:222
+#: src/bigocrpdf/ui/widgets.py:81
 msgid "Close"
 msgstr "Bezárás"
 
@@ -135,7 +137,7 @@ msgstr "Feldolgozás"
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 110
 #: src/bigocrpdf/application.py:501 src/bigocrpdf/processing_controller.py:254
 #: src/bigocrpdf/processing_controller.py:286 src/bigocrpdf/ui/header_bar.py:92
-#: src/bigocrpdf/ui/header_bar.py:97
+#: src/bigocrpdf/ui/header_bar.py:97 src/bigocrpdf/ui/header_bar.py:216
 msgid "Start OCR"
 msgstr "OCR indítása"
 
@@ -225,10 +227,10 @@ msgstr "OCR feldolgozás PDF fájlokhoz"
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 357
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 394
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 411
-#: src/bigocrpdf/cli_parser.py:85 src/bigocrpdf/cli_parser.py:275
-#: src/bigocrpdf/cli_parser.py:280 src/bigocrpdf/cli_parser.py:305
-#: src/bigocrpdf/cli_parser.py:327 src/bigocrpdf/cli_parser.py:348
-#: src/bigocrpdf/cli_parser.py:359 src/bigocrpdf/cli_parser.py:399
+#: src/bigocrpdf/cli_parser.py:85 src/bigocrpdf/cli_parser.py:287
+#: src/bigocrpdf/cli_parser.py:292 src/bigocrpdf/cli_parser.py:317
+#: src/bigocrpdf/cli_parser.py:339 src/bigocrpdf/cli_parser.py:360
+#: src/bigocrpdf/cli_parser.py:371 src/bigocrpdf/cli_parser.py:411
 msgid "Input PDF file"
 msgstr "Bemeneti PDF fájl"
 
@@ -240,17 +242,18 @@ msgstr "Bemeneti PDF fájl"
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 358
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 369
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 395
-#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:300
-#: src/bigocrpdf/cli_parser.py:307 src/bigocrpdf/cli_parser.py:329
-#: src/bigocrpdf/cli_parser.py:350 src/bigocrpdf/cli_parser.py:361
-#: src/bigocrpdf/cli_parser.py:372 src/bigocrpdf/cli_parser.py:401
+#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:312
+#: src/bigocrpdf/cli_parser.py:319 src/bigocrpdf/cli_parser.py:341
+#: src/bigocrpdf/cli_parser.py:362 src/bigocrpdf/cli_parser.py:373
+#: src/bigocrpdf/cli_parser.py:384 src/bigocrpdf/cli_parser.py:413
 msgid "Output PDF file"
 msgstr "Kimeneti PDF fájl"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 175
 #: src/bigocrpdf/cli_parser.py:91
 msgid "Pages to process (e.g. '7', '3-10', '1,3,7'). Default: all."
-msgstr "Feldolgozandó oldalak (pl. '7', '3-10', '1,3,7'). Alapértelmezett: mind."
+msgstr ""
+"Feldolgozandó oldalak (pl. '7', '3-10', '1,3,7'). Alapértelmezett: mind."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 187
 #: src/bigocrpdf/cli_parser.py:94
@@ -275,7 +278,8 @@ msgstr "Újra-OCR már szöveges oldalakat (alapértelmezett: kihagyás)."
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 203
 #: src/bigocrpdf/cli_parser.py:118
 msgid "Process all pages as image-only (for editor-merged files)."
-msgstr "Minden oldal feldolgozása képként (szerkesztőben egyesített fájlokhoz)."
+msgstr ""
+"Minden oldal feldolgozása képként (szerkesztőben egyesített fájlokhoz)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 126
 #: src/bigocrpdf/cli_parser.py:126
@@ -320,7 +324,8 @@ msgstr "Használja a FP16-t a támogatott kísérleti GPU háttérrendszerekhez.
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 176
 #: src/bigocrpdf/cli_parser.py:176
 msgid "Fail instead of falling back to CPU when GPU initialization fails."
-msgstr "GPU-inicializálási hiba esetén leállás a CPU-ra való visszaállás helyett."
+msgstr ""
+"GPU-inicializálási hiba esetén leállás a CPU-ra való visszaállás helyett."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 213
 #: src/bigocrpdf/cli_parser.py:181
@@ -425,175 +430,183 @@ msgstr "Képformátum a kimeneti PDF-ben. Alapértelmezett: original."
 msgid "Image quality for JPEG/WebP (1-95, default: 85)."
 msgstr "Képminőség JPEG/WebP esetén (1-95, alapértelmezett: 85)."
 
+#: src/bigocrpdf/cli_parser.py:255
+msgid ""
+"Also write structured OCR data (text, word boxes, confidence, layout) as "
+"JSON. Nothing is written without this option. If FILE is omitted, the name "
+"is the output PDF with a .bigocr.json suffix."
+msgstr ""
+"A strukturált OCR-adatok (szöveg, szavak keretei, biztonság, elrendezés) kiírása JSON formában is. E beállítás nélkül semmi nem készül. Ha a FILE elmarad, a név a kimeneti PDF .bigocr.json végződéssel."
+
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 262
-#: src/bigocrpdf/cli_parser.py:251
+#: src/bigocrpdf/cli_parser.py:263
 msgid "Debugging"
 msgstr "Hibakeresés"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 267
-#: src/bigocrpdf/cli_parser.py:256
+#: src/bigocrpdf/cli_parser.py:268
 msgid "Save preprocessed images to this directory."
 msgstr "Előfeldolgozott képek mentése ebbe a könyvtárba."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 272
-#: src/bigocrpdf/cli_parser.py:261
+#: src/bigocrpdf/cli_parser.py:273
 msgid "Only run preprocessing (dewarp/deskew), save images, skip OCR."
 msgstr ""
-"Csak előfeldolgozás futtatása (görbület-/dőléskorrekció), képek mentése, OCR"
-" kihagyása."
+"Csak előfeldolgozás futtatása (görbület-/dőléskorrekció), képek mentése, OCR "
+"kihagyása."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 410
-#: src/bigocrpdf/cli_parser.py:274
+#: src/bigocrpdf/cli_parser.py:286
 msgid "Show PDF metadata and page count"
 msgstr "PDF metaadatok és oldalszám megjelenítése"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 276
-#: src/bigocrpdf/cli_parser.py:279
+#: src/bigocrpdf/cli_parser.py:291
 msgid "Split PDF into smaller files"
 msgstr "PDF felosztása kisebb fájlokra"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 278
-#: src/bigocrpdf/cli_parser.py:282
+#: src/bigocrpdf/cli_parser.py:294
 msgid "Output directory"
 msgstr "Kimeneti könyvtár"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 284
-#: src/bigocrpdf/cli_parser.py:285
+#: src/bigocrpdf/cli_parser.py:297
 msgid "Split every N pages"
 msgstr "Felosztás N oldalanként"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 290
-#: src/bigocrpdf/cli_parser.py:287
+#: src/bigocrpdf/cli_parser.py:299
 msgid "Maximum file size per part in megabytes"
 msgstr "Maximális fájlméret részenként megabájtban"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 296
-#: src/bigocrpdf/cli_parser.py:290
+#: src/bigocrpdf/cli_parser.py:302
 msgid "Explicit ranges (e.g. '1-5,6-10,11-15')"
 msgstr "Explicit tartományok (pl. '1-5,6-10,11-15')"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 299
-#: src/bigocrpdf/cli_parser.py:293
+#: src/bigocrpdf/cli_parser.py:305
 msgid "Filename prefix for output parts"
 msgstr "Fájlnév-előtag a kimeneti részekhez"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 303
-#: src/bigocrpdf/cli_parser.py:298
+#: src/bigocrpdf/cli_parser.py:310
 msgid "Merge multiple PDFs into one"
 msgstr "Több PDF egyesítése egybe"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 304
-#: src/bigocrpdf/cli_parser.py:299
+#: src/bigocrpdf/cli_parser.py:311
 msgid "Input PDF files (in order)"
 msgstr "Bemeneti PDF fájlok (sorrendben)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 308
-#: src/bigocrpdf/cli_parser.py:304
+#: src/bigocrpdf/cli_parser.py:316
 msgid "Compress PDF to reduce file size"
 msgstr "PDF tömörítése a fájlméret csökkentéséhez"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 316
-#: src/bigocrpdf/cli_parser.py:314
+#: src/bigocrpdf/cli_parser.py:326
 msgid "JPEG quality for images (1-95, default: 60)"
 msgstr "JPEG minőség képekhez (1-95, alapértelmezett: 60)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 323
-#: src/bigocrpdf/cli_parser.py:321
+#: src/bigocrpdf/cli_parser.py:333
 msgid "Target DPI for images (default: 150)"
 msgstr "Cél DPI képekhez (alapértelmezett: 150)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 327
-#: src/bigocrpdf/cli_parser.py:326
+#: src/bigocrpdf/cli_parser.py:338
 msgid "Rotate pages in a PDF"
 msgstr "Oldalak forgatása PDF-ben"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 335
-#: src/bigocrpdf/cli_parser.py:336
+#: src/bigocrpdf/cli_parser.py:348
 msgid "Rotation angle in degrees (clockwise)"
 msgstr "Forgásszög fokban (óramutató járása szerint)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 341
-#: src/bigocrpdf/cli_parser.py:342
+#: src/bigocrpdf/cli_parser.py:354
 msgid "Pages to rotate (e.g. '1,3,5' or '1-5'). Default: all."
 msgstr "Forgatandó oldalak (pl. '1,3,5' vagy '1-5'). Alapértelmezett: mind."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 345
-#: src/bigocrpdf/cli_parser.py:347
+#: src/bigocrpdf/cli_parser.py:359
 msgid "Remove pages from a PDF"
 msgstr "Oldalak eltávolítása PDF-ből"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 352
-#: src/bigocrpdf/cli_parser.py:353
+#: src/bigocrpdf/cli_parser.py:365
 msgid "Pages to delete (e.g. '3,5,7' or '2-4')"
 msgstr "Törlendő oldalak (pl. '3,5,7' vagy '2-4')"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 356
-#: src/bigocrpdf/cli_parser.py:358
+#: src/bigocrpdf/cli_parser.py:370
 msgid "Extract pages to a new PDF"
 msgstr "Oldalak kinyerése új PDF-be"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 363
-#: src/bigocrpdf/cli_parser.py:364
+#: src/bigocrpdf/cli_parser.py:376
 msgid "Pages to extract (e.g. '3-5' or '1,3,7')"
 msgstr "Kinyerendő oldalak (pl. '3-5' vagy '1,3,7')"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 367
-#: src/bigocrpdf/cli_parser.py:369
+#: src/bigocrpdf/cli_parser.py:381
 msgid "Insert pages from another PDF"
 msgstr "Oldalak beszúrása másik PDF-ből"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 368
-#: src/bigocrpdf/cli_parser.py:370
+#: src/bigocrpdf/cli_parser.py:382
 msgid "Target PDF file"
 msgstr "Cél PDF fájl"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 376
-#: src/bigocrpdf/cli_parser.py:380
+#: src/bigocrpdf/cli_parser.py:392
 msgid "PDF file to insert pages from"
 msgstr "PDF fájl, amelyből oldalakat szúr be"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 383
-#: src/bigocrpdf/cli_parser.py:387
+#: src/bigocrpdf/cli_parser.py:399
 msgid "Insert at this page position (1-indexed, 0 = append). Default: append."
 msgstr ""
 "Beszúrás ennél az oldalpozíciónál (1-től indexelve, 0 = végére). "
 "Alapértelmezett: végére."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 389
-#: src/bigocrpdf/cli_parser.py:393
+#: src/bigocrpdf/cli_parser.py:405
 msgid "Pages to insert from the source (e.g. '1-3'). Default: all."
 msgstr "Beszúrandó oldalak a forrásból (pl. '1-3'). Alapértelmezett: mind."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 393
-#: src/bigocrpdf/cli_parser.py:398
+#: src/bigocrpdf/cli_parser.py:410
 msgid "Reorder or reverse pages"
 msgstr "Oldalak átrendezése vagy megfordítása"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 401
-#: src/bigocrpdf/cli_parser.py:405
+#: src/bigocrpdf/cli_parser.py:417
 msgid "New page order (e.g. '3,1,2,5,4')"
 msgstr "Új oldalsorrend (pl. '3,1,2,5,4')"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 406
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 197
-#: src/bigocrpdf/cli_parser.py:407
+#: src/bigocrpdf/cli_parser.py:419
 msgid "Reverse the page order"
 msgstr "Oldalsorrend megfordítása"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 419
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 430
-#: src/bigocrpdf/cli_parser.py:411
+#: src/bigocrpdf/cli_parser.py:423
 msgid "Input PDF file (must have text layer)"
 msgstr "Bemeneti PDF fájl (szövegréteg szükséges)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 418
-#: src/bigocrpdf/cli_parser.py:415
+#: src/bigocrpdf/cli_parser.py:427
 msgid "Export OCR'd PDF as ODF document"
 msgstr "OCR-es PDF exportálása ODF dokumentumként"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 425
-#: src/bigocrpdf/cli_parser.py:417
+#: src/bigocrpdf/cli_parser.py:429
 msgid "Output ODF file (default: same name as input with .odt)"
 msgstr "Kimeneti ODF fájl (alapértelmezett: azonos név .odt kiterjesztéssel)"
 
@@ -601,45 +614,53 @@ msgstr "Kimeneti ODF fájl (alapértelmezett: azonos név .odt kiterjesztéssel)
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 35
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_options_controller.py, line: 233
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 422
-#: src/bigocrpdf/cli_parser.py:422 src/bigocrpdf/ui/conclusion_export_mixin.py:35
+#: src/bigocrpdf/cli_parser.py:434
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:35
 #: src/bigocrpdf/ui/pdf_options_controller.py:233
 msgid "Preserve Text Layout"
 msgstr "Szövegelrendezés megőrzése"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 429
-#: src/bigocrpdf/cli_parser.py:427
+#: src/bigocrpdf/cli_parser.py:439
 msgid "Export OCR'd PDF as formatted text"
 msgstr "OCR-es PDF exportálása formázott szövegként"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 436
-#: src/bigocrpdf/cli_parser.py:429
+#: src/bigocrpdf/cli_parser.py:441
 msgid "Output text file (default: same name as input with .txt)"
 msgstr "Kimeneti szövegfájl (alapértelmezett: azonos név .txt kiterjesztéssel)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 443
-#: src/bigocrpdf/cli_parser.py:434
+#: src/bigocrpdf/cli_parser.py:446
 msgid "Export OCR'd PDF as Markdown"
 msgstr "OCR-rel ellátott PDF exportálása Markdown formátumban"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 450
-#: src/bigocrpdf/cli_parser.py:436
+#: src/bigocrpdf/cli_parser.py:448
 msgid "Output Markdown file (default: same name as input with .md)"
 msgstr ""
 "Kimeneti Markdown-fájl (alapértelmezett: ugyanaz a név, mint a bemenet, .md "
 "kiterjesztéssel)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 455
-#: src/bigocrpdf/cli_parser.py:441
+#: src/bigocrpdf/cli_parser.py:453
 msgid "Prepend YAML front-matter (title, source, page count, date)."
 msgstr "YAML-fejléc hozzáadása (cím, forrás, oldalszám, dátum)."
 
+#: src/bigocrpdf/cli_parser.py:473
+msgid ""
+"Export from structured OCR JSON written earlier by 'ocr --sidecar-json', "
+"instead of reading the PDF text layer."
+msgstr ""
+"Exportálás a korábban az „ocr --sidecar-json” által írt strukturált OCR JSON-ból, a PDF szövegrétegének olvasása helyett."
+
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 414
-#: src/bigocrpdf/cli_parser.py:459
+#: src/bigocrpdf/cli_parser.py:481
 msgid "Open interactive GUI editor"
 msgstr "Interaktív grafikus szerkesztő megnyitása"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 415
-#: src/bigocrpdf/cli_parser.py:460
+#: src/bigocrpdf/cli_parser.py:482
 msgid "PDF file to edit"
 msgstr "Szerkesztendő PDF fájl"
 
@@ -796,38 +817,38 @@ msgid "Failed to save text file: {0}"
 msgstr "A szövegfájl mentése nem sikerült: {0}"
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 34
-#: src/bigocrpdf/services/pdf_operations.py:70
+#: src/bigocrpdf/services/pdf_operations.py:67
 msgid "Could not find the file. Was it moved or deleted?"
 msgstr "A fájl nem található. Áthelyezték vagy törölték?"
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 36
-#: src/bigocrpdf/services/pdf_operations.py:72
+#: src/bigocrpdf/services/pdf_operations.py:69
 msgid "Cannot write to this folder. Choose a different location."
 msgstr "Nem lehet írni ebbe a mappába. Válasszon másik helyet."
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 38
-#: src/bigocrpdf/services/pdf_operations.py:74
+#: src/bigocrpdf/services/pdf_operations.py:71
 msgid "This PDF is password-protected. Remove the password first."
 msgstr "Ez a PDF jelszóval védett. Először távolítsa el a jelszót."
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 40
-#: src/bigocrpdf/services/pdf_operations.py:76
+#: src/bigocrpdf/services/pdf_operations.py:73
 #, python-brace-format
 msgid "The PDF file appears to be damaged or invalid: {error}"
 msgstr "A PDF fájl sérültnek vagy érvénytelennek tűnik: {error}"
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 370
-#: src/bigocrpdf/services/pdf_operations.py:512
+#: src/bigocrpdf/services/pdf_operations.py:479
 msgid "No input files provided."
 msgstr "Nem adtak meg bemeneti fájlokat."
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 541
-#: src/bigocrpdf/services/pdf_operations.py:541
+#: src/bigocrpdf/services/pdf_operations.py:508
 msgid "No readable input files were provided."
 msgstr "Nem lett megadva olvasható bemeneti fájl."
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 85
-#: src/bigocrpdf/services/processor.py:127
+#: src/bigocrpdf/services/processor.py:123
 #, python-brace-format
 msgid "Started OCR processing for {count} file using RapidOCR"
 msgid_plural "Started OCR processing for {count} files using RapidOCR"
@@ -837,7 +858,7 @@ msgstr[1] "{count} fájl OCR-feldolgozása megkezdődött a RapidOCR használat�
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 82
-#: src/bigocrpdf/services/processor.py:142
+#: src/bigocrpdf/services/processor.py:138
 #, python-brace-format
 msgid "Error starting OCR processing: {0}"
 msgstr "Hiba az OCR feldolgozás indításakor: {0}"
@@ -845,35 +866,36 @@ msgstr "Hiba az OCR feldolgozás indításakor: {0}"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 92
-#: src/bigocrpdf/services/processor.py:155
+#: src/bigocrpdf/services/processor.py:151
 msgid "No files to process"
 msgstr "Nincsenek feldolgozandó fájlok"
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 135
-#: src/bigocrpdf/services/processor.py:199
+#: src/bigocrpdf/services/processor.py:195
 msgid "Processing stopped by user"
 msgstr "A feldolgozást a felhasználó leállította"
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 178
-#: src/bigocrpdf/services/processor.py:208
+#: src/bigocrpdf/services/processor.py:204
 #, python-brace-format
 msgid "Processing thread error: {0}"
 msgstr "Feldolgozási szál hibája: {0}"
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 158
-#: src/bigocrpdf/services/processor.py:229
+#: src/bigocrpdf/services/processor.py:225
 #, python-brace-format
 msgid "Processing cancelled by user during file: {0}"
-msgstr "A felhasználó megszakította a feldolgozást a fájl feldolgozása közben: {0}"
+msgstr ""
+"A felhasználó megszakította a feldolgozást a fájl feldolgozása közben: {0}"
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 177
-#: src/bigocrpdf/services/processor.py:232
+#: src/bigocrpdf/services/processor.py:228
 #, python-brace-format
 msgid "Out of memory processing {0}"
 msgstr "Memóriahiány a {0} feldolgozása során"
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 163
-#: src/bigocrpdf/services/processor.py:284
+#: src/bigocrpdf/services/processor.py:280
 #, python-brace-format
 msgid "Error processing {0}: {1}"
 msgstr "Hiba a(z) {0} feldolgozása során: {1}"
@@ -881,13 +903,13 @@ msgstr "Hiba a(z) {0} feldolgozása során: {1}"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 136
-#: src/bigocrpdf/services/processor.py:309
+#: src/bigocrpdf/services/processor.py:305
 #, python-brace-format
 msgid "Error: File not found or invalid: {0}"
 msgstr "Hiba: A fájl nem található vagy érvénytelen: {0}"
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 223
-#: src/bigocrpdf/services/processor.py:346
+#: src/bigocrpdf/services/processor.py:342
 #, python-brace-format
 msgid "Processed {filename}: Pages: {pages} · Words: {words}"
 msgstr "Feldolgozva {filename}: Oldalak: {pages} · Szavak: {words}"
@@ -895,7 +917,7 @@ msgstr "Feldolgozva {filename}: Oldalak: {pages} · Szavak: {words}"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 172
-#: src/bigocrpdf/services/processor.py:507
+#: src/bigocrpdf/services/processor.py:489
 #, python-brace-format
 msgid "Could not determine output directory for {0}"
 msgstr "Nem sikerült meghatározni a kimeneti könyvtárat a(z) {0} számára."
@@ -903,7 +925,7 @@ msgstr "Nem sikerült meghatározni a kimeneti könyvtárat a(z) {0} számára."
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 185
-#: src/bigocrpdf/services/processor.py:514
+#: src/bigocrpdf/services/processor.py:496
 #, python-brace-format
 msgid "Error creating output path for {0}: {1}"
 msgstr "Hiba az {0} kimeneti útvonal létrehozásakor: {1}"
@@ -911,7 +933,7 @@ msgstr "Hiba az {0} kimeneti útvonal létrehozásakor: {1}"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 388
-#: src/bigocrpdf/services/processor.py:550
+#: src/bigocrpdf/services/processor.py:532
 #, python-brace-format
 msgid "Error getting OCR languages: {0}"
 msgstr "Hiba az OCR nyelvek lekérésekor: {0}"
@@ -919,7 +941,7 @@ msgstr "Hiba az OCR nyelvek lekérésekor: {0}"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 508
-#: src/bigocrpdf/services/processor.py:633
+#: src/bigocrpdf/services/processor.py:615
 #, python-brace-format
 msgid "Removed processed file from queue: {0}"
 msgstr "Feldolgozott fájl eltávolítva a sorból: {0}"
@@ -1066,13 +1088,14 @@ msgstr "A képernyőfelvétel sikertelen."
 #: src/bigocrpdf/services/screen_capture.py:536
 #: src/bigocrpdf/ui/image_ocr_window.py:985
 msgid "Screen capture failed. Please try again or open an image file."
-msgstr "A képernyőfelvétel sikertelen. Próbálja újra, vagy nyisson meg egy képfájlt."
+msgstr ""
+"A képernyőfelvétel sikertelen. Próbálja újra, vagy nyisson meg egy képfájlt."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 118
 #: src/bigocrpdf/services/screen_capture.py:506
 msgid ""
-"No screenshot tool available. Please install spectacle, gnome-screenshot, or"
-" flameshot."
+"No screenshot tool available. Please install spectacle, gnome-screenshot, or "
+"flameshot."
 msgstr ""
 "Nincs elérhető képernyőkép eszköz. Kérjük, telepítse a spectacle-t, a gnome-"
 "screenshot-ot vagy a flameshot-ot."
@@ -1286,8 +1309,8 @@ msgstr "Teljes felbontású felismerés"
 # File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 71
 #: src/bigocrpdf/ui/advanced_dialog.py:49
 msgid ""
-"Analyzes the image at full resolution for text detection. Finds more text in"
-" high-resolution scans but takes longer. The faster mode is good enough for "
+"Analyzes the image at full resolution for text detection. Finds more text in "
+"high-resolution scans but takes longer. The faster mode is good enough for "
 "most documents."
 msgstr ""
 "Teljes felbontásban elemzi a képet szövegfelismeréshez. Több szöveget talál "
@@ -1303,8 +1326,8 @@ msgstr "Haladó"
 # File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 111
 #: src/bigocrpdf/ui/advanced_dialog.py:88
 msgid ""
-"Fine-tune how OCR text recognition works. The default settings work well for"
-" most documents."
+"Fine-tune how OCR text recognition works. The default settings work well for "
+"most documents."
 msgstr ""
 "Az OCR szövegfelismerés finomhangolása. Az alapértelmezett beállítások a "
 "legtöbb dokumentumhoz megfelelőek."
@@ -1321,7 +1344,8 @@ msgstr "Exportálás OpenDocument formátumba"
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:36
 #: src/bigocrpdf/ui/pdf_options_controller.py:234
 msgid "Turn off for easier paragraph, table, and column editing"
-msgstr "Kapcsolja ki a bekezdések, táblázatok és hasábok egyszerűbb szerkesztéséhez"
+msgstr ""
+"Kapcsolja ki a bekezdések, táblázatok és hasábok egyszerűbb szerkesztéséhez"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 65
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:47
@@ -1377,11 +1401,11 @@ msgstr "A távoli helyszínek nem támogatottak."
 # line: 1752
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:304
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:309
-#: src/bigocrpdf/ui/file_save_controller.py:84 src/bigocrpdf/ui/header_bar.py:164
-#: src/bigocrpdf/ui/image_ocr_window.py:737
+#: src/bigocrpdf/ui/file_save_controller.py:84
+#: src/bigocrpdf/ui/header_bar.py:164 src/bigocrpdf/ui/image_ocr_window.py:737
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:87
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:191
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:223
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:189
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:221
 #: src/bigocrpdf/ui/pdf_options_controller.py:55
 #: src/bigocrpdf/ui/pdf_options_controller.py:165
 #: src/bigocrpdf/ui/session_recovery_controller.py:59
@@ -1628,6 +1652,7 @@ msgstr "Nézze meg a dokumentumban található szöveget."
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 473
 #: src/bigocrpdf/ui/conclusion_ui_mixin.py:320
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:322
 msgid "Export to other formats"
 msgstr "Exportálás más formátumokba"
 
@@ -1712,10 +1737,9 @@ msgstr "Beágyazott képek javítása"
 # File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 93
 #: src/bigocrpdf/ui/corrections_dialog.py:71
 msgid ""
-"Apply image corrections (deskew, dewarp, perspective) to images inside pages"
-" that already contain text. Normally skipped because these images are "
-"already well-aligned. Enable only if embedded images appear crooked or "
-"distorted."
+"Apply image corrections (deskew, dewarp, perspective) to images inside pages "
+"that already contain text. Normally skipped because these images are already "
+"well-aligned. Enable only if embedded images appear crooked or distorted."
 msgstr ""
 "Képkorrekciók alkalmazása (kiegyenesítés, görbületkorrekció, "
 "perspektívakorrekció) a már szöveget tartalmazó oldalak képeire. Ezek a "
@@ -1965,15 +1989,16 @@ msgid "Grid view (click for list)"
 msgstr "Rácsnézet (kattintson a listához)"
 
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 218
-#: src/bigocrpdf/ui/header_bar.py:218
+#: src/bigocrpdf/ui/header_bar.py:223
 msgid "Start OCR processing"
 msgstr "OCR-feldolgozás indítása"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1139
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 221
-#: src/bigocrpdf/ui/header_bar.py:221 src/bigocrpdf/ui/image_ocr_window.py:1139
-msgid "OCR is unavailable. Install the required engine and restart the application."
+#: src/bigocrpdf/ui/header_bar.py:226 src/bigocrpdf/ui/image_ocr_window.py:1139
+msgid ""
+"OCR is unavailable. Install the required engine and restart the application."
 msgstr ""
 "Az OCR nem érhető el. Telepítse a szükséges motort, és indítsa újra az "
 "alkalmazást."
@@ -2049,8 +2074,8 @@ msgstr "Másolás"
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
 #: src/bigocrpdf/ui/image_ocr_window.py:782
 #: src/bigocrpdf/ui/image_ocr_window.py:784
-#: src/bigocrpdf/ui/text_viewer_controller.py:216
-#: src/bigocrpdf/ui/text_viewer_controller.py:217
+#: src/bigocrpdf/ui/text_viewer_controller.py:208
+#: src/bigocrpdf/ui/text_viewer_controller.py:209
 msgid "Copy text to clipboard"
 msgstr "Szöveg másolása a vágólapra"
 
@@ -2394,174 +2419,72 @@ msgstr "Tömörítés sikertelen: {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
 # 169
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:169
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:167
 #, python-brace-format
 msgid "Failed to save compressed PDF: {}"
 msgstr "Nem sikerült menteni a tömörített PDF-et: {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 828
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:179
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:177
 msgid "Split by Page Count"
 msgstr "Felosztás oldalszám szerint"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 829
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:180
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:178
 msgid "Split the document into parts with a fixed number of pages each."
 msgstr "A dokumentum felosztása rögzített oldalszámú részekre."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 833
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:184
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:182
 msgid "Pages per file:"
 msgstr "Oldalak fájlonként:"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 841
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 873
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:192
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:224
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:190
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:222
 msgid "Split"
 msgstr "Felosztás"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 860
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:211
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:209
 msgid "Split by File Size"
 msgstr "Felosztás fájlméret szerint"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 861
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:212
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:210
 msgid "Split the document so each part is at most the specified size."
 msgstr ""
 "A dokumentum felosztása úgy, hogy minden rész legfeljebb a megadott méretű "
 "legyen."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 865
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:216
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:214
 msgid "Max size (MB):"
 msgstr "Maximális méret (MB):"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 889
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:240
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:238
 msgid "Select Output Directory"
 msgstr "Kimeneti könyvtár kiválasztása"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 918
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:275
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:273
 msgid "Failed to prepare document for splitting."
 msgstr "A dokumentum előkészítése felosztáshoz sikertelen."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
 # 291
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:291
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:289
 #, python-brace-format
 msgid "Parts: {parts} · Pages: {pages}"
 msgstr "Létrehozott fájlok: {parts} · Oldalak: {pages}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 939
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:297
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:295
 #, python-brace-format
 msgid "Split failed: {}"
 msgstr "Felosztás sikertelen: {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 72
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:122
-#, python-brace-format
-msgid "PDF Editor - {}"
-msgstr "PDF Szerkesztő - {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 397
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:217
-msgid "Could not open PDF file or file has no pages."
-msgstr "Nem sikerült megnyitni a PDF fájlt, vagy a fájl nem tartalmaz oldalakat."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 428
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:249
-#, python-brace-format
-msgid "Failed to load PDF: {}"
-msgstr "PDF betöltése nem sikerült: {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 605
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:259
-#, python-brace-format
-msgid "{total} page · {included} included"
-msgid_plural "{total} pages · {included} included"
-msgstr[0] "{total} oldal · bevonva: {included}"
-msgstr[1] "{total} oldal · bevonva: {included}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:266
-#, python-brace-format
-msgid "{count} selected"
-msgstr "{count} kijelölve"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 737
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:282
-#, python-brace-format
-msgid "{count} page selected"
-msgid_plural "{count} pages selected"
-msgstr[0] "{count} oldal kiválasztva"
-msgstr[1] "{count} oldal kiválasztva"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:337
-msgid "Saving…"
-msgstr "Mentés…"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 674
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:357
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:362
-msgid "Failed to save PDF."
-msgstr "PDF mentése sikertelen."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 822
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:451
-msgid "Save PDF As"
-msgstr "PDF mentése másként"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 836
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:464
-msgid "document.pdf"
-msgstr "document.pdf"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 854
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:493
-#, python-brace-format
-msgid "Saved: {}"
-msgstr "Mentve: {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:528
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:536
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:565
-msgid "Error saving changes."
-msgstr "Hiba a módosítások mentésekor."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 604
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:576
-msgid "Failed to merge PDF pages."
-msgstr "A PDF oldalak egyesítése nem sikerült."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 626
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:583
-msgid "Unsaved Changes"
-msgstr "Nem mentett módosítások"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 627
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:584
-msgid "What would you like to do with your changes?"
-msgstr "Mi történjen a módosításokkal?"
-
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 197
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 629
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:586
-#: src/bigocrpdf/ui/session_recovery_controller.py:60
-msgid "Discard"
-msgstr "Elvetés"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:587
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:238
-msgid "Apply"
-msgstr "Alkalmaz"
 
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 239
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:53
@@ -2689,6 +2612,12 @@ msgstr "PDF vagy képfájlok beszúrása"
 msgid "Save As"
 msgstr "Mentés másként"
 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:238
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:587
+msgid "Apply"
+msgstr "Alkalmaz"
+
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 320
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:242
 msgid "Save PDF to a new file (Ctrl+S)"
@@ -2744,6 +2673,103 @@ msgstr "Szerkesztő oldalsáv elrejtése"
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:341
 msgid "Show editor sidebar"
 msgstr "Szerkesztő oldalsáv megjelenítése"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 72
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:122
+#, python-brace-format
+msgid "PDF Editor - {}"
+msgstr "PDF Szerkesztő - {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 397
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:217
+msgid "Could not open PDF file or file has no pages."
+msgstr ""
+"Nem sikerült megnyitni a PDF fájlt, vagy a fájl nem tartalmaz oldalakat."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 428
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:249
+#, python-brace-format
+msgid "Failed to load PDF: {}"
+msgstr "PDF betöltése nem sikerült: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 605
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:259
+#, python-brace-format
+msgid "{total} page · {included} included"
+msgid_plural "{total} pages · {included} included"
+msgstr[0] "{total} oldal · bevonva: {included}"
+msgstr[1] "{total} oldal · bevonva: {included}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:266
+#, python-brace-format
+msgid "{count} selected"
+msgstr "{count} kijelölve"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 737
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:282
+#, python-brace-format
+msgid "{count} page selected"
+msgid_plural "{count} pages selected"
+msgstr[0] "{count} oldal kiválasztva"
+msgstr[1] "{count} oldal kiválasztva"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:337
+msgid "Saving…"
+msgstr "Mentés…"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 674
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:357
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:362
+msgid "Failed to save PDF."
+msgstr "PDF mentése sikertelen."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 822
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:451
+msgid "Save PDF As"
+msgstr "PDF mentése másként"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 836
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:464
+msgid "document.pdf"
+msgstr "document.pdf"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 854
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:493
+#, python-brace-format
+msgid "Saved: {}"
+msgstr "Mentve: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:528
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:536
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:565
+msgid "Error saving changes."
+msgstr "Hiba a módosítások mentésekor."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 604
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:576
+msgid "Failed to merge PDF pages."
+msgstr "A PDF oldalak egyesítése nem sikerült."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 626
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:583
+msgid "Unsaved Changes"
+msgstr "Nem mentett módosítások"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 627
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:584
+msgid "What would you like to do with your changes?"
+msgstr "Mi történjen a módosításokkal?"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 197
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 629
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:586
+#: src/bigocrpdf/ui/session_recovery_controller.py:60
+msgid "Discard"
+msgstr "Elvetés"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 37
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 53
@@ -3025,8 +3051,8 @@ msgstr "Felülírja a meglévő fájlokat?"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 234
 #: src/bigocrpdf/ui/pdf_options_controller.py:161
 msgid ""
-"If files with the same name already exist in the output folder, they will be"
-" permanently replaced. This cannot be undone."
+"If files with the same name already exist in the output folder, they will be "
+"permanently replaced. This cannot be undone."
 msgstr ""
 "Ha azonos nevű fájlok már léteznek a kimeneti mappában, véglegesen "
 "felülíródnak. Ez nem vonható vissza."
@@ -3487,7 +3513,8 @@ msgstr[0] "Ide húzott {count} képet. Hogyan szeretné hozzáadni?"
 msgstr[1] "Ide húzott {count} képet. Hogyan szeretné hozzáadni?"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 1082
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1232 src/bigocrpdf/ui/window_ui.py:116
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1232
+#: src/bigocrpdf/ui/window_ui.py:116
 #, python-brace-format
 msgid "{count} file in queue"
 msgid_plural "{count} files in queue"
@@ -3760,8 +3787,10 @@ msgstr "<b>Befejezve: {completed}/{total}</b> · Maradt: {remaining}"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1050
 #: src/bigocrpdf/ui/terminal_page.py:285
 #, python-brace-format
-msgid "<b>OCR processing complete!</b> {total} file processed · Total time: {time}"
-msgid_plural "<b>OCR processing complete!</b> {total} files processed · Total time: {time}"
+msgid ""
+"<b>OCR processing complete!</b> {total} file processed · Total time: {time}"
+msgid_plural ""
+"<b>OCR processing complete!</b> {total} files processed · Total time: {time}"
 msgstr[0] ""
 "<b>OCR feldolgozás befejeződött!</b> {total} fájl feldolgozva · Teljes idő: "
 "{time}"
@@ -3787,7 +3816,8 @@ msgstr "Fájl {current}/{total}: <b>{filename}</b> - {status} • Idő: {time}"
 #: src/bigocrpdf/ui/terminal_page.py:323
 #, python-brace-format
 msgid "Processing file {current}/{total}: <b>{filename}</b> • Time: {time}"
-msgstr "A(z) {current}/{total}. fájl feldolgozása: <b>{filename}</b> • Idő: {time}"
+msgstr ""
+"A(z) {current}/{total}. fájl feldolgozása: <b>{filename}</b> • Idő: {time}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 445
 #: src/bigocrpdf/ui/terminal_page.py:334
@@ -3820,16 +3850,16 @@ msgstr "{percent}%"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
 # line: 708
-#: src/bigocrpdf/ui/text_viewer_controller.py:90
+#: src/bigocrpdf/ui/text_viewer_controller.py:82
 msgid ""
-"OCR processing was completed for this file, but the extracted text could not"
-" be found."
+"OCR processing was completed for this file, but the extracted text could not "
+"be found."
 msgstr ""
 "Az OCR feldolgozás befejeződött ehhez a fájlhoz, de a kinyert szöveg nem "
 "található."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
-#: src/bigocrpdf/ui/text_viewer_controller.py:162
+#: src/bigocrpdf/ui/text_viewer_controller.py:154
 #, python-brace-format
 msgid "{count} word"
 msgid_plural "{count} words"
@@ -3837,7 +3867,7 @@ msgstr[0] "{count} szó"
 msgstr[1] "{count} szó"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
-#: src/bigocrpdf/ui/text_viewer_controller.py:165
+#: src/bigocrpdf/ui/text_viewer_controller.py:157
 #, python-brace-format
 msgid "{count} character"
 msgid_plural "{count} characters"
@@ -3845,71 +3875,71 @@ msgstr[0] "{count} karakter"
 msgstr[1] "{count} karakter"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
-#: src/bigocrpdf/ui/text_viewer_controller.py:169
+#: src/bigocrpdf/ui/text_viewer_controller.py:161
 #, python-brace-format
 msgid "{words} · {characters}"
 msgstr "{words} · {characters}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 371
-#: src/bigocrpdf/ui/text_viewer_controller.py:222
-#: src/bigocrpdf/ui/text_viewer_controller.py:225
+#: src/bigocrpdf/ui/text_viewer_controller.py:214
+#: src/bigocrpdf/ui/text_viewer_controller.py:217
 msgid "Save TXT"
 msgstr "TXT mentése"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 203
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 204
-#: src/bigocrpdf/ui/text_viewer_controller.py:245
+#: src/bigocrpdf/ui/text_viewer_controller.py:237
 msgid "Decrease font size"
 msgstr "Betűméret csökkentése"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 209
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 210
-#: src/bigocrpdf/ui/text_viewer_controller.py:252
+#: src/bigocrpdf/ui/text_viewer_controller.py:244
 msgid "Increase font size"
 msgstr "Betűméret növelése"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
 # line: 1324
-#: src/bigocrpdf/ui/text_viewer_controller.py:359
+#: src/bigocrpdf/ui/text_viewer_controller.py:351
 msgid "Search in text..."
 msgstr "Keresés a szövegben..."
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 287
-#: src/bigocrpdf/ui/text_viewer_controller.py:361
+#: src/bigocrpdf/ui/text_viewer_controller.py:353
 msgid "Search in text"
 msgstr "Keresés a szövegben"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 294
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 295
-#: src/bigocrpdf/ui/text_viewer_controller.py:368
-#: src/bigocrpdf/ui/text_viewer_controller.py:369
+#: src/bigocrpdf/ui/text_viewer_controller.py:360
+#: src/bigocrpdf/ui/text_viewer_controller.py:361
 msgid "Previous match"
 msgstr "Előző találat"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 301
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 302
-#: src/bigocrpdf/ui/text_viewer_controller.py:375
-#: src/bigocrpdf/ui/text_viewer_controller.py:376
+#: src/bigocrpdf/ui/text_viewer_controller.py:367
+#: src/bigocrpdf/ui/text_viewer_controller.py:368
 msgid "Next match"
 msgstr "Következő találat"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 507
-#: src/bigocrpdf/ui/text_viewer_controller.py:504
+#: src/bigocrpdf/ui/text_viewer_controller.py:496
 msgid "No matches"
 msgstr "Nincsenek egyezések."
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 458
-#: src/bigocrpdf/ui/text_viewer_controller.py:545
+#: src/bigocrpdf/ui/text_viewer_controller.py:537
 msgid "Wrapped to first match"
 msgstr "Ugrás az első találatra"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 467
-#: src/bigocrpdf/ui/text_viewer_controller.py:558
+#: src/bigocrpdf/ui/text_viewer_controller.py:550
 msgid "Wrapped to last match"
 msgstr "Ugrás az utolsó találatra"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 449
-#: src/bigocrpdf/ui/text_viewer_controller.py:588
+#: src/bigocrpdf/ui/text_viewer_controller.py:580
 #, python-brace-format
 msgid "{current}/{total}"
 msgstr "{current}/{total}"
@@ -3927,8 +3957,8 @@ msgid ""
 "documents."
 msgstr ""
 "A Big OCR PDF optikai karakterfelismeréssel egészíti ki a PDF-fájlokat, így "
-"azok kereshetővé válnak, és a beolvasott dokumentumok szövege kijelölhető és"
-" másolható."
+"azok kereshetővé válnak, és a beolvasott dokumentumok szövege kijelölhető és "
+"másolható."
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 335
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:94
@@ -3963,7 +3993,8 @@ msgstr "Képfájlok hozzáadása és új PDF-ek létrehozása belőlük."
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 239
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:110
 msgid "Rearrange, rotate or remove pages before processing"
-msgstr "Oldalak átrendezése, elforgatása vagy eltávolítása a feldolgozás előtt."
+msgstr ""
+"Oldalak átrendezése, elforgatása vagy eltávolítása a feldolgozás előtt."
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:111
@@ -4048,7 +4079,8 @@ msgstr "Fő nézet"
 # File: bigocrpdf/src/bigocrpdf/utils/temp_manager.py, line: 85
 #: src/bigocrpdf/utils/temp_manager.py:88
 #, python-brace-format
-msgid "Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
+msgid ""
+"Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
 msgstr ""
 "Nincs elég lemezterület. {needed:.0f} MB szükséges, de csak {free:.0f} MB "
 "áll rendelkezésre."
@@ -4109,4 +4141,3 @@ msgstr "Oldalak szerkesztése"
 #: usr/share/nautilus-python/extensions/bigocrpdf-actions.py:102
 msgid "Create PDF"
 msgstr "PDF létrehozása"
-

@@ -259,9 +259,7 @@ def test_compress_save_copies_atomically_then_removes_owned_temp() -> None:
     dialog.save_finish.return_value.get_path.return_value = "/output/compressed.pdf"
 
     with (
-        patch(
-            "bigocrpdf.services.rapidocr_service.ocr_document_io.copy_pdf_with_ocr_invalidation"
-        ) as copy_pdf,
+        patch("bigocrpdf.utils.durable_writes.copy_file_atomically") as copy_pdf,
         patch("bigocrpdf.utils.temp_manager.remove_tracked_file") as remove_file,
     ):
         controller._finish_compress_save(dialog, MagicMock(), "/tmp/compressed.pdf", "done")
@@ -323,7 +321,7 @@ def test_compress_save_failure_removes_owned_temp() -> None:
 
     with (
         patch(
-            "bigocrpdf.services.rapidocr_service.ocr_document_io.copy_pdf_with_ocr_invalidation",
+            "bigocrpdf.utils.durable_writes.copy_file_atomically",
             side_effect=OSError("disk full"),
         ),
         patch("bigocrpdf.utils.temp_manager.remove_tracked_file") as remove_file,

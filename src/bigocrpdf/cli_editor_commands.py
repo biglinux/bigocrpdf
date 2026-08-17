@@ -40,11 +40,9 @@ def _standalone_save(doc: object, original_path: Path, logger: logging.Logger) -
     import stat
     import tempfile
 
-    from bigocrpdf.services.rapidocr_service.ocr_document_io import (
-        publish_pdf_with_ocr_invalidation,
-    )
     from bigocrpdf.ui.pdf_editor.page_model import PDFDocument
     from bigocrpdf.ui.pdf_editor.page_operations import apply_changes_to_pdf
+    from bigocrpdf.utils.durable_writes import publish_file_atomically
 
     if not isinstance(doc, PDFDocument):
         print("Error: failed to save PDF", file=sys.stderr)
@@ -68,7 +66,7 @@ def _standalone_save(doc: object, original_path: Path, logger: logging.Logger) -
         os.close(fd)
         fd = -1
         if apply_changes_to_pdf(doc, tmp):
-            publish_pdf_with_ocr_invalidation(
+            publish_file_atomically(
                 staged_path,
                 output,
                 overwrite=True,

@@ -40,7 +40,7 @@ from benchmarks.ocr_metrics import (
     word_error_rate,
 )
 from benchmarks.validate_text_layer import build_report
-from bigocrpdf.services.rapidocr_service.ocr_document_io import load_ocr_document_sidecar
+from bigocrpdf.services.rapidocr_service.ocr_document_io import load_ocr_document_json
 
 PROFILES: dict[str, dict[str, str]] = {
     "fast_cpu": {
@@ -372,6 +372,7 @@ def run_bigocrpdf(
     row: dict[str, Any],
     profile: dict[str, str],
     output_pdf: Path,
+    sidecar_json: Path,
     gpu_backend: str,
 ) -> tuple[subprocess.CompletedProcess[str], float | None]:
     input_pdf = row.get("pdf")
@@ -396,6 +397,10 @@ def run_bigocrpdf(
         profile["rec_batch_num"],
         "--gpu-backend",
         gpu_backend,
+        # Structured OCR is opt-in and never lands beside a user's file; the
+        # benchmark asks for it inside its own temporary directory.
+        "--sidecar-json",
+        str(sidecar_json),
     ]
     env = os.environ.copy()
     env["PYTHONPATH"] = str(ROOT / "src")
@@ -522,7 +527,8 @@ def benchmark_row(
 
     with tempfile.TemporaryDirectory(prefix="bigocrpdf_bench_") as temp_dir:
         output_pdf = Path(temp_dir) / "result.pdf"
-        result, peak_rss_mb = run_bigocrpdf(row, profile, output_pdf, gpu_backend)
+        sidecar_json = Path(temp_dir) / "result.bigocr.json"
+        result, peak_rss_mb = run_bigocrpdf(row, profile, output_pdf, sidecar_json, gpu_backend)
         elapsed = time.perf_counter() - started
         ground_truth_language = row.get("language")
         source_paths = row.get("_manifest_source_paths")
@@ -570,7 +576,7 @@ def benchmark_row(
             record["failure_reason"] = (result.stderr or result.stdout).strip()[:500]
             return record
 
-        record.update(read_ocr_sidecar_metadata(output_pdf))
+        record.update(read_ocr_sidecar_metadata(sidecar_json, output_pdf))
         effective_model_type = str(record.get("effective_model_type") or profile["model_type"])
         record["model_supports_ground_truth_language"] = _ppocrv6_supports_language(
             str(ground_truth_language or ""),
@@ -728,14 +734,14 @@ def _sha256_optional_path(raw_path: str | None) -> str | None:
         return None
 
 
-def read_ocr_sidecar_metadata(output_pdf: Path) -> dict[str, Any]:
-    """Read structured OCR sidecar diagnostics into benchmark fields."""
+def read_ocr_sidecar_metadata(sidecar_json: Path, output_pdf: Path) -> dict[str, Any]:
+    """Read structured OCR JSON diagnostics into benchmark fields."""
     try:
-        document = load_ocr_document_sidecar(output_pdf)
+        document = load_ocr_document_json(sidecar_json, output_pdf)
     except ValueError as exc:
         return {"ocr_sidecar_error": str(exc)}
     if document is None:
-        return {"ocr_sidecar_error": "missing OCR sidecar"}
+        return {"ocr_sidecar_error": "missing OCR JSON"}
 
     runtime = document.diagnostics.get("ocr_runtime") or {}
     if not isinstance(runtime, dict):

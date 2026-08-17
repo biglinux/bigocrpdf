@@ -248,6 +248,18 @@
         },
         {
           "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "from_json",
+          "nargs": null,
+          "options": [
+            "--from-json"
+          ],
+          "required": false,
+          "type": "Path"
+        },
+        {
+          "choices": null,
           "class": "_StoreTrueAction",
           "default": false,
           "dest": "front_matter",
@@ -298,6 +310,18 @@
         },
         {
           "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "from_json",
+          "nargs": null,
+          "options": [
+            "--from-json"
+          ],
+          "required": false,
+          "type": "Path"
+        },
+        {
+          "choices": null,
           "class": "_StoreTrueAction",
           "default": false,
           "dest": "preserve_text_layout",
@@ -342,6 +366,18 @@
           "options": [
             "-o",
             "--output"
+          ],
+          "required": false,
+          "type": "Path"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "from_json",
+          "nargs": null,
+          "options": [
+            "--from-json"
           ],
           "required": false,
           "type": "Path"
@@ -968,6 +1004,18 @@
           ],
           "required": false,
           "type": "int"
+        },
+        {
+          "choices": null,
+          "class": "_StoreAction",
+          "default": null,
+          "dest": "sidecar_json",
+          "nargs": "?",
+          "options": [
+            "--sidecar-json"
+          ],
+          "required": false,
+          "type": null
         },
         {
           "choices": null,

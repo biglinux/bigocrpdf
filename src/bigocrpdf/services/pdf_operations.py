@@ -27,11 +27,8 @@ from pathlib import Path
 import pikepdf
 
 from bigocrpdf.constants import MIN_IMAGE_DIMENSION_PX
-from bigocrpdf.services.rapidocr_service.ocr_document_io import (
-    OcrPdfPublication,
-    publish_ocr_pdf_publications,
-    publish_pdf_with_ocr_invalidation,
-)
+from bigocrpdf.services.rapidocr_service.ocr_document_io import publish_ocr_pdfs
+from bigocrpdf.utils.durable_writes import publish_file_atomically
 from bigocrpdf.utils.i18n import _
 
 logger = logging.getLogger(__name__)
@@ -152,7 +149,7 @@ def _save_pdf_atomically(pdf: pikepdf.Pdf, output_path: Path, **save_options) ->
         os.close(descriptor)
         descriptor = -1
         pdf.save(str(staged_path), **save_options)
-        publish_pdf_with_ocr_invalidation(
+        publish_file_atomically(
             staged_path,
             output_path,
             overwrite=True,
@@ -291,17 +288,7 @@ def split_by_pages(
                     end,
                     out_name,
                 )
-        published = publish_ocr_pdf_publications(
-            [
-                OcrPdfPublication(
-                    staged_pdf=staged_path,
-                    requested_pdf=out_path,
-                    unavailable_reason="pdf-split-without-structured-mapping",
-                )
-                for staged_path, out_path in publications
-            ],
-            overwrite=False,
-        )
+        published = publish_ocr_pdfs(publications, overwrite=False)
         result.output_files = [str(path) for path in published]
         result.parts = len(published)
 
@@ -404,17 +391,7 @@ def split_by_size(
 
             # Flush remaining pages
             _flush(part_pages)
-        published = publish_ocr_pdf_publications(
-            [
-                OcrPdfPublication(
-                    staged_pdf=staged_path,
-                    requested_pdf=out_path,
-                    unavailable_reason="pdf-split-without-structured-mapping",
-                )
-                for staged_path, out_path in publications
-            ],
-            overwrite=False,
-        )
+        published = publish_ocr_pdfs(publications, overwrite=False)
         result.output_files = [str(path) for path in published]
         result.parts = len(published)
 
@@ -473,17 +450,7 @@ def split_by_ranges(
                 _save_split_part(dst, staged_path)
                 publications.append((staged_path, out_path))
                 logger.info("Prepared pages %d-%d → %s", start, end, out_name)
-        published = publish_ocr_pdf_publications(
-            [
-                OcrPdfPublication(
-                    staged_pdf=staged_path,
-                    requested_pdf=out_path,
-                    unavailable_reason="pdf-split-without-structured-mapping",
-                )
-                for staged_path, out_path in publications
-            ],
-            overwrite=False,
-        )
+        published = publish_ocr_pdfs(publications, overwrite=False)
         result.output_files = [str(path) for path in published]
         result.parts = len(published)
 

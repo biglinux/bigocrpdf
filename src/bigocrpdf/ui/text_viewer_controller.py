@@ -55,7 +55,7 @@ class TextViewerController:
         win.present()
 
     def _get_extracted_text_for_file(self, file_path: str) -> str:
-        """Return cached, sidecar, temporary, or structured text for a file."""
+        """Return cached, sidecar, or structured text for a file."""
         cached_text = self._settings.extracted_text.get(file_path)
         if cached_text and cached_text.strip():
             return cached_text
@@ -65,14 +65,6 @@ class TextViewerController:
         if sidecar_text and sidecar_text.strip():
             self._settings.extracted_text[file_path] = sidecar_text
             return sidecar_text
-
-        temp_filename = f"temp_{os.path.basename(os.path.splitext(file_path)[0])}.txt"
-        temp_sidecar = os.path.join(os.path.dirname(file_path), ".temp", temp_filename)
-        temp_text = read_text_from_sidecar(temp_sidecar)
-        if temp_text and temp_text.strip():
-            logger.info("Found text in temporary file: %s", temp_sidecar)
-            self._settings.extracted_text[file_path] = temp_text
-            return temp_text
 
         if os.path.isfile(file_path) and file_path.lower().endswith(".pdf"):
             try:

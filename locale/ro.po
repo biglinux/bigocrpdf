@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 3.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-08-09 19:55-0300\n"
+"POT-Creation-Date: 2026-08-16 23:28-0300\n"
 "PO-Revision-Date: 2026-08-10 15:12+0000\n"
 "Last-Translator: BigLinux Translation Team <biglinux@biglinux.com.br>\n"
-"Language: ro\n"
 "Language-Team: Romanian\n"
+"Language: ro\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : (n == 0 || (n % 100 > 0 && n "
 "% 100 < 20)) ? 1 : 2);\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
@@ -98,8 +98,10 @@ msgstr "Format de fișier nesuportat"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
 # line: 1493
-#: src/bigocrpdf/application.py:405 src/bigocrpdf/ui/text_viewer_controller.py:228
-#: src/bigocrpdf/ui/text_viewer_controller.py:230 src/bigocrpdf/ui/widgets.py:81
+#: src/bigocrpdf/application.py:405
+#: src/bigocrpdf/ui/text_viewer_controller.py:220
+#: src/bigocrpdf/ui/text_viewer_controller.py:222
+#: src/bigocrpdf/ui/widgets.py:81
 msgid "Close"
 msgstr "Închide"
 
@@ -139,7 +141,7 @@ msgstr "Procesare"
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 110
 #: src/bigocrpdf/application.py:501 src/bigocrpdf/processing_controller.py:254
 #: src/bigocrpdf/processing_controller.py:286 src/bigocrpdf/ui/header_bar.py:92
-#: src/bigocrpdf/ui/header_bar.py:97
+#: src/bigocrpdf/ui/header_bar.py:97 src/bigocrpdf/ui/header_bar.py:216
 msgid "Start OCR"
 msgstr "Pornește OCR"
 
@@ -229,10 +231,10 @@ msgstr "Procesare OCR pentru fișiere PDF"
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 357
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 394
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 411
-#: src/bigocrpdf/cli_parser.py:85 src/bigocrpdf/cli_parser.py:275
-#: src/bigocrpdf/cli_parser.py:280 src/bigocrpdf/cli_parser.py:305
-#: src/bigocrpdf/cli_parser.py:327 src/bigocrpdf/cli_parser.py:348
-#: src/bigocrpdf/cli_parser.py:359 src/bigocrpdf/cli_parser.py:399
+#: src/bigocrpdf/cli_parser.py:85 src/bigocrpdf/cli_parser.py:287
+#: src/bigocrpdf/cli_parser.py:292 src/bigocrpdf/cli_parser.py:317
+#: src/bigocrpdf/cli_parser.py:339 src/bigocrpdf/cli_parser.py:360
+#: src/bigocrpdf/cli_parser.py:371 src/bigocrpdf/cli_parser.py:411
 msgid "Input PDF file"
 msgstr "Fișier PDF de intrare"
 
@@ -244,10 +246,10 @@ msgstr "Fișier PDF de intrare"
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 358
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 369
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 395
-#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:300
-#: src/bigocrpdf/cli_parser.py:307 src/bigocrpdf/cli_parser.py:329
-#: src/bigocrpdf/cli_parser.py:350 src/bigocrpdf/cli_parser.py:361
-#: src/bigocrpdf/cli_parser.py:372 src/bigocrpdf/cli_parser.py:401
+#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:312
+#: src/bigocrpdf/cli_parser.py:319 src/bigocrpdf/cli_parser.py:341
+#: src/bigocrpdf/cli_parser.py:362 src/bigocrpdf/cli_parser.py:373
+#: src/bigocrpdf/cli_parser.py:384 src/bigocrpdf/cli_parser.py:413
 msgid "Output PDF file"
 msgstr "Fișier PDF de ieșire"
 
@@ -326,7 +328,8 @@ msgstr "Folosește FP16 pentru backend-urile GPU experimentale compatibile."
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 176
 #: src/bigocrpdf/cli_parser.py:176
 msgid "Fail instead of falling back to CPU when GPU initialization fails."
-msgstr "Oprește procesarea în loc să treacă la CPU dacă inițializarea GPU eșuează."
+msgstr ""
+"Oprește procesarea în loc să treacă la CPU dacă inițializarea GPU eșuează."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 213
 #: src/bigocrpdf/cli_parser.py:181
@@ -431,175 +434,183 @@ msgstr "Format imagine în PDF-ul de ieșire. Implicit: original."
 msgid "Image quality for JPEG/WebP (1-95, default: 85)."
 msgstr "Calitate imagine JPEG/WebP (1-95, implicit: 85)."
 
+#: src/bigocrpdf/cli_parser.py:255
+msgid ""
+"Also write structured OCR data (text, word boxes, confidence, layout) as "
+"JSON. Nothing is written without this option. If FILE is omitted, the name "
+"is the output PDF with a .bigocr.json suffix."
+msgstr ""
+"Scrie și datele OCR structurate (text, casetele cuvintelor, încredere, aspect) ca JSON. Fără această opțiune nu se scrie nimic. Dacă FILE este omis, numele este PDF-ul de ieșire cu sufixul .bigocr.json."
+
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 262
-#: src/bigocrpdf/cli_parser.py:251
+#: src/bigocrpdf/cli_parser.py:263
 msgid "Debugging"
 msgstr "Depanare"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 267
-#: src/bigocrpdf/cli_parser.py:256
+#: src/bigocrpdf/cli_parser.py:268
 msgid "Save preprocessed images to this directory."
 msgstr "Salvează imaginile preprocesate în acest director."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 272
-#: src/bigocrpdf/cli_parser.py:261
+#: src/bigocrpdf/cli_parser.py:273
 msgid "Only run preprocessing (dewarp/deskew), save images, skip OCR."
 msgstr ""
 "Rulează doar preprocesarea (corectarea curburii/înclinării), salvează "
 "imaginile și omite OCR."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 410
-#: src/bigocrpdf/cli_parser.py:274
+#: src/bigocrpdf/cli_parser.py:286
 msgid "Show PDF metadata and page count"
 msgstr "Afișează metadate PDF și numărul de pagini"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 276
-#: src/bigocrpdf/cli_parser.py:279
+#: src/bigocrpdf/cli_parser.py:291
 msgid "Split PDF into smaller files"
 msgstr "Împarte PDF-ul în fișiere mai mici"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 278
-#: src/bigocrpdf/cli_parser.py:282
+#: src/bigocrpdf/cli_parser.py:294
 msgid "Output directory"
 msgstr "Director de ieșire"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 284
-#: src/bigocrpdf/cli_parser.py:285
+#: src/bigocrpdf/cli_parser.py:297
 msgid "Split every N pages"
 msgstr "Împarte la fiecare N pagini"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 290
-#: src/bigocrpdf/cli_parser.py:287
+#: src/bigocrpdf/cli_parser.py:299
 msgid "Maximum file size per part in megabytes"
 msgstr "Dimensiunea maximă pentru fiecare fișier rezultat, în megaocteți"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 296
-#: src/bigocrpdf/cli_parser.py:290
+#: src/bigocrpdf/cli_parser.py:302
 msgid "Explicit ranges (e.g. '1-5,6-10,11-15')"
 msgstr "Intervale explicite (ex. '1-5,6-10,11-15')"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 299
-#: src/bigocrpdf/cli_parser.py:293
+#: src/bigocrpdf/cli_parser.py:305
 msgid "Filename prefix for output parts"
 msgstr "Prefix de nume pentru fișierele rezultate"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 303
-#: src/bigocrpdf/cli_parser.py:298
+#: src/bigocrpdf/cli_parser.py:310
 msgid "Merge multiple PDFs into one"
 msgstr "Unește mai multe PDF-uri într-unul singur"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 304
-#: src/bigocrpdf/cli_parser.py:299
+#: src/bigocrpdf/cli_parser.py:311
 msgid "Input PDF files (in order)"
 msgstr "Fișiere PDF de intrare (în ordine)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 308
-#: src/bigocrpdf/cli_parser.py:304
+#: src/bigocrpdf/cli_parser.py:316
 msgid "Compress PDF to reduce file size"
 msgstr "Comprimă PDF-ul pentru a reduce dimensiunea"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 316
-#: src/bigocrpdf/cli_parser.py:314
+#: src/bigocrpdf/cli_parser.py:326
 msgid "JPEG quality for images (1-95, default: 60)"
 msgstr "Calitate JPEG pentru imagini (1-95, implicit: 60)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 323
-#: src/bigocrpdf/cli_parser.py:321
+#: src/bigocrpdf/cli_parser.py:333
 msgid "Target DPI for images (default: 150)"
 msgstr "DPI țintă pentru imagini (implicit: 150)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 327
-#: src/bigocrpdf/cli_parser.py:326
+#: src/bigocrpdf/cli_parser.py:338
 msgid "Rotate pages in a PDF"
 msgstr "Rotește paginile într-un PDF"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 335
-#: src/bigocrpdf/cli_parser.py:336
+#: src/bigocrpdf/cli_parser.py:348
 msgid "Rotation angle in degrees (clockwise)"
 msgstr "Unghi de rotație în grade (sens orar)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 341
-#: src/bigocrpdf/cli_parser.py:342
+#: src/bigocrpdf/cli_parser.py:354
 msgid "Pages to rotate (e.g. '1,3,5' or '1-5'). Default: all."
 msgstr "Pagini de rotit (ex. '1,3,5' sau '1-5'). Implicit: toate."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 345
-#: src/bigocrpdf/cli_parser.py:347
+#: src/bigocrpdf/cli_parser.py:359
 msgid "Remove pages from a PDF"
 msgstr "Elimină pagini dintr-un PDF"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 352
-#: src/bigocrpdf/cli_parser.py:353
+#: src/bigocrpdf/cli_parser.py:365
 msgid "Pages to delete (e.g. '3,5,7' or '2-4')"
 msgstr "Pagini de șters (ex. '3,5,7' sau '2-4')"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 356
-#: src/bigocrpdf/cli_parser.py:358
+#: src/bigocrpdf/cli_parser.py:370
 msgid "Extract pages to a new PDF"
 msgstr "Extrage pagini într-un PDF nou"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 363
-#: src/bigocrpdf/cli_parser.py:364
+#: src/bigocrpdf/cli_parser.py:376
 msgid "Pages to extract (e.g. '3-5' or '1,3,7')"
 msgstr "Pagini de extras (ex. '3-5' sau '1,3,7')"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 367
-#: src/bigocrpdf/cli_parser.py:369
+#: src/bigocrpdf/cli_parser.py:381
 msgid "Insert pages from another PDF"
 msgstr "Inserează pagini din alt PDF"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 368
-#: src/bigocrpdf/cli_parser.py:370
+#: src/bigocrpdf/cli_parser.py:382
 msgid "Target PDF file"
 msgstr "Fișier PDF țintă"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 376
-#: src/bigocrpdf/cli_parser.py:380
+#: src/bigocrpdf/cli_parser.py:392
 msgid "PDF file to insert pages from"
 msgstr "Fișier PDF din care se inserează pagini"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 383
-#: src/bigocrpdf/cli_parser.py:387
+#: src/bigocrpdf/cli_parser.py:399
 msgid "Insert at this page position (1-indexed, 0 = append). Default: append."
 msgstr ""
 "Inserează la această poziție (indexare de la 1, 0 = la sfârșit). Implicit: "
 "la sfârșit."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 389
-#: src/bigocrpdf/cli_parser.py:393
+#: src/bigocrpdf/cli_parser.py:405
 msgid "Pages to insert from the source (e.g. '1-3'). Default: all."
 msgstr "Pagini de inserat din sursă (ex. '1-3'). Implicit: toate."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 393
-#: src/bigocrpdf/cli_parser.py:398
+#: src/bigocrpdf/cli_parser.py:410
 msgid "Reorder or reverse pages"
 msgstr "Reordonează sau inversează paginile"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 401
-#: src/bigocrpdf/cli_parser.py:405
+#: src/bigocrpdf/cli_parser.py:417
 msgid "New page order (e.g. '3,1,2,5,4')"
 msgstr "Ordine nouă a paginilor (ex. '3,1,2,5,4')"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 406
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 197
-#: src/bigocrpdf/cli_parser.py:407
+#: src/bigocrpdf/cli_parser.py:419
 msgid "Reverse the page order"
 msgstr "Inversează ordinea paginilor"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 419
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 430
-#: src/bigocrpdf/cli_parser.py:411
+#: src/bigocrpdf/cli_parser.py:423
 msgid "Input PDF file (must have text layer)"
 msgstr "Fișier PDF de intrare (trebuie să aibă strat de text)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 418
-#: src/bigocrpdf/cli_parser.py:415
+#: src/bigocrpdf/cli_parser.py:427
 msgid "Export OCR'd PDF as ODF document"
 msgstr "Exportă PDF-ul procesat cu OCR ca document ODF"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 425
-#: src/bigocrpdf/cli_parser.py:417
+#: src/bigocrpdf/cli_parser.py:429
 msgid "Output ODF file (default: same name as input with .odt)"
 msgstr "Fișier ODF de ieșire (implicit: același nume cu .odt)"
 
@@ -607,43 +618,51 @@ msgstr "Fișier ODF de ieșire (implicit: același nume cu .odt)"
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 35
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_options_controller.py, line: 233
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 422
-#: src/bigocrpdf/cli_parser.py:422 src/bigocrpdf/ui/conclusion_export_mixin.py:35
+#: src/bigocrpdf/cli_parser.py:434
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:35
 #: src/bigocrpdf/ui/pdf_options_controller.py:233
 msgid "Preserve Text Layout"
 msgstr "Păstrează dispunerea textului"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 429
-#: src/bigocrpdf/cli_parser.py:427
+#: src/bigocrpdf/cli_parser.py:439
 msgid "Export OCR'd PDF as formatted text"
 msgstr "Exportă PDF-ul procesat cu OCR ca text formatat"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 436
-#: src/bigocrpdf/cli_parser.py:429
+#: src/bigocrpdf/cli_parser.py:441
 msgid "Output text file (default: same name as input with .txt)"
 msgstr "Fișier text de ieșire (implicit: același nume cu .txt)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 443
-#: src/bigocrpdf/cli_parser.py:434
+#: src/bigocrpdf/cli_parser.py:446
 msgid "Export OCR'd PDF as Markdown"
 msgstr "Exportă PDF-ul procesat cu OCR ca Markdown"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 450
-#: src/bigocrpdf/cli_parser.py:436
+#: src/bigocrpdf/cli_parser.py:448
 msgid "Output Markdown file (default: same name as input with .md)"
 msgstr "Fișier Markdown de ieșire (implicit: același nume ca intrarea, cu .md)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 455
-#: src/bigocrpdf/cli_parser.py:441
+#: src/bigocrpdf/cli_parser.py:453
 msgid "Prepend YAML front-matter (title, source, page count, date)."
 msgstr "Adaugă la început un antet YAML (titlu, sursă, număr de pagini, dată)."
 
+#: src/bigocrpdf/cli_parser.py:473
+msgid ""
+"Export from structured OCR JSON written earlier by 'ocr --sidecar-json', "
+"instead of reading the PDF text layer."
+msgstr ""
+"Exportă din fișierul JSON OCR structurat scris anterior de „ocr --sidecar-json”, în loc să citească stratul de text al PDF-ului."
+
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 414
-#: src/bigocrpdf/cli_parser.py:459
+#: src/bigocrpdf/cli_parser.py:481
 msgid "Open interactive GUI editor"
 msgstr "Deschide editorul GUI interactiv"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 415
-#: src/bigocrpdf/cli_parser.py:460
+#: src/bigocrpdf/cli_parser.py:482
 msgid "PDF file to edit"
 msgstr "Fișier PDF de editat"
 
@@ -801,49 +820,50 @@ msgid "Failed to save text file: {0}"
 msgstr "Eșec la salvarea fișierului text: {0}"
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 34
-#: src/bigocrpdf/services/pdf_operations.py:70
+#: src/bigocrpdf/services/pdf_operations.py:67
 msgid "Could not find the file. Was it moved or deleted?"
 msgstr "Fișierul nu a fost găsit. A fost mutat sau șters?"
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 36
-#: src/bigocrpdf/services/pdf_operations.py:72
+#: src/bigocrpdf/services/pdf_operations.py:69
 msgid "Cannot write to this folder. Choose a different location."
 msgstr "Nu se poate scrie în acest dosar. Alege altă locație."
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 38
-#: src/bigocrpdf/services/pdf_operations.py:74
+#: src/bigocrpdf/services/pdf_operations.py:71
 msgid "This PDF is password-protected. Remove the password first."
 msgstr "Acest PDF este protejat prin parolă. Elimină mai întâi parola."
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 40
-#: src/bigocrpdf/services/pdf_operations.py:76
+#: src/bigocrpdf/services/pdf_operations.py:73
 #, python-brace-format
 msgid "The PDF file appears to be damaged or invalid: {error}"
 msgstr "Fișierul PDF pare deteriorat sau invalid: {error}"
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 370
-#: src/bigocrpdf/services/pdf_operations.py:512
+#: src/bigocrpdf/services/pdf_operations.py:479
 msgid "No input files provided."
 msgstr "Nu au fost furnizate fișiere de intrare."
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 541
-#: src/bigocrpdf/services/pdf_operations.py:541
+#: src/bigocrpdf/services/pdf_operations.py:508
 msgid "No readable input files were provided."
 msgstr "Nu au fost furnizate fișiere de intrare lizibile."
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 85
-#: src/bigocrpdf/services/processor.py:127
+#: src/bigocrpdf/services/processor.py:123
 #, python-brace-format
 msgid "Started OCR processing for {count} file using RapidOCR"
 msgid_plural "Started OCR processing for {count} files using RapidOCR"
 msgstr[0] "A început procesarea OCR pentru {count} fișier folosind RapidOCR"
 msgstr[1] "A început procesarea OCR pentru {count} fișiere folosind RapidOCR"
-msgstr[2] "A început procesarea OCR pentru {count} de fișiere folosind RapidOCR"
+msgstr[2] ""
+"A început procesarea OCR pentru {count} de fișiere folosind RapidOCR"
 
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 82
-#: src/bigocrpdf/services/processor.py:142
+#: src/bigocrpdf/services/processor.py:138
 #, python-brace-format
 msgid "Error starting OCR processing: {0}"
 msgstr "Eroare la pornirea procesării OCR: {0}"
@@ -851,35 +871,36 @@ msgstr "Eroare la pornirea procesării OCR: {0}"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 92
-#: src/bigocrpdf/services/processor.py:155
+#: src/bigocrpdf/services/processor.py:151
 msgid "No files to process"
 msgstr "Nu sunt fișiere de procesat."
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 135
-#: src/bigocrpdf/services/processor.py:199
+#: src/bigocrpdf/services/processor.py:195
 msgid "Processing stopped by user"
 msgstr "Procesarea a fost oprită de utilizator"
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 178
-#: src/bigocrpdf/services/processor.py:208
+#: src/bigocrpdf/services/processor.py:204
 #, python-brace-format
 msgid "Processing thread error: {0}"
 msgstr "Eroare în firul de procesare: {0}"
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 158
-#: src/bigocrpdf/services/processor.py:229
+#: src/bigocrpdf/services/processor.py:225
 #, python-brace-format
 msgid "Processing cancelled by user during file: {0}"
-msgstr "Procesarea a fost anulată de utilizator în timpul procesării fișierului {0}"
+msgstr ""
+"Procesarea a fost anulată de utilizator în timpul procesării fișierului {0}"
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 177
-#: src/bigocrpdf/services/processor.py:232
+#: src/bigocrpdf/services/processor.py:228
 #, python-brace-format
 msgid "Out of memory processing {0}"
 msgstr "Memorie insuficientă pentru procesarea {0}"
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 163
-#: src/bigocrpdf/services/processor.py:284
+#: src/bigocrpdf/services/processor.py:280
 #, python-brace-format
 msgid "Error processing {0}: {1}"
 msgstr "Eroare la procesarea {0}: {1}"
@@ -887,13 +908,13 @@ msgstr "Eroare la procesarea {0}: {1}"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 136
-#: src/bigocrpdf/services/processor.py:309
+#: src/bigocrpdf/services/processor.py:305
 #, python-brace-format
 msgid "Error: File not found or invalid: {0}"
 msgstr "Eroare: Fișierul nu a fost găsit sau este invalid: {0}"
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 223
-#: src/bigocrpdf/services/processor.py:346
+#: src/bigocrpdf/services/processor.py:342
 #, python-brace-format
 msgid "Processed {filename}: Pages: {pages} · Words: {words}"
 msgstr "Procesat {filename}: Pagini: {pages} · Cuvinte: {words}"
@@ -901,7 +922,7 @@ msgstr "Procesat {filename}: Pagini: {pages} · Cuvinte: {words}"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 172
-#: src/bigocrpdf/services/processor.py:507
+#: src/bigocrpdf/services/processor.py:489
 #, python-brace-format
 msgid "Could not determine output directory for {0}"
 msgstr "Nu s-a putut determina directorul de ieșire pentru {0}"
@@ -909,7 +930,7 @@ msgstr "Nu s-a putut determina directorul de ieșire pentru {0}"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 185
-#: src/bigocrpdf/services/processor.py:514
+#: src/bigocrpdf/services/processor.py:496
 #, python-brace-format
 msgid "Error creating output path for {0}: {1}"
 msgstr "Eroare la crearea căii de ieșire pentru {0}: {1}"
@@ -917,7 +938,7 @@ msgstr "Eroare la crearea căii de ieșire pentru {0}: {1}"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 388
-#: src/bigocrpdf/services/processor.py:550
+#: src/bigocrpdf/services/processor.py:532
 #, python-brace-format
 msgid "Error getting OCR languages: {0}"
 msgstr "Eroare la obținerea limbilor OCR: {0}"
@@ -925,7 +946,7 @@ msgstr "Eroare la obținerea limbilor OCR: {0}"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 508
-#: src/bigocrpdf/services/processor.py:633
+#: src/bigocrpdf/services/processor.py:615
 #, python-brace-format
 msgid "Removed processed file from queue: {0}"
 msgstr "Fișierul procesat a fost eliminat din coadă: {0}"
@@ -1075,13 +1096,14 @@ msgstr "Captura de ecran a eșuat."
 #: src/bigocrpdf/services/screen_capture.py:536
 #: src/bigocrpdf/ui/image_ocr_window.py:985
 msgid "Screen capture failed. Please try again or open an image file."
-msgstr "Captura de ecran a eșuat. Încearcă din nou sau deschide un fișier imagine."
+msgstr ""
+"Captura de ecran a eșuat. Încearcă din nou sau deschide un fișier imagine."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 118
 #: src/bigocrpdf/services/screen_capture.py:506
 msgid ""
-"No screenshot tool available. Please install spectacle, gnome-screenshot, or"
-" flameshot."
+"No screenshot tool available. Please install spectacle, gnome-screenshot, or "
+"flameshot."
 msgstr ""
 "Nu este disponibil niciun instrument de captură de ecran. Instalează "
 "spectacle, gnome-screenshot sau flameshot."
@@ -1298,8 +1320,8 @@ msgstr "Detectare la rezoluție completă"
 # File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 71
 #: src/bigocrpdf/ui/advanced_dialog.py:49
 msgid ""
-"Analyzes the image at full resolution for text detection. Finds more text in"
-" high-resolution scans but takes longer. The faster mode is good enough for "
+"Analyzes the image at full resolution for text detection. Finds more text in "
+"high-resolution scans but takes longer. The faster mode is good enough for "
 "most documents."
 msgstr ""
 "Analizează imaginea la rezoluție completă pentru detectarea textului. "
@@ -1315,8 +1337,8 @@ msgstr "Avansat"
 # File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 111
 #: src/bigocrpdf/ui/advanced_dialog.py:88
 msgid ""
-"Fine-tune how OCR text recognition works. The default settings work well for"
-" most documents."
+"Fine-tune how OCR text recognition works. The default settings work well for "
+"most documents."
 msgstr ""
 "Reglare fină a modului în care funcționează recunoașterea OCR. Setările "
 "implicite funcționează bine pentru majoritatea documentelor."
@@ -1391,11 +1413,11 @@ msgstr "Locațiile la distanță nu sunt acceptate"
 # line: 1752
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:304
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:309
-#: src/bigocrpdf/ui/file_save_controller.py:84 src/bigocrpdf/ui/header_bar.py:164
-#: src/bigocrpdf/ui/image_ocr_window.py:737
+#: src/bigocrpdf/ui/file_save_controller.py:84
+#: src/bigocrpdf/ui/header_bar.py:164 src/bigocrpdf/ui/image_ocr_window.py:737
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:87
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:191
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:223
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:189
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:221
 #: src/bigocrpdf/ui/pdf_options_controller.py:55
 #: src/bigocrpdf/ui/pdf_options_controller.py:165
 #: src/bigocrpdf/ui/session_recovery_controller.py:59
@@ -1644,6 +1666,7 @@ msgstr "Vizualizează textul găsit în acest document"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 473
 #: src/bigocrpdf/ui/conclusion_ui_mixin.py:320
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:322
 msgid "Export to other formats"
 msgstr "Exportă în alte formate"
 
@@ -1700,8 +1723,8 @@ msgid ""
 "Detects and fixes pages that are upside-down or sideways, automatically "
 "rotating them to the correct orientation."
 msgstr ""
-"Detectează și corectează paginile inversate sau laterale, rotindu-le automat"
-" la orientarea corectă."
+"Detectează și corectează paginile inversate sau laterale, rotindu-le automat "
+"la orientarea corectă."
 
 # File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 82
 #: src/bigocrpdf/ui/corrections_dialog.py:60
@@ -1714,8 +1737,8 @@ msgid ""
 "Makes text darker and the background lighter, producing a cleaner result "
 "similar to a high-quality scan."
 msgstr ""
-"Face textul mai întunecat și fundalul mai deschis, producând un rezultat mai"
-" curat similar unei scanări de calitate."
+"Face textul mai întunecat și fundalul mai deschis, producând un rezultat mai "
+"curat similar unei scanări de calitate."
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 125
@@ -1728,10 +1751,9 @@ msgstr "Îmbunătățește imaginile încorporate"
 # File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 93
 #: src/bigocrpdf/ui/corrections_dialog.py:71
 msgid ""
-"Apply image corrections (deskew, dewarp, perspective) to images inside pages"
-" that already contain text. Normally skipped because these images are "
-"already well-aligned. Enable only if embedded images appear crooked or "
-"distorted."
+"Apply image corrections (deskew, dewarp, perspective) to images inside pages "
+"that already contain text. Normally skipped because these images are already "
+"well-aligned. Enable only if embedded images appear crooked or distorted."
 msgstr ""
 "Aplică corecții de imagine (îndreptare, corectarea curburii, perspectivă) "
 "imaginilor din pagini care conțin deja text. În mod normal sunt omise "
@@ -1995,16 +2017,18 @@ msgid "Grid view (click for list)"
 msgstr "Vizualizare grilă (clic pentru listă)"
 
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 218
-#: src/bigocrpdf/ui/header_bar.py:218
+#: src/bigocrpdf/ui/header_bar.py:223
 msgid "Start OCR processing"
 msgstr "Pornește procesarea OCR"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1139
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 221
-#: src/bigocrpdf/ui/header_bar.py:221 src/bigocrpdf/ui/image_ocr_window.py:1139
-msgid "OCR is unavailable. Install the required engine and restart the application."
-msgstr "OCR nu este disponibil. Instalează motorul necesar și repornește aplicația."
+#: src/bigocrpdf/ui/header_bar.py:226 src/bigocrpdf/ui/image_ocr_window.py:1139
+msgid ""
+"OCR is unavailable. Install the required engine and restart the application."
+msgstr ""
+"OCR nu este disponibil. Instalează motorul necesar și repornește aplicația."
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 198
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 236
@@ -2077,8 +2101,8 @@ msgstr "Copiază"
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
 #: src/bigocrpdf/ui/image_ocr_window.py:782
 #: src/bigocrpdf/ui/image_ocr_window.py:784
-#: src/bigocrpdf/ui/text_viewer_controller.py:216
-#: src/bigocrpdf/ui/text_viewer_controller.py:217
+#: src/bigocrpdf/ui/text_viewer_controller.py:208
+#: src/bigocrpdf/ui/text_viewer_controller.py:209
 msgid "Copy text to clipboard"
 msgstr "Copiază textul în clipboard"
 
@@ -2175,8 +2199,8 @@ msgstr ""
 "înseamnă fișiere mai mici, dar se pierd unele detalii. 'Păstrează "
 "originalul' păstrează imaginile exact așa cum sunt.\n"
 "\n"
-"Ultima opțiune, 'Alb-negru (JBIG2)', convertește toate paginile în alb-negru"
-" pur folosind JBIG2 — cel mai compact format disponibil. Este ideală pentru "
+"Ultima opțiune, 'Alb-negru (JBIG2)', convertește toate paginile în alb-negru "
+"pur folosind JBIG2 — cel mai compact format disponibil. Este ideală pentru "
 "documente care conțin numai text, dar toate culorile se pierd."
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 249
@@ -2424,176 +2448,72 @@ msgstr "Comprimarea a eșuat: {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
 # 169
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:169
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:167
 #, python-brace-format
 msgid "Failed to save compressed PDF: {}"
 msgstr "Salvarea PDF-ului comprimat a eșuat: {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 828
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:179
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:177
 msgid "Split by Page Count"
 msgstr "Împarte după număr de pagini"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 829
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:180
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:178
 msgid "Split the document into parts with a fixed number of pages each."
 msgstr "Împarte documentul în părți cu un număr fix de pagini fiecare."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 833
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:184
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:182
 msgid "Pages per file:"
 msgstr "Pagini per fișier:"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 841
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 873
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:192
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:224
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:190
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:222
 msgid "Split"
 msgstr "Împarte"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 860
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:211
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:209
 msgid "Split by File Size"
 msgstr "Împarte după dimensiune"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 861
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:212
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:210
 msgid "Split the document so each part is at most the specified size."
 msgstr ""
 "Împarte documentul astfel încât fiecare parte să aibă cel mult dimensiunea "
 "specificată."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 865
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:216
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:214
 msgid "Max size (MB):"
 msgstr "Dimensiune maximă (MB):"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 889
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:240
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:238
 msgid "Select Output Directory"
 msgstr "Selectează directorul de ieșire"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 918
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:275
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:273
 msgid "Failed to prepare document for splitting."
 msgstr "Pregătirea documentului pentru împărțire a eșuat."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
 # 291
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:291
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:289
 #, python-brace-format
 msgid "Parts: {parts} · Pages: {pages}"
 msgstr "Fișiere rezultate: {parts} · Pagini: {pages}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 939
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:297
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:295
 #, python-brace-format
 msgid "Split failed: {}"
 msgstr "Împărțirea a eșuat: {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 72
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:122
-#, python-brace-format
-msgid "PDF Editor - {}"
-msgstr "Editor PDF - {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 397
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:217
-msgid "Could not open PDF file or file has no pages."
-msgstr "Nu s-a putut deschide fișierul PDF sau fișierul nu are pagini."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 428
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:249
-#, python-brace-format
-msgid "Failed to load PDF: {}"
-msgstr "Eșec la încărcarea PDF-ului: {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 605
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:259
-#, python-brace-format
-msgid "{total} page · {included} included"
-msgid_plural "{total} pages · {included} included"
-msgstr[0] "{total} pagină · incluse: {included}"
-msgstr[1] "{total} pagini · incluse: {included}"
-msgstr[2] "{total} de pagini · incluse: {included}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:266
-#, python-brace-format
-msgid "{count} selected"
-msgstr "{count} selectate"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 737
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:282
-#, python-brace-format
-msgid "{count} page selected"
-msgid_plural "{count} pages selected"
-msgstr[0] "{count} pagină selectată"
-msgstr[1] "{count} pagini selectate"
-msgstr[2] "{count} de pagini selectate"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:337
-msgid "Saving…"
-msgstr "Se salvează…"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 674
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:357
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:362
-msgid "Failed to save PDF."
-msgstr "Salvarea PDF-ului a eșuat."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 822
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:451
-msgid "Save PDF As"
-msgstr "Salvează PDF-ul ca"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 836
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:464
-msgid "document.pdf"
-msgstr "document.pdf"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 854
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:493
-#, python-brace-format
-msgid "Saved: {}"
-msgstr "Salvat: {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:528
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:536
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:565
-msgid "Error saving changes."
-msgstr "Eroare la salvarea modificărilor."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 604
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:576
-msgid "Failed to merge PDF pages."
-msgstr "Nu s-a reușit combinarea paginilor PDF."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 626
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:583
-msgid "Unsaved Changes"
-msgstr "Modificări nesalvate"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 627
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:584
-msgid "What would you like to do with your changes?"
-msgstr "Ce dorești să faci cu modificările?"
-
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 197
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 629
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:586
-#: src/bigocrpdf/ui/session_recovery_controller.py:60
-msgid "Discard"
-msgstr "Renunță"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:587
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:238
-msgid "Apply"
-msgstr "Aplică"
 
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 239
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:53
@@ -2723,6 +2643,12 @@ msgstr "Inserează fișiere PDF sau imagini"
 msgid "Save As"
 msgstr "Salvează ca"
 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:238
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:587
+msgid "Apply"
+msgstr "Aplică"
+
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 320
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:242
 msgid "Save PDF to a new file (Ctrl+S)"
@@ -2778,6 +2704,104 @@ msgstr "Ascunde bara laterală a editorului"
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:341
 msgid "Show editor sidebar"
 msgstr "Afișează bara laterală a editorului"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 72
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:122
+#, python-brace-format
+msgid "PDF Editor - {}"
+msgstr "Editor PDF - {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 397
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:217
+msgid "Could not open PDF file or file has no pages."
+msgstr "Nu s-a putut deschide fișierul PDF sau fișierul nu are pagini."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 428
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:249
+#, python-brace-format
+msgid "Failed to load PDF: {}"
+msgstr "Eșec la încărcarea PDF-ului: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 605
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:259
+#, python-brace-format
+msgid "{total} page · {included} included"
+msgid_plural "{total} pages · {included} included"
+msgstr[0] "{total} pagină · incluse: {included}"
+msgstr[1] "{total} pagini · incluse: {included}"
+msgstr[2] "{total} de pagini · incluse: {included}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:266
+#, python-brace-format
+msgid "{count} selected"
+msgstr "{count} selectate"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 737
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:282
+#, python-brace-format
+msgid "{count} page selected"
+msgid_plural "{count} pages selected"
+msgstr[0] "{count} pagină selectată"
+msgstr[1] "{count} pagini selectate"
+msgstr[2] "{count} de pagini selectate"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:337
+msgid "Saving…"
+msgstr "Se salvează…"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 674
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:357
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:362
+msgid "Failed to save PDF."
+msgstr "Salvarea PDF-ului a eșuat."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 822
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:451
+msgid "Save PDF As"
+msgstr "Salvează PDF-ul ca"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 836
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:464
+msgid "document.pdf"
+msgstr "document.pdf"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 854
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:493
+#, python-brace-format
+msgid "Saved: {}"
+msgstr "Salvat: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:528
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:536
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:565
+msgid "Error saving changes."
+msgstr "Eroare la salvarea modificărilor."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 604
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:576
+msgid "Failed to merge PDF pages."
+msgstr "Nu s-a reușit combinarea paginilor PDF."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 626
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:583
+msgid "Unsaved Changes"
+msgstr "Modificări nesalvate"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 627
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:584
+msgid "What would you like to do with your changes?"
+msgstr "Ce dorești să faci cu modificările?"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 197
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 629
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:586
+#: src/bigocrpdf/ui/session_recovery_controller.py:60
+msgid "Discard"
+msgstr "Renunță"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 37
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 53
@@ -2879,8 +2903,8 @@ msgid ""
 "Page thumbnails. Ctrl+A select all, Ctrl+Up/Down reorder, Delete toggle "
 "page, Ctrl+L/R rotate, Ctrl+Z undo"
 msgstr ""
-"Miniaturi de pagini. Ctrl+A selectează tot, Ctrl+Sus/Jos reordonează, Delete"
-" comută includerea paginii, Ctrl+L/R rotește, Ctrl+Z anulează"
+"Miniaturi de pagini. Ctrl+A selectează tot, Ctrl+Sus/Jos reordonează, Delete "
+"comută includerea paginii, Ctrl+L/R rotește, Ctrl+Z anulează"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 80
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:89
@@ -3038,7 +3062,8 @@ msgstr "Sufix de nume de fișier"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 176
 #: src/bigocrpdf/ui/pdf_options_controller.py:135
 msgid "Text added to the end of the filename (e.g. document-ocr.pdf)"
-msgstr "Text adăugat la sfârșitul numelui fișierului (de exemplu, document-ocr.pdf)"
+msgstr ""
+"Text adăugat la sfârșitul numelui fișierului (de exemplu, document-ocr.pdf)"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
 # line: 1814
@@ -3060,8 +3085,8 @@ msgstr "Suprascrie fișierele existente?"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 234
 #: src/bigocrpdf/ui/pdf_options_controller.py:161
 msgid ""
-"If files with the same name already exist in the output folder, they will be"
-" permanently replaced. This cannot be undone."
+"If files with the same name already exist in the output folder, they will be "
+"permanently replaced. This cannot be undone."
 msgstr ""
 "Dacă fișiere cu același nume există deja în dosarul de ieșire, vor fi "
 "înlocuite permanent. Această acțiune nu poate fi anulată."
@@ -3300,7 +3325,8 @@ msgstr "Adaugă fișierele PDF"
 #: src/bigocrpdf/ui/settings_queue_mixin.py:185
 #: src/bigocrpdf/ui/settings_queue_mixin.py:228
 msgid "Drag PDF files and images here, or use the button in the header bar"
-msgstr "Trage fișiere PDF și imagini aici sau folosește butonul din bara de titlu"
+msgstr ""
+"Trage fișiere PDF și imagini aici sau folosește butonul din bara de titlu"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 362
 #: src/bigocrpdf/ui/settings_queue_mixin.py:253
@@ -3525,7 +3551,8 @@ msgstr[1] "Ai plasat {count} imagini. Cum dorești să le adaugi?"
 msgstr[2] "Ai plasat {count} de imagini. Cum dorești să le adaugi?"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 1082
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1232 src/bigocrpdf/ui/window_ui.py:116
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1232
+#: src/bigocrpdf/ui/window_ui.py:116
 #, python-brace-format
 msgid "{count} file in queue"
 msgid_plural "{count} files in queue"
@@ -3549,8 +3576,8 @@ msgid ""
 "This will restore all options to their default values. Your file queue will "
 "not be affected."
 msgstr ""
-"Aceasta va restabili toate opțiunile la valorile implicite. Coada de fișiere"
-" nu va fi afectată."
+"Aceasta va restabili toate opțiunile la valorile implicite. Coada de fișiere "
+"nu va fi afectată."
 
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 326
 #: src/bigocrpdf/ui/settings_reset_controller.py:44
@@ -3799,8 +3826,10 @@ msgstr "<b>Finalizate: {completed}/{total}</b> · Rămase: {remaining}"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1050
 #: src/bigocrpdf/ui/terminal_page.py:285
 #, python-brace-format
-msgid "<b>OCR processing complete!</b> {total} file processed · Total time: {time}"
-msgid_plural "<b>OCR processing complete!</b> {total} files processed · Total time: {time}"
+msgid ""
+"<b>OCR processing complete!</b> {total} file processed · Total time: {time}"
+msgid_plural ""
+"<b>OCR processing complete!</b> {total} files processed · Total time: {time}"
 msgstr[0] ""
 "<b>Procesarea OCR s-a încheiat!</b> {total} fișier procesat · Timp total: "
 "{time}"
@@ -3830,7 +3859,8 @@ msgstr "Fișier {current}/{total}: <b>{filename}</b> - {status} • Timp: {time}
 #: src/bigocrpdf/ui/terminal_page.py:323
 #, python-brace-format
 msgid "Processing file {current}/{total}: <b>{filename}</b> • Time: {time}"
-msgstr "Se procesează fișierul {current}/{total}: <b>{filename}</b> • Timp: {time}"
+msgstr ""
+"Se procesează fișierul {current}/{total}: <b>{filename}</b> • Timp: {time}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 445
 #: src/bigocrpdf/ui/terminal_page.py:334
@@ -3864,16 +3894,16 @@ msgstr "{percent}%"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
 # line: 708
-#: src/bigocrpdf/ui/text_viewer_controller.py:90
+#: src/bigocrpdf/ui/text_viewer_controller.py:82
 msgid ""
-"OCR processing was completed for this file, but the extracted text could not"
-" be found."
+"OCR processing was completed for this file, but the extracted text could not "
+"be found."
 msgstr ""
-"Procesarea OCR a fost finalizată pentru acest fișier, dar textul extras nu a"
-" fost găsit."
+"Procesarea OCR a fost finalizată pentru acest fișier, dar textul extras nu a "
+"fost găsit."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
-#: src/bigocrpdf/ui/text_viewer_controller.py:162
+#: src/bigocrpdf/ui/text_viewer_controller.py:154
 #, python-brace-format
 msgid "{count} word"
 msgid_plural "{count} words"
@@ -3882,7 +3912,7 @@ msgstr[1] "{count} cuvinte"
 msgstr[2] "{count} de cuvinte"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
-#: src/bigocrpdf/ui/text_viewer_controller.py:165
+#: src/bigocrpdf/ui/text_viewer_controller.py:157
 #, python-brace-format
 msgid "{count} character"
 msgid_plural "{count} characters"
@@ -3891,26 +3921,26 @@ msgstr[1] "{count} caractere"
 msgstr[2] "{count} de caractere"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
-#: src/bigocrpdf/ui/text_viewer_controller.py:169
+#: src/bigocrpdf/ui/text_viewer_controller.py:161
 #, python-brace-format
 msgid "{words} · {characters}"
 msgstr "{words} · {characters}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 371
-#: src/bigocrpdf/ui/text_viewer_controller.py:222
-#: src/bigocrpdf/ui/text_viewer_controller.py:225
+#: src/bigocrpdf/ui/text_viewer_controller.py:214
+#: src/bigocrpdf/ui/text_viewer_controller.py:217
 msgid "Save TXT"
 msgstr "Salvează TXT"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 203
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 204
-#: src/bigocrpdf/ui/text_viewer_controller.py:245
+#: src/bigocrpdf/ui/text_viewer_controller.py:237
 msgid "Decrease font size"
 msgstr "Micșorează dimensiunea fontului"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 209
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 210
-#: src/bigocrpdf/ui/text_viewer_controller.py:252
+#: src/bigocrpdf/ui/text_viewer_controller.py:244
 msgid "Increase font size"
 msgstr "Mărește dimensiunea fontului"
 
@@ -3918,46 +3948,46 @@ msgstr "Mărește dimensiunea fontului"
 # line: 1291
 # line: 1272
 # line: 1324
-#: src/bigocrpdf/ui/text_viewer_controller.py:359
+#: src/bigocrpdf/ui/text_viewer_controller.py:351
 msgid "Search in text..."
 msgstr "Caută în text..."
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 287
-#: src/bigocrpdf/ui/text_viewer_controller.py:361
+#: src/bigocrpdf/ui/text_viewer_controller.py:353
 msgid "Search in text"
 msgstr "Caută în text"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 294
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 295
-#: src/bigocrpdf/ui/text_viewer_controller.py:368
-#: src/bigocrpdf/ui/text_viewer_controller.py:369
+#: src/bigocrpdf/ui/text_viewer_controller.py:360
+#: src/bigocrpdf/ui/text_viewer_controller.py:361
 msgid "Previous match"
 msgstr "Potrivirea anterioară"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 301
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 302
-#: src/bigocrpdf/ui/text_viewer_controller.py:375
-#: src/bigocrpdf/ui/text_viewer_controller.py:376
+#: src/bigocrpdf/ui/text_viewer_controller.py:367
+#: src/bigocrpdf/ui/text_viewer_controller.py:368
 msgid "Next match"
 msgstr "Potrivirea următoare"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 507
-#: src/bigocrpdf/ui/text_viewer_controller.py:504
+#: src/bigocrpdf/ui/text_viewer_controller.py:496
 msgid "No matches"
 msgstr "Nu există potriviri."
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 458
-#: src/bigocrpdf/ui/text_viewer_controller.py:545
+#: src/bigocrpdf/ui/text_viewer_controller.py:537
 msgid "Wrapped to first match"
 msgstr "Revenire la prima potrivire"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 467
-#: src/bigocrpdf/ui/text_viewer_controller.py:558
+#: src/bigocrpdf/ui/text_viewer_controller.py:550
 msgid "Wrapped to last match"
 msgstr "Revenire la ultima potrivire"
 
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 449
-#: src/bigocrpdf/ui/text_viewer_controller.py:588
+#: src/bigocrpdf/ui/text_viewer_controller.py:580
 #, python-brace-format
 msgid "{current}/{total}"
 msgstr "{current}/{total}"
@@ -4104,7 +4134,8 @@ msgstr "Vizualizare principală"
 # File: bigocrpdf/src/bigocrpdf/utils/temp_manager.py, line: 85
 #: src/bigocrpdf/utils/temp_manager.py:88
 #, python-brace-format
-msgid "Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
+msgid ""
+"Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
 msgstr ""
 "Spațiu insuficient pe disc. Sunt necesari {needed:.0f} MB, dar sunt "
 "disponibili doar {free:.0f} MB."
@@ -4167,4 +4198,3 @@ msgstr "Editează paginile"
 #: usr/share/nautilus-python/extensions/bigocrpdf-actions.py:102
 msgid "Create PDF"
 msgstr "Creează PDF"
-

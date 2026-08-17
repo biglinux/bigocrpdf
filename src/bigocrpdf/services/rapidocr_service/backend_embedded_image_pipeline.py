@@ -165,7 +165,7 @@ class BackendEmbeddedImagePipelineMixin:
         if page_results:
             # One record per page, not per image: several images on one page
             # are one page of OCR, and duplicate page_index entries would break
-            # the sidecar and every per-page metric derived from it.
+            # the structured OCR output and every per-page metric from it.
             record_ocr_page(
                 stats,
                 page_num,

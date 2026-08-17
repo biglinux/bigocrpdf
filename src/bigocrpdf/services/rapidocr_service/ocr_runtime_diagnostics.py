@@ -1,4 +1,4 @@
-"""Structured OCR runtime diagnostics for sidecars and benchmarks."""
+"""Structured OCR runtime diagnostics for benchmarks and structured output."""
 
 from __future__ import annotations
 

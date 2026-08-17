@@ -1,9 +1,9 @@
 """Recording an OCR'd page into the canonical document.
 
 ``OcrDocument`` is the single source of truth for everything downstream: the
-``.bigocr.json`` sidecar, the structured TXT/Markdown/ODT exports, the average
-confidence the interface reports, and every per-region field in a benchmark
-record.
+structured OCR JSON a caller may ask for, the structured TXT/Markdown/ODT
+exports, the average confidence the interface reports, and every per-region
+field in a benchmark record.
 
 Only the image-only pipeline ever filled it. Mixed-content and embedded-image
 documents counted their regions and then dropped them, so those documents

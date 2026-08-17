@@ -49,12 +49,22 @@ nonzero status, timeout, or signal is an explicit error/cancellation result.
 - The text layer preserves page geometry and keeps OCR/native-text detection
   working after crop, deskew, dewarp, rotation, and mixed-content processing.
 - PDF resource limits and hostile-input checks remain enforced.
-- Structured `*.bigocr.json` sidecars are the preferred source for TXT,
-  Markdown, and ODT export. Version 2 binds the payload to the PDF byte size and
-  SHA-256 and records either `document` or `unavailable`; a stale fingerprint or
-  explicit unavailable marker requires PDF fallback. Version 1 can be decoded
-  only through the explicit `allow_unverified_legacy` compatibility opt-in; it
-  is never authoritative by default. Fallback behavior must remain explicit.
+- An OCR run publishes exactly one file: the PDF. Nothing else may appear beside
+  a user's document. Structured OCR is written only where the caller names it —
+  `ocr --sidecar-json [FILE]` — and read back only when the caller names it —
+  `export-* --from-json FILE`. Without it, TXT, Markdown, and ODT export read
+  the PDF's own text layer, which agreed with the structured path within 92–98%
+  on real documents.
+- Structured OCR JSON stays bound to the PDF by byte size and SHA-256, so a file
+  that describes a different PDF loads as nothing rather than as stale text.
+  Version 1, and the `unavailable` marker written by older versions, decode only
+  as "no structured OCR"; version 1 needs the explicit `allow_unverified_legacy`
+  opt-in and is never authoritative. The payload is compact by contract:
+  indentation was 62% of the bytes of an 18-page document.
+- Split output parts record their family in the PDF's private XMP namespace
+  (`splitFamilyRoot`, `splitPartIndex`, `splitPartCount`). This is what makes
+  retiring superseded parts safe: a numbered file name is not proof of
+  membership, and a user's own `contract-02.pdf` must never be retired.
 - Positioned ODT keeps editable text at page coordinates; reflowable ODT keeps
   paragraphs, tables, and columns; empty pages remain present.
 

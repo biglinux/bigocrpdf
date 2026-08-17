@@ -1,4 +1,3 @@
-import json
 import shutil
 import subprocess
 from pathlib import Path
@@ -8,9 +7,11 @@ import pikepdf
 import pytest
 from PIL import Image, ImageOps
 
+from bigocrpdf.services.rapidocr_service.config import OcrDocument
 from bigocrpdf.services.rapidocr_service.ocr_document_io import (
-    load_ocr_document_sidecar,
-    ocr_document_sidecar_path,
+    load_ocr_document_json,
+    ocr_document_json_path,
+    write_ocr_document_json,
 )
 from bigocrpdf.ui.pdf_editor.page_model import PageState, PDFDocument
 from bigocrpdf.ui.pdf_editor.page_operations import (
@@ -332,16 +333,11 @@ def test_atomic_apply_preserves_existing_destination_on_publication_failure(
         pdf.add_blank_page()
         pdf.save(source_pdf)
     output_pdf.write_bytes(b"existing destination")
-    legacy_sidecar = ocr_document_sidecar_path(output_pdf)
-    legacy_sidecar.write_text(
-        '{"version": 1, "document": {"pages": []}}',
-        encoding="utf-8",
-    )
     document = PDFDocument(path=str(source_pdf), total_pages=1)
 
     with (
         patch(
-            "bigocrpdf.services.rapidocr_service.ocr_document_io.publish_pdf_with_ocr_invalidation",
+            "bigocrpdf.utils.durable_writes.publish_file_atomically",
             side_effect=OSError("simulated publication failure"),
         ),
     ):
@@ -349,35 +345,38 @@ def test_atomic_apply_preserves_existing_destination_on_publication_failure(
 
     assert saved is False
     assert output_pdf.read_bytes() == b"existing destination"
-    assert legacy_sidecar.read_text(encoding="utf-8").startswith('{"version": 1')
     assert sorted(path.name for path in tmp_path.iterdir()) == [
-        "edited.bigocr.json",
         "edited.pdf",
         "source.pdf",
     ]
 
 
-def test_atomic_apply_replaces_legacy_sidecar_with_invalidation(
+def test_structured_json_is_refused_after_the_pdf_it_describes_is_edited(
     tmp_path: Path,
 ) -> None:
+    """Editing no longer rewrites a companion file, so the reader must refuse.
+
+    Structured OCR is bound to the PDF by SHA-256. Once the editor republishes
+    the PDF, a JSON exported earlier describes a document that no longer
+    exists, and loading it returns nothing instead of stale text.
+    """
     source_pdf = tmp_path / "source.pdf"
     output_pdf = tmp_path / "edited.pdf"
     with pikepdf.Pdf.new() as pdf:
         pdf.add_blank_page()
         pdf.save(source_pdf)
-    ocr_document_sidecar_path(output_pdf).write_text(
-        '{"version": 1, "document": {"pages": []}}',
-        encoding="utf-8",
-    )
-    document = PDFDocument(path=str(source_pdf), total_pages=1)
+    with pikepdf.Pdf.new() as pdf:
+        pdf.add_blank_page()
+        pdf.add_blank_page()
+        pdf.save(output_pdf)
+    json_path = ocr_document_json_path(output_pdf)
+    write_ocr_document_json(OcrDocument(), output_pdf, json_path)
+    assert load_ocr_document_json(json_path, output_pdf) is not None
 
+    document = PDFDocument(path=str(source_pdf), total_pages=1)
     assert apply_changes_to_pdf_atomically(document, output_pdf)
 
-    assert output_pdf.exists()
-    sidecar_payload = json.loads(ocr_document_sidecar_path(output_pdf).read_text(encoding="utf-8"))
-    assert sidecar_payload["version"] == 2
-    assert sidecar_payload["state"] == "unavailable"
-    assert load_ocr_document_sidecar(output_pdf) is None
+    assert load_ocr_document_json(json_path, output_pdf) is None
 
 
 @pytest.mark.parametrize("invalid_source", ["missing", "invalid_page", "no_source"])

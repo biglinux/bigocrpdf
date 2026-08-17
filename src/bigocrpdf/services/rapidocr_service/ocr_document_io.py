@@ -1,4 +1,14 @@
-"""Read and write canonical OCR document sidecars."""
+"""Publish OCR PDFs, and read or write structured OCR JSON on request.
+
+An OCR run produces one file: the PDF. Structured OCR data is written only
+where the caller asks for it, because a machine-readable copy of the page
+text is a second copy of the document, and nobody asked for it to appear
+next to their files.
+
+What must outlive the run travels inside the PDF instead. Split outputs
+carry their family in a private XMP namespace, which is what lets a later
+overwrite retire the parts it replaced without guessing from file names.
+"""
 
 from __future__ import annotations
 
@@ -27,32 +37,35 @@ from bigocrpdf.utils.durable_writes import (
     write_text_atomically,
 )
 
-SIDECAR_VERSION = 2
-_LEGACY_SIDECAR_VERSION = 1
+OCR_JSON_VERSION = 2
+_LEGACY_JSON_VERSION = 1
 _HASH_CHUNK_BYTES = 1024 * 1024
-_UNAVAILABLE_REASON = "structured-data-not-produced"
-_MODIFIED_PDF_REASON = "pdf-modified-outside-ocr"
+
+# Private XMP schema for the few facts that must survive inside the PDF.
+# XMP is the PDF's own metadata container, so these survive the PDF/A step
+# and every tool that preserves metadata; a custom prefix needs its URI
+# spelled out, or pikepdf writes an element with no namespace at all.
+_XMP_NS = "http://bigocrpdf.biglinux.com.br/ns/ocr/1.0/"
+_XMP_FAMILY_ROOT = f"{{{_XMP_NS}}}splitFamilyRoot"
+_XMP_PART_INDEX = f"{{{_XMP_NS}}}splitPartIndex"
+_XMP_PART_COUNT = f"{{{_XMP_NS}}}splitPartCount"
 
 
 @dataclass(frozen=True)
-class OcrPdfPublication:
-    """One staged OCR PDF and the metadata that must be published with it."""
+class _SplitFamily:
+    """Which part of which split output family one PDF is."""
 
-    staged_pdf: Path
-    requested_pdf: Path
-    document: OcrDocument | None = None
-    unavailable_reason: str = _UNAVAILABLE_REASON
-
-
-@dataclass(frozen=True)
-class _PublicationMetadata:
     family_root: str
     part_index: int
     part_count: int
 
 
-def ocr_document_sidecar_path(pdf_path: str | Path) -> Path:
-    """Return the structured OCR sidecar path for a PDF path."""
+def ocr_document_json_path(pdf_path: str | Path) -> Path:
+    """Return the default structured OCR JSON name for a PDF path.
+
+    Only used when the caller asks for structured JSON without naming a
+    destination; nothing writes here on its own.
+    """
     path = Path(pdf_path)
     return path.with_suffix(".bigocr.json")
 
@@ -71,69 +84,65 @@ def complete_ocr_document(
     return document
 
 
-def render_ocr_document_sidecar(
-    document: OcrDocument | None,
+def render_ocr_document_json(
+    document: OcrDocument,
     pdf_path: str | Path,
     *,
-    unavailable_reason: str = _UNAVAILABLE_REASON,
     pdf_fingerprint: tuple[str, int] | None = None,
-    publication_metadata: _PublicationMetadata | None = None,
 ) -> str:
-    """Render a PDF-bound sidecar or an explicit structured-data invalidation."""
-    if document is not None:
-        from bigocrpdf.services.rapidocr_service.ocr_document_export import (
-            enrich_ocr_document_layout,
-        )
+    """Render structured OCR bound to the PDF it describes.
 
-        enrich_ocr_document_layout(document)
+    Written compact: this is a machine contract, and indentation was 62% of
+    the bytes on an 18-page document.
+    """
+    from bigocrpdf.services.rapidocr_service.ocr_document_export import (
+        enrich_ocr_document_layout,
+    )
+
+    enrich_ocr_document_layout(document)
     pdf_hash, pdf_size = pdf_fingerprint or _pdf_fingerprint(Path(pdf_path))
     payload = {
-        "version": SIDECAR_VERSION,
-        "state": "document" if document is not None else "unavailable",
+        "version": OCR_JSON_VERSION,
+        "state": "document",
         "pdf": {
             "sha256": pdf_hash,
             "size_bytes": pdf_size,
         },
+        "document": _document_to_dict(document),
     }
-    if publication_metadata is not None:
-        payload["publication"] = {
-            "family_root": publication_metadata.family_root,
-            "part_index": publication_metadata.part_index,
-            "part_count": publication_metadata.part_count,
-        }
-    if document is not None:
-        payload["document"] = _document_to_dict(document)
-    else:
-        if not unavailable_reason:
-            raise ValueError("An unavailable OCR sidecar requires a reason")
-        payload["reason"] = unavailable_reason
-    return json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
+    return json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + "\n"
 
 
-def save_ocr_document_sidecar(
-    document: OcrDocument | None,
+def write_ocr_document_json(
+    document: OcrDocument,
     pdf_path: str | Path,
+    json_path: str | Path,
 ) -> Path:
-    """Persist an OCR document next to the generated PDF."""
-    sidecar_path = ocr_document_sidecar_path(pdf_path)
+    """Write structured OCR for *pdf_path* to the requested *json_path*."""
+    destination = Path(json_path)
     write_text_atomically(
-        sidecar_path,
-        render_ocr_document_sidecar(document, pdf_path),
+        destination,
+        render_ocr_document_json(document, pdf_path),
     )
-    return sidecar_path
+    return destination
 
 
-def publish_ocr_pdf_publications(
-    publications: Sequence[OcrPdfPublication],
+def publish_ocr_pdfs(
+    publications: Sequence[tuple[Path, Path]],
     *,
     overwrite: bool,
     family_root: Path | None = None,
 ) -> list[Path]:
-    """Publish OCR PDFs and their PDF-bound sidecars as one recoverable set."""
-    items = list(publications)
+    """Publish staged OCR PDFs to their requested paths as one recoverable set.
+
+    Each publication is ``(staged_pdf, requested_pdf)``. More than one
+    publication is a split output family: each part records its family in the
+    PDF's own metadata, so a later overwrite can retire the parts it replaces.
+    """
+    items = [(Path(staged), Path(requested)) for staged, requested in publications]
     if not items:
         return []
-    parents = {item.requested_pdf.parent.resolve(strict=True) for item in items}
+    parents = {requested.parent.resolve(strict=True) for _staged, requested in items}
     if len(parents) != 1:
         raise ValueError("OCR PDF outputs must share one directory")
     directory = next(iter(parents))
@@ -155,68 +164,39 @@ def publish_ocr_pdf_publications(
         staging_dir = Path(staging_name)
         flattened: list[tuple[Path, Path]] = []
         expected_source_content: dict[str | Path, tuple[str, int]] = {}
-        for index, item in enumerate(items):
+        for index, (staged_pdf, requested_pdf) in enumerate(items):
             snapshot_pdf = staging_dir / f"{index}-payload.pdf"
             copy_file_atomically(
-                item.staged_pdf,
+                staged_pdf,
                 snapshot_pdf,
                 overwrite=True,
             )
-            physical_page_count = _validated_pdf_page_count(snapshot_pdf)
-            document = item.document
-            if document is not None and not _document_covers_pages(
-                document,
-                physical_page_count,
-            ):
-                document = None
-            pdf_fingerprint = _pdf_fingerprint(snapshot_pdf)
-            sidecar_target = ocr_document_sidecar_path(item.requested_pdf)
-            staged_sidecar = staging_dir / f"{index}-{sidecar_target.name}"
-            staged_sidecar.write_text(
-                render_ocr_document_sidecar(
-                    document,
+            _validated_pdf_page_count(snapshot_pdf)
+            if canonical_family_root is not None and len(items) > 1:
+                _write_split_family(
                     snapshot_pdf,
-                    unavailable_reason=item.unavailable_reason,
-                    pdf_fingerprint=pdf_fingerprint,
-                    publication_metadata=(
-                        _PublicationMetadata(
-                            family_root=canonical_family_root.name,
-                            part_index=index + 1,
-                            part_count=len(items),
-                        )
-                        if canonical_family_root is not None
-                        else None
+                    _SplitFamily(
+                        family_root=canonical_family_root.name,
+                        part_index=index + 1,
+                        part_count=len(items),
                     ),
-                ),
-                encoding="utf-8",
-            )
-            staged_sidecar.chmod(0o600)
-            expected_source_content[snapshot_pdf] = pdf_fingerprint
-            expected_source_content[staged_sidecar] = _regular_file_fingerprint(
-                staged_sidecar,
-                description="OCR sidecar",
-            )
-            flattened.extend(
-                (
-                    (snapshot_pdf, item.requested_pdf),
-                    (staged_sidecar, sidecar_target),
                 )
-            )
+            expected_source_content[snapshot_pdf] = _pdf_fingerprint(snapshot_pdf)
+            flattened.append((snapshot_pdf, requested_pdf))
 
         def target_candidates(counter: int) -> list[Path]:
-            targets: list[Path] = []
-            for item in items:
-                pdf_target = (
-                    item.requested_pdf
+            return [
+                (
+                    requested_pdf
                     if counter == 0
-                    else item.requested_pdf.with_name(
-                        f"{item.requested_pdf.stem}-{counter}{item.requested_pdf.suffix}"
+                    else requested_pdf.with_name(
+                        f"{requested_pdf.stem}-{counter}{requested_pdf.suffix}"
                     )
                 )
-                targets.extend((pdf_target, ocr_document_sidecar_path(pdf_target)))
-            return targets
+                for _staged, requested_pdf in items
+            ]
 
-        published = publish_files_transactionally(
+        return publish_files_transactionally(
             flattened,
             overwrite=overwrite,
             target_candidates=target_candidates,
@@ -227,18 +207,52 @@ def publish_ocr_pdf_publications(
             ),
             expected_source_content=expected_source_content,
         )
-        published_pdfs = published[::2]
-        published_sidecars = published[1::2]
-        if any(
-            sidecar != ocr_document_sidecar_path(pdf)
-            for pdf, sidecar in zip(
-                published_pdfs,
-                published_sidecars,
-                strict=True,
-            )
-        ):
-            raise RuntimeError("OCR PDF and sidecar publication paths diverged")
-        return published_pdfs
+
+
+def _write_split_family(pdf_path: Path, family: _SplitFamily) -> None:
+    """Record which split family part this PDF is, inside the PDF."""
+    import pikepdf
+
+    with pikepdf.open(pdf_path, allow_overwriting_input=True) as pdf:
+        with pdf.open_metadata(set_pikepdf_as_editor=False) as meta:
+            meta[_XMP_FAMILY_ROOT] = family.family_root
+            meta[_XMP_PART_INDEX] = str(family.part_index)
+            meta[_XMP_PART_COUNT] = str(family.part_count)
+        pdf.save(
+            pdf_path,
+            object_stream_mode=pikepdf.ObjectStreamMode.preserve,
+            stream_decode_level=pikepdf.StreamDecodeLevel.none,
+            compress_streams=True,
+            force_version="1.7",
+        )
+
+
+def _read_split_family(pdf_path: Path) -> _SplitFamily | None:
+    """Return the split family this PDF declares, if it declares a valid one."""
+    import pikepdf
+
+    try:
+        with pikepdf.open(pdf_path) as pdf:
+            meta = pdf.open_metadata()
+            family_root = meta.get(_XMP_FAMILY_ROOT)
+            raw_index = meta.get(_XMP_PART_INDEX)
+            raw_count = meta.get(_XMP_PART_COUNT)
+    except (pikepdf.PdfError, OSError, ValueError):
+        return None
+    if not isinstance(family_root, str) or not family_root:
+        return None
+    try:
+        part_index = int(str(raw_index))
+        part_count = int(str(raw_count))
+    except (TypeError, ValueError):
+        return None
+    if part_count <= 1 or part_index < 1 or part_index > part_count:
+        return None
+    return _SplitFamily(
+        family_root=family_root,
+        part_index=part_index,
+        part_count=part_count,
+    )
 
 
 def _ocr_output_family_retire_candidates(
@@ -251,139 +265,62 @@ def _ocr_output_family_retire_candidates(
     def candidates(active_targets: Sequence[Path]) -> list[RetirementTarget]:
         active = set(active_targets)
         existing_family: list[RetirementTarget] = []
-        for target in (root, ocr_document_sidecar_path(root)):
-            if target not in active and os.path.lexists(target):
-                existing_family.append(RetirementTarget.capture(target))
+        if root not in active and os.path.lexists(root):
+            existing_family.append(RetirementTarget.capture(root))
         for entry in root.parent.iterdir():
             match = numbered_pdf.fullmatch(entry.name)
-            if match is None:
+            if match is None or entry in active:
                 continue
-            sidecar = ocr_document_sidecar_path(entry)
-            if entry in active or sidecar in active:
-                continue
-            part_index = int(match.group(1))
-            split_pair = _verified_split_family_pair(
-                entry,
-                sidecar,
-                root,
-                part_index,
-            )
-            if split_pair is not None:
-                existing_family.extend(split_pair)
+            part = _verified_split_family_part(entry, root, int(match.group(1)))
+            if part is not None:
+                existing_family.append(part)
         return sorted(existing_family, key=lambda target: target.path)
 
     return candidates
 
 
-def _verified_split_family_pair(
+def _verified_split_family_part(
     pdf_path: Path,
-    sidecar_path: Path,
     family_root: Path,
     part_index: int,
-) -> tuple[RetirementTarget, RetirementTarget] | None:
+) -> RetirementTarget | None:
+    """Return *pdf_path* as a retirement target only if it is really our part.
+
+    The name alone never decides: a file called ``contract-02.pdf`` may be the
+    user's own. Only a PDF that declares this family and this part index in its
+    own metadata is retired.
+    """
     try:
-        first_pdf = RetirementTarget.capture(pdf_path)
-        first_sidecar = RetirementTarget.capture(sidecar_path)
-        if not stat.S_ISREG(pdf_path.lstat().st_mode) or not stat.S_ISREG(
-            sidecar_path.lstat().st_mode
-        ):
+        first = RetirementTarget.capture(pdf_path)
+        if not stat.S_ISREG(pdf_path.lstat().st_mode):
             return None
-        payload = json.loads(sidecar_path.read_text(encoding="utf-8"))
-        if not isinstance(payload, dict) or payload.get("version") != SIDECAR_VERSION:
-            return None
-        publication = payload.get("publication")
-        if not isinstance(publication, dict):
-            return None
-        part_count = publication.get("part_count")
+        family = _read_split_family(pdf_path)
         if (
-            publication.get("family_root") != family_root.name
-            or type(publication.get("part_index")) is not int
-            or publication["part_index"] != part_index
-            or type(part_count) is not int
-            or part_count <= 1
-            or part_index > part_count
+            family is None
+            or family.family_root != family_root.name
+            or family.part_index != part_index
         ):
             return None
-        pdf_metadata = payload.get("pdf")
-        if not isinstance(pdf_metadata, dict):
-            return None
-        expected_hash = pdf_metadata.get("sha256")
-        expected_size = pdf_metadata.get("size_bytes")
-        if (
-            not isinstance(expected_hash, str)
-            or type(expected_size) is not int
-            or (expected_hash, expected_size) != _pdf_fingerprint(pdf_path)
-        ):
-            return None
-        second_pdf = RetirementTarget.capture(pdf_path)
-        second_sidecar = RetirementTarget.capture(sidecar_path)
-    except (OSError, UnicodeError, ValueError, json.JSONDecodeError):
+        second = RetirementTarget.capture(pdf_path)
+    except (OSError, UnicodeError, ValueError):
         return None
-    if first_pdf != second_pdf or first_sidecar != second_sidecar:
+    if first != second:
         return None
-    return second_pdf, second_sidecar
+    return second
 
 
-def publish_pdf_with_ocr_invalidation(
-    staged_pdf: str | Path,
-    requested_pdf: str | Path,
-    *,
-    overwrite: bool,
-    unavailable_reason: str = _MODIFIED_PDF_REASON,
-) -> Path:
-    """Publish a modified PDF with an atomic structured-OCR invalidation."""
-    return publish_ocr_pdf_publications(
-        [
-            OcrPdfPublication(
-                staged_pdf=Path(staged_pdf),
-                requested_pdf=Path(requested_pdf),
-                unavailable_reason=unavailable_reason,
-            )
-        ],
-        overwrite=overwrite,
-    )[0]
-
-
-def copy_pdf_with_ocr_invalidation(
-    source_pdf: str | Path,
-    requested_pdf: str | Path,
-    *,
-    overwrite: bool,
-    unavailable_reason: str = _MODIFIED_PDF_REASON,
-) -> Path:
-    """Copy a PDF across filesystems, then publish it with its invalidation."""
-    from bigocrpdf.utils.durable_writes import copy_file_atomically
-
-    destination = Path(requested_pdf)
-    with tempfile.TemporaryDirectory(
-        prefix=f".{destination.name}.",
-        dir=destination.parent,
-    ) as staging_name:
-        staged_pdf = Path(staging_name) / destination.name
-        copy_file_atomically(
-            source_pdf,
-            staged_pdf,
-            overwrite=True,
-        )
-        return publish_pdf_with_ocr_invalidation(
-            staged_pdf,
-            destination,
-            overwrite=overwrite,
-            unavailable_reason=unavailable_reason,
-        )
-
-
-def load_ocr_document_sidecar(
+def load_ocr_document_json(
+    json_path: str | Path,
     pdf_path: str | Path,
     *,
     allow_unverified_legacy: bool = False,
 ) -> OcrDocument | None:
-    """Load the OCR sidecar for a PDF path, if present."""
-    sidecar_path = ocr_document_sidecar_path(pdf_path)
-    if sidecar_path.parent.is_dir():
-        from bigocrpdf.utils.durable_writes import recover_pending_publications
+    """Load structured OCR from *json_path*, if it still describes *pdf_path*.
 
-        recover_pending_publications(sidecar_path.parent)
+    Returns ``None`` when the file is absent or describes a different PDF, and
+    raises ``ValueError`` when it is present but not readable as our contract.
+    """
+    sidecar_path = Path(json_path)
     flags = (
         os.O_RDONLY
         | getattr(os, "O_NOFOLLOW", 0)
@@ -395,30 +332,30 @@ def load_ocr_document_sidecar(
     except FileNotFoundError:
         return None
     except OSError as exc:
-        raise ValueError(f"Invalid OCR sidecar {sidecar_path}: {exc}") from exc
+        raise ValueError(f"Invalid OCR JSON {sidecar_path}: {exc}") from exc
     try:
         if not stat.S_ISREG(os.fstat(descriptor).st_mode):
-            raise ValueError(f"Invalid OCR sidecar {sidecar_path}: not a regular file")
+            raise ValueError(f"Invalid OCR JSON {sidecar_path}: not a regular file")
         with os.fdopen(descriptor, encoding="utf-8") as stream:
             descriptor = -1
             payload = json.load(stream)
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
-        raise ValueError(f"Invalid OCR sidecar {sidecar_path}: {exc}") from exc
+        raise ValueError(f"Invalid OCR JSON {sidecar_path}: {exc}") from exc
     finally:
         if descriptor >= 0:
             os.close(descriptor)
     if not isinstance(payload, dict):
-        raise ValueError(f"Invalid OCR sidecar {sidecar_path}: payload must be an object")
+        raise ValueError(f"Invalid OCR JSON {sidecar_path}: payload must be an object")
     version = payload.get("version")
     if type(version) is not int or version not in {
-        _LEGACY_SIDECAR_VERSION,
-        SIDECAR_VERSION,
+        _LEGACY_JSON_VERSION,
+        OCR_JSON_VERSION,
     }:
-        raise ValueError(f"Unsupported OCR sidecar version: {version!r}")
-    if version == SIDECAR_VERSION:
+        raise ValueError(f"Unsupported OCR JSON version: {version!r}")
+    if version == OCR_JSON_VERSION:
         pdf_payload = payload.get("pdf")
         if not isinstance(pdf_payload, dict):
-            raise ValueError(f"Invalid OCR sidecar {sidecar_path}: missing PDF metadata")
+            raise ValueError(f"Invalid OCR JSON {sidecar_path}: missing PDF metadata")
         expected_hash = pdf_payload.get("sha256")
         expected_size = pdf_payload.get("size_bytes")
         if (
@@ -426,9 +363,9 @@ def load_ocr_document_sidecar(
             or len(expected_hash) != 64
             or any(character not in "0123456789abcdef" for character in expected_hash)
         ):
-            raise ValueError(f"Invalid OCR sidecar {sidecar_path}: invalid PDF fingerprint")
+            raise ValueError(f"Invalid OCR JSON {sidecar_path}: invalid PDF fingerprint")
         if type(expected_size) is not int or expected_size < 0:
-            raise ValueError(f"Invalid OCR sidecar {sidecar_path}: invalid PDF size")
+            raise ValueError(f"Invalid OCR JSON {sidecar_path}: invalid PDF size")
         try:
             current_hash, current_size = _pdf_fingerprint(Path(pdf_path))
             if current_size != expected_size:
@@ -441,20 +378,20 @@ def load_ocr_document_sidecar(
         if state == "unavailable":
             reason = payload.get("reason")
             if not isinstance(reason, str) or not reason:
-                raise ValueError(f"Invalid OCR sidecar {sidecar_path}: missing unavailable reason")
+                raise ValueError(f"Invalid OCR JSON {sidecar_path}: missing unavailable reason")
             return None
         if state != "document":
-            raise ValueError(f"Invalid OCR sidecar {sidecar_path}: invalid state")
+            raise ValueError(f"Invalid OCR JSON {sidecar_path}: invalid state")
     if "document" not in payload:
-        raise ValueError(f"Invalid OCR sidecar {sidecar_path}: missing document payload")
+        raise ValueError(f"Invalid OCR JSON {sidecar_path}: missing document payload")
     document_payload = payload["document"]
     if not isinstance(document_payload, dict):
-        raise ValueError(f"Invalid OCR sidecar {sidecar_path}: document payload must be an object")
+        raise ValueError(f"Invalid OCR JSON {sidecar_path}: document payload must be an object")
     try:
         document = _document_from_dict(document_payload)
     except (KeyError, TypeError, ValueError, OverflowError) as exc:
-        raise ValueError(f"Invalid OCR sidecar {sidecar_path}: {exc}") from exc
-    if version == _LEGACY_SIDECAR_VERSION and not allow_unverified_legacy:
+        raise ValueError(f"Invalid OCR JSON {sidecar_path}: {exc}") from exc
+    if version == _LEGACY_JSON_VERSION and not allow_unverified_legacy:
         return None
     return document
 

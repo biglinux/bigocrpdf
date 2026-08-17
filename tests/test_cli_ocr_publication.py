@@ -16,9 +16,9 @@ from bigocrpdf.services.rapidocr_service.config import (
     ProcessingStats,
 )
 from bigocrpdf.services.rapidocr_service.ocr_document_io import (
-    load_ocr_document_sidecar,
-    ocr_document_sidecar_path,
-    save_ocr_document_sidecar,
+    _read_split_family,
+    load_ocr_document_json,
+    ocr_document_json_path,
 )
 
 
@@ -34,11 +34,12 @@ def _pdf_page_count(path: Path) -> int:
         return len(pdf.pages)
 
 
-def _args(source: Path, output: Path) -> argparse.Namespace:
+def _args(source: Path, output: Path, sidecar_json: str | None = None) -> argparse.Namespace:
     return argparse.Namespace(
         input=source,
         output=output,
         save_preprocessed=None,
+        sidecar_json=sidecar_json,
     )
 
 
@@ -55,7 +56,6 @@ def test_cli_ocr_stages_beside_destination_before_publication(
     source.write_bytes(b"source")
     output = tmp_path / "output.pdf"
     _write_pdf(output)
-    save_ocr_document_sidecar(OcrDocument(), output)
     staged_paths: list[Path] = []
 
     def process(_source, staged, progress_callback):
@@ -80,8 +80,8 @@ def test_cli_ocr_stages_beside_destination_before_publication(
 
     assert result == 0
     assert _pdf_page_count(output) == 1
-    assert ocr_document_sidecar_path(output).exists()
-    assert load_ocr_document_sidecar(output) is None
+    # An OCR run publishes one file. Nothing else may appear beside it.
+    assert sorted(entry.name for entry in tmp_path.iterdir()) == ["output.pdf", "source.pdf"]
     assert staged_paths and not staged_paths[0].parent.exists()
 
 
@@ -118,21 +118,6 @@ def test_cli_ocr_failure_preserves_existing_destination(
     source.write_bytes(b"source")
     output = tmp_path / "output.pdf"
     output.write_bytes(b"existing PDF")
-    save_ocr_document_sidecar(
-        OcrDocument(
-            pages=[
-                OcrPage(
-                    page_index=1,
-                    width_px=100,
-                    height_px=100,
-                    dpi=300,
-                    native_text="existing text",
-                )
-            ]
-        ),
-        output,
-    )
-    existing_sidecar = ocr_document_sidecar_path(output).read_bytes()
 
     def fail(_source, staged, progress_callback):
         Path(staged).write_bytes(b"partial PDF")
@@ -152,19 +137,17 @@ def test_cli_ocr_failure_preserves_existing_destination(
 
     assert result == 1
     assert output.read_bytes() == b"existing PDF"
-    assert ocr_document_sidecar_path(output).read_bytes() == existing_sidecar
     assert list(tmp_path.glob(".bigocr_ocr_*")) == []
     assert "Traceback" not in capsys.readouterr().err
 
 
-def test_cli_split_publishes_per_part_sidecar_invalidation(
+def test_cli_split_records_each_part_family_inside_the_pdf(
     tmp_path: Path,
 ) -> None:
     source = tmp_path / "source.pdf"
     source.write_bytes(b"source")
     output = tmp_path / "output.pdf"
     _write_pdf(output)
-    save_ocr_document_sidecar(OcrDocument(), output)
 
     def process(_source, staged, progress_callback):
         staged = Path(staged)
@@ -197,13 +180,18 @@ def test_cli_split_publishes_per_part_sidecar_invalidation(
         )
 
     assert result == 0
-    for part_name in ("output-01.pdf", "output-02.pdf"):
+    for index, part_name in enumerate(("output-01.pdf", "output-02.pdf"), start=1):
         part = tmp_path / part_name
         assert part.exists()
-        assert ocr_document_sidecar_path(part).exists()
-        assert load_ocr_document_sidecar(part) is None
+        family = _read_split_family(part)
+        assert family is not None
+        assert (family.family_root, family.part_index, family.part_count) == (
+            "output.pdf",
+            index,
+            2,
+        )
     assert not output.exists()
-    assert not ocr_document_sidecar_path(output).exists()
+    assert list(tmp_path.glob("*.json")) == []
 
 
 def test_load_dewarp_image_closes_pillow_image(monkeypatch, tmp_path: Path) -> None:
@@ -246,3 +234,126 @@ def test_save_dewarp_images_reports_failed_image_write(monkeypatch, tmp_path: Pa
 
     with pytest.raises(OSError, match="Failed to save image"):
         _save_dewarp_images(image, 1, tmp_path, preprocessor, _logger())
+
+
+def _ocr_stats_with_document() -> "ProcessingStats":
+    return ProcessingStats(
+        pages_total=1,
+        pages_processed=1,
+        ocr_document=OcrDocument(
+            pages=[OcrPage(1, 100, 100, 300, native_text="page one")],
+        ),
+    )
+
+
+def _run_ocr_writing_one_page(args: argparse.Namespace) -> int:
+    def process(_source, staged, progress_callback):
+        _write_pdf(Path(staged))
+        return _ocr_stats_with_document()
+
+    with patch(
+        "bigocrpdf.services.rapidocr_service.backend.ProfessionalPDFOCR",
+        return_value=SimpleNamespace(process=process),
+    ):
+        return _run_full_ocr(args, OCRConfig(), None, _logger())
+
+
+def test_sidecar_json_is_written_only_where_asked(tmp_path: Path) -> None:
+    source = tmp_path / "source.pdf"
+    source.write_bytes(b"source")
+    output = tmp_path / "output.pdf"
+    requested = tmp_path / "elsewhere" / "structured.json"
+    requested.parent.mkdir()
+
+    assert _run_ocr_writing_one_page(_args(source, output, str(requested))) == 0
+
+    assert requested.exists()
+    assert load_ocr_document_json(requested, output) is not None
+    assert not ocr_document_json_path(output).exists()
+
+
+def test_sidecar_json_without_a_path_uses_the_default_name(tmp_path: Path) -> None:
+    source = tmp_path / "source.pdf"
+    source.write_bytes(b"source")
+    output = tmp_path / "output.pdf"
+
+    assert _run_ocr_writing_one_page(_args(source, output, "")) == 0
+
+    default_path = ocr_document_json_path(output)
+    assert default_path.exists()
+    assert load_ocr_document_json(default_path, output) is not None
+
+
+def test_sidecar_json_is_compact(tmp_path: Path) -> None:
+    source = tmp_path / "source.pdf"
+    source.write_bytes(b"source")
+    output = tmp_path / "output.pdf"
+
+    assert _run_ocr_writing_one_page(_args(source, output, "")) == 0
+
+    # One line: indentation was 62% of the bytes of an 18-page document.
+    assert ocr_document_json_path(output).read_text(encoding="utf-8").count("\n") == 1
+
+
+def test_sidecar_json_reports_that_split_output_has_no_structured_form(
+    tmp_path: Path,
+    caplog,
+) -> None:
+    source = tmp_path / "source.pdf"
+    source.write_bytes(b"source")
+    output = tmp_path / "output.pdf"
+
+    def process(_source, staged, progress_callback):
+        staged = Path(staged)
+        parts = [staged.with_name("output-01.pdf"), staged.with_name("output-02.pdf")]
+        for part in parts:
+            _write_pdf(part)
+        return ProcessingStats(
+            pages_total=2,
+            pages_processed=2,
+            split_output_files=[str(part) for part in parts],
+        )
+
+    logger = logging.getLogger("test-split-json")
+    caplog.set_level(logging.WARNING, logger=logger.name)
+    with patch(
+        "bigocrpdf.services.rapidocr_service.backend.ProfessionalPDFOCR",
+        return_value=SimpleNamespace(process=process),
+    ):
+        result = _run_full_ocr(_args(source, output, ""), OCRConfig(), None, logger)
+
+    assert result == 0
+    assert "--sidecar-json needs one output PDF" in caplog.text
+    assert list(tmp_path.glob("*.json")) == []
+
+
+def test_sidecar_json_refuses_a_document_that_misses_pages(
+    tmp_path: Path,
+    caplog,
+) -> None:
+    """Partial structured OCR is not written at all, rather than written wrong."""
+    source = tmp_path / "source.pdf"
+    source.write_bytes(b"source")
+    output = tmp_path / "output.pdf"
+
+    def process(_source, staged, progress_callback):
+        _write_pdf(Path(staged), pages=2)
+        return ProcessingStats(
+            pages_total=2,
+            pages_processed=2,
+            ocr_document=OcrDocument(
+                pages=[OcrPage(1, 100, 100, 300, native_text="only the first page")],
+            ),
+        )
+
+    logger = logging.getLogger("test-partial-json")
+    caplog.set_level(logging.WARNING, logger=logger.name)
+    with patch(
+        "bigocrpdf.services.rapidocr_service.backend.ProfessionalPDFOCR",
+        return_value=SimpleNamespace(process=process),
+    ):
+        result = _run_full_ocr(_args(source, output, ""), OCRConfig(), None, logger)
+
+    assert result == 0
+    assert "does not cover every" in caplog.text
+    assert not ocr_document_json_path(output).exists()

@@ -640,7 +640,6 @@ def convert_to_pdfa(input_pdf: Path, output_pdf: Path, page_layout: str = "defau
     this approach injects the required PDF/A metadata directly:
       - XMP metadata declaring PDF/A-2b conformance
       - OutputIntents with embedded sRGB ICC profile
-      - MarkInfo dictionary
 
     Images are preserved byte-for-byte, so there is zero quality loss
     and the operation is nearly instantaneous.

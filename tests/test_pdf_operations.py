@@ -1,6 +1,5 @@
 """Tests for pdf_operations module."""
 
-import json
 import os
 import shutil
 import stat
@@ -26,10 +25,6 @@ from bigocrpdf.services.pdf_operations import (
     split_by_pages,
     split_by_ranges,
     split_by_size,
-)
-from bigocrpdf.services.rapidocr_service.ocr_document_io import (
-    load_ocr_document_sidecar,
-    ocr_document_sidecar_path,
 )
 from bigocrpdf.utils.durable_writes import recover_pending_publications
 
@@ -88,16 +83,11 @@ def test_atomic_pdf_save_preserves_existing_destination_on_failure(tmp_path):
     assert list(tmp_path.iterdir()) == [destination]
 
 
-def test_atomic_pdf_save_replaces_legacy_sidecar_with_invalidation(
+def test_atomic_pdf_save_publishes_the_pdf_and_nothing_else(
     tmp_path: Path,
 ) -> None:
     destination = tmp_path / "output.pdf"
     _create_test_pdf(str(destination), 1)
-    legacy_sidecar = ocr_document_sidecar_path(destination)
-    legacy_sidecar.write_text(
-        '{"version": 1, "document": {"pages": []}}',
-        encoding="utf-8",
-    )
     replacement = pikepdf.Pdf.new()
     replacement.add_blank_page()
 
@@ -106,10 +96,7 @@ def test_atomic_pdf_save_replaces_legacy_sidecar_with_invalidation(
     finally:
         replacement.close()
 
-    sidecar_payload = json.loads(legacy_sidecar.read_text(encoding="utf-8"))
-    assert sidecar_payload["version"] == 2
-    assert sidecar_payload["state"] == "unavailable"
-    assert load_ocr_document_sidecar(destination) is None
+    assert [entry.name for entry in tmp_path.iterdir()] == ["output.pdf"]
 
 
 def test_atomic_new_pdf_save_closes_document_on_failure(tmp_path):
@@ -222,8 +209,8 @@ class TestSplitByPages:
                 assert result.total_pages == 3
                 for out_file in result.output_files:
                     assert os.path.exists(out_file)
-                    assert ocr_document_sidecar_path(out_file).exists()
-                    assert load_ocr_document_sidecar(out_file) is None
+                # Splitting produces PDFs only.
+                assert list(Path(out_dir).glob("*.json")) == []
             finally:
                 os.unlink(path)
 
@@ -264,7 +251,6 @@ class TestSplitByPages:
         ]
         assert get_pdf_info(existing).page_count == 5
         assert all(Path(path).exists() for path in result.output_files)
-        assert all(ocr_document_sidecar_path(path).exists() for path in result.output_files)
 
     def test_size_split_reports_only_actual_published_paths(
         self,
@@ -291,7 +277,6 @@ class TestSplitByPages:
             "document_part003-1.pdf",
         ]
         assert all(Path(path).exists() for path in result.output_files)
-        assert all(ocr_document_sidecar_path(path).exists() for path in result.output_files)
 
     def test_range_split_reports_only_actual_published_paths(
         self,
@@ -317,7 +302,6 @@ class TestSplitByPages:
             "document_pages2-3-1.pdf",
         ]
         assert all(Path(path).exists() for path in result.output_files)
-        assert all(ocr_document_sidecar_path(path).exists() for path in result.output_files)
 
     def test_generation_failure_publishes_no_partial_parts(self):
         with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:

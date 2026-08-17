@@ -37,6 +37,7 @@ def _args(source: Path, output: Path, pages: str) -> argparse.Namespace:
         output=output,
         pages=pages,
         save_preprocessed=None,
+        sidecar_json=None,
     )
 
 

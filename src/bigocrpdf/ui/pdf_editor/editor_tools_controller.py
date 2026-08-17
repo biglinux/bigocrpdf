@@ -147,9 +147,7 @@ class EditorToolsController:
 
     def _finish_compress_save(self, dialog, result, tmp_path, message) -> None:
         """Finish saving the compressed file."""
-        from bigocrpdf.services.rapidocr_service.ocr_document_io import (
-            copy_pdf_with_ocr_invalidation,
-        )
+        from bigocrpdf.utils.durable_writes import copy_file_atomically
         from bigocrpdf.utils.temp_manager import remove_tracked_file
 
         try:
@@ -157,7 +155,7 @@ class EditorToolsController:
             if file:
                 path = file.get_path()
                 if path:
-                    copy_pdf_with_ocr_invalidation(
+                    copy_file_atomically(
                         tmp_path,
                         path,
                         overwrite=True,

@@ -1,4 +1,6 @@
 import argparse
+import hashlib
+import json
 import logging
 import re
 import shutil
@@ -26,9 +28,9 @@ from bigocrpdf.services.rapidocr_service.ocr_document_export import (  # type: i
     ocr_document_to_pages_elements,
 )
 from bigocrpdf.services.rapidocr_service.ocr_document_io import (  # type: ignore[import-untyped]
-    load_ocr_document_sidecar,
-    ocr_document_sidecar_path,
-    save_ocr_document_sidecar,
+    load_ocr_document_json,
+    ocr_document_json_path,
+    write_ocr_document_json,
 )
 from bigocrpdf.utils.odf_builder import (  # type: ignore[import-untyped]
     ExportCancelled,
@@ -90,10 +92,20 @@ def test_ocr_document_text_preserves_page_order() -> None:
     assert text.index("First page") < text.index("--- Page 2 ---") < text.index("Second page")
 
 
-def test_cli_positioned_odt_ignores_corrupt_structured_sidecar(tmp_path: Path) -> None:
+def _write_json(document: OcrDocument, pdf_path: Path) -> Path:
+    """Write structured OCR to the default name beside *pdf_path*."""
+    return write_ocr_document_json(document, pdf_path, ocr_document_json_path(pdf_path))
+
+
+def _load_json(pdf_path: Path, **kwargs) -> OcrDocument | None:
+    """Load structured OCR from the default name beside *pdf_path*."""
+    return load_ocr_document_json(ocr_document_json_path(pdf_path), pdf_path, **kwargs)
+
+
+def test_cli_positioned_odt_ignores_corrupt_structured_json(tmp_path: Path) -> None:
     pdf_path = tmp_path / "source.pdf"
     pdf_path.write_bytes(b"%PDF-1.4\n")
-    ocr_document_sidecar_path(pdf_path).write_text("{not-json", encoding="utf-8")
+    ocr_document_json_path(pdf_path).write_text("{not-json", encoding="utf-8")
     output_path = tmp_path / "positioned.odt"
     args = argparse.Namespace(
         input=pdf_path,
@@ -701,10 +713,10 @@ def test_ocr_document_sidecar_roundtrip(tmp_path: Path) -> None:
         ],
     )
 
-    sidecar_path = save_ocr_document_sidecar(document, pdf_path)
-    loaded = load_ocr_document_sidecar(pdf_path)
+    sidecar_path = _write_json(document, pdf_path)
+    loaded = _load_json(pdf_path)
 
-    assert sidecar_path == ocr_document_sidecar_path(pdf_path)
+    assert sidecar_path == ocr_document_json_path(pdf_path)
     assert loaded is not None
     assert loaded.diagnostics == {"engine": "rapidocr"}
     assert loaded.pages[0].retry_level == 1
@@ -721,19 +733,13 @@ def test_legacy_sidecar_requires_explicit_unverified_opt_in(
 ) -> None:
     pdf_path = tmp_path / "legacy.pdf"
     pdf_path.write_bytes(b"%PDF-1.7\nlegacy")
-    ocr_document_sidecar_path(pdf_path).write_text(
+    ocr_document_json_path(pdf_path).write_text(
         '{"version": 1, "document": {"diagnostics": {}, "pages": []}}',
         encoding="utf-8",
     )
 
-    assert load_ocr_document_sidecar(pdf_path) is None
-    assert (
-        load_ocr_document_sidecar(
-            pdf_path,
-            allow_unverified_legacy=True,
-        )
-        is not None
-    )
+    assert _load_json(pdf_path) is None
+    assert _load_json(pdf_path, allow_unverified_legacy=True) is not None
 
 
 def test_sidecar_temp_symlink_cannot_overwrite_target(tmp_path: Path) -> None:
@@ -744,13 +750,13 @@ def test_sidecar_temp_symlink_cannot_overwrite_target(tmp_path: Path) -> None:
     predictable_temp = tmp_path / "out.bigocr.json.tmp"
     predictable_temp.symlink_to(victim)
 
-    save_ocr_document_sidecar(OcrDocument(), pdf_path)
+    _write_json(OcrDocument(), pdf_path)
 
     assert victim.read_text(encoding="utf-8") == "KEEP"
     assert predictable_temp.is_symlink()
 
 
-def test_save_ocr_document_sidecar_enriches_layout_blocks(tmp_path: Path) -> None:
+def test_write_ocr_document_json_enriches_layout_blocks(tmp_path: Path) -> None:
     pdf_path = tmp_path / "out.pdf"
     pdf_path.write_bytes(b"%PDF-1.7\nlayout")
     document = OcrDocument(
@@ -770,8 +776,8 @@ def test_save_ocr_document_sidecar_enriches_layout_blocks(tmp_path: Path) -> Non
         ]
     )
 
-    save_ocr_document_sidecar(document, pdf_path)
-    loaded = load_ocr_document_sidecar(pdf_path)
+    _write_json(document, pdf_path)
+    loaded = _load_json(pdf_path)
 
     assert loaded is not None
     assert loaded.pages[0].layout_blocks[0].kind == "table"
@@ -783,7 +789,7 @@ def test_stale_sidecar_is_ignored_after_pdf_content_changes(
 ) -> None:
     pdf_path = tmp_path / "out.pdf"
     pdf_path.write_bytes(b"old PDF")
-    save_ocr_document_sidecar(
+    _write_json(
         OcrDocument(
             pages=[
                 OcrPage(
@@ -800,29 +806,43 @@ def test_stale_sidecar_is_ignored_after_pdf_content_changes(
 
     pdf_path.write_bytes(b"new PDF")
 
-    assert load_ocr_document_sidecar(pdf_path) is None
+    assert _load_json(pdf_path) is None
 
 
-def test_sidecar_invalidation_marker_forces_pdf_fallback(
+def test_invalidation_marker_written_by_older_versions_still_loads_as_nothing(
     tmp_path: Path,
 ) -> None:
+    """Older versions dropped a marker beside every PDF they could not describe.
+
+    Nothing writes one now, but the ones already on disk must keep reading as
+    'no structured OCR' rather than as an error.
+    """
     pdf_path = tmp_path / "out.pdf"
     pdf_path.write_bytes(b"PDF without structured OCR")
+    digest = hashlib.sha256(pdf_path.read_bytes()).hexdigest()
+    ocr_document_json_path(pdf_path).write_text(
+        json.dumps(
+            {
+                "version": 2,
+                "state": "unavailable",
+                "pdf": {"sha256": digest, "size_bytes": pdf_path.stat().st_size},
+                "reason": "structured-data-not-produced",
+            }
+        ),
+        encoding="utf-8",
+    )
 
-    sidecar_path = save_ocr_document_sidecar(None, pdf_path)
-
-    assert sidecar_path.exists()
-    assert load_ocr_document_sidecar(pdf_path) is None
+    assert _load_json(pdf_path) is None
 
 
 def test_ocr_document_sidecar_corrupt_json_fails_clearly(tmp_path: Path) -> None:
     pdf_path = tmp_path / "out.pdf"
-    ocr_document_sidecar_path(pdf_path).write_text("{not-json", encoding="utf-8")
+    ocr_document_json_path(pdf_path).write_text("{not-json", encoding="utf-8")
 
     try:
-        load_ocr_document_sidecar(pdf_path)
+        _load_json(pdf_path)
     except ValueError as exc:
-        assert "Invalid OCR sidecar" in str(exc)
+        assert "Invalid OCR JSON" in str(exc)
     else:
         raise AssertionError("Corrupt OCR sidecar was accepted")
 
@@ -834,26 +854,26 @@ def test_ocr_document_sidecar_symlink_is_rejected(tmp_path: Path) -> None:
         '{"version": 1, "document": {"diagnostics": {}, "pages": []}}',
         encoding="utf-8",
     )
-    ocr_document_sidecar_path(pdf_path).symlink_to(target)
+    ocr_document_json_path(pdf_path).symlink_to(target)
 
-    with pytest.raises(ValueError, match="Invalid OCR sidecar"):
-        load_ocr_document_sidecar(pdf_path, allow_unverified_legacy=True)
+    with pytest.raises(ValueError, match="Invalid OCR JSON"):
+        _load_json(pdf_path, allow_unverified_legacy=True)
 
 
 def test_ocr_document_sidecar_invalid_utf8_fails_clearly(tmp_path: Path) -> None:
     pdf_path = tmp_path / "out.pdf"
-    ocr_document_sidecar_path(pdf_path).write_bytes(b"\xff")
+    ocr_document_json_path(pdf_path).write_bytes(b"\xff")
 
-    with pytest.raises(ValueError, match="Invalid OCR sidecar"):
-        load_ocr_document_sidecar(pdf_path)
+    with pytest.raises(ValueError, match="Invalid OCR JSON"):
+        _load_json(pdf_path)
 
 
 def test_ocr_document_sidecar_missing_document_fails_clearly(tmp_path: Path) -> None:
     pdf_path = tmp_path / "out.pdf"
-    ocr_document_sidecar_path(pdf_path).write_text('{"version": 1}', encoding="utf-8")
+    ocr_document_json_path(pdf_path).write_text('{"version": 1}', encoding="utf-8")
 
     try:
-        load_ocr_document_sidecar(pdf_path)
+        _load_json(pdf_path)
     except ValueError as exc:
         assert "missing document payload" in str(exc)
     else:
@@ -862,32 +882,32 @@ def test_ocr_document_sidecar_missing_document_fails_clearly(tmp_path: Path) -> 
 
 def test_ocr_document_sidecar_invalid_document_shape_fails_clearly(tmp_path: Path) -> None:
     pdf_path = tmp_path / "out.pdf"
-    ocr_document_sidecar_path(pdf_path).write_text(
+    ocr_document_json_path(pdf_path).write_text(
         '{"version": 1, "document": {"pages": [null]}}',
         encoding="utf-8",
     )
 
     try:
-        load_ocr_document_sidecar(pdf_path)
+        _load_json(pdf_path)
     except ValueError as exc:
-        assert "Invalid OCR sidecar" in str(exc)
+        assert "Invalid OCR JSON" in str(exc)
     else:
         raise AssertionError("Structurally invalid OCR sidecar was accepted")
 
 
 def test_ocr_document_sidecar_invalid_version_fails_clearly(tmp_path: Path) -> None:
     pdf_path = tmp_path / "out.pdf"
-    ocr_document_sidecar_path(pdf_path).write_text(
+    ocr_document_json_path(pdf_path).write_text(
         '{"version": "banana", "document": {"pages": []}}',
         encoding="utf-8",
     )
 
     try:
-        load_ocr_document_sidecar(pdf_path)
+        _load_json(pdf_path)
     except ValueError as exc:
-        assert "Unsupported OCR sidecar version" in str(exc)
+        assert "Unsupported OCR JSON version" in str(exc)
     else:
-        raise AssertionError("Invalid OCR sidecar version was accepted")
+        raise AssertionError("Invalid OCR JSON version was accepted")
 
 
 def test_native_text_page_becomes_document_paragraph() -> None:
@@ -909,11 +929,10 @@ def test_native_text_page_becomes_document_paragraph() -> None:
     assert pages[0][0].raw_lines == ["Line one", "Line two"]
 
 
-def test_cli_export_txt_prefers_structured_sidecar(tmp_path: Path) -> None:
+def _structured_json_for_export(tmp_path: Path) -> tuple[Path, Path]:
     pdf_path = tmp_path / "input.pdf"
     pdf_path.write_bytes(b"%PDF-1.7\n")
-    output_path = tmp_path / "out.txt"
-    save_ocr_document_sidecar(
+    json_path = _write_json(
         OcrDocument(
             pages=[
                 OcrPage(
@@ -921,13 +940,19 @@ def test_cli_export_txt_prefers_structured_sidecar(tmp_path: Path) -> None:
                     width_px=600,
                     height_px=800,
                     dpi=300,
-                    text_results=[OCRResult("Sidecar text", _box(20, 20, 90), 0.95)],
+                    text_results=[OCRResult("Structured text", _box(20, 20, 90), 0.95)],
                 )
             ]
         ),
         pdf_path,
     )
-    args = argparse.Namespace(input=pdf_path, output=output_path)
+    return pdf_path, json_path
+
+
+def test_cli_export_txt_uses_structured_json_when_asked(tmp_path: Path) -> None:
+    pdf_path, json_path = _structured_json_for_export(tmp_path)
+    output_path = tmp_path / "out.txt"
+    args = argparse.Namespace(input=pdf_path, output=output_path, from_json=json_path)
 
     with patch(
         "bigocrpdf.utils.tsv_odf_converter.convert_pdf_to_text",
@@ -936,4 +961,39 @@ def test_cli_export_txt_prefers_structured_sidecar(tmp_path: Path) -> None:
         exit_code = _cmd_export_txt(args, logging.getLogger("test"))
 
     assert exit_code == 0
-    assert "Sidecar text" in output_path.read_text(encoding="utf-8")
+    assert "Structured text" in output_path.read_text(encoding="utf-8")
+
+
+def test_cli_export_txt_reads_the_pdf_when_no_json_is_named(tmp_path: Path) -> None:
+    """A JSON sitting beside the PDF is not a reason to read it."""
+    pdf_path, _json_path = _structured_json_for_export(tmp_path)
+    output_path = tmp_path / "out.txt"
+    args = argparse.Namespace(input=pdf_path, output=output_path, from_json=None)
+
+    with patch(
+        "bigocrpdf.utils.tsv_odf_converter.convert_pdf_to_text",
+        return_value="text from the PDF layer",
+    ) as from_pdf:
+        exit_code = _cmd_export_txt(args, logging.getLogger("test"))
+
+    assert exit_code == 0
+    assert from_pdf.called
+    assert output_path.read_text(encoding="utf-8") == "text from the PDF layer"
+
+
+def test_cli_export_txt_falls_back_when_the_named_json_describes_another_pdf(
+    tmp_path: Path,
+) -> None:
+    pdf_path, json_path = _structured_json_for_export(tmp_path)
+    pdf_path.write_bytes(b"%PDF-1.7\nchanged after the export was written")
+    output_path = tmp_path / "out.txt"
+    args = argparse.Namespace(input=pdf_path, output=output_path, from_json=json_path)
+
+    with patch(
+        "bigocrpdf.utils.tsv_odf_converter.convert_pdf_to_text",
+        return_value="text from the PDF layer",
+    ):
+        exit_code = _cmd_export_txt(args, logging.getLogger("test"))
+
+    assert exit_code == 0
+    assert output_path.read_text(encoding="utf-8") == "text from the PDF layer"

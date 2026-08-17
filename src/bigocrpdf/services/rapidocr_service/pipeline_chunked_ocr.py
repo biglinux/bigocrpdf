@@ -50,7 +50,7 @@ def _chunk_result_render_size(
 
 
 def _resource_diagnostics(res_profile: Any, pipe_cfg: Any, chunk_size: int) -> dict[str, Any]:
-    """The tier and budget the pipeline chose, for the sidecar.
+    """The tier and budget the pipeline chose, for the OCR diagnostics.
 
     Both arguments are typed ``Any`` by this pipeline, so fields are read
     defensively: a diagnostics gap is acceptable, an AttributeError that aborts

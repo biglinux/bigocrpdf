@@ -31,7 +31,7 @@ from benchmarks.ocr_benchmark import (
 )
 from benchmarks.prepare_benchmark_datasets import write_manifest
 from bigocrpdf.services.rapidocr_service.config import OcrDocument, OcrLayoutBlock, OcrPage
-from bigocrpdf.services.rapidocr_service.ocr_document_io import save_ocr_document_sidecar
+from bigocrpdf.services.rapidocr_service.ocr_document_io import write_ocr_document_json
 
 
 def _write_proc_stat(proc_root: Path, pid: int, ppid: int, rss_pages: int) -> None:
@@ -224,7 +224,7 @@ def test_manifest_snapshot_rejects_symlinked_material(tmp_path: Path) -> None:
 def test_benchmark_output_path_never_uses_untrusted_sample_id(monkeypatch) -> None:
     captured_paths: list[Path] = []
 
-    def fake_run(_row, _profile, output_pdf, _gpu_backend):
+    def fake_run(_row, _profile, output_pdf, _sidecar_json, _gpu_backend):
         captured_paths.append(output_pdf)
         return subprocess.CompletedProcess([], 1, "", "failed"), 10.0
 
@@ -349,6 +349,7 @@ def test_run_bigocrpdf_reaps_process_group_when_interrupted(monkeypatch) -> None
                 "rec_batch_num": "1",
             },
             Path("/output.pdf"),
+            Path("/output.bigocr.json"),
             "off",
         )
 
@@ -429,9 +430,10 @@ def test_read_ocr_sidecar_metadata_exposes_runtime_and_layout_counts(tmp_path: P
             )
         ],
     )
-    save_ocr_document_sidecar(document, output_pdf)
+    sidecar_json = tmp_path / "result.bigocr.json"
+    write_ocr_document_json(document, output_pdf, sidecar_json)
 
-    metadata = read_ocr_sidecar_metadata(output_pdf)
+    metadata = read_ocr_sidecar_metadata(sidecar_json, output_pdf)
 
     assert metadata["effective_engine_type"] == "openvino"
     assert metadata["effective_rec_batch_num"] == 4

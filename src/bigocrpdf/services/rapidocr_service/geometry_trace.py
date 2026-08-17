@@ -9,8 +9,8 @@ gave no clue about which gate rejected it.
 
 The trace travels with the page: ``page_worker`` puts it in the result dict,
 ``backend_text_layer`` copies it into ``OcrPage.diagnostics``, and from there it
-reaches the ``.bigocr.json`` sidecar and every benchmark record.  So values must
-stay JSON scalars, and the whole thing must stay small.
+reaches every benchmark record and any structured OCR JSON the caller asks for.
+So values must stay JSON scalars, and the whole thing must stay small.
 """
 
 import time
@@ -20,8 +20,8 @@ from dataclasses import dataclass, field
 from typing import Any
 
 # One page cannot legitimately run more steps than this; a longer list means a
-# loop is recording, and an unbounded diagnostics blob would end up in the
-# sidecar of every page.
+# loop is recording, and an unbounded diagnostics blob would end up in every
+# page of the structured OCR output.
 MAX_STEPS = 16
 
 # Reasons a step did not change the image. Free-form strings are still allowed

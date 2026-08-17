@@ -652,11 +652,9 @@ def apply_changes_to_pdf_atomically(
             staged_path = Path(staging_name) / destination.name
             if not apply_changes_to_pdf(doc, str(staged_path)):
                 return False
-            from bigocrpdf.services.rapidocr_service.ocr_document_io import (
-                publish_pdf_with_ocr_invalidation,
-            )
+            from bigocrpdf.utils.durable_writes import publish_file_atomically
 
-            publish_pdf_with_ocr_invalidation(
+            publish_file_atomically(
                 staged_path,
                 destination,
                 overwrite=True,

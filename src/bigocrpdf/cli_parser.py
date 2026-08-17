@@ -245,6 +245,18 @@ def _add_ocr_output_options(ocr_parser: argparse.ArgumentParser) -> None:
         metavar="Q",
         help=_("Image quality for JPEG/WebP (1-95, default: 85)."),
     )
+    output.add_argument(
+        "--sidecar-json",
+        nargs="?",
+        const="",
+        default=None,
+        metavar="FILE",
+        help=_(
+            "Also write structured OCR data (text, word boxes, confidence, layout) "
+            "as JSON. Nothing is written without this option. If FILE is omitted, "
+            "the name is the output PDF with a .bigocr.json suffix."
+        ),
+    )
 
 
 def _add_ocr_debug_options(ocr_parser: argparse.ArgumentParser) -> None:
@@ -452,6 +464,16 @@ def _add_export_output_parser(
     export_parser = subparsers.add_parser(command, help=command_help)
     export_parser.add_argument("input", type=Path, help=input_help)
     export_parser.add_argument("-o", "--output", type=Path, default=None, help=output_help)
+    export_parser.add_argument(
+        "--from-json",
+        type=Path,
+        default=None,
+        metavar="FILE",
+        help=_(
+            "Export from structured OCR JSON written earlier by "
+            "'ocr --sidecar-json', instead of reading the PDF text layer."
+        ),
+    )
     return export_parser
 
 

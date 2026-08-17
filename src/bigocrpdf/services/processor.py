@@ -19,11 +19,7 @@ from bigocrpdf.services.rapidocr_service import (
     ProcessingStats,
     RapidOCREngine,
 )
-from bigocrpdf.services.rapidocr_service.ocr_document_io import (
-    OcrPdfPublication,
-    complete_ocr_document,
-    publish_ocr_pdf_publications,
-)
+from bigocrpdf.services.rapidocr_service.ocr_document_io import publish_ocr_pdfs
 from bigocrpdf.services.settings import OcrSettings
 from bigocrpdf.utils.checkpoint_manager import CheckpointManager, get_checkpoint_manager
 from bigocrpdf.utils.history_manager import HistoryManager, get_history_manager
@@ -370,13 +366,9 @@ class OcrProcessor:
 
         overwrite = self.settings.overwrite_existing
         if stats.split_output_files:
-            published_parts = publish_ocr_pdf_publications(
+            published_parts = publish_ocr_pdfs(
                 [
-                    OcrPdfPublication(
-                        staged_pdf=Path(part),
-                        requested_pdf=requested_output.parent / Path(part).name,
-                        unavailable_reason="split-page-mapping-unavailable",
-                    )
+                    (Path(part), requested_output.parent / Path(part).name)
                     for part in stats.split_output_files
                 ],
                 overwrite=overwrite,
@@ -385,18 +377,8 @@ class OcrProcessor:
             stats.split_output_files = [str(part) for part in published_parts]
             return stats.split_output_files
 
-        published_output = publish_ocr_pdf_publications(
-            [
-                OcrPdfPublication(
-                    staged_pdf=staged_output,
-                    requested_pdf=requested_output,
-                    document=complete_ocr_document(
-                        stats.ocr_document,
-                        pages_total=stats.pages_total,
-                        pages_processed=stats.pages_processed,
-                    ),
-                )
-            ],
+        published_output = publish_ocr_pdfs(
+            [(staged_output, requested_output)],
             overwrite=overwrite,
             family_root=requested_output,
         )[0]
