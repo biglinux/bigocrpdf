@@ -318,6 +318,36 @@ def test_persistent_worker_passes_the_requested_textline_classifier():
     assert [call["use_cls"] for call in calls] == [True, False]
 
 
+def test_every_stage_is_named_so_a_previous_call_cannot_disable_detection():
+    """RapidOCR keeps the last call's stages, and one of our calls turns det off.
+
+    The vertical-region pass re-reads a single crop with ``use_det=False``. That
+    value stayed on the engine, so the next page returned a ``TextRecOutput``
+    with no boxes and the worker reported
+    ``'TextRecOutput' object has no attribute 'boxes'`` for every remaining page
+    of the document. Naming the stages on each call is what prevents it.
+    """
+    sticky = {"use_det": True, "use_rec": True}
+    calls = []
+
+    def fake_engine(_image, **kwargs):
+        # Mirror RapidOCR.update_params: a non-None value persists on the engine.
+        for key in ("use_det", "use_rec"):
+            if kwargs.get(key) is not None:
+                sticky[key] = kwargs[key]
+        calls.append(dict(kwargs))
+        return SimpleNamespace(boxes=[], txts=[], scores=[])
+
+    fake_engine(object(), use_det=False, use_cls=False, use_rec=True)  # o passe vertical
+    assert sticky["use_det"] is False
+
+    ocr_worker._run_ocr_engine(fake_engine, object(), 0.3, 0.5, False, 2, use_cls=False)
+
+    assert sticky["use_det"] is True
+    assert calls[-1]["use_det"] is True
+    assert calls[-1]["use_rec"] is True
+
+
 def test_low_memory_openvino_still_forwards_the_classifier_choice():
     """The low-memory variant swaps recognize_txt; it must not swap the answer.
 
@@ -340,7 +370,15 @@ def test_low_memory_openvino_still_forwards_the_classifier_choice():
 
     ocr_worker._run_ocr_engine(FakeEngine(), object(), 0.3, 0.5, True, 2, use_cls=True)
 
-    assert calls == [{"use_cls": True, "text_score": 0.3, "box_thresh": 0.5}]
+    assert calls == [
+        {
+            "use_det": True,
+            "use_rec": True,
+            "use_cls": True,
+            "text_score": 0.3,
+            "box_thresh": 0.5,
+        }
+    ]
 
 
 def test_gpu_off_keeps_cpu_engine():

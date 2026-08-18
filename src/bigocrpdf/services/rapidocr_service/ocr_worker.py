@@ -162,6 +162,8 @@ def run_ocr_full(
         # they are definitely applied (per-call overrides take precedence)
         result = ocr(
             img,
+            use_det=True,
+            use_rec=True,
             use_cls=use_textline_cls,
             text_score=text_score,
             box_thresh=box_thresh,
@@ -269,13 +271,24 @@ def _run_ocr_engine(
 ) -> Any:
     """Run one image through the engine.
 
-    ``use_cls`` has no default on purpose: RapidOCR's ``update_params`` applies
-    any non-None value over the ``Global.use_cls`` set at construction, so a
-    constant here silently overrules what the caller asked for. Every caller
-    must state the answer.
+    Every stage is named on every call, because RapidOCR's ``update_params``
+    keeps whatever the last call passed. The vertical-region pass asks for
+    ``use_det=False`` to re-read one crop, and that stuck: the next page came
+    back as a ``TextRecOutput`` with no boxes at all, so a single page with
+    vertical text silenced detection for the whole rest of the document.
+
+    ``use_cls`` has no default on purpose either: a constant here overruled what
+    the caller asked for.
     """
     if not low_memory_openvino:
-        return engine(image, use_cls=use_cls, text_score=text_score, box_thresh=box_thresh)
+        return engine(
+            image,
+            use_det=True,
+            use_rec=True,
+            use_cls=use_cls,
+            text_score=text_score,
+            box_thresh=box_thresh,
+        )
 
     detector_session = engine.text_det.session
     _set_openvino_request(detector_session, True, threads)
@@ -287,7 +300,14 @@ def _run_ocr_engine(
 
     engine.recognize_txt = recognize_without_detector
     try:
-        return engine(image, use_cls=use_cls, text_score=text_score, box_thresh=box_thresh)
+        return engine(
+            image,
+            use_det=True,
+            use_rec=True,
+            use_cls=use_cls,
+            text_score=text_score,
+            box_thresh=box_thresh,
+        )
     finally:
         engine.recognize_txt = recognize_txt
         _set_openvino_request(detector_session, False, threads)
