@@ -209,3 +209,51 @@ class TestBuildParser:
         args = p.parse_args(["ocr", "in.pdf", "-o", "out.pdf", "--no-dewarp", "--no-deskew"])
         assert args.no_dewarp is True
         assert args.no_deskew is True
+
+
+def test_parser_default_matches_the_pipeline_default() -> None:
+    """The parser spells the default out, so something must keep the two equal."""
+    from bigocrpdf.services.rapidocr_service.config import (
+        DEFAULT_DETECTION_FULL_RESOLUTION,
+        OCRConfig,
+    )
+
+    args = build_parser().parse_args(["ocr", "in.pdf", "-o", "out.pdf"])
+
+    assert args.full_resolution is DEFAULT_DETECTION_FULL_RESOLUTION
+    assert args.full_resolution is OCRConfig().detection_full_resolution
+
+
+def test_building_the_parser_does_not_load_the_ocr_stack() -> None:
+    """--help must not pay for cv2, numpy, pikepdf and reportlab.
+
+    The CLI imports its heavy dependencies inside the functions that need them.
+    A module-level import in the parser undid that for every invocation.
+    """
+    import os
+    import pathlib
+    import subprocess
+    import sys
+
+    import bigocrpdf.cli_parser
+
+    # The subprocess must import this tree, not whatever is installed system
+    # wide: pointed at the installed package, this test passes while the tree
+    # under test is heavy.
+    source_root = pathlib.Path(bigocrpdf.cli_parser.__file__).parents[1]
+    program = (
+        "import sys; import bigocrpdf.cli_parser; "
+        "print(bigocrpdf.cli_parser.__file__); "
+        "print([m for m in ('cv2','numpy','pikepdf','reportlab') if m in sys.modules])"
+    )
+    result = subprocess.run(
+        [sys.executable, "-c", program],
+        capture_output=True,
+        text=True,
+        check=True,
+        env={**os.environ, "PYTHONPATH": str(source_root)},
+    )
+    imported_from, heavy = result.stdout.strip().splitlines()
+
+    assert imported_from == str(bigocrpdf.cli_parser.__file__), imported_from
+    assert heavy == "[]", heavy

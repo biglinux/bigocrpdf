@@ -85,9 +85,9 @@ Configuration, history, checkpoints, and published output are user data.
   interrupted batches converge to the complete old or new set. Recovery runs
   before the next publication in that directory and is also available through
   `recover_pending_publications()`.
-- Every OCR PDF is published in the same transaction as its versioned sidecar.
-  A split output publishes all PDF/sidecar pairs as one set. Sidecar generation
-  failure fails the input rather than exposing a PDF with stale metadata.
+- An OCR PDF is published on its own; a split output publishes all of its parts
+  as one set, so an interrupted batch converges to the complete old or new
+  family rather than a mixture.
 - Non-overwriting multi-file publication applies one collision counter to the
   complete batch. Domain callers that derive companion names provide their
   candidate family under the destination-directory lock.

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 3.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-08-17 20:03-0300\n"
+"POT-Creation-Date: 2026-08-18 02:44-0300\n"
 "PO-Revision-Date: 2026-08-10 15:12+0000\n"
 "Last-Translator: BigLinux Translation Team\n"
 "Language-Team: Dutch\n"
@@ -21,7 +21,7 @@ msgstr ""
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
-#: src/bigocrpdf/application.py:56 src/bigocrpdf/cli_parser.py:73
+#: src/bigocrpdf/application.py:56 src/bigocrpdf/cli_parser.py:72
 #: src/bigocrpdf/config.py:131 src/bigocrpdf/image_application.py:52
 msgid "Print version information and exit"
 msgstr "Toon versie-informatie en sluit af"
@@ -206,17 +206,17 @@ msgid "Powered by"
 msgstr "Mogelijk gemaakt door"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 163
-#: src/bigocrpdf/cli_parser.py:75
+#: src/bigocrpdf/cli_parser.py:74
 msgid "Verbose logging (DEBUG)"
 msgstr "Uitgebreide logging (DEBUG)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 165
-#: src/bigocrpdf/cli_parser.py:76
+#: src/bigocrpdf/cli_parser.py:75
 msgid "Available commands"
 msgstr "Beschikbare opdrachten"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 168
-#: src/bigocrpdf/cli_parser.py:85
+#: src/bigocrpdf/cli_parser.py:84
 msgid "OCR processing for PDF files"
 msgstr "OCR-verwerking voor PDF-bestanden"
 
@@ -228,10 +228,10 @@ msgstr "OCR-verwerking voor PDF-bestanden"
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 357
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 394
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 411
-#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:302
-#: src/bigocrpdf/cli_parser.py:307 src/bigocrpdf/cli_parser.py:332
-#: src/bigocrpdf/cli_parser.py:354 src/bigocrpdf/cli_parser.py:375
-#: src/bigocrpdf/cli_parser.py:386 src/bigocrpdf/cli_parser.py:426
+#: src/bigocrpdf/cli_parser.py:85 src/bigocrpdf/cli_parser.py:304
+#: src/bigocrpdf/cli_parser.py:309 src/bigocrpdf/cli_parser.py:334
+#: src/bigocrpdf/cli_parser.py:356 src/bigocrpdf/cli_parser.py:377
+#: src/bigocrpdf/cli_parser.py:388 src/bigocrpdf/cli_parser.py:428
 msgid "Input PDF file"
 msgstr "PDF-invoerbestand"
 
@@ -243,207 +243,208 @@ msgstr "PDF-invoerbestand"
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 358
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 369
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 395
-#: src/bigocrpdf/cli_parser.py:87 src/bigocrpdf/cli_parser.py:327
-#: src/bigocrpdf/cli_parser.py:334 src/bigocrpdf/cli_parser.py:356
-#: src/bigocrpdf/cli_parser.py:377 src/bigocrpdf/cli_parser.py:388
-#: src/bigocrpdf/cli_parser.py:399 src/bigocrpdf/cli_parser.py:428
+#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:329
+#: src/bigocrpdf/cli_parser.py:336 src/bigocrpdf/cli_parser.py:358
+#: src/bigocrpdf/cli_parser.py:379 src/bigocrpdf/cli_parser.py:390
+#: src/bigocrpdf/cli_parser.py:401 src/bigocrpdf/cli_parser.py:430
 msgid "Output PDF file"
 msgstr "PDF-uitvoerbestand"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 175
-#: src/bigocrpdf/cli_parser.py:92
+#: src/bigocrpdf/cli_parser.py:91
 msgid "Pages to process (e.g. '7', '3-10', '1,3,7'). Default: all."
 msgstr "Te verwerken pagina's (bijv. '7', '3-10', '1,3,7'). Standaard: alle."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 187
-#: src/bigocrpdf/cli_parser.py:95
+#: src/bigocrpdf/cli_parser.py:94
 msgid "Parallel workers (0 = auto). Default: 0."
 msgstr "Parallelle processen (0 = auto). Standaard: 0."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 189
-#: src/bigocrpdf/cli_parser.py:98
+#: src/bigocrpdf/cli_parser.py:97
 msgid "DPI for extraction (default: 300)"
 msgstr "DPI voor extractie (standaard: 300)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 192
-#: src/bigocrpdf/cli_parser.py:108
+#: src/bigocrpdf/cli_parser.py:107
 msgid "OCR behavior"
 msgstr "OCR-gedrag"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 197
-#: src/bigocrpdf/cli_parser.py:113
+#: src/bigocrpdf/cli_parser.py:112
 msgid "Re-OCR pages that already have text (default: skip them)."
 msgstr "OCR opnieuw uitvoeren op pagina's met tekst (standaard: overslaan)."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 203
-#: src/bigocrpdf/cli_parser.py:119
+#: src/bigocrpdf/cli_parser.py:118
 msgid "Process all pages as image-only (for editor-merged files)."
 msgstr ""
 "Alle pagina's verwerken als afbeelding (voor in de editor samengevoegde "
 "bestanden)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 126
-#: src/bigocrpdf/cli_parser.py:127
+#: src/bigocrpdf/cli_parser.py:126
 msgid "RapidOCR model size/type (default: small)."
 msgstr "RapidOCR modelgrootte/type (standaard: small)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 132
-#: src/bigocrpdf/cli_parser.py:133
+#: src/bigocrpdf/cli_parser.py:132
 msgid "RapidOCR CPU inference engine (default: openvino)."
 msgstr "RapidOCR CPU-inferentie-engine (standaard: openvino)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 138
-#: src/bigocrpdf/cli_parser.py:139
+#: src/bigocrpdf/cli_parser.py:138
 msgid "PDF text handling mode (default: auto)."
 msgstr "PDF tekstverwerkingsmodus (standaard: auto)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 144
-#: src/bigocrpdf/cli_parser.py:145
+#: src/bigocrpdf/cli_parser.py:144
 msgid "RapidOCR recognition batch size (default: 1)."
 msgstr "Batchgrootte RapidOCR-herkenning (standaard: 1)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 150
-#: src/bigocrpdf/cli_parser.py:151
+#: src/bigocrpdf/cli_parser.py:150
 msgid "Enable RapidOCR text-line orientation classifier."
 msgstr "Schakel de RapidOCR-classificatie voor de richting van tekstregels in."
 
-#: src/bigocrpdf/cli_parser.py:159
+#: src/bigocrpdf/cli_parser.py:161
 msgid ""
 "Detect text on the page as rendered, without letting RapidOCR downscale it."
 msgstr ""
-"Tekst op de pagina detecteren zoals die is weergegeven, zonder RapidOCR die te laten verkleinen."
+"Tekst op de pagina detecteren zoals die is weergegeven, zonder RapidOCR die "
+"te laten verkleinen."
 
-#: src/bigocrpdf/cli_parser.py:165
+#: src/bigocrpdf/cli_parser.py:167
 msgid "Let RapidOCR downscale the page before detection: faster, less memory."
 msgstr ""
 "RapidOCR de pagina laten verkleinen vóór detectie: sneller, minder geheugen."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 159
-#: src/bigocrpdf/cli_parser.py:174
+#: src/bigocrpdf/cli_parser.py:176
 msgid "Experimental GPU backend (default: off)."
 msgstr "Experimentele GPU-backend (standaard: off)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 165
-#: src/bigocrpdf/cli_parser.py:180
+#: src/bigocrpdf/cli_parser.py:182
 msgid "GPU device id for experimental GPU backends."
 msgstr "GPU-apparaat-ID voor experimentele GPU-backends."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 171
-#: src/bigocrpdf/cli_parser.py:186
+#: src/bigocrpdf/cli_parser.py:188
 msgid "Use FP16 for supported experimental GPU backends."
 msgstr "Gebruik FP16 voor ondersteunde experimentele GPU-backends."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 176
-#: src/bigocrpdf/cli_parser.py:191
+#: src/bigocrpdf/cli_parser.py:193
 msgid "Fail instead of falling back to CPU when GPU initialization fails."
 msgstr ""
 "Stoppen in plaats van terug te vallen op de CPU wanneer de GPU-initialisatie "
 "mislukt."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 213
-#: src/bigocrpdf/cli_parser.py:196
+#: src/bigocrpdf/cli_parser.py:198
 msgid "Geometric corrections"
 msgstr "Geometrische correcties"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 214
-#: src/bigocrpdf/cli_parser.py:198
+#: src/bigocrpdf/cli_parser.py:200
 msgid "Disable curvature correction"
 msgstr "Krommingscorrectie uitschakelen"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 215
-#: src/bigocrpdf/cli_parser.py:200
+#: src/bigocrpdf/cli_parser.py:202
 msgid "Disable skew correction"
 msgstr "Scheefstandcorrectie uitschakelen"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 217
-#: src/bigocrpdf/cli_parser.py:202
+#: src/bigocrpdf/cli_parser.py:204
 msgid "Disable perspective correction"
 msgstr "Perspectiefcorrectie uitschakelen"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 220
-#: src/bigocrpdf/cli_parser.py:205
+#: src/bigocrpdf/cli_parser.py:207
 msgid "Disable orientation detection"
 msgstr "Oriëntatiedetectie uitschakelen"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 224
-#: src/bigocrpdf/cli_parser.py:210
+#: src/bigocrpdf/cli_parser.py:212
 msgid "Image enhancements"
 msgstr "Beeldverbeteringen"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 229
-#: src/bigocrpdf/cli_parser.py:215
+#: src/bigocrpdf/cli_parser.py:217
 msgid "Enable scanner effect (whitens background)."
 msgstr "Scannereffect inschakelen (wit de achtergrond)."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 231
-#: src/bigocrpdf/cli_parser.py:217
+#: src/bigocrpdf/cli_parser.py:219
 msgid "Disable scanner effect."
 msgstr "Scannereffect uitschakelen."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 232
-#: src/bigocrpdf/cli_parser.py:218
+#: src/bigocrpdf/cli_parser.py:220
 msgid "Enable CLAHE contrast"
 msgstr "CLAHE-contrast inschakelen"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 233
-#: src/bigocrpdf/cli_parser.py:219
+#: src/bigocrpdf/cli_parser.py:221
 msgid "Enable auto brightness"
 msgstr "Automatische helderheid inschakelen"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 234
-#: src/bigocrpdf/cli_parser.py:220
+#: src/bigocrpdf/cli_parser.py:222
 msgid "Enable denoising"
 msgstr "Ruisonderdrukking inschakelen"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 235
-#: src/bigocrpdf/cli_parser.py:221
+#: src/bigocrpdf/cli_parser.py:223
 msgid "Remove dark borders"
 msgstr "Donkere randen verwijderen"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 239
-#: src/bigocrpdf/cli_parser.py:222
+#: src/bigocrpdf/cli_parser.py:224
 msgid "Enable vintage look (sepia/BW)."
 msgstr "Vintage-look inschakelen (sepia/Z&W)."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 241
-#: src/bigocrpdf/cli_parser.py:223
+#: src/bigocrpdf/cli_parser.py:225
 msgid "Vintage in black & white"
 msgstr "Vintage in zwart-wit"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 401
-#: src/bigocrpdf/cli_parser.py:227 src/bigocrpdf/ui/settings_queue_mixin.py:297
+#: src/bigocrpdf/cli_parser.py:229 src/bigocrpdf/ui/settings_queue_mixin.py:297
 #: src/bigocrpdf/ui/settings_queue_mixin.py:299
 msgid "Output options"
 msgstr "Uitvoeropties"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 219
-#: src/bigocrpdf/cli_parser.py:234
+#: src/bigocrpdf/cli_parser.py:236
 msgid "Convert output to PDF/A-2b (default)"
 msgstr "Uitvoer converteren naar PDF/A-2b (standaard)"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 225
-#: src/bigocrpdf/cli_parser.py:240
+#: src/bigocrpdf/cli_parser.py:242
 msgid "Create a regular PDF instead of PDF/A-2b"
 msgstr "Een gewone PDF maken in plaats van PDF/A-2b"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 255
-#: src/bigocrpdf/cli_parser.py:247
+#: src/bigocrpdf/cli_parser.py:249
 msgid "Viewer page layout (/PageLayout) in output PDF. Default: default."
 msgstr ""
 "Pagina-indeling van de lezer (/PageLayout) in de uitvoer-PDF. Standaard: "
 "default."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 251
-#: src/bigocrpdf/cli_parser.py:254
+#: src/bigocrpdf/cli_parser.py:256
 msgid "Image format in output PDF. Default: original."
 msgstr "Beeldformaat in uitvoer-PDF. Standaard: original."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 258
-#: src/bigocrpdf/cli_parser.py:261
+#: src/bigocrpdf/cli_parser.py:263
 msgid "Image quality for JPEG/WebP (1-95, default: 85)."
 msgstr "Beeldkwaliteit voor JPEG/WebP (1-95, standaard: 85)."
 
-#: src/bigocrpdf/cli_parser.py:270
+#: src/bigocrpdf/cli_parser.py:272
 msgid ""
 "Also write structured OCR data (text, word boxes, confidence, layout) as "
 "JSON. Nothing is written without this option. If FILE is omitted, the name "
@@ -455,173 +456,173 @@ msgstr ""
 "achtervoegsel .bigocr.json."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 262
-#: src/bigocrpdf/cli_parser.py:278
+#: src/bigocrpdf/cli_parser.py:280
 msgid "Debugging"
 msgstr "Foutopsporing"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 267
-#: src/bigocrpdf/cli_parser.py:283
+#: src/bigocrpdf/cli_parser.py:285
 msgid "Save preprocessed images to this directory."
 msgstr "Voorbewerkte afbeeldingen opslaan in deze map."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 272
-#: src/bigocrpdf/cli_parser.py:288
+#: src/bigocrpdf/cli_parser.py:290
 msgid "Only run preprocessing (dewarp/deskew), save images, skip OCR."
 msgstr ""
 "Alleen voorbewerking uitvoeren (kromming/scheefstand corrigeren), "
 "afbeeldingen opslaan en OCR overslaan."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 410
-#: src/bigocrpdf/cli_parser.py:301
+#: src/bigocrpdf/cli_parser.py:303
 msgid "Show PDF metadata and page count"
 msgstr "PDF-metadata en aantal pagina's weergeven"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 276
-#: src/bigocrpdf/cli_parser.py:306
+#: src/bigocrpdf/cli_parser.py:308
 msgid "Split PDF into smaller files"
 msgstr "PDF splitsen in kleinere bestanden"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 278
-#: src/bigocrpdf/cli_parser.py:309
+#: src/bigocrpdf/cli_parser.py:311
 msgid "Output directory"
 msgstr "Uitvoermap"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 284
-#: src/bigocrpdf/cli_parser.py:312
+#: src/bigocrpdf/cli_parser.py:314
 msgid "Split every N pages"
 msgstr "Splitsen elke N pagina's"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 290
-#: src/bigocrpdf/cli_parser.py:314
+#: src/bigocrpdf/cli_parser.py:316
 msgid "Maximum file size per part in megabytes"
 msgstr "Maximale bestandsgrootte per deel in MB"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 296
-#: src/bigocrpdf/cli_parser.py:317
+#: src/bigocrpdf/cli_parser.py:319
 msgid "Explicit ranges (e.g. '1-5,6-10,11-15')"
 msgstr "Expliciete bereiken (bijv. '1-5,6-10,11-15')"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 299
-#: src/bigocrpdf/cli_parser.py:320
+#: src/bigocrpdf/cli_parser.py:322
 msgid "Filename prefix for output parts"
 msgstr "Bestandsnaamprefix voor uitvoerbestanden"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 303
-#: src/bigocrpdf/cli_parser.py:325
+#: src/bigocrpdf/cli_parser.py:327
 msgid "Merge multiple PDFs into one"
 msgstr "Meerdere PDF's samenvoegen tot één"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 304
-#: src/bigocrpdf/cli_parser.py:326
+#: src/bigocrpdf/cli_parser.py:328
 msgid "Input PDF files (in order)"
 msgstr "PDF-invoerbestanden (in volgorde)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 308
-#: src/bigocrpdf/cli_parser.py:331
+#: src/bigocrpdf/cli_parser.py:333
 msgid "Compress PDF to reduce file size"
 msgstr "PDF comprimeren om de bestandsgrootte te verkleinen"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 316
-#: src/bigocrpdf/cli_parser.py:341
+#: src/bigocrpdf/cli_parser.py:343
 msgid "JPEG quality for images (1-95, default: 60)"
 msgstr "JPEG-kwaliteit voor afbeeldingen (1-95, standaard: 60)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 323
-#: src/bigocrpdf/cli_parser.py:348
+#: src/bigocrpdf/cli_parser.py:350
 msgid "Target DPI for images (default: 150)"
 msgstr "Doel-DPI voor afbeeldingen (standaard: 150)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 327
-#: src/bigocrpdf/cli_parser.py:353
+#: src/bigocrpdf/cli_parser.py:355
 msgid "Rotate pages in a PDF"
 msgstr "Pagina's in een PDF roteren"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 335
-#: src/bigocrpdf/cli_parser.py:363
+#: src/bigocrpdf/cli_parser.py:365
 msgid "Rotation angle in degrees (clockwise)"
 msgstr "Rotatiehoek in graden (met de klok mee)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 341
-#: src/bigocrpdf/cli_parser.py:369
+#: src/bigocrpdf/cli_parser.py:371
 msgid "Pages to rotate (e.g. '1,3,5' or '1-5'). Default: all."
 msgstr "Te roteren pagina's (bijv. '1,3,5' of '1-5'). Standaard: alle."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 345
-#: src/bigocrpdf/cli_parser.py:374
+#: src/bigocrpdf/cli_parser.py:376
 msgid "Remove pages from a PDF"
 msgstr "Pagina's uit een PDF verwijderen"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 352
-#: src/bigocrpdf/cli_parser.py:380
+#: src/bigocrpdf/cli_parser.py:382
 msgid "Pages to delete (e.g. '3,5,7' or '2-4')"
 msgstr "Te verwijderen pagina's (bijv. '3,5,7' of '2-4')"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 356
-#: src/bigocrpdf/cli_parser.py:385
+#: src/bigocrpdf/cli_parser.py:387
 msgid "Extract pages to a new PDF"
 msgstr "Pagina's extraheren naar een nieuw PDF-bestand"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 363
-#: src/bigocrpdf/cli_parser.py:391
+#: src/bigocrpdf/cli_parser.py:393
 msgid "Pages to extract (e.g. '3-5' or '1,3,7')"
 msgstr "Te extraheren pagina's (bijv. '3-5' of '1,3,7')"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 367
-#: src/bigocrpdf/cli_parser.py:396
+#: src/bigocrpdf/cli_parser.py:398
 msgid "Insert pages from another PDF"
 msgstr "Pagina's invoegen vanuit een ander PDF-bestand"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 368
-#: src/bigocrpdf/cli_parser.py:397
+#: src/bigocrpdf/cli_parser.py:399
 msgid "Target PDF file"
 msgstr "Doel-PDF-bestand"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 376
-#: src/bigocrpdf/cli_parser.py:407
+#: src/bigocrpdf/cli_parser.py:409
 msgid "PDF file to insert pages from"
 msgstr "PDF-bestand waaruit pagina's worden ingevoegd"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 383
-#: src/bigocrpdf/cli_parser.py:414
+#: src/bigocrpdf/cli_parser.py:416
 msgid "Insert at this page position (1-indexed, 0 = append). Default: append."
 msgstr ""
 "Invoegen op deze positie (vanaf 1, 0 = achteraan). Standaard: achteraan."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 389
-#: src/bigocrpdf/cli_parser.py:420
+#: src/bigocrpdf/cli_parser.py:422
 msgid "Pages to insert from the source (e.g. '1-3'). Default: all."
 msgstr "In te voegen pagina's uit de bron (bijv. '1-3'). Standaard: alle."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 393
-#: src/bigocrpdf/cli_parser.py:425
+#: src/bigocrpdf/cli_parser.py:427
 msgid "Reorder or reverse pages"
 msgstr "Pagina's herordenen of omkeren"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 401
-#: src/bigocrpdf/cli_parser.py:432
+#: src/bigocrpdf/cli_parser.py:434
 msgid "New page order (e.g. '3,1,2,5,4')"
 msgstr "Nieuwe paginavolgorde (bijv. '3,1,2,5,4')"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 406
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 197
-#: src/bigocrpdf/cli_parser.py:434
+#: src/bigocrpdf/cli_parser.py:436
 msgid "Reverse the page order"
 msgstr "Paginavolgorde omkeren"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 419
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 430
-#: src/bigocrpdf/cli_parser.py:438
+#: src/bigocrpdf/cli_parser.py:440
 msgid "Input PDF file (must have text layer)"
 msgstr "Invoer-PDF-bestand (moet tekstlaag hebben)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 418
-#: src/bigocrpdf/cli_parser.py:442
+#: src/bigocrpdf/cli_parser.py:444
 msgid "Export OCR'd PDF as ODF document"
 msgstr "Exporteer OCR-PDF als ODF-document"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 425
-#: src/bigocrpdf/cli_parser.py:444
+#: src/bigocrpdf/cli_parser.py:446
 msgid "Output ODF file (default: same name as input with .odt)"
 msgstr "Uitvoer-ODF-bestand (standaard: dezelfde naam met .odt)"
 
@@ -629,38 +630,38 @@ msgstr "Uitvoer-ODF-bestand (standaard: dezelfde naam met .odt)"
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 35
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_options_controller.py, line: 233
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 422
-#: src/bigocrpdf/cli_parser.py:449
+#: src/bigocrpdf/cli_parser.py:451
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:35
 #: src/bigocrpdf/ui/pdf_options_controller.py:233
 msgid "Preserve Text Layout"
 msgstr "Tekstindeling behouden"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 429
-#: src/bigocrpdf/cli_parser.py:454
+#: src/bigocrpdf/cli_parser.py:456
 msgid "Export OCR'd PDF as formatted text"
 msgstr "PDF met OCR exporteren als opgemaakte tekst"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 436
-#: src/bigocrpdf/cli_parser.py:456
+#: src/bigocrpdf/cli_parser.py:458
 msgid "Output text file (default: same name as input with .txt)"
 msgstr "Uitvoer-tekstbestand (standaard: dezelfde naam met .txt)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 443
-#: src/bigocrpdf/cli_parser.py:461
+#: src/bigocrpdf/cli_parser.py:463
 msgid "Export OCR'd PDF as Markdown"
 msgstr "PDF met OCR exporteren als Markdown"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 450
-#: src/bigocrpdf/cli_parser.py:463
+#: src/bigocrpdf/cli_parser.py:465
 msgid "Output Markdown file (default: same name as input with .md)"
 msgstr "Uitvoer-Markdown-bestand (standaard: dezelfde naam als invoer met .md)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 455
-#: src/bigocrpdf/cli_parser.py:468
+#: src/bigocrpdf/cli_parser.py:470
 msgid "Prepend YAML front-matter (title, source, page count, date)."
 msgstr "Voeg YAML-frontmatter toe (titel, bron, aantal pagina’s, datum)."
 
-#: src/bigocrpdf/cli_parser.py:488
+#: src/bigocrpdf/cli_parser.py:490
 msgid ""
 "Export from structured OCR JSON written earlier by 'ocr --sidecar-json', "
 "instead of reading the PDF text layer."
@@ -669,12 +670,12 @@ msgstr ""
 "json’ is geschreven, in plaats van de tekstlaag van de PDF te lezen."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 414
-#: src/bigocrpdf/cli_parser.py:496
+#: src/bigocrpdf/cli_parser.py:498
 msgid "Open interactive GUI editor"
 msgstr "Interactieve grafische editor openen"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 415
-#: src/bigocrpdf/cli_parser.py:497
+#: src/bigocrpdf/cli_parser.py:499
 msgid "PDF file to edit"
 msgstr "PDF-bestand om te bewerken"
 

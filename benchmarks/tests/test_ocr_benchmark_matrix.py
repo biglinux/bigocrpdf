@@ -7,6 +7,7 @@ import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock
 
+import pikepdf
 import pytest
 
 from benchmarks import ocr_benchmark, validate_text_layer
@@ -402,7 +403,10 @@ def test_benchmark_matrix_adds_rec_batch_sweep_once() -> None:
 
 def test_read_ocr_sidecar_metadata_exposes_runtime_and_layout_counts(tmp_path: Path) -> None:
     output_pdf = tmp_path / "out.pdf"
-    output_pdf.write_bytes(b"%PDF-1.7\nbenchmark")
+    # The JSON writer checks the document against the PDF's real page count.
+    with pikepdf.Pdf.new() as pdf:
+        pdf.add_blank_page(page_size=(200, 200))
+        pdf.save(output_pdf)
     document = OcrDocument(
         diagnostics={
             "ocr_runtime": {

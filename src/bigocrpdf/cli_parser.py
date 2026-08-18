@@ -4,7 +4,6 @@ import argparse
 from pathlib import Path
 
 from bigocrpdf.config import APP_VERSION
-from bigocrpdf.services.rapidocr_service.config import DEFAULT_DETECTION_FULL_RESOLUTION
 from bigocrpdf.utils.i18n import _
 
 
@@ -155,7 +154,10 @@ def _add_ocr_model_options(behavior: argparse._ArgumentGroup) -> None:
         "--full-resolution",
         dest="full_resolution",
         action="store_true",
-        default=DEFAULT_DETECTION_FULL_RESOLUTION,
+        # Spelled out rather than imported: importing the OCR configuration here
+        # would pull cv2, numpy, pikepdf and reportlab into every CLI start,
+        # --help included. A test pins this to DEFAULT_DETECTION_FULL_RESOLUTION.
+        default=False,
         help=_("Detect text on the page as rendered, without letting RapidOCR downscale it."),
     )
     full_resolution.add_argument(

@@ -118,11 +118,23 @@ def write_ocr_document_json(
     pdf_path: str | Path,
     json_path: str | Path,
 ) -> Path:
-    """Write structured OCR for *pdf_path* to the requested *json_path*."""
+    """Write structured OCR for *pdf_path* to the requested *json_path*.
+
+    Refuses a document that does not cover every page of the PDF it names.
+    Page counts reported by the pipeline are what the caller has; the pages the
+    published PDF actually contains are what the file has to describe, and a
+    JSON that silently omits pages is worse than no JSON.
+    """
+    pdf = Path(pdf_path)
+    page_count = _validated_pdf_page_count(pdf)
+    if not _document_covers_pages(document, page_count):
+        raise ValueError(
+            f"Structured OCR covers {len(document.pages)} of the {page_count} pages in {pdf}"
+        )
     destination = Path(json_path)
     write_text_atomically(
         destination,
-        render_ocr_document_json(document, pdf_path),
+        render_ocr_document_json(document, pdf),
     )
     return destination
 

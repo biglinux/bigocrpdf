@@ -28,6 +28,7 @@ from bigocrpdf.services.rapidocr_service.ocr_document_export import (  # type: i
     ocr_document_to_pages_elements,
 )
 from bigocrpdf.services.rapidocr_service.ocr_document_io import (  # type: ignore[import-untyped]
+    complete_ocr_document,
     load_ocr_document_json,
     ocr_document_json_path,
     write_ocr_document_json,
@@ -90,6 +91,19 @@ def test_ocr_document_text_preserves_page_order() -> None:
 
     assert text.startswith("--- Page 1 ---")
     assert text.index("First page") < text.index("--- Page 2 ---") < text.index("Second page")
+
+
+def _write_one_page_pdf(path: Path) -> None:
+    """Write a real single-page PDF.
+
+    The JSON writer refuses a document that does not cover the PDF's pages, so
+    these tests need a PDF whose page count is real rather than a byte prefix.
+    """
+    import pikepdf
+
+    with pikepdf.Pdf.new() as pdf:
+        pdf.add_blank_page(page_size=(200, 200))
+        pdf.save(path)
 
 
 def _write_json(document: OcrDocument, pdf_path: Path) -> Path:
@@ -678,7 +692,7 @@ def test_ocr_document_odt_export_replaces_symlink_without_touching_target(tmp_pa
 
 def test_ocr_document_sidecar_roundtrip(tmp_path: Path) -> None:
     pdf_path = tmp_path / "out.pdf"
-    pdf_path.write_bytes(b"%PDF-1.7\nroundtrip")
+    _write_one_page_pdf(pdf_path)
     document = OcrDocument(
         diagnostics={"engine": "rapidocr"},
         pages=[
@@ -744,13 +758,13 @@ def test_legacy_sidecar_requires_explicit_unverified_opt_in(
 
 def test_sidecar_temp_symlink_cannot_overwrite_target(tmp_path: Path) -> None:
     pdf_path = tmp_path / "out.pdf"
-    pdf_path.write_bytes(b"%PDF-1.7\nsidecar")
+    _write_one_page_pdf(pdf_path)
     victim = tmp_path / "victim.txt"
     victim.write_text("KEEP", encoding="utf-8")
     predictable_temp = tmp_path / "out.bigocr.json.tmp"
     predictable_temp.symlink_to(victim)
 
-    _write_json(OcrDocument(), pdf_path)
+    _write_json(OcrDocument(pages=[OcrPage(1, 100, 100, 300)]), pdf_path)
 
     assert victim.read_text(encoding="utf-8") == "KEEP"
     assert predictable_temp.is_symlink()
@@ -758,7 +772,7 @@ def test_sidecar_temp_symlink_cannot_overwrite_target(tmp_path: Path) -> None:
 
 def test_write_ocr_document_json_enriches_layout_blocks(tmp_path: Path) -> None:
     pdf_path = tmp_path / "out.pdf"
-    pdf_path.write_bytes(b"%PDF-1.7\nlayout")
+    _write_one_page_pdf(pdf_path)
     document = OcrDocument(
         pages=[
             OcrPage(
@@ -788,7 +802,7 @@ def test_stale_sidecar_is_ignored_after_pdf_content_changes(
     tmp_path: Path,
 ) -> None:
     pdf_path = tmp_path / "out.pdf"
-    pdf_path.write_bytes(b"old PDF")
+    _write_one_page_pdf(pdf_path)
     _write_json(
         OcrDocument(
             pages=[
@@ -804,9 +818,32 @@ def test_stale_sidecar_is_ignored_after_pdf_content_changes(
         pdf_path,
     )
 
-    pdf_path.write_bytes(b"new PDF")
+    pdf_path.write_bytes(pdf_path.read_bytes() + b"\n% edited elsewhere\n")
 
     assert _load_json(pdf_path) is None
+
+
+def test_json_is_refused_when_it_does_not_cover_the_pdf_it_names(tmp_path: Path) -> None:
+    """Page counts from the pipeline are a claim; the PDF's own pages are the fact.
+
+    ``complete_ocr_document`` can only compare the document against the counts
+    it was handed, so a document covering one page passes it while the published
+    PDF has two. A file that names a PDF must describe all of it.
+    """
+    import pikepdf
+
+    pdf_path = tmp_path / "two.pdf"
+    with pikepdf.Pdf.new() as pdf:
+        pdf.add_blank_page(page_size=(200, 200))
+        pdf.add_blank_page(page_size=(200, 200))
+        pdf.save(pdf_path)
+    one_page = OcrDocument(pages=[OcrPage(1, 100, 100, 300, native_text="only the first")])
+    assert complete_ocr_document(one_page, pages_total=1, pages_processed=1) is not None
+
+    with pytest.raises(ValueError, match="covers 1 of the 2 pages"):
+        _write_json(one_page, pdf_path)
+
+    assert not ocr_document_json_path(pdf_path).exists()
 
 
 def test_invalidation_marker_written_by_older_versions_still_loads_as_nothing(
@@ -931,7 +968,7 @@ def test_native_text_page_becomes_document_paragraph() -> None:
 
 def _structured_json_for_export(tmp_path: Path) -> tuple[Path, Path]:
     pdf_path = tmp_path / "input.pdf"
-    pdf_path.write_bytes(b"%PDF-1.7\n")
+    _write_one_page_pdf(pdf_path)
     json_path = _write_json(
         OcrDocument(
             pages=[

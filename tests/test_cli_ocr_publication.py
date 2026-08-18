@@ -357,3 +357,24 @@ def test_sidecar_json_refuses_a_document_that_misses_pages(
     assert result == 0
     assert "does not cover every" in caplog.text
     assert not ocr_document_json_path(output).exists()
+
+
+def test_sidecar_json_failure_does_not_fail_a_finished_ocr(tmp_path: Path, caplog) -> None:
+    """The PDF is the deliverable; the JSON is an extra the user asked for.
+
+    The writer refuses a document that does not cover the published PDF, and
+    that refusal used to reach the command's own error handler: a finished OCR
+    reported a fatal error with its PDF already on disk.
+    """
+    from bigocrpdf.cli_ocr_commands import _write_requested_sidecar_json
+
+    published = tmp_path / "output.pdf"
+    _write_pdf(published, pages=2)
+    one_page = OcrDocument(pages=[OcrPage(1, 100, 100, 300)])
+    logger = logging.getLogger("test-sidecar-refusal")
+    caplog.set_level(logging.WARNING, logger=logger.name)
+
+    _write_requested_sidecar_json("", [published], one_page, logger)
+
+    assert "not written" in caplog.text
+    assert not ocr_document_json_path(published).exists()

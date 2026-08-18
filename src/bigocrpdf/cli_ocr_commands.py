@@ -372,7 +372,13 @@ def _write_requested_sidecar_json(
         return
     published_pdf = published_outputs[0]
     json_path = Path(requested_path) if requested_path else ocr_document_json_path(published_pdf)
-    write_ocr_document_json(document, published_pdf, json_path)
+    try:
+        write_ocr_document_json(document, published_pdf, json_path)
+    except (OSError, ValueError) as error:
+        # The PDF is already published and is the deliverable; a refused extra
+        # file must not turn a finished OCR into a failed command.
+        logger.warning("--sidecar-json not written: %s", error)
+        return
     logger.info("Saved structured OCR JSON: %s", json_path)
     print(f"Saved: {json_path}")
 

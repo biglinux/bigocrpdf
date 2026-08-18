@@ -7,7 +7,7 @@ import pikepdf
 import pytest
 from PIL import Image, ImageOps
 
-from bigocrpdf.services.rapidocr_service.config import OcrDocument
+from bigocrpdf.services.rapidocr_service.config import OcrDocument, OcrPage
 from bigocrpdf.services.rapidocr_service.ocr_document_io import (
     load_ocr_document_json,
     ocr_document_json_path,
@@ -370,7 +370,10 @@ def test_structured_json_is_refused_after_the_pdf_it_describes_is_edited(
         pdf.add_blank_page()
         pdf.save(output_pdf)
     json_path = ocr_document_json_path(output_pdf)
-    write_ocr_document_json(OcrDocument(), output_pdf, json_path)
+    two_pages = OcrDocument(
+        pages=[OcrPage(1, 100, 100, 300), OcrPage(2, 100, 100, 300)],
+    )
+    write_ocr_document_json(two_pages, output_pdf, json_path)
     assert load_ocr_document_json(json_path, output_pdf) is not None
 
     document = PDFDocument(path=str(source_pdf), total_pages=1)

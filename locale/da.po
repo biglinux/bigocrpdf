@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 3.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-08-17 20:03-0300\n"
+"POT-Creation-Date: 2026-08-18 02:44-0300\n"
 "PO-Revision-Date: 2026-08-10 15:12+0000\n"
 "Last-Translator: BigLinux Translation Team <biglinux@biglinux.com.br>\n"
 "Language-Team: Danish\n"
@@ -21,7 +21,7 @@ msgstr ""
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
-#: src/bigocrpdf/application.py:56 src/bigocrpdf/cli_parser.py:73
+#: src/bigocrpdf/application.py:56 src/bigocrpdf/cli_parser.py:72
 #: src/bigocrpdf/config.py:131 src/bigocrpdf/image_application.py:52
 msgid "Print version information and exit"
 msgstr "Vis versionsinformation og afslut"
@@ -205,17 +205,17 @@ msgid "Powered by"
 msgstr "Drevet af"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 163
-#: src/bigocrpdf/cli_parser.py:75
+#: src/bigocrpdf/cli_parser.py:74
 msgid "Verbose logging (DEBUG)"
 msgstr "Detaljeret logning (DEBUG)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 165
-#: src/bigocrpdf/cli_parser.py:76
+#: src/bigocrpdf/cli_parser.py:75
 msgid "Available commands"
 msgstr "Tilgængelige kommandoer"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 168
-#: src/bigocrpdf/cli_parser.py:85
+#: src/bigocrpdf/cli_parser.py:84
 msgid "OCR processing for PDF files"
 msgstr "OCR-behandling af PDF-filer"
 
@@ -227,10 +227,10 @@ msgstr "OCR-behandling af PDF-filer"
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 357
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 394
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 411
-#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:302
-#: src/bigocrpdf/cli_parser.py:307 src/bigocrpdf/cli_parser.py:332
-#: src/bigocrpdf/cli_parser.py:354 src/bigocrpdf/cli_parser.py:375
-#: src/bigocrpdf/cli_parser.py:386 src/bigocrpdf/cli_parser.py:426
+#: src/bigocrpdf/cli_parser.py:85 src/bigocrpdf/cli_parser.py:304
+#: src/bigocrpdf/cli_parser.py:309 src/bigocrpdf/cli_parser.py:334
+#: src/bigocrpdf/cli_parser.py:356 src/bigocrpdf/cli_parser.py:377
+#: src/bigocrpdf/cli_parser.py:388 src/bigocrpdf/cli_parser.py:428
 msgid "Input PDF file"
 msgstr "PDF-inddatafil"
 
@@ -242,203 +242,204 @@ msgstr "PDF-inddatafil"
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 358
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 369
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 395
-#: src/bigocrpdf/cli_parser.py:87 src/bigocrpdf/cli_parser.py:327
-#: src/bigocrpdf/cli_parser.py:334 src/bigocrpdf/cli_parser.py:356
-#: src/bigocrpdf/cli_parser.py:377 src/bigocrpdf/cli_parser.py:388
-#: src/bigocrpdf/cli_parser.py:399 src/bigocrpdf/cli_parser.py:428
+#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:329
+#: src/bigocrpdf/cli_parser.py:336 src/bigocrpdf/cli_parser.py:358
+#: src/bigocrpdf/cli_parser.py:379 src/bigocrpdf/cli_parser.py:390
+#: src/bigocrpdf/cli_parser.py:401 src/bigocrpdf/cli_parser.py:430
 msgid "Output PDF file"
 msgstr "PDF-uddatafil"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 175
-#: src/bigocrpdf/cli_parser.py:92
+#: src/bigocrpdf/cli_parser.py:91
 msgid "Pages to process (e.g. '7', '3-10', '1,3,7'). Default: all."
 msgstr "Sider at behandle (f.eks. '7', '3-10', '1,3,7'). Standard: alle."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 187
-#: src/bigocrpdf/cli_parser.py:95
+#: src/bigocrpdf/cli_parser.py:94
 msgid "Parallel workers (0 = auto). Default: 0."
 msgstr "Parallelle processer (0 = auto). Standard: 0."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 189
-#: src/bigocrpdf/cli_parser.py:98
+#: src/bigocrpdf/cli_parser.py:97
 msgid "DPI for extraction (default: 300)"
 msgstr "DPI til udtrækning (standard: 300)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 192
-#: src/bigocrpdf/cli_parser.py:108
+#: src/bigocrpdf/cli_parser.py:107
 msgid "OCR behavior"
 msgstr "OCR-adfærd"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 197
-#: src/bigocrpdf/cli_parser.py:113
+#: src/bigocrpdf/cli_parser.py:112
 msgid "Re-OCR pages that already have text (default: skip them)."
 msgstr "Gentag OCR på sider med tekst (standard: spring over)."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 203
-#: src/bigocrpdf/cli_parser.py:119
+#: src/bigocrpdf/cli_parser.py:118
 msgid "Process all pages as image-only (for editor-merged files)."
 msgstr "Behandl alle sider som billede (for filer sammensat i editoren)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 126
-#: src/bigocrpdf/cli_parser.py:127
+#: src/bigocrpdf/cli_parser.py:126
 msgid "RapidOCR model size/type (default: small)."
 msgstr "RapidOCR-modelstørrelse/-type (standard: small)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 132
-#: src/bigocrpdf/cli_parser.py:133
+#: src/bigocrpdf/cli_parser.py:132
 msgid "RapidOCR CPU inference engine (default: openvino)."
 msgstr "RapidOCR CPU-inferensmotor (standard: openvino)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 138
-#: src/bigocrpdf/cli_parser.py:139
+#: src/bigocrpdf/cli_parser.py:138
 msgid "PDF text handling mode (default: auto)."
 msgstr "PDF teksthåndteringstilstand (standard: auto)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 144
-#: src/bigocrpdf/cli_parser.py:145
+#: src/bigocrpdf/cli_parser.py:144
 msgid "RapidOCR recognition batch size (default: 1)."
 msgstr "RapidOCR-genkendelsesbatchstørrelse (standard: 1)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 150
-#: src/bigocrpdf/cli_parser.py:151
+#: src/bigocrpdf/cli_parser.py:150
 msgid "Enable RapidOCR text-line orientation classifier."
 msgstr "Aktiver RapidOCR tekstlinjeorienteringsklassificering."
 
-#: src/bigocrpdf/cli_parser.py:159
+#: src/bigocrpdf/cli_parser.py:161
 msgid ""
 "Detect text on the page as rendered, without letting RapidOCR downscale it."
 msgstr ""
-"Find tekst på siden, som den er gengivet, uden at lade RapidOCR nedskalere den."
+"Find tekst på siden, som den er gengivet, uden at lade RapidOCR nedskalere "
+"den."
 
-#: src/bigocrpdf/cli_parser.py:165
+#: src/bigocrpdf/cli_parser.py:167
 msgid "Let RapidOCR downscale the page before detection: faster, less memory."
 msgstr ""
 "Lad RapidOCR nedskalere siden før tekstsøgning: hurtigere, mindre hukommelse."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 159
-#: src/bigocrpdf/cli_parser.py:174
+#: src/bigocrpdf/cli_parser.py:176
 msgid "Experimental GPU backend (default: off)."
 msgstr "Eksperimentel GPU-backend (standard: off)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 165
-#: src/bigocrpdf/cli_parser.py:180
+#: src/bigocrpdf/cli_parser.py:182
 msgid "GPU device id for experimental GPU backends."
 msgstr "GPU enheds-id for eksperimentelle GPU-backends."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 171
-#: src/bigocrpdf/cli_parser.py:186
+#: src/bigocrpdf/cli_parser.py:188
 msgid "Use FP16 for supported experimental GPU backends."
 msgstr "Brug FP16 til understøttede eksperimentelle GPU-backends."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 176
-#: src/bigocrpdf/cli_parser.py:191
+#: src/bigocrpdf/cli_parser.py:193
 msgid "Fail instead of falling back to CPU when GPU initialization fails."
 msgstr ""
 "Stop i stedet for at falde tilbage til CPU, hvis GPU-initialiseringen "
 "mislykkes."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 213
-#: src/bigocrpdf/cli_parser.py:196
+#: src/bigocrpdf/cli_parser.py:198
 msgid "Geometric corrections"
 msgstr "Geometriske korrektioner"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 214
-#: src/bigocrpdf/cli_parser.py:198
+#: src/bigocrpdf/cli_parser.py:200
 msgid "Disable curvature correction"
 msgstr "Deaktiver krumningskorrektion"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 215
-#: src/bigocrpdf/cli_parser.py:200
+#: src/bigocrpdf/cli_parser.py:202
 msgid "Disable skew correction"
 msgstr "Deaktiver skævhedskorrektion"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 217
-#: src/bigocrpdf/cli_parser.py:202
+#: src/bigocrpdf/cli_parser.py:204
 msgid "Disable perspective correction"
 msgstr "Deaktiver perspektivkorrektion"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 220
-#: src/bigocrpdf/cli_parser.py:205
+#: src/bigocrpdf/cli_parser.py:207
 msgid "Disable orientation detection"
 msgstr "Deaktiver orienteringsregistrering"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 224
-#: src/bigocrpdf/cli_parser.py:210
+#: src/bigocrpdf/cli_parser.py:212
 msgid "Image enhancements"
 msgstr "Billedforbedringer"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 229
-#: src/bigocrpdf/cli_parser.py:215
+#: src/bigocrpdf/cli_parser.py:217
 msgid "Enable scanner effect (whitens background)."
 msgstr "Aktivér scannereffekt (gør baggrunden hvid)."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 231
-#: src/bigocrpdf/cli_parser.py:217
+#: src/bigocrpdf/cli_parser.py:219
 msgid "Disable scanner effect."
 msgstr "Deaktiver scannereffekt."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 232
-#: src/bigocrpdf/cli_parser.py:218
+#: src/bigocrpdf/cli_parser.py:220
 msgid "Enable CLAHE contrast"
 msgstr "Aktivér CLAHE-kontrast"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 233
-#: src/bigocrpdf/cli_parser.py:219
+#: src/bigocrpdf/cli_parser.py:221
 msgid "Enable auto brightness"
 msgstr "Aktivér automatisk lysstyrke"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 234
-#: src/bigocrpdf/cli_parser.py:220
+#: src/bigocrpdf/cli_parser.py:222
 msgid "Enable denoising"
 msgstr "Aktivér støjreduktion"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 235
-#: src/bigocrpdf/cli_parser.py:221
+#: src/bigocrpdf/cli_parser.py:223
 msgid "Remove dark borders"
 msgstr "Fjern mørke kanter"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 239
-#: src/bigocrpdf/cli_parser.py:222
+#: src/bigocrpdf/cli_parser.py:224
 msgid "Enable vintage look (sepia/BW)."
 msgstr "Aktivér vintage-look (sepia/S&H)."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 241
-#: src/bigocrpdf/cli_parser.py:223
+#: src/bigocrpdf/cli_parser.py:225
 msgid "Vintage in black & white"
 msgstr "Vintage i sort-hvid"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 401
-#: src/bigocrpdf/cli_parser.py:227 src/bigocrpdf/ui/settings_queue_mixin.py:297
+#: src/bigocrpdf/cli_parser.py:229 src/bigocrpdf/ui/settings_queue_mixin.py:297
 #: src/bigocrpdf/ui/settings_queue_mixin.py:299
 msgid "Output options"
 msgstr "Uddataindstillinger"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 219
-#: src/bigocrpdf/cli_parser.py:234
+#: src/bigocrpdf/cli_parser.py:236
 msgid "Convert output to PDF/A-2b (default)"
 msgstr "Konvertér uddata til PDF/A-2b (standard)"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 225
-#: src/bigocrpdf/cli_parser.py:240
+#: src/bigocrpdf/cli_parser.py:242
 msgid "Create a regular PDF instead of PDF/A-2b"
 msgstr "Opret en almindelig PDF i stedet for PDF/A-2b"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 255
-#: src/bigocrpdf/cli_parser.py:247
+#: src/bigocrpdf/cli_parser.py:249
 msgid "Viewer page layout (/PageLayout) in output PDF. Default: default."
 msgstr "Sidelayout i den oprettede PDF (/PageLayout). Standard: default."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 251
-#: src/bigocrpdf/cli_parser.py:254
+#: src/bigocrpdf/cli_parser.py:256
 msgid "Image format in output PDF. Default: original."
 msgstr "Billedformat i den oprettede PDF. Standard: original."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 258
-#: src/bigocrpdf/cli_parser.py:261
+#: src/bigocrpdf/cli_parser.py:263
 msgid "Image quality for JPEG/WebP (1-95, default: 85)."
 msgstr "Billedkvalitet for JPEG/WebP (1-95, standard: 85)."
 
-#: src/bigocrpdf/cli_parser.py:270
+#: src/bigocrpdf/cli_parser.py:272
 msgid ""
 "Also write structured OCR data (text, word boxes, confidence, layout) as "
 "JSON. Nothing is written without this option. If FILE is omitted, the name "
@@ -449,173 +450,173 @@ msgstr ""
 "output-PDF'en med endelsen .bigocr.json."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 262
-#: src/bigocrpdf/cli_parser.py:278
+#: src/bigocrpdf/cli_parser.py:280
 msgid "Debugging"
 msgstr "Fejlsøgning"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 267
-#: src/bigocrpdf/cli_parser.py:283
+#: src/bigocrpdf/cli_parser.py:285
 msgid "Save preprocessed images to this directory."
 msgstr "Gem forbehandlede billeder i denne mappe."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 272
-#: src/bigocrpdf/cli_parser.py:288
+#: src/bigocrpdf/cli_parser.py:290
 msgid "Only run preprocessing (dewarp/deskew), save images, skip OCR."
 msgstr ""
 "Kør kun forbehandling (korrektion af krumning/skævhed), gem billeder, og "
 "spring OCR over."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 410
-#: src/bigocrpdf/cli_parser.py:301
+#: src/bigocrpdf/cli_parser.py:303
 msgid "Show PDF metadata and page count"
 msgstr "Vis PDF-metadata og sideantal"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 276
-#: src/bigocrpdf/cli_parser.py:306
+#: src/bigocrpdf/cli_parser.py:308
 msgid "Split PDF into smaller files"
 msgstr "Opdel PDF i mindre filer"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 278
-#: src/bigocrpdf/cli_parser.py:309
+#: src/bigocrpdf/cli_parser.py:311
 msgid "Output directory"
 msgstr "Uddatamappe"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 284
-#: src/bigocrpdf/cli_parser.py:312
+#: src/bigocrpdf/cli_parser.py:314
 msgid "Split every N pages"
 msgstr "Opdel for hver N sider"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 290
-#: src/bigocrpdf/cli_parser.py:314
+#: src/bigocrpdf/cli_parser.py:316
 msgid "Maximum file size per part in megabytes"
 msgstr "Maksimal filstørrelse pr. del i MB"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 296
-#: src/bigocrpdf/cli_parser.py:317
+#: src/bigocrpdf/cli_parser.py:319
 msgid "Explicit ranges (e.g. '1-5,6-10,11-15')"
 msgstr "Eksplicitte intervaller (f.eks. '1-5,6-10,11-15')"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 299
-#: src/bigocrpdf/cli_parser.py:320
+#: src/bigocrpdf/cli_parser.py:322
 msgid "Filename prefix for output parts"
 msgstr "Filnavnspræfiks for de opdelte uddatafiler"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 303
-#: src/bigocrpdf/cli_parser.py:325
+#: src/bigocrpdf/cli_parser.py:327
 msgid "Merge multiple PDFs into one"
 msgstr "Flet flere PDF'er til én"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 304
-#: src/bigocrpdf/cli_parser.py:326
+#: src/bigocrpdf/cli_parser.py:328
 msgid "Input PDF files (in order)"
 msgstr "PDF-inddatafiler (i rækkefølge)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 308
-#: src/bigocrpdf/cli_parser.py:331
+#: src/bigocrpdf/cli_parser.py:333
 msgid "Compress PDF to reduce file size"
 msgstr "Komprimer PDF for at reducere filstørrelsen"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 316
-#: src/bigocrpdf/cli_parser.py:341
+#: src/bigocrpdf/cli_parser.py:343
 msgid "JPEG quality for images (1-95, default: 60)"
 msgstr "JPEG-kvalitet for billeder (1-95, standard: 60)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 323
-#: src/bigocrpdf/cli_parser.py:348
+#: src/bigocrpdf/cli_parser.py:350
 msgid "Target DPI for images (default: 150)"
 msgstr "Mål-DPI for billeder (standard: 150)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 327
-#: src/bigocrpdf/cli_parser.py:353
+#: src/bigocrpdf/cli_parser.py:355
 msgid "Rotate pages in a PDF"
 msgstr "Roter sider i en PDF"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 335
-#: src/bigocrpdf/cli_parser.py:363
+#: src/bigocrpdf/cli_parser.py:365
 msgid "Rotation angle in degrees (clockwise)"
 msgstr "Rotationsvinkel i grader (med uret)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 341
-#: src/bigocrpdf/cli_parser.py:369
+#: src/bigocrpdf/cli_parser.py:371
 msgid "Pages to rotate (e.g. '1,3,5' or '1-5'). Default: all."
 msgstr "Sider at rotere (f.eks. '1,3,5' eller '1-5'). Standard: alle."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 345
-#: src/bigocrpdf/cli_parser.py:374
+#: src/bigocrpdf/cli_parser.py:376
 msgid "Remove pages from a PDF"
 msgstr "Fjern sider fra en PDF"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 352
-#: src/bigocrpdf/cli_parser.py:380
+#: src/bigocrpdf/cli_parser.py:382
 msgid "Pages to delete (e.g. '3,5,7' or '2-4')"
 msgstr "Sider at slette (f.eks. '3,5,7' eller '2-4')"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 356
-#: src/bigocrpdf/cli_parser.py:385
+#: src/bigocrpdf/cli_parser.py:387
 msgid "Extract pages to a new PDF"
 msgstr "Udtræk sider til en ny PDF"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 363
-#: src/bigocrpdf/cli_parser.py:391
+#: src/bigocrpdf/cli_parser.py:393
 msgid "Pages to extract (e.g. '3-5' or '1,3,7')"
 msgstr "Sider at udtrække (f.eks. '3-5' eller '1,3,7')"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 367
-#: src/bigocrpdf/cli_parser.py:396
+#: src/bigocrpdf/cli_parser.py:398
 msgid "Insert pages from another PDF"
 msgstr "Indsæt sider fra en anden PDF"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 368
-#: src/bigocrpdf/cli_parser.py:397
+#: src/bigocrpdf/cli_parser.py:399
 msgid "Target PDF file"
 msgstr "Mål-PDF-fil"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 376
-#: src/bigocrpdf/cli_parser.py:407
+#: src/bigocrpdf/cli_parser.py:409
 msgid "PDF file to insert pages from"
 msgstr "PDF-fil at indsætte sider fra"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 383
-#: src/bigocrpdf/cli_parser.py:414
+#: src/bigocrpdf/cli_parser.py:416
 msgid "Insert at this page position (1-indexed, 0 = append). Default: append."
 msgstr ""
 "Indsæt ved denne position (fra 1, 0 = tilføj sidst). Standard: tilføj sidst."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 389
-#: src/bigocrpdf/cli_parser.py:420
+#: src/bigocrpdf/cli_parser.py:422
 msgid "Pages to insert from the source (e.g. '1-3'). Default: all."
 msgstr "Sider at indsætte fra kilden (f.eks. '1-3'). Standard: alle."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 393
-#: src/bigocrpdf/cli_parser.py:425
+#: src/bigocrpdf/cli_parser.py:427
 msgid "Reorder or reverse pages"
 msgstr "Omarranger eller vend sider"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 401
-#: src/bigocrpdf/cli_parser.py:432
+#: src/bigocrpdf/cli_parser.py:434
 msgid "New page order (e.g. '3,1,2,5,4')"
 msgstr "Ny siderækkefølge (f.eks. '3,1,2,5,4')"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 406
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 197
-#: src/bigocrpdf/cli_parser.py:434
+#: src/bigocrpdf/cli_parser.py:436
 msgid "Reverse the page order"
 msgstr "Vend siderækkefølgen"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 419
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 430
-#: src/bigocrpdf/cli_parser.py:438
+#: src/bigocrpdf/cli_parser.py:440
 msgid "Input PDF file (must have text layer)"
 msgstr "PDF-inddatafil (skal have tekstlag)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 418
-#: src/bigocrpdf/cli_parser.py:442
+#: src/bigocrpdf/cli_parser.py:444
 msgid "Export OCR'd PDF as ODF document"
 msgstr "Eksportér OCR-PDF som ODF-dokument"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 425
-#: src/bigocrpdf/cli_parser.py:444
+#: src/bigocrpdf/cli_parser.py:446
 msgid "Output ODF file (default: same name as input with .odt)"
 msgstr "ODF-uddatafil (standard: samme navn som inddata med .odt)"
 
@@ -623,38 +624,38 @@ msgstr "ODF-uddatafil (standard: samme navn som inddata med .odt)"
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 35
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_options_controller.py, line: 233
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 422
-#: src/bigocrpdf/cli_parser.py:449
+#: src/bigocrpdf/cli_parser.py:451
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:35
 #: src/bigocrpdf/ui/pdf_options_controller.py:233
 msgid "Preserve Text Layout"
 msgstr "Bevar tekstlayout"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 429
-#: src/bigocrpdf/cli_parser.py:454
+#: src/bigocrpdf/cli_parser.py:456
 msgid "Export OCR'd PDF as formatted text"
 msgstr "Eksportér OCR-PDF som formateret tekst"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 436
-#: src/bigocrpdf/cli_parser.py:456
+#: src/bigocrpdf/cli_parser.py:458
 msgid "Output text file (default: same name as input with .txt)"
 msgstr "Tekstuddatafil (standard: samme navn som inddata med .txt)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 443
-#: src/bigocrpdf/cli_parser.py:461
+#: src/bigocrpdf/cli_parser.py:463
 msgid "Export OCR'd PDF as Markdown"
 msgstr "Eksporter OCR'et PDF som Markdown"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 450
-#: src/bigocrpdf/cli_parser.py:463
+#: src/bigocrpdf/cli_parser.py:465
 msgid "Output Markdown file (default: same name as input with .md)"
 msgstr "Markdown-uddatafil (standard: samme navn som inddata med .md)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 455
-#: src/bigocrpdf/cli_parser.py:468
+#: src/bigocrpdf/cli_parser.py:470
 msgid "Prepend YAML front-matter (title, source, page count, date)."
 msgstr "Tilføj YAML-frontmatter (titel, kilde, sidetal, dato)."
 
-#: src/bigocrpdf/cli_parser.py:488
+#: src/bigocrpdf/cli_parser.py:490
 msgid ""
 "Export from structured OCR JSON written earlier by 'ocr --sidecar-json', "
 "instead of reading the PDF text layer."
@@ -663,12 +664,12 @@ msgstr ""
 "--sidecar-json«, i stedet for at læse PDF'ens tekstlag."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 414
-#: src/bigocrpdf/cli_parser.py:496
+#: src/bigocrpdf/cli_parser.py:498
 msgid "Open interactive GUI editor"
 msgstr "Åbn interaktiv grafisk editor"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 415
-#: src/bigocrpdf/cli_parser.py:497
+#: src/bigocrpdf/cli_parser.py:499
 msgid "PDF file to edit"
 msgstr "PDF-fil at redigere"
 

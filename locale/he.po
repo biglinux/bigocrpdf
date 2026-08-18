@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 3.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-08-17 20:03-0300\n"
+"POT-Creation-Date: 2026-08-18 02:44-0300\n"
 "PO-Revision-Date: 2026-08-10 15:12+0000\n"
 "Last-Translator: BigLinux Translation Team\n"
 "Language-Team: Hebrew\n"
@@ -22,7 +22,7 @@ msgstr ""
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
-#: src/bigocrpdf/application.py:56 src/bigocrpdf/cli_parser.py:73
+#: src/bigocrpdf/application.py:56 src/bigocrpdf/cli_parser.py:72
 #: src/bigocrpdf/config.py:131 src/bigocrpdf/image_application.py:52
 msgid "Print version information and exit"
 msgstr "הצג מידע על הגרסה וצא"
@@ -212,17 +212,17 @@ msgid "Powered by"
 msgstr "מבוסס על"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 163
-#: src/bigocrpdf/cli_parser.py:75
+#: src/bigocrpdf/cli_parser.py:74
 msgid "Verbose logging (DEBUG)"
 msgstr "רישום מפורט (DEBUG)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 165
-#: src/bigocrpdf/cli_parser.py:76
+#: src/bigocrpdf/cli_parser.py:75
 msgid "Available commands"
 msgstr "פקודות זמינות"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 168
-#: src/bigocrpdf/cli_parser.py:85
+#: src/bigocrpdf/cli_parser.py:84
 msgid "OCR processing for PDF files"
 msgstr "עיבוד OCR לקובצי PDF"
 
@@ -234,10 +234,10 @@ msgstr "עיבוד OCR לקובצי PDF"
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 357
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 394
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 411
-#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:302
-#: src/bigocrpdf/cli_parser.py:307 src/bigocrpdf/cli_parser.py:332
-#: src/bigocrpdf/cli_parser.py:354 src/bigocrpdf/cli_parser.py:375
-#: src/bigocrpdf/cli_parser.py:386 src/bigocrpdf/cli_parser.py:426
+#: src/bigocrpdf/cli_parser.py:85 src/bigocrpdf/cli_parser.py:304
+#: src/bigocrpdf/cli_parser.py:309 src/bigocrpdf/cli_parser.py:334
+#: src/bigocrpdf/cli_parser.py:356 src/bigocrpdf/cli_parser.py:377
+#: src/bigocrpdf/cli_parser.py:388 src/bigocrpdf/cli_parser.py:428
 msgid "Input PDF file"
 msgstr "קובץ PDF קלט"
 
@@ -249,202 +249,200 @@ msgstr "קובץ PDF קלט"
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 358
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 369
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 395
-#: src/bigocrpdf/cli_parser.py:87 src/bigocrpdf/cli_parser.py:327
-#: src/bigocrpdf/cli_parser.py:334 src/bigocrpdf/cli_parser.py:356
-#: src/bigocrpdf/cli_parser.py:377 src/bigocrpdf/cli_parser.py:388
-#: src/bigocrpdf/cli_parser.py:399 src/bigocrpdf/cli_parser.py:428
+#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:329
+#: src/bigocrpdf/cli_parser.py:336 src/bigocrpdf/cli_parser.py:358
+#: src/bigocrpdf/cli_parser.py:379 src/bigocrpdf/cli_parser.py:390
+#: src/bigocrpdf/cli_parser.py:401 src/bigocrpdf/cli_parser.py:430
 msgid "Output PDF file"
 msgstr "קובץ PDF פלט"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 175
-#: src/bigocrpdf/cli_parser.py:92
+#: src/bigocrpdf/cli_parser.py:91
 msgid "Pages to process (e.g. '7', '3-10', '1,3,7'). Default: all."
 msgstr "עמודים לעיבוד (לדוגמה '7', '3-10', '1,3,7'). ברירת מחדל: הכל."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 187
-#: src/bigocrpdf/cli_parser.py:95
+#: src/bigocrpdf/cli_parser.py:94
 msgid "Parallel workers (0 = auto). Default: 0."
 msgstr "משימות מקבילות (0 = אוטומטי). ברירת מחדל: 0."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 189
-#: src/bigocrpdf/cli_parser.py:98
+#: src/bigocrpdf/cli_parser.py:97
 msgid "DPI for extraction (default: 300)"
 msgstr "DPI לחילוץ (ברירת מחדל: 300)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 192
-#: src/bigocrpdf/cli_parser.py:108
+#: src/bigocrpdf/cli_parser.py:107
 msgid "OCR behavior"
 msgstr "התנהגות OCR"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 197
-#: src/bigocrpdf/cli_parser.py:113
+#: src/bigocrpdf/cli_parser.py:112
 msgid "Re-OCR pages that already have text (default: skip them)."
 msgstr "בצע OCR מחדש בעמודים שכבר מכילים טקסט (ברירת מחדל: דלג עליהם)."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 203
-#: src/bigocrpdf/cli_parser.py:119
+#: src/bigocrpdf/cli_parser.py:118
 msgid "Process all pages as image-only (for editor-merged files)."
 msgstr "עבד את כל העמודים כתמונות בלבד (לקבצים שמוזגו בעורך)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 126
-#: src/bigocrpdf/cli_parser.py:127
+#: src/bigocrpdf/cli_parser.py:126
 msgid "RapidOCR model size/type (default: small)."
 msgstr "גודל/סוג מודל RapidOCR (ברירת מחדל: small)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 132
-#: src/bigocrpdf/cli_parser.py:133
+#: src/bigocrpdf/cli_parser.py:132
 msgid "RapidOCR CPU inference engine (default: openvino)."
 msgstr "מנוע ההסקה של RapidOCR למעבד (ברירת מחדל: openvino)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 138
-#: src/bigocrpdf/cli_parser.py:139
+#: src/bigocrpdf/cli_parser.py:138
 msgid "PDF text handling mode (default: auto)."
 msgstr "מצב טיפול בטקסט PDF (ברירת מחדל: auto)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 144
-#: src/bigocrpdf/cli_parser.py:145
+#: src/bigocrpdf/cli_parser.py:144
 msgid "RapidOCR recognition batch size (default: 1)."
 msgstr "גודל אצוות הזיהוי של RapidOCR (ברירת מחדל: 1)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 150
-#: src/bigocrpdf/cli_parser.py:151
+#: src/bigocrpdf/cli_parser.py:150
 msgid "Enable RapidOCR text-line orientation classifier."
 msgstr "הפעל את מסווג כיוון שורות הטקסט של RapidOCR."
 
-#: src/bigocrpdf/cli_parser.py:159
+#: src/bigocrpdf/cli_parser.py:161
 msgid ""
 "Detect text on the page as rendered, without letting RapidOCR downscale it."
-msgstr ""
-"לזהות טקסט בעמוד בגודל שבו הוא עובד, בלי לתת ל-RapidOCR להקטין אותו."
+msgstr "לזהות טקסט בעמוד בגודל שבו הוא עובד, בלי לתת ל-RapidOCR להקטין אותו."
 
-#: src/bigocrpdf/cli_parser.py:165
+#: src/bigocrpdf/cli_parser.py:167
 msgid "Let RapidOCR downscale the page before detection: faster, less memory."
-msgstr ""
-"לתת ל-RapidOCR להקטין את העמוד לפני הזיהוי: מהיר יותר, פחות זיכרון."
+msgstr "לתת ל-RapidOCR להקטין את העמוד לפני הזיהוי: מהיר יותר, פחות זיכרון."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 159
-#: src/bigocrpdf/cli_parser.py:174
+#: src/bigocrpdf/cli_parser.py:176
 msgid "Experimental GPU backend (default: off)."
 msgstr "מנשק GPU ניסיוני (ברירת מחדל: off)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 165
-#: src/bigocrpdf/cli_parser.py:180
+#: src/bigocrpdf/cli_parser.py:182
 msgid "GPU device id for experimental GPU backends."
 msgstr "מזהה התקן GPU עבור מנשקי GPU ניסיוניים."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 171
-#: src/bigocrpdf/cli_parser.py:186
+#: src/bigocrpdf/cli_parser.py:188
 msgid "Use FP16 for supported experimental GPU backends."
 msgstr "השתמש ב-FP16 עבור מנשקי GPU ניסיוניים נתמכים."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 176
-#: src/bigocrpdf/cli_parser.py:191
+#: src/bigocrpdf/cli_parser.py:193
 msgid "Fail instead of falling back to CPU when GPU initialization fails."
 msgstr "אם אתחול ה-GPU נכשל, יש להיכשל במקום לעבור ל-CPU."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 213
-#: src/bigocrpdf/cli_parser.py:196
+#: src/bigocrpdf/cli_parser.py:198
 msgid "Geometric corrections"
 msgstr "תיקונים גיאומטריים"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 214
-#: src/bigocrpdf/cli_parser.py:198
+#: src/bigocrpdf/cli_parser.py:200
 msgid "Disable curvature correction"
 msgstr "בטל תיקון עקמומיות"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 215
-#: src/bigocrpdf/cli_parser.py:200
+#: src/bigocrpdf/cli_parser.py:202
 msgid "Disable skew correction"
 msgstr "בטל תיקון הטיה"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 217
-#: src/bigocrpdf/cli_parser.py:202
+#: src/bigocrpdf/cli_parser.py:204
 msgid "Disable perspective correction"
 msgstr "בטל תיקון פרספקטיבה"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 220
-#: src/bigocrpdf/cli_parser.py:205
+#: src/bigocrpdf/cli_parser.py:207
 msgid "Disable orientation detection"
 msgstr "בטל זיהוי כיוון"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 224
-#: src/bigocrpdf/cli_parser.py:210
+#: src/bigocrpdf/cli_parser.py:212
 msgid "Image enhancements"
 msgstr "שיפורי תמונה"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 229
-#: src/bigocrpdf/cli_parser.py:215
+#: src/bigocrpdf/cli_parser.py:217
 msgid "Enable scanner effect (whitens background)."
 msgstr "הפעל אפקט סורק (מלבין רקע)."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 231
-#: src/bigocrpdf/cli_parser.py:217
+#: src/bigocrpdf/cli_parser.py:219
 msgid "Disable scanner effect."
 msgstr "בטל אפקט סורק."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 232
-#: src/bigocrpdf/cli_parser.py:218
+#: src/bigocrpdf/cli_parser.py:220
 msgid "Enable CLAHE contrast"
 msgstr "הפעל ניגודיות CLAHE"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 233
-#: src/bigocrpdf/cli_parser.py:219
+#: src/bigocrpdf/cli_parser.py:221
 msgid "Enable auto brightness"
 msgstr "הפעל בהירות אוטומטית"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 234
-#: src/bigocrpdf/cli_parser.py:220
+#: src/bigocrpdf/cli_parser.py:222
 msgid "Enable denoising"
 msgstr "הפעל הסרת רעש"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 235
-#: src/bigocrpdf/cli_parser.py:221
+#: src/bigocrpdf/cli_parser.py:223
 msgid "Remove dark borders"
 msgstr "הסר גבולות כהים"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 239
-#: src/bigocrpdf/cli_parser.py:222
+#: src/bigocrpdf/cli_parser.py:224
 msgid "Enable vintage look (sepia/BW)."
 msgstr "הפעל מראה עתיק (ספיה/שחור-לבן)."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 241
-#: src/bigocrpdf/cli_parser.py:223
+#: src/bigocrpdf/cli_parser.py:225
 msgid "Vintage in black & white"
 msgstr "עתיק בשחור ולבן"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 401
-#: src/bigocrpdf/cli_parser.py:227 src/bigocrpdf/ui/settings_queue_mixin.py:297
+#: src/bigocrpdf/cli_parser.py:229 src/bigocrpdf/ui/settings_queue_mixin.py:297
 #: src/bigocrpdf/ui/settings_queue_mixin.py:299
 msgid "Output options"
 msgstr "אפשרויות פלט"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 219
-#: src/bigocrpdf/cli_parser.py:234
+#: src/bigocrpdf/cli_parser.py:236
 msgid "Convert output to PDF/A-2b (default)"
 msgstr "המר פלט ל-PDF/A-2b (ברירת מחדל)"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 225
-#: src/bigocrpdf/cli_parser.py:240
+#: src/bigocrpdf/cli_parser.py:242
 msgid "Create a regular PDF instead of PDF/A-2b"
 msgstr "צור PDF רגיל במקום PDF/A-2b"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 255
-#: src/bigocrpdf/cli_parser.py:247
+#: src/bigocrpdf/cli_parser.py:249
 msgid "Viewer page layout (/PageLayout) in output PDF. Default: default."
 msgstr ""
 "פריסת העמודים במציג (/PageLayout) בקובץ ה-PDF שנוצר. ברירת מחדל: default."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 251
-#: src/bigocrpdf/cli_parser.py:254
+#: src/bigocrpdf/cli_parser.py:256
 msgid "Image format in output PDF. Default: original."
 msgstr "פורמט התמונה ב-PDF הפלט. ברירת מחדל: original."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 258
-#: src/bigocrpdf/cli_parser.py:261
+#: src/bigocrpdf/cli_parser.py:263
 msgid "Image quality for JPEG/WebP (1-95, default: 85)."
 msgstr "איכות תמונה ל-JPEG/WebP (1-95, ברירת מחדל: 85)."
 
-#: src/bigocrpdf/cli_parser.py:270
+#: src/bigocrpdf/cli_parser.py:272
 msgid ""
 "Also write structured OCR data (text, word boxes, confidence, layout) as "
 "JSON. Nothing is written without this option. If FILE is omitted, the name "
@@ -455,171 +453,171 @@ msgstr ""
 "הסיומת .bigocr.json."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 262
-#: src/bigocrpdf/cli_parser.py:278
+#: src/bigocrpdf/cli_parser.py:280
 msgid "Debugging"
 msgstr "ניפוי שגיאות"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 267
-#: src/bigocrpdf/cli_parser.py:283
+#: src/bigocrpdf/cli_parser.py:285
 msgid "Save preprocessed images to this directory."
 msgstr "שמור תמונות מעובדות מראש בתיקייה זו."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 272
-#: src/bigocrpdf/cli_parser.py:288
+#: src/bigocrpdf/cli_parser.py:290
 msgid "Only run preprocessing (dewarp/deskew), save images, skip OCR."
 msgstr ""
 "הפעל רק עיבוד מקדים (תיקון עקמומיות/תיקון הטיה), שמור תמונות ודלג על OCR."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 410
-#: src/bigocrpdf/cli_parser.py:301
+#: src/bigocrpdf/cli_parser.py:303
 msgid "Show PDF metadata and page count"
 msgstr "הצג מטא-נתוני PDF ומספר עמודים"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 276
-#: src/bigocrpdf/cli_parser.py:306
+#: src/bigocrpdf/cli_parser.py:308
 msgid "Split PDF into smaller files"
 msgstr "פצל PDF לקבצים קטנים יותר"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 278
-#: src/bigocrpdf/cli_parser.py:309
+#: src/bigocrpdf/cli_parser.py:311
 msgid "Output directory"
 msgstr "תיקיית פלט"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 284
-#: src/bigocrpdf/cli_parser.py:312
+#: src/bigocrpdf/cli_parser.py:314
 msgid "Split every N pages"
 msgstr "פצל כל N עמודים"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 290
-#: src/bigocrpdf/cli_parser.py:314
+#: src/bigocrpdf/cli_parser.py:316
 msgid "Maximum file size per part in megabytes"
 msgstr "גודל קובץ מקסימלי לחלק במגה-בייט"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 296
-#: src/bigocrpdf/cli_parser.py:317
+#: src/bigocrpdf/cli_parser.py:319
 msgid "Explicit ranges (e.g. '1-5,6-10,11-15')"
 msgstr "טווחים מפורשים (לדוגמה '1-5,6-10,11-15')"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 299
-#: src/bigocrpdf/cli_parser.py:320
+#: src/bigocrpdf/cli_parser.py:322
 msgid "Filename prefix for output parts"
 msgstr "קידומת שם קובץ לחלקי פלט"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 303
-#: src/bigocrpdf/cli_parser.py:325
+#: src/bigocrpdf/cli_parser.py:327
 msgid "Merge multiple PDFs into one"
 msgstr "מזג מספר קובצי PDF לאחד"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 304
-#: src/bigocrpdf/cli_parser.py:326
+#: src/bigocrpdf/cli_parser.py:328
 msgid "Input PDF files (in order)"
 msgstr "קובצי PDF קלט (לפי סדר)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 308
-#: src/bigocrpdf/cli_parser.py:331
+#: src/bigocrpdf/cli_parser.py:333
 msgid "Compress PDF to reduce file size"
 msgstr "דחוס PDF להקטנת גודל הקובץ"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 316
-#: src/bigocrpdf/cli_parser.py:341
+#: src/bigocrpdf/cli_parser.py:343
 msgid "JPEG quality for images (1-95, default: 60)"
 msgstr "איכות JPEG לתמונות (1-95, ברירת מחדל: 60)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 323
-#: src/bigocrpdf/cli_parser.py:348
+#: src/bigocrpdf/cli_parser.py:350
 msgid "Target DPI for images (default: 150)"
 msgstr "DPI יעד לתמונות (ברירת מחדל: 150)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 327
-#: src/bigocrpdf/cli_parser.py:353
+#: src/bigocrpdf/cli_parser.py:355
 msgid "Rotate pages in a PDF"
 msgstr "סובב עמודים ב-PDF"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 335
-#: src/bigocrpdf/cli_parser.py:363
+#: src/bigocrpdf/cli_parser.py:365
 msgid "Rotation angle in degrees (clockwise)"
 msgstr "זווית סיבוב במעלות (בכיוון השעון)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 341
-#: src/bigocrpdf/cli_parser.py:369
+#: src/bigocrpdf/cli_parser.py:371
 msgid "Pages to rotate (e.g. '1,3,5' or '1-5'). Default: all."
 msgstr "עמודים לסיבוב (לדוגמה '1,3,5' או '1-5'). ברירת מחדל: הכל."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 345
-#: src/bigocrpdf/cli_parser.py:374
+#: src/bigocrpdf/cli_parser.py:376
 msgid "Remove pages from a PDF"
 msgstr "הסר עמודים מ-PDF"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 352
-#: src/bigocrpdf/cli_parser.py:380
+#: src/bigocrpdf/cli_parser.py:382
 msgid "Pages to delete (e.g. '3,5,7' or '2-4')"
 msgstr "עמודים למחיקה (לדוגמה '3,5,7' או '2-4')"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 356
-#: src/bigocrpdf/cli_parser.py:385
+#: src/bigocrpdf/cli_parser.py:387
 msgid "Extract pages to a new PDF"
 msgstr "חלץ עמודים ל-PDF חדש"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 363
-#: src/bigocrpdf/cli_parser.py:391
+#: src/bigocrpdf/cli_parser.py:393
 msgid "Pages to extract (e.g. '3-5' or '1,3,7')"
 msgstr "עמודים לחילוץ (לדוגמה '3-5' או '1,3,7')"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 367
-#: src/bigocrpdf/cli_parser.py:396
+#: src/bigocrpdf/cli_parser.py:398
 msgid "Insert pages from another PDF"
 msgstr "הכנס עמודים מ-PDF אחר"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 368
-#: src/bigocrpdf/cli_parser.py:397
+#: src/bigocrpdf/cli_parser.py:399
 msgid "Target PDF file"
 msgstr "קובץ PDF יעד"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 376
-#: src/bigocrpdf/cli_parser.py:407
+#: src/bigocrpdf/cli_parser.py:409
 msgid "PDF file to insert pages from"
 msgstr "קובץ PDF שממנו להכניס עמודים"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 383
-#: src/bigocrpdf/cli_parser.py:414
+#: src/bigocrpdf/cli_parser.py:416
 msgid "Insert at this page position (1-indexed, 0 = append). Default: append."
 msgstr "הכנס במיקום עמוד זה (אינדקס 1, 0 = הוסף לסוף). ברירת מחדל: הוסף לסוף."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 389
-#: src/bigocrpdf/cli_parser.py:420
+#: src/bigocrpdf/cli_parser.py:422
 msgid "Pages to insert from the source (e.g. '1-3'). Default: all."
 msgstr "עמודים להכנסה מהמקור (לדוגמה '1-3'). ברירת מחדל: הכל."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 393
-#: src/bigocrpdf/cli_parser.py:425
+#: src/bigocrpdf/cli_parser.py:427
 msgid "Reorder or reverse pages"
 msgstr "סדר מחדש או הפוך עמודים"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 401
-#: src/bigocrpdf/cli_parser.py:432
+#: src/bigocrpdf/cli_parser.py:434
 msgid "New page order (e.g. '3,1,2,5,4')"
 msgstr "סדר עמודים חדש (לדוגמה '3,1,2,5,4')"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 406
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 197
-#: src/bigocrpdf/cli_parser.py:434
+#: src/bigocrpdf/cli_parser.py:436
 msgid "Reverse the page order"
 msgstr "הפוך את סדר העמודים"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 419
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 430
-#: src/bigocrpdf/cli_parser.py:438
+#: src/bigocrpdf/cli_parser.py:440
 msgid "Input PDF file (must have text layer)"
 msgstr "קובץ PDF קלט (חייב להכיל שכבת טקסט)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 418
-#: src/bigocrpdf/cli_parser.py:442
+#: src/bigocrpdf/cli_parser.py:444
 msgid "Export OCR'd PDF as ODF document"
 msgstr "ייצא PDF עם OCR כמסמך ODF"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 425
-#: src/bigocrpdf/cli_parser.py:444
+#: src/bigocrpdf/cli_parser.py:446
 msgid "Output ODF file (default: same name as input with .odt)"
 msgstr "קובץ ODF פלט (ברירת מחדל: שם זהה לקלט עם .odt)"
 
@@ -627,38 +625,38 @@ msgstr "קובץ ODF פלט (ברירת מחדל: שם זהה לקלט עם .odt
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 35
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_options_controller.py, line: 233
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 422
-#: src/bigocrpdf/cli_parser.py:449
+#: src/bigocrpdf/cli_parser.py:451
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:35
 #: src/bigocrpdf/ui/pdf_options_controller.py:233
 msgid "Preserve Text Layout"
 msgstr "שמירת פריסת הטקסט"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 429
-#: src/bigocrpdf/cli_parser.py:454
+#: src/bigocrpdf/cli_parser.py:456
 msgid "Export OCR'd PDF as formatted text"
 msgstr "ייצא PDF עם OCR כטקסט מעוצב"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 436
-#: src/bigocrpdf/cli_parser.py:456
+#: src/bigocrpdf/cli_parser.py:458
 msgid "Output text file (default: same name as input with .txt)"
 msgstr "קובץ טקסט פלט (ברירת מחדל: שם זהה לקלט עם .txt)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 443
-#: src/bigocrpdf/cli_parser.py:461
+#: src/bigocrpdf/cli_parser.py:463
 msgid "Export OCR'd PDF as Markdown"
 msgstr "ייצא PDF שעבר OCR כ-Markdown"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 450
-#: src/bigocrpdf/cli_parser.py:463
+#: src/bigocrpdf/cli_parser.py:465
 msgid "Output Markdown file (default: same name as input with .md)"
 msgstr "קובץ Markdown פלט (ברירת מחדל: אותו שם כמו הקלט עם .md)"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 455
-#: src/bigocrpdf/cli_parser.py:468
+#: src/bigocrpdf/cli_parser.py:470
 msgid "Prepend YAML front-matter (title, source, page count, date)."
 msgstr "הוסף מטא־נתוני YAML בתחילת הקובץ (כותרת, מקור, מספר עמודים, תאריך)."
 
-#: src/bigocrpdf/cli_parser.py:488
+#: src/bigocrpdf/cli_parser.py:490
 msgid ""
 "Export from structured OCR JSON written earlier by 'ocr --sidecar-json', "
 "instead of reading the PDF text layer."
@@ -667,12 +665,12 @@ msgstr ""
 "במקום לקרוא את שכבת הטקסט של ה-PDF."
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 414
-#: src/bigocrpdf/cli_parser.py:496
+#: src/bigocrpdf/cli_parser.py:498
 msgid "Open interactive GUI editor"
 msgstr "פתח עורך גרפי אינטראקטיבי"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 415
-#: src/bigocrpdf/cli_parser.py:497
+#: src/bigocrpdf/cli_parser.py:499
 msgid "PDF file to edit"
 msgstr "קובץ PDF לעריכה"
 
