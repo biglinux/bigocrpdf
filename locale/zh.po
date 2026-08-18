@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 3.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-08-16 23:28-0300\n"
+"POT-Creation-Date: 2026-08-17 20:03-0300\n"
 "PO-Revision-Date: 2026-08-10 15:12+0000\n"
 "Last-Translator: BigLinux Translation Team <biglinux@biglinux.com.br>\n"
 "Language-Team: Chinese\n"
@@ -21,7 +21,7 @@ msgstr ""
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
-#: src/bigocrpdf/application.py:56 src/bigocrpdf/cli_parser.py:72
+#: src/bigocrpdf/application.py:56 src/bigocrpdf/cli_parser.py:73
 #: src/bigocrpdf/config.py:131 src/bigocrpdf/image_application.py:52
 msgid "Print version information and exit"
 msgstr "显示版本信息并退出"
@@ -206,17 +206,17 @@ msgid "Powered by"
 msgstr "基于以下技术"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 163
-#: src/bigocrpdf/cli_parser.py:74
+#: src/bigocrpdf/cli_parser.py:75
 msgid "Verbose logging (DEBUG)"
 msgstr "详细日志（DEBUG）"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 165
-#: src/bigocrpdf/cli_parser.py:75
+#: src/bigocrpdf/cli_parser.py:76
 msgid "Available commands"
 msgstr "可用命令"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 168
-#: src/bigocrpdf/cli_parser.py:84
+#: src/bigocrpdf/cli_parser.py:85
 msgid "OCR processing for PDF files"
 msgstr "PDF文件的OCR处理"
 
@@ -228,10 +228,10 @@ msgstr "PDF文件的OCR处理"
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 357
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 394
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 411
-#: src/bigocrpdf/cli_parser.py:85 src/bigocrpdf/cli_parser.py:287
-#: src/bigocrpdf/cli_parser.py:292 src/bigocrpdf/cli_parser.py:317
-#: src/bigocrpdf/cli_parser.py:339 src/bigocrpdf/cli_parser.py:360
-#: src/bigocrpdf/cli_parser.py:371 src/bigocrpdf/cli_parser.py:411
+#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:302
+#: src/bigocrpdf/cli_parser.py:307 src/bigocrpdf/cli_parser.py:332
+#: src/bigocrpdf/cli_parser.py:354 src/bigocrpdf/cli_parser.py:375
+#: src/bigocrpdf/cli_parser.py:386 src/bigocrpdf/cli_parser.py:426
 msgid "Input PDF file"
 msgstr "输入PDF文件"
 
@@ -243,155 +243,166 @@ msgstr "输入PDF文件"
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 358
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 369
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 395
-#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:312
-#: src/bigocrpdf/cli_parser.py:319 src/bigocrpdf/cli_parser.py:341
-#: src/bigocrpdf/cli_parser.py:362 src/bigocrpdf/cli_parser.py:373
-#: src/bigocrpdf/cli_parser.py:384 src/bigocrpdf/cli_parser.py:413
+#: src/bigocrpdf/cli_parser.py:87 src/bigocrpdf/cli_parser.py:327
+#: src/bigocrpdf/cli_parser.py:334 src/bigocrpdf/cli_parser.py:356
+#: src/bigocrpdf/cli_parser.py:377 src/bigocrpdf/cli_parser.py:388
+#: src/bigocrpdf/cli_parser.py:399 src/bigocrpdf/cli_parser.py:428
 msgid "Output PDF file"
 msgstr "输出PDF文件"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 175
-#: src/bigocrpdf/cli_parser.py:91
+#: src/bigocrpdf/cli_parser.py:92
 msgid "Pages to process (e.g. '7', '3-10', '1,3,7'). Default: all."
 msgstr "要处理的页面（例如'7'、'3-10'、'1,3,7'）。默认：全部。"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 187
-#: src/bigocrpdf/cli_parser.py:94
+#: src/bigocrpdf/cli_parser.py:95
 msgid "Parallel workers (0 = auto). Default: 0."
 msgstr "并行进程数（0 = 自动）。默认：0。"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 189
-#: src/bigocrpdf/cli_parser.py:97
+#: src/bigocrpdf/cli_parser.py:98
 msgid "DPI for extraction (default: 300)"
 msgstr "提取DPI（默认：300）"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 192
-#: src/bigocrpdf/cli_parser.py:107
+#: src/bigocrpdf/cli_parser.py:108
 msgid "OCR behavior"
 msgstr "OCR行为"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 197
-#: src/bigocrpdf/cli_parser.py:112
+#: src/bigocrpdf/cli_parser.py:113
 msgid "Re-OCR pages that already have text (default: skip them)."
 msgstr "重新OCR已有文本的页面（默认：跳过）。"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 203
-#: src/bigocrpdf/cli_parser.py:118
+#: src/bigocrpdf/cli_parser.py:119
 msgid "Process all pages as image-only (for editor-merged files)."
 msgstr "将所有页面作为纯图像处理（用于编辑器合并的文件）。"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 126
-#: src/bigocrpdf/cli_parser.py:126
+#: src/bigocrpdf/cli_parser.py:127
 msgid "RapidOCR model size/type (default: small)."
 msgstr "RapidOCR 模型大小/类型（默认值：small）。"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 132
-#: src/bigocrpdf/cli_parser.py:132
+#: src/bigocrpdf/cli_parser.py:133
 msgid "RapidOCR CPU inference engine (default: openvino)."
 msgstr "RapidOCR CPU 推理引擎（默认：openvino）。"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 138
-#: src/bigocrpdf/cli_parser.py:138
+#: src/bigocrpdf/cli_parser.py:139
 msgid "PDF text handling mode (default: auto)."
 msgstr "PDF 文本处理模式（默认：auto）。"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 144
-#: src/bigocrpdf/cli_parser.py:144
+#: src/bigocrpdf/cli_parser.py:145
 msgid "RapidOCR recognition batch size (default: 1)."
 msgstr "RapidOCR 识别批量大小（默认：1）。"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 150
-#: src/bigocrpdf/cli_parser.py:150
+#: src/bigocrpdf/cli_parser.py:151
 msgid "Enable RapidOCR text-line orientation classifier."
 msgstr "启用 RapidOCR 文本行方向分类器。"
 
-# File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 159
 #: src/bigocrpdf/cli_parser.py:159
+msgid ""
+"Detect text on the page as rendered, without letting RapidOCR downscale it."
+msgstr ""
+"按页面渲染时的分辨率检测文字，不让 RapidOCR 缩小它。"
+
+#: src/bigocrpdf/cli_parser.py:165
+msgid "Let RapidOCR downscale the page before detection: faster, less memory."
+msgstr ""
+"允许 RapidOCR 在检测前缩小页面：更快，更省内存。"
+
+# File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 159
+#: src/bigocrpdf/cli_parser.py:174
 msgid "Experimental GPU backend (default: off)."
 msgstr "实验性 GPU 后端（默认：off）。"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 165
-#: src/bigocrpdf/cli_parser.py:165
+#: src/bigocrpdf/cli_parser.py:180
 msgid "GPU device id for experimental GPU backends."
 msgstr "用于实验性 GPU 后端的 GPU 设备 ID。"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 171
-#: src/bigocrpdf/cli_parser.py:171
+#: src/bigocrpdf/cli_parser.py:186
 msgid "Use FP16 for supported experimental GPU backends."
 msgstr "将 FP16 用于受支持的实验性 GPU 后端。"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 176
-#: src/bigocrpdf/cli_parser.py:176
+#: src/bigocrpdf/cli_parser.py:191
 msgid "Fail instead of falling back to CPU when GPU initialization fails."
 msgstr "GPU 初始化失败时直接报错，而不是回退到 CPU。"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 213
-#: src/bigocrpdf/cli_parser.py:181
+#: src/bigocrpdf/cli_parser.py:196
 msgid "Geometric corrections"
 msgstr "几何校正"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 214
-#: src/bigocrpdf/cli_parser.py:183
+#: src/bigocrpdf/cli_parser.py:198
 msgid "Disable curvature correction"
 msgstr "禁用弯曲校正"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 215
-#: src/bigocrpdf/cli_parser.py:185
+#: src/bigocrpdf/cli_parser.py:200
 msgid "Disable skew correction"
 msgstr "禁用倾斜校正"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 217
-#: src/bigocrpdf/cli_parser.py:187
+#: src/bigocrpdf/cli_parser.py:202
 msgid "Disable perspective correction"
 msgstr "禁用透视校正"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 220
-#: src/bigocrpdf/cli_parser.py:190
+#: src/bigocrpdf/cli_parser.py:205
 msgid "Disable orientation detection"
 msgstr "禁用方向检测"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 224
-#: src/bigocrpdf/cli_parser.py:195
+#: src/bigocrpdf/cli_parser.py:210
 msgid "Image enhancements"
 msgstr "图像增强"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 229
-#: src/bigocrpdf/cli_parser.py:200
+#: src/bigocrpdf/cli_parser.py:215
 msgid "Enable scanner effect (whitens background)."
 msgstr "启用扫描仪效果（白化背景）。"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 231
-#: src/bigocrpdf/cli_parser.py:202
+#: src/bigocrpdf/cli_parser.py:217
 msgid "Disable scanner effect."
 msgstr "禁用扫描仪效果。"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 232
-#: src/bigocrpdf/cli_parser.py:203
+#: src/bigocrpdf/cli_parser.py:218
 msgid "Enable CLAHE contrast"
 msgstr "启用CLAHE对比度"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 233
-#: src/bigocrpdf/cli_parser.py:204
+#: src/bigocrpdf/cli_parser.py:219
 msgid "Enable auto brightness"
 msgstr "启用自动亮度"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 234
-#: src/bigocrpdf/cli_parser.py:205
+#: src/bigocrpdf/cli_parser.py:220
 msgid "Enable denoising"
 msgstr "启用降噪"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 235
-#: src/bigocrpdf/cli_parser.py:206
+#: src/bigocrpdf/cli_parser.py:221
 msgid "Remove dark borders"
 msgstr "去除暗边框"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 239
-#: src/bigocrpdf/cli_parser.py:207
+#: src/bigocrpdf/cli_parser.py:222
 msgid "Enable vintage look (sepia/BW)."
 msgstr "启用复古效果（棕褐色/黑白）。"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 241
-#: src/bigocrpdf/cli_parser.py:208
+#: src/bigocrpdf/cli_parser.py:223
 msgid "Vintage in black & white"
 msgstr "黑白复古"
 
@@ -399,209 +410,210 @@ msgstr "黑白复古"
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 244
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 481
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 483
-#: src/bigocrpdf/cli_parser.py:212 src/bigocrpdf/ui/settings_queue_mixin.py:297
+#: src/bigocrpdf/cli_parser.py:227 src/bigocrpdf/ui/settings_queue_mixin.py:297
 #: src/bigocrpdf/ui/settings_queue_mixin.py:299
 msgid "Output options"
 msgstr "输出选项"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 219
-#: src/bigocrpdf/cli_parser.py:219
+#: src/bigocrpdf/cli_parser.py:234
 msgid "Convert output to PDF/A-2b (default)"
 msgstr "将输出转换为 PDF/A-2b（默认）"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 225
-#: src/bigocrpdf/cli_parser.py:225
+#: src/bigocrpdf/cli_parser.py:240
 msgid "Create a regular PDF instead of PDF/A-2b"
 msgstr "创建普通 PDF 而不是 PDF/A-2b"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 255
-#: src/bigocrpdf/cli_parser.py:232
+#: src/bigocrpdf/cli_parser.py:247
 msgid "Viewer page layout (/PageLayout) in output PDF. Default: default."
 msgstr "输出 PDF 的查看器页面布局 (/PageLayout)。默认值：default。"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 251
-#: src/bigocrpdf/cli_parser.py:239
+#: src/bigocrpdf/cli_parser.py:254
 msgid "Image format in output PDF. Default: original."
 msgstr "输出 PDF 中的图像格式。默认值：original。"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 258
-#: src/bigocrpdf/cli_parser.py:246
+#: src/bigocrpdf/cli_parser.py:261
 msgid "Image quality for JPEG/WebP (1-95, default: 85)."
 msgstr "JPEG/WebP图像质量（1-95，默认：85）。"
 
-#: src/bigocrpdf/cli_parser.py:255
+#: src/bigocrpdf/cli_parser.py:270
 msgid ""
 "Also write structured OCR data (text, word boxes, confidence, layout) as "
 "JSON. Nothing is written without this option. If FILE is omitted, the name "
 "is the output PDF with a .bigocr.json suffix."
 msgstr ""
-"同时将结构化的 OCR 数据（文本、单词框、置信度、版面）写为 JSON。不使用此选项则不写入任何内容。若省略 FILE，名称为输出 PDF 加 .bigocr.json 后缀。"
+"同时将结构化的 OCR 数据（文本、单词框、置信度、版面）写为 JSON。不使用此选项"
+"则不写入任何内容。若省略 FILE，名称为输出 PDF 加 .bigocr.json 后缀。"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 262
-#: src/bigocrpdf/cli_parser.py:263
+#: src/bigocrpdf/cli_parser.py:278
 msgid "Debugging"
 msgstr "调试"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 267
-#: src/bigocrpdf/cli_parser.py:268
+#: src/bigocrpdf/cli_parser.py:283
 msgid "Save preprocessed images to this directory."
 msgstr "将预处理后的图像保存到此目录。"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 272
-#: src/bigocrpdf/cli_parser.py:273
+#: src/bigocrpdf/cli_parser.py:288
 msgid "Only run preprocessing (dewarp/deskew), save images, skip OCR."
 msgstr "仅运行预处理（弯曲/倾斜校正），保存图像，跳过OCR。"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 410
-#: src/bigocrpdf/cli_parser.py:286
+#: src/bigocrpdf/cli_parser.py:301
 msgid "Show PDF metadata and page count"
 msgstr "显示PDF元数据和页面数"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 276
-#: src/bigocrpdf/cli_parser.py:291
+#: src/bigocrpdf/cli_parser.py:306
 msgid "Split PDF into smaller files"
 msgstr "将PDF拆分为较小的文件"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 278
-#: src/bigocrpdf/cli_parser.py:294
+#: src/bigocrpdf/cli_parser.py:309
 msgid "Output directory"
 msgstr "输出目录"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 284
-#: src/bigocrpdf/cli_parser.py:297
+#: src/bigocrpdf/cli_parser.py:312
 msgid "Split every N pages"
 msgstr "每N页拆分"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 290
-#: src/bigocrpdf/cli_parser.py:299
+#: src/bigocrpdf/cli_parser.py:314
 msgid "Maximum file size per part in megabytes"
 msgstr "每部分最大文件大小（MB）"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 296
-#: src/bigocrpdf/cli_parser.py:302
+#: src/bigocrpdf/cli_parser.py:317
 msgid "Explicit ranges (e.g. '1-5,6-10,11-15')"
 msgstr "明确的范围（例如'1-5,6-10,11-15'）"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 299
-#: src/bigocrpdf/cli_parser.py:305
+#: src/bigocrpdf/cli_parser.py:320
 msgid "Filename prefix for output parts"
 msgstr "输出部分的文件名前缀"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 303
-#: src/bigocrpdf/cli_parser.py:310
+#: src/bigocrpdf/cli_parser.py:325
 msgid "Merge multiple PDFs into one"
 msgstr "将多个PDF合并为一个"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 304
-#: src/bigocrpdf/cli_parser.py:311
+#: src/bigocrpdf/cli_parser.py:326
 msgid "Input PDF files (in order)"
 msgstr "输入PDF文件（按顺序）"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 308
-#: src/bigocrpdf/cli_parser.py:316
+#: src/bigocrpdf/cli_parser.py:331
 msgid "Compress PDF to reduce file size"
 msgstr "压缩PDF以减小文件大小"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 316
-#: src/bigocrpdf/cli_parser.py:326
+#: src/bigocrpdf/cli_parser.py:341
 msgid "JPEG quality for images (1-95, default: 60)"
 msgstr "图像的JPEG质量（1-95，默认：60）"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 323
-#: src/bigocrpdf/cli_parser.py:333
+#: src/bigocrpdf/cli_parser.py:348
 msgid "Target DPI for images (default: 150)"
 msgstr "图像的目标DPI（默认：150）"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 327
-#: src/bigocrpdf/cli_parser.py:338
+#: src/bigocrpdf/cli_parser.py:353
 msgid "Rotate pages in a PDF"
 msgstr "旋转PDF页面"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 335
-#: src/bigocrpdf/cli_parser.py:348
+#: src/bigocrpdf/cli_parser.py:363
 msgid "Rotation angle in degrees (clockwise)"
 msgstr "旋转角度（顺时针，度）"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 341
-#: src/bigocrpdf/cli_parser.py:354
+#: src/bigocrpdf/cli_parser.py:369
 msgid "Pages to rotate (e.g. '1,3,5' or '1-5'). Default: all."
 msgstr "要旋转的页面（例如'1,3,5'或'1-5'）。默认：全部。"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 345
-#: src/bigocrpdf/cli_parser.py:359
+#: src/bigocrpdf/cli_parser.py:374
 msgid "Remove pages from a PDF"
 msgstr "从PDF中删除页面"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 352
-#: src/bigocrpdf/cli_parser.py:365
+#: src/bigocrpdf/cli_parser.py:380
 msgid "Pages to delete (e.g. '3,5,7' or '2-4')"
 msgstr "要删除的页面（例如'3,5,7'或'2-4'）"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 356
-#: src/bigocrpdf/cli_parser.py:370
+#: src/bigocrpdf/cli_parser.py:385
 msgid "Extract pages to a new PDF"
 msgstr "将页面提取到新PDF"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 363
-#: src/bigocrpdf/cli_parser.py:376
+#: src/bigocrpdf/cli_parser.py:391
 msgid "Pages to extract (e.g. '3-5' or '1,3,7')"
 msgstr "要提取的页面（例如'3-5'或'1,3,7'）"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 367
-#: src/bigocrpdf/cli_parser.py:381
+#: src/bigocrpdf/cli_parser.py:396
 msgid "Insert pages from another PDF"
 msgstr "从另一个PDF插入页面"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 368
-#: src/bigocrpdf/cli_parser.py:382
+#: src/bigocrpdf/cli_parser.py:397
 msgid "Target PDF file"
 msgstr "目标PDF文件"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 376
-#: src/bigocrpdf/cli_parser.py:392
+#: src/bigocrpdf/cli_parser.py:407
 msgid "PDF file to insert pages from"
 msgstr "要插入页面的PDF文件"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 383
-#: src/bigocrpdf/cli_parser.py:399
+#: src/bigocrpdf/cli_parser.py:414
 msgid "Insert at this page position (1-indexed, 0 = append). Default: append."
 msgstr "在此页面位置插入（从1开始，0=追加到末尾）。默认：追加到末尾。"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 389
-#: src/bigocrpdf/cli_parser.py:405
+#: src/bigocrpdf/cli_parser.py:420
 msgid "Pages to insert from the source (e.g. '1-3'). Default: all."
 msgstr "从源文件插入的页面（例如'1-3'）。默认：全部。"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 393
-#: src/bigocrpdf/cli_parser.py:410
+#: src/bigocrpdf/cli_parser.py:425
 msgid "Reorder or reverse pages"
 msgstr "重新排列或反转页面"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 401
-#: src/bigocrpdf/cli_parser.py:417
+#: src/bigocrpdf/cli_parser.py:432
 msgid "New page order (e.g. '3,1,2,5,4')"
 msgstr "新的页面顺序（例如'3,1,2,5,4'）"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 406
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 197
-#: src/bigocrpdf/cli_parser.py:419
+#: src/bigocrpdf/cli_parser.py:434
 msgid "Reverse the page order"
 msgstr "反转页面顺序"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 419
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 430
-#: src/bigocrpdf/cli_parser.py:423
+#: src/bigocrpdf/cli_parser.py:438
 msgid "Input PDF file (must have text layer)"
 msgstr "输入PDF文件（必须有文本图层）"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 418
-#: src/bigocrpdf/cli_parser.py:427
+#: src/bigocrpdf/cli_parser.py:442
 msgid "Export OCR'd PDF as ODF document"
 msgstr "将OCR处理的PDF导出为ODF文档"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 425
-#: src/bigocrpdf/cli_parser.py:429
+#: src/bigocrpdf/cli_parser.py:444
 msgid "Output ODF file (default: same name as input with .odt)"
 msgstr "输出ODF文件（默认：与输入同名，扩展名为.odt）"
 
@@ -609,51 +621,52 @@ msgstr "输出ODF文件（默认：与输入同名，扩展名为.odt）"
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 35
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_options_controller.py, line: 233
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 422
-#: src/bigocrpdf/cli_parser.py:434
+#: src/bigocrpdf/cli_parser.py:449
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:35
 #: src/bigocrpdf/ui/pdf_options_controller.py:233
 msgid "Preserve Text Layout"
 msgstr "保留文本布局"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 429
-#: src/bigocrpdf/cli_parser.py:439
+#: src/bigocrpdf/cli_parser.py:454
 msgid "Export OCR'd PDF as formatted text"
 msgstr "将OCR处理的PDF导出为格式化文本"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 436
-#: src/bigocrpdf/cli_parser.py:441
+#: src/bigocrpdf/cli_parser.py:456
 msgid "Output text file (default: same name as input with .txt)"
 msgstr "输出文本文件（默认：与输入同名，扩展名为.txt）"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 443
-#: src/bigocrpdf/cli_parser.py:446
+#: src/bigocrpdf/cli_parser.py:461
 msgid "Export OCR'd PDF as Markdown"
 msgstr "将OCR处理的PDF导出为Markdown"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 450
-#: src/bigocrpdf/cli_parser.py:448
+#: src/bigocrpdf/cli_parser.py:463
 msgid "Output Markdown file (default: same name as input with .md)"
 msgstr "输出Markdown文件（默认：与输入同名，后缀为.md）"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 455
-#: src/bigocrpdf/cli_parser.py:453
+#: src/bigocrpdf/cli_parser.py:468
 msgid "Prepend YAML front-matter (title, source, page count, date)."
 msgstr "在开头添加 YAML 前置元数据（标题、来源、页数、日期）。"
 
-#: src/bigocrpdf/cli_parser.py:473
+#: src/bigocrpdf/cli_parser.py:488
 msgid ""
 "Export from structured OCR JSON written earlier by 'ocr --sidecar-json', "
 "instead of reading the PDF text layer."
 msgstr ""
-"从先前由“ocr --sidecar-json”写入的结构化 OCR JSON 导出，而不是读取 PDF 的文本层。"
+"从先前由“ocr --sidecar-json”写入的结构化 OCR JSON 导出，而不是读取 PDF 的文本"
+"层。"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 414
-#: src/bigocrpdf/cli_parser.py:481
+#: src/bigocrpdf/cli_parser.py:496
 msgid "Open interactive GUI editor"
 msgstr "打开交互式图形编辑器"
 
 # File: bigocrpdf/src/bigocrpdf/cli.py, line: 415
-#: src/bigocrpdf/cli_parser.py:482
+#: src/bigocrpdf/cli_parser.py:497
 msgid "PDF file to edit"
 msgstr "要编辑的PDF文件"
 
@@ -2431,6 +2444,106 @@ msgstr "分割文件数：{parts} · 页数：{pages}"
 msgid "Split failed: {}"
 msgstr "拆分失败：{}"
 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 84
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:122
+#, python-brace-format
+msgid "PDF Editor - {}"
+msgstr "PDF编辑器 - {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 562
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:217
+msgid "Could not open PDF file or file has no pages."
+msgstr "无法打开PDF文件或文件没有页面。"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 596
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:249
+#, python-brace-format
+msgid "Failed to load PDF: {}"
+msgstr "加载PDF失败：{}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 605
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:259
+#, python-brace-format
+msgid "{total} page · {included} included"
+msgid_plural "{total} pages · {included} included"
+msgstr[0] "{total} 页 · 包含 {included}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:266
+#, python-brace-format
+msgid "{count} selected"
+msgstr "已选{count}个"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 737
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:282
+#, python-brace-format
+msgid "{count} page selected"
+msgid_plural "{count} pages selected"
+msgstr[0] "已选择 {count} 个页面"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:337
+msgid "Saving…"
+msgstr "正在保存…"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 674
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:357
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:362
+msgid "Failed to save PDF."
+msgstr "保存PDF失败。"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 822
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:451
+msgid "Save PDF As"
+msgstr "将PDF另存为"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 836
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:464
+msgid "document.pdf"
+msgstr "document.pdf"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 854
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:493
+#, python-brace-format
+msgid "Saved: {}"
+msgstr "已保存：{}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1101
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:528
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:536
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:565
+msgid "Error saving changes."
+msgstr "保存更改时出错。"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1130
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:576
+msgid "Failed to merge PDF pages."
+msgstr "合并PDF页面失败。"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1152
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:583
+msgid "Unsaved Changes"
+msgstr "未保存的更改"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1153
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:584
+msgid "What would you like to do with your changes?"
+msgstr "您想如何处理您的更改？"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 195
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1155
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:586
+#: src/bigocrpdf/ui/session_recovery_controller.py:60
+msgid "Discard"
+msgstr "丢弃"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:587
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:238
+msgid "Apply"
+msgstr "应用"
+
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 236
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:53
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:110
@@ -2557,12 +2670,6 @@ msgstr "插入PDF或图像文件"
 msgid "Save As"
 msgstr "另存为"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:238
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:587
-msgid "Apply"
-msgstr "应用"
-
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 320
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:242
 msgid "Save PDF to a new file (Ctrl+S)"
@@ -2618,100 +2725,6 @@ msgstr "隐藏编辑器侧边栏"
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:341
 msgid "Show editor sidebar"
 msgstr "显示编辑器侧边栏"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 84
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:122
-#, python-brace-format
-msgid "PDF Editor - {}"
-msgstr "PDF编辑器 - {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 562
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:217
-msgid "Could not open PDF file or file has no pages."
-msgstr "无法打开PDF文件或文件没有页面。"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 596
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:249
-#, python-brace-format
-msgid "Failed to load PDF: {}"
-msgstr "加载PDF失败：{}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 605
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:259
-#, python-brace-format
-msgid "{total} page · {included} included"
-msgid_plural "{total} pages · {included} included"
-msgstr[0] "{total} 页 · 包含 {included}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:266
-#, python-brace-format
-msgid "{count} selected"
-msgstr "已选{count}个"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 737
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:282
-#, python-brace-format
-msgid "{count} page selected"
-msgid_plural "{count} pages selected"
-msgstr[0] "已选择 {count} 个页面"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:337
-msgid "Saving…"
-msgstr "正在保存…"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 674
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:357
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:362
-msgid "Failed to save PDF."
-msgstr "保存PDF失败。"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 822
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:451
-msgid "Save PDF As"
-msgstr "将PDF另存为"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 836
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:464
-msgid "document.pdf"
-msgstr "document.pdf"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 854
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:493
-#, python-brace-format
-msgid "Saved: {}"
-msgstr "已保存：{}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1101
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:528
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:536
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:565
-msgid "Error saving changes."
-msgstr "保存更改时出错。"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1130
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:576
-msgid "Failed to merge PDF pages."
-msgstr "合并PDF页面失败。"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1152
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:583
-msgid "Unsaved Changes"
-msgstr "未保存的更改"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1153
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:584
-msgid "What would you like to do with your changes?"
-msgstr "您想如何处理您的更改？"
-
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 195
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1155
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:586
-#: src/bigocrpdf/ui/session_recovery_controller.py:60
-msgid "Discard"
-msgstr "丢弃"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 37
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 53

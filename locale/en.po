@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 3.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-08-16 23:28-0300\n"
+"POT-Creation-Date: 2026-08-17 20:03-0300\n"
 "PO-Revision-Date: 2026-08-10 11:30+0000\n"
 "Last-Translator: BigLinux Translation Team <biglinux@biglinux.com.br>\n"
 "Language-Team: English\n"
@@ -23,7 +23,7 @@ msgstr ""
 # File: bigocrpdf/src/bigocrpdf/config.py, line: 131
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 72
 # File: bigocrpdf/src/bigocrpdf/image_application.py, line: 52
-#: src/bigocrpdf/application.py:56 src/bigocrpdf/cli_parser.py:72
+#: src/bigocrpdf/application.py:56 src/bigocrpdf/cli_parser.py:73
 #: src/bigocrpdf/config.py:131 src/bigocrpdf/image_application.py:52
 msgid "Print version information and exit"
 msgstr "Print version information and exit"
@@ -227,17 +227,17 @@ msgid "Powered by"
 msgstr "Powered by"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 74
-#: src/bigocrpdf/cli_parser.py:74
+#: src/bigocrpdf/cli_parser.py:75
 msgid "Verbose logging (DEBUG)"
 msgstr "Verbose logging (DEBUG)"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 75
-#: src/bigocrpdf/cli_parser.py:75
+#: src/bigocrpdf/cli_parser.py:76
 msgid "Available commands"
 msgstr "Available commands"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 84
-#: src/bigocrpdf/cli_parser.py:84
+#: src/bigocrpdf/cli_parser.py:85
 msgid "OCR processing for PDF files"
 msgstr "OCR processing for PDF files"
 
@@ -249,10 +249,10 @@ msgstr "OCR processing for PDF files"
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 348
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 359
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 399
-#: src/bigocrpdf/cli_parser.py:85 src/bigocrpdf/cli_parser.py:287
-#: src/bigocrpdf/cli_parser.py:292 src/bigocrpdf/cli_parser.py:317
-#: src/bigocrpdf/cli_parser.py:339 src/bigocrpdf/cli_parser.py:360
-#: src/bigocrpdf/cli_parser.py:371 src/bigocrpdf/cli_parser.py:411
+#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:302
+#: src/bigocrpdf/cli_parser.py:307 src/bigocrpdf/cli_parser.py:332
+#: src/bigocrpdf/cli_parser.py:354 src/bigocrpdf/cli_parser.py:375
+#: src/bigocrpdf/cli_parser.py:386 src/bigocrpdf/cli_parser.py:426
 msgid "Input PDF file"
 msgstr "Input PDF file"
 
@@ -264,155 +264,166 @@ msgstr "Input PDF file"
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 361
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 372
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 401
-#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:312
-#: src/bigocrpdf/cli_parser.py:319 src/bigocrpdf/cli_parser.py:341
-#: src/bigocrpdf/cli_parser.py:362 src/bigocrpdf/cli_parser.py:373
-#: src/bigocrpdf/cli_parser.py:384 src/bigocrpdf/cli_parser.py:413
+#: src/bigocrpdf/cli_parser.py:87 src/bigocrpdf/cli_parser.py:327
+#: src/bigocrpdf/cli_parser.py:334 src/bigocrpdf/cli_parser.py:356
+#: src/bigocrpdf/cli_parser.py:377 src/bigocrpdf/cli_parser.py:388
+#: src/bigocrpdf/cli_parser.py:399 src/bigocrpdf/cli_parser.py:428
 msgid "Output PDF file"
 msgstr "Output PDF file"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 91
-#: src/bigocrpdf/cli_parser.py:91
+#: src/bigocrpdf/cli_parser.py:92
 msgid "Pages to process (e.g. '7', '3-10', '1,3,7'). Default: all."
 msgstr "Pages to process (e.g. '7', '3-10', '1,3,7'). Default: all."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 94
-#: src/bigocrpdf/cli_parser.py:94
+#: src/bigocrpdf/cli_parser.py:95
 msgid "Parallel workers (0 = auto). Default: 0."
 msgstr "Parallel workers (0 = auto). Default: 0."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 97
-#: src/bigocrpdf/cli_parser.py:97
+#: src/bigocrpdf/cli_parser.py:98
 msgid "DPI for extraction (default: 300)"
 msgstr "DPI for extraction (default: 300)"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 107
-#: src/bigocrpdf/cli_parser.py:107
+#: src/bigocrpdf/cli_parser.py:108
 msgid "OCR behavior"
 msgstr "OCR behavior"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 112
-#: src/bigocrpdf/cli_parser.py:112
+#: src/bigocrpdf/cli_parser.py:113
 msgid "Re-OCR pages that already have text (default: skip them)."
 msgstr "Re-OCR pages that already have text (default: skip them)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 118
-#: src/bigocrpdf/cli_parser.py:118
+#: src/bigocrpdf/cli_parser.py:119
 msgid "Process all pages as image-only (for editor-merged files)."
 msgstr "Process all pages as image-only (for editor-merged files)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 126
-#: src/bigocrpdf/cli_parser.py:126
+#: src/bigocrpdf/cli_parser.py:127
 msgid "RapidOCR model size/type (default: small)."
 msgstr "RapidOCR model size/type (default: small)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 132
-#: src/bigocrpdf/cli_parser.py:132
+#: src/bigocrpdf/cli_parser.py:133
 msgid "RapidOCR CPU inference engine (default: openvino)."
 msgstr "RapidOCR CPU inference engine (default: openvino)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 138
-#: src/bigocrpdf/cli_parser.py:138
+#: src/bigocrpdf/cli_parser.py:139
 msgid "PDF text handling mode (default: auto)."
 msgstr "PDF text handling mode (default: auto)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 144
-#: src/bigocrpdf/cli_parser.py:144
+#: src/bigocrpdf/cli_parser.py:145
 msgid "RapidOCR recognition batch size (default: 1)."
 msgstr "RapidOCR recognition batch size (default: 1)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 150
-#: src/bigocrpdf/cli_parser.py:150
+#: src/bigocrpdf/cli_parser.py:151
 msgid "Enable RapidOCR text-line orientation classifier."
 msgstr "Enable RapidOCR text-line orientation classifier."
 
-# File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 159
 #: src/bigocrpdf/cli_parser.py:159
+msgid ""
+"Detect text on the page as rendered, without letting RapidOCR downscale it."
+msgstr ""
+"Detect text on the page as rendered, without letting RapidOCR downscale it."
+
+#: src/bigocrpdf/cli_parser.py:165
+msgid "Let RapidOCR downscale the page before detection: faster, less memory."
+msgstr ""
+"Let RapidOCR downscale the page before detection: faster, less memory."
+
+# File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 159
+#: src/bigocrpdf/cli_parser.py:174
 msgid "Experimental GPU backend (default: off)."
 msgstr "Experimental GPU backend (default: off)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 165
-#: src/bigocrpdf/cli_parser.py:165
+#: src/bigocrpdf/cli_parser.py:180
 msgid "GPU device id for experimental GPU backends."
 msgstr "GPU device id for experimental GPU backends."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 171
-#: src/bigocrpdf/cli_parser.py:171
+#: src/bigocrpdf/cli_parser.py:186
 msgid "Use FP16 for supported experimental GPU backends."
 msgstr "Use FP16 for supported experimental GPU backends."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 176
-#: src/bigocrpdf/cli_parser.py:176
+#: src/bigocrpdf/cli_parser.py:191
 msgid "Fail instead of falling back to CPU when GPU initialization fails."
 msgstr "Fail instead of falling back to CPU when GPU initialization fails."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 181
-#: src/bigocrpdf/cli_parser.py:181
+#: src/bigocrpdf/cli_parser.py:196
 msgid "Geometric corrections"
 msgstr "Geometric corrections"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 183
-#: src/bigocrpdf/cli_parser.py:183
+#: src/bigocrpdf/cli_parser.py:198
 msgid "Disable curvature correction"
 msgstr "Disable curvature correction"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 185
-#: src/bigocrpdf/cli_parser.py:185
+#: src/bigocrpdf/cli_parser.py:200
 msgid "Disable skew correction"
 msgstr "Disable skew correction"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 187
-#: src/bigocrpdf/cli_parser.py:187
+#: src/bigocrpdf/cli_parser.py:202
 msgid "Disable perspective correction"
 msgstr "Disable perspective correction"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 190
-#: src/bigocrpdf/cli_parser.py:190
+#: src/bigocrpdf/cli_parser.py:205
 msgid "Disable orientation detection"
 msgstr "Disable orientation detection"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 195
-#: src/bigocrpdf/cli_parser.py:195
+#: src/bigocrpdf/cli_parser.py:210
 msgid "Image enhancements"
 msgstr "Image enhancements"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 200
-#: src/bigocrpdf/cli_parser.py:200
+#: src/bigocrpdf/cli_parser.py:215
 msgid "Enable scanner effect (whitens background)."
 msgstr "Enable scanner effect (whitens background)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 202
-#: src/bigocrpdf/cli_parser.py:202
+#: src/bigocrpdf/cli_parser.py:217
 msgid "Disable scanner effect."
 msgstr "Disable scanner effect."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 203
-#: src/bigocrpdf/cli_parser.py:203
+#: src/bigocrpdf/cli_parser.py:218
 msgid "Enable CLAHE contrast"
 msgstr "Enable CLAHE contrast"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 204
-#: src/bigocrpdf/cli_parser.py:204
+#: src/bigocrpdf/cli_parser.py:219
 msgid "Enable auto brightness"
 msgstr "Enable auto brightness"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 205
-#: src/bigocrpdf/cli_parser.py:205
+#: src/bigocrpdf/cli_parser.py:220
 msgid "Enable denoising"
 msgstr "Enable denoising"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 206
-#: src/bigocrpdf/cli_parser.py:206
+#: src/bigocrpdf/cli_parser.py:221
 msgid "Remove dark borders"
 msgstr "Remove dark borders"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 207
-#: src/bigocrpdf/cli_parser.py:207
+#: src/bigocrpdf/cli_parser.py:222
 msgid "Enable vintage look (sepia/BW)."
 msgstr "Enable vintage look (sepia/BW)."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 208
-#: src/bigocrpdf/cli_parser.py:208
+#: src/bigocrpdf/cli_parser.py:223
 msgid "Vintage in black & white"
 msgstr "Vintage in black & white"
 
@@ -420,206 +431,208 @@ msgstr "Vintage in black & white"
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 297
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 299
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 212
-#: src/bigocrpdf/cli_parser.py:212 src/bigocrpdf/ui/settings_queue_mixin.py:297
+#: src/bigocrpdf/cli_parser.py:227 src/bigocrpdf/ui/settings_queue_mixin.py:297
 #: src/bigocrpdf/ui/settings_queue_mixin.py:299
 msgid "Output options"
 msgstr "Output options"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 219
-#: src/bigocrpdf/cli_parser.py:219
+#: src/bigocrpdf/cli_parser.py:234
 msgid "Convert output to PDF/A-2b (default)"
 msgstr "Convert output to PDF/A-2b (default)"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 225
-#: src/bigocrpdf/cli_parser.py:225
+#: src/bigocrpdf/cli_parser.py:240
 msgid "Create a regular PDF instead of PDF/A-2b"
 msgstr "Create a regular PDF instead of PDF/A-2b"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 232
-#: src/bigocrpdf/cli_parser.py:232
+#: src/bigocrpdf/cli_parser.py:247
 msgid "Viewer page layout (/PageLayout) in output PDF. Default: default."
 msgstr "Viewer page layout (/PageLayout) in output PDF. Default: default."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 239
-#: src/bigocrpdf/cli_parser.py:239
+#: src/bigocrpdf/cli_parser.py:254
 msgid "Image format in output PDF. Default: original."
 msgstr "Image format in output PDF. Default: original."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 246
-#: src/bigocrpdf/cli_parser.py:246
+#: src/bigocrpdf/cli_parser.py:261
 msgid "Image quality for JPEG/WebP (1-95, default: 85)."
 msgstr "Image quality for JPEG/WebP (1-95, default: 85)."
 
-#: src/bigocrpdf/cli_parser.py:255
+#: src/bigocrpdf/cli_parser.py:270
 msgid ""
 "Also write structured OCR data (text, word boxes, confidence, layout) as "
 "JSON. Nothing is written without this option. If FILE is omitted, the name "
 "is the output PDF with a .bigocr.json suffix."
 msgstr ""
-"Also write structured OCR data (text, word boxes, confidence, layout) as JSON. Nothing is written without this option. If FILE is omitted, the name is the output PDF with a .bigocr.json suffix."
+"Also write structured OCR data (text, word boxes, confidence, layout) as "
+"JSON. Nothing is written without this option. If FILE is omitted, the name "
+"is the output PDF with a .bigocr.json suffix."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 251
-#: src/bigocrpdf/cli_parser.py:263
+#: src/bigocrpdf/cli_parser.py:278
 msgid "Debugging"
 msgstr "Debugging"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 256
-#: src/bigocrpdf/cli_parser.py:268
+#: src/bigocrpdf/cli_parser.py:283
 msgid "Save preprocessed images to this directory."
 msgstr "Save preprocessed images to this directory."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 261
-#: src/bigocrpdf/cli_parser.py:273
+#: src/bigocrpdf/cli_parser.py:288
 msgid "Only run preprocessing (dewarp/deskew), save images, skip OCR."
 msgstr "Only run preprocessing (dewarp/deskew), save images, skip OCR."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 274
-#: src/bigocrpdf/cli_parser.py:286
+#: src/bigocrpdf/cli_parser.py:301
 msgid "Show PDF metadata and page count"
 msgstr "Show PDF metadata and page count"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 279
-#: src/bigocrpdf/cli_parser.py:291
+#: src/bigocrpdf/cli_parser.py:306
 msgid "Split PDF into smaller files"
 msgstr "Split PDF into smaller files"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 282
-#: src/bigocrpdf/cli_parser.py:294
+#: src/bigocrpdf/cli_parser.py:309
 msgid "Output directory"
 msgstr "Output directory"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 285
-#: src/bigocrpdf/cli_parser.py:297
+#: src/bigocrpdf/cli_parser.py:312
 msgid "Split every N pages"
 msgstr "Split every N pages"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 287
-#: src/bigocrpdf/cli_parser.py:299
+#: src/bigocrpdf/cli_parser.py:314
 msgid "Maximum file size per part in megabytes"
 msgstr "Maximum file size per part in megabytes"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 290
-#: src/bigocrpdf/cli_parser.py:302
+#: src/bigocrpdf/cli_parser.py:317
 msgid "Explicit ranges (e.g. '1-5,6-10,11-15')"
 msgstr "Explicit ranges (e.g. '1-5,6-10,11-15')"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 293
-#: src/bigocrpdf/cli_parser.py:305
+#: src/bigocrpdf/cli_parser.py:320
 msgid "Filename prefix for output parts"
 msgstr "Filename prefix for output parts"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 298
-#: src/bigocrpdf/cli_parser.py:310
+#: src/bigocrpdf/cli_parser.py:325
 msgid "Merge multiple PDFs into one"
 msgstr "Merge multiple PDFs into one"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 299
-#: src/bigocrpdf/cli_parser.py:311
+#: src/bigocrpdf/cli_parser.py:326
 msgid "Input PDF files (in order)"
 msgstr "Input PDF files (in order)"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 304
-#: src/bigocrpdf/cli_parser.py:316
+#: src/bigocrpdf/cli_parser.py:331
 msgid "Compress PDF to reduce file size"
 msgstr "Compress PDF to reduce file size"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 314
-#: src/bigocrpdf/cli_parser.py:326
+#: src/bigocrpdf/cli_parser.py:341
 msgid "JPEG quality for images (1-95, default: 60)"
 msgstr "JPEG quality for images (1-95, default: 60)"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 321
-#: src/bigocrpdf/cli_parser.py:333
+#: src/bigocrpdf/cli_parser.py:348
 msgid "Target DPI for images (default: 150)"
 msgstr "Target DPI for images (default: 150)"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 326
-#: src/bigocrpdf/cli_parser.py:338
+#: src/bigocrpdf/cli_parser.py:353
 msgid "Rotate pages in a PDF"
 msgstr "Rotate pages in a PDF"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 336
-#: src/bigocrpdf/cli_parser.py:348
+#: src/bigocrpdf/cli_parser.py:363
 msgid "Rotation angle in degrees (clockwise)"
 msgstr "Rotation angle in degrees (clockwise)"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 342
-#: src/bigocrpdf/cli_parser.py:354
+#: src/bigocrpdf/cli_parser.py:369
 msgid "Pages to rotate (e.g. '1,3,5' or '1-5'). Default: all."
 msgstr "Pages to rotate (e.g. '1,3,5' or '1-5'). Default: all."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 347
-#: src/bigocrpdf/cli_parser.py:359
+#: src/bigocrpdf/cli_parser.py:374
 msgid "Remove pages from a PDF"
 msgstr "Remove pages from a PDF"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 353
-#: src/bigocrpdf/cli_parser.py:365
+#: src/bigocrpdf/cli_parser.py:380
 msgid "Pages to delete (e.g. '3,5,7' or '2-4')"
 msgstr "Pages to delete (e.g. '3,5,7' or '2-4')"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 358
-#: src/bigocrpdf/cli_parser.py:370
+#: src/bigocrpdf/cli_parser.py:385
 msgid "Extract pages to a new PDF"
 msgstr "Extract pages to a new PDF"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 364
-#: src/bigocrpdf/cli_parser.py:376
+#: src/bigocrpdf/cli_parser.py:391
 msgid "Pages to extract (e.g. '3-5' or '1,3,7')"
 msgstr "Pages to extract (e.g. '3-5' or '1,3,7')"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 369
-#: src/bigocrpdf/cli_parser.py:381
+#: src/bigocrpdf/cli_parser.py:396
 msgid "Insert pages from another PDF"
 msgstr "Insert pages from another PDF"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 370
-#: src/bigocrpdf/cli_parser.py:382
+#: src/bigocrpdf/cli_parser.py:397
 msgid "Target PDF file"
 msgstr "Target PDF file"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 380
-#: src/bigocrpdf/cli_parser.py:392
+#: src/bigocrpdf/cli_parser.py:407
 msgid "PDF file to insert pages from"
 msgstr "PDF file to insert pages from"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 387
-#: src/bigocrpdf/cli_parser.py:399
+#: src/bigocrpdf/cli_parser.py:414
 msgid "Insert at this page position (1-indexed, 0 = append). Default: append."
 msgstr "Insert at this page position (1-indexed, 0 = append). Default: append."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 393
-#: src/bigocrpdf/cli_parser.py:405
+#: src/bigocrpdf/cli_parser.py:420
 msgid "Pages to insert from the source (e.g. '1-3'). Default: all."
 msgstr "Pages to insert from the source (e.g. '1-3'). Default: all."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 398
-#: src/bigocrpdf/cli_parser.py:410
+#: src/bigocrpdf/cli_parser.py:425
 msgid "Reorder or reverse pages"
 msgstr "Reorder or reverse pages"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 405
-#: src/bigocrpdf/cli_parser.py:417
+#: src/bigocrpdf/cli_parser.py:432
 msgid "New page order (e.g. '3,1,2,5,4')"
 msgstr "New page order (e.g. '3,1,2,5,4')"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 407
-#: src/bigocrpdf/cli_parser.py:419
+#: src/bigocrpdf/cli_parser.py:434
 msgid "Reverse the page order"
 msgstr "Reverse the page order"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 411
-#: src/bigocrpdf/cli_parser.py:423
+#: src/bigocrpdf/cli_parser.py:438
 msgid "Input PDF file (must have text layer)"
 msgstr "Input PDF file (must have text layer)"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 415
-#: src/bigocrpdf/cli_parser.py:427
+#: src/bigocrpdf/cli_parser.py:442
 msgid "Export OCR'd PDF as ODF document"
 msgstr "Export OCR'd PDF as ODF document"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 417
-#: src/bigocrpdf/cli_parser.py:429
+#: src/bigocrpdf/cli_parser.py:444
 msgid "Output ODF file (default: same name as input with .odt)"
 msgstr "Output ODF file (default: same name as input with .odt)"
 
@@ -627,51 +640,52 @@ msgstr "Output ODF file (default: same name as input with .odt)"
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 35
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_options_controller.py, line: 233
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 422
-#: src/bigocrpdf/cli_parser.py:434
+#: src/bigocrpdf/cli_parser.py:449
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:35
 #: src/bigocrpdf/ui/pdf_options_controller.py:233
 msgid "Preserve Text Layout"
 msgstr "Preserve Text Layout"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 427
-#: src/bigocrpdf/cli_parser.py:439
+#: src/bigocrpdf/cli_parser.py:454
 msgid "Export OCR'd PDF as formatted text"
 msgstr "Export OCR'd PDF as formatted text"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 429
-#: src/bigocrpdf/cli_parser.py:441
+#: src/bigocrpdf/cli_parser.py:456
 msgid "Output text file (default: same name as input with .txt)"
 msgstr "Output text file (default: same name as input with .txt)"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 434
-#: src/bigocrpdf/cli_parser.py:446
+#: src/bigocrpdf/cli_parser.py:461
 msgid "Export OCR'd PDF as Markdown"
 msgstr "Export OCR'd PDF as Markdown"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 436
-#: src/bigocrpdf/cli_parser.py:448
+#: src/bigocrpdf/cli_parser.py:463
 msgid "Output Markdown file (default: same name as input with .md)"
 msgstr "Output Markdown file (default: same name as input with .md)"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 441
-#: src/bigocrpdf/cli_parser.py:453
+#: src/bigocrpdf/cli_parser.py:468
 msgid "Prepend YAML front-matter (title, source, page count, date)."
 msgstr "Prepend YAML front-matter (title, source, page count, date)."
 
-#: src/bigocrpdf/cli_parser.py:473
+#: src/bigocrpdf/cli_parser.py:488
 msgid ""
 "Export from structured OCR JSON written earlier by 'ocr --sidecar-json', "
 "instead of reading the PDF text layer."
 msgstr ""
-"Export from structured OCR JSON written earlier by 'ocr --sidecar-json', instead of reading the PDF text layer."
+"Export from structured OCR JSON written earlier by 'ocr --sidecar-json', "
+"instead of reading the PDF text layer."
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 459
-#: src/bigocrpdf/cli_parser.py:481
+#: src/bigocrpdf/cli_parser.py:496
 msgid "Open interactive GUI editor"
 msgstr "Open interactive GUI editor"
 
 # File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 460
-#: src/bigocrpdf/cli_parser.py:482
+#: src/bigocrpdf/cli_parser.py:497
 msgid "PDF file to edit"
 msgstr "PDF file to edit"
 
@@ -2524,6 +2538,113 @@ msgstr "Parts: {parts} · Pages: {pages}"
 msgid "Split failed: {}"
 msgstr "Split failed: {}"
 
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 122
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:122
+#, python-brace-format
+msgid "PDF Editor - {}"
+msgstr "PDF Editor - {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 217
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:217
+msgid "Could not open PDF file or file has no pages."
+msgstr "Could not open PDF file or file has no pages."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 249
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:249
+#, python-brace-format
+msgid "Failed to load PDF: {}"
+msgstr "Failed to load PDF: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 259
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:259
+#, python-brace-format
+msgid "{total} page · {included} included"
+msgid_plural "{total} pages · {included} included"
+msgstr[0] "{total} page · {included} included"
+msgstr[1] "{total} pages · {included} included"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 266
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:266
+#, python-brace-format
+msgid "{count} selected"
+msgstr "{count} selected"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 282
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:282
+#, python-brace-format
+msgid "{count} page selected"
+msgid_plural "{count} pages selected"
+msgstr[0] "{count} page selected"
+msgstr[1] "{count} pages selected"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 337
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:337
+msgid "Saving…"
+msgstr "Saving…"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 357
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 362
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:357
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:362
+msgid "Failed to save PDF."
+msgstr "Failed to save PDF."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 451
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:451
+msgid "Save PDF As"
+msgstr "Save PDF As"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 464
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:464
+msgid "document.pdf"
+msgstr "document.pdf"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 493
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:493
+#, python-brace-format
+msgid "Saved: {}"
+msgstr "Saved: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 528
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 536
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 565
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:528
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:536
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:565
+msgid "Error saving changes."
+msgstr "Error saving changes."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:576
+msgid "Failed to merge PDF pages."
+msgstr "Failed to merge PDF pages."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 583
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:583
+msgid "Unsaved Changes"
+msgstr "Unsaved Changes"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 584
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:584
+msgid "What would you like to do with your changes?"
+msgstr "What would you like to do with your changes?"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 586
+# File: bigocrpdf/src/bigocrpdf/ui/session_recovery_controller.py, line: 60
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:586
+#: src/bigocrpdf/ui/session_recovery_controller.py:60
+msgid "Discard"
+msgstr "Discard"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 587
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 238
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:587
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:238
+msgid "Apply"
+msgstr "Apply"
+
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/welcome_dialog_controller.py, line: 110
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 53
@@ -2651,14 +2772,6 @@ msgstr "Insert PDF or image files"
 msgid "Save As"
 msgstr "Save As"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 587
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 238
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:238
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:587
-msgid "Apply"
-msgstr "Apply"
-
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 242
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:242
 msgid "Save PDF to a new file (Ctrl+S)"
@@ -2713,105 +2826,6 @@ msgstr "Hide editor sidebar"
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:341
 msgid "Show editor sidebar"
 msgstr "Show editor sidebar"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 122
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:122
-#, python-brace-format
-msgid "PDF Editor - {}"
-msgstr "PDF Editor - {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 217
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:217
-msgid "Could not open PDF file or file has no pages."
-msgstr "Could not open PDF file or file has no pages."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 249
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:249
-#, python-brace-format
-msgid "Failed to load PDF: {}"
-msgstr "Failed to load PDF: {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 259
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:259
-#, python-brace-format
-msgid "{total} page · {included} included"
-msgid_plural "{total} pages · {included} included"
-msgstr[0] "{total} page · {included} included"
-msgstr[1] "{total} pages · {included} included"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 266
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:266
-#, python-brace-format
-msgid "{count} selected"
-msgstr "{count} selected"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 282
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:282
-#, python-brace-format
-msgid "{count} page selected"
-msgid_plural "{count} pages selected"
-msgstr[0] "{count} page selected"
-msgstr[1] "{count} pages selected"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 337
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:337
-msgid "Saving…"
-msgstr "Saving…"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 357
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 362
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:357
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:362
-msgid "Failed to save PDF."
-msgstr "Failed to save PDF."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 451
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:451
-msgid "Save PDF As"
-msgstr "Save PDF As"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 464
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:464
-msgid "document.pdf"
-msgstr "document.pdf"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 493
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:493
-#, python-brace-format
-msgid "Saved: {}"
-msgstr "Saved: {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 528
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 536
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 565
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:528
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:536
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:565
-msgid "Error saving changes."
-msgstr "Error saving changes."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:576
-msgid "Failed to merge PDF pages."
-msgstr "Failed to merge PDF pages."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 583
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:583
-msgid "Unsaved Changes"
-msgstr "Unsaved Changes"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 584
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:584
-msgid "What would you like to do with your changes?"
-msgstr "What would you like to do with your changes?"
-
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 586
-# File: bigocrpdf/src/bigocrpdf/ui/session_recovery_controller.py, line: 60
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:586
-#: src/bigocrpdf/ui/session_recovery_controller.py:60
-msgid "Discard"
-msgstr "Discard"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 38
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 54

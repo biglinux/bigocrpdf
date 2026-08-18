@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 
 from bigocrpdf.config import APP_VERSION
+from bigocrpdf.services.rapidocr_service.config import DEFAULT_DETECTION_FULL_RESOLUTION
 from bigocrpdf.utils.i18n import _
 
 
@@ -148,6 +149,20 @@ def _add_ocr_model_options(behavior: argparse._ArgumentGroup) -> None:
         action="store_true",
         default=False,
         help=_("Enable RapidOCR text-line orientation classifier."),
+    )
+    full_resolution = behavior.add_mutually_exclusive_group()
+    full_resolution.add_argument(
+        "--full-resolution",
+        dest="full_resolution",
+        action="store_true",
+        default=DEFAULT_DETECTION_FULL_RESOLUTION,
+        help=_("Detect text on the page as rendered, without letting RapidOCR downscale it."),
+    )
+    full_resolution.add_argument(
+        "--no-full-resolution",
+        dest="full_resolution",
+        action="store_false",
+        help=_("Let RapidOCR downscale the page before detection: faster, less memory."),
     )
 
 

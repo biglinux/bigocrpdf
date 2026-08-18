@@ -69,10 +69,19 @@ DEFAULT_FORCE_BILEVEL_COMPRESSION = False
 # Detection resolution. False lets RapidOCR pick its own 960/1500/2000 input
 # size, which downscales a 300 dpi page; True sends the page as rendered.
 #
-# Measured on the 50-document DharmaOCR set, OCR stage in isolation:
-# mean CER 0.1893 -> 0.1465 and mean WER 0.2955 -> 0.2587 for 4.5 -> 5.4
-# seconds per page. 18 documents improved, 2 got worse, 30 were unchanged.
-DEFAULT_DETECTION_FULL_RESOLUTION = True
+# Off by default because the gain does not pay for the cost. Measured through
+# the whole pipeline on 20 DharmaOCR documents, both arms in one session: mean
+# CER 0.1704 -> 0.1517 but mean WER only 0.2705 -> 0.2649, with 10 of the 20
+# documents unchanged, for 13% more time. Measured per worker in its own
+# process, peak RSS goes 2.5 -> 4.9 GB, which is what decides it: this program
+# already reduces its own parallelism on machines short of RAM.
+#
+# The OCR stage in isolation looks better than that -- CER 0.1893 -> 0.1465
+# over 50 documents -- because the preprocessing and dewarp stages already
+# recover part of what the downscaled detector loses.
+#
+# `--full-resolution`, and the Full Resolution Detection switch, turn it on.
+DEFAULT_DETECTION_FULL_RESOLUTION = False
 # Execution
 DEFAULT_WORKERS = 0
 DEFAULT_REPLACE_EXISTING_OCR = False

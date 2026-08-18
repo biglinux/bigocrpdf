@@ -736,6 +736,30 @@
           "type": null
         },
         {
+          "choices": null,
+          "class": "_StoreTrueAction",
+          "default": false,
+          "dest": "full_resolution",
+          "nargs": 0,
+          "options": [
+            "--full-resolution"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
+          "class": "_StoreFalseAction",
+          "default": true,
+          "dest": "full_resolution",
+          "nargs": 0,
+          "options": [
+            "--no-full-resolution"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
           "choices": [
             "off",
             "auto",
@@ -1428,7 +1452,7 @@
       },
       "rapidocr": {
         "box_thresh": 0.625,
-        "detection_full_resolution": false,
+        "detection_full_resolution": true,
         "dpi": 307,
         "enable_auto_brightness": true,
         "enable_auto_contrast": true,
@@ -1472,7 +1496,7 @@
         "year": 1
       },
       "destination_folder": "",
-      "detection_full_resolution": true,
+      "detection_full_resolution": false,
       "dpi": 300,
       "enable_auto_brightness": false,
       "enable_auto_contrast": false,
@@ -1546,7 +1570,7 @@
         "year": 3
       },
       "destination_folder": "$HOME/output",
-      "detection_full_resolution": false,
+      "detection_full_resolution": true,
       "dpi": 307,
       "enable_auto_brightness": true,
       "enable_auto_contrast": true,
