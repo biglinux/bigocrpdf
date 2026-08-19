@@ -2128,10 +2128,17 @@ msgstr "Capturar uma região do ecrã"
 msgid "Open an image file"
 msgstr "Abrir um ficheiro de imagem"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
-#: src/bigocrpdf/ui/image_ocr_window.py:893
-msgid "No text extracted."
-msgstr "Nenhum texto extraído."
+#: src/bigocrpdf/ui/image_ocr_window.py:737
+msgid "No text found"
+msgstr "Nenhum texto encontrado"
+
+#: src/bigocrpdf/ui/image_ocr_window.py:739
+msgid ""
+"OCR finished but found no readable text. Capture a tighter region, or try a "
+"sharper image."
+msgstr ""
+"O OCR terminou, mas não encontrou texto legível. Capture uma região mais "
+"justa ou tente uma imagem mais nítida."
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
 #: src/bigocrpdf/ui/image_ocr_window.py:1049

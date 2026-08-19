@@ -33,6 +33,9 @@ from bigocrpdf.services.rapidocr_service.config import (
 )
 from bigocrpdf.services.rapidocr_service.ocr_worker_engine import build_ocr_worker_command
 from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
+from bigocrpdf.services.rapidocr_service.text_formatting_controller import (
+    TextFormattingController,
+)
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.utils.temp_manager import mkstemp as tm_mkstemp
@@ -468,45 +471,9 @@ class ScreenCaptureService:
             fd, temp_path = tm_mkstemp(suffix=".png", prefix="bigocrpdf_capture_")
             os.close(fd)
 
-            # Try XDG Portal first (works in Flatpak/sandboxed environments)
             request.raise_if_cancelled()
-            portal_result = self._capture_via_portal(request)
+            outcome = self._capture_into_owned_file(temp_path, request)
             request.raise_if_cancelled()
-            if portal_result.status == PortalCaptureStatus.SUCCESS:
-                portal_path = portal_result.path
-                if not portal_path:
-                    outcome = ImageOcrOutcome(
-                        ImageOcrStatus.ERROR,
-                        message=_("Screen capture failed."),
-                    )
-                else:
-                    self._copy_owned_image_file(portal_path, temp_path)
-            elif portal_result.status == PortalCaptureStatus.CANCELLED:
-                outcome = ImageOcrOutcome(ImageOcrStatus.CANCELLED)
-            elif portal_result.status == PortalCaptureStatus.FAILED:
-                outcome = ImageOcrOutcome(
-                    ImageOcrStatus.ERROR,
-                    message=_("Screen capture failed."),
-                )
-            else:
-                # Fallback to CLI tools
-                request.raise_if_cancelled()
-                cli_status = self._capture_with_cli_tools(temp_path, request)
-                if cli_status == CliCaptureStatus.CANCELLED:
-                    outcome = ImageOcrOutcome(ImageOcrStatus.CANCELLED)
-                elif cli_status == CliCaptureStatus.FAILED:
-                    outcome = ImageOcrOutcome(
-                        ImageOcrStatus.ERROR,
-                        message=_("Screen capture failed. Please try again or open an image file."),
-                    )
-                elif cli_status == CliCaptureStatus.UNAVAILABLE:
-                    outcome = ImageOcrOutcome(
-                        ImageOcrStatus.ERROR,
-                        message=_(
-                            "No screenshot tool available. Please install spectacle, "
-                            "gnome-screenshot, or flameshot."
-                        ),
-                    )
 
             # Check if file has content (screenshot was taken, not cancelled)
             if outcome is None and os.path.exists(temp_path) and os.path.getsize(temp_path) > 0:
@@ -551,6 +518,72 @@ class ScreenCaptureService:
         )
 
     # ── Screenshot Capture ──────────────────────────────────────────────
+
+    @staticmethod
+    def _prefers_native_capture_tool() -> bool:
+        """Whether this desktop's own screenshot tool beats the portal for a region."""
+        return "kde" in os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
+
+    def _capture_into_owned_file(
+        self,
+        temp_path: str,
+        request: ImageOcrRequest,
+    ) -> ImageOcrOutcome | None:
+        """Capture a screen region into an owned file, reporting None on success.
+
+        On KDE, `spectacle --region --background` opens the region selector directly
+        and writes exactly the file we ask for. The portal's interactive mode there
+        opens a dialog that defaults to a full-screen grab with the pointer drawn in,
+        which costs several clicks and burns the cursor into the OCR input, so the
+        portal runs second. Everywhere else the portal leads, because it is the only
+        backend that works from inside a sandbox.
+        """
+        backends = [self._capture_with_cli_tools, self._capture_via_portal_into]
+        if not self._prefers_native_capture_tool():
+            backends.reverse()
+
+        status = CliCaptureStatus.UNAVAILABLE
+        for backend in backends:
+            request.raise_if_cancelled()
+            status = backend(temp_path, request)
+            if status != CliCaptureStatus.UNAVAILABLE:
+                break
+        return self._outcome_for_capture_status(status)
+
+    def _capture_via_portal_into(
+        self,
+        temp_path: str,
+        request: ImageOcrRequest,
+    ) -> CliCaptureStatus:
+        """Run the portal backend and land its borrowed image in our owned file."""
+        result = self._capture_via_portal(request)
+        if result.status != PortalCaptureStatus.SUCCESS:
+            # Both enums are StrEnums over the same terminal states.
+            return CliCaptureStatus(result.status)
+        if not result.path:
+            return CliCaptureStatus.FAILED
+        self._copy_owned_image_file(result.path, temp_path)
+        return CliCaptureStatus.SUCCESS
+
+    @staticmethod
+    def _outcome_for_capture_status(status: CliCaptureStatus) -> ImageOcrOutcome | None:
+        """Map a terminal capture status to the outcome to report, None when captured."""
+        if status == CliCaptureStatus.SUCCESS:
+            return None
+        if status == CliCaptureStatus.CANCELLED:
+            return ImageOcrOutcome(ImageOcrStatus.CANCELLED)
+        if status == CliCaptureStatus.UNAVAILABLE:
+            return ImageOcrOutcome(
+                ImageOcrStatus.ERROR,
+                message=_(
+                    "No screenshot tool available. Please install spectacle, "
+                    "gnome-screenshot, or flameshot."
+                ),
+            )
+        return ImageOcrOutcome(
+            ImageOcrStatus.ERROR,
+            message=_("Screen capture failed. Please try again or open an image file."),
+        )
 
     @staticmethod
     def _is_portal_unavailable_error(error: Exception) -> bool:
@@ -912,13 +945,15 @@ class ScreenCaptureService:
             return CliCaptureStatus.FAILED
         finally:
             request.unbind_process(proc)
+        # Spectacle has been observed to crash on exit after writing a complete PNG,
+        # so the bytes on disk decide the outcome before the exit status does.
+        if os.path.getsize(temp_path) > 0:
+            return CliCaptureStatus.SUCCESS
         if proc.returncode != 0:
             logger.debug(
                 f"{tool_name} exited with code {proc.returncode}: {stderr.decode().strip()}"
             )
             return CliCaptureStatus.FAILED
-        if os.path.getsize(temp_path) > 0:
-            return CliCaptureStatus.SUCCESS
         return CliCaptureStatus.CANCELLED
 
     # ── RapidOCR Image Processing ───────────────────────────────────────
@@ -1014,8 +1049,9 @@ class ScreenCaptureService:
                 if not results:
                     return None, None
 
-                # Format text with reading order and paragraph detection
-                text = self._format_text(results)
+                # Reuse the pipeline formatter so a capture and a page of the same
+                # layout produce the same lines, columns, and paragraphs.
+                text = TextFormattingController(config).format(results, float(img.shape[1]))
                 return (text if text.strip() else None), None
 
             finally:
@@ -1384,62 +1420,6 @@ class ScreenCaptureService:
         except OcrWorkerProtocolError as e:
             logger.error(f"Failed to parse OCR result: {e}")
             return []
-
-    @staticmethod
-    def _format_text(results: list[OCRResult]) -> str:
-        """Format OCR results into readable text with line breaks and paragraphs.
-
-        Sorts text boxes by reading order (top-to-bottom, left-to-right)
-        and inserts appropriate line/paragraph breaks based on vertical spacing.
-
-        Args:
-            results: List of OCR results with text and bounding boxes
-
-        Returns:
-            Formatted text string
-        """
-        if not results:
-            return ""
-
-        # Sort by reading order: top-to-bottom, left-to-right
-        def sort_key(r: OCRResult) -> tuple[float, float]:
-            ys = [p[1] for p in r.box]
-            xs = [p[0] for p in r.box]
-            return (min(ys), min(xs))
-
-        sorted_results = sorted(results, key=sort_key)
-
-        text = ""
-        prev_y = -1.0
-        prev_bottom = -1.0
-
-        for r in sorted_results:
-            ys = [p[1] for p in r.box]
-            curr_top = min(ys)
-            curr_bottom = max(ys)
-            curr_h = curr_bottom - curr_top
-            center_y = (curr_top + curr_bottom) / 2
-
-            if prev_y != -1:
-                # Column break (moved UP significantly)
-                if center_y < prev_y - (curr_h * 2):
-                    text += "\n\n"
-                # Paragraph break (vertical gap > 60% of line height)
-                elif (curr_top - prev_bottom) > (curr_h * 0.6):
-                    text += "\n\n"
-                # Line break (moved DOWN past previous bottom)
-                elif center_y > prev_bottom:
-                    text += "\n"
-                elif center_y > prev_y + (curr_h * 0.5):
-                    text += "\n"
-                else:
-                    text += " "
-
-            text += r.text
-            prev_y = center_y
-            prev_bottom = curr_bottom
-
-        return text
 
     # ── Callback Helpers ────────────────────────────────────────────────
 
