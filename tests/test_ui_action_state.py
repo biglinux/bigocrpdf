@@ -177,7 +177,6 @@ def test_cancelled_capture_restores_stable_page_without_showing_error():
         _stable_page_name="welcome",
         _text_buffer=text_buffer,
         _copy_button=MagicMock(),
-        _result_copyable=True,
     )
     window._sync_copy_button_state = ImageOcrWindow._sync_copy_button_state.__get__(window)
 
@@ -201,7 +200,6 @@ def test_failed_image_ocr_restores_copy_for_previous_result():
         _stable_page_name="results",
         _text_buffer=text_buffer,
         _copy_button=MagicMock(),
-        _result_copyable=True,
     )
     window._sync_copy_button_state = ImageOcrWindow._sync_copy_button_state.__get__(window)
 
@@ -215,18 +213,36 @@ def test_failed_image_ocr_restores_copy_for_previous_result():
     window._copy_button.set_sensitive.assert_called_once_with(True)
 
 
-@pytest.mark.parametrize("status", (ImageOcrStatus.CANCELLED, ImageOcrStatus.ERROR))
-def test_empty_result_message_never_becomes_copyable_after_later_failure(status):
+def test_empty_result_shows_the_empty_page_instead_of_placeholder_prose():
     text_buffer = MagicMock()
     text_buffer.get_bounds.return_value = (object(), object())
-    text_buffer.get_text.return_value = "No text extracted."
     window = SimpleNamespace(
         _show_error=MagicMock(),
         _stack=MagicMock(),
-        _stable_page_name="results",
+        _stable_page_name="welcome",
         _text_buffer=text_buffer,
         _copy_button=MagicMock(),
-        _result_copyable=False,
+    )
+
+    ImageOcrWindow._on_processing_complete(window, ImageOcrOutcome(ImageOcrStatus.EMPTY))
+
+    window._stack.set_visible_child_name.assert_called_once_with("empty")
+    assert window._stable_page_name == "empty"
+    text_buffer.set_text.assert_called_once_with("")
+    window._copy_button.set_sensitive.assert_called_once_with(False)
+
+
+@pytest.mark.parametrize("status", (ImageOcrStatus.CANCELLED, ImageOcrStatus.ERROR))
+def test_failure_after_an_empty_result_keeps_copy_disabled(status):
+    text_buffer = MagicMock()
+    text_buffer.get_bounds.return_value = (object(), object())
+    text_buffer.get_text.return_value = ""
+    window = SimpleNamespace(
+        _show_error=MagicMock(),
+        _stack=MagicMock(),
+        _stable_page_name="empty",
+        _text_buffer=text_buffer,
+        _copy_button=MagicMock(),
     )
     window._sync_copy_button_state = ImageOcrWindow._sync_copy_button_state.__get__(window)
 
@@ -235,6 +251,7 @@ def test_empty_result_message_never_becomes_copyable_after_later_failure(status)
         ImageOcrOutcome(status, message="failed" if status == ImageOcrStatus.ERROR else None),
     )
 
+    window._stack.set_visible_child_name.assert_called_once_with("empty")
     window._copy_button.set_sensitive.assert_called_once_with(False)
 
 

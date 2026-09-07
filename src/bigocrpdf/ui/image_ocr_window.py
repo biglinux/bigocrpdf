@@ -98,7 +98,6 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         self._input_cancellable: Gio.Cancellable | None = None
         self._input_generation = 0
         self._stable_page_name = "welcome"
-        self._result_copyable = False
         self._clipboard_encode_lock = threading.Lock()
         self._clipboard_encode_pending: _ClipboardEncodeJob | None = None
         self._clipboard_encode_active: _ClipboardEncodeJob | None = None
@@ -284,6 +283,7 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         self._build_welcome_page()
         self._build_loading_page()
         self._build_results_page()
+        self._build_empty_page()
 
         # Enable drag-and-drop for image files
         self._setup_drop_target()
@@ -686,14 +686,12 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         except (AttributeError, TypeError):
             stream.close(None)
 
-    def _build_welcome_page(self) -> None:
-        """Build the welcome page with Adw.StatusPage and action buttons."""
-        status = Adw.StatusPage()
-        status.set_icon_name("camera-photo-symbolic")
-        status.set_title(_("Image OCR"))
-        status.set_description(_("Extract text from images or screen captures using OCR."))
+    def _build_source_buttons(self) -> Gtk.Box:
+        """Build a fresh pair of source actions for one status page.
 
-        # Action buttons embedded in the status page
+        Every page that has no text to show offers the same two ways to get some,
+        and a widget belongs to a single parent, so each page needs its own pair.
+        """
         btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
         btn_box.set_halign(Gtk.Align.CENTER)
 
@@ -720,8 +718,30 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         self._apply_ocr_availability_to_button(capture_btn)
         btn_box.append(capture_btn)
 
-        status.set_child(btn_box)
+        return btn_box
+
+    def _build_welcome_page(self) -> None:
+        """Build the welcome page with Adw.StatusPage and action buttons."""
+        status = Adw.StatusPage()
+        status.set_icon_name("camera-photo-symbolic")
+        status.set_title(_("Image OCR"))
+        status.set_description(_("Extract text from images or screen captures using OCR."))
+        status.set_child(self._build_source_buttons())
         self._stack.add_named(status, "welcome")
+
+    def _build_empty_page(self) -> None:
+        """Build the page shown when OCR ran and found no readable text."""
+        status = Adw.StatusPage()
+        status.set_icon_name("x-office-document-symbolic")
+        status.set_title(_("No text found"))
+        status.set_description(
+            _(
+                "OCR finished but found no readable text. Capture a tighter region, "
+                "or try a sharper image."
+            )
+        )
+        status.set_child(self._build_source_buttons())
+        self._stack.add_named(status, "empty")
 
     def _build_loading_page(self) -> None:
         """Build the loading page with Adw.StatusPage and spinner."""
@@ -761,6 +781,9 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         self._text_view = Gtk.TextView()
         self._text_view.set_editable(True)
         self._text_view.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
+        # The formatter aligns columns and indents with spaces, which only line up
+        # under a fixed-width font.
+        self._text_view.add_css_class("monospace")
         self._text_view.set_left_margin(18)
         self._text_view.set_right_margin(18)
         self._text_view.set_top_margin(12)
@@ -887,23 +910,23 @@ class ImageOcrWindow(Adw.ApplicationWindow):
 
         if outcome.status == ImageOcrStatus.SUCCESS and outcome.text:
             self._text_buffer.set_text(outcome.text)
-            self._result_copyable = True
             self._copy_button.set_sensitive(True)
+            self._stable_page_name = "results"
         else:
-            self._text_buffer.set_text(_("No text extracted."))
-            self._result_copyable = False
+            # An empty result is its own state. Putting the explanation in the
+            # editable buffer would offer prose the OCR never read as if it were
+            # the extracted text.
+            self._text_buffer.set_text("")
             self._copy_button.set_sensitive(False)
+            self._stable_page_name = "empty"
 
-        self._stack.set_visible_child_name("results")
-        self._stable_page_name = "results"
+        self._stack.set_visible_child_name(self._stable_page_name)
 
     def _sync_copy_button_state(self) -> None:
         """Enable Copy exactly when the current result buffer has text."""
         start_iter, end_iter = self._text_buffer.get_bounds()
         text = self._text_buffer.get_text(start_iter, end_iter, True)
-        self._copy_button.set_sensitive(
-            bool(text) and bool(getattr(self, "_result_copyable", False))
-        )
+        self._copy_button.set_sensitive(bool(text))
 
     # ── Capture & Open ──────────────────────────────────────────────────
 

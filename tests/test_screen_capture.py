@@ -32,6 +32,9 @@ mock_gi.require_version = MagicMock()
 
 from bigocrpdf.services import screen_capture as screen_capture_module  # noqa: E402
 from bigocrpdf.services.rapidocr_service.config import OCRConfig, OCRResult  # noqa: E402
+from bigocrpdf.services.rapidocr_service.text_formatting_controller import (  # noqa: E402
+    TextFormattingController,
+)
 from bigocrpdf.services.screen_capture import ScreenCaptureService  # noqa: E402
 
 for mod, original in _saved.items():
@@ -58,6 +61,7 @@ def test_portal_capture_keeps_borrowed_image_and_processes_owned_copy(
         return fd, str(owned_path)
 
     service = ScreenCaptureService()
+    monkeypatch.setenv("XDG_CURRENT_DESKTOP", "GNOME")
     monkeypatch.setattr("bigocrpdf.services.screen_capture.tm_mkstemp", fake_mkstemp)
     monkeypatch.setattr(
         service,
@@ -193,6 +197,7 @@ def test_portal_cancellation_is_terminal_and_does_not_launch_cli_fallback(
 
     service = ScreenCaptureService()
     cli_capture = MagicMock()
+    monkeypatch.setenv("XDG_CURRENT_DESKTOP", "GNOME")
     monkeypatch.setattr("bigocrpdf.services.screen_capture._", lambda message: message)
     monkeypatch.setattr("bigocrpdf.services.screen_capture.tm_mkstemp", fake_mkstemp)
     monkeypatch.setattr(
@@ -217,6 +222,79 @@ def test_portal_cancellation_is_terminal_and_does_not_launch_cli_fallback(
     assert len(completed) == 1
     assert completed[0].status == "cancelled"
     assert not owned_path.exists()
+
+
+def test_kde_captures_with_spectacle_before_asking_the_portal(monkeypatch, tmp_path):
+    # The portal's interactive mode on KDE opens a dialog defaulting to a full-screen
+    # grab with the pointer drawn in; Spectacle's region mode is one drag.
+    service = ScreenCaptureService()
+    monkeypatch.setenv("XDG_CURRENT_DESKTOP", "KDE")
+    portal = MagicMock()
+    monkeypatch.setattr(service, "_capture_via_portal_into", portal)
+    monkeypatch.setattr(
+        service,
+        "_capture_with_cli_tools",
+        lambda _path, _request: screen_capture_module.CliCaptureStatus.SUCCESS,
+    )
+
+    outcome = service._capture_into_owned_file(
+        str(tmp_path / "owned.png"),
+        screen_capture_module.ImageOcrRequest(),
+    )
+
+    assert outcome is None
+    portal.assert_not_called()
+
+
+def test_capture_falls_back_to_the_portal_when_no_native_tool_answers(monkeypatch, tmp_path):
+    service = ScreenCaptureService()
+    monkeypatch.setenv("XDG_CURRENT_DESKTOP", "KDE")
+    monkeypatch.setattr(
+        service,
+        "_capture_with_cli_tools",
+        lambda _path, _request: screen_capture_module.CliCaptureStatus.UNAVAILABLE,
+    )
+    monkeypatch.setattr(
+        service,
+        "_capture_via_portal_into",
+        lambda _path, _request: screen_capture_module.CliCaptureStatus.SUCCESS,
+    )
+
+    outcome = service._capture_into_owned_file(
+        str(tmp_path / "owned.png"),
+        screen_capture_module.ImageOcrRequest(),
+    )
+
+    assert outcome is None
+
+
+def test_screenshot_tool_that_crashes_after_writing_still_yields_the_capture(
+    monkeypatch,
+    tmp_path,
+):
+    # Observed on Plasma: spectacle wrote a complete PNG and then exited on SIGSEGV.
+    capture_path = tmp_path / "shot.png"
+    capture_path.write_bytes(b"complete png bytes")
+    service = ScreenCaptureService()
+    monkeypatch.setattr(screen_capture_module.shutil, "which", lambda _tool: "/usr/bin/spectacle")
+    monkeypatch.setattr(
+        screen_capture_module.subprocess,
+        "Popen",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            args=["spectacle"],
+            returncode=-11,
+            poll=lambda: -11,
+            communicate=lambda timeout=None: (b"", b""),
+        ),
+    )
+
+    status = service._run_standard_tool(
+        ["spectacle", "-r", "-b", "-n", "-o", str(capture_path)],
+        str(capture_path),
+        screen_capture_module.ImageOcrRequest(),
+    )
+
+    assert status == screen_capture_module.CliCaptureStatus.SUCCESS
 
 
 @pytest.mark.parametrize(
@@ -943,15 +1021,18 @@ class TestParseOcrResults:
 
 
 class TestFormatText:
-    """Tests for ScreenCaptureService._format_text."""
+    """Image captures are formatted by the shared pipeline formatter."""
+
+    @staticmethod
+    def _format(results):
+        return TextFormattingController(OCRConfig(language="latin")).format(results, 400.0)
 
     def test_empty_results(self):
-        assert ScreenCaptureService._format_text([]) == ""
+        assert self._format([]) == ""
 
     def test_single_line(self):
         results = [OCRResult(text="Hello World", box=[[0, 10], [200, 10], [200, 30], [0, 30]])]
-        text = ScreenCaptureService._format_text(results)
-        assert "Hello World" in text
+        assert "Hello World" in self._format(results)
 
     def test_reading_order(self):
         # Second box is above first box — should appear first in output
@@ -959,15 +1040,24 @@ class TestFormatText:
             OCRResult(text="Line 2", box=[[0, 50], [200, 50], [200, 70], [0, 70]]),
             OCRResult(text="Line 1", box=[[0, 10], [200, 10], [200, 30], [0, 30]]),
         ]
-        text = ScreenCaptureService._format_text(results)
-        pos1 = text.find("Line 1")
-        pos2 = text.find("Line 2")
-        assert pos1 < pos2
+        text = self._format(results)
+        assert text.find("Line 1") < text.find("Line 2")
 
     def test_paragraph_break(self):
         results = [
             OCRResult(text="Para 1", box=[[0, 10], [200, 10], [200, 30], [0, 30]]),
             OCRResult(text="Para 2", box=[[0, 60], [200, 60], [200, 80], [0, 80]]),
         ]
-        text = ScreenCaptureService._format_text(results)
-        assert "\n\n" in text
+        assert "\n\n" in self._format(results)
+
+    def test_boxes_on_one_visual_line_keep_left_to_right_order(self):
+        # Real detections jitter vertically by a few pixels on the same line. Sorting
+        # by box top alone reorders them, which scrambled every multi-box capture.
+        results = [
+            OCRResult(text="Nome:", box=[[10, 100], [90, 100], [90, 130], [10, 130]]),
+            OCRResult(text="Joao", box=[[100, 98], [200, 98], [200, 128], [100, 128]]),
+            OCRResult(text="Silva", box=[[210, 102], [320, 102], [320, 132], [210, 132]]),
+        ]
+        text = self._format(results)
+        assert text.split() == ["Nome:", "Joao", "Silva"]
+        assert "\n" not in text.strip()
