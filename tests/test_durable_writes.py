@@ -45,6 +45,32 @@ def test_writer_failure_preserves_target_and_removes_temporary_file(tmp_path: Pa
     assert list(tmp_path.glob(".settings.json.*.tmp")) == []
 
 
+@pytest.mark.parametrize("overwrite", [False, True])
+def test_atomic_write_accepts_overlay_directory_device(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, overwrite: bool
+) -> None:
+    target = tmp_path / "settings.json"
+    if overwrite:
+        target.write_text("original", encoding="utf-8")
+    real_stat = Path.stat
+
+    def overlay_stat(path, *args, **kwargs):
+        result = real_stat(path, *args, **kwargs)
+        if path == tmp_path:
+            fields = list(result)
+            fields[2] += 1  # OverlayFS can report distinct directory and file devices.
+            return os.stat_result(fields)
+        return result
+
+    monkeypatch.setattr(Path, "stat", overlay_stat)
+
+    published = write_text_atomically(target, '{"language": "pt"}', overwrite=overwrite)
+
+    assert published == target
+    assert json.loads(target.read_text(encoding="utf-8")) == {"language": "pt"}
+    assert list(tmp_path.iterdir()) == [target]
+
+
 def test_atomic_copy_publishes_complete_file_and_preserves_source(tmp_path: Path) -> None:
     source = tmp_path / "source.pdf"
     source.write_bytes(b"complete pdf payload")

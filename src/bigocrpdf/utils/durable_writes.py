@@ -331,7 +331,7 @@ def publish_files_transactionally(
                     target_candidates,
                 )
             )
-            source_identities = _validate_sources(sources, targets, directory)
+            source_identities = _validate_sources(sources, targets)
             resolved_retire_requests = retire_requests
             if retire_candidates is not None:
                 resolved_retire_requests = [
@@ -1174,18 +1174,16 @@ def _remove_staged_sources(prepared: list[_PreparedPublication]) -> None:
 def _validate_sources(
     sources: list[Path],
     targets: list[Path],
-    directory: Path,
 ) -> list[_FileIdentity]:
     if set(sources) & set(targets):
         raise ValueError("A staged source cannot also be a publication target")
-    directory_device = directory.stat().st_dev
+    # Snapshots are created beside targets before atomic installation. Source
+    # devices need not match; OverlayFS may even differ for files and directories.
     identities: list[_FileIdentity] = []
     for source in sources:
         source_stat = source.lstat()
         if not stat.S_ISREG(source_stat.st_mode):
             raise ValueError(f"Staged output is not a regular file: {source}")
-        if source_stat.st_dev != directory_device:
-            raise OSError("Staged output and destination must be on the same filesystem")
         flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_CLOEXEC", 0)
         descriptor = os.open(source, flags)
         try:
@@ -1614,7 +1612,6 @@ def _read_journal(path: Path) -> _Journal:
     overwrite, entries = _parse_journal_payload(
         payload,
         transaction_id,
-        path.parent,
     )
     return _Journal(
         path=path,
@@ -1629,7 +1626,6 @@ def _read_journal(path: Path) -> _Journal:
 def _parse_journal_payload(
     payload: object,
     transaction_id: str,
-    directory: Path,
 ) -> tuple[bool, tuple[_JournalEntry, ...]]:
     if not isinstance(payload, dict) or set(payload) != {
         "version",
@@ -1654,7 +1650,6 @@ def _parse_journal_payload(
     ):
         raise ValueError("Invalid publication journal schema")
 
-    directory_device = directory.stat().st_dev
     entries: list[_JournalEntry] = []
     target_names: set[str] = set()
     for raw_entry in raw_entries:
@@ -1685,21 +1680,12 @@ def _parse_journal_payload(
             or target_name in target_names
         ):
             raise ValueError("Invalid publication journal target")
-        new_identity = _parse_identity(
-            raw_entry["new_identity"],
-            directory_device,
-        )
+        new_identity = _parse_identity(raw_entry["new_identity"])
         new_mode = raw_entry["new_mode"]
         if new_mode is not None and (type(new_mode) is not int or not 0 <= new_mode <= 0o777):
             raise ValueError("Invalid publication output mode")
-        original_identity = _parse_identity(
-            raw_entry["original_identity"],
-            directory_device,
-        )
-        backup_identity = _parse_identity(
-            raw_entry["backup_identity"],
-            directory_device,
-        )
+        original_identity = _parse_identity(raw_entry["original_identity"])
+        backup_identity = _parse_identity(raw_entry["backup_identity"])
         backup_mode = raw_entry["backup_mode"]
         if backup_mode is not None and (
             type(backup_mode) is not int or not 0 <= backup_mode <= 0o7777
@@ -1748,14 +1734,14 @@ def _parse_journal_payload(
     return overwrite, tuple(entries)
 
 
-def _parse_identity(value: object, directory_device: int) -> _FileIdentity | None:
+def _parse_identity(value: object) -> _FileIdentity | None:
+    # Validate identities against files during recovery, not the parent device.
     if value is None:
         return None
     if (
         not isinstance(value, list)
         or len(value) != 2
         or any(type(part) is not int or part < 0 for part in value)
-        or value[0] != directory_device
     ):
         raise ValueError("Invalid publication journal identity")
     return _FileIdentity(value[0], value[1])
