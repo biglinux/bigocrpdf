@@ -202,3 +202,4 @@ class TestEmbedFunctions(unittest.TestCase):
         assert decode_parms is not None
         self.assertEqual(int(decode_parms.get("/K", 0)), -1)
         self.assertEqual(int(decode_parms.get("/Columns", 0)), 200)
+        self.assertTrue(bool(decode_parms.get("/BlackIs1", False)))

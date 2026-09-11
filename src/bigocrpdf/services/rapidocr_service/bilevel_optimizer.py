@@ -269,6 +269,10 @@ def _embed_ccitt(
             "/K": -1,
             "/Columns": width,
             "/Rows": height,
+            # Pillow's Group 4 TIFF encoder stores the foreground as 1.
+            # Tell PDF readers about that polarity or the page is rendered
+            # with black and white inverted.
+            "/BlackIs1": True,
         }
     )
 
