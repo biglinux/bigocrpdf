@@ -8,4 +8,4 @@ for i in /usr/lib/python3.{6..25}/site-packages/bigocrpdf /usr/share/biglinux/bi
 	fi
 done
 
-exec python3 __init__.py "$@"
+exec /usr/bin/python3 __init__.py "$@"
