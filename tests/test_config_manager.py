@@ -13,6 +13,14 @@ from bigocrpdf.utils.config_manager import DEFAULT_CONFIG, ConfigManager
 
 
 class TestConfigManager:
+    def test_default_window_width_and_saved_override(self, tmp_path):
+        manager = ConfigManager(str(tmp_path / "config.json"))
+        assert manager.get("window.width") == 960
+
+        manager.set("window.width", 820)
+        restored = ConfigManager(str(tmp_path / "config.json"))
+        assert restored.get("window.width") == 820
+
     def _make_manager(self, tmp_dir, initial=None):
         path = os.path.join(tmp_dir, "config.json")
         if initial:

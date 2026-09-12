@@ -40,7 +40,7 @@ LEGACY_PATHS: Final[dict[str, str]] = {
 DEFAULT_CONFIG: Final[dict[str, Any]] = {
     "version": 1,
     "window": {
-        "width": 820,
+        "width": 960,  # Keep the sidebar expanded at the default text scale.
         "height": 600,
     },
     "ocr": {

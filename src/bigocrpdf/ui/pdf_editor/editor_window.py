@@ -103,6 +103,7 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
             standalone: If True, show Save As button instead of Apply
         """
         super().__init__(application=application)
+        self.add_css_class("bigocrpdf-editor")
 
         self._help = EditorHelpController(self)
         self._tools = EditorToolsController(self)
