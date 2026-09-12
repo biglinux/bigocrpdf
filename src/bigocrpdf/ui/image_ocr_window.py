@@ -77,6 +77,7 @@ class ImageOcrWindow(Adw.ApplicationWindow):
             default_height=height,
         )
 
+        self.add_css_class("bigocrimage")
         self.set_title("Big Image OCR")
         self.set_icon_name("bigocrimage")
 

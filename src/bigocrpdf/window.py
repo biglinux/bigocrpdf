@@ -57,7 +57,9 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
             default_height=height,
         )
 
-        # The sidebar overlays the content below the 700 sp breakpoint, so the
+        self.add_css_class("bigocrpdf")
+
+        # The sidebar overlays the content in compact mode, so the
         # minimum must describe the collapsed content instead of both panes.
         self.set_size_request(640, 400)
 
