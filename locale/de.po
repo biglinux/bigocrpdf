@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 3.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-08-18 02:44-0300\n"
-"PO-Revision-Date: 2026-08-10 15:12+0000\n"
+"POT-Creation-Date: 2026-09-11 23:08-0300\n"
+"PO-Revision-Date: 2026-10-03 09:30+0000\n"
 "Last-Translator: BigLinux Translation Team <biglinux@biglinux.com.br>\n"
 "Language-Team: German\n"
 "Language: de\n"
@@ -88,7 +88,7 @@ msgid "Unsupported file type: {0}"
 msgstr "Nicht unterstützter Dateityp: {0}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 179
-#: src/bigocrpdf/application.py:402 src/bigocrpdf/ui/image_ocr_window.py:313
+#: src/bigocrpdf/application.py:402 src/bigocrpdf/ui/image_ocr_window.py:314
 msgid "Unsupported file format"
 msgstr "Nicht unterstütztes Dateiformat"
 
@@ -738,11 +738,11 @@ msgstr "Ergebnisse"
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 305
 #: src/bigocrpdf/processing_controller.py:91
-#: src/bigocrpdf/services/screen_capture.py:428
-#: src/bigocrpdf/services/screen_capture.py:1006
-#: src/bigocrpdf/services/screen_capture.py:1013
-#: src/bigocrpdf/services/screen_capture.py:1037
-#: src/bigocrpdf/ui/image_ocr_window.py:883
+#: src/bigocrpdf/services/screen_capture.py:431
+#: src/bigocrpdf/services/screen_capture.py:1041
+#: src/bigocrpdf/services/screen_capture.py:1048
+#: src/bigocrpdf/services/screen_capture.py:1073
+#: src/bigocrpdf/ui/image_ocr_window.py:907
 msgid "OCR processing failed."
 msgstr "OCR-Verarbeitung fehlgeschlagen."
 
@@ -1038,7 +1038,8 @@ msgstr "Konvertierung nach PDF/A…"
 msgid "Splitting PDF by size limit..."
 msgstr "PDF wird nach Größenbeschränkung aufgeteilt…"
 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 68
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 68
 #: src/bigocrpdf/services/rapidocr_service/discovery.py:68
 msgid "Automatic multilingual recognition (PP-OCRv6)"
 msgstr "Automatische mehrsprachige Erkennung (PP-OCRv6)"
@@ -1092,29 +1093,27 @@ msgstr "OCR für Seite {0}…"
 msgid "OCR page {0} (rendered)..."
 msgstr "OCR für Seite {0} (gerendert)…"
 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 480
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 489
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 549
-#: src/bigocrpdf/services/screen_capture.py:480
-#: src/bigocrpdf/services/screen_capture.py:489
-#: src/bigocrpdf/services/screen_capture.py:549
-msgid "Screen capture failed."
-msgstr "Die Bildschirmaufnahme ist fehlgeschlagen."
-
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 985
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 500
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 536
-#: src/bigocrpdf/services/screen_capture.py:500
-#: src/bigocrpdf/services/screen_capture.py:536
-#: src/bigocrpdf/ui/image_ocr_window.py:985
+#: src/bigocrpdf/services/screen_capture.py:503
+#: src/bigocrpdf/services/screen_capture.py:585
+#: src/bigocrpdf/ui/image_ocr_window.py:1009
 msgid "Screen capture failed. Please try again or open an image file."
 msgstr ""
 "Die Bildschirmaufnahme ist fehlgeschlagen. Versuchen Sie es erneut oder "
 "öffnen Sie eine Bilddatei."
 
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 480
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 489
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 549
+#: src/bigocrpdf/services/screen_capture.py:516
+msgid "Screen capture failed."
+msgstr "Die Bildschirmaufnahme ist fehlgeschlagen."
+
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 118
-#: src/bigocrpdf/services/screen_capture.py:506
+#: src/bigocrpdf/services/screen_capture.py:579
 msgid ""
 "No screenshot tool available. Please install spectacle, gnome-screenshot, or "
 "flameshot."
@@ -1123,74 +1122,74 @@ msgstr ""
 "screenshot oder Flameshot."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 979
-#: src/bigocrpdf/services/screen_capture.py:979
+#: src/bigocrpdf/services/screen_capture.py:1014
 msgid "Could not prepare the image for OCR."
 msgstr "Das Bild konnte nicht für die OCR vorbereitet werden."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 331
-#: src/bigocrpdf/services/screen_capture.py:999
+#: src/bigocrpdf/services/screen_capture.py:1034
 msgid "OCR processing timed out."
 msgstr "Die OCR-Verarbeitung hat das Zeitlimit überschritten."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 326
-#: src/bigocrpdf/services/screen_capture.py:1030
+#: src/bigocrpdf/services/screen_capture.py:1066
 msgid "OCR engine not available. Please check your installation."
 msgstr "OCR-Engine nicht verfügbar. Überprüfen Sie die Installation."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 277
-#: src/bigocrpdf/services/screen_capture.py:1089
-#: src/bigocrpdf/services/screen_capture.py:1095
-#: src/bigocrpdf/services/screen_capture.py:1101
-#: src/bigocrpdf/services/screen_capture.py:1175
-#: src/bigocrpdf/services/screen_capture.py:1198
-#: src/bigocrpdf/services/screen_capture.py:1206
+#: src/bigocrpdf/services/screen_capture.py:1125
+#: src/bigocrpdf/services/screen_capture.py:1131
+#: src/bigocrpdf/services/screen_capture.py:1137
+#: src/bigocrpdf/services/screen_capture.py:1211
+#: src/bigocrpdf/services/screen_capture.py:1234
+#: src/bigocrpdf/services/screen_capture.py:1242
 msgid "Could not load image file."
 msgstr "Bilddatei konnte nicht geladen werden."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1103
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1170
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1277
-#: src/bigocrpdf/services/screen_capture.py:1103
-#: src/bigocrpdf/services/screen_capture.py:1170
-#: src/bigocrpdf/services/screen_capture.py:1277
+#: src/bigocrpdf/services/screen_capture.py:1139
+#: src/bigocrpdf/services/screen_capture.py:1206
+#: src/bigocrpdf/services/screen_capture.py:1313
 msgid "Unsupported or corrupted image file."
 msgstr "Nicht unterstützte oder beschädigte Bilddatei."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1105
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1208
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1235
-#: src/bigocrpdf/services/screen_capture.py:1105
-#: src/bigocrpdf/services/screen_capture.py:1208
-#: src/bigocrpdf/services/screen_capture.py:1235
+#: src/bigocrpdf/services/screen_capture.py:1141
+#: src/bigocrpdf/services/screen_capture.py:1244
+#: src/bigocrpdf/services/screen_capture.py:1271
 msgid "Image file is too large to process safely."
 msgstr "Die Bilddatei ist zu groß, um sie sicher zu verarbeiten."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1121
-#: src/bigocrpdf/services/screen_capture.py:1121
+#: src/bigocrpdf/services/screen_capture.py:1157
 msgid "No supported image decoder is available."
 msgstr "Es ist kein unterstützter Bilddecoder verfügbar."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1274
-#: src/bigocrpdf/services/screen_capture.py:1274
+#: src/bigocrpdf/services/screen_capture.py:1310
 msgid "Unsupported image format."
 msgstr "Nicht unterstütztes Bildformat."
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1279
-#: src/bigocrpdf/services/screen_capture.py:1279
-#: src/bigocrpdf/ui/image_ocr_window.py:415
+#: src/bigocrpdf/services/screen_capture.py:1315
+#: src/bigocrpdf/ui/image_ocr_window.py:416
 msgid "Image dimensions exceed the configured safety limit."
 msgstr "Die Bildabmessungen überschreiten die festgelegte Sicherheitsgrenze."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1285
-#: src/bigocrpdf/services/screen_capture.py:1285
+#: src/bigocrpdf/services/screen_capture.py:1321
 msgid "Animated or multi-page images are not supported."
 msgstr ""
 "Animierte Bilder oder Bilder mit mehreren Seiten werden nicht unterstützt."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1306
-#: src/bigocrpdf/services/screen_capture.py:1306
+#: src/bigocrpdf/services/screen_capture.py:1342
 msgid "Image file changed while it was being read. Please try again."
 msgstr ""
 "Die Bilddatei wurde während des Lesens geändert. Bitte versuchen Sie es "
@@ -1321,8 +1320,8 @@ msgid ""
 "searchable text. Use this when the existing text layer is incorrect or of "
 "poor quality."
 msgstr ""
-"Wenn aktiviert, wird die Texterkennung wiederholt, auch wenn das PDF bereits "
-"durchsuchbaren Text hat. Verwenden Sie dies, wenn die vorhandene Textebene "
+"Wiederholt die Texterkennung, auch wenn die PDF-Datei bereits durchsuchbaren "
+"Text enthält. Aktivieren Sie diese Option, wenn die vorhandene Textebene "
 "fehlerhaft oder von schlechter Qualität ist."
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
@@ -1428,7 +1427,7 @@ msgstr "Entfernte Orte werden nicht unterstützt."
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:304
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:309
 #: src/bigocrpdf/ui/file_save_controller.py:84
-#: src/bigocrpdf/ui/header_bar.py:164 src/bigocrpdf/ui/image_ocr_window.py:737
+#: src/bigocrpdf/ui/header_bar.py:164 src/bigocrpdf/ui/image_ocr_window.py:758
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:87
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:189
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:221
@@ -1727,7 +1726,7 @@ msgstr ""
 # File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 73
 #: src/bigocrpdf/ui/corrections_dialog.py:51
 msgid "Fix Page Direction"
-msgstr "Seitenrichtung korrigieren"
+msgstr "Seitenausrichtung korrigieren"
 
 # File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 75
 #: src/bigocrpdf/ui/corrections_dialog.py:53
@@ -1886,8 +1885,8 @@ msgstr "Text gespeichert in {filename}"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1225
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 443
 #: src/bigocrpdf/ui/file_save_controller.py:117
-#: src/bigocrpdf/ui/image_ocr_window.py:1187
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:681
+#: src/bigocrpdf/ui/image_ocr_window.py:1211
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:682
 msgid "OK"
 msgstr "OK"
 
@@ -2034,7 +2033,7 @@ msgstr "Starten Sie die OCR-Verarbeitung"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1139
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 221
-#: src/bigocrpdf/ui/header_bar.py:226 src/bigocrpdf/ui/image_ocr_window.py:1139
+#: src/bigocrpdf/ui/header_bar.py:226 src/bigocrpdf/ui/image_ocr_window.py:1163
 msgid ""
 "OCR is unavailable. Install the required engine and restart the application."
 msgstr ""
@@ -2043,109 +2042,117 @@ msgstr ""
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 198
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 236
-#: src/bigocrpdf/ui/image_ocr_window.py:327
-#: src/bigocrpdf/ui/image_ocr_window.py:354
-#: src/bigocrpdf/ui/image_ocr_window.py:408
-#: src/bigocrpdf/ui/image_ocr_window.py:659
+#: src/bigocrpdf/ui/image_ocr_window.py:328
+#: src/bigocrpdf/ui/image_ocr_window.py:355
+#: src/bigocrpdf/ui/image_ocr_window.py:409
+#: src/bigocrpdf/ui/image_ocr_window.py:660
 msgid "No image found in clipboard"
 msgstr "Kein Bild in der Zwischenablage gefunden."
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 428
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 539
-#: src/bigocrpdf/ui/image_ocr_window.py:428
-#: src/bigocrpdf/ui/image_ocr_window.py:539
+#: src/bigocrpdf/ui/image_ocr_window.py:429
+#: src/bigocrpdf/ui/image_ocr_window.py:540
 msgid "Could not read the clipboard image"
 msgstr "Das Bild aus der Zwischenablage konnte nicht gelesen werden"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 633
-#: src/bigocrpdf/ui/image_ocr_window.py:633
+#: src/bigocrpdf/ui/image_ocr_window.py:634
 msgid "Clipboard file list is too large"
 msgstr "Die Dateiliste in der Zwischenablage ist zu groß"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
-#: src/bigocrpdf/ui/image_ocr_window.py:693
-msgid "Image OCR"
-msgstr "Bild-OCR"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
-#: src/bigocrpdf/ui/image_ocr_window.py:694
-msgid "Extract text from images or screen captures using OCR."
-msgstr "Text aus Bildern oder Bildschirmaufnahmen mit OCR extrahieren."
-
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
-#: src/bigocrpdf/ui/image_ocr_window.py:702
-#: src/bigocrpdf/ui/image_ocr_window.py:706
-#: src/bigocrpdf/ui/image_ocr_window.py:803
+#: src/bigocrpdf/ui/image_ocr_window.py:701
+#: src/bigocrpdf/ui/image_ocr_window.py:705
+#: src/bigocrpdf/ui/image_ocr_window.py:827
 msgid "Open Image"
 msgstr "Bild öffnen"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 152
-#: src/bigocrpdf/ui/image_ocr_window.py:713
-#: src/bigocrpdf/ui/image_ocr_window.py:718
+#: src/bigocrpdf/ui/image_ocr_window.py:712
+#: src/bigocrpdf/ui/image_ocr_window.py:717
 msgid "Screen Capture"
 msgstr "Bildschirmfoto"
 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
+#: src/bigocrpdf/ui/image_ocr_window.py:728
+msgid "Image OCR"
+msgstr "Bild-OCR"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
+#: src/bigocrpdf/ui/image_ocr_window.py:729
+msgid "Extract text from images or screen captures using OCR."
+msgstr "Text aus Bildern oder Bildschirmaufnahmen mit OCR extrahieren."
+
+#: src/bigocrpdf/ui/image_ocr_window.py:737
+msgid "No text found"
+msgstr "Kein Text gefunden"
+
+#: src/bigocrpdf/ui/image_ocr_window.py:740
+msgid ""
+"OCR finished but found no readable text. Capture a tighter region, or try a "
+"sharper image."
+msgstr ""
+"Die Texterkennung ist abgeschlossen, hat aber keinen lesbaren Text gefunden. "
+"Erfassen Sie einen kleineren Bereich oder versuchen Sie es mit einem "
+"schärferen Bild."
+
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 167
-#: src/bigocrpdf/ui/image_ocr_window.py:730
+#: src/bigocrpdf/ui/image_ocr_window.py:751
 msgid "Extracting text…"
 msgstr "Text wird extrahiert…"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 740
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 741
-#: src/bigocrpdf/ui/image_ocr_window.py:740
-#: src/bigocrpdf/ui/image_ocr_window.py:741
+#: src/bigocrpdf/ui/image_ocr_window.py:761
+#: src/bigocrpdf/ui/image_ocr_window.py:762
 msgid "Cancel text extraction"
 msgstr "Textextraktion abbrechen"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 196
-#: src/bigocrpdf/ui/image_ocr_window.py:768
+#: src/bigocrpdf/ui/image_ocr_window.py:792
 msgid "Extracted text"
 msgstr "Extrahierter Text"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
-#: src/bigocrpdf/ui/image_ocr_window.py:780
+#: src/bigocrpdf/ui/image_ocr_window.py:804
 msgid "Copy"
 msgstr "Kopieren"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
-#: src/bigocrpdf/ui/image_ocr_window.py:782
-#: src/bigocrpdf/ui/image_ocr_window.py:784
+#: src/bigocrpdf/ui/image_ocr_window.py:806
+#: src/bigocrpdf/ui/image_ocr_window.py:808
 #: src/bigocrpdf/ui/text_viewer_controller.py:208
 #: src/bigocrpdf/ui/text_viewer_controller.py:209
 msgid "Copy text to clipboard"
 msgstr "Text in die Zwischenablage kopieren"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
-#: src/bigocrpdf/ui/image_ocr_window.py:792
+#: src/bigocrpdf/ui/image_ocr_window.py:816
 msgid "New Capture"
 msgstr "Neues Bildschirmfoto"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 216
-#: src/bigocrpdf/ui/image_ocr_window.py:795
-#: src/bigocrpdf/ui/image_ocr_window.py:796
+#: src/bigocrpdf/ui/image_ocr_window.py:819
+#: src/bigocrpdf/ui/image_ocr_window.py:820
 msgid "Capture a screen region"
 msgstr "Einen Bildschirmbereich erfassen"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 224
-#: src/bigocrpdf/ui/image_ocr_window.py:805
-#: src/bigocrpdf/ui/image_ocr_window.py:806
+#: src/bigocrpdf/ui/image_ocr_window.py:829
+#: src/bigocrpdf/ui/image_ocr_window.py:830
 msgid "Open an image file"
 msgstr "Öffnen Sie eine Bilddatei"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
-#: src/bigocrpdf/ui/image_ocr_window.py:893
-msgid "No text extracted."
-msgstr "Kein Text extrahiert."
-
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
-#: src/bigocrpdf/ui/image_ocr_window.py:1049
+#: src/bigocrpdf/ui/image_ocr_window.py:1073
 msgid "Open Image to OCR"
 msgstr "Bild für OCR öffnen"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 496
-#: src/bigocrpdf/ui/image_ocr_window.py:1052
+#: src/bigocrpdf/ui/image_ocr_window.py:1076
 #: src/bigocrpdf/ui/settings_queue_mixin.py:892
 #: src/bigocrpdf/ui/settings_queue_mixin.py:969
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:109
@@ -2153,23 +2160,23 @@ msgid "Images"
 msgstr "Bilder"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1102
-#: src/bigocrpdf/ui/image_ocr_window.py:1102
+#: src/bigocrpdf/ui/image_ocr_window.py:1126
 msgid "Could not open the selected image"
 msgstr "Das ausgewählte Bild konnte nicht geöffnet werden"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1127
-#: src/bigocrpdf/ui/image_ocr_window.py:1127
+#: src/bigocrpdf/ui/image_ocr_window.py:1151
 msgid "Could not copy text to the clipboard"
 msgstr "Der Text konnte nicht in die Zwischenablage kopiert werden"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
-#: src/bigocrpdf/ui/image_ocr_window.py:1131
+#: src/bigocrpdf/ui/image_ocr_window.py:1155
 msgid "Copied to clipboard"
 msgstr "In die Zwischenablage kopiert"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
-#: src/bigocrpdf/ui/image_ocr_window.py:1185
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:679
+#: src/bigocrpdf/ui/image_ocr_window.py:1209
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:680
 msgid "Error"
 msgstr "Fehler"
 
@@ -2297,7 +2304,7 @@ msgstr "PDF-Editor-Hilfe"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 92
 #: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:75
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:124
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:125
 msgid "PDF Editor"
 msgstr "PDF-Editor"
 
@@ -2446,7 +2453,7 @@ msgstr "Komprimiertes PDF speichern"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 653
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 788
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:133
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:454
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:455
 msgid "PDF Files"
 msgstr "PDF-Dateien"
 
@@ -2456,7 +2463,8 @@ msgstr "PDF-Dateien"
 msgid "Compression failed: {}"
 msgstr "Komprimierung fehlgeschlagen: {}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py,
+# line:
 # 169
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:167
 #, python-brace-format
@@ -2511,7 +2519,8 @@ msgstr "Ausgabeverzeichnis wählen"
 msgid "Failed to prepare document for splitting."
 msgstr "Dokument konnte nicht für die Aufteilung vorbereitet werden."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py,
+# line:
 # 291
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:289
 #, python-brace-format
@@ -2525,25 +2534,25 @@ msgid "Split failed: {}"
 msgstr "Aufteilung fehlgeschlagen: {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 72
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:122
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:123
 #, python-brace-format
 msgid "PDF Editor - {}"
 msgstr "PDF-Editor - {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 397
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:217
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:218
 msgid "Could not open PDF file or file has no pages."
 msgstr ""
 "PDF-Datei konnte nicht geöffnet werden oder die Datei hat keine Seiten."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 428
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:249
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:250
 #, python-brace-format
 msgid "Failed to load PDF: {}"
 msgstr "PDF konnte nicht geladen werden: {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 605
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:259
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:260
 #, python-brace-format
 msgid "{total} page · {included} included"
 msgid_plural "{total} pages · {included} included"
@@ -2551,13 +2560,13 @@ msgstr[0] "{total} Seite · {included} enthalten"
 msgstr[1] "{total} Seiten · {included} enthalten"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:266
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:267
 #, python-brace-format
 msgid "{count} selected"
 msgstr "{count} ausgewählt"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 737
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:282
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:283
 #, python-brace-format
 msgid "{count} page selected"
 msgid_plural "{count} pages selected"
@@ -2565,64 +2574,64 @@ msgstr[0] "{count} Seite ausgewählt"
 msgstr[1] "{count} Seiten ausgewählt"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:337
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:338
 msgid "Saving…"
 msgstr "Speichern…"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 674
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:357
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:362
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:358
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:363
 msgid "Failed to save PDF."
 msgstr "PDF konnte nicht gespeichert werden."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 822
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:451
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:452
 msgid "Save PDF As"
 msgstr "PDF speichern unter"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 836
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:464
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:465
 msgid "document.pdf"
 msgstr "dokument.pdf"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 854
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:493
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:494
 #, python-brace-format
 msgid "Saved: {}"
 msgstr "Gespeichert: {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:528
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:536
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:565
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:529
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:537
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:566
 msgid "Error saving changes."
 msgstr "Fehler beim Speichern der Änderungen."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 604
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:576
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:577
 msgid "Failed to merge PDF pages."
 msgstr "Fehler beim Zusammenführen der PDF-Seiten."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 626
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:583
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:584
 msgid "Unsaved Changes"
 msgstr "Nicht gespeicherte Änderungen"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 627
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:584
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:585
 msgid "What would you like to do with your changes?"
 msgstr "Was möchten Sie mit Ihren Änderungen tun?"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 197
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 629
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:586
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:587
 #: src/bigocrpdf/ui/session_recovery_controller.py:60
 msgid "Discard"
 msgstr "Verwerfen"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:587
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:588
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:238
 msgid "Apply"
 msgstr "Anwenden"
@@ -2725,8 +2734,10 @@ msgstr "Vertikal spiegeln"
 msgid "Flip Horizontally"
 msgstr "Horizontal spiegeln"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 176
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 177
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line:
+# 176
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line:
+# 177
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:176
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:177
 msgid "Open rotate and flip actions"
@@ -2798,7 +2809,8 @@ msgstr "Ändern Sie die Größe der Seitenvorschauen."
 msgid "Zoom level"
 msgstr "Zoomstufe"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 339
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line:
+# 339
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:339
 msgid "Hide editor sidebar"
 msgstr "Editor-Seitenleiste ausblenden"
@@ -3579,8 +3591,8 @@ msgid ""
 "This will restore all options to their default values. Your file queue will "
 "not be affected."
 msgstr ""
-"Dies stellt alle Optionen auf ihre Standardwerte zurück. Ihre "
-"Dateiwarteschlange wird nicht betroffen sein."
+"Setzt alle Optionen auf ihre Standardwerte zurück. Ihre Dateiwarteschlange "
+"bleibt unverändert."
 
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 326
 #: src/bigocrpdf/ui/settings_reset_controller.py:44

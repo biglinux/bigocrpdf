@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 3.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-08-18 02:44-0300\n"
-"PO-Revision-Date: 2026-08-10 15:12+0000\n"
+"POT-Creation-Date: 2026-09-11 23:08-0300\n"
+"PO-Revision-Date: 2026-10-03 09:30+0000\n"
 "Last-Translator: BigLinux Translation Team\n"
 "Language-Team: Korean\n"
 "Language: ko\n"
@@ -85,7 +85,7 @@ msgid "Unsupported file type: {0}"
 msgstr "지원하지 않는 파일 유형: {0}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 179
-#: src/bigocrpdf/application.py:402 src/bigocrpdf/ui/image_ocr_window.py:313
+#: src/bigocrpdf/application.py:402 src/bigocrpdf/ui/image_ocr_window.py:314
 msgid "Unsupported file format"
 msgstr "지원되지 않는 파일 형식"
 
@@ -720,11 +720,11 @@ msgstr "결과"
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 305
 #: src/bigocrpdf/processing_controller.py:91
-#: src/bigocrpdf/services/screen_capture.py:428
-#: src/bigocrpdf/services/screen_capture.py:1006
-#: src/bigocrpdf/services/screen_capture.py:1013
-#: src/bigocrpdf/services/screen_capture.py:1037
-#: src/bigocrpdf/ui/image_ocr_window.py:883
+#: src/bigocrpdf/services/screen_capture.py:431
+#: src/bigocrpdf/services/screen_capture.py:1041
+#: src/bigocrpdf/services/screen_capture.py:1048
+#: src/bigocrpdf/services/screen_capture.py:1073
+#: src/bigocrpdf/ui/image_ocr_window.py:907
 msgid "OCR processing failed."
 msgstr "OCR 처리에 실패했습니다."
 
@@ -1012,7 +1012,8 @@ msgstr "PDF/A로 변환 중..."
 msgid "Splitting PDF by size limit..."
 msgstr "크기 제한으로 PDF 분할 중..."
 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 68
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 68
 #: src/bigocrpdf/services/rapidocr_service/discovery.py:68
 msgid "Automatic multilingual recognition (PP-OCRv6)"
 msgstr "자동 다국어 인식 (PP-OCRv6)"
@@ -1065,27 +1066,25 @@ msgstr "{0}페이지 OCR 처리 중…"
 msgid "OCR page {0} (rendered)..."
 msgstr "{0}페이지 OCR 처리 중(렌더링됨)…"
 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 480
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 489
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 549
-#: src/bigocrpdf/services/screen_capture.py:480
-#: src/bigocrpdf/services/screen_capture.py:489
-#: src/bigocrpdf/services/screen_capture.py:549
-msgid "Screen capture failed."
-msgstr "화면 캡처에 실패했습니다."
-
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 985
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 500
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 536
-#: src/bigocrpdf/services/screen_capture.py:500
-#: src/bigocrpdf/services/screen_capture.py:536
-#: src/bigocrpdf/ui/image_ocr_window.py:985
+#: src/bigocrpdf/services/screen_capture.py:503
+#: src/bigocrpdf/services/screen_capture.py:585
+#: src/bigocrpdf/ui/image_ocr_window.py:1009
 msgid "Screen capture failed. Please try again or open an image file."
 msgstr "화면 캡처에 실패했습니다. 다시 시도하거나 이미지 파일을 여십시오."
 
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 480
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 489
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 549
+#: src/bigocrpdf/services/screen_capture.py:516
+msgid "Screen capture failed."
+msgstr "화면 캡처에 실패했습니다."
+
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 118
-#: src/bigocrpdf/services/screen_capture.py:506
+#: src/bigocrpdf/services/screen_capture.py:579
 msgid ""
 "No screenshot tool available. Please install spectacle, gnome-screenshot, or "
 "flameshot."
@@ -1094,73 +1093,73 @@ msgstr ""
 "십시오."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 979
-#: src/bigocrpdf/services/screen_capture.py:979
+#: src/bigocrpdf/services/screen_capture.py:1014
 msgid "Could not prepare the image for OCR."
 msgstr "OCR용 이미지를 준비할 수 없습니다."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 331
-#: src/bigocrpdf/services/screen_capture.py:999
+#: src/bigocrpdf/services/screen_capture.py:1034
 msgid "OCR processing timed out."
 msgstr "OCR 처리 시간이 초과되었습니다."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 326
-#: src/bigocrpdf/services/screen_capture.py:1030
+#: src/bigocrpdf/services/screen_capture.py:1066
 msgid "OCR engine not available. Please check your installation."
 msgstr "OCR 엔진을 사용할 수 없습니다. 설치를 확인하십시오."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 277
-#: src/bigocrpdf/services/screen_capture.py:1089
-#: src/bigocrpdf/services/screen_capture.py:1095
-#: src/bigocrpdf/services/screen_capture.py:1101
-#: src/bigocrpdf/services/screen_capture.py:1175
-#: src/bigocrpdf/services/screen_capture.py:1198
-#: src/bigocrpdf/services/screen_capture.py:1206
+#: src/bigocrpdf/services/screen_capture.py:1125
+#: src/bigocrpdf/services/screen_capture.py:1131
+#: src/bigocrpdf/services/screen_capture.py:1137
+#: src/bigocrpdf/services/screen_capture.py:1211
+#: src/bigocrpdf/services/screen_capture.py:1234
+#: src/bigocrpdf/services/screen_capture.py:1242
 msgid "Could not load image file."
 msgstr "이미지 파일을 로드할 수 없습니다."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1103
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1170
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1277
-#: src/bigocrpdf/services/screen_capture.py:1103
-#: src/bigocrpdf/services/screen_capture.py:1170
-#: src/bigocrpdf/services/screen_capture.py:1277
+#: src/bigocrpdf/services/screen_capture.py:1139
+#: src/bigocrpdf/services/screen_capture.py:1206
+#: src/bigocrpdf/services/screen_capture.py:1313
 msgid "Unsupported or corrupted image file."
 msgstr "지원하지 않거나 손상된 이미지 파일입니다."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1105
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1208
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1235
-#: src/bigocrpdf/services/screen_capture.py:1105
-#: src/bigocrpdf/services/screen_capture.py:1208
-#: src/bigocrpdf/services/screen_capture.py:1235
+#: src/bigocrpdf/services/screen_capture.py:1141
+#: src/bigocrpdf/services/screen_capture.py:1244
+#: src/bigocrpdf/services/screen_capture.py:1271
 msgid "Image file is too large to process safely."
 msgstr "이미지 파일이 너무 커서 안전하게 처리할 수 없습니다."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1121
-#: src/bigocrpdf/services/screen_capture.py:1121
+#: src/bigocrpdf/services/screen_capture.py:1157
 msgid "No supported image decoder is available."
 msgstr "지원되는 이미지 디코더를 사용할 수 없습니다."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1274
-#: src/bigocrpdf/services/screen_capture.py:1274
+#: src/bigocrpdf/services/screen_capture.py:1310
 msgid "Unsupported image format."
 msgstr "지원되지 않는 이미지 형식입니다."
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1279
-#: src/bigocrpdf/services/screen_capture.py:1279
-#: src/bigocrpdf/ui/image_ocr_window.py:415
+#: src/bigocrpdf/services/screen_capture.py:1315
+#: src/bigocrpdf/ui/image_ocr_window.py:416
 msgid "Image dimensions exceed the configured safety limit."
 msgstr "이미지 크기가 설정된 안전 제한을 초과합니다."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1285
-#: src/bigocrpdf/services/screen_capture.py:1285
+#: src/bigocrpdf/services/screen_capture.py:1321
 msgid "Animated or multi-page images are not supported."
 msgstr "애니메이션 또는 여러 페이지 이미지는 지원되지 않습니다."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1306
-#: src/bigocrpdf/services/screen_capture.py:1306
+#: src/bigocrpdf/services/screen_capture.py:1342
 msgid "Image file changed while it was being read. Please try again."
 msgstr "이미지 파일을 읽는 중에 파일이 변경되었습니다. 다시 시도하십시오."
 
@@ -1390,7 +1389,7 @@ msgstr "원격 위치는 지원되지 않습니다."
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:304
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:309
 #: src/bigocrpdf/ui/file_save_controller.py:84
-#: src/bigocrpdf/ui/header_bar.py:164 src/bigocrpdf/ui/image_ocr_window.py:737
+#: src/bigocrpdf/ui/header_bar.py:164 src/bigocrpdf/ui/image_ocr_window.py:758
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:87
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:189
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:221
@@ -1684,7 +1683,7 @@ msgstr "위에서가 아닌 비스듬히 촬영하여 사다리꼴로 보이는 
 # File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 73
 #: src/bigocrpdf/ui/corrections_dialog.py:51
 msgid "Fix Page Direction"
-msgstr "페이지 방향 수정"
+msgstr "페이지 방향 보정"
 
 # File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 75
 #: src/bigocrpdf/ui/corrections_dialog.py:53
@@ -1714,7 +1713,7 @@ msgstr ""
 #: src/bigocrpdf/ui/corrections_dialog.py:69
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:97
 msgid "Enhance Embedded Images"
-msgstr "내장 이미지 향상"
+msgstr "삽입된 이미지 보정"
 
 # File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 93
 #: src/bigocrpdf/ui/corrections_dialog.py:71
@@ -1828,8 +1827,8 @@ msgstr "텍스트를 {filename}에 저장했습니다"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
 # line: 1272
 #: src/bigocrpdf/ui/file_save_controller.py:117
-#: src/bigocrpdf/ui/image_ocr_window.py:1187
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:681
+#: src/bigocrpdf/ui/image_ocr_window.py:1211
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:682
 msgid "OK"
 msgstr "확인"
 
@@ -1972,7 +1971,7 @@ msgstr "OCR 처리 시작"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1139
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 221
-#: src/bigocrpdf/ui/header_bar.py:226 src/bigocrpdf/ui/image_ocr_window.py:1139
+#: src/bigocrpdf/ui/header_bar.py:226 src/bigocrpdf/ui/image_ocr_window.py:1163
 msgid ""
 "OCR is unavailable. Install the required engine and restart the application."
 msgstr ""
@@ -1981,109 +1980,116 @@ msgstr ""
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 198
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 236
-#: src/bigocrpdf/ui/image_ocr_window.py:327
-#: src/bigocrpdf/ui/image_ocr_window.py:354
-#: src/bigocrpdf/ui/image_ocr_window.py:408
-#: src/bigocrpdf/ui/image_ocr_window.py:659
+#: src/bigocrpdf/ui/image_ocr_window.py:328
+#: src/bigocrpdf/ui/image_ocr_window.py:355
+#: src/bigocrpdf/ui/image_ocr_window.py:409
+#: src/bigocrpdf/ui/image_ocr_window.py:660
 msgid "No image found in clipboard"
 msgstr "클립보드에 이미지가 없습니다."
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 428
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 539
-#: src/bigocrpdf/ui/image_ocr_window.py:428
-#: src/bigocrpdf/ui/image_ocr_window.py:539
+#: src/bigocrpdf/ui/image_ocr_window.py:429
+#: src/bigocrpdf/ui/image_ocr_window.py:540
 msgid "Could not read the clipboard image"
 msgstr "클립보드 이미지를 읽을 수 없습니다"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 633
-#: src/bigocrpdf/ui/image_ocr_window.py:633
+#: src/bigocrpdf/ui/image_ocr_window.py:634
 msgid "Clipboard file list is too large"
 msgstr "클립보드 파일 목록이 너무 큽니다"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
-#: src/bigocrpdf/ui/image_ocr_window.py:693
-msgid "Image OCR"
-msgstr "이미지 텍스트 인식"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
-#: src/bigocrpdf/ui/image_ocr_window.py:694
-msgid "Extract text from images or screen captures using OCR."
-msgstr "이미지나 화면 캡처에서 OCR을 사용하여 텍스트를 추출합니다."
-
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
-#: src/bigocrpdf/ui/image_ocr_window.py:702
-#: src/bigocrpdf/ui/image_ocr_window.py:706
-#: src/bigocrpdf/ui/image_ocr_window.py:803
+#: src/bigocrpdf/ui/image_ocr_window.py:701
+#: src/bigocrpdf/ui/image_ocr_window.py:705
+#: src/bigocrpdf/ui/image_ocr_window.py:827
 msgid "Open Image"
 msgstr "이미지 열기"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 152
-#: src/bigocrpdf/ui/image_ocr_window.py:713
-#: src/bigocrpdf/ui/image_ocr_window.py:718
+#: src/bigocrpdf/ui/image_ocr_window.py:712
+#: src/bigocrpdf/ui/image_ocr_window.py:717
 msgid "Screen Capture"
 msgstr "화면 캡처"
 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
+#: src/bigocrpdf/ui/image_ocr_window.py:728
+msgid "Image OCR"
+msgstr "이미지 텍스트 인식"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
+#: src/bigocrpdf/ui/image_ocr_window.py:729
+msgid "Extract text from images or screen captures using OCR."
+msgstr "이미지나 화면 캡처에서 OCR을 사용하여 텍스트를 추출합니다."
+
+#: src/bigocrpdf/ui/image_ocr_window.py:737
+msgid "No text found"
+msgstr "텍스트를 찾을 수 없음"
+
+#: src/bigocrpdf/ui/image_ocr_window.py:740
+msgid ""
+"OCR finished but found no readable text. Capture a tighter region, or try a "
+"sharper image."
+msgstr ""
+"OCR이 완료되었지만 읽을 수 있는 텍스트를 찾지 못했습니다. 더 좁은 영역을 캡처"
+"하거나 더 선명한 이미지로 다시 시도하세요."
+
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 167
-#: src/bigocrpdf/ui/image_ocr_window.py:730
+#: src/bigocrpdf/ui/image_ocr_window.py:751
 msgid "Extracting text…"
 msgstr "텍스트 추출 중…"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 740
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 741
-#: src/bigocrpdf/ui/image_ocr_window.py:740
-#: src/bigocrpdf/ui/image_ocr_window.py:741
+#: src/bigocrpdf/ui/image_ocr_window.py:761
+#: src/bigocrpdf/ui/image_ocr_window.py:762
 msgid "Cancel text extraction"
 msgstr "텍스트 추출 취소"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 196
-#: src/bigocrpdf/ui/image_ocr_window.py:768
+#: src/bigocrpdf/ui/image_ocr_window.py:792
 msgid "Extracted text"
 msgstr "추출된 텍스트"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
-#: src/bigocrpdf/ui/image_ocr_window.py:780
+#: src/bigocrpdf/ui/image_ocr_window.py:804
 msgid "Copy"
 msgstr "복사"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
-#: src/bigocrpdf/ui/image_ocr_window.py:782
-#: src/bigocrpdf/ui/image_ocr_window.py:784
+#: src/bigocrpdf/ui/image_ocr_window.py:806
+#: src/bigocrpdf/ui/image_ocr_window.py:808
 #: src/bigocrpdf/ui/text_viewer_controller.py:208
 #: src/bigocrpdf/ui/text_viewer_controller.py:209
 msgid "Copy text to clipboard"
 msgstr "클립보드에 텍스트 복사"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
-#: src/bigocrpdf/ui/image_ocr_window.py:792
+#: src/bigocrpdf/ui/image_ocr_window.py:816
 msgid "New Capture"
 msgstr "새 캡처"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 216
-#: src/bigocrpdf/ui/image_ocr_window.py:795
-#: src/bigocrpdf/ui/image_ocr_window.py:796
+#: src/bigocrpdf/ui/image_ocr_window.py:819
+#: src/bigocrpdf/ui/image_ocr_window.py:820
 msgid "Capture a screen region"
 msgstr "화면 영역 캡처"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 224
-#: src/bigocrpdf/ui/image_ocr_window.py:805
-#: src/bigocrpdf/ui/image_ocr_window.py:806
+#: src/bigocrpdf/ui/image_ocr_window.py:829
+#: src/bigocrpdf/ui/image_ocr_window.py:830
 msgid "Open an image file"
 msgstr "이미지 파일 열기"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
-#: src/bigocrpdf/ui/image_ocr_window.py:893
-msgid "No text extracted."
-msgstr "텍스트가 추출되지 않았습니다."
-
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
-#: src/bigocrpdf/ui/image_ocr_window.py:1049
+#: src/bigocrpdf/ui/image_ocr_window.py:1073
 msgid "Open Image to OCR"
 msgstr "OCR 처리할 이미지 열기"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 496
-#: src/bigocrpdf/ui/image_ocr_window.py:1052
+#: src/bigocrpdf/ui/image_ocr_window.py:1076
 #: src/bigocrpdf/ui/settings_queue_mixin.py:892
 #: src/bigocrpdf/ui/settings_queue_mixin.py:969
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:109
@@ -2091,23 +2097,23 @@ msgid "Images"
 msgstr "이미지"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1102
-#: src/bigocrpdf/ui/image_ocr_window.py:1102
+#: src/bigocrpdf/ui/image_ocr_window.py:1126
 msgid "Could not open the selected image"
 msgstr "선택한 이미지를 열 수 없습니다"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1127
-#: src/bigocrpdf/ui/image_ocr_window.py:1127
+#: src/bigocrpdf/ui/image_ocr_window.py:1151
 msgid "Could not copy text to the clipboard"
 msgstr "텍스트를 클립보드에 복사할 수 없습니다"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
-#: src/bigocrpdf/ui/image_ocr_window.py:1131
+#: src/bigocrpdf/ui/image_ocr_window.py:1155
 msgid "Copied to clipboard"
 msgstr "클립보드에 복사했습니다"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
-#: src/bigocrpdf/ui/image_ocr_window.py:1185
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:679
+#: src/bigocrpdf/ui/image_ocr_window.py:1209
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:680
 msgid "Error"
 msgstr "오류"
 
@@ -2232,7 +2238,7 @@ msgstr "PDF 편집기 도움말"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 92
 #: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:75
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:124
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:125
 msgid "PDF Editor"
 msgstr "PDF 편집기"
 
@@ -2380,7 +2386,7 @@ msgstr "압축된 PDF 저장"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 653
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 788
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:133
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:454
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:455
 msgid "PDF Files"
 msgstr "PDF 파일"
 
@@ -2390,7 +2396,8 @@ msgstr "PDF 파일"
 msgid "Compression failed: {}"
 msgstr "압축 실패: {}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py,
+# line:
 # 169
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:167
 #, python-brace-format
@@ -2444,7 +2451,8 @@ msgstr "출력 디렉토리 선택"
 msgid "Failed to prepare document for splitting."
 msgstr "분할을 위한 문서 준비에 실패했습니다."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py,
+# line:
 # 291
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:289
 #, python-brace-format
@@ -2458,101 +2466,101 @@ msgid "Split failed: {}"
 msgstr "분할 실패: {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 72
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:122
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:123
 #, python-brace-format
 msgid "PDF Editor - {}"
 msgstr "PDF 편집기 - {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 397
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:217
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:218
 msgid "Could not open PDF file or file has no pages."
 msgstr "PDF 파일을 열 수 없거나 파일에 페이지가 없습니다."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 428
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:249
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:250
 #, python-brace-format
 msgid "Failed to load PDF: {}"
 msgstr "PDF 로드 실패: {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 605
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:259
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:260
 #, python-brace-format
 msgid "{total} page · {included} included"
 msgid_plural "{total} pages · {included} included"
 msgstr[0] "{total} 페이지 · {included} 포함됨"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:266
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:267
 #, python-brace-format
 msgid "{count} selected"
 msgstr "{count}개 선택됨"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 737
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:282
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:283
 #, python-brace-format
 msgid "{count} page selected"
 msgid_plural "{count} pages selected"
 msgstr[0] "{count}페이지 선택됨"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:337
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:338
 msgid "Saving…"
 msgstr "저장 중…"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 674
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:357
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:362
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:358
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:363
 msgid "Failed to save PDF."
 msgstr "PDF 저장에 실패했습니다."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 822
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:451
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:452
 msgid "Save PDF As"
 msgstr "PDF를 다른 이름으로 저장"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 836
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:464
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:465
 msgid "document.pdf"
 msgstr "document.pdf"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 854
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:493
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:494
 #, python-brace-format
 msgid "Saved: {}"
 msgstr "저장됨: {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:528
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:536
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:565
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:529
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:537
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:566
 msgid "Error saving changes."
 msgstr "변경 사항 저장 오류."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 604
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:576
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:577
 msgid "Failed to merge PDF pages."
 msgstr "PDF 페이지 병합에 실패했습니다."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 626
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:583
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:584
 msgid "Unsaved Changes"
 msgstr "저장되지 않은 변경 사항"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 627
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:584
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:585
 msgid "What would you like to do with your changes?"
 msgstr "변경 사항으로 무엇을 하시겠습니까?"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 197
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 629
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:586
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:587
 #: src/bigocrpdf/ui/session_recovery_controller.py:60
 msgid "Discard"
 msgstr "버리기"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:587
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:588
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:238
 msgid "Apply"
 msgstr "적용"
@@ -2655,8 +2663,10 @@ msgstr "세로로 뒤집기"
 msgid "Flip Horizontally"
 msgstr "가로로 뒤집기"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 176
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 177
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line:
+# 176
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line:
+# 177
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:176
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:177
 msgid "Open rotate and flip actions"
@@ -2728,7 +2738,8 @@ msgstr "페이지 미리보기 크기 변경"
 msgid "Zoom level"
 msgstr "확대/축소 수준"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 339
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line:
+# 339
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:339
 msgid "Hide editor sidebar"
 msgstr "편집기 사이드바 숨기기"

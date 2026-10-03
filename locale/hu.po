@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 3.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-08-18 02:44-0300\n"
-"PO-Revision-Date: 2026-08-10 15:12+0000\n"
+"POT-Creation-Date: 2026-09-11 23:08-0300\n"
+"PO-Revision-Date: 2026-10-03 09:30+0000\n"
 "Last-Translator: BigLinux Translation Team\n"
 "Language-Team: Hungarian\n"
 "Language: hu\n"
@@ -88,7 +88,7 @@ msgid "Unsupported file type: {0}"
 msgstr "Nem támogatott fájltípus: {0}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 179
-#: src/bigocrpdf/application.py:402 src/bigocrpdf/ui/image_ocr_window.py:313
+#: src/bigocrpdf/application.py:402 src/bigocrpdf/ui/image_ocr_window.py:314
 msgid "Unsupported file format"
 msgstr "Nem támogatott fájlformátum"
 
@@ -735,11 +735,11 @@ msgstr "Eredmények"
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 305
 #: src/bigocrpdf/processing_controller.py:91
-#: src/bigocrpdf/services/screen_capture.py:428
-#: src/bigocrpdf/services/screen_capture.py:1006
-#: src/bigocrpdf/services/screen_capture.py:1013
-#: src/bigocrpdf/services/screen_capture.py:1037
-#: src/bigocrpdf/ui/image_ocr_window.py:883
+#: src/bigocrpdf/services/screen_capture.py:431
+#: src/bigocrpdf/services/screen_capture.py:1041
+#: src/bigocrpdf/services/screen_capture.py:1048
+#: src/bigocrpdf/services/screen_capture.py:1073
+#: src/bigocrpdf/ui/image_ocr_window.py:907
 msgid "OCR processing failed."
 msgstr "OCR feldolgozás meghiúsult."
 
@@ -1033,7 +1033,8 @@ msgstr "PDF/A-ra konvertálás..."
 msgid "Splitting PDF by size limit..."
 msgstr "PDF felosztása méretkorlátozás szerint..."
 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line: 68
+# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
+# 68
 #: src/bigocrpdf/services/rapidocr_service/discovery.py:68
 msgid "Automatic multilingual recognition (PP-OCRv6)"
 msgstr "Automatikus többnyelvű felismerés (PP-OCRv6)"
@@ -1087,28 +1088,26 @@ msgstr "A(z) {0}. oldal OCR-feldolgozása…"
 msgid "OCR page {0} (rendered)..."
 msgstr "A(z) {0}. oldal OCR-feldolgozása (renderelve)…"
 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 480
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 489
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 549
-#: src/bigocrpdf/services/screen_capture.py:480
-#: src/bigocrpdf/services/screen_capture.py:489
-#: src/bigocrpdf/services/screen_capture.py:549
-msgid "Screen capture failed."
-msgstr "A képernyőfelvétel sikertelen."
-
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 985
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 500
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 536
-#: src/bigocrpdf/services/screen_capture.py:500
-#: src/bigocrpdf/services/screen_capture.py:536
-#: src/bigocrpdf/ui/image_ocr_window.py:985
+#: src/bigocrpdf/services/screen_capture.py:503
+#: src/bigocrpdf/services/screen_capture.py:585
+#: src/bigocrpdf/ui/image_ocr_window.py:1009
 msgid "Screen capture failed. Please try again or open an image file."
 msgstr ""
 "A képernyőfelvétel sikertelen. Próbálja újra, vagy nyisson meg egy képfájlt."
 
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 480
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 489
+# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 549
+#: src/bigocrpdf/services/screen_capture.py:516
+msgid "Screen capture failed."
+msgstr "A képernyőfelvétel sikertelen."
+
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 118
-#: src/bigocrpdf/services/screen_capture.py:506
+#: src/bigocrpdf/services/screen_capture.py:579
 msgid ""
 "No screenshot tool available. Please install spectacle, gnome-screenshot, or "
 "flameshot."
@@ -1117,73 +1116,73 @@ msgstr ""
 "screenshot-ot vagy a flameshot-ot."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 979
-#: src/bigocrpdf/services/screen_capture.py:979
+#: src/bigocrpdf/services/screen_capture.py:1014
 msgid "Could not prepare the image for OCR."
 msgstr "Nem sikerült előkészíteni a képet az OCR-hez."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 331
-#: src/bigocrpdf/services/screen_capture.py:999
+#: src/bigocrpdf/services/screen_capture.py:1034
 msgid "OCR processing timed out."
 msgstr "Az OCR-feldolgozás túllépte az időkorlátot."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 326
-#: src/bigocrpdf/services/screen_capture.py:1030
+#: src/bigocrpdf/services/screen_capture.py:1066
 msgid "OCR engine not available. Please check your installation."
 msgstr "Az OCR-motor nem érhető el. Ellenőrizze a telepítést."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 277
-#: src/bigocrpdf/services/screen_capture.py:1089
-#: src/bigocrpdf/services/screen_capture.py:1095
-#: src/bigocrpdf/services/screen_capture.py:1101
-#: src/bigocrpdf/services/screen_capture.py:1175
-#: src/bigocrpdf/services/screen_capture.py:1198
-#: src/bigocrpdf/services/screen_capture.py:1206
+#: src/bigocrpdf/services/screen_capture.py:1125
+#: src/bigocrpdf/services/screen_capture.py:1131
+#: src/bigocrpdf/services/screen_capture.py:1137
+#: src/bigocrpdf/services/screen_capture.py:1211
+#: src/bigocrpdf/services/screen_capture.py:1234
+#: src/bigocrpdf/services/screen_capture.py:1242
 msgid "Could not load image file."
 msgstr "Nem sikerült betölteni a képfájlt."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1103
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1170
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1277
-#: src/bigocrpdf/services/screen_capture.py:1103
-#: src/bigocrpdf/services/screen_capture.py:1170
-#: src/bigocrpdf/services/screen_capture.py:1277
+#: src/bigocrpdf/services/screen_capture.py:1139
+#: src/bigocrpdf/services/screen_capture.py:1206
+#: src/bigocrpdf/services/screen_capture.py:1313
 msgid "Unsupported or corrupted image file."
 msgstr "Nem támogatott vagy sérült képfájl."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1105
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1208
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1235
-#: src/bigocrpdf/services/screen_capture.py:1105
-#: src/bigocrpdf/services/screen_capture.py:1208
-#: src/bigocrpdf/services/screen_capture.py:1235
+#: src/bigocrpdf/services/screen_capture.py:1141
+#: src/bigocrpdf/services/screen_capture.py:1244
+#: src/bigocrpdf/services/screen_capture.py:1271
 msgid "Image file is too large to process safely."
 msgstr "A képfájl túl nagy a biztonságos feldolgozáshoz."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1121
-#: src/bigocrpdf/services/screen_capture.py:1121
+#: src/bigocrpdf/services/screen_capture.py:1157
 msgid "No supported image decoder is available."
 msgstr "Nem érhető el támogatott képdekódoló."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1274
-#: src/bigocrpdf/services/screen_capture.py:1274
+#: src/bigocrpdf/services/screen_capture.py:1310
 msgid "Unsupported image format."
 msgstr "Nem támogatott képformátum."
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1279
-#: src/bigocrpdf/services/screen_capture.py:1279
-#: src/bigocrpdf/ui/image_ocr_window.py:415
+#: src/bigocrpdf/services/screen_capture.py:1315
+#: src/bigocrpdf/ui/image_ocr_window.py:416
 msgid "Image dimensions exceed the configured safety limit."
 msgstr "A kép méretei meghaladják a beállított biztonsági korlátot."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1285
-#: src/bigocrpdf/services/screen_capture.py:1285
+#: src/bigocrpdf/services/screen_capture.py:1321
 msgid "Animated or multi-page images are not supported."
 msgstr "Az animált vagy többoldalas képek nem támogatottak."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1306
-#: src/bigocrpdf/services/screen_capture.py:1306
+#: src/bigocrpdf/services/screen_capture.py:1342
 msgid "Image file changed while it was being read. Please try again."
 msgstr "A képfájl olvasás közben megváltozott. Próbálja újra."
 
@@ -1418,7 +1417,7 @@ msgstr "A távoli helyszínek nem támogatottak."
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:304
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:309
 #: src/bigocrpdf/ui/file_save_controller.py:84
-#: src/bigocrpdf/ui/header_bar.py:164 src/bigocrpdf/ui/image_ocr_window.py:737
+#: src/bigocrpdf/ui/header_bar.py:164 src/bigocrpdf/ui/image_ocr_window.py:758
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:87
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:189
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:221
@@ -1717,7 +1716,7 @@ msgstr ""
 # File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 73
 #: src/bigocrpdf/ui/corrections_dialog.py:51
 msgid "Fix Page Direction"
-msgstr "Oldal irányának javítása"
+msgstr "Oldaltájolás javítása"
 
 # File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 75
 #: src/bigocrpdf/ui/corrections_dialog.py:53
@@ -1865,8 +1864,8 @@ msgstr "Szöveg mentve: {filename}"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
 # line: 1272
 #: src/bigocrpdf/ui/file_save_controller.py:117
-#: src/bigocrpdf/ui/image_ocr_window.py:1187
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:681
+#: src/bigocrpdf/ui/image_ocr_window.py:1211
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:682
 msgid "OK"
 msgstr "Rendben"
 
@@ -2012,7 +2011,7 @@ msgstr "OCR-feldolgozás indítása"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1139
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 221
-#: src/bigocrpdf/ui/header_bar.py:226 src/bigocrpdf/ui/image_ocr_window.py:1139
+#: src/bigocrpdf/ui/header_bar.py:226 src/bigocrpdf/ui/image_ocr_window.py:1163
 msgid ""
 "OCR is unavailable. Install the required engine and restart the application."
 msgstr ""
@@ -2021,109 +2020,116 @@ msgstr ""
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 198
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 236
-#: src/bigocrpdf/ui/image_ocr_window.py:327
-#: src/bigocrpdf/ui/image_ocr_window.py:354
-#: src/bigocrpdf/ui/image_ocr_window.py:408
-#: src/bigocrpdf/ui/image_ocr_window.py:659
+#: src/bigocrpdf/ui/image_ocr_window.py:328
+#: src/bigocrpdf/ui/image_ocr_window.py:355
+#: src/bigocrpdf/ui/image_ocr_window.py:409
+#: src/bigocrpdf/ui/image_ocr_window.py:660
 msgid "No image found in clipboard"
 msgstr "Nincs kép a vágólapon."
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 428
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 539
-#: src/bigocrpdf/ui/image_ocr_window.py:428
-#: src/bigocrpdf/ui/image_ocr_window.py:539
+#: src/bigocrpdf/ui/image_ocr_window.py:429
+#: src/bigocrpdf/ui/image_ocr_window.py:540
 msgid "Could not read the clipboard image"
 msgstr "Nem sikerült beolvasni a képet a vágólapról"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 633
-#: src/bigocrpdf/ui/image_ocr_window.py:633
+#: src/bigocrpdf/ui/image_ocr_window.py:634
 msgid "Clipboard file list is too large"
 msgstr "A vágólapon lévő fájllista túl nagy"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
-#: src/bigocrpdf/ui/image_ocr_window.py:693
-msgid "Image OCR"
-msgstr "Kép-OCR"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
-#: src/bigocrpdf/ui/image_ocr_window.py:694
-msgid "Extract text from images or screen captures using OCR."
-msgstr "Képekből vagy képernyőfelvételekből szöveg kinyerése OCR segítségével."
-
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
-#: src/bigocrpdf/ui/image_ocr_window.py:702
-#: src/bigocrpdf/ui/image_ocr_window.py:706
-#: src/bigocrpdf/ui/image_ocr_window.py:803
+#: src/bigocrpdf/ui/image_ocr_window.py:701
+#: src/bigocrpdf/ui/image_ocr_window.py:705
+#: src/bigocrpdf/ui/image_ocr_window.py:827
 msgid "Open Image"
 msgstr "Kép megnyitása"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 152
-#: src/bigocrpdf/ui/image_ocr_window.py:713
-#: src/bigocrpdf/ui/image_ocr_window.py:718
+#: src/bigocrpdf/ui/image_ocr_window.py:712
+#: src/bigocrpdf/ui/image_ocr_window.py:717
 msgid "Screen Capture"
 msgstr "Képernyőkép"
 
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
+#: src/bigocrpdf/ui/image_ocr_window.py:728
+msgid "Image OCR"
+msgstr "Kép-OCR"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
+#: src/bigocrpdf/ui/image_ocr_window.py:729
+msgid "Extract text from images or screen captures using OCR."
+msgstr "Képekből vagy képernyőfelvételekből szöveg kinyerése OCR segítségével."
+
+#: src/bigocrpdf/ui/image_ocr_window.py:737
+msgid "No text found"
+msgstr "Nem található szöveg"
+
+#: src/bigocrpdf/ui/image_ocr_window.py:740
+msgid ""
+"OCR finished but found no readable text. Capture a tighter region, or try a "
+"sharper image."
+msgstr ""
+"Az OCR befejeződött, de nem talált olvasható szöveget. Rögzítsen kisebb "
+"területet, vagy próbáljon meg egy élesebb képet."
+
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 167
-#: src/bigocrpdf/ui/image_ocr_window.py:730
+#: src/bigocrpdf/ui/image_ocr_window.py:751
 msgid "Extracting text…"
 msgstr "Szöveg kinyerése…"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 740
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 741
-#: src/bigocrpdf/ui/image_ocr_window.py:740
-#: src/bigocrpdf/ui/image_ocr_window.py:741
+#: src/bigocrpdf/ui/image_ocr_window.py:761
+#: src/bigocrpdf/ui/image_ocr_window.py:762
 msgid "Cancel text extraction"
 msgstr "Szövegkinyerés megszakítása"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 196
-#: src/bigocrpdf/ui/image_ocr_window.py:768
+#: src/bigocrpdf/ui/image_ocr_window.py:792
 msgid "Extracted text"
 msgstr "Kinyert szöveg"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
-#: src/bigocrpdf/ui/image_ocr_window.py:780
+#: src/bigocrpdf/ui/image_ocr_window.py:804
 msgid "Copy"
 msgstr "Másolás"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
-#: src/bigocrpdf/ui/image_ocr_window.py:782
-#: src/bigocrpdf/ui/image_ocr_window.py:784
+#: src/bigocrpdf/ui/image_ocr_window.py:806
+#: src/bigocrpdf/ui/image_ocr_window.py:808
 #: src/bigocrpdf/ui/text_viewer_controller.py:208
 #: src/bigocrpdf/ui/text_viewer_controller.py:209
 msgid "Copy text to clipboard"
 msgstr "Szöveg másolása a vágólapra"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
-#: src/bigocrpdf/ui/image_ocr_window.py:792
+#: src/bigocrpdf/ui/image_ocr_window.py:816
 msgid "New Capture"
 msgstr "Új képernyőkép"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 216
-#: src/bigocrpdf/ui/image_ocr_window.py:795
-#: src/bigocrpdf/ui/image_ocr_window.py:796
+#: src/bigocrpdf/ui/image_ocr_window.py:819
+#: src/bigocrpdf/ui/image_ocr_window.py:820
 msgid "Capture a screen region"
 msgstr "Rögzítsen egy képernyőterületet"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 224
-#: src/bigocrpdf/ui/image_ocr_window.py:805
-#: src/bigocrpdf/ui/image_ocr_window.py:806
+#: src/bigocrpdf/ui/image_ocr_window.py:829
+#: src/bigocrpdf/ui/image_ocr_window.py:830
 msgid "Open an image file"
 msgstr "Nyisson meg egy képfájlt"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
-#: src/bigocrpdf/ui/image_ocr_window.py:893
-msgid "No text extracted."
-msgstr "Nincs kinyert szöveg."
-
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
-#: src/bigocrpdf/ui/image_ocr_window.py:1049
+#: src/bigocrpdf/ui/image_ocr_window.py:1073
 msgid "Open Image to OCR"
 msgstr "Kép megnyitása OCR-hez"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 496
-#: src/bigocrpdf/ui/image_ocr_window.py:1052
+#: src/bigocrpdf/ui/image_ocr_window.py:1076
 #: src/bigocrpdf/ui/settings_queue_mixin.py:892
 #: src/bigocrpdf/ui/settings_queue_mixin.py:969
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:109
@@ -2131,23 +2137,23 @@ msgid "Images"
 msgstr "Képek"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1102
-#: src/bigocrpdf/ui/image_ocr_window.py:1102
+#: src/bigocrpdf/ui/image_ocr_window.py:1126
 msgid "Could not open the selected image"
 msgstr "Nem sikerült megnyitni a kiválasztott képet"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1127
-#: src/bigocrpdf/ui/image_ocr_window.py:1127
+#: src/bigocrpdf/ui/image_ocr_window.py:1151
 msgid "Could not copy text to the clipboard"
 msgstr "Nem sikerült a szöveget a vágólapra másolni"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
-#: src/bigocrpdf/ui/image_ocr_window.py:1131
+#: src/bigocrpdf/ui/image_ocr_window.py:1155
 msgid "Copied to clipboard"
 msgstr "A vágólapra másolva"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
-#: src/bigocrpdf/ui/image_ocr_window.py:1185
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:679
+#: src/bigocrpdf/ui/image_ocr_window.py:1209
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:680
 msgid "Error"
 msgstr "Hiba"
 
@@ -2275,7 +2281,7 @@ msgstr "A PDF-szerkesztő súgója"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 92
 #: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:75
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:124
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:125
 msgid "PDF Editor"
 msgstr "PDF szerkesztő"
 
@@ -2423,7 +2429,7 @@ msgstr "Tömörített PDF mentése"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 653
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 788
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:133
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:454
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:455
 msgid "PDF Files"
 msgstr "PDF fájlok"
 
@@ -2433,7 +2439,8 @@ msgstr "PDF fájlok"
 msgid "Compression failed: {}"
 msgstr "Tömörítés sikertelen: {}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py,
+# line:
 # 169
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:167
 #, python-brace-format
@@ -2489,7 +2496,8 @@ msgstr "Kimeneti könyvtár kiválasztása"
 msgid "Failed to prepare document for splitting."
 msgstr "A dokumentum előkészítése felosztáshoz sikertelen."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py,
+# line:
 # 291
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:289
 #, python-brace-format
@@ -2503,25 +2511,25 @@ msgid "Split failed: {}"
 msgstr "Felosztás sikertelen: {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 72
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:122
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:123
 #, python-brace-format
 msgid "PDF Editor - {}"
 msgstr "PDF Szerkesztő - {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 397
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:217
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:218
 msgid "Could not open PDF file or file has no pages."
 msgstr ""
 "Nem sikerült megnyitni a PDF fájlt, vagy a fájl nem tartalmaz oldalakat."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 428
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:249
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:250
 #, python-brace-format
 msgid "Failed to load PDF: {}"
 msgstr "PDF betöltése nem sikerült: {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 605
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:259
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:260
 #, python-brace-format
 msgid "{total} page · {included} included"
 msgid_plural "{total} pages · {included} included"
@@ -2529,13 +2537,13 @@ msgstr[0] "{total} oldal · bevonva: {included}"
 msgstr[1] "{total} oldal · bevonva: {included}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:266
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:267
 #, python-brace-format
 msgid "{count} selected"
 msgstr "{count} kijelölve"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 737
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:282
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:283
 #, python-brace-format
 msgid "{count} page selected"
 msgid_plural "{count} pages selected"
@@ -2543,64 +2551,64 @@ msgstr[0] "{count} oldal kiválasztva"
 msgstr[1] "{count} oldal kiválasztva"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:337
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:338
 msgid "Saving…"
 msgstr "Mentés…"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 674
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:357
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:362
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:358
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:363
 msgid "Failed to save PDF."
 msgstr "PDF mentése sikertelen."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 822
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:451
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:452
 msgid "Save PDF As"
 msgstr "PDF mentése másként"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 836
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:464
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:465
 msgid "document.pdf"
 msgstr "document.pdf"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 854
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:493
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:494
 #, python-brace-format
 msgid "Saved: {}"
 msgstr "Mentve: {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:528
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:536
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:565
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:529
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:537
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:566
 msgid "Error saving changes."
 msgstr "Hiba a módosítások mentésekor."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 604
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:576
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:577
 msgid "Failed to merge PDF pages."
 msgstr "A PDF oldalak egyesítése nem sikerült."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 626
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:583
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:584
 msgid "Unsaved Changes"
 msgstr "Nem mentett módosítások"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 627
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:584
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:585
 msgid "What would you like to do with your changes?"
 msgstr "Mi történjen a módosításokkal?"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 197
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 629
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:586
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:587
 #: src/bigocrpdf/ui/session_recovery_controller.py:60
 msgid "Discard"
 msgstr "Elvetés"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:587
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:588
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:238
 msgid "Apply"
 msgstr "Alkalmaz"
@@ -2703,8 +2711,10 @@ msgstr "Függőleges tükrözés"
 msgid "Flip Horizontally"
 msgstr "Vízszintes tükrözés"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 176
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 177
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line:
+# 176
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line:
+# 177
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:176
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:177
 msgid "Open rotate and flip actions"
@@ -2776,7 +2786,8 @@ msgstr "Változtassa meg az oldalképek méretét."
 msgid "Zoom level"
 msgstr "Nagyítás szintje"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 339
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line:
+# 339
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:339
 msgid "Hide editor sidebar"
 msgstr "Szerkesztő oldalsáv elrejtése"
@@ -3697,7 +3708,7 @@ msgstr "Alacsony pontosság"
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 172
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:250
 msgid "Standard"
-msgstr "Szabványos"
+msgstr "Normál"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 173
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:251
