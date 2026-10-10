@@ -42,10 +42,14 @@ class BigOcrPdfApp(Adw.Application):
 
     def __init__(self, *, ocr_dependency: OcrDependencyState) -> None:
         """Initialize the application."""
-        super().__init__(application_id=APP_ID, flags=Gio.ApplicationFlags.HANDLES_OPEN)
+        # HANDLES_COMMAND_LINE forwards each invocation's options to the primary
+        # instance, so --edit still applies when a window is already open.
+        super().__init__(
+            application_id=APP_ID,
+            flags=Gio.ApplicationFlags.HANDLES_OPEN | Gio.ApplicationFlags.HANDLES_COMMAND_LINE,
+        )
 
         self.ocr_dependency = ocr_dependency
-        self._edit_mode = False
 
         # Add command line handling
         self.add_main_option(
@@ -68,6 +72,7 @@ class BigOcrPdfApp(Adw.Application):
         # Setup signals
         self.connect("activate", self.on_activate)
         self.connect("open", self.on_open)
+        self.connect("command-line", self.on_command_line)
         self.connect("handle-local-options", self.on_handle_local_options)
         self.connect("shutdown", self._on_shutdown)
 
@@ -157,10 +162,39 @@ class BigOcrPdfApp(Adw.Application):
             print(f"{APP_NAME} {APP_VERSION}")
             return 0  # Exit successfully
 
-        if options.contains("edit"):
-            self._edit_mode = True
-
         return -1  # Continue processing
+
+    def on_command_line(
+        self, app: Adw.Application, command_line: Gio.ApplicationCommandLine
+    ) -> int:
+        """Handle one invocation in the primary instance.
+
+        --edit is read from this invocation's options rather than stored on the
+        application, so it neither gets lost when another window is already open
+        nor leaks into later invocations.
+        """
+        edit_mode = command_line.get_options_dict().contains("edit")
+        files = [command_line.create_file_for_arg(arg) for arg in command_line.get_arguments()[1:]]
+
+        if files:
+            self._open_files(app, files, edit_mode=edit_mode)
+        elif edit_mode:
+            load_css()
+            self._open_standalone_editor(app)
+        else:
+            self.activate()
+        return 0
+
+    def _open_standalone_editor(self, app: Adw.Application) -> None:
+        """Open an empty PDF editor window."""
+        from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
+
+        win = PDFEditorWindow(
+            application=app,
+            standalone=True,
+        )
+        win.present()
+        logger.info("Opened standalone PDF editor (no file)")
 
     def on_activate(self, app: Adw.Application) -> None:
         """Callback for application activation.
@@ -174,18 +208,6 @@ class BigOcrPdfApp(Adw.Application):
 
             # Load custom CSS
             load_css()
-
-            # --edit mode without files: open standalone editor
-            if self._edit_mode:
-                from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
-
-                win = PDFEditorWindow(
-                    application=app,
-                    standalone=True,
-                )
-                win.present()
-                logger.info("Opened standalone PDF editor (no file)")
-                return
 
             # Check if we already have a window open
             win = self.get_active_window()
@@ -363,15 +385,22 @@ class BigOcrPdfApp(Adw.Application):
             GLib.timeout_add(100, add_files_when_ready)
 
     def on_open(self, app: Adw.Application, files: list, n_files: int, _hint: str) -> None:
-        """Callback for opening files from command line or file manager."""
+        """Callback for files opened through the GApplication Open method."""
+        self._open_files(app, files, edit_mode=False)
+
+    def _open_files(self, app: Adw.Application, files: list, *, edit_mode: bool) -> None:
+        """Open files in the PDF editor or in the OCR windows."""
         try:
             load_css()
             pdf_paths, image_paths, unsupported_paths = self._categorize_files(files)
 
             if not pdf_paths and not image_paths:
-                self.on_activate(app)
+                if edit_mode:
+                    self._open_standalone_editor(app)
+                else:
+                    self.on_activate(app)
 
-            if self._edit_mode:
+            if edit_mode:
                 self._open_edit_mode(app, pdf_paths, image_paths)
             else:
                 self._open_normal_mode(app, pdf_paths, image_paths)

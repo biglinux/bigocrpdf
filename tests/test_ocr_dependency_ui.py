@@ -319,7 +319,6 @@ def test_pdf_application_presents_before_scheduling_unavailable_dialog() -> None
     )
     application = SimpleNamespace(
         ocr_dependency=_OCR_UNAVAILABLE,
-        _edit_mode=False,
         get_active_window=MagicMock(return_value=None),
     )
     window_constructor = MagicMock(return_value=window)
