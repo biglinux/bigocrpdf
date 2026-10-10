@@ -8,13 +8,15 @@ import sys
 from typing import Final
 
 from bigocrpdf import __version__
-from bigocrpdf.utils.i18n import _
+from bigocrpdf.utils.i18n import N_, _
 
 APP_NAME: Final[str] = "Big OCR PDF"
 APP_ID: Final[str] = "br.com.biglinux.bigocrpdf"
 IMAGE_APP_ID: Final[str] = "br.com.biglinux.bigocrimage"
+# Named after its desktop file so Wayland docks show the editor launcher.
+EDITOR_APP_ID: Final[str] = "br.com.biglinux.bigocrpdf-editor"
 APP_VERSION: Final[str] = __version__
-APP_DESCRIPTION_KEY: Final[str] = "Add OCR to your PDF documents to make them searchable"
+APP_DESCRIPTION_KEY: Final[str] = N_("Add OCR to your PDF documents to make them searchable")
 APP_WEBSITE: Final[str] = "https://www.biglinux.com.br"
 APP_ISSUES: Final[str] = "https://github.com/biglinux/bigocrpdf/issues"
 APP_DEVELOPERS: Final[list[str]] = ["BigLinux https://github.com/biglinux/bigocrpdf"]
@@ -64,7 +66,7 @@ SHORTCUTS: Final[dict[str, str]] = {
     "cancel-processing": "Escape",
     "remove-all-files": "<Control>r",
     "quit": "<Control>q",
-    "about": "F1",
+    "help": "F1",
 }
 
 

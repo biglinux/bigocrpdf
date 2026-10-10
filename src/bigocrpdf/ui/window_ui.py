@@ -134,12 +134,13 @@ class BigOcrPdfUI:
         if not window_buttons_left:
             center_box = Gtk.CenterBox()
             center_box.set_hexpand(True)
-            app_icon = Gtk.Image.new_from_icon_name(APP_ICON_NAME)
+            app_icon = Gtk.Image(
+                icon_name=APP_ICON_NAME, accessible_role=Gtk.AccessibleRole.PRESENTATION
+            )
             app_icon.set_pixel_size(_APP_ICON_SIZE)
             app_icon.set_halign(Gtk.Align.START)
             app_icon.set_valign(Gtk.Align.CENTER)
             app_icon.set_hexpand(False)
-            app_icon.set_accessible_role(Gtk.AccessibleRole.PRESENTATION)
             center_box.set_start_widget(app_icon)
             title_label = Gtk.Label(label="Big OCR PDF")
             title_label.set_halign(Gtk.Align.CENTER)
@@ -237,8 +238,9 @@ class BigOcrPdfUI:
             # Back button for conclusion page
             back_button = Gtk.Button()
             back_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-            back_icon = Gtk.Image.new_from_icon_name("go-previous-symbolic")
-            back_icon.set_accessible_role(Gtk.AccessibleRole.PRESENTATION)
+            back_icon = Gtk.Image(
+                icon_name="go-previous-symbolic", accessible_role=Gtk.AccessibleRole.PRESENTATION
+            )
             back_label = Gtk.Label(label=_("Back"))
             back_box.append(back_icon)
             back_box.append(back_label)
@@ -258,6 +260,7 @@ class BigOcrPdfUI:
         set_a11y_label(menu_button, _("Menu"))
         menu = Gio.Menu.new()
         menu.append(_("Reset Settings"), "win.reset_settings")
+        menu.append(_("Keyboard Shortcuts"), "app.shortcuts")
         menu.append(_("Help"), "win.help")
         menu.append(_("About"), "app.about")
         menu.append(_("Quit"), "app.quit")

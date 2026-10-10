@@ -70,11 +70,12 @@ class TerminalPageManager:
         set_a11y_label(self.terminal_progress_bar, _("OCR processing progress"))
         progress_area.append(self.terminal_progress_bar)
 
-        self.terminal_status_bar = Gtk.Label(label=_("Preparing processing..."))
+        self.terminal_status_bar = Gtk.Label(
+            label=_("Preparing processing..."), accessible_role=Gtk.AccessibleRole.STATUS
+        )
         self.terminal_status_bar.add_css_class("body")
         self.terminal_status_bar.set_halign(Gtk.Align.CENTER)
         self.terminal_status_bar.set_margin_bottom(8)
-        self.terminal_status_bar.set_accessible_role(Gtk.AccessibleRole.STATUS)
         progress_area.append(self.terminal_status_bar)
 
         cancel_button = Gtk.Button(label=_("Cancel"))
@@ -99,13 +100,15 @@ class TerminalPageManager:
 
     def _add_active_settings_summary(self, container: Gtk.Box) -> None:
         """Add a compact summary of the active processing settings."""
+        from bigocrpdf.ui.corrections_dialog import CORRECTION_TITLES
+
         settings = self.window.settings
         all_effects = (
-            (_("Deskew"), settings.enable_deskew),
-            (_("Dewarp"), settings.enable_baseline_dewarp),
-            (_("Perspective"), settings.enable_perspective_correction),
-            (_("Auto-rotate"), settings.enable_orientation_detection),
-            (_("Scanner Effect"), settings.enable_scanner_effect),
+            (CORRECTION_TITLES["deskew"], settings.enable_deskew),
+            (CORRECTION_TITLES["dewarp"], settings.enable_baseline_dewarp),
+            (CORRECTION_TITLES["perspective"], settings.enable_perspective_correction),
+            (CORRECTION_TITLES["orientation"], settings.enable_orientation_detection),
+            (CORRECTION_TITLES["scanner"], settings.enable_scanner_effect),
         )
         active = [name for name, enabled in all_effects if enabled]
         inactive = [name for name, enabled in all_effects if not enabled]

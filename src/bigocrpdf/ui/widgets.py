@@ -8,6 +8,7 @@ gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 import os
 from collections.abc import Callable
+from typing import TYPE_CHECKING
 from urllib.parse import unquote, urlparse
 
 gi.require_version("Gdk", "4.0")
@@ -16,6 +17,9 @@ from gi.repository import Adw, Gdk, GdkPixbuf, Gio, GLib, Gtk
 from bigocrpdf.config import RESOURCES_DIR
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
+
+if TYPE_CHECKING:
+    from bigocrpdf.window import BigOcrPdfWindow
 
 _ILLUSTRATIONS_DIR = os.path.join(os.path.dirname(__file__), "..", "resources", "illustrations")
 _css_provider: Gtk.CssProvider | None = None
@@ -51,17 +55,14 @@ def parse_clipboard_file_paths(raw: str) -> list[str]:
 def load_svg_picture(filename: str, size: int = 92) -> Gtk.Image:
     """Load an SVG illustration rendered to a fixed pixel size."""
     path = os.path.join(_ILLUSTRATIONS_DIR, filename)
+    image = Gtk.Image(accessible_role=Gtk.AccessibleRole.PRESENTATION)
     if os.path.exists(path):
-        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, size, size, True)
-        image = Gtk.Image.new_from_pixbuf(pixbuf)
-    else:
-        image = Gtk.Image()
+        image.set_from_pixbuf(GdkPixbuf.Pixbuf.new_from_file_at_scale(path, size, size, True))
     image.set_pixel_size(size)
     image.set_halign(Gtk.Align.CENTER)
     image.set_valign(Gtk.Align.CENTER)
     image.set_hexpand(False)
     image.set_vexpand(False)
-    image.set_accessible_role(Gtk.AccessibleRole.PRESENTATION)
     return image
 
 
@@ -82,6 +83,39 @@ def present_ocr_unavailable_dialog(
     dialog.connect("response", response_callback)
     dialog.present(parent)
     return dialog
+
+
+def launch_file(window: "BigOcrPdfWindow", path: str, *, in_folder: bool = False) -> None:
+    """Open path in its default app, or show it selected in the file manager.
+
+    The launcher passes the compositor an activation token for window, so the
+    opened program is raised instead of appearing behind it.
+    """
+    launcher = Gtk.FileLauncher.new(Gio.File.new_for_path(path))
+
+    def on_done(source: Gtk.FileLauncher, result: Gio.AsyncResult) -> None:
+        try:
+            if in_folder:
+                source.open_containing_folder_finish(result)
+            else:
+                source.launch_finish(result)
+        except GLib.Error as error:
+            if error.matches(Gtk.dialog_error_quark(), Gtk.DialogError.DISMISSED):
+                return
+            logger.warning(f"Could not launch {path}: {error.message}")
+            if in_folder:
+                # Without a FileManager1 service, open the folder itself.
+                launch_file(window, os.path.dirname(path))
+                return
+            message = _("Could not open {name}: {error}").format(
+                name=os.path.basename(path) or path, error=error.message
+            )
+            window.ui.show_toast(message, timeout=6)
+
+    if in_folder:
+        launcher.open_containing_folder(window, None, on_done)
+    else:
+        launcher.launch(window, None, on_done)
 
 
 def load_css() -> bool:

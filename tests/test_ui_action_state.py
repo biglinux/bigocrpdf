@@ -11,6 +11,7 @@ from bigocrpdf.services.screen_capture import ImageOcrOutcome, ImageOcrStatus
 from bigocrpdf.ui.header_bar import HeaderBar
 from bigocrpdf.ui.image_ocr_window import ImageOcrWindow
 from bigocrpdf.ui.settings_reset_controller import SettingsResetController
+from bigocrpdf.ui.terminal_page import TerminalPageManager
 from bigocrpdf.ui.widgets import parse_clipboard_file_paths
 from bigocrpdf.ui.window_ui import BigOcrPdfUI, Gtk
 from bigocrpdf.window_controller import Gdk, WindowController
@@ -663,15 +664,14 @@ def test_left_sidebar_preserves_system_button_layout():
 def test_conclusion_back_icon_is_decorative():
     header = MagicMock()
     toolbar = MagicMock()
-    back_icon = MagicMock()
+    back_box = MagicMock()
     controller = SimpleNamespace(window=SimpleNamespace())
 
     with (
         patch("bigocrpdf.ui.window_ui.Adw.HeaderBar", return_value=header),
         patch("bigocrpdf.ui.window_ui.Adw.ToolbarView", return_value=toolbar),
         patch("bigocrpdf.ui.window_ui.Gtk.Button", return_value=MagicMock()),
-        patch("bigocrpdf.ui.window_ui.Gtk.Box", return_value=MagicMock()),
-        patch("bigocrpdf.ui.window_ui.Gtk.Image.new_from_icon_name", return_value=back_icon),
+        patch("bigocrpdf.ui.window_ui.Gtk.Box", return_value=back_box),
         patch("bigocrpdf.ui.window_ui.Gtk.Label", return_value=MagicMock()),
         patch("bigocrpdf.ui.window_ui.Gtk.MenuButton", return_value=MagicMock()),
         patch("bigocrpdf.ui.window_ui.Gio.Menu", return_value=MagicMock()),
@@ -679,4 +679,20 @@ def test_conclusion_back_icon_is_decorative():
     ):
         BigOcrPdfUI._create_full_width_page_with_header(controller)
 
-    back_icon.set_accessible_role.assert_called_once_with(Gtk.AccessibleRole.PRESENTATION)
+    (back_icon,) = [
+        c.args[0] for c in back_box.append.call_args_list if isinstance(c.args[0], Gtk.Image)
+    ]
+    assert back_icon.get_accessible_role() == Gtk.AccessibleRole.PRESENTATION
+    # The role is per instance: other images must keep theirs.
+    assert Gtk.Image().get_accessible_role() == Gtk.AccessibleRole.IMG
+
+
+def test_processing_status_is_the_only_status_label():
+    manager = TerminalPageManager(MagicMock())
+    with patch.object(manager, "_add_active_settings_summary"):
+        manager.create_terminal_page()
+
+    assert manager.terminal_status_bar is not None
+    assert manager.terminal_status_bar.get_accessible_role() == Gtk.AccessibleRole.STATUS
+    # The role is per instance: every other label stays a label.
+    assert Gtk.Label().get_accessible_role() == Gtk.AccessibleRole.LABEL

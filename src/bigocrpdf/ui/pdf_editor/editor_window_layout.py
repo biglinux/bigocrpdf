@@ -80,17 +80,17 @@ class EditorWindowLayoutMixin:
     def _create_document_actions_group(self) -> Adw.PreferencesGroup:
         doc_group = Adw.PreferencesGroup()
         self._compress_btn = self._document_action_row(
-            "Compress PDF", "document-properties-symbolic", "editor.compress"
+            _("Compress PDF"), "document-properties-symbolic", "editor.compress"
         )
         self._compress_btn.set_tooltip_text(_("Reduce document file size"))
         doc_group.add(self._compress_btn)
         self._split_pages_btn = self._document_action_row(
-            "Split by Page Count", "view-dual-symbolic", "editor.split-pages"
+            _("Split by Page Count"), "view-dual-symbolic", "editor.split-pages"
         )
         self._split_pages_btn.set_tooltip_text(_("Split document by number of pages"))
         doc_group.add(self._split_pages_btn)
         self._split_size_btn = self._document_action_row(
-            "Split by Size", "view-dual-symbolic", "editor.split-size"
+            _("Split by Size"), "view-dual-symbolic", "editor.split-size"
         )
         self._split_size_btn.set_tooltip_text(_("Split document by target file size"))
         doc_group.add(self._split_size_btn)
@@ -98,7 +98,7 @@ class EditorWindowLayoutMixin:
         return doc_group
 
     def _document_action_row(self, title: str, icon_name: str, action_name: str) -> Adw.ActionRow:
-        row = Adw.ActionRow(title=_(title))
+        row = Adw.ActionRow(title=title)
         row.add_prefix(Gtk.Image.new_from_icon_name(icon_name))
         row.set_activatable(True)
         row.set_action_name(action_name)
@@ -133,25 +133,25 @@ class EditorWindowLayoutMixin:
     def _create_page_actions_group(self) -> Adw.PreferencesGroup:
         page_group = Adw.PreferencesGroup()
         self._select_all_btn = self._page_action_row(
-            "Select All", "object-select-symbolic", lambda _r: self._on_select_all(None)
+            _("Select All"), "object-select-symbolic", lambda _r: self._on_select_all(None)
         )
         self._select_all_btn.set_tooltip_text(_("Select all pages in the document") + " (Ctrl+A)")
         page_group.add(self._select_all_btn)
         self._deselect_all_btn = self._page_action_row(
-            "Deselect All", "edit-clear-all-symbolic", lambda _r: self._on_deselect_all(None)
+            _("Deselect All"), "edit-clear-all-symbolic", lambda _r: self._on_deselect_all(None)
         )
         self._deselect_all_btn.set_tooltip_text(_("Clear page selection"))
         page_group.add(self._deselect_all_btn)
         self._add_rotate_flip_row(page_group)
         self._reverse_btn = self._document_action_row(
-            "Reverse Order", "view-sort-ascending-symbolic", "editor.reverse"
+            _("Reverse Order"), "view-sort-ascending-symbolic", "editor.reverse"
         )
         self._reverse_btn.set_tooltip_text(_("Reverse the order of all pages"))
         page_group.add(self._reverse_btn)
         return page_group
 
     def _page_action_row(self, title: str, icon_name: str, callback) -> Adw.ActionRow:
-        row = Adw.ActionRow(title=_(title))
+        row = Adw.ActionRow(title=title)
         row.add_prefix(Gtk.Image.new_from_icon_name(icon_name))
         row.set_activatable(True)
         row.connect("activated", callback)
@@ -279,10 +279,13 @@ class EditorWindowLayoutMixin:
         return content_overlay
 
     def _create_notification_box(self) -> Gtk.Box:
-        self._notification_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        self._notification_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL,
+            spacing=8,
+            accessible_role=Gtk.AccessibleRole.STATUS,
+        )
         self._notification_box.add_css_class("editor-notification")
         self._notification_box.set_margin_top(8)
-        self._notification_box.set_accessible_role(Gtk.AccessibleRole.STATUS)
         self._notification_icon = Gtk.Image()
         self._notification_icon.set_icon_size(Gtk.IconSize.NORMAL)
         self._notification_box.append(self._notification_icon)

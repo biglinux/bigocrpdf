@@ -27,9 +27,10 @@ _OUTPUT_SETTINGS = [
             "Controls the compression applied to images inside the PDF. "
             "Lower quality means smaller files but some detail is lost. "
             "'Keep Original' preserves images exactly as they are.\n\n"
-            "The last option, 'Black & White (JBIG2)', converts all pages "
-            "to pure black and white using JBIG2 — the most compact format "
-            "available. Ideal for text-only documents, but all color is lost."
+            "The last option, 'Black & White', converts all pages to pure "
+            "black and white, compressed with JBIG2 when jbig2enc is installed "
+            "and with CCITT G4 otherwise. It gives the smallest files for "
+            "text-only documents, but all color is lost."
         ),
     },
     {

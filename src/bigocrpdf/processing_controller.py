@@ -14,7 +14,7 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, GLib, Gtk
+from gi.repository import Adw, GLib, Gtk, Pango
 
 from bigocrpdf.services.export_service import save_odf_file, save_text_file
 from bigocrpdf.services.processor import OcrProcessor
@@ -40,7 +40,7 @@ class _BatchCompletionState(Enum):
 class _BatchCompletionAction(Enum):
     SHOW_RESULTS = "show-results"
     REVIEW_PARTIAL = "review-partial"
-    RETRY_FAILED = "retry-failed"
+    RETURN_TO_QUEUE = "return-to-queue"
 
 
 @dataclass(frozen=True)
@@ -75,12 +75,11 @@ def _build_batch_completion(total_files: int, successful_files: int) -> _BatchCo
             failed_files=0,
         )
 
-    message = _("Saved {ok}; {n} failed").format(ok=successful_files, n=failed_files)
     if successful_files:
         return _BatchCompletion(
             state=_BatchCompletionState.PARTIAL,
-            title=_("Results"),
-            message=message,
+            title=_("Some files were not processed"),
+            message=_("Saved {ok}; {n} failed").format(ok=successful_files, n=failed_files),
             action=_BatchCompletionAction.REVIEW_PARTIAL,
             successful_files=successful_files,
             failed_files=failed_files,
@@ -89,11 +88,46 @@ def _build_batch_completion(total_files: int, successful_files: int) -> _BatchCo
     return _BatchCompletion(
         state=_BatchCompletionState.FAILURE,
         title=_("OCR processing failed."),
-        message=message,
-        action=_BatchCompletionAction.RETRY_FAILED,
+        message=ngettext(
+            "{count} file could not be processed.",
+            "{count} files could not be processed.",
+            failed_files,
+        ).format(count=failed_files),
+        action=_BatchCompletionAction.RETURN_TO_QUEUE,
         successful_files=0,
         failed_files=failed_files,
     )
+
+
+def _failure_details(details: str) -> Gtk.Widget:
+    """Show failure causes as selectable text with a button that copies them."""
+    label = Gtk.Label(
+        label=details,
+        selectable=True,
+        wrap=True,
+        wrap_mode=Pango.WrapMode.WORD_CHAR,
+        xalign=0,
+    )
+    # A focused selectable label selects all its text, and the dialog passes
+    # focus through it on the way to its default button; the button copies.
+    label.set_focusable(False)
+    scrolled = Gtk.ScrolledWindow(
+        child=label,
+        hscrollbar_policy=Gtk.PolicyType.NEVER,
+        propagate_natural_height=True,
+        max_content_height=240,
+    )
+    copy_button = Gtk.Button(label=_("Copy Details"), halign=Gtk.Align.CENTER)
+
+    def copy(button: Gtk.Button) -> None:
+        button.get_clipboard().set(details)
+        button.set_label(_("Copied to clipboard"))
+
+    copy_button.connect("clicked", copy)
+    box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+    box.append(scrolled)
+    box.append(copy_button)
+    return box
 
 
 def _estimate_output_bytes(selected_files: list[str]) -> int:
@@ -409,8 +443,16 @@ class ProcessingController:
             if outcome.action is _BatchCompletionAction.SHOW_RESULTS:
                 self.ui.show_toast(outcome.message)
                 self._schedule_conclusion_page()
+                return GLib.SOURCE_REMOVE
+
+            # The dialog opens over the page its outcome leads to, never over
+            # the finished progress view.
+            failures = self.ocr_processor.get_failures()
+            if outcome.action is _BatchCompletionAction.REVIEW_PARTIAL:
+                self.nav_manager.navigate_to_conclusion()
             else:
-                self._present_batch_completion(outcome)
+                self.reset_to_settings()
+            self._present_batch_completion(outcome, failures)
 
             return GLib.SOURCE_REMOVE
 
@@ -436,28 +478,24 @@ class ProcessingController:
             safe_remove_source(self.conclusion_timer_id)
             self.conclusion_timer_id = None
 
-    def _present_batch_completion(self, outcome: _BatchCompletion) -> None:
-        """Present partial or failed outcomes with an honest next action."""
+    def _present_batch_completion(
+        self, outcome: _BatchCompletion, failures: list[tuple[str, str]]
+    ) -> None:
+        """Explain a partial or failed batch, naming each failed file and its cause."""
         dialog = Adw.AlertDialog(heading=outcome.title, body=outcome.message)
-        dialog.add_response("back", _("Back"))
-        dialog.set_close_response("back")
-
         if outcome.action is _BatchCompletionAction.REVIEW_PARTIAL:
-            dialog.add_response("results", _("Results"))
-            dialog.set_response_appearance("results", Adw.ResponseAppearance.SUGGESTED)
-            dialog.set_default_response("results")
-        else:
-            dialog.set_default_response("back")
-
-        dialog.connect("response", self._on_batch_completion_response)
+            # The failed files are still queued; the results page's Back clears them.
+            dialog.add_response("queue", _("Back to Queue"))
+            dialog.connect("response::queue", lambda *_args: self.reset_to_settings())
+        dialog.add_response("close", _("Close"))
+        dialog.set_default_response("close")
+        dialog.set_close_response("close")
+        if failures:
+            details = "\n".join(
+                _("{file}: {reason}").format(file=name, reason=reason) for name, reason in failures
+            )
+            dialog.set_extra_child(_failure_details(details))
         dialog.present(cast(Gtk.Widget, self.parent))
-
-    def _on_batch_completion_response(self, _dialog: Adw.AlertDialog, response: str) -> None:
-        """Follow the action selected for a partial or failed batch."""
-        if response == "results":
-            self._schedule_conclusion_page()
-        else:
-            self.reset_to_settings()
 
     def cancel(self) -> None:
         """Handle cancel button click during OCR processing."""

@@ -76,7 +76,8 @@ class ImageOcrApp(Adw.Application):
         self.add_action(quit_action)
 
         self.set_accels_for_action("app.quit", [SHORTCUTS.get("quit", "<Control>q")])
-        self.set_accels_for_action("app.about", [SHORTCUTS.get("about", "F1")])
+        # The image window has no help or menu; F1 is its only way to About.
+        self.set_accels_for_action("app.about", ["F1"])
         self.set_accels_for_action(
             "win.paste-clipboard",
             [SHORTCUTS.get("paste-clipboard", "<Control>v")],

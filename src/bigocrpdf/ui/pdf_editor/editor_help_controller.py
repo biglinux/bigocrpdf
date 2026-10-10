@@ -49,6 +49,8 @@ class EditorHelpController:
         dialog.set_child(content)
         dialog.set_follows_content_size(True)
         dialog.present(self._owner)
+        # The first focusable widget is the startup switch, which Space would turn off.
+        dialog.set_focus(dialog.get_default_widget())
 
     def _build_editor_help_content(self, dialog: Adw.Dialog) -> Gtk.Box:
         content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
@@ -66,11 +68,10 @@ class EditorHelpController:
     def _append_help_header(content: Gtk.Box) -> None:
         from bigocrpdf.config import APP_ICON_NAME
 
-        icon = Gtk.Image.new_from_icon_name(APP_ICON_NAME)
+        icon = Gtk.Image(icon_name=APP_ICON_NAME, accessible_role=Gtk.AccessibleRole.PRESENTATION)
         icon.set_pixel_size(48)
         icon.set_margin_bottom(12)
         icon.set_halign(Gtk.Align.CENTER)
-        icon.set_accessible_role(Gtk.AccessibleRole.PRESENTATION)
         content.append(icon)
         title = Gtk.Label(label=_("PDF Editor"))
         title.add_css_class("title-2")
@@ -101,7 +102,7 @@ class EditorHelpController:
             ("Ctrl+Z", _("Undo last action")),
             ("Ctrl+A", _("Select all pages")),
             ("Ctrl+S", _("Save and close")),
-            ("Delete", _("Remove selected pages")),
+            ("Delete", _("Remove or restore selected pages")),
             ("Ctrl+L / Ctrl+R", _("Rotate left / right")),
             ("+  /  -", _("Zoom in / out")),
         ]
@@ -156,6 +157,7 @@ class EditorHelpController:
         close_btn.set_halign(Gtk.Align.CENTER)
         set_a11y_label(close_btn, _("Got it"))
         close_btn.connect("clicked", lambda _: dialog.close())
+        dialog.set_default_widget(close_btn)
         bottom.append(close_btn)
         content.append(bottom)
 

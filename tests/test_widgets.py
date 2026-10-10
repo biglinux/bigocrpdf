@@ -6,16 +6,12 @@ from bigocrpdf.ui import widgets
 
 
 def test_svg_illustration_is_accessibility_presentation() -> None:
-    image = MagicMock()
+    with patch.object(widgets.os.path, "exists", return_value=False):
+        image = widgets.load_svg_picture("missing.svg")
 
-    with (
-        patch.object(widgets.os.path, "exists", return_value=False),
-        patch.object(widgets.Gtk, "Image", return_value=image),
-    ):
-        result = widgets.load_svg_picture("missing.svg")
-
-    assert result is image
-    image.set_accessible_role.assert_called_once_with(widgets.Gtk.AccessibleRole.PRESENTATION)
+    assert image.get_accessible_role() == widgets.Gtk.AccessibleRole.PRESENTATION
+    # The role is per instance: other images must keep theirs.
+    assert widgets.Gtk.Image().get_accessible_role() == widgets.Gtk.AccessibleRole.IMG
 
 
 def test_css_is_registered_only_once() -> None:

@@ -107,7 +107,7 @@ class PageGrid(Gtk.ScrolledWindow):
         self._overlay.set_child(self._main_box)
 
         # FlowBox for page thumbnails
-        self._flowbox = Gtk.FlowBox()
+        self._flowbox = Gtk.FlowBox(accessible_role=Gtk.AccessibleRole.LIST)
         self._flowbox.set_selection_mode(Gtk.SelectionMode.NONE)  # Manual selection
         self._flowbox.set_homogeneous(False)
 
@@ -118,13 +118,12 @@ class PageGrid(Gtk.ScrolledWindow):
         self._flowbox.set_valign(Gtk.Align.START)
         self._flowbox.set_halign(Gtk.Align.FILL)
         self._flowbox.add_css_class("page-flowbox")
-        self._flowbox.set_accessible_role(Gtk.AccessibleRole.LIST)
         self._flowbox.update_property(
             [Gtk.AccessibleProperty.LABEL],
             [
                 _(
                     "Page thumbnails. Ctrl+A select all, Ctrl+Up/Down reorder, "
-                    "Delete toggle page, Ctrl+L/R rotate, Ctrl+Z undo"
+                    "Delete remove or restore selected pages, Ctrl+L/R rotate, Ctrl+Z undo"
                 )
             ],
         )

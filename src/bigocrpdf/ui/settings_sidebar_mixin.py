@@ -13,7 +13,7 @@ gi.require_version("Adw", "1")
 from gi.repository import Adw, Gtk
 
 from bigocrpdf.utils.a11y import set_a11y_label
-from bigocrpdf.utils.i18n import _
+from bigocrpdf.utils.i18n import _, ngettext
 from bigocrpdf.utils.logger import logger
 
 
@@ -88,13 +88,16 @@ class SettingsSidebarMixin:
         return row
 
     def _create_preprocessing_widgets(self) -> None:
-        """Create image preprocessing switch widgets (not added to any parent)."""
-        self.deskew_switch = Adw.SwitchRow(title=_("Deskew"))
-        self.dewarp_switch = Adw.SwitchRow(title=_("Dewarp"))
-        self.perspective_switch = Adw.SwitchRow(title=_("Perspective Correction"))
-        self.orientation_switch = Adw.SwitchRow(title=_("Auto-rotate"))
-        self.scanner_switch = Adw.SwitchRow(title=_("Scanner Effect"))
-        self.enhance_embedded_switch = Adw.SwitchRow(title=_("Enhance Embedded Images"))
+        """Create image preprocessing switch widgets (not added to any parent).
+
+        They only hold state; the corrections dialog names and shows each one.
+        """
+        self.deskew_switch = Adw.SwitchRow()
+        self.dewarp_switch = Adw.SwitchRow()
+        self.perspective_switch = Adw.SwitchRow()
+        self.orientation_switch = Adw.SwitchRow()
+        self.scanner_switch = Adw.SwitchRow()
+        self.enhance_embedded_switch = Adw.SwitchRow()
 
         self._correction_switches: dict[str, Adw.SwitchRow] = {
             "deskew": self.deskew_switch,
@@ -136,13 +139,8 @@ class SettingsSidebarMixin:
         model = self.image_quality_combo.get_model()
         if model and idx < model.get_n_items():
             parts.append(model.get_string(idx))
-        active = sum(
-            1
-            for key in ("pdfa",)
-            if self._output_widgets.get(key) and self._output_widgets[key].get_active()
-        )
-        if active:
-            parts.append(_("{n} options enabled").format(n=active))
+        if self.pdfa_switch_row.get_active():
+            parts.append("PDF/A")
         self._out_row.set_subtitle(", ".join(parts))
 
     def _create_output_widgets(self) -> None:
@@ -160,7 +158,7 @@ class SettingsSidebarMixin:
                 _("Medium (70%)"),
                 _("High (85%)"),
                 _("Maximum (95%)"),
-                _("Black & White (JBIG2)"),
+                _("Black & White"),
             ]
         )
         self.image_quality_combo.set_model(quality_model)
@@ -234,7 +232,9 @@ class SettingsSidebarMixin:
             and self._advanced_widgets[k].get_active()
         )
         if active:
-            parts.append(_("{n} options enabled").format(n=active))
+            parts.append(
+                ngettext("{n} option enabled", "{n} options enabled", active).format(n=active)
+            )
         self._adv_row.set_subtitle(", ".join(parts) if parts else "")
 
     def _create_advanced_widgets(self) -> None:
@@ -444,7 +444,7 @@ class SettingsSidebarMixin:
             logger.info("Image quality changed to: Keep Original")
         elif selected == 6:
             self.window.settings.force_bilevel_compression = True
-            logger.info("Image quality changed to: Black & White (JBIG2)")
+            logger.info("Image quality changed to: Black & White")
         else:
             presets = [30, 50, 70, 85, 95]
             quality = presets[selected - 1] if (selected - 1) < len(presets) else 85

@@ -28,3 +28,20 @@ def test_pdf_page_export_delegates_to_atomic_pdf_operation() -> None:
         "/output/page.pdf",
         [3],
     )
+
+
+def test_page_image_render_stays_within_megapixel_budget(tmp_path) -> None:
+    import pikepdf
+
+    # 40 x 40 inches: 144 megapixels at 300 DPI.
+    source = tmp_path / "poster.pdf"
+    with pikepdf.new() as pdf:
+        pdf.add_blank_page(page_size=(2880, 2880))
+        pdf.save(source)
+
+    with patch("subprocess.run") as run:
+        PageThumbnailExporter._render_page_image(str(source), 1, str(tmp_path))
+
+    argv = run.call_args.args[0]
+    dpi = int(argv[argv.index("-r") + 1])
+    assert (40 * dpi) ** 2 <= 45_000_000

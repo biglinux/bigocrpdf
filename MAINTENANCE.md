@@ -159,12 +159,18 @@ virtualization. Keep the current structure when it meets the measured budget.
 
 `locale/bigocrpdf.pot` and `locale/*.po` are the gettext text sources. Compiled
 MO files are build artifacts produced by `tools/stage-data.sh` and are not
-versioned.
+versioned. A source run therefore finds no catalog in the checkout and uses the
+installed one; to check a catalog change, stage it and point the application at
+the result:
 
-Translations embedded in `.desktop`, `.desktop.in`, and Nemo metadata remain in
-those files. They are not extracted to or generated from PO catalogs. Staging
-copies this content unchanged, then renames KIO `.desktop.in` files in the
-destination only.
+```bash
+bash tools/stage-data.sh "$TMPDIR/stage"
+BIGOCRPDF_LOCALE_DIR="$TMPDIR/stage/usr/share/locale" LANGUAGE=pt_BR PYTHONPATH=src python3 -m bigocrpdf
+```
+
+Translations embedded in `.desktop` files (applications and KIO service menus)
+and Nemo actions remain in those files. They are not extracted to or generated
+from PO catalogs, and staging copies them unchanged.
 
 Every PO must validate without fuzzy, obsolete, or untranslated entries. Preserve
 placeholders, plural forms, Pango/XML markup, and accelerators.

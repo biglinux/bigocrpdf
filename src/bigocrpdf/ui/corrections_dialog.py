@@ -76,6 +76,9 @@ _CORRECTIONS = [
     },
 ]
 
+# The processing summary names each correction with the title the dialog shows.
+CORRECTION_TITLES = {correction["key"]: correction["title"] for correction in _CORRECTIONS}
+
 
 def show_image_corrections_dialog(
     parent: Gtk.Widget,

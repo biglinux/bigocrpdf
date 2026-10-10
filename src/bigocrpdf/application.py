@@ -122,7 +122,8 @@ class BigOcrPdfApp(Adw.Application):
     def _setup_keyboard_shortcuts(self) -> None:
         """Set up application-level keyboard shortcuts."""
         self.set_accels_for_action("app.quit", [SHORTCUTS.get("quit", "<Control>q")])
-        self.set_accels_for_action("app.about", [SHORTCUTS.get("about", "F1")])
+        self.set_accels_for_action("win.help", [SHORTCUTS.get("help", "F1")])
+        self.set_accels_for_action("editor.help", [SHORTCUTS.get("help", "F1")])
         self.set_accels_for_action("app.shortcuts", ["<Control>question"])
         self.set_accels_for_action("win.add-files", [SHORTCUTS.get("add-files", "<Control>o")])
         self.set_accels_for_action(
@@ -416,7 +417,10 @@ class BigOcrPdfApp(Adw.Application):
 
         dialog = Adw.AlertDialog(
             heading=_("Unsupported file format"),
-            body=_("Unsupported file type: {0}").format("\n".join(paths)),
+            body=_(
+                "{files}\n\nBig OCR PDF opens PDF documents and PNG, JPEG, WebP, BMP, TIFF "
+                "and AVIF images."
+            ).format(files="\n".join(paths)),
         )
         dialog.add_response("close", _("Close"))
         dialog.set_default_response("close")
@@ -523,7 +527,7 @@ class BigOcrPdfApp(Adw.Application):
                 _("General"),
                 (
                     (_("Keyboard shortcuts"), "<Control>question"),
-                    (_("About"), SHORTCUTS.get("about", "F1")),
+                    (_("Help"), SHORTCUTS.get("help", "F1")),
                 ),
             ),
         )

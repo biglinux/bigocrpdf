@@ -41,8 +41,8 @@ from bigocrpdf.processing_controller import (
             3,
             0,
             _BatchCompletionState.FAILURE,
-            _BatchCompletionAction.RETRY_FAILED,
-            "Saved 0; 3 failed",
+            _BatchCompletionAction.RETURN_TO_QUEUE,
+            "3 files could not be processed.",
         ),
     ),
 )
@@ -231,7 +231,10 @@ def _completion_window(total: int, successful: int):
         ocr_processor=SimpleNamespace(
             get_total_count=MagicMock(return_value=total),
             get_successful_input_count=MagicMock(return_value=successful),
+            get_failures=MagicMock(return_value=[("scan.pdf", "damaged")]),
         ),
+        nav_manager=SimpleNamespace(navigate_to_conclusion=MagicMock()),
+        reset_to_settings=MagicMock(),
         ui=ui,
         settings=settings,
         conclusion_timer_id=None,
@@ -321,8 +324,12 @@ def test_processing_completion_routes_each_truthful_state(successful, expected_s
         window._present_batch_completion.assert_not_called()
     else:
         window.ui.show_toast.assert_not_called()
-        outcome = window._present_batch_completion.call_args.args[0]
+        outcome, failures = window._present_batch_completion.call_args.args
         assert outcome.state is expected_state
+        assert failures == [("scan.pdf", "damaged")]
+        # The page behind the dialog is where its outcome leads.
+        assert window.nav_manager.navigate_to_conclusion.called is bool(successful)
+        assert window.reset_to_settings.called is not bool(successful)
 
     terminal_page = window.ui.terminal_page_manager
     terminal_page.show_completion_ui.assert_not_called()
@@ -335,48 +342,35 @@ def test_processing_completion_routes_each_truthful_state(successful, expected_s
         window.ui.conclusion_page_manager.update_conclusion_page.assert_not_called()
 
 
-@pytest.mark.parametrize(
-    ("successful", "responses", "default_response"),
-    (
-        (1, [call("back", "Back"), call("results", "Results")], "results"),
-        (0, [call("back", "Back")], "back"),
-    ),
-)
-def test_non_success_dialog_has_coherent_title_message_and_actions(
-    successful, responses, default_response
-):
+@pytest.mark.parametrize("successful", (1, 0))
+def test_non_success_dialog_names_each_failed_file_and_cause(successful):
     dialog = MagicMock()
     parent = MagicMock()
-    controller = SimpleNamespace(
-        parent=parent,
-        _on_batch_completion_response=MagicMock(),
-    )
+    controller = SimpleNamespace(parent=parent, reset_to_settings=MagicMock())
+    failures = [("scan.pdf", "unable to find trailer dictionary"), ("b.pdf", "No page")]
     with (
         patch("bigocrpdf.processing_controller._", side_effect=lambda text: text),
         patch("bigocrpdf.processing_controller.Adw.AlertDialog", return_value=dialog) as alert,
     ):
         outcome = _build_batch_completion(3, successful)
-        ProcessingController._present_batch_completion(controller, outcome)
+        ProcessingController._present_batch_completion(controller, outcome, failures)
 
     alert.assert_called_once_with(heading=outcome.title, body=outcome.message)
-    assert dialog.add_response.call_args_list == responses
-    dialog.set_default_response.assert_called_once_with(default_response)
-    dialog.set_close_response.assert_called_once_with("back")
-    dialog.connect.assert_called_once_with("response", controller._on_batch_completion_response)
+    # A partial run opens over its results; returning to the queue keeps the
+    # failed files there to retry.
+    expected = [call("close", "Close")]
+    if successful:
+        expected.insert(0, call("queue", "Back to Queue"))
+        dialog.connect.call_args.args[1]()
+        controller.reset_to_settings.assert_called_once_with()
+    assert dialog.add_response.call_args_list == expected
+    dialog.set_default_response.assert_called_once_with("close")
+    dialog.set_close_response.assert_called_once_with("close")
+    details = dialog.set_extra_child.call_args.args[0]
+    label = details.get_first_child().get_child().get_child()
+    assert label.get_label() == "scan.pdf: unable to find trailer dictionary\nb.pdf: No page"
+    assert label.get_selectable()
     dialog.present.assert_called_once_with(parent)
-
-
-@pytest.mark.parametrize(("response", "schedules_results"), (("results", True), ("back", False)))
-def test_batch_completion_response_matches_visible_action(response, schedules_results):
-    controller = SimpleNamespace(
-        _schedule_conclusion_page=MagicMock(),
-        reset_to_settings=MagicMock(),
-    )
-
-    ProcessingController._on_batch_completion_response(controller, MagicMock(), response)
-
-    assert controller._schedule_conclusion_page.called is schedules_results
-    assert controller.reset_to_settings.called is not schedules_results
 
 
 def test_result_postprocessing_finishes_before_gtk_publication():

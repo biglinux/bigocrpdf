@@ -6,9 +6,9 @@ from __future__ import annotations
 
 import glob
 import os
-import shutil
 import subprocess
 import tempfile
+import threading
 from collections import Counter
 from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
@@ -22,8 +22,9 @@ gi.require_version("Adw", "1")
 gi.require_version("Gdk", "4.0")
 from gi.repository import Adw, Gdk, Gio, GLib, GObject, Gtk, Pango
 
-from bigocrpdf.ui.widgets import get_default_clipboard
+from bigocrpdf.ui.widgets import get_default_clipboard, launch_file
 from bigocrpdf.utils.a11y import set_a11y_label
+from bigocrpdf.utils.durable_writes import copy_file_atomically
 from bigocrpdf.utils.i18n import _, ngettext
 from bigocrpdf.utils.logger import logger
 
@@ -36,6 +37,7 @@ def _run_pdf_info_command(command: list[str], timeout: int) -> str:
             command,
             capture_output=True,
             text=True,
+            encoding="utf-8",
             check=False,
             timeout=timeout,
             env=environment,
@@ -136,6 +138,11 @@ def _read_pdf_metadata(
         embedded_count,
         attached_files,
     )
+
+
+def _is_unreadable_pdf(file_path: str, pages: int) -> bool:
+    """Whether pdfinfo could not count the pages of a queued PDF (damaged or locked)."""
+    return pages <= 0 and file_path.lower().endswith(".pdf")
 
 
 class SettingsQueueMixin:
@@ -533,6 +540,9 @@ class SettingsQueueMixin:
         if box.get_parent() is None or file_path not in self.window.settings.selected_files:
             return
         parts = self._format_queue_metadata(pages, size_mb)
+        if _is_unreadable_pdf(file_path, pages):
+            parts.insert(0, _("Cannot read this PDF"))
+            label.add_css_class("warning")
         label.set_label(" · ".join(parts))
         label.set_visible(bool(parts))
 
@@ -653,6 +663,10 @@ class SettingsQueueMixin:
                 ngettext("{count} page", "{count} pages", pages).format(count=pages)
             )
             page_label.set_visible(True)
+        elif _is_unreadable_pdf(file_path, pages):
+            page_label.set_label(_("Cannot read this PDF"))
+            page_label.add_css_class("warning")
+            page_label.set_visible(True)
 
     def _on_list_row_activated(self, _listbox: Gtk.ListBox, row) -> None:
         """Handle list row activation (Enter key) — open file editor."""
@@ -744,33 +758,11 @@ class SettingsQueueMixin:
 
     def _on_open_file(self, file_path: str) -> None:
         """Open file with the default application."""
-        from bigocrpdf.utils.pdf_utils import open_file_with_default_app
-
-        if not open_file_with_default_app(file_path):
-            self.window.ui.show_toast(_("Failed to open file"))
+        launch_file(self.window, file_path)
 
     def _reveal_in_file_manager(self, file_path: str) -> None:
         """Open the system file manager with the given file selected."""
-        file_uri = Gio.File.new_for_path(file_path).get_uri()
-        try:
-            subprocess.Popen(
-                [
-                    "dbus-send",
-                    "--session",
-                    "--dest=org.freedesktop.FileManager1",
-                    "--type=method_call",
-                    "/org/freedesktop/FileManager1",
-                    "org.freedesktop.FileManager1.ShowItems",
-                    f"array:string:{file_uri}",
-                    "string:",
-                ],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        except FileNotFoundError:
-            from bigocrpdf.utils.pdf_utils import open_file_with_default_app
-
-            open_file_with_default_app(os.path.dirname(file_path))
+        launch_file(self.window, file_path, in_folder=True)
 
     def _show_file_info(self, file_path: str) -> None:
         """Show a dialog with detailed file metadata."""
@@ -868,9 +860,16 @@ class SettingsQueueMixin:
     @staticmethod
     def _append_document_info(all_info: list[tuple[str, str, str]], info: dict[str, str]) -> None:
         group_doc = _("Document")
-        for key in ("Pages", "Page size", "PDF version", "Encrypted", "Optimized", "Tagged"):
+        for key, label in (
+            ("Pages", _("Pages")),
+            ("Page size", _("Page size")),
+            ("PDF version", _("PDF version")),
+            ("Encrypted", _("Encrypted")),
+            ("Optimized", _("Optimized")),
+            ("Tagged", _("Tagged")),
+        ):
             if key in info:
-                all_info.append((group_doc, _(key), info[key]))
+                all_info.append((group_doc, label, info[key]))
         if "Form" in info:
             all_info.append((group_doc, _("Form"), info["Form"]))
         if "JavaScript" in info:
@@ -905,9 +904,16 @@ class SettingsQueueMixin:
     @staticmethod
     def _append_metadata_info(all_info: list[tuple[str, str, str]], info: dict[str, str]) -> None:
         group_meta = _("Metadata")
-        for key in ("Title", "Subject", "Author", "Creator", "Producer", "Keywords"):
+        for key, label in (
+            ("Title", _("Title")),
+            ("Subject", _("Subject")),
+            ("Author", _("Author")),
+            ("Creator", _("Creator")),
+            ("Producer", _("Producer")),
+            ("Keywords", _("Keywords")),
+        ):
             if key in info:
-                all_info.append((group_meta, _(key), info[key]))
+                all_info.append((group_meta, label, info[key]))
         if "CreationDate" in info:
             all_info.append((group_meta, _("Created"), info["CreationDate"]))
         if "ModDate" in info:
@@ -1058,7 +1064,20 @@ class SettingsQueueMixin:
         file_dialog.save(self.window, None, _on_save)
 
     def _do_extract_image(self, pdf_path: str, img_info: dict, save_path: str) -> None:
-        """Extract image using pdfimages and save to destination."""
+        """Extract the image off the main loop and report the outcome."""
+
+        def work() -> None:
+            ok = self._publish_extracted_image(pdf_path, img_info, save_path)
+            GLib.idle_add(
+                self.window.ui.show_toast,
+                _("Image extracted") if ok else _("Failed to extract image"),
+            )
+
+        threading.Thread(target=work, daemon=True).start()
+
+    @staticmethod
+    def _publish_extracted_image(pdf_path: str, img_info: dict, save_path: str) -> bool:
+        """Extract one image with pdfimages and publish it at save_path."""
         page = str(img_info["page"])
         idx = img_info["in_page_idx"]
 
@@ -1073,21 +1092,17 @@ class SettingsQueueMixin:
                 )
             except (OSError, subprocess.SubprocessError) as error:
                 logger.error("pdfimages extraction failed: %s", error)
-                self.window.ui.show_toast(_("Failed to extract image"))
-                return
+                return False
 
             files = sorted(glob.glob(f"{prefix}-*"))
-            if 0 <= idx < len(files):
-                try:
-                    shutil.copy2(files[idx], save_path)
-                except OSError as error:
-                    logger.error("Could not save extracted image: %s", error)
-                    self.window.ui.show_toast(_("Failed to extract image"))
-                    return
-                self.window.ui.show_toast(_("Image extracted"))
-                return
-
-            self.window.ui.show_toast(_("Failed to extract image"))
+            if not 0 <= idx < len(files):
+                return False
+            try:
+                copy_file_atomically(files[idx], save_path, overwrite=True)
+            except (OSError, ValueError) as error:
+                logger.error("Could not save extracted image: %s", error)
+                return False
+            return True
 
     def _on_edit_file(self, file_path: str) -> None:
         """Open the PDF editor for the file."""

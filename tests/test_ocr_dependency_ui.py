@@ -124,7 +124,8 @@ def test_pdf_application_registers_expected_shortcuts() -> None:
 
     assert app.set_accels_for_action.call_args_list == [
         call("app.quit", [config.SHORTCUTS.get("quit", "<Control>q")]),
-        call("app.about", [config.SHORTCUTS.get("about", "F1")]),
+        call("win.help", ["F1"]),
+        call("editor.help", ["F1"]),
         call("app.shortcuts", ["<Control>question"]),
         call("win.add-files", [config.SHORTCUTS.get("add-files", "<Control>o")]),
         call(
@@ -467,7 +468,7 @@ def test_image_application_uses_window_scoped_clipboard_shortcuts() -> None:
     assert actions == ["about", "quit"]
     assert app.set_accels_for_action.call_args_list == [
         call("app.quit", [config.SHORTCUTS.get("quit", "<Control>q")]),
-        call("app.about", [config.SHORTCUTS.get("about", "F1")]),
+        call("app.about", ["F1"]),
         call(
             "win.paste-clipboard",
             [config.SHORTCUTS.get("paste-clipboard", "<Control>v")],

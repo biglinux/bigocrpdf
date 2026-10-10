@@ -3,34 +3,17 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 
-# Define dummy classes for Gtk/Adw to avoid inheritance issues
+# Stands in for Adw.Window so PDFEditorWindow can subclass it without GTK.
+# Public widget calls the tests do not observe are no-ops; private names stay
+# strict so an attribute the window forgot to set still raises.
 class DummyWindow:
     def __init__(self, **kwargs):
         pass
 
-    def set_content(self, *args):
-        pass
-
-    def set_default_size(self, *args):
-        pass
-
-    def set_title(self, *args):
-        pass
-
-    def set_modal(self, *args):
-        pass
-
-    def connect(self, *args):
-        pass
-
-    def add_controller(self, *args):
-        pass
-
-    def insert_action_group(self, *args):
-        pass
-
-    def close(self):
-        pass
+    def __getattr__(self, name):
+        if name.startswith("_"):
+            raise AttributeError(name)
+        return lambda *args, **kwargs: None
 
 
 # Save originals and mock Gtk/Adw before importing modules

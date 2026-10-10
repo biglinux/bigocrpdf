@@ -15,9 +15,10 @@ def _cmd_edit(args: argparse.Namespace, logger: logging.Logger) -> int:
 
     from gi.repository import Adw
 
+    from bigocrpdf.config import EDITOR_APP_ID
     from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
 
-    app = Adw.Application(application_id="com.biglinux.bigocrpdf.editor")
+    app = Adw.Application(application_id=EDITOR_APP_ID)
 
     def on_activate(_app):
         win = PDFEditorWindow(

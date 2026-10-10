@@ -61,11 +61,10 @@ class WelcomeDialogController:
         content_box.set_margin_start(36)
         content_box.set_margin_end(36)
 
-        icon = Gtk.Image.new_from_icon_name(APP_ICON_NAME)
+        icon = Gtk.Image(icon_name=APP_ICON_NAME, accessible_role=Gtk.AccessibleRole.PRESENTATION)
         icon.set_pixel_size(64)
         icon.set_margin_bottom(16)
         icon.set_halign(Gtk.Align.CENTER)
-        icon.set_accessible_role(Gtk.AccessibleRole.PRESENTATION)
         content_box.append(icon)
 
         what_is_title = _("What is Big OCR PDF?")
@@ -168,4 +167,7 @@ class WelcomeDialogController:
             lambda switch, _param: self.set_show(switch.get_active()),
         )
         start_button.connect("clicked", lambda _: dialog.close())
+        dialog.set_default_widget(start_button)
         dialog.present(self._parent)
+        # The first focusable widget is the startup switch, which Space would turn off.
+        dialog.set_focus(start_button)

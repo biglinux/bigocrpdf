@@ -409,3 +409,4 @@ def test_terminal_failure_counts_completed_but_not_successful_input(
     assert processor.get_completed_input_count() == 1
     assert processor.get_successful_input_count() == 0
     checkpoint.mark_file_failed.assert_called_once()
+    assert processor.get_failures() == [(Path(__file__).name, "simulated failure")]

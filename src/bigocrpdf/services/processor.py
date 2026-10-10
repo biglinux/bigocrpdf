@@ -54,6 +54,7 @@ class OcrProcessor:
         self._total_files_at_start = 0
         self._completed_input_count = 0
         self._successful_input_count = 0
+        self._failures: list[tuple[str, str]] = []
 
         # Progress tracking (simplified)
         self._file_progress = 0.0  # Progress within current file (0.0-1.0)
@@ -159,6 +160,7 @@ class OcrProcessor:
             self._current_filename = ""
             self._completed_input_count = 0
             self._successful_input_count = 0
+            self._failures = []
         # Store original file count before processing removes files from queue
         self._total_files_at_start = len(self.settings.selected_files)
         self.settings.processed_files = []
@@ -222,11 +224,14 @@ class OcrProcessor:
             raise
         except Exception as e:
             self._record_terminal_input(success=False)
+            self._record_failure(file_path, str(e))
             self._record_file_processing_error(file_path, checkpoint, e)
             return True
 
         self._reset_file_progress()
         self._record_terminal_input(success=success)
+        if not success:
+            self._record_failure(file_path, _("No page could be processed."))
         self._record_file_processing_result(
             file_path,
             output_file,
@@ -252,6 +257,10 @@ class OcrProcessor:
             self._completed_input_count += 1
             if success:
                 self._successful_input_count += 1
+
+    def _record_failure(self, file_path: str, reason: str) -> None:
+        with self._state_lock:
+            self._failures.append((self.settings.display_name(file_path), reason))
 
     def _record_file_processing_result(
         self,
@@ -546,6 +555,11 @@ class OcrProcessor:
         """Get the number of non-cancelled inputs that reached a terminal state."""
         with self._state_lock:
             return self._completed_input_count
+
+    def get_failures(self) -> list[tuple[str, str]]:
+        """Get (file name, reason) for each input of this run that failed."""
+        with self._state_lock:
+            return list(self._failures)
 
     def get_successful_input_count(self) -> int:
         """Get the number of inputs that produced at least one output PDF."""

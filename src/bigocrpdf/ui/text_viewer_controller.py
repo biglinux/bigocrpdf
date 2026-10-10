@@ -302,6 +302,12 @@ class TextViewerController:
             ),
         )
         toolbar_view.add_controller(key_ctrl)
+        # The search entry takes Escape for itself: clear the search, or close
+        # the viewer when there is nothing to clear.
+        search_entry.connect(
+            "stop-search",
+            lambda entry: entry.set_text("") if entry.get_text() else entry.get_root().close(),
+        )
 
     def _on_text_viewer_key_pressed(
         self,
@@ -399,6 +405,7 @@ class TextViewerController:
             Styled text view
         """
         text_view = Gtk.TextView()
+        set_a11y_label(text_view, _("Extracted text"))
         text_view.set_editable(False)
         text_view.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
         text_view.set_left_margin(24)

@@ -12,6 +12,7 @@ gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Adw, Gio, GLib, Gtk
 
+from bigocrpdf.ui.widgets import launch_file
 from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.adw_compat import create_spinner
 from bigocrpdf.utils.durable_writes import write_text_atomically
@@ -745,43 +746,12 @@ class ConclusionExportMixin:
         return False
 
     def _open_file(self, file_path: str) -> None:
-        """Open a file using the default application.
-
-        Args:
-            file_path: Path to the file to open
-        """
-        from bigocrpdf.utils.pdf_utils import open_file_with_default_app
-
-        if not open_file_with_default_app(file_path):
-            self.window.ui.show_toast(_("Failed to open file"))
+        """Open a file using the default application."""
+        launch_file(self.window, file_path)
 
     def _reveal_in_file_manager(self, file_path: str) -> None:
-        """Open the system file manager with the given file selected.
-
-        Uses the freedesktop.org FileManager1 D-Bus interface (ShowItems),
-        which is supported by Dolphin, Nautilus, Thunar, Nemo, Caja, etc.
-        Falls back to opening the parent directory if D-Bus is unavailable.
-        """
-        import subprocess
-
-        file_uri = Gio.File.new_for_path(file_path).get_uri()
-        try:
-            subprocess.Popen(
-                [
-                    "dbus-send",
-                    "--session",
-                    "--dest=org.freedesktop.FileManager1",
-                    "--type=method_call",
-                    "/org/freedesktop/FileManager1",
-                    "org.freedesktop.FileManager1.ShowItems",
-                    f"array:string:{file_uri}",
-                    "string:",
-                ],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        except FileNotFoundError:
-            self._open_file(os.path.dirname(file_path))
+        """Open the system file manager with the given file selected."""
+        launch_file(self.window, file_path, in_folder=True)
 
     def _show_extracted_text(self, file_path: str) -> None:
         """Show extracted text using the main UI's dialog owner."""
