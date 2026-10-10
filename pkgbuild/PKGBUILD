@@ -23,6 +23,8 @@ depends=(
 	'python-pillow'
 	'python-reportlab'
 	'poppler'
+	# Poppler GObject bindings for the editor's page thumbnails
+	'poppler-glib'
 	# Image processing
 	'python-opencv'
 	'python-numpy'

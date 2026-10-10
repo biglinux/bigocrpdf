@@ -7,6 +7,7 @@
   wrapGAppsHook4,
   gobject-introspection,
   gettext,
+  poppler,
   poppler_utils,
   ghostscript,
   jbig2enc ? null,
@@ -48,12 +49,16 @@ python3Packages.buildPythonApplication {
   buildInputs = [
     gtk4
     libadwaita
+    poppler
     poppler_utils
     ghostscript
   ] ++ (if jbig2enc != null then [ jbig2enc ] else []);
 
+  # stage-data.sh lays out a DESTDIR with usr/share; Nix wants $out/share.
   postInstall = ''
-    bash $src/tools/stage-data.sh "$out"
+    bash $src/tools/stage-data.sh "$TMPDIR/stage"
+    mkdir -p "$out/share"
+    cp -r "$TMPDIR/stage/usr/share/." "$out/share/"
   '';
 
   meta = {

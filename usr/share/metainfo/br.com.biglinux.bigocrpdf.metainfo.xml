@@ -3,11 +3,11 @@
   <id>br.com.biglinux.bigocrpdf</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
-  <name>BigOCRPDF</name>
+  <name>Big OCR PDF</name>
   <summary>Make scanned PDFs searchable with OCR</summary>
   <description>
     <p>
-      BigOCRPDF recognizes text in scanned PDF documents and creates searchable,
+      Big OCR PDF recognizes text in scanned PDF documents and creates searchable,
       copyable PDF files while preserving the original pages.
     </p>
     <p>
@@ -18,6 +18,8 @@
   <launchable type="desktop-id">br.com.biglinux.bigocrpdf.desktop</launchable>
   <provides>
     <binary>bigocrpdf</binary>
+    <binary>bigocrimage</binary>
+    <binary>bigocrpdf-cli</binary>
     <mediatype>application/pdf</mediatype>
   </provides>
   <developer id="br.com.biglinux">
