@@ -9,4 +9,4 @@ for i in /usr/lib/python3.{6..25}/site-packages/bigocrpdf /usr/share/biglinux/bi
 done
 
 # Run the Image OCR application with its own application_id for Wayland taskbar
-exec python3 -c "from bigocrpdf import main_image; main_image()" "$@"
+exec /usr/bin/python3 -c "from bigocrpdf import main_image; main_image()" "$@"
