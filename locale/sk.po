@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 3.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-10-10 12:27-0300\n"
+"POT-Creation-Date: 2026-10-10 16:10-0300\n"
 "PO-Revision-Date: 2026-10-03 09:30+0000\n"
 "Last-Translator: BigLinux Translation Team <biglinux@biglinux.com.br>\n"
 "Language-Team: Slovak\n"
@@ -21,39 +21,39 @@ msgstr ""
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
-#: src/bigocrpdf/application.py:60 src/bigocrpdf/cli_parser.py:72
-#: src/bigocrpdf/config.py:133 src/bigocrpdf/image_application.py:52
+#: src/bigocrpdf/application.py:53 src/bigocrpdf/cli_parser.py:72
+#: src/bigocrpdf/config.py:84 src/bigocrpdf/image_application.py:50
 msgid "Print version information and exit"
 msgstr "Vypísať informácie o verzii a ukončiť"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 57
 # File: bigocrpdf/src/bigocrpdf/config.py, line: 146
-#: src/bigocrpdf/application.py:68 src/bigocrpdf/config.py:145
+#: src/bigocrpdf/application.py:61 src/bigocrpdf/config.py:96
 msgid "Open files directly in the PDF editor"
 msgstr "Otvoriť súbory priamo v PDF editore"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
-#: src/bigocrpdf/application.py:233
+#: src/bigocrpdf/application.py:220
 msgid "Application started successfully"
 msgstr "Aplikácia bola úspešne spustená"
 
-#: src/bigocrpdf/application.py:236
+#: src/bigocrpdf/application.py:223
 msgid "Error activating application"
 msgstr "Chyba pri aktivácii aplikácie"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 111
-#: src/bigocrpdf/application.py:238
+#: src/bigocrpdf/application.py:225
 msgid "Error starting application"
 msgstr "Chyba pri spúšťaní aplikácie"
 
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 270
-#: src/bigocrpdf/application.py:331
+#: src/bigocrpdf/application.py:318
 msgid "PDF Editor - Combined PDF"
 msgstr "Editor PDF - zlúčený PDF"
 
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 273
-#: src/bigocrpdf/application.py:334
+#: src/bigocrpdf/application.py:321
 #, python-brace-format
 msgid "Combined PDF ({count} file)"
 msgid_plural "Combined PDF ({count} files)"
@@ -62,7 +62,7 @@ msgstr[1] "Kombinovaný súbor PDF ({count} súbory)"
 msgstr[2] "Kombinovaný súbor PDF ({count} súborov)"
 
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 191
-#: src/bigocrpdf/application.py:376
+#: src/bigocrpdf/application.py:363
 #, python-brace-format
 msgid "Added {count} file from command line"
 msgid_plural "Added {count} files from command line"
@@ -71,7 +71,7 @@ msgstr[1] "Pridané {count} súbory z príkazového riadku"
 msgstr[2] "Pridaných {count} súborov z príkazového riadku"
 
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 270
-#: src/bigocrpdf/application.py:413
+#: src/bigocrpdf/application.py:400
 #, python-brace-format
 msgid "Opened {count} file"
 msgid_plural "Opened {count} files"
@@ -79,22 +79,22 @@ msgstr[0] "Otvorený {count} súbor"
 msgstr[1] "Otvorené {count} súbory"
 msgstr[2] "Otvorených {count} súborov"
 
-#: src/bigocrpdf/application.py:422
+#: src/bigocrpdf/application.py:409
 msgid "Error opening files"
 msgstr "Chyba pri otváraní súborov"
 
 # File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 258
-#: src/bigocrpdf/application.py:428 src/bigocrpdf/services/settings.py:522
+#: src/bigocrpdf/application.py:415 src/bigocrpdf/services/settings.py:517
 #, python-brace-format
 msgid "Unsupported file type: {0}"
 msgstr "Nepodporovaný typ súboru: {0}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 179
-#: src/bigocrpdf/application.py:432 src/bigocrpdf/ui/image_ocr_window.py:314
+#: src/bigocrpdf/application.py:419 src/bigocrpdf/ui/image_ocr_window.py:303
 msgid "Unsupported file format"
 msgstr "Nepodporovaný formát súboru"
 
-#: src/bigocrpdf/application.py:434
+#: src/bigocrpdf/application.py:421
 #, python-brace-format
 msgid ""
 "{files}\n"
@@ -109,97 +109,97 @@ msgstr ""
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
 # line: 1493
-#: src/bigocrpdf/application.py:438 src/bigocrpdf/processing_controller.py:492
+#: src/bigocrpdf/application.py:425 src/bigocrpdf/processing_controller.py:490
 #: src/bigocrpdf/ui/text_viewer_controller.py:220
 #: src/bigocrpdf/ui/text_viewer_controller.py:222
-#: src/bigocrpdf/ui/widgets.py:82
+#: src/bigocrpdf/ui/widgets.py:80
 msgid "Close"
 msgstr "Zavrieť"
 
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 372
-#: src/bigocrpdf/application.py:524
+#: src/bigocrpdf/application.py:511
 msgid "File"
 msgstr "Súbor"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 309
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 375
-#: src/bigocrpdf/application.py:526
+#: src/bigocrpdf/application.py:513
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:231
 msgid "Add files"
 msgstr "Pridať súbory"
 
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 376
-#: src/bigocrpdf/application.py:527
+#: src/bigocrpdf/application.py:514
 msgid "Paste from clipboard"
 msgstr "Vložiť zo schránky"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 129
 # File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 259
-#: src/bigocrpdf/application.py:528 src/bigocrpdf/ui/header_bar.py:124
+#: src/bigocrpdf/application.py:515 src/bigocrpdf/ui/header_bar.py:120
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:259
-#: src/bigocrpdf/ui/window_ui.py:283
+#: src/bigocrpdf/ui/window_ui.py:266
 msgid "Quit"
 msgstr "Ukončiť"
 
 # File: bigocrpdf/src/bigocrpdf/window.py, line: 108
-#: src/bigocrpdf/application.py:532 src/bigocrpdf/ui/window_ui.py:225
+#: src/bigocrpdf/application.py:519 src/bigocrpdf/ui/window_ui.py:209
 msgid "Processing"
 msgstr "Spracovanie"
 
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 102
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 110
-#: src/bigocrpdf/application.py:534 src/bigocrpdf/processing_controller.py:288
-#: src/bigocrpdf/processing_controller.py:320 src/bigocrpdf/ui/header_bar.py:92
-#: src/bigocrpdf/ui/header_bar.py:97 src/bigocrpdf/ui/header_bar.py:216
+#: src/bigocrpdf/application.py:521 src/bigocrpdf/processing_controller.py:286
+#: src/bigocrpdf/processing_controller.py:318 src/bigocrpdf/ui/header_bar.py:88
+#: src/bigocrpdf/ui/header_bar.py:93 src/bigocrpdf/ui/header_bar.py:208
 msgid "Start OCR"
 msgstr "Spustiť OCR"
 
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 393
-#: src/bigocrpdf/application.py:535
+#: src/bigocrpdf/application.py:522
 msgid "Cancel processing"
 msgstr "Zrušiť spracovanie"
 
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 394
-#: src/bigocrpdf/application.py:536
+#: src/bigocrpdf/application.py:523
 msgid "Clear file queue"
 msgstr "Vymazať front súborov"
 
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 406
-#: src/bigocrpdf/application.py:540
+#: src/bigocrpdf/application.py:527
 msgid "General"
 msgstr "Všeobecné"
 
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 409
-#: src/bigocrpdf/application.py:542
+#: src/bigocrpdf/application.py:529
 msgid "Keyboard shortcuts"
 msgstr "Klávesové skratky"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 141
-#: src/bigocrpdf/application.py:543 src/bigocrpdf/ui/header_bar.py:122
+#: src/bigocrpdf/application.py:530 src/bigocrpdf/ui/header_bar.py:118
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:257
-#: src/bigocrpdf/ui/window_ui.py:281
+#: src/bigocrpdf/ui/window_ui.py:264
 msgid "Help"
 msgstr "Pomoc"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 129
-#: src/bigocrpdf/application.py:564 src/bigocrpdf/image_application.py:156
+#: src/bigocrpdf/application.py:549 src/bigocrpdf/image_application.py:152
 msgid "BigLinux Team"
 msgstr "Tím BigLinux"
 
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 249
-#: src/bigocrpdf/application.py:572
+#: src/bigocrpdf/application.py:557
 msgid "Interface"
 msgstr "Rozhranie"
 
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 255
-#: src/bigocrpdf/application.py:578
+#: src/bigocrpdf/application.py:563
 msgid "Third-party Components"
 msgstr "Komponenty tretích strán"
 
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 257
-#: src/bigocrpdf/application.py:580
+#: src/bigocrpdf/application.py:565
 msgid ""
 "The OCR engine and other libraries used by this application are independent "
 "projects, each distributed under its own license."
@@ -208,12 +208,12 @@ msgstr ""
 "projekty, pričom každý je distribuovaný pod vlastnou licenciou."
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 139
-#: src/bigocrpdf/application.py:591
+#: src/bigocrpdf/application.py:575
 msgid "Developers"
 msgstr "Vývojári"
 
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 272
-#: src/bigocrpdf/application.py:595
+#: src/bigocrpdf/application.py:579
 msgid "Powered by"
 msgstr "Použité technológie"
 
@@ -421,8 +421,8 @@ msgid "Vintage in black & white"
 msgstr "Retro v čierno-bielom"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 401
-#: src/bigocrpdf/cli_parser.py:229 src/bigocrpdf/ui/settings_queue_mixin.py:303
-#: src/bigocrpdf/ui/settings_queue_mixin.py:305
+#: src/bigocrpdf/cli_parser.py:229 src/bigocrpdf/ui/settings_queue_mixin.py:304
+#: src/bigocrpdf/ui/settings_queue_mixin.py:306
 msgid "Output options"
 msgstr "Možnosti výstupu"
 
@@ -686,35 +686,35 @@ msgstr "Otvoriť interaktívny grafický editor"
 msgid "PDF file to edit"
 msgstr "PDF súbor na úpravu"
 
-#: src/bigocrpdf/config.py:28
+#: src/bigocrpdf/config.py:19
 msgid "Add OCR to your PDF documents to make them searchable"
 msgstr ""
 "Pridajte do dokumentov PDF textovú vrstvu OCR, aby sa v nich dalo vyhľadávať"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 72
-#: src/bigocrpdf/config.py:135
+#: src/bigocrpdf/config.py:86
 msgid "Enable debug mode"
 msgstr "Povoliť režim ladenia"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 74
-#: src/bigocrpdf/config.py:136
+#: src/bigocrpdf/config.py:87
 msgid "Enable verbose output"
 msgstr "Povoliť podrobné výstupy"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/application.py, line: 57
 # File: bigocrpdf/src/bigocrpdf/config.py, line: 139
-#: src/bigocrpdf/config.py:140
+#: src/bigocrpdf/config.py:91
 msgid "Start in image conversion mode"
 msgstr "Spustiť v režime konverzie obrázkov"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
-#: src/bigocrpdf/config.py:147
+#: src/bigocrpdf/config.py:98
 msgid "PDF files to process"
 msgstr "Súbory PDF na spracovanie"
 
 # File: bigocrpdf/src/bigocrpdf/image_application.py, line: 115
-#: src/bigocrpdf/image_application.py:157
+#: src/bigocrpdf/image_application.py:153
 msgid "Extract text from images using OCR"
 msgstr "Extrahovať text z obrázkov pomocou OCR"
 
@@ -738,7 +738,7 @@ msgstr "Niektoré súbory neboli spracované"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 817
 #: src/bigocrpdf/processing_controller.py:82
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:739
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:733
 #, python-brace-format
 msgid "Saved {ok}; {n} failed"
 msgstr "Uložené {ok}; {n} zlyhalo"
@@ -746,10 +746,10 @@ msgstr "Uložené {ok}; {n} zlyhalo"
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 305
 #: src/bigocrpdf/processing_controller.py:90
 #: src/bigocrpdf/services/screen_capture.py:431
-#: src/bigocrpdf/services/screen_capture.py:1041
-#: src/bigocrpdf/services/screen_capture.py:1048
-#: src/bigocrpdf/services/screen_capture.py:1073
-#: src/bigocrpdf/ui/image_ocr_window.py:907
+#: src/bigocrpdf/services/screen_capture.py:1026
+#: src/bigocrpdf/services/screen_capture.py:1033
+#: src/bigocrpdf/services/screen_capture.py:1058
+#: src/bigocrpdf/ui/image_ocr_window.py:892
 msgid "OCR processing failed."
 msgstr "Spracovanie OCR zlyhalo."
 
@@ -767,7 +767,7 @@ msgstr "Kopírovať podrobnosti"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
 #: src/bigocrpdf/processing_controller.py:124
-#: src/bigocrpdf/ui/image_ocr_window.py:1155
+#: src/bigocrpdf/ui/image_ocr_window.py:1136
 msgid "Copied to clipboard"
 msgstr "Skopírované do schránky"
 
@@ -791,8 +791,8 @@ msgstr "Vyberte cieľový priečinok"
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 701
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 702
 #: src/bigocrpdf/processing_controller.py:260
-#: src/bigocrpdf/processing_controller.py:286
-#: src/bigocrpdf/processing_controller.py:287
+#: src/bigocrpdf/processing_controller.py:284
+#: src/bigocrpdf/processing_controller.py:285
 msgid "Failed to start OCR processing"
 msgstr "Nepodarilo sa spustiť spracovanie OCR."
 
@@ -802,98 +802,98 @@ msgid "Starting…"
 msgstr "Spúšťanie…"
 
 # File: bigocrpdf/src/bigocrpdf/window_processing.py, line: 192
-#: src/bigocrpdf/processing_controller.py:297
+#: src/bigocrpdf/processing_controller.py:295
 msgid "OCR processing started"
 msgstr "Spracovanie OCR sa začalo"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 717
-#: src/bigocrpdf/processing_controller.py:298
+#: src/bigocrpdf/processing_controller.py:296
 msgid "OCR processing started using Python API"
 msgstr "Spracovanie OCR začalo pomocou Python API"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 868
-#: src/bigocrpdf/processing_controller.py:399
+#: src/bigocrpdf/processing_controller.py:397
 #: src/bigocrpdf/ui/terminal_page.py:201
 #, python-brace-format
 msgid "Processed file {current}/{total}: {filename}"
 msgstr "Spracovaný súbor {current}/{total}: {filename}"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 877
-#: src/bigocrpdf/processing_controller.py:420
+#: src/bigocrpdf/processing_controller.py:418
 msgid "OCR processing complete callback triggered"
 msgstr "Spätné volanie po dokončení spracovania OCR bolo spustené."
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 882
-#: src/bigocrpdf/processing_controller.py:425
+#: src/bigocrpdf/processing_controller.py:423
 msgid "Processing complete but no longer on terminal page, likely cancelled"
 msgstr ""
 "Spracovanie bolo dokončené, ale stránka spracovania už nie je aktívna; "
 "operácia bola pravdepodobne zrušená."
 
-#: src/bigocrpdf/processing_controller.py:490
+#: src/bigocrpdf/processing_controller.py:488
 msgid "Back to Queue"
 msgstr "Späť do frontu"
 
-#: src/bigocrpdf/processing_controller.py:497
+#: src/bigocrpdf/processing_controller.py:495
 #, python-brace-format
 msgid "{file}: {reason}"
 msgstr "{file}: {reason}"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1114
-#: src/bigocrpdf/processing_controller.py:504
+#: src/bigocrpdf/processing_controller.py:502
 msgid "OCR processing cancelled by user"
 msgstr "Spracovanie OCR zrušené používateľom"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1122
-#: src/bigocrpdf/processing_controller.py:505
+#: src/bigocrpdf/processing_controller.py:503
 msgid "OCR processing cancelled"
 msgstr "Spracovanie OCR zrušené"
 
 # File: bigocrpdf/src/bigocrpdf/services/export_service.py, line: 42
-#: src/bigocrpdf/services/export_service.py:75
+#: src/bigocrpdf/services/export_service.py:70
 #, python-brace-format
 msgid "Saved extracted text to: {0}"
 msgstr "Extrahovaný text bol uložený do: {0}"
 
 # File: bigocrpdf/src/bigocrpdf/services/export_service.py, line: 46
-#: src/bigocrpdf/services/export_service.py:79
+#: src/bigocrpdf/services/export_service.py:74
 #, python-brace-format
 msgid "Failed to save text file: {0}"
 msgstr "Nepodarilo sa uložiť textový súbor: {0}"
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 34
-#: src/bigocrpdf/services/pdf_operations.py:67
+#: src/bigocrpdf/services/pdf_operations.py:55
 msgid "Could not find the file. Was it moved or deleted?"
 msgstr "Súbor sa nenašiel. Bol presunutý alebo vymazaný?"
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 36
-#: src/bigocrpdf/services/pdf_operations.py:69
+#: src/bigocrpdf/services/pdf_operations.py:57
 msgid "Cannot write to this folder. Choose a different location."
 msgstr "Do tohto priečinka nie je možné zapisovať. Vyberte iné umiestnenie."
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 38
-#: src/bigocrpdf/services/pdf_operations.py:71
+#: src/bigocrpdf/services/pdf_operations.py:59
 msgid "This PDF is password-protected. Remove the password first."
 msgstr "Tento PDF je chránený heslom. Najprv odstráňte heslo."
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 40
-#: src/bigocrpdf/services/pdf_operations.py:73
+#: src/bigocrpdf/services/pdf_operations.py:61
 #, python-brace-format
 msgid "The PDF file appears to be damaged or invalid: {error}"
 msgstr "PDF súbor sa zdá byť poškodený alebo neplatný: {error}"
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 370
-#: src/bigocrpdf/services/pdf_operations.py:479
+#: src/bigocrpdf/services/pdf_operations.py:447
 msgid "No input files provided."
 msgstr "Neboli zadané žiadne vstupné súbory."
 
 # File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 541
-#: src/bigocrpdf/services/pdf_operations.py:508
+#: src/bigocrpdf/services/pdf_operations.py:476
 msgid "No readable input files were provided."
 msgstr "Neboli zadané žiadne čitateľné vstupné súbory."
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 85
-#: src/bigocrpdf/services/processor.py:124
+#: src/bigocrpdf/services/processor.py:117
 #, python-brace-format
 msgid "Started OCR processing for {count} file using RapidOCR"
 msgid_plural "Started OCR processing for {count} files using RapidOCR"
@@ -904,7 +904,7 @@ msgstr[2] "Začalo sa spracovanie OCR pre {count} súborov pomocou RapidOCR"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 82
-#: src/bigocrpdf/services/processor.py:139
+#: src/bigocrpdf/services/processor.py:132
 #, python-brace-format
 msgid "Error starting OCR processing: {0}"
 msgstr "Chyba pri spúšťaní spracovania OCR: {0}"
@@ -912,39 +912,39 @@ msgstr "Chyba pri spúšťaní spracovania OCR: {0}"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 92
-#: src/bigocrpdf/services/processor.py:152
+#: src/bigocrpdf/services/processor.py:145
 msgid "No files to process"
 msgstr "Žiadne súbory na spracovanie"
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 135
-#: src/bigocrpdf/services/processor.py:197
+#: src/bigocrpdf/services/processor.py:190
 msgid "Processing stopped by user"
 msgstr "Spracovanie zastavené používateľom"
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 178
-#: src/bigocrpdf/services/processor.py:206
+#: src/bigocrpdf/services/processor.py:199
 #, python-brace-format
 msgid "Processing thread error: {0}"
 msgstr "Chyba spracovacieho vlákna: {0}"
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 158
-#: src/bigocrpdf/services/processor.py:227
+#: src/bigocrpdf/services/processor.py:220
 #, python-brace-format
 msgid "Processing cancelled by user during file: {0}"
 msgstr "Spracovanie bolo používateľom zrušené počas spracovania súboru: {0}"
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 177
-#: src/bigocrpdf/services/processor.py:230
+#: src/bigocrpdf/services/processor.py:223
 #, python-brace-format
 msgid "Out of memory processing {0}"
 msgstr "Nedostatok pamäte pri spracovaní {0}"
 
-#: src/bigocrpdf/services/processor.py:241
+#: src/bigocrpdf/services/processor.py:234
 msgid "No page could be processed."
 msgstr "Nepodarilo sa spracovať žiadnu stranu."
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 163
-#: src/bigocrpdf/services/processor.py:289
+#: src/bigocrpdf/services/processor.py:282
 #, python-brace-format
 msgid "Error processing {0}: {1}"
 msgstr "Chyba pri spracovaní {0}: {1}"
@@ -952,13 +952,13 @@ msgstr "Chyba pri spracovaní {0}: {1}"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 136
-#: src/bigocrpdf/services/processor.py:314
+#: src/bigocrpdf/services/processor.py:307
 #, python-brace-format
 msgid "Error: File not found or invalid: {0}"
 msgstr "Chyba: Súbor nenájdený alebo neplatný: {0}"
 
 # File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 223
-#: src/bigocrpdf/services/processor.py:351
+#: src/bigocrpdf/services/processor.py:340
 #, python-brace-format
 msgid "Processed {filename}: Pages: {pages} · Words: {words}"
 msgstr "Spracované {filename}: Stránky: {pages} · Slová: {words}"
@@ -966,7 +966,7 @@ msgstr "Spracované {filename}: Stránky: {pages} · Slová: {words}"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 172
-#: src/bigocrpdf/services/processor.py:498
+#: src/bigocrpdf/services/processor.py:485
 #, python-brace-format
 msgid "Could not determine output directory for {0}"
 msgstr "Nemožno určiť výstupný adresár pre {0}"
@@ -974,7 +974,7 @@ msgstr "Nemožno určiť výstupný adresár pre {0}"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 185
-#: src/bigocrpdf/services/processor.py:505
+#: src/bigocrpdf/services/processor.py:492
 #, python-brace-format
 msgid "Error creating output path for {0}: {1}"
 msgstr "Chyba pri vytváraní výstupnej cesty pre {0}: {1}"
@@ -982,7 +982,7 @@ msgstr "Chyba pri vytváraní výstupnej cesty pre {0}: {1}"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 388
-#: src/bigocrpdf/services/processor.py:541
+#: src/bigocrpdf/services/processor.py:528
 #, python-brace-format
 msgid "Error getting OCR languages: {0}"
 msgstr "Chyba pri získavaní jazykov OCR: {0}"
@@ -990,7 +990,7 @@ msgstr "Chyba pri získavaní jazykov OCR: {0}"
 # File:
 # bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
 # line: 508
-#: src/bigocrpdf/services/processor.py:629
+#: src/bigocrpdf/services/processor.py:612
 #, python-brace-format
 msgid "Removed processed file from queue: {0}"
 msgstr "Odstránený spracovaný súbor z fronty: {0}"
@@ -1002,8 +1002,7 @@ msgstr "Odstránený spracovaný súbor z fronty: {0}"
 # bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_text_layer.py,
 # line: 422
 #: src/bigocrpdf/services/rapidocr_service/backend_embedded_image_pipeline.py:245
-#: src/bigocrpdf/services/rapidocr_service/backend_text_layer.py:676
-#: src/bigocrpdf/services/rapidocr_service/pipeline_chunked_ocr.py:570
+#: src/bigocrpdf/services/rapidocr_service/pipeline_chunked_ocr.py:576
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "Spracovanie stránky {0}/{1}..."
@@ -1011,8 +1010,8 @@ msgstr "Spracovanie stránky {0}/{1}..."
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
 # line: 464
 # line: 715
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:148
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:303
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:146
+#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:301
 msgid "Done!"
 msgstr "Hotovo!"
 
@@ -1020,31 +1019,31 @@ msgstr "Hotovo!"
 # 45
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
 # line: 245
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:168
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:166
 msgid "Analyzing PDF..."
 msgstr "Analyzovanie PDF..."
 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
 # line: 417
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:232
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:230
 msgid "Merging text layer..."
 msgstr "Zlučovanie textovej vrstvy..."
 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
 # line: 564
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:282
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:280
 msgid "Processing text page images..."
 msgstr "Spracovanie obrázkov textových stránok…"
 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
 # line: 480
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:300
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:298
 msgid "Optimizing image compression..."
 msgstr "Optimalizácia kompresie obrázkov..."
 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
 # line: 491
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:313
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:311
 #, python-brace-format
 msgid "{count} page re-encoded with JBIG2"
 msgid_plural "{count} pages re-encoded with JBIG2"
@@ -1054,31 +1053,31 @@ msgstr[2] "{count} stránok prekódovaných pomocou JBIG2"
 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
 # line: 746
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:343
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:341
 msgid "Converting to PDF/A..."
 msgstr "Konverzia na PDF/A..."
 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
 # line: 698
 # line: 758
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:368
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:622
+#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:366
+#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:620
 msgid "Splitting PDF by size limit..."
 msgstr "Rozdeľovanie PDF podľa limitu veľkosti..."
 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
 # 68
-#: src/bigocrpdf/services/rapidocr_service/discovery.py:68
+#: src/bigocrpdf/services/rapidocr_service/discovery.py:63
 msgid "Automatic multilingual recognition (PP-OCRv6)"
 msgstr "Automatické viacjazyčné rozpoznávanie (PP-OCRv6)"
 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
 # line: 293
-#: src/bigocrpdf/services/rapidocr_service/pipeline_chunked_ocr.py:345
+#: src/bigocrpdf/services/rapidocr_service/pipeline_chunked_ocr.py:347
 msgid "Starting OCR..."
 msgstr "Spúšťanie OCR..."
 
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:103
+#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:102
 #, python-brace-format
 msgid ""
 "Page {page} already has an OCR text layer and was left unchanged. Enable "
@@ -1089,25 +1088,25 @@ msgstr ""
 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
 # line: 633
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:152
+#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:151
 msgid "Extracting images..."
 msgstr "Extrahovanie obrázkov..."
 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
 # line: 610
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:188
+#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:187
 msgid "Analyzing PDF structure..."
 msgstr "Analyzovanie štruktúry PDF..."
 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
 # line: 687
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:278
+#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:276
 msgid "Saving PDF..."
 msgstr "Ukladanie PDF..."
 
 # File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
 # line: 655
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:385
+#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:383
 #, python-brace-format
 msgid "OCR page {0}..."
 msgstr "OCR strany {0}…"
@@ -1115,7 +1114,7 @@ msgstr "OCR strany {0}…"
 # File:
 # bigocrpdf/src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py,
 # line: 407
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:525
+#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:523
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "OCR strany {0} (po vykreslení)…"
@@ -1125,8 +1124,8 @@ msgstr "OCR strany {0} (po vykreslení)…"
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 500
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 536
 #: src/bigocrpdf/services/screen_capture.py:503
-#: src/bigocrpdf/services/screen_capture.py:585
-#: src/bigocrpdf/ui/image_ocr_window.py:1009
+#: src/bigocrpdf/services/screen_capture.py:583
+#: src/bigocrpdf/ui/image_ocr_window.py:992
 msgid "Screen capture failed. Please try again or open an image file."
 msgstr ""
 "Zachytenie obrazovky zlyhalo. Skúste to znova alebo otvorte súbor s obrázkom."
@@ -1139,7 +1138,7 @@ msgid "Screen capture failed."
 msgstr "Zachytenie obrazovky zlyhalo."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 118
-#: src/bigocrpdf/services/screen_capture.py:579
+#: src/bigocrpdf/services/screen_capture.py:577
 msgid ""
 "No screenshot tool available. Please install spectacle, gnome-screenshot, or "
 "flameshot."
@@ -1148,79 +1147,79 @@ msgstr ""
 "spectacle, gnome-screenshot alebo flameshot."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 979
-#: src/bigocrpdf/services/screen_capture.py:1014
+#: src/bigocrpdf/services/screen_capture.py:994
 msgid "Could not prepare the image for OCR."
 msgstr "Obrázok sa nepodarilo pripraviť na OCR."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 331
-#: src/bigocrpdf/services/screen_capture.py:1034
+#: src/bigocrpdf/services/screen_capture.py:1019
 msgid "OCR processing timed out."
 msgstr "Čas spracovania OCR vypršal."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 326
-#: src/bigocrpdf/services/screen_capture.py:1066
+#: src/bigocrpdf/services/screen_capture.py:1051
 msgid "OCR engine not available. Please check your installation."
 msgstr "Modul OCR nie je k dispozícii. Skontrolujte svoju inštaláciu."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 277
-#: src/bigocrpdf/services/screen_capture.py:1125
-#: src/bigocrpdf/services/screen_capture.py:1131
-#: src/bigocrpdf/services/screen_capture.py:1137
-#: src/bigocrpdf/services/screen_capture.py:1211
-#: src/bigocrpdf/services/screen_capture.py:1234
-#: src/bigocrpdf/services/screen_capture.py:1242
+#: src/bigocrpdf/services/screen_capture.py:1110
+#: src/bigocrpdf/services/screen_capture.py:1116
+#: src/bigocrpdf/services/screen_capture.py:1122
+#: src/bigocrpdf/services/screen_capture.py:1196
+#: src/bigocrpdf/services/screen_capture.py:1219
+#: src/bigocrpdf/services/screen_capture.py:1227
 msgid "Could not load image file."
 msgstr "Nepodarilo sa načítať súbor s obrázkom."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1103
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1170
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1277
-#: src/bigocrpdf/services/screen_capture.py:1139
-#: src/bigocrpdf/services/screen_capture.py:1206
-#: src/bigocrpdf/services/screen_capture.py:1313
+#: src/bigocrpdf/services/screen_capture.py:1124
+#: src/bigocrpdf/services/screen_capture.py:1191
+#: src/bigocrpdf/services/screen_capture.py:1298
 msgid "Unsupported or corrupted image file."
 msgstr "Nepodporovaný alebo poškodený súbor s obrázkom."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1105
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1208
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1235
-#: src/bigocrpdf/services/screen_capture.py:1141
-#: src/bigocrpdf/services/screen_capture.py:1244
-#: src/bigocrpdf/services/screen_capture.py:1271
+#: src/bigocrpdf/services/screen_capture.py:1126
+#: src/bigocrpdf/services/screen_capture.py:1229
+#: src/bigocrpdf/services/screen_capture.py:1256
 msgid "Image file is too large to process safely."
 msgstr "Súbor s obrázkom je príliš veľký na bezpečné spracovanie."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1121
-#: src/bigocrpdf/services/screen_capture.py:1157
+#: src/bigocrpdf/services/screen_capture.py:1142
 msgid "No supported image decoder is available."
 msgstr "Nie je k dispozícii žiadny podporovaný dekodér obrázkov."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1274
-#: src/bigocrpdf/services/screen_capture.py:1310
+#: src/bigocrpdf/services/screen_capture.py:1295
 msgid "Unsupported image format."
 msgstr "Nepodporovaný formát obrázka."
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1279
-#: src/bigocrpdf/services/screen_capture.py:1315
-#: src/bigocrpdf/ui/image_ocr_window.py:416
+#: src/bigocrpdf/services/screen_capture.py:1300
+#: src/bigocrpdf/ui/image_ocr_window.py:403
 msgid "Image dimensions exceed the configured safety limit."
 msgstr "Rozmery obrázka prekračujú nastavený bezpečnostný limit."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1285
-#: src/bigocrpdf/services/screen_capture.py:1321
+#: src/bigocrpdf/services/screen_capture.py:1306
 msgid "Animated or multi-page images are not supported."
 msgstr "Animované alebo viacstranové obrázky nie sú podporované."
 
 # File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1306
-#: src/bigocrpdf/services/screen_capture.py:1342
+#: src/bigocrpdf/services/screen_capture.py:1327
 msgid "Image file changed while it was being read. Please try again."
 msgstr "Súbor s obrázkom sa počas čítania zmenil. Skúste to znova."
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
 # line: 105
-#: src/bigocrpdf/services/settings.py:316
+#: src/bigocrpdf/services/settings.py:312
 #, python-brace-format
 msgid "Attempting to add {count} file"
 msgid_plural "Attempting to add {count} files"
@@ -1230,7 +1229,7 @@ msgstr[2] "Prebieha pokus o pridanie {count} súborov"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
 # line: 120
-#: src/bigocrpdf/services/settings.py:339
+#: src/bigocrpdf/services/settings.py:334
 #, python-brace-format
 msgid "Successfully added {count} file"
 msgid_plural "Successfully added {count} files"
@@ -1239,45 +1238,45 @@ msgstr[1] "Úspešne pridané {count} súbory"
 msgstr[2] "Úspešne pridaných {count} súborov"
 
 # File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 229
-#: src/bigocrpdf/services/settings.py:345
+#: src/bigocrpdf/services/settings.py:340
 msgid "No valid files were found to add"
 msgstr "Neboli nájdené žiadne platné súbory na pridanie."
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
 # line: 140
-#: src/bigocrpdf/services/settings.py:501
+#: src/bigocrpdf/services/settings.py:496
 msgid "Empty file path provided"
 msgstr "Poskytnutá prázdna cesta k súboru"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
 # line: 145
-#: src/bigocrpdf/services/settings.py:506
+#: src/bigocrpdf/services/settings.py:501
 #, python-brace-format
 msgid "File does not exist: {0}"
 msgstr "Súbor neexistuje: {0}"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
 # line: 155
-#: src/bigocrpdf/services/settings.py:528
+#: src/bigocrpdf/services/settings.py:523
 #, python-brace-format
 msgid "File already in list: {0}"
 msgstr "Súbor je už v zozname: {0}"
 
 # File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 267
-#: src/bigocrpdf/services/settings.py:532
+#: src/bigocrpdf/services/settings.py:527
 #, python-brace-format
 msgid "Adding valid file: {0}"
 msgstr "Pridávanie platného súboru: {0}"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
 # line: 231
-#: src/bigocrpdf/services/settings.py:561
+#: src/bigocrpdf/services/settings.py:554
 msgid "Settings saved successfully"
 msgstr "Nastavenia boli úspešne uložené."
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
 # line: 234
-#: src/bigocrpdf/services/settings.py:564
+#: src/bigocrpdf/services/settings.py:557
 #: src/bigocrpdf/ui/settings_reset_controller.py:65
 #, python-brace-format
 msgid "Error saving settings: {0}"
@@ -1285,7 +1284,7 @@ msgstr "Chyba pri ukladaní nastavení: {0}"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
 # line: 404
-#: src/bigocrpdf/services/settings.py:670
+#: src/bigocrpdf/services/settings.py:660
 #, python-brace-format
 msgid "Saved {count} selected file"
 msgid_plural "Saved {count} selected files"
@@ -1295,21 +1294,21 @@ msgstr[2] "Uložených {count} vybraných súborov"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
 # line: 406
-#: src/bigocrpdf/services/settings.py:676
+#: src/bigocrpdf/services/settings.py:666
 #, python-brace-format
 msgid "Error saving selected files: {0}"
 msgstr "Chyba pri ukladaní vybraných súborov: {0}"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
 # line: 430
-#: src/bigocrpdf/services/settings.py:724
+#: src/bigocrpdf/services/settings.py:714
 #, python-brace-format
 msgid "Error loading selected files: {0}"
 msgstr "Chyba pri načítaní vybraných súborov: {0}"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
 # line: 594
-#: src/bigocrpdf/services/settings.py:778
+#: src/bigocrpdf/services/settings.py:763
 msgid "Processing state reset successfully"
 msgstr "Stav spracovania bol resetovaný."
 
@@ -1398,13 +1397,13 @@ msgstr "Vypnite pre jednoduchšie úpravy odsekov, tabuliek a stĺpcov"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 65
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:48
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:371
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:367
 msgid "Open after export"
 msgstr "Otvoriť po exporte"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 66
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:49
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:372
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:368
 msgid "Open file in the default application"
 msgstr "Otvoriť súbor v predvolenej aplikácii"
 
@@ -1420,24 +1419,24 @@ msgstr "Export do OpenDocument…"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 81
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 88
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:160
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:166
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:158
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:164
 msgid "Export"
 msgstr "Exportovať"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 340
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 350
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:217
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:508
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:556
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:590
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:215
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:504
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:550
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:584
 msgid "Export failed"
 msgstr "Export zlyhal"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 583
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 732
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:223
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:561
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:221
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:555
 #: src/bigocrpdf/ui/file_save_controller.py:69
 #: src/bigocrpdf/ui/file_selection_manager.py:97
 #: src/bigocrpdf/ui/file_selection_manager.py:181
@@ -1448,10 +1447,10 @@ msgstr "Diaľkové lokality nie sú podporované."
 # line: 398
 # line: 1641
 # line: 1752
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:305
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:310
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:303
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:308
 #: src/bigocrpdf/ui/file_save_controller.py:84
-#: src/bigocrpdf/ui/header_bar.py:164 src/bigocrpdf/ui/image_ocr_window.py:758
+#: src/bigocrpdf/ui/header_bar.py:158 src/bigocrpdf/ui/image_ocr_window.py:745
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:87
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:189
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:221
@@ -1465,50 +1464,50 @@ msgstr "Zrušiť"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 411
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 412
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:320
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:321
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:318
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:319
 msgid "Cancelling…"
 msgstr "Zrušenie…"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 413
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:322
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:320
 msgid "Finishing current step…"
 msgstr "Dokončovanie aktuálneho kroku…"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 425
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 520
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:356
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:410
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:352
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:406
 msgid "Export to Markdown"
 msgstr "Exportovať do Markdownu"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 445
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:359
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:355
 msgid "Include YAML front-matter"
 msgstr "Zahrnúť hlavičku YAML"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 446
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:360
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:356
 msgid "Adds title, source path, page count and date"
 msgstr "Pridáva názov, zdrojovú cestu, počet strán a dátum"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 528
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:412
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:408
 msgid "Markdown (*.md)"
 msgstr "Markdown (*.md)"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 570
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:440
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:436
 msgid "Exporting to Markdown…"
 msgstr "Exportovanie do Markdownu…"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 287
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:502
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:498
 msgid "Export cancelled"
 msgstr "Export zrušený"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 338
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:504
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:500
 #, python-brace-format
 msgid "Exported to {}"
 msgstr "Exportované do {}"
@@ -1516,52 +1515,52 @@ msgstr "Exportované do {}"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 639
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 468
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:520
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:315
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:514
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:309
 msgid "OpenDocument (.odt)"
 msgstr "OpenDocument (.odt)"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 640
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 469
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:521
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:316
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:515
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:310
 msgid "Markdown (.md)"
 msgstr "Markdown (.md)"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 644
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:525
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:519
 msgid "Export selected files"
 msgstr "Exportovať vybrané súbory"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 668
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:547
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:541
 msgid "Choose destination folder"
 msgstr "Vybrať cieľový priečinok"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 691
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:577
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:571
 msgid "Destination folder not found"
 msgstr "Cieľový priečinok nebol nájdený"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 694
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:580
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:574
 msgid "Destination folder is not writable"
 msgstr "Do cieľového priečinka nie je možné zapisovať."
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 699
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:595
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:589
 msgid "Exporting selected files…"
 msgstr "Exportovanie vybraných súborov…"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 814
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:735
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:729
 #, python-brace-format
 msgid "Cancelled — saved {ok} of {total}"
 msgstr "Zrušené — uložené {ok} z {total}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 820
-#: src/bigocrpdf/ui/conclusion_export_mixin.py:747
+#: src/bigocrpdf/ui/conclusion_export_mixin.py:741
 #, python-brace-format
 msgid "Saved {count} file to {folder}"
 msgid_plural "Saved {count} files to {folder}"
@@ -1656,18 +1655,18 @@ msgstr "Vybrať všetko"
 
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 185
 #: src/bigocrpdf/ui/conclusion_page_builder.py:173
-#: src/bigocrpdf/ui/header_bar.py:165
+#: src/bigocrpdf/ui/header_bar.py:159
 msgid "Clear"
 msgstr "Vymazať"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 341
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:232
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:228
 #, python-brace-format
 msgid "Selected: {count}"
 msgstr "Vybrané: {count}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 493
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:253
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:248
 #: src/bigocrpdf/ui/settings_queue_mixin.py:553
 #: src/bigocrpdf/ui/settings_queue_mixin.py:663
 #, python-brace-format
@@ -1678,26 +1677,26 @@ msgstr[1] "{count} strany"
 msgstr[2] "{count} strán"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 374
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:285
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:279
 msgid "Open the processed file"
 msgstr "Otvoriť spracovaný súbor"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 348
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 482
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:294
-#: src/bigocrpdf/ui/settings_queue_mixin.py:712
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:288
+#: src/bigocrpdf/ui/settings_queue_mixin.py:710
 msgid "Show in file manager"
 msgstr "Zobraziť v správcovi súborov"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 410
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:301
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:295
 msgid "View the text found in this document"
 msgstr "Zobrazte text nachádzajúci sa v tomto dokumente"
 
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 473
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:320
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:322
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:314
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:316
 msgid "Export to other formats"
 msgstr "Exportovať do iných formátov"
 
@@ -1808,21 +1807,21 @@ msgstr ""
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1215
 # File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 194
-#: src/bigocrpdf/ui/dialogs_manager.py:87
+#: src/bigocrpdf/ui/dialogs_manager.py:81
 msgid "Separate PDFs"
 msgstr "Vytvoriť samostatné PDF súbory"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1216
 # File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 195
-#: src/bigocrpdf/ui/dialogs_manager.py:88
+#: src/bigocrpdf/ui/dialogs_manager.py:82
 msgid "Merge into One PDF"
 msgstr "Zlúčiť do jedného PDF"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1227
 # File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 221
-#: src/bigocrpdf/ui/dialogs_manager.py:97
+#: src/bigocrpdf/ui/dialogs_manager.py:91
 #, python-brace-format
 msgid "Merged {count} image into one PDF"
 msgid_plural "Merged {count} images into one PDF"
@@ -1833,7 +1832,7 @@ msgstr[2] "{count} obrázkov bolo zlúčených do jedného PDF"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1231
 # File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 225
-#: src/bigocrpdf/ui/dialogs_manager.py:103
+#: src/bigocrpdf/ui/dialogs_manager.py:97
 msgid "Error merging images"
 msgstr "Chyba pri zlúčení obrázkov"
 
@@ -1903,8 +1902,8 @@ msgstr "Text uložený do {filename}"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1225
 # File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 443
 #: src/bigocrpdf/ui/file_save_controller.py:117
-#: src/bigocrpdf/ui/image_ocr_window.py:1211
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:682
+#: src/bigocrpdf/ui/image_ocr_window.py:1190
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:672
 msgid "OK"
 msgstr "OK"
 
@@ -1917,7 +1916,7 @@ msgstr "Vyberte súbory"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 478
 # File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 68
 #: src/bigocrpdf/ui/file_selection_manager.py:46
-#: src/bigocrpdf/ui/pdf_editor/editor_page_actions_mixin.py:296
+#: src/bigocrpdf/ui/pdf_editor/editor_page_actions_mixin.py:292
 msgid "PDFs and Images"
 msgstr "PDF a obrázky"
 
@@ -1963,17 +1962,17 @@ msgstr "Vybraný cieľový priečinok"
 
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 46
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 47
-#: src/bigocrpdf/ui/header_bar.py:46 src/bigocrpdf/ui/header_bar.py:47
+#: src/bigocrpdf/ui/header_bar.py:42 src/bigocrpdf/ui/header_bar.py:43
 msgid "Toggle sidebar"
 msgstr "Prepnúť bočný panel"
 
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 70
-#: src/bigocrpdf/ui/header_bar.py:60 src/bigocrpdf/ui/header_bar.py:61
+#: src/bigocrpdf/ui/header_bar.py:56 src/bigocrpdf/ui/header_bar.py:57
 msgid "Remove all files from the list"
 msgstr "Odstrániť všetky súbory zo zoznamu"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
-#: src/bigocrpdf/ui/header_bar.py:69 src/bigocrpdf/ui/header_bar.py:202
+#: src/bigocrpdf/ui/header_bar.py:65 src/bigocrpdf/ui/header_bar.py:194
 #, python-brace-format
 msgid "{count} file"
 msgid_plural "{count} files"
@@ -1985,8 +1984,8 @@ msgstr[2] "{count} súborov"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 126
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 474
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 95
-#: src/bigocrpdf/ui/header_bar.py:86 src/bigocrpdf/ui/header_bar.py:89
-#: src/bigocrpdf/ui/pdf_editor/editor_page_actions_mixin.py:293
+#: src/bigocrpdf/ui/header_bar.py:82 src/bigocrpdf/ui/header_bar.py:85
+#: src/bigocrpdf/ui/pdf_editor/editor_page_actions_mixin.py:289
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:228
 msgid "Add Files"
 msgstr "Pridať súbory"
@@ -1994,28 +1993,28 @@ msgstr "Pridať súbory"
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 123
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 124
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 205
-#: src/bigocrpdf/ui/header_bar.py:107 src/bigocrpdf/ui/header_bar.py:108
-#: src/bigocrpdf/ui/header_bar.py:185
+#: src/bigocrpdf/ui/header_bar.py:103 src/bigocrpdf/ui/header_bar.py:104
+#: src/bigocrpdf/ui/header_bar.py:179
 msgid "List view (click for grid)"
 msgstr "Zobrazenie zoznamom (kliknite pre mriežku)"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 137
-#: src/bigocrpdf/ui/header_bar.py:116 src/bigocrpdf/ui/header_bar.py:117
+#: src/bigocrpdf/ui/header_bar.py:112 src/bigocrpdf/ui/header_bar.py:113
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:254
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:255
-#: src/bigocrpdf/ui/window_ui.py:276 src/bigocrpdf/ui/window_ui.py:277
+#: src/bigocrpdf/ui/window_ui.py:259 src/bigocrpdf/ui/window_ui.py:260
 msgid "Menu"
 msgstr "Menu"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 126
 # File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 256
-#: src/bigocrpdf/ui/header_bar.py:120 src/bigocrpdf/ui/window_ui.py:279
+#: src/bigocrpdf/ui/header_bar.py:116 src/bigocrpdf/ui/window_ui.py:262
 msgid "Reset Settings"
 msgstr "Obnoviť nastavenia"
 
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 137
-#: src/bigocrpdf/ui/header_bar.py:121 src/bigocrpdf/ui/window_ui.py:280
+#: src/bigocrpdf/ui/header_bar.py:117 src/bigocrpdf/ui/window_ui.py:263
 #: src/bigocrpdf/utils/adw_compat.py:137
 msgid "Keyboard Shortcuts"
 msgstr "Klávesové skratky"
@@ -2023,19 +2022,19 @@ msgstr "Klávesové skratky"
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 128
 # File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 258
-#: src/bigocrpdf/ui/header_bar.py:123
+#: src/bigocrpdf/ui/header_bar.py:119
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:258
-#: src/bigocrpdf/ui/window_ui.py:282
+#: src/bigocrpdf/ui/window_ui.py:265
 msgid "About"
 msgstr "O aplikácii"
 
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 181
-#: src/bigocrpdf/ui/header_bar.py:157
+#: src/bigocrpdf/ui/header_bar.py:151
 msgid "Clear file queue?"
 msgstr "Vymazať frontu súborov?"
 
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 182
-#: src/bigocrpdf/ui/header_bar.py:159
+#: src/bigocrpdf/ui/header_bar.py:153
 #, python-brace-format
 msgid "This will remove {count} file from the queue."
 msgid_plural "This will remove {count} files from the queue."
@@ -2044,19 +2043,19 @@ msgstr[1] "Týmto sa z frontu odstránia {count} súbory."
 msgstr[2] "Týmto sa z frontu odstráni {count} súborov."
 
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 202
-#: src/bigocrpdf/ui/header_bar.py:182
+#: src/bigocrpdf/ui/header_bar.py:176
 msgid "Grid view (click for list)"
 msgstr "Zobrazenie mriežkou (kliknite pre zoznam)"
 
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 218
-#: src/bigocrpdf/ui/header_bar.py:223
+#: src/bigocrpdf/ui/header_bar.py:215
 msgid "Start OCR processing"
 msgstr "Spustite spracovanie OCR"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1139
 # File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 221
-#: src/bigocrpdf/ui/header_bar.py:226 src/bigocrpdf/ui/image_ocr_window.py:1163
+#: src/bigocrpdf/ui/header_bar.py:218 src/bigocrpdf/ui/image_ocr_window.py:1142
 msgid ""
 "OCR is unavailable. Install the required engine and restart the application."
 msgstr ""
@@ -2065,53 +2064,53 @@ msgstr ""
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 198
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 236
-#: src/bigocrpdf/ui/image_ocr_window.py:328
-#: src/bigocrpdf/ui/image_ocr_window.py:355
-#: src/bigocrpdf/ui/image_ocr_window.py:409
-#: src/bigocrpdf/ui/image_ocr_window.py:660
+#: src/bigocrpdf/ui/image_ocr_window.py:315
+#: src/bigocrpdf/ui/image_ocr_window.py:342
+#: src/bigocrpdf/ui/image_ocr_window.py:396
+#: src/bigocrpdf/ui/image_ocr_window.py:647
 msgid "No image found in clipboard"
 msgstr "V schránke sa nenašiel žiadny obrázok."
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 428
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 539
-#: src/bigocrpdf/ui/image_ocr_window.py:429
-#: src/bigocrpdf/ui/image_ocr_window.py:540
+#: src/bigocrpdf/ui/image_ocr_window.py:416
+#: src/bigocrpdf/ui/image_ocr_window.py:527
 msgid "Could not read the clipboard image"
 msgstr "Obrázok zo schránky sa nepodarilo načítať"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 633
-#: src/bigocrpdf/ui/image_ocr_window.py:634
+#: src/bigocrpdf/ui/image_ocr_window.py:621
 msgid "Clipboard file list is too large"
 msgstr "Zoznam súborov v schránke je príliš veľký"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
-#: src/bigocrpdf/ui/image_ocr_window.py:701
-#: src/bigocrpdf/ui/image_ocr_window.py:705
-#: src/bigocrpdf/ui/image_ocr_window.py:827
+#: src/bigocrpdf/ui/image_ocr_window.py:688
+#: src/bigocrpdf/ui/image_ocr_window.py:692
+#: src/bigocrpdf/ui/image_ocr_window.py:814
 msgid "Open Image"
 msgstr "Otvoriť obrázok"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 152
-#: src/bigocrpdf/ui/image_ocr_window.py:712
-#: src/bigocrpdf/ui/image_ocr_window.py:717
+#: src/bigocrpdf/ui/image_ocr_window.py:699
+#: src/bigocrpdf/ui/image_ocr_window.py:704
 msgid "Screen Capture"
 msgstr "Zachytenie obrazovky"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
-#: src/bigocrpdf/ui/image_ocr_window.py:728
+#: src/bigocrpdf/ui/image_ocr_window.py:715
 msgid "Image OCR"
 msgstr "OCR obrázkov"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
-#: src/bigocrpdf/ui/image_ocr_window.py:729
+#: src/bigocrpdf/ui/image_ocr_window.py:716
 msgid "Extract text from images or screen captures using OCR."
 msgstr "Extrahujte text z obrázkov alebo snímok obrazovky pomocou OCR."
 
-#: src/bigocrpdf/ui/image_ocr_window.py:737
+#: src/bigocrpdf/ui/image_ocr_window.py:724
 msgid "No text found"
 msgstr "Nenašiel sa žiadny text"
 
-#: src/bigocrpdf/ui/image_ocr_window.py:740
+#: src/bigocrpdf/ui/image_ocr_window.py:727
 msgid ""
 "OCR finished but found no readable text. Capture a tighter region, or try a "
 "sharper image."
@@ -2120,93 +2119,93 @@ msgstr ""
 "Zachyťte menšiu oblasť alebo skúste ostrejší obrázok."
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 167
-#: src/bigocrpdf/ui/image_ocr_window.py:751
+#: src/bigocrpdf/ui/image_ocr_window.py:738
 msgid "Extracting text…"
 msgstr "Extrahovanie textu…"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 740
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 741
-#: src/bigocrpdf/ui/image_ocr_window.py:761
-#: src/bigocrpdf/ui/image_ocr_window.py:762
+#: src/bigocrpdf/ui/image_ocr_window.py:748
+#: src/bigocrpdf/ui/image_ocr_window.py:749
 msgid "Cancel text extraction"
 msgstr "Zrušiť extrakciu textu"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 196
-#: src/bigocrpdf/ui/image_ocr_window.py:792
+#: src/bigocrpdf/ui/image_ocr_window.py:779
 #: src/bigocrpdf/ui/text_viewer_controller.py:408
 msgid "Extracted text"
 msgstr "Extrahovaný text"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
-#: src/bigocrpdf/ui/image_ocr_window.py:804
+#: src/bigocrpdf/ui/image_ocr_window.py:791
 msgid "Copy"
 msgstr "Kopírovať"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
 # File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
-#: src/bigocrpdf/ui/image_ocr_window.py:806
-#: src/bigocrpdf/ui/image_ocr_window.py:808
+#: src/bigocrpdf/ui/image_ocr_window.py:793
+#: src/bigocrpdf/ui/image_ocr_window.py:795
 #: src/bigocrpdf/ui/text_viewer_controller.py:208
 #: src/bigocrpdf/ui/text_viewer_controller.py:209
 msgid "Copy text to clipboard"
 msgstr "Kopírovať text do schránky"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
-#: src/bigocrpdf/ui/image_ocr_window.py:816
+#: src/bigocrpdf/ui/image_ocr_window.py:803
 msgid "New Capture"
 msgstr "Nové zachytenie"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 216
-#: src/bigocrpdf/ui/image_ocr_window.py:819
-#: src/bigocrpdf/ui/image_ocr_window.py:820
+#: src/bigocrpdf/ui/image_ocr_window.py:806
+#: src/bigocrpdf/ui/image_ocr_window.py:807
 msgid "Capture a screen region"
 msgstr "Zachytiť oblasť obrazovky"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 224
-#: src/bigocrpdf/ui/image_ocr_window.py:829
-#: src/bigocrpdf/ui/image_ocr_window.py:830
+#: src/bigocrpdf/ui/image_ocr_window.py:816
+#: src/bigocrpdf/ui/image_ocr_window.py:817
 msgid "Open an image file"
 msgstr "Otvorte súbor s obrázkom"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
-#: src/bigocrpdf/ui/image_ocr_window.py:1073
+#: src/bigocrpdf/ui/image_ocr_window.py:1056
 msgid "Open Image to OCR"
 msgstr "Otvoriť obrázok na OCR"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 496
-#: src/bigocrpdf/ui/image_ocr_window.py:1076
-#: src/bigocrpdf/ui/settings_queue_mixin.py:890
-#: src/bigocrpdf/ui/settings_queue_mixin.py:974
+#: src/bigocrpdf/ui/image_ocr_window.py:1059
+#: src/bigocrpdf/ui/settings_queue_mixin.py:888
+#: src/bigocrpdf/ui/settings_queue_mixin.py:972
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:108
 msgid "Images"
 msgstr "Obrázky"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1102
-#: src/bigocrpdf/ui/image_ocr_window.py:1126
+#: src/bigocrpdf/ui/image_ocr_window.py:1109
 msgid "Could not open the selected image"
 msgstr "Nepodarilo sa otvoriť vybraný obrázok"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1127
-#: src/bigocrpdf/ui/image_ocr_window.py:1151
+#: src/bigocrpdf/ui/image_ocr_window.py:1132
 msgid "Could not copy text to the clipboard"
 msgstr "Nepodarilo sa skopírovať text do schránky"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
-#: src/bigocrpdf/ui/image_ocr_window.py:1209
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:680
+#: src/bigocrpdf/ui/image_ocr_window.py:1188
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:670
 msgid "Error"
 msgstr "Chyba"
 
-#: src/bigocrpdf/ui/navigation_manager.py:57
+#: src/bigocrpdf/ui/navigation_manager.py:22
 msgid "Step 1/3: Settings"
 msgstr "Krok 1/3: Nastavenia"
 
-#: src/bigocrpdf/ui/navigation_manager.py:58
+#: src/bigocrpdf/ui/navigation_manager.py:23
 msgid "Step 2/3: Processing"
 msgstr "Krok 2/3: Spracovanie"
 
-#: src/bigocrpdf/ui/navigation_manager.py:59
+#: src/bigocrpdf/ui/navigation_manager.py:24
 msgid "Step 3/3: Results"
 msgstr "Krok 3/3: Výsledky"
 
@@ -2322,7 +2321,7 @@ msgstr "Pomoc editora PDF"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 92
 #: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:76
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:125
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:120
 msgid "PDF Editor"
 msgstr "Editor PDF"
 
@@ -2472,7 +2471,7 @@ msgstr "Uložiť komprimované PDF"
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 653
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 788
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:133
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:455
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:445
 msgid "PDF Files"
 msgstr "PDF súbory"
 
@@ -2553,24 +2552,24 @@ msgid "Split failed: {}"
 msgstr "Rozdelenie zlyhalo: {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 72
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:123
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:118
 #, python-brace-format
 msgid "PDF Editor - {}"
 msgstr "PDF editor - {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 397
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:218
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:209
 msgid "Could not open PDF file or file has no pages."
 msgstr "Nepodarilo sa otvoriť súbor PDF alebo súbor nemá žiadne stránky."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 428
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:250
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:240
 #, python-brace-format
 msgid "Failed to load PDF: {}"
 msgstr "Nepodarilo sa načítať PDF: {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 605
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:260
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:250
 #, python-brace-format
 msgid "{total} page · {included} included"
 msgid_plural "{total} pages · {included} included"
@@ -2579,13 +2578,13 @@ msgstr[1] "{total} strany · zahrnuté: {included}"
 msgstr[2] "{total} strán · zahrnuté: {included}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:267
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:257
 #, python-brace-format
 msgid "{count} selected"
 msgstr "{count} vybraných"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 737
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:283
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:273
 #, python-brace-format
 msgid "{count} page selected"
 msgid_plural "{count} pages selected"
@@ -2594,65 +2593,65 @@ msgstr[1] "{count} vybrané strany"
 msgstr[2] "{count} vybratých strán"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:338
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:328
 msgid "Saving…"
 msgstr "Ukladá sa…"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 674
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:358
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:363
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:348
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:353
 msgid "Failed to save PDF."
 msgstr "Nepodarilo sa uložiť PDF."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 822
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:452
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:442
 msgid "Save PDF As"
 msgstr "Uložiť PDF ako"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 836
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:465
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:455
 msgid "document.pdf"
 msgstr "document.pdf"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 854
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:494
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:210
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:484
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:211
 #, python-brace-format
 msgid "Saved: {}"
 msgstr "Uložené: {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:529
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:537
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:566
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:519
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:527
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:556
 msgid "Error saving changes."
 msgstr "Chyba pri ukladaní zmien."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 604
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:577
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:567
 msgid "Failed to merge PDF pages."
 msgstr "Zlúčenie strán PDF zlyhalo."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 626
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:584
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:574
 msgid "Unsaved Changes"
 msgstr "Neuložené zmeny"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 627
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:585
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:575
 msgid "What would you like to do with your changes?"
 msgstr "Čo by ste chceli urobiť so svojimi zmenami?"
 
 # #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
 # File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 197
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 629
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:587
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:577
 #: src/bigocrpdf/ui/session_recovery_controller.py:60
 msgid "Discard"
 msgstr "Zahodiť"
 
 # File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:588
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:578
 #: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:238
 msgid "Apply"
 msgstr "Použiť"
@@ -2926,7 +2925,7 @@ msgstr "Strany sa importujú zhora nadol."
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 182
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 755
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:162
-#: src/bigocrpdf/ui/window_ui.py:261 src/bigocrpdf/ui/window_ui.py:266
+#: src/bigocrpdf/ui/window_ui.py:244 src/bigocrpdf/ui/window_ui.py:249
 msgid "Back"
 msgstr "Späť"
 
@@ -2959,7 +2958,7 @@ msgstr "Presunúť hore"
 msgid "Move down"
 msgstr "Presunúť dole"
 
-#: src/bigocrpdf/ui/pdf_editor/page_grid.py:130
+#: src/bigocrpdf/ui/pdf_editor/page_grid.py:125
 msgid ""
 "Page thumbnails. Ctrl+A select all, Ctrl+Up/Down reorder, Delete remove or "
 "restore selected pages, Ctrl+L/R rotate, Ctrl+Z undo"
@@ -2967,92 +2966,86 @@ msgstr ""
 "Miniatúry strán. Ctrl+A vybrať všetko, Ctrl+Hore/Dole zmeniť poradie, Delete "
 "odstrániť alebo obnoviť vybrané strany, Ctrl+L/R otočiť, Ctrl+Z vrátiť"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 80
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:89
-#, python-brace-format
-msgid "Page {}"
-msgstr "Stránka {}"
-
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 131
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:147
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:399
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:142
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:389
 msgid "Excluded"
 msgstr "Vylúčená"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 153
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:168
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:162
 msgid "Include this page in the final document"
 msgstr "Zahrňte túto stránku do konečného dokumentu"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 164
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:171
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:165
 #, python-brace-format
 msgid "Include page {} in the final document"
 msgstr "Zahrnúť stránku {} do výsledného dokumentu"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 169
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:187
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:181
 msgid "Rotate this page to the left"
 msgstr "Otočte túto stránku doľava."
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 183
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:190
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:184
 #, python-brace-format
 msgid "Rotate page {} to the left"
 msgstr "Otočiť stránku {} doľava"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 178
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:200
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:194
 msgid "Rotate this page to the right"
 msgstr "Otočte túto stránku doprava"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 196
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:203
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:197
 #, python-brace-format
 msgid "Rotate page {} to the right"
 msgstr "Otočiť stránku {} doprava"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 211
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:216
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:403
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:210
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:393
 msgid "Horizontal Flip"
 msgstr "Vodorovné prevrátenie"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 212
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:217
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:405
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:211
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:395
 msgid "Vertical Flip"
 msgstr "Zvislé prevrátenie"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 231
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:235
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:228
 msgid "Mirror this page (Horizontal/Vertical)"
 msgstr "Zrkadliť túto stranu (vodorovne/zvisle)"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 235
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:238
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:231
 #, python-brace-format
 msgid "Mirror page {}"
 msgstr "Zrkadliť stranu {}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 268
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:271
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:263
 msgid "Save page as image"
 msgstr "Uložiť stranu ako obrázok"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 269
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:272
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:264
 msgid "Save page as PDF"
 msgstr "Uložiť stranu ako PDF"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 556
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:397
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:387
 #, python-brace-format
 msgid "Page {n}"
 msgstr "Stránka {n}"
 
 # File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 560
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:401
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:391
 #, python-brace-format
 msgid "Rotated {deg}°"
 msgstr "Otočená o {deg}°"
@@ -3062,11 +3055,11 @@ msgstr "Otočená o {deg}°"
 msgid "Could not render page {page}"
 msgstr "Nepodarilo sa vykresliť stranu {page}"
 
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:199
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:200
 msgid "Choose a folder on this computer to save the page."
 msgstr "Vyberte priečinok v tomto počítači, do ktorého sa strana uloží."
 
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:205
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:206
 #, python-brace-format
 msgid "Could not save {name}: {error}"
 msgstr "Nepodarilo sa uložiť {name}: {error}"
@@ -3382,55 +3375,55 @@ msgid "Previous session discarded"
 msgstr "Predchádzajúca relácia bola zahodená."
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 400
-#: src/bigocrpdf/ui/settings_queue_mixin.py:185
-#: src/bigocrpdf/ui/settings_queue_mixin.py:225
+#: src/bigocrpdf/ui/settings_queue_mixin.py:186
+#: src/bigocrpdf/ui/settings_queue_mixin.py:226
 msgid "File queue"
 msgstr "Front súborov"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 57
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 100
-#: src/bigocrpdf/ui/settings_queue_mixin.py:189
-#: src/bigocrpdf/ui/settings_queue_mixin.py:232
+#: src/bigocrpdf/ui/settings_queue_mixin.py:190
+#: src/bigocrpdf/ui/settings_queue_mixin.py:233
 msgid "Add your PDFs"
 msgstr "Pridajte svoje PDF súbory"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 59
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 102
-#: src/bigocrpdf/ui/settings_queue_mixin.py:191
-#: src/bigocrpdf/ui/settings_queue_mixin.py:234
+#: src/bigocrpdf/ui/settings_queue_mixin.py:192
+#: src/bigocrpdf/ui/settings_queue_mixin.py:235
 msgid "Drag PDF files and images here, or use the button in the header bar"
 msgstr "Pretiahnite PDF súbory a obrázky sem, alebo použite tlačidlo v záhlaví"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 362
-#: src/bigocrpdf/ui/settings_queue_mixin.py:259
+#: src/bigocrpdf/ui/settings_queue_mixin.py:260
 msgid "Save in the same folder as the original file"
 msgstr "Uložiť do rovnakého priečinka ako pôvodný súbor"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 363
-#: src/bigocrpdf/ui/settings_queue_mixin.py:260
+#: src/bigocrpdf/ui/settings_queue_mixin.py:261
 msgid "Custom folder"
 msgstr "Vlastný priečinok"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 442
-#: src/bigocrpdf/ui/settings_queue_mixin.py:267
+#: src/bigocrpdf/ui/settings_queue_mixin.py:268
 msgid "Output folder location"
 msgstr "Umiestnenie výstupného priečinka"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
 # line: 1862
-#: src/bigocrpdf/ui/settings_queue_mixin.py:278
+#: src/bigocrpdf/ui/settings_queue_mixin.py:279
 msgid "Select folder"
 msgstr "Vybrať priečinok"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 458
-#: src/bigocrpdf/ui/settings_queue_mixin.py:281
+#: src/bigocrpdf/ui/settings_queue_mixin.py:282
 msgid "Destination folder path"
 msgstr "Cesta cieľového priečinka"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 465
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 466
-#: src/bigocrpdf/ui/settings_queue_mixin.py:287
 #: src/bigocrpdf/ui/settings_queue_mixin.py:288
+#: src/bigocrpdf/ui/settings_queue_mixin.py:289
 msgid "Browse for folder"
 msgstr "Prehľadávať priečinky"
 
@@ -3464,160 +3457,160 @@ msgid "{size} MB"
 msgstr "{size} MB"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 481
-#: src/bigocrpdf/ui/settings_queue_mixin.py:711
+#: src/bigocrpdf/ui/settings_queue_mixin.py:709
 msgid "Open file"
 msgstr "Otvoriť súbor"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 486
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 746
-#: src/bigocrpdf/ui/settings_queue_mixin.py:716
-#: src/bigocrpdf/ui/settings_queue_mixin.py:931
+#: src/bigocrpdf/ui/settings_queue_mixin.py:714
+#: src/bigocrpdf/ui/settings_queue_mixin.py:929
 msgid "File information"
 msgstr "Informácie o súbore"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 679
-#: src/bigocrpdf/ui/settings_queue_mixin.py:844
+#: src/bigocrpdf/ui/settings_queue_mixin.py:842
 msgid "Name"
 msgstr "Názov"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 680
-#: src/bigocrpdf/ui/settings_queue_mixin.py:845
+#: src/bigocrpdf/ui/settings_queue_mixin.py:843
 msgid "Path"
 msgstr "Cesta"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 685
-#: src/bigocrpdf/ui/settings_queue_mixin.py:851
+#: src/bigocrpdf/ui/settings_queue_mixin.py:849
 msgid "Size"
 msgstr "Veľkosť"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 693
-#: src/bigocrpdf/ui/settings_queue_mixin.py:858
+#: src/bigocrpdf/ui/settings_queue_mixin.py:856
 msgid "Modified (local)"
 msgstr "Upravené (miestny čas)"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 701
-#: src/bigocrpdf/ui/settings_queue_mixin.py:864
+#: src/bigocrpdf/ui/settings_queue_mixin.py:862
 msgid "Document"
 msgstr "Dokument"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:866
+#: src/bigocrpdf/ui/settings_queue_mixin.py:864
 msgid "Pages"
 msgstr "Strany"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:867
+#: src/bigocrpdf/ui/settings_queue_mixin.py:865
 msgid "Page size"
 msgstr "Veľkosť strany"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:868
+#: src/bigocrpdf/ui/settings_queue_mixin.py:866
 msgid "PDF version"
 msgstr "Verzia PDF"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:869
+#: src/bigocrpdf/ui/settings_queue_mixin.py:867
 msgid "Encrypted"
 msgstr "Šifrované"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:870
+#: src/bigocrpdf/ui/settings_queue_mixin.py:868
 msgid "Optimized"
 msgstr "Optimalizované"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:871
+#: src/bigocrpdf/ui/settings_queue_mixin.py:869
 msgid "Tagged"
 msgstr "So značkami"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 706
-#: src/bigocrpdf/ui/settings_queue_mixin.py:876
+#: src/bigocrpdf/ui/settings_queue_mixin.py:874
 msgid "Form"
 msgstr "Formulár"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 708
-#: src/bigocrpdf/ui/settings_queue_mixin.py:878
+#: src/bigocrpdf/ui/settings_queue_mixin.py:876
 msgid "JavaScript"
 msgstr "JavaScript"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 711
-#: src/bigocrpdf/ui/settings_queue_mixin.py:889
-#: src/bigocrpdf/ui/settings_queue_mixin.py:974
+#: src/bigocrpdf/ui/settings_queue_mixin.py:887
+#: src/bigocrpdf/ui/settings_queue_mixin.py:972
 msgid "Content"
 msgstr "Obsah"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 715
-#: src/bigocrpdf/ui/settings_queue_mixin.py:893
+#: src/bigocrpdf/ui/settings_queue_mixin.py:891
 msgid "Image formats"
 msgstr "Formáty obrázkov"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 721
-#: src/bigocrpdf/ui/settings_queue_mixin.py:897
+#: src/bigocrpdf/ui/settings_queue_mixin.py:895
 msgid "Fonts"
 msgstr "Písma"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 725
-#: src/bigocrpdf/ui/settings_queue_mixin.py:899
+#: src/bigocrpdf/ui/settings_queue_mixin.py:897
 msgid "Embedded fonts"
 msgstr "Vložené písma"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 729
-#: src/bigocrpdf/ui/settings_queue_mixin.py:901
+#: src/bigocrpdf/ui/settings_queue_mixin.py:899
 msgid "Font names"
 msgstr "Názvy písiem"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 732
-#: src/bigocrpdf/ui/settings_queue_mixin.py:904
+#: src/bigocrpdf/ui/settings_queue_mixin.py:902
 msgid "Attached files"
 msgstr "Priložené súbory"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 735
-#: src/bigocrpdf/ui/settings_queue_mixin.py:908
+#: src/bigocrpdf/ui/settings_queue_mixin.py:906
 msgid "Metadata"
 msgstr "Metadáta"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:910
+#: src/bigocrpdf/ui/settings_queue_mixin.py:908
 msgid "Title"
 msgstr "Názov"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:911
+#: src/bigocrpdf/ui/settings_queue_mixin.py:909
 msgid "Subject"
 msgstr "Predmet"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:912
+#: src/bigocrpdf/ui/settings_queue_mixin.py:910
 msgid "Author"
 msgstr "Autor"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:913
+#: src/bigocrpdf/ui/settings_queue_mixin.py:911
 msgid "Creator"
 msgstr "Tvorca"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:914
+#: src/bigocrpdf/ui/settings_queue_mixin.py:912
 msgid "Producer"
 msgstr "Výrobca"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:915
+#: src/bigocrpdf/ui/settings_queue_mixin.py:913
 msgid "Keywords"
 msgstr "Kľúčové slová"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 740
-#: src/bigocrpdf/ui/settings_queue_mixin.py:920
+#: src/bigocrpdf/ui/settings_queue_mixin.py:918
 msgid "Created"
 msgstr "Vytvorené"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 742
-#: src/bigocrpdf/ui/settings_queue_mixin.py:922
+#: src/bigocrpdf/ui/settings_queue_mixin.py:920
 msgid "Modified"
 msgstr "Upravené"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 755
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 756
-#: src/bigocrpdf/ui/settings_queue_mixin.py:950
-#: src/bigocrpdf/ui/settings_queue_mixin.py:951
+#: src/bigocrpdf/ui/settings_queue_mixin.py:948
+#: src/bigocrpdf/ui/settings_queue_mixin.py:949
 msgid "Copy all information"
 msgstr "Kopírovať všetky informácie"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 782
-#: src/bigocrpdf/ui/settings_queue_mixin.py:981
+#: src/bigocrpdf/ui/settings_queue_mixin.py:979
 msgid "Image list"
 msgstr "Zoznam obrázkov"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 493
-#: src/bigocrpdf/ui/settings_queue_mixin.py:984
+#: src/bigocrpdf/ui/settings_queue_mixin.py:982
 #, python-brace-format
 msgid "{count} image"
 msgid_plural "{count} images"
@@ -3627,46 +3620,46 @@ msgstr[2] "{count} obrázkov"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 792
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 793
-#: src/bigocrpdf/ui/settings_queue_mixin.py:998
-#: src/bigocrpdf/ui/settings_queue_mixin.py:999
+#: src/bigocrpdf/ui/settings_queue_mixin.py:996
+#: src/bigocrpdf/ui/settings_queue_mixin.py:997
 msgid "Extract this image"
 msgstr "Extrahovať tento obrázok"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 823
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1022
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1020
 msgid "Information copied"
 msgstr "Informácie boli skopírované"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 879
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 887
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1056
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1062
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1075
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1054
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1060
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1073
 msgid "Failed to extract image"
 msgstr "Nepodarilo sa extrahovať obrázok"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 885
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1075
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1073
 msgid "Image extracted"
 msgstr "Obrázok bol extrahovaný"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1114
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1130
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1128
 msgid "Failed to open PDF editor"
 msgstr "Nepodarilo sa otvoriť editor PDF."
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1094
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1144
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1142
 msgid "Changes saved"
 msgstr "Zmeny boli uložené"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1210
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1192
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1190
 msgid "Multiple Images Dropped"
 msgstr "Bolo sem presunutých viacero obrázkov"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1212
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1194
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1192
 #, python-brace-format
 msgid "You dropped {count} image. How would you like to add it?"
 msgid_plural "You dropped {count} images. How would you like to add them?"
@@ -3675,8 +3668,8 @@ msgstr[1] "Presunuli ste sem {count} obrázky. Ako ich chcete pridať?"
 msgstr[2] "Presunuli ste sem {count} obrázkov. Ako ich chcete pridať?"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 1082
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1246
-#: src/bigocrpdf/ui/window_ui.py:116
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1244
+#: src/bigocrpdf/ui/window_ui.py:108
 #, python-brace-format
 msgid "{count} file in queue"
 msgid_plural "{count} files in queue"
@@ -3685,7 +3678,7 @@ msgstr[1] "{count} súbory vo fronte"
 msgstr[2] "{count} súborov vo fronte"
 
 # File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 1094
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1261
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1259
 msgid "All files removed from queue"
 msgstr "Všetky súbory boli odstránené z fronty"
 
@@ -4162,12 +4155,12 @@ msgid "Let's Get Started"
 msgstr "Poďme začať"
 
 # File: bigocrpdf/src/bigocrpdf/ui/widgets.py, line: 76
-#: src/bigocrpdf/ui/widgets.py:77
+#: src/bigocrpdf/ui/widgets.py:75
 msgid "The OCR engine could not be loaded."
 msgstr "Modul OCR sa nepodarilo načítať."
 
 # File: bigocrpdf/src/bigocrpdf/ui/widgets.py, line: 78
-#: src/bigocrpdf/ui/widgets.py:79
+#: src/bigocrpdf/ui/widgets.py:77
 #, python-brace-format
 msgid ""
 "{reason}\n"
@@ -4180,11 +4173,11 @@ msgstr ""
 "aplikáciu."
 
 # File: bigocrpdf/src/bigocrpdf/ui/widgets.py, line: 80
-#: src/bigocrpdf/ui/widgets.py:81
+#: src/bigocrpdf/ui/widgets.py:79
 msgid "OCR is unavailable"
 msgstr "OCR nie je k dispozícii"
 
-#: src/bigocrpdf/ui/widgets.py:112
+#: src/bigocrpdf/ui/widgets.py:110
 #, python-brace-format
 msgid "Could not open {name}: {error}"
 msgstr "Nepodarilo sa otvoriť {name}: {error}"
@@ -4200,36 +4193,36 @@ msgstr "Nepodarilo sa otvoriť {name}: {error}"
 # line: 568
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line:
 # 34
-#: src/bigocrpdf/ui/widgets.py:132
+#: src/bigocrpdf/ui/widgets.py:130
 #, python-brace-format
 msgid "CSS file not found: {0}"
 msgstr "Súbor CSS sa nenašiel: {0}"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line:
 # 46
-#: src/bigocrpdf/ui/widgets.py:137 src/bigocrpdf/ui/widgets.py:144
+#: src/bigocrpdf/ui/widgets.py:135 src/bigocrpdf/ui/widgets.py:142
 #, python-brace-format
 msgid "Error loading CSS styles: {0}"
 msgstr "Chyba pri načítaní CSS štýlov: {0}"
 
 # File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line:
 # 43
-#: src/bigocrpdf/ui/widgets.py:153
+#: src/bigocrpdf/ui/widgets.py:151
 msgid "Custom CSS styles loaded successfully"
 msgstr "Vlastné CSS štýly boli načítané."
 
 # File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 46
-#: src/bigocrpdf/ui/window_ui.py:75
+#: src/bigocrpdf/ui/window_ui.py:69
 msgid "Main"
 msgstr "Hlavné zobrazenie"
 
 # File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 213
-#: src/bigocrpdf/ui/window_ui.py:235
+#: src/bigocrpdf/ui/window_ui.py:219
 msgid "Results"
 msgstr "Výsledky"
 
 # File: bigocrpdf/src/bigocrpdf/utils/temp_manager.py, line: 85
-#: src/bigocrpdf/utils/temp_manager.py:88
+#: src/bigocrpdf/utils/temp_manager.py:81
 #, python-brace-format
 msgid ""
 "Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
@@ -4238,18 +4231,18 @@ msgstr ""
 "len {free:.0f} MB."
 
 # File: bigocrpdf/src/bigocrpdf/utils/temp_manager.py, line: 98
-#: src/bigocrpdf/utils/temp_manager.py:101
+#: src/bigocrpdf/utils/temp_manager.py:94
 #, python-brace-format
 msgid "No write permission for folder: {path}"
 msgstr "Chýba oprávnenie na zápis do priečinka: {path}"
 
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 162
-#: src/bigocrpdf/window_controller.py:199
+#: src/bigocrpdf/window_controller.py:195
 msgid "No supported files in clipboard"
 msgstr "Žiadne podporované súbory v schránke"
 
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 191
-#: src/bigocrpdf/window_controller.py:207
+#: src/bigocrpdf/window_controller.py:203
 #, python-brace-format
 msgid "{count} file added from clipboard"
 msgid_plural "{count} files added from clipboard"
@@ -4258,12 +4251,12 @@ msgstr[1] "Zo schránky boli pridané {count} súbory"
 msgstr[2] "Zo schránky bolo pridaných {count} súborov"
 
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 175
-#: src/bigocrpdf/window_controller.py:260
+#: src/bigocrpdf/window_controller.py:256
 msgid "Multiple Images Pasted"
 msgstr "Viacero vložených obrázkov"
 
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 176
-#: src/bigocrpdf/window_controller.py:262
+#: src/bigocrpdf/window_controller.py:258
 #, python-brace-format
 msgid "You pasted {count} image. How would you like to add it?"
 msgid_plural "You pasted {count} images. How would you like to add them?"
@@ -4272,7 +4265,7 @@ msgstr[1] "Vložili ste {count} obrázky. Ako ich chcete pridať?"
 msgstr[2] "Vložili ste {count} obrázkov. Ako ich chcete pridať?"
 
 # File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 224
-#: src/bigocrpdf/window_controller.py:313
+#: src/bigocrpdf/window_controller.py:307
 msgid "Image from clipboard added"
 msgstr "Obrázok zo schránky bol pridaný"
 

@@ -6,6 +6,8 @@ from types import SimpleNamespace
 from typing import Any, cast
 from unittest.mock import MagicMock
 
+from gi.repository import Gtk
+
 from bigocrpdf.ui.pdf_editor import thumbnail_renderer
 from bigocrpdf.ui.pdf_editor.page_grid import PageGrid
 from bigocrpdf.ui.pdf_editor.page_thumbnail import PageThumbnail
@@ -303,7 +305,8 @@ def test_thumbnail_accessible_name_reports_rotation_and_flips(monkeypatch) -> No
         flip_vertical=True,
     )
     thumbnail._page_label = MagicMock()
-    thumbnail.update_property = MagicMock()
+    wrapper = MagicMock(spec=Gtk.FlowBoxChild)
+    thumbnail.get_parent = MagicMock(return_value=wrapper)
     monkeypatch.setattr(
         "bigocrpdf.ui.pdf_editor.page_thumbnail._",
         lambda message: message,
@@ -312,7 +315,7 @@ def test_thumbnail_accessible_name_reports_rotation_and_flips(monkeypatch) -> No
     thumbnail._update_page_label()
 
     thumbnail._page_label.set_text.assert_called_once_with("3")
-    assert thumbnail.update_property.call_args.args[1] == [
+    assert wrapper.update_property.call_args.args[1] == [
         "Page 3 — Rotated 90° — Horizontal Flip — Vertical Flip"
     ]
 
@@ -486,3 +489,29 @@ def test_pdftoppm_cancellation_stops_before_poppler_fallback(monkeypatch) -> Non
     assert result is None
     process.terminate.assert_called_once_with()
     fallback.assert_not_called()
+
+
+class _RecordingListItem(Gtk.FlowBoxChild):
+    def __init__(self) -> None:
+        super().__init__(accessible_role=Gtk.AccessibleRole.LIST_ITEM)
+        self.names: list[str] = []
+
+    def update_property(self, properties, values) -> None:
+        if properties == [Gtk.AccessibleProperty.LABEL]:
+            self.names.extend(values)
+        super().update_property(properties, values)
+
+
+def test_the_list_item_holding_a_page_is_named_after_it_even_after_a_swap() -> None:
+    """A screen reader reads the wrapper; an unnamed one read every child's text."""
+    from bigocrpdf.ui.pdf_editor.page_model import PageState
+
+    thumbnail = PageThumbnail(PageState(page_number=4), pdf_path="", size=40)
+    first, second = _RecordingListItem(), _RecordingListItem()
+
+    first.set_child(thumbnail)
+    first.set_child(None)
+    second.set_child(thumbnail)
+
+    assert first.names[-1].endswith("4")
+    assert second.names[-1] == first.names[-1]

@@ -80,11 +80,10 @@ class PageThumbnail(Gtk.Box):
         self.add_css_class("page-thumbnail")
         self.set_size_request(size + 16, self._height + 50)
 
-        # Accessible name for screen readers
-        self.update_property(
-            [Gtk.AccessibleProperty.LABEL],
-            [_("Page {}").format(page_state.page_number)],
-        )
+        # The FlowBoxChild holding this thumbnail is the item a screen reader
+        # reads; swaps move thumbnails between wrappers, so it is named on
+        # every reparent.
+        self.connect("notify::parent", lambda *_args: self._update_page_label())
 
         self.set_cursor(Gdk.Cursor.new_from_name("grab", None))
 
@@ -381,7 +380,7 @@ class PageThumbnail(Gtk.Box):
         self.emit("flip-vertical-clicked")
 
     def _update_page_label(self) -> None:
-        """Update the page number label text and accessible description."""
+        """Update the page number label and the accessible name of its list item."""
         page_num = self._page_state.page_number
         self._page_label.set_text(str(page_num))
         # Build accessible label with state for screen readers
@@ -394,10 +393,9 @@ class PageThumbnail(Gtk.Box):
             parts.append(_("Horizontal Flip"))
         if self._page_state.flip_vertical:
             parts.append(_("Vertical Flip"))
-        self.update_property(
-            [Gtk.AccessibleProperty.LABEL],
-            [" — ".join(parts)],
-        )
+        wrapper = self.get_parent()
+        if isinstance(wrapper, Gtk.FlowBoxChild):
+            wrapper.update_property([Gtk.AccessibleProperty.LABEL], [" — ".join(parts)])
 
     def _update_appearance(self) -> None:
         """Update widget appearance based on current state."""

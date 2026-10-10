@@ -272,7 +272,7 @@ class PageGrid(Gtk.ScrolledWindow):
 
         for page in all_pages:
             thumbnail = self._create_thumbnail(page)
-            self._flowbox.append(thumbnail)
+            self._insert_thumbnail(thumbnail, -1)
             self._thumbnails.append(thumbnail)
 
         # Restore selection
@@ -306,7 +306,7 @@ class PageGrid(Gtk.ScrolledWindow):
             fb_child.set_child(None)
             self._flowbox.remove(fb_child)
 
-        self._flowbox.insert(thumb, final_target)
+        self._insert_thumbnail(thumb, final_target)
 
         self._thumbnails.pop(source_pos)
         self._thumbnails.insert(final_target, thumb)
@@ -402,7 +402,7 @@ class PageGrid(Gtk.ScrolledWindow):
         # Re-insert at target position
         for offset, thumb in enumerate(moving):
             pos = insert_at + offset
-            self._flowbox.insert(thumb, pos)
+            self._insert_thumbnail(thumb, pos)
             self._thumbnails.insert(pos, thumb)
 
         # Unfreeze rendering
@@ -423,6 +423,13 @@ class PageGrid(Gtk.ScrolledWindow):
             next_child = child.get_next_sibling()
             self._flowbox.remove(child)
             child = next_child
+
+    def _insert_thumbnail(self, thumbnail: PageThumbnail, position: int) -> None:
+        # A wrapper FlowBox creates itself is an unnamed grid cell; inside
+        # this list each page must be a named list item.
+        wrapper = Gtk.FlowBoxChild(accessible_role=Gtk.AccessibleRole.LIST_ITEM)
+        wrapper.set_child(thumbnail)
+        self._flowbox.insert(wrapper, position)
 
     def _create_thumbnail(self, page_state: PageState) -> PageThumbnail:
         thumbnail = PageThumbnail(
