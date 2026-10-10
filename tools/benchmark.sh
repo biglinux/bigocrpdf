@@ -13,10 +13,10 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-DATA_DIR=${BIGOCRPDF_BENCH_DATA:-data/benchmarks}
-BUILD_DIR=build/bench
-BASELINE_DIR=benchmarks/baselines
-MANIFEST="$DATA_DIR/manifest.jsonl"
+data_dir=${BIGOCRPDF_BENCH_DATA:-data/benchmarks}
+build_dir=build/bench
+baseline_dir=benchmarks/baselines
+manifest="$data_dir/manifest.jsonl"
 
 usage() {
 	sed -n '3,15p' "$0" >&2
@@ -24,8 +24,8 @@ usage() {
 }
 
 require_manifest() {
-	[ -f "$MANIFEST" ] || {
-		printf 'No manifest at %s. Run: tools/benchmark.sh prepare\n' "$MANIFEST" >&2
+	[ -f "$manifest" ] || {
+		printf 'No manifest at %s. Run: tools/benchmark.sh prepare\n' "$manifest" >&2
 		exit 1
 	}
 }
@@ -36,16 +36,16 @@ shift || true
 
 case $command in
 prepare)
-	mkdir -p "$DATA_DIR"
-	python3 benchmarks/make_synthetic_ocr_fixtures.py --out "$DATA_DIR"
-	printf 'Synthetic fixtures staged in %s\n' "$DATA_DIR"
+	mkdir -p "$data_dir"
+	python3 benchmarks/make_synthetic_ocr_fixtures.py --out "$data_dir"
+	printf 'Synthetic fixtures staged in %s\n' "$data_dir"
 	printf 'For the real datasets:\n'
-	printf '  python3 benchmarks/prepare_benchmark_datasets.py --datasets dharmaocr --out %s\n' "$DATA_DIR"
+	printf '  python3 benchmarks/prepare_benchmark_datasets.py --datasets dharmaocr --out %s\n' "$data_dir"
 	;;
 
 run)
 	profile=balanced_cpu
-	out="$BUILD_DIR/candidate.jsonl"
+	out="$build_dir/candidate.jsonl"
 	while [ $# -gt 0 ]; do
 		case $1 in
 		--profile)
@@ -62,7 +62,7 @@ run)
 	require_manifest
 	mkdir -p "$(dirname "$out")"
 	python3 benchmarks/ocr_benchmark.py \
-		--manifest "$MANIFEST" \
+		--manifest "$manifest" \
 		--profile "$profile" \
 		--repeats 3 \
 		--warmup-runs 1 \
@@ -73,7 +73,7 @@ run)
 gate)
 	host_class=
 	metrics=quality
-	candidate="$BUILD_DIR/candidate.jsonl"
+	candidate="$build_dir/candidate.jsonl"
 	while [ $# -gt 0 ]; do
 		case $1 in
 		--host-class)
@@ -92,7 +92,7 @@ gate)
 		esac
 	done
 	[ -n "$host_class" ] || usage
-	baseline="$BASELINE_DIR/$host_class/balanced_cpu.jsonl"
+	baseline="$baseline_dir/$host_class/balanced_cpu.jsonl"
 	[ -f "$baseline" ] || {
 		printf 'No baseline at %s. Record one with: tools/benchmark.sh accept --host-class %s\n' \
 			"$baseline" "$host_class" >&2
@@ -102,16 +102,16 @@ gate)
 		printf 'No candidate at %s. Run: tools/benchmark.sh run\n' "$candidate" >&2
 		exit 1
 	}
-	mkdir -p "$BUILD_DIR"
+	mkdir -p "$build_dir"
 	# Exits non-zero on regression, which is the whole point.
 	python3 benchmarks/compare_benchmarks.py "$baseline" "$candidate" \
-		--out "$BUILD_DIR/report.md"
-	printf 'Gate passed (%s metrics). Report: %s/report.md\n' "$metrics" "$BUILD_DIR"
+		--out "$build_dir/report.md"
+	printf 'Gate passed (%s metrics). Report: %s/report.md\n' "$metrics" "$build_dir"
 	;;
 
 accept)
 	host_class=
-	candidate="$BUILD_DIR/candidate.jsonl"
+	candidate="$build_dir/candidate.jsonl"
 	while [ $# -gt 0 ]; do
 		case $1 in
 		--host-class)
@@ -130,7 +130,7 @@ accept)
 		printf 'No candidate at %s. Run: tools/benchmark.sh run\n' "$candidate" >&2
 		exit 1
 	}
-	target="$BASELINE_DIR/$host_class/balanced_cpu.jsonl"
+	target="$baseline_dir/$host_class/balanced_cpu.jsonl"
 	mkdir -p "$(dirname "$target")"
 	# Deliberately a copy and not a move: accepting a baseline is a reviewed
 	# commit, so the candidate stays where it is for inspection.
