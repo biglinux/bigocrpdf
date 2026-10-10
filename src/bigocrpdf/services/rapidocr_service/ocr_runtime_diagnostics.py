@@ -50,9 +50,8 @@ def build_ocr_runtime_diagnostics(
     """Return the effective OCR runtime configuration.
 
     Args:
-        ocr_workers: Preprocessing workers the pipeline actually started. This
-            used to be hard-coded to 1, so every benchmark record claimed a
-            single worker no matter how many ran.
+        ocr_workers: Preprocessing workers the pipeline actually started, so a
+            benchmark record reports the parallelism that ran.
         resource: The tier and budget the pipeline computed, when the caller
             knows it. Without it a slow run cannot be told apart from a run
             that was correctly throttled for a small machine.

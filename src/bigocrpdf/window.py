@@ -1,8 +1,4 @@
-"""
-BigOcrPdf - Window Module
-
-This module contains the main application window implementation.
-"""
+"""The main PDF OCR window: queue, settings, processing and results pages."""
 
 import os
 
@@ -47,7 +43,6 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
             app: The parent Adw.Application instance
             ocr_dependency: Resolved OCR dependency state from startup
         """
-        # Load saved window size
         width, height = self._load_window_size()
 
         super().__init__(
@@ -63,14 +58,12 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
         # minimum must describe the collapsed content instead of both panes.
         self.set_size_request(640, 400)
 
-        # Set up the window icon
         self.set_icon_name(APP_ICON_NAME)
 
         self.ocr_dependency = ocr_dependency
         self._ocr_unavailable_dialog: Adw.AlertDialog | None = None
         self._close_prepared = False
 
-        # Initialize components
         self.settings = OcrSettings()
         self.ui = BigOcrPdfUI(self)
         self.file_manager = FileSelectionManager(self, self.settings, self.ui)
@@ -95,10 +88,8 @@ class BigOcrPdfWindow(Adw.ApplicationWindow):
             welcome_config_path=self.WELCOME_DIALOG_CONFIG,
         )
 
-        # Create the main layout
         self.ui.setup()
 
-        # Connect close-request signal to save window state
         self.connect("close-request", self._on_close_request)
 
     def show_ocr_unavailable_dialog(self) -> bool:

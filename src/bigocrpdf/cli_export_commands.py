@@ -1,7 +1,4 @@
-"""Document export command implementations for the BigOcrPdf CLI.
-
-allow-noisy-log: export commands print user-facing output paths.
-"""
+"""Document export command implementations for the BigOcrPdf CLI."""
 
 import argparse
 import logging

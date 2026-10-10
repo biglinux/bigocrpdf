@@ -218,12 +218,11 @@ class TestPerspectiveCascade:
         assert "gentle_margin" in corrector.last_rejected
 
     def test_an_unusable_contour_falls_through_to_the_gentle_margin(self, page, monkeypatch):
-        """Fixed: an internal frame no longer ends the cascade.
+        """An internal frame does not end the cascade.
 
-        ``_try_contour_correction`` used to return the input image for a
-        contour that turned out to be an internal frame, which is terminal and
-        stopped the gentle-margin step from ever running. It now returns None,
-        as its own docstring always promised.
+        ``_try_contour_correction`` returns None for a contour that turns out
+        to be an internal frame; returning the image would be terminal and
+        skip the gentle-margin step.
         """
         for name, _ in self.DETECTORS:
             monkeypatch.setattr(perspective_module, name, lambda image: None)

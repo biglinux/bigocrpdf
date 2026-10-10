@@ -64,8 +64,7 @@ dedicated image OCR application and a separate command-line PDF toolbox.
 
 PP-OCRv6 recognizes Chinese, English, Japanese, and 46 Latin-script languages with one
 unified model, so the graphical applications do not ask users to choose a language. The
-application requires the PP-OCRv6 detection and recognition files at startup and does not
-fall back to PP-OCRv5 language-specific models.
+application requires the PP-OCRv6 detection and recognition files at startup.
 
 ### Image preprocessing
 
@@ -132,7 +131,7 @@ of those formats depends on the image loaders available on the system.
 Package names vary by distribution. Before installing the Python project, provide:
 
 - Python 3.12 or newer
-- GTK 4.22 or newer, libadwaita 1.8 or newer, PyGObject, Pycairo, and their GObject Introspection data
+- GTK 4.14 or newer, libadwaita 1.5 or newer, PyGObject, Pycairo, and their GObject Introspection data
 - Poppler command-line tools, including `pdfinfo`, `pdfimages`, `pdftotext`, `pdftoppm`,
   `pdffonts`, and `pdfdetach`
 - RapidOCR and the OCR models/fonts required for the languages you intend to use
@@ -224,8 +223,7 @@ portal and then supported screenshot tools installed on the system.
 
 Gettext catalogs are maintained for `bg`, `cs`, `da`, `de`, `el`, `en`, `es`, `et`, `fi`,
 `fr`, `he`, `hr`, `hu`, `is`, `it`, `ja`, `ko`, `nl`, `no`, `pl`, `pt`, `pt_BR`, `ro`,
-`ru`, `sk`, `sv`, `tr`, `uk`, and `zh`. Translation completeness is validated from the
-current catalogs rather than documented as a fixed string count.
+`ru`, `sk`, `sv`, `tr`, `uk`, and `zh`.
 
 ---
 
@@ -276,15 +274,11 @@ graph TD
 ## Quality checks
 
 The repository contains automated coverage for the OCR pipeline, PDF operations, export,
-preprocessing, editor behavior, persistence, security boundaries, and utilities. Run the
-current suite instead of relying on a fixed test-count badge:
+preprocessing, editor behavior, persistence, security boundaries, and utilities. Run it with:
 
 ```bash
 bash tools/validate.sh
 ```
-
-Package metadata declares Python 3.12 as the minimum supported version. The project does not
-claim formal WCAG conformance without a dedicated conformance audit.
 
 ---
 

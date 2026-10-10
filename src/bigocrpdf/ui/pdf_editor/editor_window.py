@@ -1,9 +1,4 @@
-"""
-BigOcrPdf - PDF Editor Window
-
-Main editor window for PDF page manipulation before OCR processing.
-Redesigned with a visible action bar for discoverability and accessibility.
-"""
+"""PDF editor window: page manipulation before OCR, with a visible action bar."""
 
 import os
 from collections.abc import Callable
@@ -133,10 +128,8 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
         self._setup_drag_drop()
         self._load_document()
 
-        # Connect close request handler
         self.connect("close-request", self._on_close_request)
 
-        # Show help on first use
         if self._help.should_show():
             GLib.idle_add(self._help.show)
 
@@ -176,8 +169,6 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
         drop_target.set_gtypes([Gdk.FileList])
         drop_target.connect("drop", self._on_external_file_drop)
         self._split_view.add_controller(drop_target)
-
-    # -- Undo stack ---------------------------------------------------------
 
     _MAX_UNDO = 50
 
@@ -219,7 +210,6 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
                 return
             self._original_page_count = page_count
 
-            # Load document if not already loaded
             if not self._document:
                 if self._initial_state:
                     try:

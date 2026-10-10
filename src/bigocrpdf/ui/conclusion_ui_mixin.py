@@ -11,14 +11,13 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, Gio, Gtk
+from gi.repository import Adw, Gio, GLib, Gtk
 
 if TYPE_CHECKING:
     from bigocrpdf.window import BigOcrPdfWindow
 
 from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.comparison import PDFComparisonResult, get_batch_statistics
-from bigocrpdf.utils.format_utils import format_file_size
 from bigocrpdf.utils.i18n import _, ngettext
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.utils.pdf_utils import get_pdf_page_count
@@ -96,7 +95,7 @@ class ConclusionStatsFileListMixin:
         total_pages = sum(pages for _path, pages, _size, _comparison in self._output_files)
         total_size = sum(size for _path, _pages, size, _comparison in self._output_files)
         self.result_page_count.set_text(str(total_pages))
-        self.result_file_size.set_text(format_file_size(total_size))
+        self.result_file_size.set_text(GLib.format_size(total_size))
         self._update_processing_time()
         self._update_size_change(total_size)
 
@@ -120,7 +119,7 @@ class ConclusionStatsFileListMixin:
         change_percent = round(((total_output - total_input) / total_input) * 100, 1)
         sign = "+" if change_percent >= 0 else ""
         self.result_size_change.set_text(
-            f"{format_file_size(total_input)} → {format_file_size(total_output)} "
+            f"{GLib.format_size(total_input)} → {GLib.format_size(total_output)} "
             f"({sign}{change_percent:.1f}%)"
         )
         if change_percent < 0:
@@ -177,7 +176,6 @@ class ConclusionStatsFileListMixin:
         row.set_title(os.path.basename(output_file))
         row.set_subtitle(os.path.dirname(output_file))
 
-        # Add file statistics
         self._add_file_statistics_to_row(row, pages, file_size, comparison)
 
         if self._selection_mode:
@@ -194,8 +192,6 @@ class ConclusionStatsFileListMixin:
             row.add_suffix(button_container)
 
         return row
-
-    # ── Selection mode ────────────────────────────────────────────────
 
     def _on_selection_toggle_clicked(self, button: Gtk.ToggleButton) -> None:
         """Toggle selection mode on/off and rebuild the file list accordingly."""
@@ -248,15 +244,13 @@ class ConclusionStatsFileListMixin:
             file_size: File size in bytes
             comparison: Optional comparison result for size change
         """
-        # Add page count
         page_label = Gtk.Label(
             label=ngettext("{count} page", "{count} pages", pages).format(count=pages)
         )
         page_label.add_css_class("caption")
         row.add_suffix(page_label)
 
-        # Add size label
-        size_label = Gtk.Label(label=format_file_size(file_size))
+        size_label = Gtk.Label(label=GLib.format_size(file_size))
         size_label.add_css_class("caption")
         row.add_suffix(size_label)
 

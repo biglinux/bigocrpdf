@@ -1,8 +1,5 @@
-"""
-BigOcrPdf - Screen Capture OCR Service
-
-This module provides screen capture and OCR functionality using external tools
-(Spectacle, GNOME Screenshot, Flameshot) and RapidOCR for text extraction.
+"""Screen capture through the desktop portal or an installed tool (Spectacle,
+GNOME Screenshot, Flameshot), and OCR of the captured or opened image.
 """
 
 import json
@@ -517,8 +514,6 @@ class ScreenCaptureService:
             ),
         )
 
-    # ── Screenshot Capture ──────────────────────────────────────────────
-
     @staticmethod
     def _prefers_native_capture_tool() -> bool:
         """Whether this desktop's own screenshot tool beats the portal for a region."""
@@ -956,31 +951,6 @@ class ScreenCaptureService:
             return CliCaptureStatus.FAILED
         return CliCaptureStatus.CANCELLED
 
-    # ── RapidOCR Image Processing ───────────────────────────────────────
-
-    def extract_text_from_image(
-        self,
-        image_path: str,
-        language: str = "latin",
-    ) -> str | None:
-        """Extract text from an image using the configured RapidOCR model.
-
-        Applies geometric corrections (deskew, orientation detection, border trimming)
-        before running OCR for optimal accuracy with photographed documents.
-
-        Args:
-            image_path: Path to the image file
-            language: Language/script code for OCR (default: "latin")
-
-        Returns:
-            Extracted text or None on error
-        """
-        text, _error = self._extract_text_result(
-            image_path,
-            OCRConfig(language=language),
-        )
-        return text
-
     def _extract_text_result(
         self,
         image_path: str,
@@ -1404,24 +1374,6 @@ class ScreenCaptureService:
             )
             for index in range(len(boxes))
         ]
-
-    @classmethod
-    def _parse_ocr_results(cls, stdout: str) -> list[OCRResult]:
-        """Compatibility parser that logs invalid worker payloads and returns no rows.
-
-        Args:
-            stdout: Raw stdout from OCR worker
-
-        Returns:
-            List of OCRResult objects
-        """
-        try:
-            return cls._parse_ocr_payload(stdout)
-        except OcrWorkerProtocolError as e:
-            logger.error(f"Failed to parse OCR result: {e}")
-            return []
-
-    # ── Callback Helpers ────────────────────────────────────────────────
 
     def _cleanup_temp_file(self, path: str) -> None:
         """Clean up a tracked temporary file.

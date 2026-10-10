@@ -139,7 +139,7 @@ def encode_ccitt_g4(img: np.ndarray) -> tuple[bytes, int, int] | None:
 
     buf = io.BytesIO()
     try:
-        # Single strip produces slightly smaller output (~1% less overhead)
+        # One strip for the whole image keeps the per-strip overhead out of the file.
         tiffinfo = TiffImagePlugin.ImageFileDirectory_v2()
         tiffinfo[278] = height  # RowsPerStrip = full image
         pil_img.save(buf, format="TIFF", compression="group4", tiffinfo=tiffinfo)

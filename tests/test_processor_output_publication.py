@@ -150,9 +150,9 @@ def test_a_json_left_beside_the_destination_is_neither_read_nor_touched(
 ) -> None:
     """Whatever else lives in the folder belongs to the user, not to us.
 
-    A file named after our old default used to force the output to a suffixed
-    name, because the PDF and its companion had to be free together. Only the
-    PDF decides now, and the stranger is left exactly as it was.
+    A file named like a structured-OCR companion does not push the output to a
+    suffixed name: only the PDF name has to be free, and the stranger is left
+    exactly as it was.
     """
     target = tmp_path / "out.pdf"
     stranger = tmp_path / "out.bigocr.json"
@@ -385,7 +385,6 @@ def test_split_uses_first_part_as_primary_and_counts_one_input(
     assert processor._record_processing_history.call_args.args[1] == first_output
     assert processor.get_completed_input_count() == 1
     assert processor.get_successful_input_count() == 1
-    assert processor.get_processed_count() == 1
 
 
 def test_terminal_failure_counts_completed_but_not_successful_input(
@@ -409,5 +408,4 @@ def test_terminal_failure_counts_completed_but_not_successful_input(
     assert should_continue is True
     assert processor.get_completed_input_count() == 1
     assert processor.get_successful_input_count() == 0
-    assert processor.get_processed_count() == 0
     checkpoint.mark_file_failed.assert_called_once()

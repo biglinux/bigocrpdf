@@ -18,8 +18,6 @@ import pytest
 
 from bigocrpdf.services.rapidocr_service.vertical_text import (
     CONFIDENT_SCORE,
-    MIN_SCORE_GAIN,
-    VERTICAL_ASPECT_RATIO,
     choose_better_reading,
     is_vertical_box,
     needs_reorientation,
@@ -49,7 +47,6 @@ class TestIsVerticalBox:
         """RapidOCR rotates at h/w >= 1.5, so that is exactly the set of
         regions whose orientation it guessed."""
         assert is_vertical_box(_box(100, 100 * ratio)) is expected
-        assert VERTICAL_ASPECT_RATIO == 1.5
 
     def test_a_square_region_is_not_vertical(self):
         assert is_vertical_box(_box(100, 100)) is False
@@ -111,7 +108,6 @@ class TestChooseBetterReading:
         text, _score, replaced = choose_better_reading("original", 0.80, "alternativa", 0.82)
 
         assert (text, replaced) == ("original", False)
-        assert MIN_SCORE_GAIN > 0.02
 
     def test_an_empty_rotated_reading_never_replaces(self):
         text, score, replaced = choose_better_reading("algum texto", 0.60, "   ", 0.99)

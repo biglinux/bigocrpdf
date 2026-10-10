@@ -16,16 +16,11 @@ from pathlib import Path
 
 from bigocrpdf.utils.logger import logger
 
-# ---------------------------------------------------------------------------
-# Configuration
-# ---------------------------------------------------------------------------
 _APP_CACHE_DIR = Path.home() / ".cache" / "bigocrpdf"
 _TMPFS_HEADROOM_RATIO = 0.50  # Use /tmp only if needed < 50% of free RAM
 _MIN_FREE_BYTES = 100 * 1024 * 1024  # 100 MB absolute minimum
 
-# ---------------------------------------------------------------------------
-# Global registry (de-duplication safe; cleaned at process exit)
-# ---------------------------------------------------------------------------
+# Paths this process created, removed at exit.
 _tracked_files: set[str] = set()
 _tracked_dirs: set[str] = set()
 _cleanup_registered = False
@@ -54,11 +49,6 @@ def _register_cleanup() -> None:
 
         signal.signal(signal.SIGTERM, _on_sigterm)
         _sigterm_registered = True
-
-
-# ---------------------------------------------------------------------------
-# Space queries
-# ---------------------------------------------------------------------------
 
 
 def get_free_space(path: str | Path) -> int:
@@ -100,11 +90,6 @@ def check_writable(path: str | Path) -> tuple[bool, str]:
 
         return False, _("No write permission for folder: {path}").format(path=str(p))
     return True, ""
-
-
-# ---------------------------------------------------------------------------
-# Smart temp directory selection
-# ---------------------------------------------------------------------------
 
 
 def choose_temp_base(needed_bytes: int = 0) -> Path:
@@ -149,11 +134,6 @@ def _get_run_cache_dir() -> Path:
     return run_dir
 
 
-# ---------------------------------------------------------------------------
-# Tracked temp creation helpers
-# ---------------------------------------------------------------------------
-
-
 def mkstemp(
     suffix: str = "",
     prefix: str = "bigocrpdf_",
@@ -180,11 +160,6 @@ def mkdtemp(
     return path
 
 
-# ---------------------------------------------------------------------------
-# Explicit tracking / un-tracking
-# ---------------------------------------------------------------------------
-
-
 def track_file(path: str) -> None:
     """Add an existing file to the cleanup registry."""
     _register_cleanup()
@@ -195,16 +170,6 @@ def track_dir(path: str) -> None:
     """Add an existing directory to the cleanup registry."""
     _register_cleanup()
     _tracked_dirs.add(path)
-
-
-def untrack_file(path: str) -> None:
-    """Remove a file from tracking (caller takes ownership)."""
-    _tracked_files.discard(path)
-
-
-def untrack_dir(path: str) -> None:
-    """Remove a directory from tracking."""
-    _tracked_dirs.discard(path)
 
 
 def remove_tracked_file(path: str) -> bool:
@@ -244,11 +209,6 @@ def remove_dir(path: str) -> None:
         return
     else:
         _tracked_dirs.discard(path)
-
-
-# ---------------------------------------------------------------------------
-# Global cleanup
-# ---------------------------------------------------------------------------
 
 
 def _cleanup_tracked_files() -> None:

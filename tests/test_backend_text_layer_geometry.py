@@ -45,7 +45,7 @@ def _write_geometry_pdf(path: Path) -> None:
     pdf.save(path)
 
 
-def test_bulk_rectangles_match_unit_wrapper_with_one_pdf_open(
+def test_rectangles_are_read_in_page_order_with_one_pdf_open(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -61,17 +61,10 @@ def test_bulk_rectangles_match_unit_wrapper_with_one_pdf_open(
 
     monkeypatch.setattr(geometry.pikepdf, "open", counted_open)
 
-    unit_rectangles = [
-        geometry._extract_image_rect_from_page(pdf_path, page_num) for page_num in range(1, 4)
-    ]
-    unit_open_count = open_count
-    open_count = 0
-    bulk_rectangles = geometry._extract_image_rects_from_pdf(pdf_path, page_count=3)
+    rectangles = geometry._extract_image_rects_from_pdf(pdf_path, page_count=3)
 
-    assert unit_open_count == 3
     assert open_count == 1
-    assert bulk_rectangles == unit_rectangles
-    assert bulk_rectangles == [
+    assert rectangles == [
         (10.0, 10.0, 180.0, 80.0),
         (20.0, 20.0, 100.0, 60.0),
         None,
@@ -81,7 +74,6 @@ def test_bulk_rectangles_match_unit_wrapper_with_one_pdf_open(
 def test_bulk_rectangles_preserve_none_results_when_pdf_cannot_open(tmp_path: Path) -> None:
     missing_pdf = tmp_path / "missing.pdf"
 
-    assert geometry._extract_image_rect_from_page(missing_pdf, 1) is None
     assert geometry._extract_image_rects_from_pdf(missing_pdf, page_count=3) == [None, None, None]
 
 
@@ -102,12 +94,7 @@ def test_reused_image_uses_largest_drawn_rectangle(tmp_path: Path) -> None:
     )
     pdf.save(pdf_path)
 
-    assert geometry._extract_image_rect_from_page(pdf_path, 1) == (
-        10.0,
-        10.0,
-        180.0,
-        80.0,
-    )
+    assert geometry._extract_image_rects_from_pdf(pdf_path) == [(10.0, 10.0, 180.0, 80.0)]
 
 
 def test_shared_page_renderer_produces_uncompressed_ppm(tmp_path: Path) -> None:

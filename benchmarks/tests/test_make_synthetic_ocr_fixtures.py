@@ -1,13 +1,8 @@
 """Ground truth must describe what the generator actually drew.
 
-``two_columns`` and ``table`` used to declare their ground truth as a literal
-separate from the drawing code, and the two had drifted: the declared text had
-different line breaks from the text on the page. Both samples therefore carried
-a permanent non-zero error floor that no OCR improvement could ever clear,
-which quietly made them useless as canaries.
-
-The fix was structural -- ground truth is now derived from the segments the
-generator draws -- and these tests are what keeps it that way.
+``two_columns`` and ``table`` derive their ground truth from the segments the
+generator draws. A separate literal drifts from the drawing -- different line
+breaks -- and leaves an error floor no OCR improvement can clear.
 """
 
 from pathlib import Path

@@ -1,12 +1,5 @@
-"""
-BigOcrPdf - Unified Rotation Module
-
-Centralized handling of all PDF page rotation logic.
-This module provides a single source of truth for:
-- Extracting rotation info from PDFs
-- Applying editor rotation modifications
-- Rotating images for OCR
-- Transforming OCR coordinates back to PDF space
+"""PDF page rotation: reading /Rotate, applying editor rotations, rotating
+images for OCR, and mapping OCR coordinates back to PDF space.
 """
 
 import logging
@@ -147,7 +140,6 @@ def apply_editor_modifications(
     if not page_modifications:
         return rotations
 
-    # Create lookup for quick access
     mod_lookup = {m["page_number"]: m for m in page_modifications}
 
     for rot in rotations:
@@ -195,7 +187,6 @@ def apply_final_rotation_to_pdf(
             if rot_info is None:
                 continue
 
-            # Apply editor rotation
             if rot_info.editor_rotation != 0:
                 current_rot = int(pdf.pages[i].get("/Rotate", 0))
                 new_rot = (current_rot + rot_info.editor_rotation) % 360

@@ -22,9 +22,8 @@ as the tests themselves, so the same ground is not re-suspected later:
   precisely what makes its aspect match the page: measured scale ratio is
   1.000 for 90 and 270. Locked in by ``TestOverlayRotation``.
 
-* **force_overlay over a geometrically corrected page** -- not previously
-  suspected, found while tracing. **Confirmed reachable, and fixed**: the
-  override is now conditional on ``geometry_applied``. See
+* **force_overlay over a geometrically corrected page** -- reachable; the
+  override is conditional on ``geometry_applied``. See
   ``TestForceOverlayWithGeometry``.
 """
 
@@ -253,8 +252,8 @@ class TestForceOverlayWithGeometry:
 
         assert use_processed is False
 
-    def test_force_overlay_no_longer_overrides_a_corrected_page(self):
-        """Fixed: the override is now conditional on geometry_applied.
+    def test_force_overlay_does_not_override_a_corrected_page(self):
+        """The override is conditional on geometry_applied.
 
         Mirrors backend_text_layer._process_page_result. A masked page whose
         pixels were moved keeps standalone mode, so the coordinates and the

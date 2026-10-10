@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""
-BigOcrPdf - Configuration Module
-
-This module contains all configuration constants and paths used by the application.
-"""
+"""Application identity, paths, window defaults and command-line options."""
 
 import argparse
 import logging
@@ -11,13 +7,8 @@ import os
 import sys
 from typing import Final
 
-# Import gettext for translatable strings (lazy import to avoid circular)
 from bigocrpdf import __version__
 from bigocrpdf.utils.i18n import _
-
-# ============================================================================
-# Application Constants
-# ============================================================================
 
 APP_NAME: Final[str] = "Big OCR PDF"
 APP_ID: Final[str] = "br.com.biglinux.bigocrpdf"
@@ -36,27 +27,8 @@ def get_app_description() -> str:
     return _(APP_DESCRIPTION_KEY)
 
 
-# Backward-compatible alias
-APP_DESCRIPTION = APP_DESCRIPTION_KEY
-
-
-# ============================================================================
-# Processing Constants
-# ============================================================================
-
-# Re-export numeric constants from constants.py for backward compatibility
-
-
-# ============================================================================
-# Environment Detection
-# ============================================================================
-
 IS_DEVELOPMENT: Final[bool] = not getattr(sys, "frozen", False)
 
-
-# ============================================================================
-# Paths
-# ============================================================================
 
 if IS_DEVELOPMENT:
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -67,10 +39,6 @@ else:
     RESOURCES_DIR = os.path.join(BASE_DIR, "resources")
 
 
-# ============================================================================
-# Configuration Directory
-# ============================================================================
-
 CONFIG_DIR: Final[str] = os.path.expanduser("~/.config/bigocrpdf")
 SELECTED_FILE_PATH: Final[str] = os.path.join(CONFIG_DIR, "selected-file")
 
@@ -80,31 +48,14 @@ def init_config() -> None:
     os.makedirs(CONFIG_DIR, exist_ok=True)
 
 
-# ============================================================================
-# Logging Configuration
-# ============================================================================
-
 LOG_LEVEL: int = logging.WARNING
 LOG_FORMAT: Final[str] = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 LOGGER_NAME: Final[str] = "BigOcrPdf"
 
 
-# ============================================================================
-# Window Configuration
-# ============================================================================
-
 WINDOW_STATE_KEY: Final[str] = "window"
 IMAGE_WINDOW_STATE_KEY: Final[str] = "image_window"
 
-
-# ============================================================================
-# UI Constants
-# ============================================================================
-
-
-# ============================================================================
-# Keyboard Shortcuts
-# ============================================================================
 
 SHORTCUTS: Final[dict[str, str]] = {
     "add-files": "<Control>o",
@@ -123,7 +74,7 @@ def parse_command_line() -> argparse.Namespace:
     Returns:
         Parsed command line arguments.
     """
-    parser = argparse.ArgumentParser(description=APP_DESCRIPTION)
+    parser = argparse.ArgumentParser(description=APP_DESCRIPTION_KEY)
     parser.add_argument(
         "-v",
         "--version",
@@ -167,7 +118,6 @@ def setup_environment() -> argparse.Namespace:
     logging.getLogger().setLevel(LOG_LEVEL)
     logging.getLogger(LOGGER_NAME).setLevel(LOG_LEVEL)
 
-    # Create config directory if it doesn't exist
     os.makedirs(CONFIG_DIR, exist_ok=True)
 
     return args

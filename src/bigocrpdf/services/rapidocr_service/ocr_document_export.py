@@ -363,10 +363,10 @@ def _is_form_separator(token: str, index: int) -> bool:
     """Whether this colon separates a form label from its value.
 
     ``Nome: Ana`` is a label and a value; ``https://onr.org.br`` and ``14:30``
-    are one thing each. Splitting them corrupts the text -- measured, a
-    certificate's validation URL was cut into ``https`` and
-    ``//assinador-web.onr.org.br/...``, and the address a reader needs to
-    follow no longer existed anywhere in the export.
+    are one thing each. Splitting them corrupts the text: a certificate's
+    validation URL would be cut into ``https`` and
+    ``//assinador-web.onr.org.br/...``, and the export would lose the address
+    a reader needs to follow.
     """
     if token[index] != ":":
         return False

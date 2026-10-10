@@ -12,7 +12,7 @@ from __future__ import annotations
 import cv2
 import numpy as np
 
-# ── Algorithm constants (from page-dewarp defaults) ──────────────────────────
+# Algorithm constants, from page-dewarp's defaults.
 
 ADAPTIVE_WINSZ: int = 55
 
@@ -28,9 +28,6 @@ EDGE_MAX_OVERLAP: float = 1.0
 EDGE_MAX_LENGTH: float = 160.0
 EDGE_ANGLE_COST: float = 10.0
 EDGE_MAX_ANGLE: float = 7.5
-
-
-# ── Contour info ─────────────────────────────────────────────────────────────
 
 
 class _ContourInfo:
@@ -81,9 +78,6 @@ class _ContourInfo:
         xmin = self.proj_x(other.point0)
         xmax = self.proj_x(other.point1)
         return min(self.local_xrng[1], xmax) - max(self.local_xrng[0], xmin)
-
-
-# ── Contour detection ────────────────────────────────────────────────────────
 
 
 def _blob_mean_and_tangent(
@@ -174,9 +168,6 @@ def _detect_text_contours(
         cinfo_list.append(_ContourInfo(contour, rect, tight_mask, center, tangent))
 
     return cinfo_list
-
-
-# ── Span assembly ────────────────────────────────────────────────────────────
 
 
 def _angle_dist(angle_b: float, angle_a: float) -> float:
@@ -287,9 +278,6 @@ def _walk_single_contour_span(
         cinfo = cinfo.succ
 
     return cur_span, width
-
-
-# ── Span sampling ────────────────────────────────────────────────────────────
 
 
 def _sample_spans(spans: list[list[_ContourInfo]]) -> list[np.ndarray]:

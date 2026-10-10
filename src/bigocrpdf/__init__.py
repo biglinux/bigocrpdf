@@ -1,11 +1,4 @@
-"""
-BigOcrPdf - Python package for adding OCR to PDF files
-
-allow-noisy-log: startup dependency diagnostics are user-facing stderr output.
-
-This package provides a GTK4 application for adding OCR to PDF files,
-making them searchable and their text selectable.
-"""
+"""GUI entry points, with the GTK, libadwaita and OCR checks they run first."""
 
 import os
 import sys
@@ -203,7 +196,6 @@ def main() -> int:
         # Continue anyway - the GUI can still show the error gracefully or run in limited mode
         print(f"\n*** OCR Dependency Error ***\n{ocr_error}\n", file=sys.stderr)
 
-    # Set up configuration directory
     os.makedirs(CONFIG_DIR, exist_ok=True)
 
     # Always start with a clean file queue
@@ -216,10 +208,8 @@ def main() -> int:
 
     # Run application
     try:
-        # Initialize the GTK application
         app = BigOcrPdfApp(ocr_dependency=ocr_dependency)
 
-        # Add files from command line if provided
         if hasattr(args, "files") and args.files:
             logger.debug(f"Files provided in arguments: {args.files}")
 

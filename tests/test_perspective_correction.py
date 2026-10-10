@@ -21,12 +21,6 @@ class TestPerspectiveCorrector:
         assert pc.skew_threshold == 1.0
         assert pc.skip_skew is True
 
-    def test_call_returns_ndarray(self):
-        pc = PerspectiveCorrector()
-        img = np.zeros((100, 100, 3), dtype=np.uint8)
-        result = pc(img)
-        assert isinstance(result, np.ndarray)
-
     def test_small_image_returns_input(self):
         pc = PerspectiveCorrector()
         # Very small image should pass through without errors

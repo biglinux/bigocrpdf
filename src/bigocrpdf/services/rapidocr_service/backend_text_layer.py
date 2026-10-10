@@ -2,17 +2,11 @@
 # Host attributes are supplied by ProfessionalPDFOCR's explicit mixin composition.
 # pyright: reportAttributeAccessIssue=false
 
-import gc
-import tempfile
-from collections.abc import Callable
 from pathlib import Path
 
 import cv2
 import numpy as np
 import pikepdf
-
-# Restart OCR subprocess every N pages to limit memory growth
-_OCR_RESTART_INTERVAL = 3
 from PIL import Image
 from reportlab.pdfgen import canvas
 
@@ -25,15 +19,11 @@ from bigocrpdf.services.rapidocr_service.native_text_verification import (
     verify_ocr_lines_with_native_spans,
 )
 from bigocrpdf.services.rapidocr_service.ocr_document_structure import build_ocr_lines_from_results
-from bigocrpdf.services.rapidocr_service.page_worker import (
-    process_page,
-)
 from bigocrpdf.services.rapidocr_service.pdf_assembly import (
     append_text_to_page,
     create_text_layer_commands,
     overlay_text_on_original,
 )
-from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
 
@@ -171,11 +161,8 @@ class BackendTextLayerMixin:
         if ocr_results:
             # Use raw OCR results (pixel coordinates) throughout.
             # The renderer handles pixel→point conversion via DPI and
-            # rotation via canvas transforms — no pre-transformation needed.
-            # Previously, transform_ocr_coords_for_rotation() scaled coords
-            # to PDF points, and then create_text_layer() divided by DPI
-            # again, causing a double-conversion that pushed text to the
-            # bottom-left corner.
+            # rotation via canvas transforms; converting them here as well
+            # would scale twice and push the text to the bottom-left corner.
 
             # Accumulate text for stats
             try:
@@ -532,175 +519,6 @@ class BackendTextLayerMixin:
             for t, b, s in zip(ocr_raw["txts"], ocr_raw["boxes"], ocr_raw["scores"], strict=False)
             if s >= min_score
         ]
-
-    def _create_text_layer_pdf(
-        self,
-        image_paths: list[Path],
-        output_pdf: Path,
-        page_rotations: list[dict],
-        stats: ProcessingStats,
-        progress_callback: Callable[[int, int, str], None] | None,
-    ):
-        """Create a PDF with only invisible text layer (no images).
-
-        Uses sequential preprocessing with a single persistent OCR subprocess
-        to minimize memory usage (one model instance, one page in memory at a time).
-        """
-        c = canvas.Canvas(str(output_pdf))
-        total_pages = len(image_paths)
-        total_confidence = 0.0
-        page_standalone_flags: list[bool] = []
-
-        scratch_temp_dir = tempfile.TemporaryDirectory(prefix="rapidocr_pages_")
-        scratch_dir = Path(scratch_temp_dir.name)
-        ocr_proc = None
-        try:
-            # Start persistent OCR subprocess (model loaded once)
-            ocr_proc = self._ocr_subprocess.launch()
-            logger.info(
-                f"Text layer: {total_pages} pages, sequential preprocessing, "
-                f"1 persistent OCR subprocess"
-            )
-
-            for i, p in enumerate(image_paths, 1):
-                self._raise_if_text_layer_cancelled()
-                work_item = self._text_layer_work_item(
-                    i,
-                    p,
-                    page_rotations,
-                    scratch_dir,
-                )
-
-                try:
-                    confidence, needs_standalone = self._run_text_layer_page(
-                        c,
-                        work_item,
-                        page_rotations,
-                        i,
-                        total_pages,
-                        stats,
-                        ocr_proc,
-                        progress_callback,
-                    )
-                    total_confidence += confidence
-                    page_standalone_flags.append(needs_standalone)
-                except InterruptedError:
-                    raise
-                except Exception as page_err:
-                    logger.error(f"Error processing page {i}: {page_err}")
-                    stats.warnings.append(f"Page {i} failed: {page_err}")
-                    c.setPageSize((595, 842))
-                    c.showPage()
-                    page_standalone_flags.append(False)
-
-                self._release_text_layer_page_memory()
-                ocr_proc = self._restart_text_layer_ocr_if_needed(ocr_proc, i, total_pages)
-
-        finally:
-            try:
-                if ocr_proc is not None:
-                    self._ocr_subprocess.stop(ocr_proc)
-            finally:
-                try:
-                    scratch_temp_dir.cleanup()
-                except OSError as error:
-                    logger.warning("Could not fully clean page scratch directory: %s", error)
-
-        c.save()
-        stats.average_confidence = total_confidence
-        self._page_standalone_flags = page_standalone_flags
-        logger.debug(f"Text layer PDF created: {output_pdf}")
-
-    def _raise_if_text_layer_cancelled(self) -> None:
-        if hasattr(self, "cancel_event") and self.cancel_event.is_set():
-            logger.info("Processing cancelled by user — stopping page loop")
-            raise InterruptedError("Processing cancelled by user")
-
-    def _text_layer_work_item(
-        self,
-        page_num: int,
-        image_path: Path,
-        page_rotations: list[dict],
-        scratch_dir: Path,
-    ) -> dict:
-        page_info = (
-            page_rotations[page_num - 1]
-            if page_num <= len(page_rotations)
-            else {"rotation": 0, "mediabox": None}
-        )
-        masked_pages = getattr(getattr(self, "extractor", None), "masked_pages", set())
-        masked = page_num in masked_pages
-        use_rendered_source = masked and self._geometry_or_format_changes_enabled()
-        work_item = {
-            "page_num": page_num,
-            "img_path": str(image_path) if image_path is not None else None,
-            "config": self.config,
-            "pdf_rotation": page_info.get("rotation", 0),
-            "skip_geometric": masked and not use_rendered_source,
-            "run_ocr": False,
-            "scratch_dir": str(scratch_dir),
-        }
-        input_pdf = getattr(self, "_input_pdf", None)
-        if use_rendered_source and input_pdf:
-            work_item["use_rendered_source"] = True
-            work_item["input_pdf"] = str(input_pdf)
-        return work_item
-
-    def _geometry_or_format_changes_enabled(self) -> bool:
-        return self.config.image_export_format not in ("original", "") or (
-            self.config.enable_deskew
-            or self.config.enable_perspective_correction
-            or self.config.enable_baseline_dewarp
-        )
-
-    def _run_text_layer_page(
-        self,
-        c: canvas.Canvas,
-        work_item: dict,
-        page_rotations: list[dict],
-        page_num: int,
-        total_pages: int,
-        stats: ProcessingStats,
-        ocr_proc,
-        progress_callback: Callable[[int, int, str], None] | None,
-    ) -> tuple[float, bool]:
-        result = process_page(work_item)
-        if result.get("success") and result.get("temp_out_path"):
-            ocr_path = result.get("temp_ocr_path") or result["temp_out_path"]
-            result["ocr_raw"] = self._ocr_subprocess.recognize(ocr_proc, ocr_path)
-
-        if progress_callback:
-            progress_callback(
-                10 + int((page_num / total_pages) * 70),
-                100,
-                _("Processing page {0}/{1}...").format(page_num, total_pages),
-            )
-
-        return self._process_page_result(c, result, work_item, page_rotations, page_num, stats)
-
-    @staticmethod
-    def _release_text_layer_page_memory() -> None:
-        gc.collect()
-        try:
-            import ctypes
-
-            ctypes.CDLL("libc.so.6").malloc_trim(0)
-        except Exception:
-            pass
-
-    def _restart_text_layer_ocr_if_needed(self, ocr_proc, page_num: int, total_pages: int):
-        if (page_num + 1) % _OCR_RESTART_INTERVAL != 0 or page_num >= total_pages - 1:
-            return ocr_proc
-        self._ocr_subprocess.stop(ocr_proc)
-        try:
-            return self._ocr_subprocess.launch()
-        except Exception:
-            logger.warning("OCR subprocess restart failed, retrying once")
-            try:
-                return self._ocr_subprocess.launch()
-            except Exception:
-                logger.error("OCR subprocess restart failed twice, aborting")
-                raise
 
     def _overlay_text_on_original(
         self,

@@ -353,21 +353,6 @@ def _copy_verified_manifest_fd(
         raise
 
 
-def _resolve_manifest_input(base: Path, raw_path: str, sample_id: str) -> Path:
-    relative_path = Path(raw_path)
-    if relative_path.is_absolute():
-        raise ValueError(f"Manifest sample {sample_id} uses an absolute material path")
-    try:
-        resolved = (base / relative_path).resolve(strict=True)
-    except OSError as error:
-        raise ValueError(
-            f"Manifest sample {sample_id} material does not exist: {raw_path}"
-        ) from error
-    if not resolved.is_relative_to(base) or not resolved.is_file():
-        raise ValueError(f"Manifest sample {sample_id} has an unsafe material path: {raw_path}")
-    return resolved
-
-
 def run_bigocrpdf(
     row: dict[str, Any],
     profile: dict[str, str],

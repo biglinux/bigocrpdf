@@ -1,9 +1,4 @@
-"""
-BigOcrPdf - Export Service Module
-
-Handles exporting OCR results to TXT and ODF files.
-Encapsulates business logic for text/document export that was previously in window.py.
-"""
+"""Export of OCR results to TXT and ODF files."""
 
 import os
 import subprocess
@@ -95,9 +90,9 @@ def save_odf_file(
 
     Args:
         output_file: Path to the OCR'd PDF (has text layer). Also used to derive ODF name.
-        extracted_text: The extracted text content (unused, kept for API compat).
-        ocr_boxes: List of OCR boxes (unused, kept for API compat).
-        source_pdf: Path to the original source PDF (unused).
+        extracted_text: Unused.
+        ocr_boxes: Unused.
+        source_pdf: Unused.
         include_images: Whether to position editable text using PDF coordinates.
 
     Returns:

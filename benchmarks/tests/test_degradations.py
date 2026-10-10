@@ -14,7 +14,6 @@ from PIL import Image, ImageDraw
 
 from benchmarks.degradations import (
     AXES,
-    LEVELS,
     PHOTO_REALISTIC,
     apply_degradation,
     apply_recipe,
@@ -198,11 +197,3 @@ class TestPhotoRealisticRecipe:
 
         ink_fraction = float((np.asarray(result.convert("L")) < 128).mean())
         assert 0.005 < ink_fraction < 0.5
-
-
-def test_every_axis_is_registered():
-    """AXES is what the generator iterates; a function without an entry is dead."""
-    for axis in AXES:
-        assert axis in AXES
-    assert len(set(AXES)) == len(AXES)
-    assert LEVELS == (0, 1, 2, 3)

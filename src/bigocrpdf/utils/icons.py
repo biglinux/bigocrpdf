@@ -1,13 +1,11 @@
-"""Bundled icon theme registration.
+"""Bundled fallback icons.
 
-The application ships its own copy of every symbolic icon it references, so the
-interface looks identical regardless of the icon theme installed on the host.
-This matters most for relocatable builds such as AppImage, where the host theme
-is frequently missing the names we use and GTK falls back to a generic
-"image missing" icon.
+The application ships its own copy of every symbolic icon it references, so a
+host theme that lacks one of those names -- common in relocatable builds such as
+AppImage -- does not fall back to GTK's "image missing" icon.
 
-Registering a private icon theme (instead of loading each SVG by path) keeps
-every existing ``icon-name`` call site working untouched, including widgets that
+Adding the bundle to the icon search path (instead of loading each SVG by path)
+keeps every ``icon-name`` call site working untouched, including widgets that
 accept only a name -- ``Adw.ButtonContent``, ``Adw.StatusPage``, ``Gio.MenuItem``
 and ``Gio.Notification``.
 """
@@ -62,14 +60,9 @@ def setup_icons(display=None) -> bool:
 
     The icons ship as a ``hicolor`` theme because every icon theme's lookup
     chain ends there. Adding this directory to the search path therefore fills
-    the gaps -- measured on a host running ``bigicons-papient``, four names the
-    interface needs resolve to nothing without it and resolve with it -- while
-    any name the user's own theme provides still comes from their theme.
-
-    This used to select the bundle through ``gtk-icon-theme-name`` instead,
-    which did make the interface identical everywhere, at the price of ignoring
-    the user's chosen icons entirely: the chain became bundle -> Adwaita ->
-    hicolor, and a Papirus or Breeze user never saw one of their own icons.
+    the gaps while any name the user's own theme provides still comes from
+    their theme. Selecting the bundle through ``gtk-icon-theme-name`` would
+    hide the user's Papirus or Breeze icons entirely.
 
     Must be called after a ``Gdk.Display`` exists -- that is, from the
     application ``startup`` handler -- and before any widget is built.

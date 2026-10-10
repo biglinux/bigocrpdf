@@ -22,7 +22,6 @@ from bigocrpdf.utils.logger import logger
 if TYPE_CHECKING:
     from bigocrpdf.window import BigOcrPdfWindow
 
-# ── UI Layout Constants ────────────────────────────────────────────
 _MIN_SIDEBAR_WIDTH = 300  # pixels
 _MAX_SIDEBAR_WIDTH = 420  # pixels
 _SIDEBAR_WIDTH_FRACTION = 0.35
@@ -52,7 +51,6 @@ class BigOcrPdfUI:
         )
         self.toast_overlay = Adw.ToastOverlay()
 
-        # Create responsive split view layout (sidebar + content)
         self.split_view = Adw.OverlaySplitView()
         self.split_view.set_sidebar_position(Gtk.PackType.START)
         self.split_view.set_min_sidebar_width(_MIN_SIDEBAR_WIDTH)
@@ -61,23 +59,17 @@ class BigOcrPdfUI:
         self.split_view.set_enable_hide_gesture(True)
         self.split_view.set_enable_show_gesture(True)
 
-        # Create left sidebar pane
         self._create_left_sidebar()
 
-        # Create right content pane with header bar
         self._create_right_content_area()
 
-        # Create master ViewStack for main view and other pages
         self.main_stack = Adw.ViewStack()
         enable_view_stack_transitions(self.main_stack, _VIEWSTACK_TRANSITION_MS)
 
-        # Add split_view as primary view
         self.main_stack.add_titled(self.split_view, "main_view", _("Main"))
 
-        # Set up window-level actions for keyboard shortcuts
         self.window.actions.setup_window_actions()
 
-        # Set up global drag and drop
         self.window.actions.setup_global_drag_drop()
 
         # Set up responsive breakpoint — collapse sidebar when window is narrow
@@ -126,14 +118,12 @@ class BigOcrPdfUI:
 
     def _create_left_sidebar(self) -> None:
         """Create the left sidebar with header bar (video-converter style)."""
-        # Create ToolbarView for left pane with sidebar styling
         left_toolbar_view = Adw.ToolbarView()
         left_toolbar_view.add_css_class("sidebar")
 
         # Detect window button layout
         window_buttons_left = self.window.actions.window_buttons_on_left()
 
-        # Create HeaderBar for the sidebar
         left_header = Adw.HeaderBar()
         left_header.add_css_class("sidebar")
         left_header.set_show_title(True)
@@ -141,7 +131,6 @@ class BigOcrPdfUI:
         if not window_buttons_left:
             left_header.set_decoration_layout("")
 
-        # Create title with app icon
         if not window_buttons_left:
             center_box = Gtk.CenterBox()
             center_box.set_hexpand(True)
@@ -174,27 +163,22 @@ class BigOcrPdfUI:
 
     def _create_right_content_area(self) -> None:
         """Create the right content area with header bar."""
-        # Create ToolbarView for right pane
         right_toolbar_view = Adw.ToolbarView()
 
         # Detect window button layout
         window_buttons_left = self.window.actions.window_buttons_on_left()
 
-        # Create custom header bar (Add Files, Start OCR, etc)
         self.custom_header_bar = HeaderBar(self.window, window_buttons_left)
         right_toolbar_view.add_top_bar(self.custom_header_bar)
 
-        # Set up help action
         help_action = Gio.SimpleAction.new("help", None)
         help_action.connect("activate", lambda *_: self.window.actions.welcome.show())
         self.window.add_action(help_action)
 
-        # Set up reset settings action
         reset_action = Gio.SimpleAction.new("reset_settings", None)
         reset_action.connect("activate", lambda *_: self.window.actions.reset.confirm())
         self.window.add_action(reset_action)
 
-        # Create stack for right content (file queue only for now)
         self.stack = Adw.ViewStack()
         self.stack.set_vexpand(True)
         enable_view_stack_transitions(self.stack, _VIEWSTACK_TRANSITION_MS)
@@ -247,7 +231,6 @@ class BigOcrPdfUI:
         """
         toolbar_view = Adw.ToolbarView()
 
-        # Create a simpler header bar for non-settings pages
         header = Adw.HeaderBar()
 
         if not is_terminal:

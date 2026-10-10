@@ -11,7 +11,6 @@ from bigocrpdf.ui.pdf_editor.page_operations import (
     deselect_all_for_ocr,
     rotate_pages,
     select_all_for_ocr,
-    set_ocr_selection,
 )
 from bigocrpdf.ui.pdf_editor.page_thumbnail import PageThumbnail
 
@@ -196,7 +195,6 @@ def test_page_operations_ignore_duplicates_and_report_real_mutations() -> None:
     assert rotate_pages(doc, [99], 90) is False
     assert rotate_pages(doc, [0], 0) is False
     assert delete_pages(doc, [99]) is False
-    assert set_ocr_selection(doc, [99], False) is False
     assert doc.modified is False
 
 
@@ -204,7 +202,6 @@ def test_ocr_selection_helpers_do_not_mark_no_ops_as_modifications() -> None:
     doc = PDFDocument(path="/test.pdf", total_pages=1)
 
     assert select_all_for_ocr(doc) is False
-    assert set_ocr_selection(doc, [0], True) is False
     assert doc.modified is False
 
     assert deselect_all_for_ocr(doc) is True

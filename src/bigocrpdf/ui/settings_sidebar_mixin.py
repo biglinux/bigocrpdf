@@ -272,8 +272,6 @@ class SettingsSidebarMixin:
             elif isinstance(w, Adw.ComboRow):
                 w.connect("notify::selected", lambda *_: self._update_advanced_subtitle())
 
-    # ── Settings Load & Callbacks ──
-
     def _load_all_sidebar_settings(self) -> None:
         """Load all sidebar settings into UI widgets on map."""
         self._load_preprocessing_settings()

@@ -91,10 +91,9 @@ def _record_skipped_page(stats: "ProcessingStats | None", page_num: int) -> None
     """Note a page left untouched because it already carries an OCR layer.
 
     Skipping is the right default -- re-OCRing over an existing layer doubles
-    every word. But it used to be silent: the run reported success with zero
-    regions and no warning, so a user whose earlier OCR was poor had no way to
-    tell that nothing had been done, nor that ``replace_existing_ocr`` is the
-    setting that would redo it.
+    every word -- but not a silent one: a run that reports success with zero
+    regions leaves a user whose earlier OCR was poor unable to tell that
+    nothing was done, or that ``replace_existing_ocr`` would redo it.
     """
     if stats is None:
         return
@@ -267,7 +266,6 @@ class MixedContentMixin:
                         progress_callback,
                     )
 
-                    # Remove excluded pages before saving
                     if excluded_pages:
                         for idx in sorted(excluded_pages, reverse=True):
                             if 0 < idx <= len(pdf.pages):

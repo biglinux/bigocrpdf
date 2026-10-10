@@ -2,6 +2,8 @@ from types import SimpleNamespace
 from typing import Any
 from unittest.mock import MagicMock, call, patch
 
+from gi.repository import GLib
+
 from bigocrpdf.ui.conclusion_page import ConclusionPageManager
 from bigocrpdf.ui.conclusion_ui_mixin import ConclusionStatsFileListMixin
 from bigocrpdf.ui.terminal_page import TerminalPageManager
@@ -113,7 +115,6 @@ def test_conclusion_reset_clears_selection_state() -> None:
     assert manager._selected_files == set()
     manager._selection_toggle_btn.set_active.assert_called_once_with(False)
     manager._selection_action_bar.set_visible.assert_called_once_with(False)
-    manager._refresh_selection_ui.assert_called_once_with()
     manager._clear_output_list.assert_called_once_with()
 
 
@@ -138,7 +139,7 @@ def test_conclusion_reuses_collected_file_statistics() -> None:
     ConclusionStatsFileListMixin._update_statistics(manager)
 
     manager.result_page_count.set_text.assert_called_once_with("7")
-    manager._update_size_change.assert_called_once_with(4096)
+    manager.result_file_size.set_text.assert_called_once_with(GLib.format_size(4096))
 
 
 def test_conclusion_collects_each_output_once(tmp_path) -> None:
@@ -169,8 +170,6 @@ def test_conclusion_collects_each_output_once(tmp_path) -> None:
         (str(second), 5, 20, None),
     ]
     assert page_count.call_count == 2
-    manager._update_statistics.assert_called_once_with()
-    manager._update_file_list.assert_called_once_with()
 
 
 def test_conclusion_file_list_drops_stale_selection() -> None:
@@ -188,7 +187,6 @@ def test_conclusion_file_list_drops_stale_selection() -> None:
 
     assert manager._selected_files == {"current.pdf"}
     manager.output_list_box.append.assert_called_once_with(row)
-    manager._refresh_selection_ui.assert_called_once_with()
 
 
 def test_conclusion_size_change_clears_stale_css_without_results() -> None:

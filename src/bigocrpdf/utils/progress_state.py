@@ -1,8 +1,4 @@
-"""
-BigOcrPdf - Progress State Module
-
-This module provides a dataclass for tracking UI progress display state.
-"""
+"""Progress display state of the processing page."""
 
 from dataclasses import dataclass, field
 

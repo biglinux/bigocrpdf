@@ -1,7 +1,4 @@
-"""RapidOCR engine construction for the OCR worker subprocess.
-
-allow-noisy-log: worker diagnostics are written to stderr for the parent process.
-"""
+"""RapidOCR engine construction for the OCR worker subprocess."""
 
 import os
 import sys

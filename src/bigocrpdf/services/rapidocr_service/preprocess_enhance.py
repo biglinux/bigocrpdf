@@ -4,8 +4,6 @@ Image enhancement functions for preprocessing.
 Contains all color/enhancement algorithms: illumination normalization,
 text sharpening, scanner effect, denoising, border cleaning, CLAHE,
 brightness adjustment, vintage look, and tone curve.
-
-Extracted from preprocessor.py to follow single-responsibility principle.
 """
 
 import logging
@@ -20,41 +18,25 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-# ── Illumination Normalization ─────────────────────────────────────
-_ILLUMINATION_GRID_SIZE = 4
-_PAPER_BRIGHTNESS_PERCENTILE = 90
-_ILLUMINATION_CV_THRESHOLD = 0.06
-_SEVERE_GRADIENT_CV_THRESHOLD = 0.15
 _BG_ESTIMATION_MAX_SIZE = 1000  # pixels — downscale larger images
-_BG_MIN_VALUE = 30.0
-_TARGET_BRIGHTNESS = 230.0
-_BG_BLEND_THRESHOLD = 80.0
 
-# ── Gaussian Kernel (illumination) ─────────────────────────────────
-_GAUSS_KERN_DIVISOR = 8
-_GAUSS_MIN_KERN_SIZE = 51
 
-# ── Morphological Background ──────────────────────────────────────
 _MORPH_KERN_DIVISOR = 20
 _MORPH_MIN_KERN_SIZE = 30
 
-# ── Sharpening ────────────────────────────────────────────────────
 _BLUR_SCORE_SHARPENING_THRESHOLD = 1200
 _UNSHARP_ORIGINAL_WEIGHT = 1.3
 _UNSHARP_BLUR_WEIGHT = -0.3
 _UNSHARP_BLUR_SIGMA = 2
 
-# ── CLAHE ─────────────────────────────────────────────────────────
 _CLAHE_CONTRAST_THRESHOLD = 50
 _CLAHE_TILE_GRID_SIZE = 8
 
-# ── Brightness ────────────────────────────────────────────────────
 _DARK_BRIGHTNESS_THRESHOLD = 80
 _DARK_BRIGHTNESS_FACTOR = 1.3
 _BRIGHT_BRIGHTNESS_THRESHOLD = 200
 _BRIGHT_BRIGHTNESS_FACTOR = 0.9
 
-# ── Denoising ─────────────────────────────────────────────────────
 _NOISE_LAPLACIAN_THRESHOLD = 1000
 _NLMEANS_H = 10
 _NLMEANS_TEMPLATE_WIN = 7
@@ -62,172 +44,10 @@ _NLMEANS_SEARCH_WIN = 21
 _BILATERAL_DIAMETER = 9
 _BILATERAL_SIGMA = 75
 
-# ── Border Cleaning ───────────────────────────────────────────────
 _BORDER_EDGE_PX = 2
 _BORDER_MAX_AREA_RATIO = 0.5
 _BORDER_DILATE_KERN = 5
 _BORDER_DILATE_ITERS = 2
-
-
-def auto_normalize_illumination(img: np.ndarray, force: bool = False) -> np.ndarray:
-    """Detect and correct non-uniform illumination in document images.
-
-    Photographed or folded documents often have brightness gradients from
-    shadows, paper curl, or uneven lighting. This severely degrades OCR
-    because text in dark regions has lower contrast.
-
-    Detection: Divides image into a 4x4 grid and measures brightness variance.
-    If the coefficient of variation exceeds a threshold, applies Gaussian
-    background estimation + division normalization to equalize brightness.
-
-    OPTIMIZED: Uses downscaled image for background estimation to avoid
-    expensive large-kernel Gaussian blur on full-resolution images.
-
-    Args:
-        img: Input BGR image
-        force: If True, always apply normalization regardless of detection
-
-    Returns:
-        Illumination-normalized image, or original if uniform
-    """
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    h, w = gray.shape
-
-    region_means = _paper_brightness_region_means(gray)
-    mean_val = np.mean(region_means)
-    std_val = np.std(region_means)
-
-    if mean_val < 1:
-        return img
-
-    coeff_var = float(std_val / mean_val)
-    if not _should_normalize_illumination(coeff_var, force):
-        logger.debug(
-            f"Illumination uniform (CV={coeff_var:.3f}), no correction needed (auto-detect mode)"
-        )
-        return img
-    _log_illumination_normalization(coeff_var)
-
-    lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
-    l_channel, a_channel, b_channel = cv2.split(lab)
-    del lab
-
-    background = _estimate_illumination_background(l_channel, h, w, coeff_var)
-    normalized_l = _normalize_l_channel(l_channel, background)
-    normalized_lab = cv2.merge([normalized_l.astype(np.uint8), a_channel, b_channel])
-    return cv2.cvtColor(normalized_lab, cv2.COLOR_LAB2BGR)
-
-
-def _paper_brightness_region_means(gray: np.ndarray) -> list[float]:
-    h, w = gray.shape
-    region_means = []
-    for row in range(_ILLUMINATION_GRID_SIZE):
-        for col in range(_ILLUMINATION_GRID_SIZE):
-            y1 = row * h // _ILLUMINATION_GRID_SIZE
-            y2 = (row + 1) * h // _ILLUMINATION_GRID_SIZE
-            x1 = col * w // _ILLUMINATION_GRID_SIZE
-            x2 = (col + 1) * w // _ILLUMINATION_GRID_SIZE
-            region_means.append(
-                float(np.percentile(gray[y1:y2, x1:x2], _PAPER_BRIGHTNESS_PERCENTILE))
-            )
-    return region_means
-
-
-def _should_normalize_illumination(coeff_var: float, force: bool) -> bool:
-    return force or coeff_var >= _ILLUMINATION_CV_THRESHOLD
-
-
-def _log_illumination_normalization(coeff_var: float) -> None:
-    if coeff_var < _ILLUMINATION_CV_THRESHOLD:
-        logger.debug(
-            f"Illumination uniform (CV={coeff_var:.3f}), "
-            "applying background normalization (force mode)"
-        )
-        return
-
-    logger.info(
-        f"Non-uniform illumination detected (CV={coeff_var:.3f}), applying background normalization"
-    )
-
-
-def _estimate_illumination_background(
-    l_channel: np.ndarray,
-    h: int,
-    w: int,
-    coeff_var: float,
-) -> np.ndarray:
-    scale = min(1.0, _BG_ESTIMATION_MAX_SIZE / max(h, w))
-    l_small, small_h, small_w = _downscale_l_channel(l_channel, h, w, scale)
-    background_small = _gaussian_background(l_small, small_h, small_w)
-
-    if coeff_var > _SEVERE_GRADIENT_CV_THRESHOLD:
-        background_small = _refine_severe_gradient_background(
-            l_small,
-            background_small,
-            small_h,
-            small_w,
-        )
-
-    if scale < 1.0:
-        return cv2.resize(background_small, (w, h), interpolation=cv2.INTER_LINEAR)
-    return background_small
-
-
-def _downscale_l_channel(
-    l_channel: np.ndarray,
-    h: int,
-    w: int,
-    scale: float,
-) -> tuple[np.ndarray, int, int]:
-    if scale >= 1.0:
-        return l_channel, h, w
-
-    small_h, small_w = int(h * scale), int(w * scale)
-    l_small = cv2.resize(l_channel, (small_w, small_h), interpolation=cv2.INTER_AREA)
-    return l_small, small_h, small_w
-
-
-def _gaussian_background(l_small: np.ndarray, small_h: int, small_w: int) -> np.ndarray:
-    kernel_size = _odd_kernel_size(
-        max(max(small_h, small_w) // _GAUSS_KERN_DIVISOR, _GAUSS_MIN_KERN_SIZE)
-    )
-    return cv2.GaussianBlur(l_small, (kernel_size, kernel_size), 0)
-
-
-def _refine_severe_gradient_background(
-    l_small: np.ndarray,
-    background_small: np.ndarray,
-    small_h: int,
-    small_w: int,
-) -> np.ndarray:
-    logger.debug("Severe gradient detected, using morphological refinement")
-    morph_size = _odd_kernel_size(
-        max(_MORPH_MIN_KERN_SIZE, min(small_h, small_w) // _MORPH_KERN_DIVISOR)
-    )
-    se = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (morph_size, morph_size))
-    bg_morph = cv2.morphologyEx(l_small, cv2.MORPH_CLOSE, se)
-    bg_morph = cv2.GaussianBlur(bg_morph.astype(np.float32), (0, 0), morph_size / 2)
-    return (0.5 * background_small.astype(np.float32) + 0.5 * bg_morph).astype(np.uint8)
-
-
-def _odd_kernel_size(size: int) -> int:
-    return size + 1 if size % 2 == 0 else size
-
-
-def _normalize_l_channel(l_channel: np.ndarray, background: np.ndarray) -> np.ndarray:
-    background_f = np.maximum(background.astype(np.float32), _BG_MIN_VALUE)
-    normalized_l = (l_channel.astype(np.float32) / background_f) * _TARGET_BRIGHTNESS
-    np.clip(normalized_l, 0, 255, out=normalized_l)
-
-    blend_mask = (background_f - _BG_MIN_VALUE) / (_BG_BLEND_THRESHOLD - _BG_MIN_VALUE)
-    np.clip(blend_mask, 0.0, 1.0, out=blend_mask)
-
-    l_float = l_channel.astype(np.float32)
-    normalized_l *= blend_mask
-    l_float *= 1.0 - blend_mask
-    normalized_l += l_float
-    np.clip(normalized_l, 0, 255, out=normalized_l)
-    return normalized_l
 
 
 def sharpen_text(img: np.ndarray) -> np.ndarray:

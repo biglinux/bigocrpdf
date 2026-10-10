@@ -163,7 +163,7 @@ class SettingsQueueMixin:
         self._queue_view_stack.set_transition_type(Gtk.StackTransitionType.CROSSFADE)
         self._queue_view_stack.set_transition_duration(150)
 
-        # ── List view ──
+        # List view
         queue_scroll = Gtk.ScrolledWindow()
         queue_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         queue_scroll.set_vexpand(True)
@@ -194,7 +194,7 @@ class SettingsQueueMixin:
         queue_scroll.set_child(self.file_list_box)
         self._queue_view_stack.add_named(queue_scroll, "list")
 
-        # ── Grid view ──
+        # Grid view
         self._grid_outer_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self._grid_outer_box.set_vexpand(True)
 
@@ -352,7 +352,6 @@ class SettingsQueueMixin:
             else:
                 break
 
-        # Show/hide placeholder
         has_files = bool(self.window.settings.selected_files)
         outer = self._grid_outer_box
         # Ensure placeholder is managed properly
@@ -654,8 +653,6 @@ class SettingsQueueMixin:
                 ngettext("{count} page", "{count} pages", pages).format(count=pages)
             )
             page_label.set_visible(True)
-
-    # ── Popover item actions ──
 
     def _on_list_row_activated(self, _listbox: Gtk.ListBox, row) -> None:
         """Handle list row activation (Enter key) — open file editor."""
@@ -1095,7 +1092,7 @@ class SettingsQueueMixin:
     def _on_edit_file(self, file_path: str) -> None:
         """Open the PDF editor for the file."""
         try:
-            from bigocrpdf.ui.pdf_editor import PDFEditorWindow
+            from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
 
             initial_state = self.window.settings.file_modifications.get(file_path)
 

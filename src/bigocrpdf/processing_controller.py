@@ -240,13 +240,11 @@ class ProcessingController:
         self._cleanup_ocr_processor()
         self.process_start_time = time.time()
 
-        # Register callbacks for OCR processing events
         self.ocr_processor.register_callbacks(
             on_file_complete=self._on_file_processed,
             on_all_complete=self._on_processing_complete,
         )
 
-        # Start OCR processing using Python API
         success = self.ocr_processor.process_with_api()
         if not success:
             logger.error(_("Failed to start OCR processing"))

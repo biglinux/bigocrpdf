@@ -127,10 +127,9 @@ class TestSkippedPageWarning:
     """A page left alone because it already has OCR must say so.
 
     Skipping is the right default -- re-OCRing over an existing layer doubles
-    every word -- but it used to be silent. A run reported success with zero
-    regions and no warning, so a user whose earlier OCR was poor had no signal
-    that nothing had happened and no hint that ``replace existing OCR`` is the
-    setting that redoes it.
+    every word -- but a silent skip reports success with zero regions, leaving
+    a user whose earlier OCR was poor no signal that nothing happened and no
+    hint that ``replace existing OCR`` redoes it.
     """
 
     def test_a_skipped_page_produces_a_warning(self):

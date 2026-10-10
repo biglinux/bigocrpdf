@@ -1,7 +1,5 @@
-"""
-BigOcrPdf - UI Widgets
-
-This module contains shared widgets and UI components used across the application.
+"""Widgets and helpers shared by the windows: clipboard, illustrations,
+the OCR-unavailable dialog, and the stylesheet.
 """
 
 import gi

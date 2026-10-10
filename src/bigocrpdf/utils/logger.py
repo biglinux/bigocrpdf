@@ -1,8 +1,4 @@
-"""
-BigOcrPdf - Logger Module
-
-This module sets up logging for the application.
-"""
+"""Application logger setup."""
 
 import logging
 

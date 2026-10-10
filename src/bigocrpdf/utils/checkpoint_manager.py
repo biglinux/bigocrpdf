@@ -1,9 +1,5 @@
-"""
-BigOcrPdf - Checkpoint Manager Module
-
-Provides checkpoint/resume functionality for OCR processing.
-Saves progress after each file is processed and allows resuming
-interrupted batch processing sessions.
+"""Checkpoint of a batch: progress saved after each file so an interrupted
+batch can resume.
 """
 
 import copy
@@ -193,24 +189,6 @@ class CheckpointManager:
 
         self._save_checkpoint()
         logger.debug(f"Checkpoint: marked failed - {os.path.basename(input_file)}: {error}")
-
-    def save_file_modifications(self, input_file: str, modifications: dict[str, Any]) -> None:
-        """Save editor modifications for a file.
-
-        Args:
-            input_file: Path to the input file
-            modifications: Serializable dict of editor state (e.g. from PDFDocument.to_dict())
-        """
-        if not self._current_checkpoint:
-            return
-        if input_file not in self._current_checkpoint.files_to_process:
-            logger.warning(f"Cannot save modifications for unqueued file: {input_file}")
-            return
-        if self._current_checkpoint.file_modifications.get(input_file) == modifications:
-            return
-        self._current_checkpoint.file_modifications[input_file] = copy.deepcopy(modifications)
-        self._current_checkpoint.last_update = time.time()
-        self._save_checkpoint()
 
     def complete_session(self) -> None:
         """Mark the current session as successfully completed."""

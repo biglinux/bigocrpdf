@@ -182,12 +182,11 @@ class PerspectiveCorrector:
             (image_width - x - width) / image_width,
             (image_height - y - height) / image_height,
         )
-        # These two return None rather than the image, as the docstring says.
-        # Returning the image ends the whole cascade, so a contour that turned
-        # out to be an internal frame -- a table border, a scanned photo inside
-        # the page -- used to stop the gentle-margin step from ever running.
-        # Neither case is a statement that the page needs no correction; both
-        # only say this contour cannot provide one.
+        # These two return None rather than the image, as the docstring says:
+        # returning the image ends the whole cascade, and an internal frame --
+        # a table border, a scanned photo inside the page -- must not stop the
+        # gentle-margin step. Both only say this contour cannot provide a
+        # correction.
         if max(insets) > _MAX_CONTOUR_INSET_RATIO:
             logger.debug("Detected contour is an internal frame. Skipping perspective correction.")
             return None

@@ -351,8 +351,8 @@ def test_every_stage_is_named_so_a_previous_call_cannot_disable_detection():
 def test_low_memory_openvino_still_forwards_the_classifier_choice():
     """The low-memory variant swaps recognize_txt; it must not swap the answer.
 
-    Both call sites in ``_run_ocr_engine`` used to pass ``use_cls=False``, so
-    fixing only the plain one would leave the flag dead under low memory.
+    ``_run_ocr_engine`` has two call sites; both must forward ``use_cls``, or
+    the flag is dead under low memory.
     """
     calls = []
     # A live request keeps the OpenVINO model rebuild out of this test.

@@ -5,8 +5,6 @@ This is where the two halves of the project meet. ``export_service`` runs
 and ODT a user gets is a direct function of whether the invisible text layer
 landed on the right glyphs -- the property tests/test_text_layer_placement
 establishes. Here that layer is built by the real renderer and then exported.
-
-``save_odf_file`` had no test at all before this file.
 """
 
 import shutil
@@ -106,7 +104,7 @@ class TestSaveTextFile:
 
 
 class TestSaveOdfFile:
-    """The reflowable and fixed-layout ODT paths, neither previously tested."""
+    """The reflowable and fixed-layout ODT paths."""
 
     @pytest.mark.parametrize("include_images", [False, True])
     def test_it_writes_a_readable_odt(self, searchable_pdf: Path, include_images: bool):
@@ -274,10 +272,8 @@ class TestOdtDocumentStructure:
 class TestFixedLayoutOdtPlacesTextWhereItWas:
     """The fixed-layout export promises position, so position is measured.
 
-    A page used to be stretched to A4's 29.7 cm on its longer side whatever it
-    measured. A US Letter document therefore came out 6.3% too large and every
-    word landed 6.3% away from where it belongs -- 42 points adrift by the foot
-    of the page, which is more than half an inch on paper.
+    A US Letter page stretched to A4's 29.7 cm would come out 6.3% too large,
+    with every word 42 points adrift by the foot of the page.
 
     LibreOffice renders the ODT back to PDF and the words are compared against
     the page they came from, so the whole chain is measured rather than the

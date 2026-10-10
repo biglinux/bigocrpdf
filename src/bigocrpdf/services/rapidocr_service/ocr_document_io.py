@@ -20,7 +20,7 @@ import re
 import stat
 import tempfile
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
@@ -505,64 +505,12 @@ def _regular_file_fingerprint(
 
 
 def _document_to_dict(document: OcrDocument) -> dict[str, Any]:
-    return {
-        "diagnostics": _json_safe(document.diagnostics),
-        "pages": [_page_to_dict(page) for page in document.pages],
-    }
-
-
-def _page_to_dict(page: OcrPage) -> dict[str, Any]:
-    return {
-        "page_index": page.page_index,
-        "width_px": page.width_px,
-        "height_px": page.height_px,
-        "dpi": page.dpi,
-        "native_text": page.native_text,
-        "text_layer_quality": page.text_layer_quality,
-        "retry_level": page.retry_level,
-        "diagnostics": _json_safe(page.diagnostics),
-        "text_results": [_ocr_result_to_dict(result) for result in page.text_results],
-        "lines": [_ocr_line_to_dict(line) for line in page.lines],
-        "layout_blocks": [_layout_block_to_dict(block) for block in page.layout_blocks],
-    }
-
-
-def _ocr_result_to_dict(result: OCRResult) -> dict[str, Any]:
-    return {
-        "text": result.text,
-        "box": result.box,
-        "confidence": result.confidence,
-    }
-
-
-def _ocr_line_to_dict(line: OcrLine) -> dict[str, Any]:
-    return {
-        "text": line.text,
-        "bbox": line.bbox,
-        "reading_order": line.reading_order,
-        "source": line.source,
-        "words": [_ocr_word_to_dict(word) for word in line.words],
-    }
-
-
-def _ocr_word_to_dict(word: OcrWord) -> dict[str, Any]:
-    return {
-        "text": word.text,
-        "bbox": word.bbox,
-        "confidence": word.confidence,
-    }
-
-
-def _layout_block_to_dict(block: OcrLayoutBlock) -> dict[str, Any]:
-    return {
-        "kind": block.kind,
-        "text": block.text,
-        "rows": block.rows,
-        "raw_lines": block.raw_lines,
-        "indent_chars": block.indent_chars,
-        "y_top": block.y_top,
-        "reading_order": block.reading_order,
-    }
+    payload = asdict(document)
+    # Diagnostics are free-form; every other field is already JSON-typed.
+    payload["diagnostics"] = _json_safe(payload["diagnostics"])
+    for page in payload["pages"]:
+        page["diagnostics"] = _json_safe(page["diagnostics"])
+    return payload
 
 
 def _document_from_dict(payload: dict[str, Any]) -> OcrDocument:

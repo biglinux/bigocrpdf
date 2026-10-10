@@ -518,26 +518,6 @@ class TestSaveMdSettings:
         assert store.get("md_export.include_front_matter") is True
         assert store.get("md_export.open_after_export") is True
 
-    def test_load_md_settings_reads_both_keys(self):
-        from bigocrpdf.services.settings import OcrSettings
-
-        class _Cfg:
-            def __init__(self):
-                self.store = {
-                    "md_export.include_front_matter": True,
-                    "md_export.open_after_export": True,
-                }
-
-            def get(self, key, default=None):
-                return self.store.get(key, default)
-
-        s = OcrSettings.__new__(OcrSettings)
-        s._config = _Cfg()  # type: ignore[attr-defined]
-        s._load_md_settings()
-
-        assert s.md_include_front_matter is True
-        assert s.md_open_after_export is True
-
     def test_save_md_settings_defaults_when_unset(self):
         # Settings object freshly constructed may not have the attributes —
         # the saver must default to False instead of raising AttributeError.

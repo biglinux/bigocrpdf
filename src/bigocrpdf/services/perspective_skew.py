@@ -189,7 +189,6 @@ def mesh_perspective_correction(
     """
     h, w = image.shape[:2]
 
-    # Create coordinate grids
     y_coords, x_coords = np.mgrid[0:h, 0:w].astype(np.float32)
 
     # Interpolate skew angles across all y positions
@@ -224,7 +223,6 @@ def mesh_perspective_correction(
     map_x = x_coords
     map_y = y_coords + y_displacement  # Add displacement to move pixels up/down
 
-    # Apply remapping
     result = cv2.remap(
         image,
         map_x,

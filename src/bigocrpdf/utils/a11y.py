@@ -10,7 +10,7 @@ from __future__ import annotations
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk  # noqa: E402
+from gi.repository import Gtk
 
 
 def set_a11y_label(widget: Gtk.Widget, label: str) -> None:

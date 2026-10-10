@@ -18,16 +18,12 @@ from bigocrpdf.services.rapidocr_service.ocr_controller import OCRController
 from bigocrpdf.services.rapidocr_service.ocr_subprocess_controller import (
     OCRSubprocessController,
 )
-
-# Import extracted logic
 from bigocrpdf.services.rapidocr_service.pdf_extractor import (
     PDFImageExtractor,
     has_native_text,
     has_trusted_native_text,
 )
 from bigocrpdf.services.rapidocr_service.pdf_image_analysis import inspect_pdf_resource_metrics
-
-# Import ImagePreprocessor from dedicated module (single source of truth)
 from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
 from bigocrpdf.services.rapidocr_service.renderer import TextLayerRenderer
 from bigocrpdf.services.rapidocr_service.resource_manager import enforce_pdf_resource_limits
@@ -112,7 +108,6 @@ class ProfessionalPDFOCR(
         """
         input_pdf = Path(input_pdf)
         output_pdf = Path(output_pdf)
-        self._input_pdf = input_pdf
 
         if not input_pdf.exists():
             raise FileNotFoundError(f"Input PDF not found: {input_pdf}")

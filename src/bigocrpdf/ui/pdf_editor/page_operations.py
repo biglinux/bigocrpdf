@@ -1,9 +1,4 @@
-"""
-BigOcrPdf - PDF Page Operations
-
-Functions for manipulating PDF pages: rotation, deletion, reordering, and OCR selection.
-Uses pikepdf for PDF manipulation operations.
-"""
+"""PDF page rotation, deletion, reordering and OCR selection with pikepdf."""
 
 import math
 from contextlib import ExitStack
@@ -89,7 +84,6 @@ def delete_pages(
             for page in pages_to_remove:
                 doc.pages.remove(page)
 
-            # Update positions
             doc.update_positions()
         else:
             # Soft delete: mark pages as deleted
@@ -108,39 +102,6 @@ def delete_pages(
 
     except Exception as e:
         logger.error(f"Failed to delete pages: {e}")
-        return False
-
-
-def set_ocr_selection(doc: PDFDocument, page_indices: list[int], selected: bool) -> bool:
-    """Set OCR selection state for pages.
-
-    Args:
-        doc: The PDFDocument to modify
-        page_indices: List of page indices to modify
-        selected: Whether pages should be included for OCR
-
-    Returns:
-        True if successful
-    """
-    if not page_indices:
-        return False
-
-    try:
-        changed_pages = 0
-        for idx in dict.fromkeys(page_indices):
-            page = doc.get_page_by_position(idx)
-            if page and page.included_for_ocr != selected:
-                page.included_for_ocr = selected
-                changed_pages += 1
-
-        if not changed_pages:
-            return False
-        doc.mark_modified()
-        logger.info(f"Set OCR selection to {selected} for {changed_pages} page(s)")
-        return True
-
-    except Exception as e:
-        logger.error(f"Failed to set OCR selection: {e}")
         return False
 
 

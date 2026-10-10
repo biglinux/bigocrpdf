@@ -1,8 +1,4 @@
-"""
-BigOcrPdf - Dialogs Manager Module
-
-This module handles all dialog creation and management for the application.
-"""
+"""Dialogs of the main window."""
 
 from collections.abc import Callable
 from typing import TYPE_CHECKING
@@ -56,8 +52,6 @@ class DialogsManager:
     def show_extracted_text(self, file_path: str) -> None:
         """Present extracted text for a processed file."""
         self._text_viewer.show_extracted_text(file_path)
-
-    # ── Image merge dialog ──────────────────────────────────────────────
 
     def show_image_merge_dialog(
         self,

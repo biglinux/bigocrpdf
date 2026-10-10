@@ -1,9 +1,4 @@
-"""
-BigOcrPdf - Configuration Manager
-
-This module provides centralized JSON-based configuration management.
-It handles loading, saving, and migrating settings from legacy file format.
-"""
+"""JSON settings file: load, save, and migration from the legacy per-setting files."""
 
 import copy
 import fcntl
@@ -146,7 +141,6 @@ class ConfigManager:
         # Ensure config directory exists
         Path(self.config_path).parent.mkdir(parents=True, exist_ok=True)
 
-        # Load or create configuration
         self._load_config()
 
     def _load_config(self) -> bool:
@@ -552,7 +546,6 @@ class ConfigManager:
                 config[key] = {}
             config = config[key]
 
-        # Set the value
         config[keys[-1]] = value
 
         if save_immediately:

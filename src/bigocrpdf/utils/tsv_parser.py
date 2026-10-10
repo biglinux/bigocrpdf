@@ -10,8 +10,6 @@ import re
 import subprocess
 from dataclasses import dataclass, field
 
-# ── Data Model ──
-
 
 @dataclass
 class Word:
@@ -67,8 +65,6 @@ class DocElement:
     text_align: str = ""  # Geometry-derived ODT alignment: center or end.
 
 
-# ── Constants ──
-
 FOOTER_REGION_Y = 780.0
 Y_TOLERANCE = 5.0
 X_GAP_SPLIT = 300.0
@@ -100,9 +96,6 @@ MAX_TABLE_CELL_LEN = 14  # Median cell text length above this rejects as table
 HEADER_WORD_GAP = 8.0  # Minimum gap for header line word groups
 PARA_INDENT_THRESHOLD = 20.0  # min_x shift to detect first-line indent (new paragraph)
 PARA_INDENT_MAX = 60.0  # max_x shift — beyond this, it's not a first-line indent
-
-
-# ── TSV Parsing ──
 
 
 def parse_tsv_pages(pdf_path: str) -> dict[int, list[Word]]:
@@ -141,9 +134,6 @@ def parse_tsv_pages(pdf_path: str) -> dict[int, list[Word]]:
     return pages
 
 
-# ── Noise Filtering ──
-
-
 def filter_words(words: list[Word], page_num: int) -> list[Word]:
     """Remove clear OCR artifacts, without discarding real text.
 
@@ -164,9 +154,6 @@ def filter_words(words: list[Word], page_num: int) -> list[Word]:
             continue
         result.append(w)
     return result
-
-
-# ── Line Grouping ──
 
 
 def group_into_lines(words: list[Word]) -> list[TextLine]:
@@ -210,9 +197,6 @@ def _split_line_by_x_gap(words: list[Word], y: float) -> list[TextLine]:
             segments[-1].append(w)
 
     return [TextLine(words=seg, y=y) for seg in segments]
-
-
-# ── Text Classification ──
 
 
 def is_heading_text(text: str) -> str | None:

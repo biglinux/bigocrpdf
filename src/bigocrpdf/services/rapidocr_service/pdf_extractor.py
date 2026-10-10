@@ -422,8 +422,8 @@ class PDFImageExtractor:
     _UNSUPPORTED_EXTENSIONS = frozenset({".jb2e", ".jb2g", ".ccitt"})
 
     def __init__(self, dpi: int | None = None, max_render_megapixels: float = 45):
-        # DPI parameter kept for API compatibility but not used for extraction
-        # (pdfimages extracts at native resolution)
+        # pdfimages extracts at native resolution; dpi applies only to pages
+        # that have to be rendered with pdftoppm.
         self.dpi = dpi
         self.max_render_megapixels = max_render_megapixels
         # Track which 1-indexed pages were rendered via pdftoppm

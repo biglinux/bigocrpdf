@@ -78,11 +78,6 @@ bigocrpdf = [
 target-version = "py312"
 line-length = 100
 src = ["src"]
-extend-exclude = [
-    ".bigocrpdf-cpython-3.14",
-    ".bigocrpdf-debian-runtime",
-    ".bigocrpdf-venv",
-]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "C4", "UP"]

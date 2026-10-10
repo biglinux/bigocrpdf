@@ -117,8 +117,6 @@ def test_processing_start_rejects_worker_that_is_still_stopping():
 
     assert ProcessingController.start(processing) is False
 
-    processing._validate_ocr_settings.assert_not_called()
-    processing._get_settings_from_ui.assert_not_called()
     processor.process_with_api.assert_not_called()
     processing.ui.show_toast.assert_called_once()
 
@@ -136,8 +134,6 @@ def test_unavailable_processing_stops_before_validation_or_processor_io():
 
     assert started is False
     processing._show_ocr_unavailable.assert_called_once_with()
-    processing._get_settings_from_ui.assert_not_called()
-    processing._validate_ocr_settings.assert_not_called()
     processing.ocr_processor.process_with_api.assert_not_called()
 
 
@@ -404,7 +400,6 @@ def test_pending_clipboard_read_cannot_mutate_queue_after_page_transition():
     with patch("bigocrpdf.window_controller.parse_clipboard_file_paths") as parse_paths:
         controller._on_clipboard_uris_ready(clipboard, result)
 
-    controller._read_clipboard_uri_text.assert_called_once_with(clipboard, result)
     parse_paths.assert_not_called()
 
 

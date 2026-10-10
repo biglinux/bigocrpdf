@@ -187,10 +187,6 @@ class EditorPageActionsMixin:
         else:
             vadj.set_value(min(vadj.get_upper() - vadj.get_page_size(), vadj.get_value() + step))
 
-    # ------------------------------------------------------------------
-    # Clipboard paste (Ctrl+V)
-    # ------------------------------------------------------------------
-
     _SUPPORTED_EXTENSIONS = (
         ".pdf",
         ".png",

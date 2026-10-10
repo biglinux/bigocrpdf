@@ -129,7 +129,6 @@ def detect_perspective_distortion(image: np.ndarray) -> dict | None:
     bot_left = left_coeffs[0] * h + left_coeffs[1]
     bot_right = right_coeffs[0] * h + right_coeffs[1]
 
-    # Add some padding
     padding = 10
     src_corners = np.array(
         [
@@ -219,7 +218,6 @@ def correct_perspective_from_margins(image: np.ndarray, distortion: dict) -> np.
     map_x = map_x.astype(np.float32)
     map_y = map_y.astype(np.float32)
 
-    # Apply remapping
     result = cv2.remap(
         image,
         map_x,
@@ -285,7 +283,7 @@ def gentle_margin_perspective_correction(
         return None
     lc, rc = fit
 
-    # ── Decompose slopes into rotation + perspective ─────────────────
+    # Decompose slopes into rotation + perspective
     # Rotation shifts both margins in the same direction (average slope).
     # Perspective makes them converge/diverge (differential slope).
     # We measure perspective using derotated slopes but build the transform
@@ -533,13 +531,11 @@ def trim_white_borders(image: np.ndarray, threshold: int = 250) -> np.ndarray:
         # No content found, return original
         return image
 
-    # Get bounds
     y_min = np.argmax(rows_with_content)
     y_max = len(rows_with_content) - np.argmax(rows_with_content[::-1])
     x_min = np.argmax(cols_with_content)
     x_max = len(cols_with_content) - np.argmax(cols_with_content[::-1])
 
-    # Add small margin (5 pixels)
     margin = 5
     y_min = max(0, y_min - margin)
     y_max = min(image.shape[0], y_max + margin)

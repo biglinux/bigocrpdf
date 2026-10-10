@@ -12,8 +12,8 @@ from unittest.mock import patch
 
 import pytest
 
-from bigocrpdf.cli import _cmd_export_odf, _cmd_export_txt  # type: ignore[import-untyped]
-from bigocrpdf.services.rapidocr_service.config import (  # type: ignore[import-untyped]
+from bigocrpdf.cli import _cmd_export_odf, _cmd_export_txt
+from bigocrpdf.services.rapidocr_service.config import (
     OcrDocument,
     OcrLayoutBlock,
     OcrLine,
@@ -21,29 +21,29 @@ from bigocrpdf.services.rapidocr_service.config import (  # type: ignore[import-
     OCRResult,
     OcrWord,
 )
-from bigocrpdf.services.rapidocr_service.ocr_document_export import (  # type: ignore[import-untyped]
+from bigocrpdf.services.rapidocr_service.ocr_document_export import (
     convert_ocr_document_to_markdown,
     convert_ocr_document_to_odf,
     convert_ocr_document_to_text,
     ocr_document_to_pages_elements,
 )
-from bigocrpdf.services.rapidocr_service.ocr_document_io import (  # type: ignore[import-untyped]
+from bigocrpdf.services.rapidocr_service.ocr_document_io import (
     complete_ocr_document,
     load_ocr_document_json,
     ocr_document_json_path,
     write_ocr_document_json,
 )
-from bigocrpdf.utils.odf_builder import (  # type: ignore[import-untyped]
+from bigocrpdf.utils.odf_builder import (
     ExportCancelled,
     create_odf,
     create_positioned_text_odf,
 )
-from bigocrpdf.utils.tsv_odf_converter import (  # type: ignore[import-untyped]
+from bigocrpdf.utils.tsv_odf_converter import (
     convert_pdf_to_odf,
     create_text,
     fix_cross_page_breaks,
 )
-from bigocrpdf.utils.tsv_parser import DocElement, Word  # type: ignore[import-untyped]
+from bigocrpdf.utils.tsv_parser import DocElement, Word
 
 
 def _box(left: float, top: float, width: float, height: float = 10.0) -> list[list[float]]:

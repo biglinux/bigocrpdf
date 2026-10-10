@@ -1,9 +1,4 @@
-"""
-BigOcrPdf - PDF Comparison Utilities
-
-This module provides functionality to compare PDFs before and after OCR processing.
-It generates comparison data including file sizes, thumbnails, and text content.
-"""
+"""Before/after comparison of a processed PDF: sizes, page thumbnails and text."""
 
 import os
 from dataclasses import dataclass
@@ -105,7 +100,6 @@ def compare_pdfs(
         extracted_text=extracted_text,
     )
 
-    # Get input file info
     if os.path.exists(input_path):
         input_info = get_pdf_info(input_path)
         result.input_size_bytes = input_info.get("file_size", 0)
@@ -116,7 +110,6 @@ def compare_pdfs(
     else:
         logger.warning(f"Input file not found for comparison: {input_path}")
 
-    # Get output file info
     if os.path.exists(output_path):
         output_info = get_pdf_info(output_path)
         result.output_size_bytes = output_info.get("file_size", 0)

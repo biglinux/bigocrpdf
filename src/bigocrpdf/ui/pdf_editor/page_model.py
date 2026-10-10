@@ -1,8 +1,4 @@
-"""
-BigOcrPdf - PDF Editor Page Model
-
-Data models for PDF document and page state management.
-"""
+"""Document and page state edited by the PDF editor."""
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING

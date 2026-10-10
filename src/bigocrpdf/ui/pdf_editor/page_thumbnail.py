@@ -1,8 +1,5 @@
-"""
-BigOcrPdf - PDF Page Thumbnail Widget
-
-A GTK4 widget displaying a PDF page thumbnail with controls for
-selection, OCR checkbox, rotation indicator, and deletion overlay.
+"""Editor page thumbnail with selection, OCR checkbox, rotation badge and
+deletion overlay.
 """
 
 from collections.abc import Callable
@@ -89,7 +86,6 @@ class PageThumbnail(Gtk.Box):
             [_("Page {}").format(page_state.page_number)],
         )
 
-        # Set Grab cursor
         self.set_cursor(Gdk.Cursor.new_from_name("grab", None))
 
         self._setup_ui()
@@ -163,7 +159,6 @@ class PageThumbnail(Gtk.Box):
 
         # OCR/Include checkbox
         self._ocr_check = Gtk.CheckButton()
-        # Active means NOT deleted (Included)
         self._ocr_check.set_active(not self._page_state.deleted)
         self._ocr_check.set_tooltip_text(_("Include this page in the final document"))
         self._ocr_check.update_property(
@@ -217,7 +212,6 @@ class PageThumbnail(Gtk.Box):
         flip_menu.append(_("Vertical Flip"), "thumbnail.flip-v")
         self._flip_btn.set_menu_model(flip_menu)
 
-        # Create action group for the menu button
         action_group = Gio.SimpleActionGroup()
 
         # Horizontal action
@@ -257,7 +251,6 @@ class PageThumbnail(Gtk.Box):
         key_ctrl.connect("key-pressed", self._on_key_for_context_menu)
         self.add_controller(key_ctrl)
 
-        # Save page actions
         save_img_action = Gio.SimpleAction.new("save-image", None)
         save_img_action.connect("activate", lambda *_: self._save_page_as_image())
         action_group.add_action(save_img_action)
@@ -294,7 +287,6 @@ class PageThumbnail(Gtk.Box):
         Returns:
             ContentProvider with the page position
         """
-        # Store position as string value
         value = GObject.Value(GObject.TYPE_INT, self._page_state.position)
         return Gdk.ContentProvider.new_for_value(value)
 
@@ -305,7 +297,6 @@ class PageThumbnail(Gtk.Box):
             source: The drag source
             _drag: The drag object
         """
-        # Create drag icon from the thumbnail
         if self._page_state.thumbnail_pixbuf:
             texture = Gdk.Texture.new_for_pixbuf(self._page_state.thumbnail_pixbuf)
             source.set_icon(texture, self._size // 2, self._height // 2)
@@ -410,7 +401,6 @@ class PageThumbnail(Gtk.Box):
 
     def _update_appearance(self) -> None:
         """Update widget appearance based on current state."""
-        # Update rotation & flip badge
         badge_text = []
         if self._page_state.rotation != 0:
             badge_text.append(f"↻{self._page_state.rotation}°")
@@ -425,10 +415,8 @@ class PageThumbnail(Gtk.Box):
         else:
             self._rotation_badge.set_visible(False)
 
-        # Update checkbox (checked if NOT deleted)
         self._ocr_check.set_active(not self._page_state.deleted)
 
-        # Update selection border
         if self._selected:
             self._frame.add_css_class("selected")
         else:
@@ -629,16 +617,6 @@ class PageThumbnail(Gtk.Box):
         if self._selected != value:
             self._selected = value
             self._update_appearance()
-
-    def set_size(self, size: int) -> None:
-        if size == self._size:
-            return
-        self._size = size
-        self._height = int(size * 1.414)
-        self._image_box.set_size_request(size, self._height)
-        self._image.set_size_request(size, self._height)
-        self.set_size_request(size + 16, self._height + 50)
-        self.reload_thumbnail()
 
     def resize_without_reload(self, size: int) -> None:
         """Resize the thumbnail widget without triggering a reload.

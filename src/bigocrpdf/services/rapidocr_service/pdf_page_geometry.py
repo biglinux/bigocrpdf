@@ -89,8 +89,8 @@ def merge_page_fonts(
     Returns the names that had to change, old name to new.
 
     A name that already exists on the page belongs to the page, not to us.
-    Keeping it used to mean our font was silently dropped and our text read
-    through a stranger's encoding: our layer writes subset code 1 for whatever
+    Keeping it would drop our font and read our text through a stranger's
+    encoding: our layer writes subset code 1 for whatever
     character it happened to meet first, so a page carrying an unrelated
     ``/F2+0`` decoded every accent as some other accent -- ``Jürgen`` came out
     ``Jçrgen``. Names like ``/F1`` are as generic as they look, and re-running

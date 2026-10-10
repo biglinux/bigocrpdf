@@ -1,8 +1,8 @@
-"""
-Text Layer Rendering for Searchable PDFs.
+"""Invisible OCR text placement for searchable PDFs.
 
-This module overlays invisible OCR text onto PDF pages using ReportLab,
-creating searchable PDFs while preserving the original image appearance.
+TextLayerRenderer draws through ReportLab for image-only pages; pdf_assembly
+writes the same placement as raw content-stream operators for mixed-content
+and embedded-image pages.
 """
 
 import logging
@@ -91,8 +91,7 @@ def _line_text_with_spacing(
     return "".join(parts)
 
 
-# Bounds on the invisible run's horizontal stretch. Shared with pdf_assembly so
-# the two placement paths cannot drift apart.
+# Bounds on the invisible run's horizontal stretch, in percent.
 MIN_HORIZ_SCALE = 30.0
 MAX_HORIZ_SCALE = 300.0
 
@@ -103,13 +102,12 @@ def _line_horizontal_scale(
     font_name: str,
     line_font_size: float,
 ) -> float:
-    """Horizontal stretch, as a percentage, bounded to the same range as path B.
+    """Horizontal stretch, as a percentage, bounded to the HORIZ_SCALE range.
 
     A single OCR box much wider or narrower than its text -- a stray detection,
     or a CJK line whose placeholder glyphs bear no relation to the real widths
     -- would otherwise stretch the invisible run by a factor of ten, making the
-    selection rectangle cover half the page. ``pdf_assembly`` has always
-    clamped; this is the same bound.
+    selection rectangle cover half the page.
     """
     natural_width = pdfmetrics.stringWidth(line_text, font_name, line_font_size)
     if natural_width > 0 and line_width > 0:
@@ -141,6 +139,124 @@ def _normalize_ocr_quadrilateral(
     return points[0], points[1], points[2], points[3]
 
 
+# Helvetica's descent as a fraction of the em size (207/1000). The OCR box
+# bottom is the descender line; the PDF text origin is the baseline above it.
+_DESCENT_FRAC = 0.207
+
+
+def place_text_box(
+    result: "OCRResult",
+    scale_x: float,
+    scale_y: float,
+    origin_x: float,
+    top_y: float,
+) -> TextBox | None:
+    """Map one OCR result from image pixels to PDF points.
+
+    ``origin_x`` and ``top_y`` are the PDF coordinates of the image's left and
+    top edges. Width and height come from the quadrilateral's own edges, so a
+    skewed box keeps its glyph height, and the baseline sits on the mean of the
+    bottom corners. Text stays horizontal so extractors rebuild line order.
+    Returns None for blank text or an invalid quadrilateral.
+    """
+    text = result.text.strip()
+    quadrilateral = _normalize_ocr_quadrilateral(result.box)
+    if not text or quadrilateral is None:
+        return None
+    # RapidOCR order: top-left, top-right, bottom-right, bottom-left.
+    tl, tr, br, bl = quadrilateral
+    width = math.hypot(br[0] - bl[0], br[1] - bl[1]) * scale_x
+    left_h = math.hypot(tl[0] - bl[0], tl[1] - bl[1])
+    right_h = math.hypot(tr[0] - br[0], tr[1] - br[1])
+    height = (left_h + right_h) / 2.0 * scale_y
+    font_size = max(MIN_FONT_SIZE, min(height * FONT_SIZE_SCALE_FACTOR, MAX_FONT_SIZE))
+    y_bottom = (bl[1] + br[1]) / 2.0 * scale_y
+    return TextBox(
+        text=text,
+        x=origin_x + min(tl[0], bl[0]) * scale_x,
+        y=top_y - y_bottom + _DESCENT_FRAC * font_size,
+        width=width,
+        height=height,
+        confidence=result.confidence,
+        font_size=font_size,
+    )
+
+
+def snap_baselines(boxes: list[TextBox]) -> None:
+    """Align text boxes on the same visual line to the same y-coordinate.
+
+    PDF text extractors (pdftotext, pdfgrep) use vertical position to
+    group characters into lines.  When OCR boxes on the same visual line
+    have slightly different y-coords (scan curvature), extractors split
+    them into separate lines.
+
+    Uses sequential clustering by y-proximity with cluster centroid
+    comparison.  Each cluster is snapped to its median y value.
+    """
+    if not boxes:
+        return
+
+    # Sort by y descending (top of page = largest PDF y first)
+    sorted_boxes = sorted(boxes, key=lambda b: -b.y)
+
+    clusters: list[list[TextBox]] = []
+    current_cluster: list[TextBox] = [sorted_boxes[0]]
+
+    for box in sorted_boxes[1:]:
+        cluster_y = sum(b.y for b in current_cluster) / len(current_cluster)
+        cluster_min_h = min(b.height for b in current_cluster)
+        # 35% of the smaller height catches scan curvature but stays below
+        # the gap between two lines of the same size.
+        threshold = min(cluster_min_h, box.height) * 0.35
+        if abs(cluster_y - box.y) <= threshold:
+            current_cluster.append(box)
+        else:
+            clusters.append(current_cluster)
+            current_cluster = [box]
+    clusters.append(current_cluster)
+
+    for cluster in clusters:
+        if len(cluster) < 2:
+            continue
+        ys = sorted(b.y for b in cluster)
+        median_y = ys[len(ys) // 2]
+        for b in cluster:
+            b.y = median_y
+
+
+def text_lines(boxes: list[TextBox]) -> list[list[TextBox]]:
+    """Group snapped boxes into lines, top of the page first, each left to right."""
+    lines: dict[float, list[TextBox]] = defaultdict(list)
+    for box in boxes:
+        lines[box.y].append(box)
+    return [sorted(line, key=lambda b: b.x) for _y, line in sorted(lines.items(), reverse=True)]
+
+
+@dataclass(frozen=True)
+class LineRun:
+    """One invisible text run: the whole line drawn from its first box."""
+
+    text: str
+    x: float
+    y: float
+    font_size: float
+    horizontal_scale: float
+
+
+def line_run(line_boxes: list[TextBox], font_name: str) -> LineRun:
+    """Join a line's boxes into one run stretched to the line's OCR width."""
+    font_size = sum(b.font_size for b in line_boxes) / len(line_boxes)
+    text = _line_text_with_spacing(line_boxes, font_name, font_size)
+    width = (line_boxes[-1].x + line_boxes[-1].width) - line_boxes[0].x
+    return LineRun(
+        text=text,
+        x=line_boxes[0].x,
+        y=line_boxes[0].y,
+        font_size=font_size,
+        horizontal_scale=_line_horizontal_scale(text, width, font_name, font_size),
+    )
+
+
 class TextLayerRenderer:
     """Creates invisible text layers for searchable PDFs.
 
@@ -155,21 +271,8 @@ class TextLayerRenderer:
     # Register fonts as class variable to avoid re-registration
     _registered_fonts: set[str] = set()
 
-    def __init__(self, config: "OCRConfig | int") -> None:
-        """Initialize the renderer.
-
-        Args:
-            config: OCR configuration object (or plain ``int`` DPI
-                    for backward compatibility).
-        """
-        # Backward-compat: accept a bare int (DPI) as in the old API
-        if isinstance(config, int):
-            from bigocrpdf.services.rapidocr_service.config import OCRConfig as _Cfg
-
-            _cfg = _Cfg(dpi=config)
-            self.config = _cfg
-        else:
-            self.config = config
+    def __init__(self, config: "OCRConfig") -> None:
+        self.config = config
         self._font_name: str | None = None
         self._setup_font()
 
@@ -187,7 +290,6 @@ class TextLayerRenderer:
             self._font_name = "Helvetica"
             return
 
-        # Create a unique font name
         font_name = f"OCRFont_{font_path.stem}"
 
         if font_name not in self._registered_fonts:
@@ -232,8 +334,6 @@ class TextLayerRenderer:
             width_pts, height_pts = page_size_pts
             px_to_pt_x = width_pts / image_width_px
             px_to_pt_y = height_pts / image_height_px
-            # Use average for font size scaling
-            px_to_pt = (px_to_pt_x + px_to_pt_y) / 2.0
         else:
             dpi = float(self.config.dpi)
             px_to_pt = 72.0 / dpi
@@ -250,112 +350,12 @@ class TextLayerRenderer:
             image_height_px=image_height_px,
         )
 
-        # Helvetica descent as fraction of em-size (207/1000)
-        DESCENT_FRAC = 0.207
-
         for result in ocr_results:
-            text = result.text.strip()
-            if not text:
-                continue
-
-            confidence = result.confidence
-            quadrilateral = _normalize_ocr_quadrilateral(result.box)
-            if quadrilateral is None:
-                continue
-
-            try:
-                # Quadrilateral: TL, TR, BR, BL (RapidOCR order)
-                tl, tr, br, bl = quadrilateral
-
-                # Text width along reading direction (bottom edge length)
-                dx = br[0] - bl[0]
-                dy = br[1] - bl[1]
-                text_width_px = math.hypot(dx, dy)
-
-                # Text height perpendicular to reading direction
-                left_h = math.hypot(tl[0] - bl[0], tl[1] - bl[1])
-                right_h = math.hypot(tr[0] - br[0], tr[1] - br[1])
-                text_height_px = (left_h + right_h) / 2.0
-
-                width = text_width_px * px_to_pt_x
-                height = text_height_px * px_to_pt_y
-
-                font_size = max(
-                    MIN_FONT_SIZE,
-                    min(height * FONT_SIZE_SCALE_FACTOR, MAX_FONT_SIZE),
-                )
-
-                # Horizontal position: left edge of the quadrilateral
-                x_min = min(tl[0], bl[0])
-                x_pdf = x_min * px_to_pt_x
-
-                # Vertical position: baseline with descent offset.
-                # Use the average of the bottom edge y-coords → PDF y-flip.
-                y_bottom_avg = (bl[1] + br[1]) / 2.0
-                y_bottom_pts = y_bottom_avg * px_to_pt_y
-                descent_pts = DESCENT_FRAC * font_size
-                y_pdf = height_pts - y_bottom_pts + descent_pts
-
-                layer.boxes.append(
-                    TextBox(
-                        text=text,
-                        x=x_pdf,
-                        y=y_pdf,
-                        width=width,
-                        height=height,
-                        confidence=confidence,
-                        font_size=font_size,
-                    )
-                )
-            except (IndexError, TypeError, ValueError) as e:
-                logger.debug(f"Failed to process box: {e}")
-                continue
+            box = place_text_box(result, px_to_pt_x, px_to_pt_y, 0.0, height_pts)
+            if box is not None:
+                layer.boxes.append(box)
 
         return layer
-
-    @staticmethod
-    def _snap_baselines(boxes: list[TextBox]) -> None:
-        """Align text boxes on the same visual line to the same y-coordinate.
-
-        PDF text extractors (pdftotext, pdfgrep) use vertical position to
-        group characters into lines.  When OCR boxes on the same visual line
-        have slightly different y-coords (scan curvature), extractors split
-        them into separate lines.
-
-        Uses sequential clustering by y-proximity with cluster centroid
-        comparison.  Each cluster is snapped to its median y value.
-        """
-        if not boxes:
-            return
-
-        # Sort by y descending (top of page = largest PDF y first)
-        sorted_boxes = sorted(boxes, key=lambda b: -b.y)
-
-        clusters: list[list[TextBox]] = []
-        current_cluster: list[TextBox] = [sorted_boxes[0]]
-
-        for box in sorted_boxes[1:]:
-            cluster_y = sum(b.y for b in current_cluster) / len(current_cluster)
-            cluster_min_h = min(b.height for b in current_cluster)
-            # Threshold: 35% of the smaller height between cluster min and
-            # current box.  For 12pt text this is ~4.2pt — catches scan
-            # curvature (≤4pt) but stays below typical inter-line gap (≥8pt).
-            threshold = min(cluster_min_h, box.height) * 0.35
-            if abs(cluster_y - box.y) <= threshold:
-                current_cluster.append(box)
-            else:
-                clusters.append(current_cluster)
-                current_cluster = [box]
-        clusters.append(current_cluster)
-
-        # Snap each cluster to its median y
-        for cluster in clusters:
-            if len(cluster) < 2:
-                continue
-            ys = sorted(b.y for b in cluster)
-            median_y = ys[len(ys) // 2]
-            for b in cluster:
-                b.y = median_y
 
     def render(
         self,
@@ -387,7 +387,7 @@ class TextLayerRenderer:
         )
 
         # Snap baselines so text extractors group same-line boxes together
-        self._snap_baselines(layer.boxes)
+        snap_baselines(layer.boxes)
 
         canvas.saveState()
 
@@ -421,48 +421,27 @@ class TextLayerRenderer:
             canvas.rotate(270)
 
     @staticmethod
-    def _text_lines(boxes: list[TextBox]) -> list[tuple[float, list[TextBox]]]:
-        lines: dict[float, list[TextBox]] = defaultdict(list)
-        for box in boxes:
-            lines[box.y].append(box)
-        return sorted(lines.items(), reverse=True)
-
     def _render_text_lines(
-        self,
         canvas: canvas.Canvas,
         boxes: list[TextBox],
         font_name: str,
     ) -> int:
         count = 0
-        for y_val, line_boxes in self._text_lines(boxes):
-            line_boxes.sort(key=lambda b: b.x)
+        for line_boxes in text_lines(boxes):
             try:
-                count += self._render_text_line(canvas, line_boxes, font_name)
+                run = line_run(line_boxes, font_name)
+                text_obj = canvas.beginText()
+                text_obj.setTextRenderMode(3)
+                text_obj.setTextOrigin(run.x, run.y)
+                text_obj.setFont(font_name, run.font_size)
+                text_obj.setHorizScale(run.horizontal_scale)
+                text_obj.textOut(run.text)
             except Exception as e:
-                logger.debug(f"Failed to render line at y={y_val:.1f}: {e}")
+                logger.debug(f"Failed to render line at y={line_boxes[0].y:.1f}: {e}")
+                continue
+            # Render mode is graphics state and outlives ET; q/Q keeps it local.
+            canvas.saveState()
+            canvas.drawText(text_obj)
+            canvas.restoreState()
+            count += len(line_boxes)
         return count
-
-    @staticmethod
-    def _render_text_line(
-        canvas: canvas.Canvas,
-        line_boxes: list[TextBox],
-        font_name: str,
-    ) -> int:
-        canvas.saveState()
-        line_font_size = sum(b.font_size for b in line_boxes) / len(line_boxes)
-        line_text = _line_text_with_spacing(line_boxes, font_name, line_font_size)
-        line_x = line_boxes[0].x
-        line_y = line_boxes[0].y
-        line_width = (line_boxes[-1].x + line_boxes[-1].width) - line_boxes[0].x
-        h_scale = _line_horizontal_scale(line_text, line_width, font_name, line_font_size)
-
-        text_obj = canvas.beginText()
-        text_obj.setTextRenderMode(3)
-        text_obj.setTextOrigin(line_x, line_y)
-        text_obj.setFont(font_name, line_font_size)
-        text_obj.setHorizScale(h_scale)
-        text_obj.textOut(line_text)
-
-        canvas.drawText(text_obj)
-        canvas.restoreState()
-        return len(line_boxes)

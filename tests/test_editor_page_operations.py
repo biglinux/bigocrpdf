@@ -354,11 +354,11 @@ def test_atomic_apply_preserves_existing_destination_on_publication_failure(
 def test_structured_json_is_refused_after_the_pdf_it_describes_is_edited(
     tmp_path: Path,
 ) -> None:
-    """Editing no longer rewrites a companion file, so the reader must refuse.
+    """Editing rewrites no companion file, so the reader must refuse.
 
     Structured OCR is bound to the PDF by SHA-256. Once the editor republishes
-    the PDF, a JSON exported earlier describes a document that no longer
-    exists, and loading it returns nothing instead of stale text.
+    the PDF, a JSON exported earlier describes a different document, and
+    loading it returns nothing instead of stale text.
     """
     source_pdf = tmp_path / "source.pdf"
     output_pdf = tmp_path / "edited.pdf"

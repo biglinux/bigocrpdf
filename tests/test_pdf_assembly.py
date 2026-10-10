@@ -316,13 +316,10 @@ class TestTextLayerFontNamesDoNotCollide:
 
     ReportLab writes an embedded subset whose codes are assigned in order of
     first use, so code 1 means whatever character that document met first, and
-    only its own ToUnicode says which. The merge used to keep any font name the
-    page already had and drop ours -- our codes were then read through a
-    stranger's table. Measured on a six-page scan re-run through OCR, every
-    accent changed identity: ``Jürgen`` became ``Jçrgen``, ``CATALOGAÇÃO``
-    became ``CATALOGAõãO``. ``/F1`` and ``/F2+0`` are generic enough that this
-    is not an exotic collision, and re-OCRing our own output triggers it every
-    time.
+    only its own ToUnicode says which. A merge that keeps the page's font of
+    the same name reads our codes through a stranger's table, and every accent
+    changes identity: ``Jürgen`` becomes ``Jçrgen``. ``/F1`` and ``/F2+0`` are
+    generic enough that re-OCRing our own output collides every time.
     """
 
     # Distinct accents in a different order on each side, so the two documents

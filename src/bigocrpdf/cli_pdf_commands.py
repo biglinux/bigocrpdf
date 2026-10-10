@@ -1,7 +1,4 @@
-"""PDF operation command implementations for the BigOcrPdf CLI.
-
-allow-noisy-log: PDF operation commands print user-facing results.
-"""
+"""PDF operation command implementations for the BigOcrPdf CLI."""
 
 import argparse
 import logging

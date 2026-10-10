@@ -77,9 +77,7 @@ class TestDimensionThreshold:
 
 class TestCoordinateSpaceChanges:
     def test_geometry_applied_forces_standalone_without_a_size_change(self):
-        """The branch the old reimplemented test did not know about.
-
-        A perspective warp can preserve dimensions while moving every pixel,
+        """A perspective warp can keep the dimensions while moving every pixel,
         so the flag alone must force standalone mode.
         """
         result = _page(geometry_applied=True)
@@ -102,7 +100,7 @@ class TestCoordinateSpaceChanges:
 
 class TestExportFormat:
     def test_a_requested_format_replaces_the_image_without_geometry_change(self):
-        """The two return values differ here, which the old test could not express."""
+        """Replacing the image is not a geometry change."""
         use_processed, geometry_changed = determine_mode(_page(), 2814, 3864, export_format="jpeg")
 
         assert use_processed is True

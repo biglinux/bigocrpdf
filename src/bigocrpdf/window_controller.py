@@ -144,10 +144,6 @@ class WindowController:
         if self._is_queue_page():
             self.ui.settings_page_manager._remove_all_files()
 
-    # ------------------------------------------------------------------
-    # Clipboard paste (Ctrl+V)
-    # ------------------------------------------------------------------
-
     def _on_paste_clipboard_action(self, _action: Gio.SimpleAction, _param) -> None:
         """Handle paste from clipboard (Ctrl+V).
 
@@ -289,7 +285,6 @@ class WindowController:
         if not self._is_queue_page():
             return
 
-        # Save texture as temporary PNG
         tmp_path: str | None = None
         try:
             png_bytes = texture.save_to_png_bytes()
@@ -305,7 +300,6 @@ class WindowController:
                 remove_file(tmp_path)
             return
 
-        # Convert to PDF and add to queue
         try:
             pdf_path = images_to_pdf([tmp_path])
             if self.settings._add_generated_file(pdf_path, tmp_path):

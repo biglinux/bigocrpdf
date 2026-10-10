@@ -47,12 +47,9 @@ def test_the_icons_ship_as_hicolor():
     """Which theme they belong to is the whole mechanism.
 
     Every icon theme's lookup chain ends at hicolor, so shipping them there
-    fills the host theme's gaps without displacing it. Shipping them under a
-    private theme name instead only worked by selecting that theme, which threw
-    the user's own icons away.
+    fills the host theme's gaps without displacing it. A private theme name
+    would only work by selecting that theme, which hides the user's own icons.
     """
-    assert icons.FALLBACK_THEME_NAME == "hicolor"
-
     index = (ICON_DIR.parent.parent / "index.theme").read_text(encoding="utf-8")
 
     assert "Inherits=" not in index, "hicolor is the end of the chain; it inherits nothing"

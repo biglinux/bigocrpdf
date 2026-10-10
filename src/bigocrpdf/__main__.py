@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""
-BigOcrPdf - Entry point for python -m bigocrpdf
-
-This module allows the package to be run as a module:
-    python -m bigocrpdf
-"""
+"""Entry point for ``python -m bigocrpdf``."""
 
 import sys
 

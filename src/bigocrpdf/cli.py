@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""BigOcrPdf CLI entry point.
-
-allow-noisy-log: CLI commands intentionally print user-facing results and
-validation errors to stdout/stderr.
-"""
+"""BigOcrPdf CLI entry point."""
 
 import logging
 import sys

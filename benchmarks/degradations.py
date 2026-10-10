@@ -84,9 +84,6 @@ def _as_image(array: np.ndarray) -> Image.Image:
     return Image.fromarray(np.clip(array, 0, 255).astype(np.uint8), "RGB")
 
 
-# --- individual axes ---------------------------------------------------------
-
-
 def _blur(image: Image.Image, level: int, _rng_: np.random.Generator) -> tuple[Image.Image, dict]:
     sigma = {1: 0.8, 2: 1.8, 3: 3.0}[level]
     return image.filter(ImageFilter.GaussianBlur(sigma)), {"sigma": sigma}

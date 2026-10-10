@@ -4,30 +4,10 @@ from pathlib import Path
 
 import pikepdf
 
+from bigocrpdf.services.rapidocr_service.pdf_image_analysis import _multiply_ctm
 from bigocrpdf.utils.logger import logger
 
 ImageRect = tuple[float, float, float, float]
-
-
-def _extract_image_rect_from_page(pdf_path: Path, page_num: int) -> ImageRect | None:
-    """Extract the display rectangle of the main image on a PDF page.
-
-    Parses the page's content stream, tracks the CTM through q/Q/cm
-    operators, and finds the bounding box where the largest image
-    XObject is drawn.
-
-    Returns (x, y, width, height) in PDF points with origin at
-    the page's bottom-left, or None if no image is found.
-    """
-    try:
-        with pikepdf.open(pdf_path) as pdf:
-            if page_num < 1 or page_num > len(pdf.pages):
-                return None
-            return _extract_image_rect(pdf.pages[page_num - 1], page_num)
-
-    except Exception as exc:
-        logger.debug(f"Failed to extract image rect for page {page_num}: {exc}")
-    return None
 
 
 def _extract_image_rects_from_pdf(
@@ -36,8 +16,10 @@ def _extract_image_rects_from_pdf(
 ) -> list[ImageRect | None]:
     """Extract main-image rectangles in page order with one PDF open.
 
-    ``page_count`` preserves the caller's expected output length. Missing pages
-    and per-page parse failures produce ``None``, matching the unit wrapper.
+    Each rectangle is (x, y, width, height) in PDF points from the page's
+    bottom-left corner, where the largest image XObject is drawn.
+    ``page_count`` fixes the output length; missing pages, pages without an
+    image and per-page parse failures produce ``None``.
     """
     expected_pages = max(0, page_count) if page_count is not None else None
     if expected_pages == 0:
@@ -107,7 +89,7 @@ def _tracked_image_rect(
         elif op == "Q" and ctm_stack:
             ctm = ctm_stack.pop()
         elif op == "cm" and len(operands) >= 6:
-            ctm = _matrix_multiply([float(operands[i]) for i in range(6)], ctm)
+            ctm = _multiply_ctm([float(operands[i]) for i in range(6)], ctm)
         elif op == "Do" and operands and str(operands[0]) == target_name:
             rect = _image_rect_from_ctm(page, ctm, page_num)
             if rect is not None and (
@@ -115,19 +97,6 @@ def _tracked_image_rect(
             ):
                 largest_rect = rect
     return largest_rect
-
-
-def _matrix_multiply(m1: list[float], m2: list[float]) -> list[float]:
-    a1, b1, c1, d1, e1, f1 = m1
-    a2, b2, c2, d2, e2, f2 = m2
-    return [
-        a1 * a2 + b1 * c2,
-        a1 * b2 + b1 * d2,
-        c1 * a2 + d1 * c2,
-        c1 * b2 + d1 * d2,
-        e1 * a2 + f1 * c2 + e2,
-        e1 * b2 + f1 * d2 + f2,
-    ]
 
 
 def _image_rect_from_ctm(

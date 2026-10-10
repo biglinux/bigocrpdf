@@ -43,9 +43,6 @@ logger = logging.getLogger(__name__)
 # to count as a border rather than as the page's own tone.
 _MIN_BORDER_CONTRAST = 30
 
-# Re-export for backward compatibility
-__all__ = ["ImagePreprocessor"]
-
 
 class ImagePreprocessor:
     """Adaptive image preprocessing for optimal OCR results.
@@ -116,14 +113,14 @@ class ImagePreprocessor:
         self.crop_original_size_px = None
         self.trace.reset()
 
-        # === PHASE 1: GEOMETRIC CORRECTIONS (INDEPENDENT) ===
+        # Phase 1: geometric corrections, each independent of the others
         self._check_cancel(cancel_check)
         result = self._apply_geometric_corrections(
             result,
             cancel_check=cancel_check,
         )
 
-        # === PHASE 2: COLOR/ENHANCEMENT PROCESSING ===
+        # Phase 2: color and enhancement
         self._check_cancel(cancel_check)
         if self.enable_color_processing:
             result = apply_color_enhancements(result, self.config)
@@ -190,7 +187,7 @@ class ImagePreprocessor:
         else:
             self.trace.steps.append(GeometryStep("dewarp", reason=REASON_DISABLED))
 
-        # Step 2: Perspective correction if enabled (must run BEFORE deskew)
+        # Step 2: Perspective correction, which must run before deskew
         if self.config.enable_perspective_correction:
             self._check_cancel(cancel_check)
             with self.trace.stage("perspective") as step:
@@ -204,8 +201,8 @@ class ImagePreprocessor:
         else:
             self.trace.steps.append(GeometryStep("perspective", reason=REASON_DISABLED))
 
-        # Step 3: Trim dark borders from photographed documents
-        # Runs ALWAYS — dark margins from camera photos confuse OCR text detection.
+        # Step 3: Trim dark borders whatever the settings: dark margins from
+        # camera photos confuse OCR text detection.
         self._check_cancel(cancel_check)
         with self.trace.stage("trim_dark_borders") as step:
             before = result

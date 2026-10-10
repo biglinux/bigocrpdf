@@ -362,9 +362,9 @@ def test_sidecar_json_refuses_a_document_that_misses_pages(
 def test_sidecar_json_failure_does_not_fail_a_finished_ocr(tmp_path: Path, caplog) -> None:
     """The PDF is the deliverable; the JSON is an extra the user asked for.
 
-    The writer refuses a document that does not cover the published PDF, and
-    that refusal used to reach the command's own error handler: a finished OCR
-    reported a fatal error with its PDF already on disk.
+    The writer refuses a document that does not cover the published PDF; that
+    refusal must not reach the command's error handler, or a finished OCR
+    would report a fatal error with its PDF already on disk.
     """
     from bigocrpdf.cli_ocr_commands import _write_requested_sidecar_json
 

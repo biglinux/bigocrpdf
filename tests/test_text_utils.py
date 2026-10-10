@@ -2,12 +2,11 @@
 
 import os
 import tempfile
-from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
 
-from bigocrpdf.utils.text_utils import group_ocr_text_by_page, read_text_from_sidecar
+from bigocrpdf.utils.text_utils import read_text_from_sidecar
 
 
 class TestReadTextFromSidecar:
@@ -76,32 +75,3 @@ class TestReadTextFromSidecar:
             assert "é" in result
         finally:
             os.unlink(path)
-
-
-class TestGroupOcrTextByPage:
-    def test_empty_boxes(self):
-        assert group_ocr_text_by_page([], 3) == ["", "", ""]
-
-    def test_single_page(self):
-        boxes = [SimpleNamespace(text="hello", page_num=1)]
-        assert group_ocr_text_by_page(boxes, 1) == ["hello"]
-
-    def test_multiple_pages(self):
-        boxes = [
-            SimpleNamespace(text="page1-a", page_num=1),
-            SimpleNamespace(text="page1-b", page_num=1),
-            SimpleNamespace(text="page2", page_num=2),
-        ]
-        result = group_ocr_text_by_page(boxes, 2)
-        assert result[0] == "page1-a\npage1-b"
-        assert result[1] == "page2"
-
-    def test_box_without_page_num_defaults_to_1(self):
-        boxes = [SimpleNamespace(text="text")]
-        result = group_ocr_text_by_page(boxes, 1)
-        assert result[0] == "text"
-
-    def test_box_with_invalid_page_num_ignored(self):
-        boxes = [SimpleNamespace(text="orphan", page_num=99)]
-        result = group_ocr_text_by_page(boxes, 2)
-        assert result == ["", ""]

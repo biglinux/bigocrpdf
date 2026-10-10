@@ -1,9 +1,4 @@
-"""
-RapidOCR Configuration and Data Types.
-
-This module contains configuration dataclasses and result types
-for the RapidOCR integration.
-"""
+"""OCRConfig, its defaults, and the OCR result types shared by the pipeline."""
 
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -14,7 +9,6 @@ from bigocrpdf.services.rapidocr_service.resource_paths import find_font_dir, fi
 # Model and font locations come from resource_paths, resolved per instance so a
 # relocatable build finds the copy it ships with instead of the host's.
 
-# --- OCR Processing Defaults (single source of truth) ---
 # Shared by OCRConfig and OcrSettings to avoid default drift.
 DEFAULT_LANGUAGE = "latin"
 DEFAULT_DPI = 300
@@ -70,20 +64,10 @@ DEFAULT_AUTO_DETECT_QUALITY = True
 DEFAULT_ENABLE_BILEVEL_COMPRESSION = True
 DEFAULT_FORCE_BILEVEL_COMPRESSION = False
 # Detection resolution. False lets RapidOCR pick its own 960/1500/2000 input
-# size, which downscales a 300 dpi page; True sends the page as rendered.
-#
-# Off by default because the gain does not pay for the cost. Measured through
-# the whole pipeline on 20 DharmaOCR documents, both arms in one session: mean
-# CER 0.1704 -> 0.1517 but mean WER only 0.2705 -> 0.2649, with 10 of the 20
-# documents unchanged, for 13% more time. Measured per worker in its own
-# process, peak RSS goes 2.5 -> 4.9 GB, which is what decides it: this program
-# already reduces its own parallelism on machines short of RAM.
-#
-# The OCR stage in isolation looks better than that -- CER 0.1893 -> 0.1465
-# over 50 documents -- because the preprocessing and dewarp stages already
-# recover part of what the downscaled detector loses.
-#
-# `--full-resolution`, and the Full Resolution Detection switch, turn it on.
+# size, which downscales a 300 dpi page; True sends the page as rendered. Off
+# by default: it about doubles each worker's peak memory for a small accuracy
+# gain, and memory already caps the worker count. `--full-resolution` and the
+# Full Resolution Detection switch turn it on.
 DEFAULT_DETECTION_FULL_RESOLUTION = False
 # Execution
 DEFAULT_WORKERS = 0
@@ -118,11 +102,9 @@ class OCRConfig:
         workers: Number of parallel workers
     """
 
-    # === Core Settings ===
     language: str = DEFAULT_LANGUAGE
     dpi: int = DEFAULT_DPI
 
-    # === Detection Thresholds ===
     box_thresh: float = DEFAULT_BOX_THRESH
     unclip_ratio: float = DEFAULT_UNCLIP_RATIO
     detection_limit_side_len: int = DEFAULT_DETECTION_LIMIT_SIDE_LEN
@@ -130,34 +112,28 @@ class OCRConfig:
     score_mode: str = DEFAULT_SCORE_MODE
     text_score_threshold: float = DEFAULT_TEXT_SCORE_THRESHOLD
 
-    # === Model Settings ===
     engine_type: str = DEFAULT_ENGINE_TYPE
     model_type: str = DEFAULT_MODEL_TYPE
     rec_batch_num: int = DEFAULT_REC_BATCH_NUM
     use_textline_cls: bool = DEFAULT_USE_TEXTLINE_CLS
 
-    # === Text Layer ===
     text_layer_renderer: str = DEFAULT_TEXT_LAYER_RENDERER
     pdf_mode: Literal["ocr", "geometric", "auto", "auto_verified"] = DEFAULT_PDF_MODE
 
-    # === Optional GPU Inference ===
     gpu_backend: str = DEFAULT_GPU_BACKEND
     gpu_device_id: int = DEFAULT_GPU_DEVICE_ID
     gpu_fp16: bool = DEFAULT_GPU_FP16
     gpu_fallback_to_cpu: bool = DEFAULT_GPU_FALLBACK_TO_CPU
 
-    # === Adaptive Rendering ===
     fallback_render_dpi: int = DEFAULT_FALLBACK_RENDER_DPI
     retry_render_dpi: int = DEFAULT_RETRY_RENDER_DPI
     max_render_megapixels: int = DEFAULT_MAX_RENDER_MEGAPIXELS
     max_image_megapixels: float = DEFAULT_MAX_IMAGE_MEGAPIXELS
     max_pdf_pages: int = DEFAULT_MAX_PDF_PAGES
 
-    # === Paths (BigLinux standard) ===
     model_base_path: Path = field(default_factory=find_model_dir)
     font_base_path: Path = field(default_factory=find_font_dir)
 
-    # === Preprocessing Options ===
     # Geometric corrections
     enable_perspective_correction: bool = DEFAULT_ENABLE_PERSPECTIVE_CORRECTION
     enable_deskew: bool = DEFAULT_ENABLE_DESKEW
@@ -174,19 +150,16 @@ class OCRConfig:
     enable_vintage_look: bool = DEFAULT_ENABLE_VINTAGE_LOOK
     vintage_bw: bool = DEFAULT_VINTAGE_BW
 
-    # === Output Options ===
     convert_to_pdfa: bool = DEFAULT_CONVERT_TO_PDFA
     max_file_size_mb: int = DEFAULT_MAX_FILE_SIZE_MB
     page_layout: str = DEFAULT_PAGE_LAYOUT
     enable_bilevel_compression: bool = DEFAULT_ENABLE_BILEVEL_COMPRESSION
     force_bilevel_compression: bool = DEFAULT_FORCE_BILEVEL_COMPRESSION
 
-    # === Image Export Options ===
     image_export_format: str = DEFAULT_IMAGE_EXPORT_FORMAT
     image_export_quality: int = DEFAULT_IMAGE_EXPORT_QUALITY
     auto_detect_quality: bool = DEFAULT_AUTO_DETECT_QUALITY
 
-    # === Execution Options ===
     workers: int = DEFAULT_WORKERS
     page_range: tuple[int, int] | None = None
     page_modifications: list[dict] | None = None

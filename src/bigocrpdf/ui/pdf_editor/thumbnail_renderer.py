@@ -1,9 +1,4 @@
-"""
-BigOcrPdf - PDF Thumbnail Renderer
-
-Renders PDF page thumbnails using pdftoppm (poppler-utils) with
-thread-pooled background rendering and LRU caching for performance.
-"""
+"""Editor thumbnails rendered by pdftoppm in a thread pool, with an LRU cache."""
 
 import os
 import subprocess
@@ -631,37 +626,6 @@ class ThumbnailRenderer:
                 if identity[0] != canonical_path
             }
         self._cancel_jobs(jobs_to_cancel)
-
-    def clear_all(self) -> None:
-        """Clear all caches without blocking the GTK main loop on active workers."""
-        jobs_to_cancel: list[_ThumbnailJob] = []
-        with self._lock:
-            if self._shutdown:
-                return
-            self._doc_version += 1
-            paths = {
-                *(cache_key[0][0] for cache_key in self._cache),
-                *(cache_key[0][0] for cache_key in self._jobs),
-                *(identity[0] for identity in self._documents),
-                *self._document_generations,
-            }
-            for path in paths:
-                self._document_generations[path] = self._document_generations.get(path, 0) + 1
-            self._cache.clear()
-            self._cache_costs.clear()
-            self._cache_bytes = 0
-            self._documents.clear()
-            for job in self._jobs.values():
-                job.cancel_event.set()
-                for request, _callback in job.callbacks.values():
-                    request._finish_without_delivery()
-                job.callbacks.clear()
-                jobs_to_cancel.append(job)
-            self._jobs.clear()
-        self._cancel_jobs(jobs_to_cancel)
-        old_pool = self._pool
-        self._pool = ThreadPoolExecutor(max_workers=4)
-        old_pool.shutdown(wait=False, cancel_futures=True)
 
     def shutdown(self, *, wait: bool = True) -> None:
         """Cancel every job and terminate the non-daemon executor."""

@@ -63,22 +63,14 @@ class TestFourPointTransform:
         assert abs(result.shape[0] - 100) <= 1
         assert abs(result.shape[1] - 100) <= 1
 
-    def test_output_is_ndarray(self):
-        img = np.zeros((100, 100, 3), dtype=np.uint8)
-        pts = np.array([[10, 10], [90, 10], [90, 90], [10, 90]], dtype="float32")
-        result = four_point_transform(img, pts)
-        assert isinstance(result, np.ndarray)
-
 
 class TestIsConvexQuad:
     """Corner validation must answer, not raise.
 
-    NumPy 2.0 removed the 2-D cross product: ``np.cross`` on two-element
-    vectors now raises instead of returning the scalar z-component. Every call
-    here raised, so refined corners were never validated and the exception
-    propagated out of the whole perspective cascade -- caught far above, which
-    turned a live feature into a silent no-op. Measured on 50 scanned
-    Portuguese pages, the failure appeared only as a log line.
+    NumPy 2 raises on ``np.cross`` of two-element vectors instead of returning
+    the scalar z-component. A raise here escapes the whole perspective
+    cascade and is caught far above, turning the feature into a silent no-op
+    that shows only as a log line.
     """
 
     SQUARE = np.array([[0, 0], [100, 0], [100, 100], [0, 100]], dtype="float32")

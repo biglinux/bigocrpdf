@@ -1,9 +1,4 @@
-"""
-Model Discovery for RapidOCR.
-
-This module provides automatic detection of available OCR models
-and fonts installed on the system.
-"""
+"""Discovery of the installed OCR models and fonts."""
 
 import logging
 from pathlib import Path

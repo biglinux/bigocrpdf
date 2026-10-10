@@ -1,7 +1,4 @@
-"""Standalone editor command implementation for the BigOcrPdf CLI.
-
-allow-noisy-log: standalone editor save results are user-facing CLI output.
-"""
+"""Standalone editor command implementation for the BigOcrPdf CLI."""
 
 import argparse
 import logging

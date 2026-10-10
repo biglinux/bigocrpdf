@@ -1,10 +1,4 @@
-"""
-BigOcrPdf - Application Module
-
-allow-noisy-log: --version prints user-facing CLI output.
-
-This module contains the main application class for the BigOcrPdf application.
-"""
+"""The PDF OCR Adw.Application: command line, windows, actions and shutdown."""
 
 from typing import Any
 
@@ -51,7 +45,6 @@ class BigOcrPdfApp(Adw.Application):
 
         self.ocr_dependency = ocr_dependency
 
-        # Add command line handling
         self.add_main_option(
             "version",
             ord("v"),
@@ -69,14 +62,12 @@ class BigOcrPdfApp(Adw.Application):
             None,
         )
 
-        # Setup signals
         self.connect("activate", self.on_activate)
         self.connect("open", self.on_open)
         self.connect("command-line", self.on_command_line)
         self.connect("handle-local-options", self.on_handle_local_options)
         self.connect("shutdown", self._on_shutdown)
 
-        # Set up application actions
         self._setup_actions()
 
     def do_startup(self) -> None:
@@ -106,7 +97,6 @@ class BigOcrPdfApp(Adw.Application):
         shortcuts_action.connect("activate", self._on_shortcuts_action)
         self.add_action(shortcuts_action)
 
-        # Set up keyboard shortcuts
         self._setup_keyboard_shortcuts()
 
     def _prepare_windows_for_shutdown(self) -> None:
@@ -206,16 +196,13 @@ class BigOcrPdfApp(Adw.Application):
             # Ensure configuration directory exists
             init_config()
 
-            # Load custom CSS
             load_css()
 
             # Check if we already have a window open
             win = self.get_active_window()
             if not isinstance(win, BigOcrPdfWindow):
-                # Create the main window
                 win = BigOcrPdfWindow(app, ocr_dependency=self.ocr_dependency)
 
-            # Show the window
             win.present()
 
             if self.ocr_dependency.is_available:
@@ -550,10 +537,8 @@ class BigOcrPdfApp(Adw.Application):
             _action: The action that triggered this callback (unused)
             _param: Action parameters (unused)
         """
-        # Get active window as the parent
         win = self.get_active_window()
 
-        # Create an about dialog following GNOME guidelines
         about = Adw.AboutDialog()
         about.set_application_name(APP_NAME)
         about.set_version(APP_VERSION)
@@ -583,7 +568,6 @@ class BigOcrPdfApp(Adw.Application):
         # Use app icon for the about dialog
         about.set_application_icon(APP_ICON_NAME)
 
-        # Add credits
         about.add_credit_section(_("Developers"), APP_DEVELOPERS)
 
         # Acknowledge base projects
@@ -599,7 +583,6 @@ class BigOcrPdfApp(Adw.Application):
             ],
         )
 
-        # Show the about dialog
         about.present(win)
 
     def on_image_ocr_action(self, _action: Gio.SimpleAction, _param: Any) -> None:

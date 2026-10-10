@@ -119,8 +119,8 @@ class ChunkedOCRMixin:
     ):
         """Run OCR on a single chunk result.
 
-        Canvas page-size is NOT set here — the caller sets it at flush time
-        so this method can be invoked out-of-order.
+        The caller sets the canvas page size at flush time, so chunks can be
+        processed out of order.
         """
         page_num = result["page_num"]
         abs_idx = page_num - 1

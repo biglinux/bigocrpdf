@@ -1,9 +1,4 @@
-"""
-BigOcrPdf - Image OCR Window
-
-Standalone window for Image OCR using the configured RapidOCR model.
-Supports opening image files and capturing screen regions.
-"""
+"""Image OCR window: open, paste or capture an image and copy its text."""
 
 import os
 import threading
@@ -84,7 +79,6 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         self.ocr_dependency = ocr_dependency
         self._ocr_unavailable_dialog: Adw.AlertDialog | None = None
 
-        # Initialize services
         self._settings = OcrSettings()
         self._screen_capture_service = ScreenCaptureService()
 
@@ -114,8 +108,6 @@ class ImageOcrWindow(Adw.ApplicationWindow):
             self._start_processing(image_path)
         else:
             self._stack.set_visible_child_name("welcome")
-
-    # ── Window State ────────────────────────────────────────────────────
 
     def _load_window_size(self) -> tuple[int, int]:
         """Load window size from configuration."""
@@ -254,8 +246,6 @@ class ImageOcrWindow(Adw.ApplicationWindow):
             if action is not None:
                 action.set_enabled(enabled)
 
-    # ── UI Setup ────────────────────────────────────────────────────────
-
     def _setup_ui(self) -> None:
         """Set up the window UI following Adwaita HIG patterns.
 
@@ -286,7 +276,6 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         self._build_results_page()
         self._build_empty_page()
 
-        # Enable drag-and-drop for image files
         self._setup_drop_target()
 
     _SUPPORTED_IMAGE_EXTENSIONS = get_supported_image_extensions()
@@ -313,8 +302,6 @@ class ImageOcrWindow(Adw.ApplicationWindow):
             else:
                 self._toast_overlay.add_toast(Adw.Toast(title=_("Unsupported file format")))
         return False
-
-    # ── Clipboard Paste ─────────────────────────────────────────────────
 
     def paste_from_clipboard(self) -> None:
         """Paste image from clipboard (Ctrl+V)."""
@@ -835,8 +822,6 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         results_box.append(action_bar)
         self._stack.add_named(results_box, "results")
 
-    # ── OCR Processing ──────────────────────────────────────────────────
-
     def _start_processing(self, image_path: str, *, cleanup_path: str | None = None) -> bool:
         """Start OCR processing for an image file.
 
@@ -928,8 +913,6 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         start_iter, end_iter = self._text_buffer.get_bounds()
         text = self._text_buffer.get_text(start_iter, end_iter, True)
         self._copy_button.set_sensitive(bool(text))
-
-    # ── Capture & Open ──────────────────────────────────────────────────
 
     def _on_new_capture_clicked(self, *_args: object) -> None:
         """Start a new screen capture.
@@ -1128,8 +1111,6 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         finally:
             self._finish_input_operation(generation, cancellable)
 
-    # ── Copy & Clipboard ────────────────────────────────────────────────
-
     def _on_copy_clicked(self, _btn: Gtk.Button) -> None:
         """Copy extracted text through the standard GTK4 content provider API."""
         start_iter, end_iter = self._text_buffer.get_bounds()
@@ -1153,8 +1134,6 @@ class ImageOcrWindow(Adw.ApplicationWindow):
             return
 
         self._toast_overlay.add_toast(Adw.Toast(title=_("Copied to clipboard")))
-
-    # ── Helpers ─────────────────────────────────────────────────────────
 
     def _apply_ocr_availability_to_button(self, button: Gtk.Button) -> None:
         button.set_sensitive(self.ocr_dependency.is_available)

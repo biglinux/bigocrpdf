@@ -225,10 +225,7 @@ def _completion_window(total: int, successful: int):
         conclusion_page_manager=conclusion_page_manager,
         show_toast=MagicMock(),
     )
-    settings = SimpleNamespace(
-        processed_files=output_files,
-        cleanup_temp_files=MagicMock(),
-    )
+    settings = SimpleNamespace(processed_files=output_files)
     return SimpleNamespace(
         _closed=False,
         ocr_processor=SimpleNamespace(
@@ -336,7 +333,6 @@ def test_processing_completion_routes_each_truthful_state(successful, expected_s
         window.ui.conclusion_page_manager.update_conclusion_page.assert_called_once_with()
     else:
         window.ui.conclusion_page_manager.update_conclusion_page.assert_not_called()
-    window.settings.cleanup_temp_files.assert_not_called()
 
 
 @pytest.mark.parametrize(

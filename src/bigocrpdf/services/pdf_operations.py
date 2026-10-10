@@ -1,17 +1,5 @@
-"""
-BigOcrPdf - PDF Operations Service
-
-Pure-Python service for PDF manipulation operations.
-No GTK dependencies - can be used from CLI, GUI, or scripts.
-
-Supported operations:
-  - Split by page count or file size
-  - Merge multiple PDFs
-  - Compress (reduce image quality/resolution)
-  - Delete / extract pages
-  - Rotate pages
-  - Insert pages from another PDF
-  - Page count and metadata info
+"""PDF split, merge, compress, delete, extract, rotate, insert, reorder and
+info. No GTK dependency: the CLI and the GUI both call it.
 """
 
 import io
@@ -81,11 +69,6 @@ def _fail(e: Exception) -> "OperationResult":
         message=_friendly_error(e),
         error_code=_classify_error(e),
     )
-
-
-# ---------------------------------------------------------------------------
-# Data classes
-# ---------------------------------------------------------------------------
 
 
 @dataclass
@@ -171,11 +154,6 @@ def _save_and_close_pdf_atomically(pdf: pikepdf.Pdf, output_path: Path) -> None:
         pdf.close()
 
 
-# ---------------------------------------------------------------------------
-# Info / Inspection
-# ---------------------------------------------------------------------------
-
-
 def get_pdf_info(pdf_path: str | Path) -> PDFInfo:
     """Get basic information about a PDF file.
 
@@ -214,11 +192,6 @@ def get_pdf_info(pdf_path: str | Path) -> PDFInfo:
             info.creator = str(pdf.docinfo["/Creator"])
 
     return info
-
-
-# ---------------------------------------------------------------------------
-# Split
-# ---------------------------------------------------------------------------
 
 
 def _save_split_part(pdf: pikepdf.Pdf, path: Path) -> None:
@@ -457,11 +430,6 @@ def split_by_ranges(
     return result
 
 
-# ---------------------------------------------------------------------------
-# Merge
-# ---------------------------------------------------------------------------
-
-
 def merge_pdfs(
     input_paths: list[str | Path],
     output_path: str | Path,
@@ -526,11 +494,6 @@ def merge_pdfs(
         dst.close()
 
 
-# ---------------------------------------------------------------------------
-# Extract pages
-# ---------------------------------------------------------------------------
-
-
 def extract_pages(
     pdf_path: str | Path,
     output_path: str | Path,
@@ -576,11 +539,6 @@ def extract_pages(
     except (OSError, pikepdf.PdfError, ValueError) as e:
         logger.error("Extract failed: %s", e)
         return _fail(e)
-
-
-# ---------------------------------------------------------------------------
-# Delete pages
-# ---------------------------------------------------------------------------
 
 
 def delete_pages(
@@ -645,11 +603,6 @@ def delete_pages(
         return _fail(e)
 
 
-# ---------------------------------------------------------------------------
-# Insert pages
-# ---------------------------------------------------------------------------
-
-
 def insert_pages(
     pdf_path: str | Path,
     insert_path: str | Path,
@@ -705,7 +658,6 @@ def insert_pages(
             for i in range(insert_pos):
                 dst.pages.append(target.pages[i])
 
-            # Insert pages
             for idx in insert_indices:
                 dst.pages.append(source.pages[idx])
 
@@ -730,11 +682,6 @@ def insert_pages(
     except (OSError, pikepdf.PdfError, ValueError) as e:
         logger.error("Insert pages failed: %s", e)
         return _fail(e)
-
-
-# ---------------------------------------------------------------------------
-# Rotate pages
-# ---------------------------------------------------------------------------
 
 
 def rotate_pages(
@@ -794,11 +741,6 @@ def rotate_pages(
     except (OSError, pikepdf.PdfError, ValueError) as e:
         logger.error("Rotate failed: %s", e)
         return _fail(e)
-
-
-# ---------------------------------------------------------------------------
-# Compress
-# ---------------------------------------------------------------------------
 
 
 def compress_pdf(
@@ -1018,11 +960,6 @@ def _new_jpeg_xobject(pdf: pikepdf.Pdf, jpeg_data: bytes, pil_img) -> pikepdf.St
     return new_img
 
 
-# ---------------------------------------------------------------------------
-# Reorder pages
-# ---------------------------------------------------------------------------
-
-
 def reorder_pages(
     pdf_path: str | Path,
     output_path: str | Path,
@@ -1070,11 +1007,6 @@ def reorder_pages(
     except (OSError, pikepdf.PdfError, ValueError) as e:
         logger.error("Reorder failed: %s", e)
         return _fail(e)
-
-
-# ---------------------------------------------------------------------------
-# Reverse page order
-# ---------------------------------------------------------------------------
 
 
 def reverse_pages(

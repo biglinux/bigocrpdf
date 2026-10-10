@@ -19,7 +19,6 @@ from bigocrpdf.services.rapidocr_service.config import OCRResult
 
 logger = logging.getLogger(__name__)
 
-# --- Refinement constants ---
 # Regions below this confidence are candidates for re-OCR refinement.
 _REFINE_CONFIDENCE_THRESHOLD = 0.7
 # A detection box must be taller than this multiple of the median box height
@@ -120,7 +119,6 @@ def fix_vertical_overlaps(results: list[OCRResult]) -> list[OCRResult]:
         curr = sorted_res[i]
         prev = sorted_res[i - 1]
 
-        # Get dimensions
         prev_ys = [p[1] for p in prev.box]
         curr_ys = [p[1] for p in curr.box]
         prev_xs = [p[0] for p in prev.box]
@@ -158,13 +156,11 @@ def fix_vertical_overlaps(results: list[OCRResult]) -> list[OCRResult]:
                 if min_h > 0 and (overlap_amount / min_h) > 0.8:
                     continue
 
-                # Calculate new split point
                 mid_y = (prev_bottom + curr_top) / 2
 
                 # Clamp mid_y to ensure we don't invert the box
                 mid_y = max(prev_top + 1, min(mid_y, curr_bottom - 1))
 
-                # Apply adjustment
                 new_prev_box = [[p[0], min(p[1], mid_y)] for p in prev.box]
                 new_curr_box = [[p[0], max(p[1], mid_y)] for p in curr.box]
 

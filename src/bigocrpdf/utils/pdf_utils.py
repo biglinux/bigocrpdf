@@ -1,19 +1,11 @@
-"""
-BigOcrPdf - PDF Utilities Module
+"""PDF page counts, metadata and page rendering through Poppler."""
 
-This module provides shared utility functions for PDF file operations.
-Centralizes PDF-related functionality to avoid code duplication.
-"""
-
-import glob
 import os
 import subprocess
 from contextlib import ExitStack
 from functools import lru_cache
 from typing import Any
 
-# Note: pdftoppm is no longer used. PDF rendering uses Poppler GI library directly.
-# Only pdfinfo and pdfimages are still used as subprocesses.
 from bigocrpdf.utils.logger import logger
 
 
@@ -114,7 +106,6 @@ def get_pdf_info(file_path: str) -> dict[str, Any]:
     if not file_path or not os.path.exists(file_path):
         return info
 
-    # Get file size
     try:
         size = os.path.getsize(file_path)
         info["file_size"] = size
@@ -152,58 +143,6 @@ def get_pdf_info(file_path: str) -> dict[str, Any]:
         logger.debug(f"Could not get PDF metadata: {e}")
 
     return info
-
-
-def extract_images_for_odf(
-    pdf_path: str,
-    ocr_text: str = "",
-) -> tuple[list[str], list[str]]:
-    """Extract images from PDF for ODF export using pdfimages.
-
-    Args:
-        pdf_path: Path to the PDF file
-        ocr_text: Optional OCR text to associate with the first image
-
-    Returns:
-        Tuple of (image_paths, ocr_texts) where ocr_texts[0] contains
-        the provided text and the rest are empty strings.
-    """
-    images: list[str] = []
-    ocr_texts: list[str] = []
-
-    if not pdf_path or not os.path.exists(pdf_path):
-        return images, ocr_texts
-
-    try:
-        from bigocrpdf.utils.temp_manager import mkdtemp
-
-        temp_dir = mkdtemp(prefix="odf_images_")
-        image_prefix = os.path.join(temp_dir, "image")
-
-        result = subprocess.run(
-            ["pdfimages", "-all", pdf_path, image_prefix],
-            capture_output=True,
-            text=True,
-            timeout=120,
-        )
-
-        if result.returncode == 0:
-            patterns = ["*.png", "*.jpg", "*.jpeg", "*.ppm", "*.pbm"]
-            for pattern in patterns:
-                images.extend(glob.glob(os.path.join(temp_dir, pattern)))
-            images.sort()
-
-            if images and ocr_text:
-                ocr_texts = [ocr_text] + [""] * (len(images) - 1)
-
-            logger.info(f"Extracted {len(images)} images for ODF export")
-        else:
-            logger.warning(f"pdfimages failed: {result.stderr}")
-
-    except Exception as e:
-        logger.error(f"Error extracting images for ODF: {e}")
-
-    return images, ocr_texts
 
 
 def open_file_with_default_app(file_path: str) -> bool:
@@ -298,7 +237,6 @@ def render_pdf_page_to_png(
         ctx.paint()
         page.render(ctx)
 
-        # Convert to PNG bytes
         import io
 
         buf = io.BytesIO()
@@ -310,7 +248,7 @@ def render_pdf_page_to_png(
         return None
 
 
-# --- Image extensions recognized as valid inputs ---
+# Image extensions recognized as valid inputs.
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff", ".bmp", ".avif")
 
 

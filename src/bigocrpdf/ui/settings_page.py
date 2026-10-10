@@ -1,8 +1,4 @@
-"""
-BigOcrPdf - Settings Page Module
-
-Thin orchestrator that inherits sidebar and queue mixins.
-"""
+"""Settings page, composed of the sidebar and queue mixins."""
 
 from typing import TYPE_CHECKING
 

@@ -20,8 +20,6 @@ from bigocrpdf.services.rapidocr_service.preprocess_enhance import (
 )
 from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
 
-# ── Helpers ──────────────────────────────────────────────────────
-
 
 def _make_bgr(h=100, w=100, value=128):
     """Create a solid-color BGR image."""
@@ -64,9 +62,6 @@ def test_preprocessor_checks_cancellation_between_heavy_phases(monkeypatch):
     assert phases == ["geometry"]
 
 
-# ── rotate_image ─────────────────────────────────────────────────
-
-
 class TestRotateImage:
     """Tests for rotate_image."""
 
@@ -89,13 +84,6 @@ class TestRotateImage:
         img = _make_bgr(h=100, w=100)
         result = rotate_image(img, -5)
         assert result.shape == img.shape
-
-    def test_returns_ndarray(self):
-        img = _make_bgr()
-        assert isinstance(rotate_image(img, 3), np.ndarray)
-
-
-# ── measure_box_angles ───────────────────────────────────────────
 
 
 class TestMeasureBoxAngles:
@@ -129,9 +117,6 @@ class TestMeasureBoxAngles:
         assert len(angles) == 0
 
 
-# ── Hough skew detection ────────────────────────────────────────
-
-
 def test_hough_skew_accepts_flat_opencv_line_vectors(monkeypatch):
     """OpenCV bindings may expose Vec4i rows as either N×4 or N×1×4."""
     lines = np.array(
@@ -147,9 +132,6 @@ def test_hough_skew_accepts_flat_opencv_line_vectors(monkeypatch):
     angles = _detect_skew_hough(np.zeros((100, 220), dtype=np.uint8), 220)
 
     assert len(angles) == 3
-
-
-# ── adjust_brightness ────────────────────────────────────────────
 
 
 class TestAdjustBrightness:
@@ -183,9 +165,6 @@ class TestAdjustBrightness:
         assert result.shape == img.shape
 
 
-# ── apply_clahe ──────────────────────────────────────────────────
-
-
 class TestApplyClahe:
     """Tests for apply_clahe."""
 
@@ -203,9 +182,6 @@ class TestApplyClahe:
         img = _make_text_image()
         result = apply_clahe(img, clip_limit=4.0)
         assert result.shape == img.shape
-
-
-# ── denoise ──────────────────────────────────────────────────────
 
 
 class TestDenoise:
@@ -227,9 +203,6 @@ class TestDenoise:
         assert result.std() < noisy.std() + 5  # allow some tolerance
 
 
-# ── sharpen_text ─────────────────────────────────────────────────
-
-
 class TestSharpenText:
     """Tests for sharpen_text."""
 
@@ -242,9 +215,6 @@ class TestSharpenText:
         img = _make_text_image()
         result = sharpen_text(img)
         assert result.dtype == np.uint8
-
-
-# ── clean_borders ────────────────────────────────────────────────
 
 
 class TestCleanBorders:
@@ -265,9 +235,6 @@ class TestCleanBorders:
         result = clean_borders(img)
         # Borders should be mostly white now
         assert result[0, 0].mean() > 200
-
-
-# ── trim_white_borders ──────────────────────────────────────────
 
 
 class TestTrimWhiteBorders:

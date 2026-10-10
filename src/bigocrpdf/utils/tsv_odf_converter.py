@@ -34,8 +34,6 @@ from bigocrpdf.utils.tsv_parser import (
     parse_tsv_pages,
 )
 
-# ── Page Processing ──
-
 
 def process_page(words: list[Word], page_num: int) -> list[DocElement]:
     """Full pipeline for one page, with automatic column detection."""
@@ -373,9 +371,6 @@ def fix_cross_page_breaks(
     return all_pages
 
 
-# ── Public API ──
-
-
 def convert_pdf_to_odf(
     pdf_path: str,
     odf_path: str,
@@ -428,11 +423,9 @@ _CM_PER_POINT = 2.54 / 72.0
 def _page_size_cm(width_pt: float, height_pt: float) -> tuple[float, float]:
     """The page's real size in centimetres, shrunk only if it is absurd.
 
-    Every page used to be stretched to 29.7 cm on its longer side whatever it
-    measured, so a US Letter document came out 6.3% too large and every word in
-    the fixed-layout export landed 6.3% away from where it belongs -- 42 points
-    off by the foot of the page. Scaling down an oversized page is still
-    needed; scaling a normal one up never was.
+    A normal page keeps its measured size, so every word in the fixed-layout
+    export lands where it is on the page; stretching a US Letter page to
+    29.7 cm would misplace each word by the stretch factor.
     """
     width_cm = width_pt * _CM_PER_POINT
     height_cm = height_pt * _CM_PER_POINT
@@ -461,9 +454,6 @@ def _pdf_page_geometries(pdf_path: str) -> list[tuple[float, float, float, float
             return sizes
     except (OSError, ValueError, pikepdf.PdfError):
         return []
-
-
-# ── Plain-text Generation ──
 
 
 def _format_table_text(rows: list[list[str]]) -> list[str]:
@@ -559,8 +549,6 @@ def convert_pdf_to_text(pdf_path: str) -> str:
     all_elements = fix_cross_page_breaks(all_elements)
     return create_text(all_elements)
 
-
-# ── Markdown Generation ──
 
 # Inline characters that always need escaping. Line-start punctuation like
 # '#', '-', '+', '>' and 'N.' lists is handled separately so we don't uglify

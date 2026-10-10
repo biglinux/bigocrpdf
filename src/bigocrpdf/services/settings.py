@@ -231,7 +231,6 @@ class OcrSettings:
         # Ensure config directory exists
         os.makedirs(CONFIG_DIR, exist_ok=True)
 
-        # Load settings from JSON config manager
         self.load_settings()
 
     def load_settings(self) -> None:
@@ -291,9 +290,6 @@ class OcrSettings:
             enhance_embedded_images=self.enhance_embedded_images,
         )
 
-    def _load_md_settings(self) -> None:
-        self._load_persisted_settings(_MD_SETTING_NAMES)
-
     def _load_persisted_settings(self, attributes=None) -> None:
         for attribute in attributes or _PERSISTED_SETTINGS:
             key, default = _PERSISTED_SETTINGS[attribute]
@@ -322,7 +318,6 @@ class OcrSettings:
         # Filter and collect valid files (PDFs and Images)
         valid_files = self._filter_valid_files(file_paths)
 
-        # Add valid files and update count
         if valid_files:
             previous_count = len(self.selected_files)
             self.selected_files.extend(valid_files)
@@ -549,12 +544,10 @@ class OcrSettings:
             save_in_same_folder: Whether to save in same folder as original
         """
         try:
-            # Update values
             self.lang = lang or DEFAULT_LANGUAGE
             self.destination_folder = destination_folder
             self.save_in_same_folder = save_in_same_folder
 
-            # Save all settings to JSON
             if not self._save_all_settings():
                 raise OSError("Could not persist settings")
 
@@ -597,20 +590,16 @@ class OcrSettings:
         Returns:
             The formatted suffix string for PDF files
         """
-        # Start with the base suffix
         suffix = self.pdf_suffix or DEFAULT_SUFFIX
 
         # If date inclusion is not enabled, return just the suffix
         if not self.include_date:
             return suffix
 
-        # Get current time
         now = time.localtime()
 
-        # Initialize date components with position ordering
         date_components: list[tuple[int, str]] = []
 
-        # Add date elements with their preferred order
         if self.include_year:
             date_components.append(
                 (
@@ -701,7 +690,7 @@ class OcrSettings:
             try:
                 payload = json.loads(raw)
             except json.JSONDecodeError:
-                # Backward compatibility with the legacy newline-delimited file.
+                # The file's pre-JSON format: one path per line.
                 self.selected_files = [line.strip() for line in raw.splitlines() if line.strip()]
             else:
                 if not isinstance(payload, dict) or payload.get("version") != 1:
@@ -725,8 +714,6 @@ class OcrSettings:
             # Ensure selected_files is always a list
             self.selected_files = []
 
-    # NOTE: Legacy _load_* methods removed - settings now loaded from JSON via ConfigManager
-
     def _initialize_destination_folder(self) -> None:
         """Initialize the destination folder path based on selected files"""
         if not self.selected_files:
@@ -740,7 +727,6 @@ class OcrSettings:
         if not os.access(file_folder, os.W_OK):
             file_folder = os.path.expanduser("~")
 
-        # Set the destination folder
         self.destination_folder = file_folder
 
     def reset_processing_state(self, *, full: bool = False) -> None:
@@ -752,7 +738,6 @@ class OcrSettings:
                   when the user cancels processing and returns to the
                   settings page to start from scratch.
         """
-        # Clear results
         self.processed_files: list[str] = []
         self.comparison_results: list[Any] = []
 
@@ -765,7 +750,6 @@ class OcrSettings:
                 f"Cleared {text_count} extracted texts ({total_chars} characters) from memory"
             )
 
-        # Clear OCR boxes data
         if self.ocr_boxes:
             box_count = len(self.ocr_boxes)
             self.ocr_boxes.clear()
@@ -781,10 +765,6 @@ class OcrSettings:
         """Return a user-friendly display name for a queued file."""
         original = self.original_file_paths.get(file_path)
         return os.path.basename(original or file_path)
-
-    def cleanup_temp_files(self, processed_files: list[str]) -> None:
-        """Retain the public hook while queue ownership releases exact temp inputs."""
-        del processed_files
 
     def reset_to_defaults(self) -> None:
         """Reset all settings to their default values and save."""

@@ -50,18 +50,18 @@ def _refine_corners_with_edges(
     if not np.any(on_edge):
         return corners  # All corners are well inside the image
 
-    # ---- 1. Get the contour ----
+    # 1. Get the contour
     pts = _document_contour_points(doc_mask, contour)
     if pts is None:
         return corners
 
-    # ---- 2. Find contour-index of points closest to each corner ----
+    # 2. Find contour-index of points closest to each corner
     sorted_ci, sorted_corner_idx = _sorted_corner_indices(pts, corners)
 
-    # ---- 3. Split contour into 4 sides and fit lines ----
+    # 3. Split contour into 4 sides and fit lines
     fitted_lines = _fit_contour_side_lines(_contour_sides(pts, sorted_corner_idx))
 
-    # ---- 4. Compute corners as intersections of adjacent lines ----
+    # 4. Compute corners as intersections of adjacent lines
     refined, n_refined = _refined_edge_corners(corners, on_edge, sorted_ci, fitted_lines, w, h)
     if n_refined <= 0:
         return corners
@@ -253,7 +253,7 @@ def detect_photo_document_borders(
     h, w = image.shape[:2]
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # ========== STEP 1: Check if this looks like a photo (dark borders, bright center) ==========
+    # Step 1: Check if this looks like a photo (dark borders, bright center)
     border_w = max(w // 10, 20)
     border_h = max(h // 10, 20)
 
@@ -267,7 +267,7 @@ def detect_photo_document_borders(
 
     # For a true photo (document on desk), at least 3 of 4 borders must be
     # significantly darker than center. Scans of bound documents often have
-    # only 1 dark border (the binding shadow), which should NOT trigger this.
+    # only 1 dark border (the binding shadow), which must not trigger this.
     dark_border_threshold = 30
     dark_borders = sum(1 for b in border_means if center_brightness - b > dark_border_threshold)
 
@@ -280,7 +280,7 @@ def detect_photo_document_borders(
 
     border_brightness = np.mean(border_means)
 
-    # ========== STEP 2: Find document region using brightness thresholding ==========
+    # Step 2: Find document region using brightness thresholding
     # Threshold halfway between border and center brightness
     thresh_val = int((border_brightness + center_brightness) / 2)
     _, doc_mask = cv2.threshold(gray, thresh_val, 255, cv2.THRESH_BINARY)
@@ -313,7 +313,7 @@ def detect_photo_document_borders(
         logger.debug("Bright region fills entire image — this is a scan, not a photo")
         return None
 
-    # ========== STEP 3: Approximate contour to a quadrilateral ==========
+    # Step 3: Approximate contour to a quadrilateral
     peri = cv2.arcLength(largest, True)
     corners = None
 
@@ -330,10 +330,10 @@ def detect_photo_document_borders(
         box = cv2.boxPoints(rect)
         corners = order_points(box.astype(np.float32))
 
-    # ========== STEP 4: Refine corners that clip to image edges ==========
+    # Step 4: Refine corners that clip to image edges
     corners = _refine_corners_with_edges(gray, corners, doc_mask)
 
-    # ========== STEP 5: Add safety margin (expand corners outward) ==========
+    # Step 5: Add safety margin (expand corners outward)
     # Use a proportional margin: 1.5% of the larger dimension, minimum 20px.
     # This ensures enough padding for high-resolution photos where 20px is tiny.
     proportional_margin = max(margin_px, int(max(h, w) * 0.015))
@@ -344,10 +344,9 @@ def detect_photo_document_borders(
         if norm > 0:
             corners[i] += (direction / norm) * proportional_margin
 
-    # NOTE: We intentionally do NOT clamp corners to image bounds.
-    # warpPerspective handles out-of-bounds source coordinates by filling
-    # with borderValue (white).  Clamping would shift the source quad
-    # inward, cropping document content near edges.
+    # Corners may lie outside the image: warpPerspective fills out-of-bounds
+    # source pixels with borderValue (white), while clamping would shift the
+    # source quad inward and crop content near the edges.
 
     logger.debug(
         f"Photo document detection: "
@@ -375,7 +374,6 @@ def correct_photo_perspective(
     Returns:
         Corrected image
     """
-    # Calculate dimensions
     top_w = np.linalg.norm(corners[1] - corners[0])
     bot_w = np.linalg.norm(corners[2] - corners[3])
     left_h = np.linalg.norm(corners[3] - corners[0])
@@ -480,7 +478,6 @@ def four_point_transform(image: np.ndarray, pts: np.ndarray) -> np.ndarray:
         dtype="float32",
     )
 
-    # Compute perspective transform matrix and apply
     matrix = cv2.getPerspectiveTransform(rect, dst)
     warped = cv2.warpPerspective(image, matrix, (max_width, max_height))
 
@@ -501,7 +498,6 @@ def detect_document_contour(image: np.ndarray) -> np.ndarray | None:
     """
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # Apply Gaussian blur
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
     # Edge detection
@@ -546,7 +542,6 @@ def _contour_needs_perspective_correction(
     pts = order_points(contour)
     (tl, tr, br, bl) = pts
 
-    # Calculate angles of each edge
     angles = []
 
     # Top edge angle

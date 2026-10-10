@@ -48,7 +48,6 @@ from bigocrpdf.services.contour_spans import (
 
 logger = logging.getLogger(__name__)
 
-# ── Algorithm constants ──────────────────────────────────────────────────────
 
 PAGE_MARGIN_X: int = 50
 PAGE_MARGIN_Y: int = 20
@@ -67,8 +66,6 @@ _BL_MAX_DY_RATIO: float = 0.08  # Max displacement as fraction of height
 _BL_POLY_DEGREE: int = 4  # 2D polynomial surface degree
 
 
-# ── 3D Dewarp constants ─────────────────────────────────────────────────────
-
 _3D_MAX_DIM: int = 2048
 _3D_MIN_CURVED_LINES: int = 10  # Minimum curved baselines for pass 2
 _3D_MIN_DISPLACEMENT_PX: float = 3.0
@@ -77,9 +74,6 @@ _3D_POLY_DEGREE: int = 4
 _3D_MIN_LAPLACIAN_RATIO: float = 0.55
 _3D_MIN_EDGE_AREA_RATIO: float = 0.25  # Min contour area / image area
 _3D_MIN_EDGE_CURVATURE_PX: float = 5.0  # Min edge curvature for perspective
-
-
-# ── 3D Dewarp: page boundary detection ───────────────────────────────────────
 
 
 def _detect_page_boundary(
@@ -187,7 +181,7 @@ def _measure_edge_curvature(edge_pts: np.ndarray) -> float:
     return float(np.max(np.abs(deviations)))
 
 
-# ── 3D Dewarp: text baseline extraction (shared with dewarp_baseline) ───────
+# Text baseline extraction, shared with dewarp_baseline.
 
 
 def _extract_baseline_controls(
@@ -296,9 +290,6 @@ def _extract_baseline_controls(
     return control_x, control_y, control_dy, n_lines, n_curved
 
 
-# ── 3D Dewarp: baseline refinement remap ─────────────────────────────────────
-
-
 def _baseline_refinement_remap(
     bl_cx: list[float],
     bl_cy: list[float],
@@ -379,9 +370,6 @@ def _baseline_refinement_remap(
     max_disp = float(np.max(np.abs(control_dy)))
     logger.debug(f"Baseline refinement: max Δy={max_disp:.1f}px, P95={disp_95:.1f}px")
     return map_x, map_y
-
-
-# ── 3D Dewarp: main entry point ─────────────────────────────────────────────
 
 
 def _apply_perspective_pass(
@@ -659,7 +647,7 @@ def dewarp_baseline(image: np.ndarray) -> np.ndarray | None:
     h, w = image.shape[:2]
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # ── Step 1: Compute scale and delegate baseline extraction ───────
+    # Step 1: Compute scale and delegate baseline extraction
     max_dim = max(h, w)
     scale = min(1.0, _BL_MAX_DIM / max_dim)
 
@@ -676,7 +664,7 @@ def dewarp_baseline(image: np.ndarray) -> np.ndarray | None:
         f"{n_curved} with curvature, {len(control_x)} control points"
     )
 
-    # ── Step 4: Check displacement significance ─────────────────────
+    # Step 4: Check displacement significance
     control_x_arr = np.array(control_x)
     control_y_arr = np.array(control_y)
     control_dy_arr = np.array(control_dy)
@@ -703,7 +691,7 @@ def dewarp_baseline(image: np.ndarray) -> np.ndarray | None:
         w,
     )
 
-    # ── Step 6: Fit 2D polynomial surface ────────────────────────────
+    # Step 6: Fit 2D polynomial surface
     try:
         coeffs_2d, _, _, _ = np.linalg.lstsq(
             _baseline_poly_vander(all_x / w, all_y / h),
@@ -714,7 +702,7 @@ def dewarp_baseline(image: np.ndarray) -> np.ndarray | None:
         logger.debug("Baseline dewarp: 2D polynomial fit failed, skipping")
         return None
 
-    # ── Step 7: Evaluate on decimated grid ───────────────────────────
+    # Step 7: Evaluate on decimated grid
     grid_y, grid_x = np.mgrid[0:h:_BL_REMAP_DECIMATE, 0:w:_BL_REMAP_DECIMATE]
     dy_grid = _baseline_displacement_grid(
         coeffs_2d,
@@ -826,9 +814,6 @@ def _baseline_dewarp_is_too_blurry(gray: np.ndarray, result: np.ndarray) -> bool
         f"< {_BL_MIN_LAPLACIAN_RATIO} (too much blur)"
     )
     return True
-
-
-# ── Skew detection from spans ────────────────────────────────────────────────
 
 
 def _detect_skew_from_spans(span_points: list[np.ndarray]) -> float:

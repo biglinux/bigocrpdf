@@ -1,9 +1,4 @@
-"""
-BigOcrPdf - File History Manager
-
-This module provides functionality to track and manage the history of processed files.
-It stores metadata like file path, processing time, size before/after, etc.
-"""
+"""History of processed files: path, processing time, and sizes before and after."""
 
 import json
 import math
@@ -178,7 +173,6 @@ class HistoryManager:
         Returns:
             The created HistoryEntry
         """
-        # Get file sizes
         input_size = 0
         output_size = 0
         try:

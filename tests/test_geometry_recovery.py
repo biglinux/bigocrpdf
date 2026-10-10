@@ -1,8 +1,7 @@
 """Geometric correction must undo a known distortion, and never invent one.
 
-Four whole modules of correction code -- dewarp_probmap, contour_dewarp,
-contour_spans, perspective_skew -- had no test at all. The approach here is to
-apply a distortion whose parameters the test already knows and measure how much
+This covers dewarp_probmap, contour_dewarp, contour_spans and perspective_skew.
+Each test applies a distortion whose parameters the test already knows and measure how much
 of it comes back, using metrics that survive the corrector changing the image
 size (see tests/geometry_metrics).
 
@@ -160,10 +159,10 @@ class TestRotationRecovery:
 class TestCurvatureRecovery:
     """What the dewarp does to a bowed page, measured rather than assumed.
 
-    This class used to assert only that curvature fell, and passed -- but on a
-    page whose text sits in a column the flattening came from *deskew*, and the
-    dewarp never fired at all. Each assertion below now names the step it is
-    about, and the wide fixture is what lets the dewarp be tested at all.
+    Curvature falling is not enough: on a page whose text sits in a column the
+    flattening comes from *deskew* and the dewarp never fires. Each assertion
+    names the step it is about, and the wide fixture is what makes the dewarp
+    run.
     """
 
     @pytest.fixture

@@ -13,8 +13,8 @@
 }:
 
 assert lib.versionAtLeast python3Packages.python.version "3.12";
-assert lib.versionAtLeast gtk4.version "4.22";
-assert lib.versionAtLeast libadwaita.version "1.8";
+assert lib.versionAtLeast gtk4.version "4.14";
+assert lib.versionAtLeast libadwaita.version "1.5";
 python3Packages.buildPythonApplication {
   pname = "bigocrpdf";
   version = "3.0.0";

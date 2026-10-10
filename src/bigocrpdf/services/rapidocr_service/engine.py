@@ -2,9 +2,9 @@
 RapidOCR Engine — cached model lifecycle management.
 
 Keeps the expensive OCR engine loaded between processing runs so that
-consecutive files reuse the same models. Configuration changes that do
-NOT affect model loading (preprocessing flags, output options, …) are
-propagated automatically via dataclass introspection.
+consecutive files reuse the same models. Configuration changes that leave
+model loading alone (preprocessing flags, output options, …) are applied to
+the loaded engine through dataclass introspection.
 """
 
 import logging
@@ -18,7 +18,6 @@ from .config import OCRConfig
 
 logger = logging.getLogger(__name__)
 
-ProgressCallback = Callable[[int, int, str], None]
 
 # Fields that require engine re-creation when changed.
 # Everything else is safe to update on the cached config.

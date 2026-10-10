@@ -325,28 +325,6 @@ def test_add_files_rolls_back_memory_when_queue_save_fails(
     assert user_file.exists()
 
 
-def test_legacy_cleanup_hook_preserves_unowned_sidecars(
-    settings_environment: tuple[Path, dict[str, ConfigManager]],
-    tmp_path: Path,
-) -> None:
-    output = tmp_path / "report.pdf"
-    output.write_bytes(b"%PDF-1.4\n")
-    sidecar_dir = tmp_path / ".temp"
-    sidecar_dir.mkdir()
-    sidecars = (
-        sidecar_dir / "temp_report.txt",
-        sidecar_dir / "temp_report-user-data.txt",
-        sidecar_dir / "notes.txt",
-    )
-    for sidecar in sidecars:
-        sidecar.write_text("keep", encoding="utf-8")
-    settings = OcrSettings()
-
-    settings.cleanup_temp_files(processed_files=[str(output)])
-
-    assert all(sidecar.read_text(encoding="utf-8") == "keep" for sidecar in sidecars)
-
-
 def test_removing_generated_queue_entry_deletes_only_tracked_input(
     settings_environment: tuple[Path, dict[str, ConfigManager]],
     tmp_path: Path,

@@ -20,12 +20,23 @@ belong in the source tree.
 - `usr/share/`, `tools/stage-data.sh`, `pkgbuild/PKGBUILD`, and `default.nix` own
   installed desktop integration.
 
-Keep ownership names domain-specific. Do not add generic `manager`, `helper`, or
-`util` modules to avoid choosing an owner.
+Name a new module after the domain concept it owns. `utils/` and the
+`*_manager.py` modules are not a place for new code.
+
+## Dependency boundaries
+
+| Dependency | Delegate directly | BigOCRPDF must retain |
+| --- | --- | --- |
+| RapidOCR 3.x | model loading, detection, classification, recognition, word boxes | PDF policy, preprocessing policy, retries, process protocol, coordinate mapping, text layer, exports |
+| pikepdf/qpdf | PDF object model, page copying, overlays, image access, save options | editor model, page selection semantics, geometry decisions, resource limits, atomic publication |
+| GTK 4 / libadwaita | widgets, models, list factories, actions, dialogs, accessibility primitives | application state, callbacks, async lifetime checks, workflow and accessible names |
+| OpenCV / SciPy | image transforms, thresholding, contours, interpolation, remapping | parameter selection, document detection, quality gates, fallback order, OCR-coordinate preservation |
+| ReportLab | PDF drawing and text primitives | invisible Unicode text placement and mapping OCR coordinates to PDF coordinates |
+| odfpy | valid OpenDocument XML and package writing | layout inference, tables/columns, positioned/reflowable export policy |
 
 ## Runtime contract
 
-BigOCRPDF is a Linux GTK 4.22+/libadwaita application on Python 3.12+. Python remains responsible for
+BigOCRPDF is a Linux GTK 4.14+/libadwaita 1.5+ application on Python 3.12+. Python remains responsible for
 GTK state, asynchronous delivery, OCR orchestration, and PDF/document models.
 Shell is limited to validation, staging, and packaging.
 
@@ -53,14 +64,13 @@ nonzero status, timeout, or signal is an explicit error/cancellation result.
   a user's document. Structured OCR is written only where the caller names it —
   `ocr --sidecar-json [FILE]` — and read back only when the caller names it —
   `export-* --from-json FILE`. Without it, TXT, Markdown, and ODT export read
-  the PDF's own text layer, which agreed with the structured path within 92–98%
-  on real documents.
+  the PDF's own text layer.
 - Structured OCR JSON stays bound to the PDF by byte size and SHA-256, so a file
   that describes a different PDF loads as nothing rather than as stale text.
   Version 1, and the `unavailable` marker written by older versions, decode only
   as "no structured OCR"; version 1 needs the explicit `allow_unverified_legacy`
-  opt-in and is never authoritative. The payload is compact by contract:
-  indentation was 62% of the bytes of an 18-page document.
+  opt-in and is never authoritative. The payload is written without
+  indentation by contract.
 - Split output parts record their family in the PDF's private XMP namespace
   (`splitFamilyRoot`, `splitPartIndex`, `splitPartCount`). This is what makes
   retiring superseded parts safe: a numbered file name is not proof of
@@ -129,12 +139,12 @@ typelib was bundled incompletely -- and falls back to an equivalent that renders
 the same. `tests/test_adw_compat.py` exercises both branches and fails if such a
 widget is used directly anywhere else.
 
-Every symbolic icon the interface references is bundled under
-`src/bigocrpdf/resources/icontheme/` and registered as a private icon theme by
-`utils/icons.py` during application startup, so the interface renders identically
-on any host and inside an AppImage. Adding an `icon-name` means adding the
-matching SVG; `tests/test_icons.py` enforces this in both directions. The theme
-inherits Adwaita and hicolor, so unbundled names still resolve.
+Every symbolic icon the interface references is bundled as a `hicolor` theme
+under `src/bigocrpdf/resources/icontheme/`, which `utils/icons.py` appends to the
+icon search path during application startup. Every theme's lookup chain ends at
+hicolor, so the bundle fills names the host theme lacks, on any host and inside
+an AppImage, while the user's theme keeps priority. Adding an `icon-name` means
+adding the matching SVG; `tests/test_icons.py` enforces this in both directions.
 
 Changed user-visible journeys require all three forms of evidence:
 
@@ -174,17 +184,8 @@ Benchmark sources and commands live in `benchmarks/prepare_benchmark_datasets.py
 `benchmarks/ocr_benchmark.py`, `benchmarks/validate_text_layer.py`, and
 `benchmarks/compare_benchmarks.py`. Raw datasets and generated PDF/ODT/TXT/Markdown
 exports stay outside the repository. Keep only compact READMEs, manifests, JSONL,
-CSV, and JSON summaries needed to interpret or reproduce a run.
-
-The retained July 2026 baselines establish the following reference points:
-
-- all 36 RapidOCR v6 CPU matrix runs completed and produced text layers;
-- ONNX Runtime small was fastest in that six-page run, but startup/model loading
-  was included and the sample is not a universal engine ranking;
-- complex FUNSD pages exposed recognition and layout limits;
-- structured sidecars improved export token recall and restored table structures
-  in two of three dense forms;
-- the form separator refinement preserved recall and table counts.
+CSV, and JSON summaries needed to interpret or reproduce a run. Recorded
+reference points are in `benchmarks/baselines/README.md`.
 
 Do not report a roadmap, read document, or generated artifact as implemented
 behavior. A new performance claim includes command, dataset manifest, environment,
@@ -201,8 +202,8 @@ bash tools/validate.sh
 The gate covers Python compilation, Ruff, formatting, Pyright, gettext freshness
 and completeness, staged desktop/AppStream data, ShellCheck, shfmt, pytest, and the
 frozen CLI/settings compatibility snapshot in `tools/compatibility-baseline.json`.
-CI runs that gate in Arch Linux so its Python and GTK versions satisfy the declared
-Python 3.12 and GTK 4.22 runtime floors.
+CI runs that gate in Arch Linux, whose GTK is newer than the 4.14/1.5 floor;
+`tests/test_adw_compat.py` exercises the fallbacks that floor needs.
 
 Before release, also build and inspect the Arch package, run `nix flake check` and
 `nix build` in a working Nix environment, inspect installed file ownership and

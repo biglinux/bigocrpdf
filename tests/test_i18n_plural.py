@@ -111,12 +111,10 @@ def test_terminal_completion_uses_matching_visual_and_a11y_plural(
 
 
 def test_header_queue_update_restores_the_idle_button_label() -> None:
-    """Publishing a queue count is what returns the button to its resting state.
+    """Publishing a queue count returns the button to its resting state.
 
-    It already restored visibility and sensitivity but not the label, so a
-    button hidden while it still read "Starting…" came back with that text the
-    moment files were added again -- which is exactly what a user sees after a
-    finished batch.
+    That includes the label: a button hidden while it read "Starting…" must not
+    come back with that text when files are added after a finished batch.
     """
     header = SimpleNamespace(
         window=SimpleNamespace(ocr_dependency=OcrDependencyState(is_available=True)),

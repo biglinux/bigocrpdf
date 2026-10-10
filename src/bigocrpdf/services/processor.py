@@ -1,8 +1,4 @@
-"""
-BigOcrPdf - OCR Processor Module
-
-This module handles PDF OCR using RapidOCR with the unified PP-OCRv6 model.
-"""
+"""Queue processing: runs OCR on each queued file and publishes the results."""
 
 import atexit
 import os
@@ -13,12 +9,9 @@ from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
-from bigocrpdf.services.rapidocr_service import (
-    ModelDiscovery,
-    OCRConfig,
-    ProcessingStats,
-    RapidOCREngine,
-)
+from bigocrpdf.services.rapidocr_service.config import OCRConfig, ProcessingStats
+from bigocrpdf.services.rapidocr_service.discovery import ModelDiscovery
+from bigocrpdf.services.rapidocr_service.engine import RapidOCREngine
 from bigocrpdf.services.rapidocr_service.ocr_document_io import publish_ocr_pdfs
 from bigocrpdf.services.settings import OcrSettings
 from bigocrpdf.utils.checkpoint_manager import CheckpointManager, get_checkpoint_manager
@@ -312,7 +305,6 @@ class OcrProcessor:
         # Create OCR config from settings, including file-specific page range
         config = self._create_ocr_config(file_path)
 
-        # Create engine and process
         engine = RapidOCREngine(config)
         with self._engine_lock:
             self._current_engine = engine
@@ -433,12 +425,10 @@ class OcrProcessor:
         language = self.settings.ocr_language
         dpi = self.settings.dpi
 
-        # Get file-specific page range if available
         page_range = None
         if file_path:
             page_range = self.settings.page_ranges.get(file_path)
 
-        # Get file-specific modifications
         page_modifications = None
         if file_path:
             resolved = os.path.realpath(file_path)
@@ -555,10 +545,6 @@ class OcrProcessor:
         base_progress = completed_files / total_files
         return min(1.0, base_progress + current_file_contribution)
 
-    def get_processed_count(self) -> int:
-        """Get the successful input count retained for API compatibility."""
-        return self.get_successful_input_count()
-
     def get_completed_input_count(self) -> int:
         """Get the number of non-cancelled inputs that reached a terminal state."""
         with self._state_lock:
@@ -635,8 +621,7 @@ class OcrProcessor:
             self._is_processing = False
             self._processing_started = False
 
-            # CRITICAL: Clear callbacks to prevent stale callbacks being called
-            # after the user has already navigated away
+            # A cancelled run must not call back into a page the user has left.
             self.on_file_complete = None
             self.on_all_complete = None
             self.on_progress = None
@@ -705,7 +690,6 @@ class OcrProcessor:
 
         pending_files, settings_snapshot = result
 
-        # Set pending files as selected files
         self.settings.selected_files = list(pending_files)
         restored_modifications = self.checkpoint_manager.get_file_modifications()
         self.settings.file_modifications = {

@@ -4,8 +4,6 @@ Deskew functions for image preprocessing.
 Contains all deskew-related algorithms: probmap-based angle measurement,
 OCR-box angle measurement, morphological fallback, angular perspective
 correction, and rotation utilities.
-
-Extracted from preprocessor.py to follow single-responsibility principle.
 """
 
 import logging
@@ -16,7 +14,6 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-# ── Deskew Detection Thresholds ────────────────────────────────────
 _BOX_MIN_WIDTH_RATIO = 0.05  # min OCR box width as fraction of page
 _BOX_MAX_ANGLE = 15.0  # degrees — reject box angles above this
 _TEXT_LINE_MIN_AREA = 500  # pixels² — ignore small contours
@@ -27,12 +24,10 @@ _ANGLE_NEAR_ZERO = 0.01  # degrees — treat as zero
 _MIN_NONZERO_ANGLES = 5  # min non-zero samples for gradient check
 _MAX_DESKEW_CLAMP = 5.0  # degrees — clamp final angle to ±this
 
-# ── Perspective Gradient Detection ─────────────────────────────────
 _PERSPECTIVE_ANGLE_SPAN = 3.0  # degrees — min span for perspective
 _PERSPECTIVE_RESIDUAL_STD = 1.5  # degrees — max noise in fit
 _PERSPECTIVE_R_SQUARED = 0.3  # min R² for linear relationship
 
-# ── Hough Line Detection ──────────────────────────────────────────
 _CANNY_LOW = 50
 _CANNY_HIGH = 150
 _CANNY_APERTURE = 3
@@ -41,7 +36,6 @@ _HOUGH_MIN_LINE_LEN_FLOOR = 100  # pixels — absolute min line length
 _HOUGH_THRESHOLD = 100
 _HOUGH_MAX_LINE_GAP = 10
 
-# ── Morphological Deskew ──────────────────────────────────────────
 _MORPH_KERN_WIDTH_DIV = 10  # kernel width = page_w / 10
 
 

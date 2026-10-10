@@ -86,9 +86,8 @@ TIERS = {
 }
 
 # Layout samples declare the segments they draw, and their ground truth is
-# derived from those segments rather than written out a second time. The two
-# used to be separate literals and had drifted apart, giving both samples a
-# permanent non-zero error floor that no OCR change could ever clear.
+# derived from those segments, so the two cannot drift apart and leave an
+# error floor no OCR change could clear.
 COLUMN_SEGMENTS = [
     ("Coluna esquerda\ncom texto.", (80, 100)),
     ("Coluna direita\ncom valores.", (650, 100)),

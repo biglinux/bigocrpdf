@@ -52,7 +52,6 @@ from bigocrpdf.services.rapidocr_service.resource_paths import find_model_dir
 
 logger = logging.getLogger(__name__)
 
-# ── Constants ──────────────────────────────────────────────────────
 
 _DBNET_MODEL_NAME = "PP-OCRv6_det_small.onnx"
 _DBNET_MAX_SIDE = 1536
@@ -94,7 +93,6 @@ _SMOOTH_SIGMA_X_RATIO = 0.03  # σ_x = σ_y × this ratio (σ_x/σ_y≈0.075)
 # DBNet inference
 _INFERENCE_ALIGN_STRIDE = 32  # resize dimensions must be multiples of this
 
-# ── Cached OpenVINO model ──────────────────────────────────────────
 
 _ov_model = None
 _ov_lock = threading.Lock()
@@ -131,22 +129,6 @@ def _get_model():
         except Exception as exc:
             raise RuntimeError(f"Failed to load DBNet model at {model_path}: {exc}") from exc
     return _ov_model
-
-
-# ── Stage 1: Classical CV Deskew ───────────────────────────────────
-
-
-def _normalise_min_area_rect_angle(
-    rect_w: float,
-    rect_h: float,
-    angle: float,
-) -> tuple[float, float, float]:
-    if rect_w < rect_h:
-        return rect_h, rect_w, angle + 90.0
-    return rect_w, rect_h, angle
-
-
-# ── Stage 2: Probability-Map Curvature Correction ─────────────────
 
 
 def _get_probmap(img_bgr: np.ndarray, max_side: int = 0) -> tuple[np.ndarray, float, float]:
@@ -370,7 +352,7 @@ def _build_curvature_remap(
     if not baselines:
         return None, None, 0.0
 
-    # ── Filter: discard short baselines (< 40% page width) ──
+    # Filter: discard short baselines (< 40% page width)
     min_span = w * _MIN_BASELINE_SPAN
     baselines = [b for b in baselines if (b[3] - b[2]) >= min_span]
     if len(baselines) < 2:
@@ -412,7 +394,7 @@ def _build_curvature_remap(
             fade = np.linspace(1.0, 0.0, count, dtype=np.float32)
             bdy[i, x_e + 1 :] = detrended[-1] * fade
 
-    # ── Vectorised per-row interpolation between bracketing baselines ──
+    # Vectorised per-row interpolation between bracketing baselines
     all_y = np.arange(h, dtype=np.float64)
     idx = np.searchsorted(bys, all_y, side="right") - 1
     idx_above = np.clip(idx, 0, n_bl - 1)
@@ -496,9 +478,6 @@ def _build_curvature_remap(
     return map_x, dy_field, max_curvature
 
 
-# ── Main Entry Point ───────────────────────────────────────────────
-
-
 def probmap_dewarp(img_bgr: np.ndarray, max_side: int = 0) -> np.ndarray:
     """Apply curvature correction using DBNet probability map.
 
@@ -524,7 +503,7 @@ def probmap_dewarp(img_bgr: np.ndarray, max_side: int = 0) -> np.ndarray:
     h, w = result.shape[:2]
     logger.info(f"Probmap dewarp: image {w}×{h}, getting probability map...")
 
-    # ── Curvature correction ──
+    # Curvature correction
     prob, scale_x, scale_y = _get_probmap(result, max_side=max_side)
     inf_h, inf_w = prob.shape[:2]
     logger.info(
@@ -569,8 +548,6 @@ def probmap_dewarp(img_bgr: np.ndarray, max_side: int = 0) -> np.ndarray:
 
     return result
 
-
-# ── Public API ─────────────────────────────────────────────────────
 
 __all__ = [
     "probmap_dewarp",

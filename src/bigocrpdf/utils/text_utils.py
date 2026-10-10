@@ -1,9 +1,4 @@
-"""
-BigOcrPdf - Text Utilities Module
-
-This module provides shared utility functions for text extraction and handling.
-Centralizes text-related functionality to avoid code duplication.
-"""
+"""Reading OCR text from sidecar .txt files."""
 
 from bigocrpdf.utils.durable_writes import read_regular_file_bytes
 from bigocrpdf.utils.logger import logger
@@ -41,23 +36,3 @@ def read_text_from_sidecar(sidecar_path: str) -> str | None:
         return text
 
     return None
-
-
-def group_ocr_text_by_page(ocr_boxes: list, num_pages: int) -> list[str]:
-    """Group OCR text by page number.
-
-    Args:
-        ocr_boxes: List of OCR boxes with text and page_num attributes
-        num_pages: Number of pages
-
-    Returns:
-        List of text strings per page
-    """
-    pages: dict[int, list[str]] = {i + 1: [] for i in range(num_pages)}
-
-    for box in ocr_boxes:
-        page_num = getattr(box, "page_num", 1)
-        if page_num in pages:
-            pages[page_num].append(box.text)
-
-    return ["\n".join(pages.get(i + 1, [])) for i in range(num_pages)]

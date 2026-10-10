@@ -60,8 +60,8 @@ def record_ocr_page(
 def average_confidence(stats: ProcessingStats) -> float:
     """Mean confidence over every region in the document.
 
-    The pipelines used to accumulate this themselves and two of them did not,
-    so it is derived from the recorded pages instead of tracked separately.
+    Derived from the recorded pages rather than accumulated by each pipeline,
+    so a pipeline that forgets to accumulate cannot report zero.
     """
     confidences = [
         result.confidence for page in stats.ocr_document.pages for result in page.text_results

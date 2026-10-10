@@ -3,9 +3,8 @@
 On a mixed-content page that carries BOTH a full-page scan and a small
 decorative image (a logo, a signature stamp), the OCR text of the
 full-page scan must land in the scan's display box — not in the logo's tiny
-box.  The old matcher sorted extracted images by compressed size and zipped
-them with positions by index, which cross-paired the two: the full-page scan's
-text got crammed into, e.g., a 75 pt logo box at the bottom of the page.
+box. Pairing images with positions by compressed size cross-pairs the two and
+crams the scan's text into, e.g., a 75 pt logo box at the bottom of the page.
 ``match_positions_to_images`` pairs by PDF object number (exact), falling back
 to pixel dimensions.
 """
@@ -67,7 +66,7 @@ class TestMatchPositionsToImages(unittest.TestCase):
         self.assertEqual(pairs[0][0].name, "/Xi301")
         self.assertEqual(pairs[0][1].idx, 0)  # logo box <- logo image
         self.assertEqual(pairs[1][0].name, "/wpt1")
-        self.assertEqual(pairs[1][1].idx, 1)  # scan box <- scan image (NOT crammed)
+        self.assertEqual(pairs[1][1].idx, 1)  # scan box <- scan image, not crammed
 
     def test_dimension_fallback_when_object_id_unknown(self) -> None:
         positions = [_pos("/A", 75, 75), _pos("/B", 595, 842)]

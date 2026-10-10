@@ -1,8 +1,4 @@
-"""
-BigOcrPdf - Navigation Manager Module
-
-Handles page navigation and step label management.
-"""
+"""Page navigation and step labels of the main window."""
 
 from collections.abc import Callable
 from typing import TYPE_CHECKING
@@ -12,37 +8,6 @@ from bigocrpdf.utils.logger import logger
 
 if TYPE_CHECKING:
     from bigocrpdf.ui.window_ui import BigOcrPdfUI
-
-
-class NavigationState:
-    """Represents the state of a navigation page."""
-
-    def __init__(
-        self,
-        step_text: str,
-        back_enabled: bool = False,
-        back_visible: bool = False,
-        next_enabled: bool = True,
-        next_visible: bool = True,
-        next_label: str = "Next",
-    ):
-        """
-        Initialize navigation state.
-
-        Args:
-            step_text: Text to display in the step label
-            back_enabled: Whether the back button is enabled
-            back_visible: Whether the back button is visible
-            next_enabled: Whether the next button is enabled
-            next_visible: Whether the next button is visible
-            next_label: Label for the next button
-        """
-        self.step_text = step_text
-        self.back_enabled = back_enabled
-        self.back_visible = back_visible
-        self.next_enabled = next_enabled
-        self.next_visible = next_visible
-        self.next_label = next_label
 
 
 class NavigationManager:

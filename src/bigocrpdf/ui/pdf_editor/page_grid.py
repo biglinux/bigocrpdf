@@ -1,9 +1,4 @@
-"""
-BigOcrPdf - PDF Page Grid Widget
-
-A FlowBox-based widget for displaying and managing PDF page thumbnails
-with multi-select support, zoom control, and enhanced drag-and-drop.
-"""
+"""FlowBox grid of editor thumbnails with multi-select, zoom and drag-and-drop."""
 
 import math
 from collections.abc import Callable
@@ -265,7 +260,7 @@ class PageGrid(Gtk.ScrolledWindow):
         if self._tearing_down:
             return
         self._document = document
-        # Show ALL pages (including excluded) so they remain visible
+        # Excluded pages stay in the grid so they can be included again
         all_pages = sorted(document.pages, key=lambda p: p.position)
 
         # Preserve selection state across refresh
@@ -292,49 +287,6 @@ class PageGrid(Gtk.ScrolledWindow):
         self._schedule_visible_thumbnail_load()
         self.emit("selection-changed")
 
-    def reorder_in_place(self) -> None:
-        """Re-sort existing thumbnails to match their page_state.position
-        without destroying/recreating widgets, preserving the scroll position.
-        """
-        if not self._document:
-            return
-
-        # Build new order from current page positions
-        indexed = [(t.page_state.position, i, t) for i, t in enumerate(self._thumbnails)]
-        indexed.sort(key=lambda x: x[0])
-        new_order = [t for _, _, t in indexed]
-
-        # Detach all thumbnails from their FlowBoxChild wrappers,
-        # then remove the empty FlowBoxChild from the FlowBox.
-        # This is necessary because FlowBox.append() creates a new
-        # FlowBoxChild wrapper and requires the widget to have no parent.
-        for thumb in self._thumbnails:
-            fb_child = thumb.get_parent()  # GtkFlowBoxChild
-            if isinstance(fb_child, Gtk.FlowBoxChild):
-                fb_child.set_child(None)  # unparent thumbnail
-                self._flowbox.remove(fb_child)  # remove empty wrapper
-
-        # Re-append in new order (creates fresh FlowBoxChild wrappers)
-        for thumb in new_order:
-            self._flowbox.append(thumb)
-
-        # Rebuild internal list and remap selection indices
-        old_to_new = {}
-        for new_idx, (_key, old_idx, _thumb) in enumerate(indexed):
-            old_to_new[old_idx] = new_idx
-
-        new_selected = set()
-        for old_idx in self._selected_indices:
-            if old_idx in old_to_new:
-                new_selected.add(old_to_new[old_idx])
-        self._selected_indices = new_selected
-
-        self._thumbnails = new_order
-        if self._last_selected_index is not None and self._last_selected_index in old_to_new:
-            self._last_selected_index = old_to_new[self._last_selected_index]
-
-        self.emit("selection-changed")
-
     def move_page_in_grid(self, source_pos: int, final_target: int) -> None:
         """Move a single page from source to target in the FlowBox.
 
@@ -350,16 +302,13 @@ class PageGrid(Gtk.ScrolledWindow):
 
         thumb = self._thumbnails[source_pos]
 
-        # Remove the single widget from FlowBox
         fb_child = thumb.get_parent()
         if isinstance(fb_child, Gtk.FlowBoxChild):
             fb_child.set_child(None)
             self._flowbox.remove(fb_child)
 
-        # Insert at the target position
         self._flowbox.insert(thumb, final_target)
 
-        # Update internal list
         self._thumbnails.pop(source_pos)
         self._thumbnails.insert(final_target, thumb)
 
@@ -417,7 +366,6 @@ class PageGrid(Gtk.ScrolledWindow):
             fb_a.set_child(thumb_b)
             fb_b.set_child(thumb_a)
 
-            # Update internal list
             self._thumbnails[idx_a] = thumb_b
             self._thumbnails[idx_b] = thumb_a
 
@@ -461,7 +409,6 @@ class PageGrid(Gtk.ScrolledWindow):
         # Unfreeze rendering
         self._flowbox.set_visible(True)
 
-        # Update selection to new positions
         count = len(moving)
         self._selected_indices = set(range(insert_at, insert_at + count))
         self._last_selected_index = insert_at
@@ -573,8 +520,6 @@ class PageGrid(Gtk.ScrolledWindow):
         if self._document:
             self._document.mark_modified()
 
-    # --- Selection Logic ---
-
     def _select_single(self, index: int) -> None:
         for i in self._selected_indices:
             if 0 <= i < len(self._thumbnails):
@@ -634,9 +579,6 @@ class PageGrid(Gtk.ScrolledWindow):
         self._last_selected_index = None
         self.emit("selection-changed")
 
-    def get_selected_indices(self) -> list[int]:
-        return sorted(self._selected_indices)
-
     def get_ocr_count(self) -> int:
         return sum(1 for t in self._thumbnails if not t.page_state.deleted)
 
@@ -668,8 +610,6 @@ class PageGrid(Gtk.ScrolledWindow):
             self._document.mark_modified()
         self.emit("selection-changed")
 
-    # --- Zoom ---
-
     def set_zoom_level(self, level: int) -> None:
         if self._tearing_down:
             return
@@ -695,8 +635,6 @@ class PageGrid(Gtk.ScrolledWindow):
         # Schedule batch reload after layout settles
         self._schedule_visible_thumbnail_load()
         logger.info(f"Zoom level set to {level}%")
-
-    # --- Lazy Load ---
 
     def _schedule_visible_thumbnail_load(self) -> None:
         """Coalesce deferred viewport loads into one owned GLib source."""
@@ -806,8 +744,6 @@ class PageGrid(Gtk.ScrolledWindow):
             self._document.mark_modified()
         self.emit("selection-changed")
 
-    # --- Drag and Drop Logic (Overlay-based) ---
-
     def _on_drag_enter(self, _target: Gtk.DropTarget, x: float, y: float) -> Gdk.DragAction:
         self._drop_target_index = None
         self._drop_indicator.set_visible(True)
@@ -820,7 +756,6 @@ class PageGrid(Gtk.ScrolledWindow):
         self._stop_auto_scroll()
 
     def _on_drag_motion(self, _target: Gtk.DropTarget, x: float, y: float) -> Gdk.DragAction:
-        # Calculate drop index and visual position
         drop_index, indicator_rect = self._get_drop_target_info(x, y)
 
         self._drop_target_index = drop_index
@@ -843,7 +778,6 @@ class PageGrid(Gtk.ScrolledWindow):
 
         x, y, w, h = self._drop_indicator_rect
 
-        # Draw a vertical bar
         cr.set_source_rgba(0.2, 0.6, 1.0, 0.9)
         cr.rectangle(x, y, w, h)
         cr.fill()
@@ -884,8 +818,8 @@ class PageGrid(Gtk.ScrolledWindow):
         if child and idx >= 0:
             alloc = child.get_allocation()
 
-            # Use absolute allocation Y. DO NOT subtract scroll_y for drawing in Overlay
-            # (which is also absolute content space).
+            # The overlay draws in absolute content space too, so scroll_y is
+            # not subtracted.
             absolute_y = alloc.y
 
             # Decide left or right half
@@ -1051,8 +985,6 @@ class PageGrid(Gtk.ScrolledWindow):
         for i, page in enumerate(self._document.pages):
             page.position = i
 
-    # --- Rubberband Selection ---
-
     def _on_rubberband_begin(self, gesture: Gtk.GestureDrag, x: float, y: float) -> None:
         """Begin rubberband selection, but only if not over a thumbnail."""
 
@@ -1104,7 +1036,6 @@ class PageGrid(Gtk.ScrolledWindow):
         vadj = self.get_vadjustment()
         scroll_y = vadj.get_value()
         curr_y = start_y + offset_y
-        # Convert absolute content Y to visible Y
         visible_y = curr_y - scroll_y
         self._update_auto_scroll(visible_y)
 
@@ -1166,7 +1097,6 @@ class PageGrid(Gtk.ScrolledWindow):
         content_x = rect_x - 12
         content_y = rect_y - 12
 
-        # Start with initial state
         new_selection = set(self._rubberband_initial_selection)
 
         # Find pages that intersect the selection rect

@@ -1,8 +1,4 @@
-"""
-BigOcrPdf - Header Bar Module
-
-Custom header bar with action buttons for file management and OCR processing.
-"""
+"""Main window header bar with file management and OCR actions."""
 
 import gi
 
@@ -141,8 +137,6 @@ class HeaderBar(Gtk.Box):
         # Pack view toggle next to menu (pack_end adds right-to-left)
         self.header_bar.pack_end(self.view_toggle_button)
 
-    # --- Event Handlers ---
-
     def _on_add_files_clicked(self, button: Gtk.Button) -> None:
         """Handle Add Files button click."""
         self.window.file_manager.show_open_files_dialog()
@@ -190,8 +184,6 @@ class HeaderBar(Gtk.Box):
     def _on_start_clicked(self, button: Gtk.Button) -> None:
         """Handle Start OCR button click."""
         self.window.processing.start(button)
-
-    # --- Public API ---
 
     def update_queue_size(self, count: int) -> None:
         """Update queue size label and button visibility.

@@ -152,7 +152,7 @@ class TestConstrainedTier:
         assert collect.call_count == 0
 
     def test_the_probmap_is_downscaled(self, tmp_path: Path):
-        """A smaller DBNet input is the other lever: about 30% less peak memory."""
+        """A smaller DBNet input is the other lever on peak memory."""
         config = compute_pipeline_config(_profile(1500, ResourceTier.CONSTRAINED))
 
         assert config.downscale_probmap == 1024

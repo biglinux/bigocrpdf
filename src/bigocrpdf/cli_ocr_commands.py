@@ -1,7 +1,4 @@
-"""OCR command implementation for the BigOcrPdf CLI.
-
-allow-noisy-log: OCR commands print progress and user-facing diagnostics.
-"""
+"""OCR command implementation for the BigOcrPdf CLI."""
 
 import argparse
 import logging
@@ -101,11 +98,6 @@ def _parse_ocr_page_selection(
                 page_set = set(pages_list)
                 page_range = (min(pages_list), max(pages_list))
     return page_range, page_set
-
-
-# ---------------------------------------------------------------------------
-# OCR helpers (moved from old cli.py)
-# ---------------------------------------------------------------------------
 
 
 def _load_pdf_page_rotations(input_path: Path) -> list[int]:

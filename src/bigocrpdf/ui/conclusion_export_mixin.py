@@ -126,8 +126,6 @@ class ConclusionExportMixin:
             ),
         )
 
-    # ── Shared export helpers ─────────────────────────────────────────
-
     def _show_export_options_dialog(
         self,
         title: str,
@@ -343,8 +341,6 @@ class ConclusionExportMixin:
 
         return dialog, update_progress, cancel_event
 
-    # ── Markdown export ────────────────────────────────────────────────
-
     def _show_markdown_export_options_dialog(self, file_path: str) -> None:
         """Show export options dialog for Markdown export."""
         settings = self.window.settings
@@ -506,8 +502,6 @@ class ConclusionExportMixin:
         else:
             self.window.ui.show_toast(_("Export failed"))
         return False
-
-    # ── Bulk export ────────────────────────────────────────────────────
 
     def _create_bulk_export_menu_button(self) -> Gtk.MenuButton:
         """Build the export menu shown inside the selection action bar.

@@ -41,25 +41,9 @@ diff -u \
 	<(sed '/POT-Creation-Date:/d' locale/bigocrpdf.pot) \
 	<(sed '/POT-Creation-Date:/d' "$workdir/bigocrpdf.pot")
 
-# Catalogs are gated on what breaks the application, not on header hygiene.
-#
-# The previous gate rejected any msgfmt line containing "warning:", which meant
-# it failed on every catalog for a missing PO-Revision-Date -- cosmetic, and
-# invisible to users -- while missing the one defect that actually shipped: an
-# unfilled "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION" header. msgfmt
-# reports that without a "warning:" prefix *and exits 0*, so the grep never saw
-# it, and every English-locale run crashed on the first plural string.
-#
-# So each catalog is compiled and then loaded the way the application loads it.
-# A functional check needs no pattern matching against msgfmt's prose, which is
-# both version-dependent and translated into the caller's own language.
+# msgfmt's exit status flags real defects, and loading each catalog the way the
+# application does catches the unfilled Plural-Forms header msgfmt accepts.
 for catalog in locale/*.po; do
-	# msgfmt's exit code is the classifier, not its prose: it exits non-zero
-	# for genuine defects -- a dropped placeholder, or a catalog whose
-	# declared nplurals does not match the plural forms it supplies -- and
-	# zero for cosmetic header staleness. Grepping the output for "warning:"
-	# was what made the old gate reject every catalog for a missing
-	# PO-Revision-Date.
 	msgfmt --check --output-file="$workdir/catalog.mo" "$catalog" || {
 		printf 'gettext: %s has a fatal defect (see above)\n' "$catalog" >&2
 		exit 1

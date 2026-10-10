@@ -30,12 +30,12 @@ for mod in _MOCK_MODULES:
 mock_gi = sys.modules["gi"]
 mock_gi.require_version = MagicMock()
 
-from bigocrpdf.services import screen_capture as screen_capture_module  # noqa: E402
-from bigocrpdf.services.rapidocr_service.config import OCRConfig, OCRResult  # noqa: E402
-from bigocrpdf.services.rapidocr_service.text_formatting_controller import (  # noqa: E402
+from bigocrpdf.services import screen_capture as screen_capture_module
+from bigocrpdf.services.rapidocr_service.config import OCRConfig, OCRResult
+from bigocrpdf.services.rapidocr_service.text_formatting_controller import (
     TextFormattingController,
 )
-from bigocrpdf.services.screen_capture import ScreenCaptureService  # noqa: E402
+from bigocrpdf.services.screen_capture import ScreenCaptureService
 
 for mod, original in _saved.items():
     if original is None:
@@ -964,8 +964,8 @@ def test_supported_image_extensions_follow_safe_runtime_decoders():
     assert ".jxl" not in extensions
 
 
-class TestParseOcrResults:
-    """Tests for ScreenCaptureService._parse_ocr_results."""
+class TestParseOcrPayload:
+    """ScreenCaptureService._parse_ocr_payload enforces the worker JSON contract."""
 
     def test_valid_json(self):
         data = {
@@ -973,26 +973,24 @@ class TestParseOcrResults:
             "txts": ["Hello"],
             "scores": [0.95],
         }
-        results = ScreenCaptureService._parse_ocr_results(json.dumps(data))
+        results = ScreenCaptureService._parse_ocr_payload(json.dumps(data))
         assert len(results) == 1
         assert results[0].text == "Hello"
         assert results[0].confidence == 0.95
 
-    def test_invalid_json(self):
-        results = ScreenCaptureService._parse_ocr_results("not json{")
-        assert results == []
+    def test_invalid_json_is_a_protocol_error(self):
+        with pytest.raises(screen_capture_module.OcrWorkerProtocolError):
+            ScreenCaptureService._parse_ocr_payload("not json{")
 
-    def test_error_in_response(self):
-        data = {"error": "model not found"}
-        results = ScreenCaptureService._parse_ocr_results(json.dumps(data))
-        assert results == []
+    def test_error_in_response_is_a_protocol_error(self):
+        with pytest.raises(screen_capture_module.OcrWorkerProtocolError, match="model not found"):
+            ScreenCaptureService._parse_ocr_payload(json.dumps({"error": "model not found"}))
 
     def test_empty_boxes(self):
         data = {"boxes": [], "txts": [], "scores": []}
-        results = ScreenCaptureService._parse_ocr_results(json.dumps(data))
-        assert results == []
+        assert ScreenCaptureService._parse_ocr_payload(json.dumps(data)) == []
 
-    def test_legacy_null_boxes_are_a_compatible_empty_result(self):
+    def test_null_boxes_are_an_empty_result(self):
         results = ScreenCaptureService._parse_ocr_payload('{"boxes": null}')
 
         assert results == []
@@ -1000,11 +998,6 @@ class TestParseOcrResults:
     def test_missing_boxes_key_is_a_protocol_error(self):
         with pytest.raises(screen_capture_module.OcrWorkerProtocolError):
             ScreenCaptureService._parse_ocr_payload('{"result": "none"}')
-
-    def test_no_boxes_key(self):
-        data = {"result": "none"}
-        results = ScreenCaptureService._parse_ocr_results(json.dumps(data))
-        assert results == []
 
     def test_multiple_results(self):
         data = {
@@ -1015,7 +1008,7 @@ class TestParseOcrResults:
             "txts": ["Line 1", "Line 2"],
             "scores": [0.9, 0.85],
         }
-        results = ScreenCaptureService._parse_ocr_results(json.dumps(data))
+        results = ScreenCaptureService._parse_ocr_payload(json.dumps(data))
         assert len(results) == 2
         assert results[1].text == "Line 2"
 

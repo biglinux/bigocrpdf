@@ -95,8 +95,8 @@ class OCRController:
     def run(self, image: np.ndarray, padding: tuple = (0, 0, 0, 0)) -> list[OCRResult]:
         """Run OCR on an image via subprocess for GTK isolation.
 
-        NOTE: OCR is run in a subprocess to avoid GTK/ONNX Runtime conflicts.
-        GTK's threading model interferes with ONNX Runtime causing detection to fail.
+        GTK's threading model makes ONNX Runtime detection fail in-process,
+        so OCR runs in a subprocess.
         """
 
         temp_img_path = ""

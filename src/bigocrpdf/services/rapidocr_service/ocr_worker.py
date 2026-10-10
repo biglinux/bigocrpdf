@@ -2,11 +2,9 @@
 """
 Standalone OCR worker script.
 
-allow-noisy-log: this subprocess worker writes JSON to stdout and worker
-diagnostics to stderr as part of its process contract.
-
 This script is called via subprocess to run OCR in an isolated environment,
-avoiding GTK/GLib interference with ONNX Runtime.
+avoiding GTK/GLib interference with ONNX Runtime. It writes JSON results to
+stdout and diagnostics to stderr; the parent parses only stdout.
 
 Usage:
     python ocr_worker.py <image_path> [--language latin] [--limit_side_len 4000]
@@ -32,8 +30,6 @@ from bigocrpdf.services.rapidocr_service.ocr_worker_engine import (
 )
 
 __all__ = ["_build_ocr_engine_params"]
-
-# Setup Python version compatibility moved to main() to avoid output pollution
 
 
 def run_ocr_batch(

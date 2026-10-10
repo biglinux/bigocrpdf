@@ -23,9 +23,9 @@ import os
 # objects, so a module that resolves a string first would keep the catalog.
 os.environ["LANGUAGE"] = "C"
 
-import cv2 as _real_cv2  # noqa: E402
-import numpy as _real_numpy  # noqa: E402
-import pytest  # noqa: E402
+import cv2 as _real_cv2
+import numpy as _real_numpy
+import pytest
 
 
 @pytest.fixture

@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
-# Run and gate the OCR quality benchmark.
-#
-# The pieces this drives -- ocr_benchmark.py, compare_benchmarks.py,
-# prepare_benchmark_datasets.py -- were already complete and already tested.
-# Nothing invoked them, so no regression was ever actually caught. This is that
-# invocation, and nothing more.
+# Run and gate the OCR quality benchmark through ocr_benchmark.py,
+# compare_benchmarks.py and prepare_benchmark_datasets.py.
 #
 #   tools/benchmark.sh prepare
 #   tools/benchmark.sh run    [--profile NAME] [--out FILE]

@@ -107,7 +107,7 @@ def tokens(
 
     Tokens are uppercase ASCII plus digits so nothing in ``escape_pdf_text``
     rewrites them, and contain no colon so the export form-splitter leaves them
-    alone. One word per line, spaced far enough apart that ``_snap_baselines``
+    alone. One word per line, spaced far enough apart that ``snap_baselines``
     cannot merge them and no space runs are inserted.
     """
     alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ"

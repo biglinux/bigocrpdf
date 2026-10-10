@@ -87,10 +87,6 @@ class TestParseRanges:
 class TestBuildParser:
     """Tests for build_parser."""
 
-    def test_returns_parser(self):
-        p = build_parser()
-        assert p is not None
-
     def test_version_flag(self, capsys):
         parser = build_parser()
 
@@ -171,16 +167,6 @@ class TestBuildParser:
         p = build_parser()
         args = p.parse_args(["-v", "info", "input.pdf"])
         assert args.verbose is True
-
-    def test_ocr_has_no_legacy_language_selection(self):
-        p = build_parser()
-        args = p.parse_args(["ocr", "in.pdf", "-o", "out.pdf"])
-        assert not hasattr(args, "language")
-
-        with pytest.raises(SystemExit):
-            p.parse_args(["ocr", "in.pdf", "-o", "out.pdf", "--language", "arabic"])
-        with pytest.raises(SystemExit):
-            p.parse_args(["ocr", "in.pdf", "-o", "out.pdf", "--ocr-version", "PPOCRV5"])
 
     def test_ocr_pdf_mode_and_batch_options(self):
         p = build_parser()

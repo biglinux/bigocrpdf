@@ -6,15 +6,19 @@ from pathlib import Path
 from typing import Any
 
 import pikepdf
-from reportlab.pdfbase import pdfmetrics
 
-from bigocrpdf.constants import FONT_SIZE_SCALE_FACTOR, MAX_FONT_SIZE, MIN_FONT_SIZE
 from bigocrpdf.services.rapidocr_service.config import OCRResult
 from bigocrpdf.services.rapidocr_service.pdf_extractor import (
     extract_content_streams,
     merge_page_fonts,
 )
-from bigocrpdf.services.rapidocr_service.renderer import MAX_HORIZ_SCALE, MIN_HORIZ_SCALE
+from bigocrpdf.services.rapidocr_service.renderer import (
+    TextBox,
+    line_run,
+    place_text_box,
+    snap_baselines,
+    text_lines,
+)
 from bigocrpdf.utils import pdf_utils
 
 logger = logging.getLogger(__name__)
@@ -90,112 +94,17 @@ def _pdf_font_placeholder_operand(text: str) -> str:
     return f"({escape_pdf_text(placeholder)})"
 
 
-def _build_text_boxes(
-    ocr_results: list[OCRResult],
-    img_x: float,
-    img_y: float,
-    img_height: float,
-    scale_x: float,
-    scale_y: float,
-) -> list[dict]:
-    """Convert OCR results to PDF-coordinate text boxes."""
-    boxes: list[dict] = []
-    for r in ocr_results:
-        text = r.text.strip()
-        if not text:
-            continue
-        box = r.box
-        min_x = min(p[0] for p in box)
-        max_x = max(p[0] for p in box)
-        min_y = min(p[1] for p in box)
-        max_y = max(p[1] for p in box)
-
-        width_pts = (max_x - min_x) * scale_x
-        height_pts = (max_y - min_y) * scale_y
-        font_size = max(MIN_FONT_SIZE, min(MAX_FONT_SIZE, height_pts * FONT_SIZE_SCALE_FACTOR))
-
-        descent_pts = 0.207 * font_size
-        boxes.append(
-            {
-                "text": text,
-                "x": img_x + min_x * scale_x,
-                "y": img_y + img_height - (max_y * scale_y) + descent_pts,
-                "width": width_pts,
-                "height": height_pts,
-                "font_size": font_size,
-            }
-        )
-    return boxes
-
-
-def _snap_baselines(boxes: list[dict]) -> None:
-    """Cluster boxes by y-proximity and snap each cluster to its median y."""
-    if not boxes:
-        # A page with no detected text is ordinary, not exceptional. The
-        # renderer's copy of this function has always guarded; here only the
-        # caller's own emptiness check stood between this and an IndexError.
-        return
-    sorted_boxes = sorted(boxes, key=lambda b: -b["y"])
-    clusters: list[list[dict]] = []
-    current: list[dict] = [sorted_boxes[0]]
-
-    for bx in sorted_boxes[1:]:
-        cluster_y = sum(b["y"] for b in current) / len(current)
-        cluster_min_h = min(b["height"] for b in current)
-        threshold = min(cluster_min_h, bx["height"]) * 0.35
-        if abs(cluster_y - bx["y"]) <= threshold:
-            current.append(bx)
-        else:
-            clusters.append(current)
-            current = [bx]
-    clusters.append(current)
-
-    for cluster in clusters:
-        if len(cluster) < 2:
-            continue
-        ys = sorted(b["y"] for b in cluster)
-        median_y = ys[len(ys) // 2]
-        for b in cluster:
-            b["y"] = median_y
-
-
-def _emit_line_commands(line_boxes: list[dict]) -> list[str]:
-    """Build BT/ET PDF commands for one text line."""
-    line_boxes.sort(key=lambda b: b["x"])
-    line_font = sum(b["font_size"] for b in line_boxes) / len(line_boxes)
-
-    space_w = pdfmetrics.stringWidth(" ", "Helvetica", line_font)
-    if space_w <= 0:
-        space_w = line_font * 0.25
-
-    parts: list[str] = []
-    for i, bx in enumerate(line_boxes):
-        parts.append(bx["text"])
-        if i < len(line_boxes) - 1:
-            gap = line_boxes[i + 1]["x"] - (bx["x"] + bx["width"])
-            num_spaces = max(1, round(gap / space_w)) if gap > 0 else 1
-            parts.append(" " * num_spaces)
-
-    line_text = "".join(parts)
-    line_x = line_boxes[0]["x"]
-    line_y = line_boxes[0]["y"]
-    line_width = (line_boxes[-1]["x"] + line_boxes[-1]["width"]) - line_boxes[0]["x"]
-
-    natural_w = pdfmetrics.stringWidth(line_text, "Helvetica", line_font)
-    if natural_w > 0 and line_width > 0:
-        h_scale = line_width / natural_w * 100.0
-    else:
-        h_scale = 100.0
-    h_scale = max(MIN_HORIZ_SCALE, min(MAX_HORIZ_SCALE, h_scale))
-
+def _emit_line_commands(line_boxes: list[TextBox]) -> list[str]:
+    """Build BT/ET PDF commands for one text line, left to right."""
+    run = line_run(line_boxes, "Helvetica")
     return [
         "/GSOcrInvisible gs",
         "BT",
-        f"1 0 0 1 {line_x:.2f} {line_y:.2f} Tm",
-        f"/FOcr {line_font:.1f} Tf",
-        f"{h_scale:.1f} Tz",
-        f"/Span << /ActualText {_pdf_actual_text_operand(line_text)} >> BDC",
-        f"{_pdf_font_placeholder_operand(line_text)} Tj",
+        f"1 0 0 1 {run.x:.2f} {run.y:.2f} Tm",
+        f"/FOcr {run.font_size:.1f} Tf",
+        f"{run.horizontal_scale:.1f} Tz",
+        f"/Span << /ActualText {_pdf_actual_text_operand(run.text)} >> BDC",
+        f"{_pdf_font_placeholder_operand(run.text)} Tj",
         "EMC",
         "ET",
     ]
@@ -211,20 +120,18 @@ def create_text_layer_commands(
     scale_y: float,
 ) -> list[str]:
     """Create PDF text layer commands for OCR results."""
-    boxes = _build_text_boxes(ocr_results, img_x, img_y, img_height, scale_x, scale_y)
+    top_y = img_y + img_height
+    boxes = [
+        box
+        for result in ocr_results
+        if (box := place_text_box(result, scale_x, scale_y, img_x, top_y)) is not None
+    ]
     if not boxes:
         return []
 
-    _snap_baselines(boxes)
-
-    from collections import defaultdict
-
-    lines: dict[float, list[dict]] = defaultdict(list)
-    for bx in boxes:
-        lines[bx["y"]].append(bx)
-
+    snap_baselines(boxes)
     commands: list[str] = ["q"]
-    for _y_val, line_boxes in sorted(lines.items(), reverse=True):
+    for line_boxes in text_lines(boxes):
         commands.extend(_emit_line_commands(line_boxes))
     commands.append("Q")
     return commands
@@ -262,7 +169,6 @@ def append_text_to_page(pdf: pikepdf.Pdf, page: pikepdf.Page, text_commands: lis
             }
         )
 
-    # Create new content stream with text layer
     text_content = "\n".join(text_commands)
 
     # Wrap existing content in q/Q so any CTM changes (e.g. cm scaling)

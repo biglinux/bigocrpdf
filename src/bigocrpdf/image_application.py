@@ -1,8 +1,7 @@
-"""
-BigOcrPdf - Image OCR Application Module
+"""Standalone image OCR application.
 
-Standalone GTK application for Image OCR, separate from the PDF application.
-Uses a different application_id for proper Wayland taskbar grouping.
+It has its own application id so Wayland taskbars group its window apart
+from the PDF application.
 """
 
 import gi
@@ -43,7 +42,6 @@ class ImageOcrApp(Adw.Application):
         )
         self.ocr_dependency = ocr_dependency
 
-        # Add version command line option
         self.add_main_option(
             "version",
             ord("v"),
@@ -58,7 +56,6 @@ class ImageOcrApp(Adw.Application):
         self.connect("handle-local-options", self.on_handle_local_options)
         self.connect("shutdown", self._on_shutdown)
 
-        # Set up application icon
         self._setup_actions()
 
     def do_startup(self) -> None:
@@ -78,7 +75,6 @@ class ImageOcrApp(Adw.Application):
         quit_action.connect("activate", self._on_quit_action)
         self.add_action(quit_action)
 
-        # Set keyboard shortcuts
         self.set_accels_for_action("app.quit", [SHORTCUTS.get("quit", "<Control>q")])
         self.set_accels_for_action("app.about", [SHORTCUTS.get("about", "F1")])
         self.set_accels_for_action(

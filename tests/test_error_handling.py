@@ -74,7 +74,7 @@ class TestPdfExtractorErrorHandling:
         result = has_native_text(Path("/definitely/not/here.pdf"))
         assert result is False
 
-    def test_extract_image_positions_empty_pdf(self):
+    def test_a_page_without_images_has_no_image_positions(self):
         from bigocrpdf.services.rapidocr_service.pdf_extractor import (
             extract_image_positions,
         )
@@ -82,8 +82,7 @@ class TestPdfExtractorErrorHandling:
         with tempfile.TemporaryDirectory() as tmpdir:
             pdf_path = os.path.join(tmpdir, "empty.pdf")
             _create_test_pdf(pdf_path, num_pages=1)
-            positions = extract_image_positions(Path(pdf_path))
-            assert isinstance(positions, dict)
+            assert extract_image_positions(Path(pdf_path)) == {}
 
 
 class TestCorruptPdfHandling:

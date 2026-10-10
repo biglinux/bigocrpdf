@@ -1,7 +1,7 @@
 """Invariants of the OCR-pixel to PDF-point mapping.
 
 These run in microseconds and need no PDF: they hold the algebra of
-``TextLayerRenderer.create_text_layer`` and ``_snap_baselines`` in place.
+``TextLayerRenderer.create_text_layer`` and ``snap_baselines`` in place.
 Where test_text_layer_placement proves the mapping is right end to end, this
 file pins *why*, so a failure says which property broke.
 """
@@ -19,6 +19,7 @@ from bigocrpdf.services.rapidocr_service.renderer import (
     _line_horizontal_scale,
     _line_text_with_spacing,
     _normalize_ocr_quadrilateral,
+    snap_baselines,
 )
 
 # Every randomised loop echoes this in its assertion message so a failure is
@@ -171,20 +172,20 @@ class TestSnapBaselines:
         ]
 
     def test_empty_input_is_tolerated(self):
-        TextLayerRenderer._snap_baselines([])
+        snap_baselines([])
 
     def test_snapping_is_idempotent(self):
         boxes = self._boxes([700.0, 701.5, 699.0, 640.0])
-        TextLayerRenderer._snap_baselines(boxes)
+        snap_baselines(boxes)
         once = [box.y for box in boxes]
-        TextLayerRenderer._snap_baselines(boxes)
+        snap_baselines(boxes)
 
         assert [box.y for box in boxes] == once
 
     def test_no_box_leapfrogs_another(self):
         boxes = self._boxes([700.0, 698.0, 660.0, 658.0, 600.0])
         before = sorted(range(len(boxes)), key=lambda i: -boxes[i].y)
-        TextLayerRenderer._snap_baselines(boxes)
+        snap_baselines(boxes)
         after_ys = [boxes[i].y for i in before]
 
         assert after_ys == sorted(after_ys, reverse=True)
@@ -192,13 +193,13 @@ class TestSnapBaselines:
     def test_close_boxes_share_a_baseline(self):
         """Within 35% of the smaller height they are one visual line."""
         boxes = self._boxes([700.0, 700.0 + 12.0 * 0.3])
-        TextLayerRenderer._snap_baselines(boxes)
+        snap_baselines(boxes)
 
         assert boxes[0].y == boxes[1].y
 
     def test_distant_boxes_keep_their_own(self):
         boxes = self._boxes([700.0, 700.0 - 12.0])
-        TextLayerRenderer._snap_baselines(boxes)
+        snap_baselines(boxes)
 
         assert boxes[0].y != boxes[1].y
 
@@ -210,7 +211,7 @@ class TestSnapBaselines:
         boxes = self._boxes(ys)
         before = len({box.y for box in boxes})
 
-        TextLayerRenderer._snap_baselines(boxes)
+        snap_baselines(boxes)
 
         assert len({box.y for box in boxes}) <= before, f"seed={SEED}"
 

@@ -563,12 +563,10 @@ def test_image_processing_allow_deny_stops_before_service_io(
         assert call_kwargs["config"] is config
         assert "language" not in call_kwargs
         settings.load_settings.assert_called_once_with()
-        settings._snapshot_ocr_config.assert_called_once_with()
         window.show_ocr_unavailable_dialog.assert_not_called()
     else:
         window._screen_capture_service.process_image_file.assert_not_called()
         settings.load_settings.assert_not_called()
-        settings._snapshot_ocr_config.assert_not_called()
         window._stack.set_visible_child_name.assert_not_called()
         window.show_ocr_unavailable_dialog.assert_called_once_with()
 

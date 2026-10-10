@@ -8,9 +8,6 @@ import numpy as np
 import pytest
 
 from bigocrpdf.services.rapidocr_service import page_worker
-from bigocrpdf.services.rapidocr_service.backend_text_layer import (
-    BackendTextLayerMixin,
-)
 from bigocrpdf.services.rapidocr_service.config import ProcessingStats
 from bigocrpdf.services.rapidocr_service.geometry_trace import GeometryTrace
 from bigocrpdf.services.rapidocr_service.pipeline_chunked_ocr import ChunkedOCRMixin
@@ -238,38 +235,3 @@ def test_single_preprocessing_worker_is_recycled_after_each_page(tmp_path: Path)
         initializer=page_worker.worker_init,
         max_tasks_per_child=1,
     )
-
-
-def test_text_layer_propagates_cancellation_from_the_last_page(
-    tmp_path: Path,
-) -> None:
-    backend = BackendTextLayerMixin()
-    process = object()
-    backend._ocr_subprocess = SimpleNamespace(  # type: ignore[attr-defined]
-        launch=MagicMock(return_value=process),
-        stop=MagicMock(),
-    )
-    backend._text_layer_work_item = MagicMock(return_value={})  # type: ignore[method-assign]
-    backend._run_text_layer_page = MagicMock(  # type: ignore[method-assign]
-        side_effect=InterruptedError("cancelled"),
-    )
-    backend._release_text_layer_page_memory = MagicMock()  # type: ignore[method-assign]
-    pdf_canvas = MagicMock()
-
-    with (
-        patch(
-            "bigocrpdf.services.rapidocr_service.backend_text_layer.canvas.Canvas",
-            return_value=pdf_canvas,
-        ),
-        pytest.raises(InterruptedError, match="cancelled"),
-    ):
-        backend._create_text_layer_pdf(
-            [tmp_path / "page.png"],
-            tmp_path / "text-layer.pdf",
-            [{}],
-            ProcessingStats(),
-            None,
-        )
-
-    backend._ocr_subprocess.stop.assert_called_once_with(process)  # type: ignore[attr-defined]
-    pdf_canvas.save.assert_not_called()

@@ -62,8 +62,6 @@ class BackendPipelineMixin(BackendEmbeddedImagePipelineMixin, ChunkedOCRMixin, M
         - ThreadPoolExecutor for image preprocessing (no fork = no memory duplication)
         - Single persistent OCR subprocess (one model instance = ~400 MB)
         - Chunked extraction to minimize disk usage
-
-        Total memory: ~600-700 MB vs ~4-10 GB with the old fork+subprocess approach.
         """
         from bigocrpdf.services.rapidocr_service.resource_manager import (
             compute_pipeline_config,
@@ -412,7 +410,6 @@ class BackendPipelineMixin(BackendEmbeddedImagePipelineMixin, ChunkedOCRMixin, M
                     # Remove the page that pushed us over the limit
                     current_pages.pop()
 
-                    # Save this part
                     part_num = len(parts) + 1
                     part_path = parent / f"{stem}-{part_num:02d}{suffix}"
                     part_pdf = pikepdf.new()
@@ -430,7 +427,6 @@ class BackendPipelineMixin(BackendEmbeddedImagePipelineMixin, ChunkedOCRMixin, M
                     # Start new part with the page that didn't fit
                     current_pages = [page_idx]
 
-            # Save the last part
             if current_pages:
                 part_num = len(parts) + 1
                 part_path = parent / f"{stem}-{part_num:02d}{suffix}"

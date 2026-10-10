@@ -6,6 +6,10 @@ All notable user-visible and release-engineering changes are documented here.
 
 - Feed the text detector PaddleOCR's input normalization and tighter line boxes, which stops whole lines on low-contrast scans from being read as blanks; the box expansion ratio is no longer stored in the settings file.
 - Run OCR on the page without the scanner effect, which only changes how the page image looks, and rebuild the effect so paper texture turns white instead of into black speckle.
+- Place OCR text of skewed lines on mixed-content and embedded-image pages the way scanned pages do, on the line's own baseline and glyph height instead of its bounding box.
+- Show file sizes on the results page in translated units with the decimal multiples the file manager uses.
+- Start the OCR worker without importing the rest of the application, which cuts its startup imports from about half a second to a few hundredths.
+- Let the Nix package build against GTK 4.14 and libadwaita 1.5, the floor the application checks at startup.
 
 ## 3.0.0 - 2026-08-02
 

@@ -25,7 +25,6 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-# ── Module-level cached detector ────────────────────────────────────
 # Loaded once, shared by all threads. Protected by _detector_lock to
 # prevent race conditions during first initialization.
 _cached_detector = None
@@ -48,8 +47,8 @@ _DEWARP_USE_TEXTLINE_CLS = False
 def _get_inprocess_detector(language: str, limit_side_len: int):
     """Get or create a cached RapidOCR instance for in-process detection.
 
-    Loads ONLY the detection model (skips recognition and classification)
-    to minimize memory usage (~100 MB vs ~400 MB with all models).
+    Loads only the detection model, skipping recognition and classification,
+    which holds a fraction of the memory of the full model set.
     Falls back to loading all models if detection-only init fails.
 
     The instance is cached at module level so it is shared by all threads.

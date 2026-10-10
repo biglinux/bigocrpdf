@@ -23,8 +23,6 @@ from bigocrpdf.utils.tsv_parser import (
     Word,
 )
 
-# ── Column Detection ──
-
 
 def _build_coverage_histogram(
     words: list[Word],
@@ -138,7 +136,6 @@ def split_words_by_columns(
                 col_words[i].append(w)
                 break
         else:
-            # Assign to nearest column
             min_dist = float("inf")
             best_col = 0
             for i, (col_start, col_end) in enumerate(columns):
@@ -148,9 +145,6 @@ def split_words_by_columns(
                     best_col = i
             col_words[best_col].append(w)
     return col_words
-
-
-# ── Table Detection ──
 
 
 def _get_column_groups(words: list[Word], gap: float = COLUMN_GAP_THRESHOLD) -> list[list[Word]]:

@@ -123,11 +123,6 @@ GPU_BACKEND_RUNTIME_DISTRIBUTIONS = {
 }
 
 
-def load_jsonl(path: Path) -> list[dict[str, Any]]:
-    rows, _sha256 = _load_jsonl_snapshot(path)
-    return rows
-
-
 def _load_jsonl_snapshot(path: Path) -> tuple[list[dict[str, Any]], str]:
     payload = path.read_bytes()
     rows: list[dict[str, Any]] = []

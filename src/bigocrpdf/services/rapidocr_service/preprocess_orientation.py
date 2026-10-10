@@ -4,8 +4,6 @@ Orientation detection and correction for document images.
 Detects whether a document is rotated 0°, 90°, 180°, or 270° and provides
 correction. Uses a multi-signal approach: Hough lines, edge energy, and
 aspect ratio analysis.
-
-Extracted from preprocessor.py to follow single-responsibility principle.
 """
 
 import logging

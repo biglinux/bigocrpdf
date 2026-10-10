@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""Validate extracted searchable text from a PDF.
-
-allow-noisy-log: validation reports are user-facing CLI output.
-"""
+"""Validate extracted searchable text from a PDF."""
 
 from __future__ import annotations
 
@@ -64,11 +61,6 @@ def extract_text_with_pdfminer(pdf_path: Path) -> str | None:
         return None
 
 
-def extract_text_with_python_pdf_lib(pdf_path: Path) -> str | None:
-    """Compatibility helper that tries the supported Python extractors in order."""
-    return extract_text_with_pypdf(pdf_path) or extract_text_with_pdfminer(pdf_path)
-
-
 def extract_pdf_text_with_method(pdf_path: Path) -> tuple[str, str, str]:
     """Extract PDF text and identify the exact implementation and version."""
     text = extract_text_with_pdftotext(pdf_path)
@@ -81,11 +73,6 @@ def extract_pdf_text_with_method(pdf_path: Path) -> tuple[str, str, str]:
     if text is not None:
         return text, "pdfminer.six", _extractor_version("pdfminer.six")
     raise RuntimeError("No PDF text extractor available (pdftotext, pypdf or pdfminer.six)")
-
-
-def extract_pdf_text(pdf_path: Path) -> str:
-    """Extract text while preserving the original string-only helper API."""
-    return extract_pdf_text_with_method(pdf_path)[0]
 
 
 @lru_cache(maxsize=3)
