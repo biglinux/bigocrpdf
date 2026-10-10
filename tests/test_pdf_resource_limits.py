@@ -196,3 +196,45 @@ def test_process_rejects_nested_oversized_image_before_pipeline_selection(
         engine.process(pdf_path, tmp_path / "unused.pdf")
 
     pipeline_choice.assert_not_called()
+
+
+def _write_header_only_png(path: Path, width: int, height: int) -> None:
+    """A PNG that declares its size but carries no pixels: bytes, not gigabytes."""
+    import struct
+    import zlib
+
+    def chunk(kind: bytes, data: bytes) -> bytes:
+        body = kind + data
+        return struct.pack(">I", len(data)) + body + struct.pack(">I", zlib.crc32(body))
+
+    ihdr = struct.pack(">IIBBBBB", width, height, 8, 0, 0, 0, 0)
+    path.write_bytes(
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", ihdr)
+        + chunk(b"IDAT", zlib.compress(b""))
+        + chunk(b"IEND", b"")
+    )
+
+
+@pytest.mark.parametrize(
+    "side",
+    [
+        12_000,  # 144 MP: under Pillow's own bomb limit, over the configured 128 MP
+        20_000,  # 400 MP: Pillow refuses it before the configured check runs
+    ],
+)
+def test_oversized_page_image_is_rejected_before_decoding(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, side: int
+) -> None:
+    from bigocrpdf.services.rapidocr_service import pdf_page_geometry
+
+    image_path = tmp_path / "page.png"
+    _write_header_only_png(image_path, side, side)
+    monkeypatch.setattr(
+        pdf_page_geometry.cv2,
+        "imread",
+        Mock(side_effect=AssertionError("an oversized image reached OpenCV")),
+    )
+
+    with pytest.raises(ValueError, match="limit"):
+        pdf_page_geometry.load_image_with_exif_rotation(image_path, 128.0)

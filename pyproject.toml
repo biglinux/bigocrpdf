@@ -27,8 +27,9 @@ classifiers = [
 dependencies = [
     "PyGObject>=3.42.0",
     "pycairo>=1.20.0",
-    # RapidOCR engine
+    # RapidOCR engine; OpenVINO is its default backend and runs the dewarp model
     "rapidocr>=3.9.0",
+    "openvino>=2026.3.0",
     # PDF processing
     "pikepdf>=10.0.0",
     "reportlab>=4.0.0",

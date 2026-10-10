@@ -131,6 +131,16 @@ def _get_model():
     return _ov_model
 
 
+def release_model() -> None:
+    """Drop the cached model so a long-lived process does not keep it.
+
+    The next probmap request compiles it again.
+    """
+    global _ov_model
+    with _ov_lock:
+        _ov_model = None
+
+
 def _get_probmap(img_bgr: np.ndarray, max_side: int = 0) -> tuple[np.ndarray, float, float]:
     """Run DBNet inference and return the text probability map.
 

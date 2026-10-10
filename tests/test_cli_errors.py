@@ -30,3 +30,22 @@ def test_invalid_split_range_returns_error_without_traceback(
     assert captured.out == ""
     assert "Error: Invalid range specification" in captured.err
     assert "Traceback" not in captured.err
+
+
+def test_child_interpreters_ignore_modules_planted_in_cwd(
+    tmp_path: Path,
+    monkeypatch,
+    capsys,
+) -> None:
+    import subprocess
+    import sys
+
+    marker = tmp_path / "planted-ran"
+    (tmp_path / "json.py").write_text(f"open({str(marker)!r}, 'w').close()\n", encoding="utf-8")
+    monkeypatch.delenv("PYTHONSAFEPATH", raising=False)
+
+    assert main([]) == 0
+    capsys.readouterr()
+    subprocess.run([sys.executable, "-c", "import json"], cwd=tmp_path, check=True, timeout=30)
+
+    assert not marker.exists()

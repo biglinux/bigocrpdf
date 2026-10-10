@@ -641,6 +641,7 @@ class MixedContentMixin:
                 ["pdftotext", str(input_pdf), "-"],
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
                 timeout=60,
             )
             if result.returncode != 0:
@@ -680,6 +681,8 @@ class MixedContentMixin:
                 check=True,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=PDF_TOOL_TIMEOUT_SECS,
             )
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
@@ -710,6 +713,8 @@ class MixedContentMixin:
                     check=True,
                     capture_output=True,
                     text=True,
+                    encoding="utf-8",
+                    errors="replace",
                     timeout=PDF_TOOL_TIMEOUT_SECS,
                 )
             except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:

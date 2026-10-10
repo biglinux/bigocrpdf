@@ -22,6 +22,7 @@ from bigocrpdf.services.rapidocr_service.pdf_page_geometry import render_pdf_pag
 from bigocrpdf.services.rapidocr_service.preprocess_enhance import apply_independent_effects
 from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
 from bigocrpdf.services.rapidocr_service.resource_manager import select_pdf_page_render_dpi
+from bigocrpdf.utils.logger import DEFAULT_LOG_FORMAT
 
 logger = logging.getLogger(__name__)
 
@@ -108,13 +109,14 @@ def _write_cv_image(
         raise OSError(f"OpenCV could not write image: {output_path}")
 
 
-def worker_init() -> None:
+def worker_init(log_level: int) -> None:
     """Initializer for ProcessPoolExecutor worker processes.
 
     Called once per worker process at startup. Performs:
     - Ignore SIGINT so only the main process handles Ctrl+C
     - Set low CPU priority (nice 19) to avoid impacting the desktop
-    - Configure logging for the worker process
+    - Configure logging at the parent's level; a forkserver child starts
+      without the parent's handlers
     """
     # Let the main process handle keyboard interrupts
     signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -125,6 +127,7 @@ def worker_init() -> None:
     except OSError:
         pass  # nice() may fail in some containerised environments
 
+    logging.basicConfig(level=log_level, format=DEFAULT_LOG_FORMAT)
     # Suppress verbose library logging in workers
     logging.getLogger("rapidocr").setLevel(logging.WARNING)
     logging.getLogger("onnxruntime").setLevel(logging.WARNING)
@@ -447,8 +450,8 @@ def _create_page_preprocessor(
     return preprocessor
 
 
-def _load_page_source_image(img_path: str) -> np.ndarray | None:
-    return load_image_with_exif_rotation(Path(img_path))
+def _load_page_source_image(img_path: str, config: Any) -> np.ndarray | None:
+    return load_image_with_exif_rotation(Path(img_path), config.max_image_megapixels)
 
 
 def _replace_with_rendered_source(
@@ -640,7 +643,7 @@ def process_page(args: dict[str, Any]) -> dict[str, Any]:
             return _missing_image_path_result(page_num)
 
         preprocessor = _create_page_preprocessor(config, args, page_num)
-        original_img = _load_page_source_image(img_path)
+        original_img = _load_page_source_image(img_path, config)
         if original_img is None:
             return {"page_num": page_num, "error": f"Could not read image: {img_path}"}
 

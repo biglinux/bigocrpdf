@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from bigocrpdf.cli_parser import _parse_page_list
+from bigocrpdf.utils.temp_manager import staging_directory
 
 if TYPE_CHECKING:
     from bigocrpdf.services.rapidocr_service.config import OCRConfig, OcrDocument
@@ -195,8 +196,11 @@ def _run_dewarp_only(
     page_set: set[int] | None = None,
 ) -> int:
     """Run only preprocessing (dewarp/deskew) and save images."""
-    save_dir = args.save_preprocessed or Path(tempfile.gettempdir()) / "bigocrpdf_debug"
-    save_dir.mkdir(parents=True, exist_ok=True)
+    if args.save_preprocessed:
+        save_dir = args.save_preprocessed
+        save_dir.mkdir(parents=True, exist_ok=True)
+    else:
+        save_dir = Path(tempfile.mkdtemp(prefix="bigocrpdf_debug_"))
 
     from bigocrpdf.services.rapidocr_service.pdf_extractor import PDFImageExtractor
     from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
@@ -260,10 +264,7 @@ def _run_full_ocr(
     try:
         requested_output = Path(args.output)
         structured_document = None
-        with tempfile.TemporaryDirectory(
-            prefix=".bigocr_ocr_",
-            dir=requested_output.parent,
-        ) as staging_name:
+        with staging_directory(requested_output.parent, ".bigocr_ocr_") as staging_name:
             staging_dir = Path(staging_name)
             staged_output = staging_dir / requested_output.name
             input_pdf = args.input

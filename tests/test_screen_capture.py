@@ -656,7 +656,9 @@ def test_unexpected_image_worker_error_still_completes_request(monkeypatch):
 
 
 def test_image_ocr_command_propagates_the_complete_ocr_configuration(monkeypatch):
-    monkeypatch.setattr("bigocrpdf.services.screen_capture.os.cpu_count", lambda: 6)
+    monkeypatch.setattr(
+        "bigocrpdf.services.screen_capture.os.sched_getaffinity", lambda _pid: set(range(6))
+    )
     config = OCRConfig(
         use_textline_cls=True,
         gpu_backend="auto",

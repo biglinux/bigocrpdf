@@ -104,6 +104,7 @@ def parse_tsv_pages(pdf_path: str) -> dict[int, list[Word]]:
         ["pdftotext", "-tsv", pdf_path, "-"],
         capture_output=True,
         text=True,
+        encoding="utf-8",
         check=True,
         timeout=60,
     )

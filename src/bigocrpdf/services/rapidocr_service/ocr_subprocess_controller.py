@@ -12,10 +12,12 @@ import subprocess
 import threading
 import time
 from collections.abc import Callable
-from pathlib import Path
 
 from bigocrpdf.services.rapidocr_service.config import OCRConfig
-from bigocrpdf.services.rapidocr_service.ocr_worker_engine import build_ocr_worker_command
+from bigocrpdf.services.rapidocr_service.ocr_worker_engine import (
+    build_ocr_worker_command,
+    ocr_worker_environment,
+)
 from bigocrpdf.services.rapidocr_service.resource_manager import (
     ResourceProfile,
     ResourceTier,
@@ -148,10 +150,8 @@ class OCRSubprocessController:
     @staticmethod
     def _resolve_ocr_threads(ocr_threads: int) -> int:
         """Resolve the concrete inference thread count sent to the worker."""
-        import multiprocessing
-
         if ocr_threads <= 0:
-            return max(2, multiprocessing.cpu_count())
+            return max(2, len(os.sched_getaffinity(0)))
         return ocr_threads
 
     @staticmethod
@@ -164,26 +164,6 @@ class OCRSubprocessController:
             background_command = [nice, "-n", "19", *background_command]
         return background_command
 
-    @staticmethod
-    def _worker_environment() -> dict[str, str]:
-        """Pin the worker to the same package this controller was loaded from.
-
-        The worker starts as ``python -m bigocrpdf...``, so it resolves the
-        package through the child's own sys.path.  Whenever a copy is also
-        installed system-wide -- a source checkout, a venv, a staged build --
-        the child can pick the other one, and a version whose argument parser
-        predates the flags sent here exits before the ready signal, surfacing
-        as "stdout closed before ready signal" with the real cause only in the
-        subprocess stderr.
-        """
-        import bigocrpdf
-
-        env = os.environ.copy()
-        package_root = str(Path(bigocrpdf.__file__).resolve().parent.parent)
-        existing = env.get("PYTHONPATH")
-        env["PYTHONPATH"] = f"{package_root}{os.pathsep}{existing}" if existing else package_root
-        return env
-
     def launch(self, ocr_threads: int = 0) -> subprocess.Popen:
         """Start an OCR subprocess without waiting for model readiness."""
         resolved_threads = self._resolve_ocr_threads(ocr_threads)
@@ -195,8 +175,9 @@ class OCRSubprocessController:
             stdout=subprocess.PIPE,
             stderr=None,
             text=True,
+            encoding="utf-8",
             bufsize=1,
-            env=self._worker_environment(),
+            env=ocr_worker_environment(),
         )
         process._bigocr_threads = resolved_threads
         return process

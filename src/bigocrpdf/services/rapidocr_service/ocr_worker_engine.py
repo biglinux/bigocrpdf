@@ -3,6 +3,7 @@
 import os
 import sys
 from collections.abc import Callable
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
@@ -59,6 +60,25 @@ _OCR_ENGINE_DEFAULTS = {
     "gpu_fp16": True,
     "gpu_fallback_to_cpu": True,
 }
+
+
+def ocr_worker_environment() -> dict[str, str]:
+    """Pin ``python -m bigocrpdf...`` workers to the package this process loaded.
+
+    The worker resolves the package through its own sys.path.  Whenever a copy
+    is also installed system-wide -- a source checkout, a venv, a staged build --
+    the child can pick the other one, and a version whose argument parser
+    predates the flags sent here exits before the ready signal, surfacing as
+    "stdout closed before ready signal" with the real cause only in the
+    subprocess stderr.
+    """
+    import bigocrpdf
+
+    env = os.environ.copy()
+    package_root = str(Path(bigocrpdf.__file__).resolve().parent.parent)
+    existing = env.get("PYTHONPATH")
+    env["PYTHONPATH"] = f"{package_root}{os.pathsep}{existing}" if existing else package_root
+    return env
 
 
 def build_ocr_worker_command(  # noqa: C901 - command flags intentionally mirror OCRConfig

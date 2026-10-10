@@ -53,7 +53,7 @@ class TestDetectResources:
 
         with patch.dict("sys.modules", {"psutil": mock_psutil}):
             with patch("builtins.open", side_effect=OSError):
-                with patch("os.cpu_count", return_value=8):
+                with patch("os.sched_getaffinity", return_value=set(range(8))):
                     profile = detect_resources()
 
         assert profile.available_ram_mb == 4096
@@ -71,7 +71,7 @@ class TestDetectResources:
 
         with patch.dict("sys.modules", {"psutil": mock_psutil}):
             with patch("builtins.open", side_effect=OSError):
-                with patch("os.cpu_count", return_value=4):
+                with patch("os.sched_getaffinity", return_value=set(range(4))):
                     profile = detect_resources()
 
         assert profile.tier == ResourceTier.CONSTRAINED
@@ -86,7 +86,7 @@ class TestDetectResources:
 
         with patch.dict("sys.modules", {"psutil": mock_psutil}):
             with patch("builtins.open", side_effect=OSError):
-                with patch("os.cpu_count", return_value=16):
+                with patch("os.sched_getaffinity", return_value=set(range(16))):
                     profile = detect_resources()
 
         assert profile.tier == ResourceTier.ABUNDANT
@@ -120,7 +120,7 @@ class TestDetectResources:
                 raise OSError("not available")
 
             with patch("builtins.open", side_effect=_open_side_effect):
-                with patch("os.cpu_count", return_value=4):
+                with patch("os.sched_getaffinity", return_value=set(range(4))):
                     profile = detect_resources()
                     assert profile.available_ram_mb == 5000000 // 1024
                     assert profile.total_ram_mb == 16384000 // 1024

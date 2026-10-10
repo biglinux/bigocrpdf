@@ -293,6 +293,8 @@ class ChunkedOCRMixin:
         progress_callback: Callable[[int, int, str], None] | None,
     ) -> None:
         """Phase 2: Chunked image extraction, preprocessing, OCR, and text rendering."""
+        import logging
+        import multiprocessing
         from concurrent.futures import ProcessPoolExecutor, as_completed
 
         from reportlab.pdfgen import canvas
@@ -346,9 +348,13 @@ class ChunkedOCRMixin:
 
         ocr_proc = self._ocr_subprocess.launch(ocr_threads=pipe_cfg.ocr_threads)
 
+        # Forking would copy the parent's GLib threads and its imported Gtk into
+        # every worker; forkserver children start from a clean interpreter.
         with ProcessPoolExecutor(
             max_workers=max_workers,
+            mp_context=multiprocessing.get_context("forkserver"),
             initializer=worker_init,
+            initargs=(logging.getLogger().getEffectiveLevel(),),
             # Release the large preprocessing heap before OCR on constrained systems.
             max_tasks_per_child=1 if max_workers == 1 else None,
         ) as executor:

@@ -352,6 +352,7 @@ def extract_native_text_for_quality(pdf_path: Path) -> str:
             check=False,
             capture_output=True,
             text=True,
+            encoding="utf-8",
             timeout=60,
         )
     except (FileNotFoundError, subprocess.SubprocessError, OSError) as exc:
@@ -521,6 +522,8 @@ class PDFImageExtractor:
                 check=True,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=PDF_TOOL_TIMEOUT_SECS,
             )
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
@@ -603,7 +606,7 @@ class PDFImageExtractor:
         from concurrent.futures import ThreadPoolExecutor, as_completed
 
         preferred_dpi = int(self.dpi or 300)
-        max_render_workers = min(len(pages), _os.cpu_count() or 4)
+        max_render_workers = min(len(pages), len(_os.sched_getaffinity(0)))
 
         def _render_one(page_num: int) -> tuple[int, Path | None]:
             width_pts, height_pts = page_dimensions.get(page_num, (0.0, 0.0))
@@ -639,6 +642,8 @@ class PDFImageExtractor:
                     check=True,
                     capture_output=True,
                     text=True,
+                    encoding="utf-8",
+                    errors="replace",
                     timeout=PDF_TOOL_TIMEOUT_SECS,
                 )
             except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
@@ -695,6 +700,7 @@ class PDFImageExtractor:
                 check=True,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
                 timeout=PDF_TOOL_TIMEOUT_SECS,
             )
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired):

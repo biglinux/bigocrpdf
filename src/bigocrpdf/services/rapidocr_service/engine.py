@@ -99,12 +99,6 @@ class RapidOCREngine:
         logger.info(f"Starting OCR for {input_path}")
 
         try:
-            # Auto-calculate workers if set to 0 (auto)
-            if self.config.workers <= 0:
-                import multiprocessing
-
-                self.config.workers = max(1, multiprocessing.cpu_count())
-
             logger.info(
                 f"Initialized ProfessionalPDFOCR with config: "
                 f"engine={self.config.engine_type}, workers={self.config.workers}"

@@ -103,6 +103,22 @@ class TestConstrainedTier:
     def test_the_worker_initialiser_is_the_real_one(self, outcome):
         assert outcome.pool.call_args.kwargs["initializer"] is page_worker.worker_init
 
+    def test_workers_do_not_fork_the_gui_process(self, outcome):
+        assert outcome.pool.call_args.kwargs["mp_context"].get_start_method() == "forkserver"
+
+    def test_workers_log_at_the_parent_level(self):
+        import logging
+        import multiprocessing
+        from concurrent.futures import ProcessPoolExecutor
+
+        with ProcessPoolExecutor(
+            max_workers=1,
+            mp_context=multiprocessing.get_context("forkserver"),
+            initializer=page_worker.worker_init,
+            initargs=(logging.DEBUG,),
+        ) as pool:
+            assert pool.submit(logging.getLogger().getEffectiveLevel).result() == logging.DEBUG
+
     def test_garbage_is_collected_after_every_page(self, tmp_path: Path):
         """gc_after_page is the tier's main lever against peak memory.
 
@@ -174,8 +190,8 @@ class TestAbundantTier:
         return _run(_mixin(), tmp_path, compute_pipeline_config(profile), profile, pages=40)
 
     def test_workers_are_capped(self, outcome):
-        """Beyond a dozen the OCR subprocess, not preprocessing, is the limit."""
-        assert outcome.pool.call_args.kwargs["max_workers"] == 12
+        """The single OCR subprocess, not preprocessing, is the limit."""
+        assert outcome.pool.call_args.kwargs["max_workers"] == 2
 
     def test_workers_are_not_recycled(self, outcome):
         """Recycling costs an interpreter start per page; only the small tier pays it."""

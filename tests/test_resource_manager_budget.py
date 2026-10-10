@@ -113,10 +113,15 @@ def host_memory(monkeypatch):
     import psutil
 
     monkeypatch.setattr(psutil, "virtual_memory", lambda: _Memory())
-    monkeypatch.setattr("os.cpu_count", lambda: 8)
+    monkeypatch.setattr("os.sched_getaffinity", lambda _pid: set(range(8)))
+
+
+# The process sits in a nested cgroup; the hierarchy root carries no limit.
+OWN_CGROUP = "/sys/fs/cgroup/user.slice/app.slice/bigocr.scope"
 
 
 def _with_cgroup(monkeypatch, **files: str) -> ResourceProfile:
+    files = {"/proc/self/cgroup": "0::/user.slice/app.slice/bigocr.scope\n", **files}
     monkeypatch.setattr(builtins, "open", _FakeCgroupFS(files))
     return detect_resources()
 
@@ -127,8 +132,8 @@ class TestCgroupV2Limits:
         profile = _with_cgroup(
             monkeypatch,
             **{
-                "/sys/fs/cgroup/memory.max": str(1024 * 1024 * 1024),
-                "/sys/fs/cgroup/memory.current": str(200 * 1024 * 1024),
+                f"{OWN_CGROUP}/memory.max": str(1024 * 1024 * 1024),
+                f"{OWN_CGROUP}/memory.current": str(200 * 1024 * 1024),
             },
         )
 
@@ -136,9 +141,25 @@ class TestCgroupV2Limits:
         assert profile.available_ram_mb == 1024 - 200
         assert profile.tier is ResourceTier.CONSTRAINED
 
+    def test_the_smallest_ancestor_limit_applies(self, monkeypatch, host_memory):
+        """A slice limit binds every scope below it, even unlimited ones."""
+        slice_dir = "/sys/fs/cgroup/user.slice"
+        profile = _with_cgroup(
+            monkeypatch,
+            **{
+                f"{OWN_CGROUP}/memory.max": "max",
+                f"{OWN_CGROUP}/memory.current": str(100 * 1024 * 1024),
+                f"{slice_dir}/memory.max": str(2048 * 1024 * 1024),
+                f"{slice_dir}/memory.current": str(1536 * 1024 * 1024),
+            },
+        )
+
+        assert profile.total_ram_mb == 2048
+        assert profile.available_ram_mb == 512
+
     def test_an_unlimited_cgroup_leaves_the_host_values(self, monkeypatch, host_memory):
         """``max`` is the literal cgroup writes when there is no limit."""
-        profile = _with_cgroup(monkeypatch, **{"/sys/fs/cgroup/memory.max": "max\n"})
+        profile = _with_cgroup(monkeypatch, **{f"{OWN_CGROUP}/memory.max": "max\n"})
 
         assert profile.total_ram_mb == 16 * 1024
         assert profile.tier is ResourceTier.ABUNDANT
@@ -147,8 +168,8 @@ class TestCgroupV2Limits:
         profile = _with_cgroup(
             monkeypatch,
             **{
-                "/sys/fs/cgroup/memory.max": str(512 * 1024 * 1024),
-                "/sys/fs/cgroup/memory.current": str(900 * 1024 * 1024),
+                f"{OWN_CGROUP}/memory.max": str(512 * 1024 * 1024),
+                f"{OWN_CGROUP}/memory.current": str(900 * 1024 * 1024),
             },
         )
 
@@ -157,12 +178,12 @@ class TestCgroupV2Limits:
 
     @pytest.mark.parametrize("contents", ["", "abc", "1e9", "   "])
     def test_unparseable_contents_fall_back_to_the_host(self, monkeypatch, host_memory, contents):
-        profile = _with_cgroup(monkeypatch, **{"/sys/fs/cgroup/memory.max": contents})
+        profile = _with_cgroup(monkeypatch, **{f"{OWN_CGROUP}/memory.max": contents})
 
         assert profile.total_ram_mb == 16 * 1024
 
     def test_a_limit_larger_than_the_host_does_not_inflate_it(self, monkeypatch, host_memory):
-        profile = _with_cgroup(monkeypatch, **{"/sys/fs/cgroup/memory.max": str(64 * 1024**3)})
+        profile = _with_cgroup(monkeypatch, **{f"{OWN_CGROUP}/memory.max": str(64 * 1024**3)})
 
         assert profile.total_ram_mb == 16 * 1024
 
@@ -212,16 +233,16 @@ class TestPipelineConfigEdges:
         assert config.gc_after_page is True
         assert config.downscale_probmap == 1024
 
-    def test_the_moderate_tier_caps_workers_at_six(self):
+    def test_the_moderate_tier_caps_workers_at_what_the_ocr_takes(self):
         config = compute_pipeline_config(self._profile(5000, ResourceTier.MODERATE, cpu_count=32))
 
-        assert config.max_workers == 6
+        assert config.max_workers == 2
         assert config.downscale_probmap == 1536
 
     def test_the_abundant_tier_caps_workers_and_chunk(self):
         config = compute_pipeline_config(self._profile(64000, ResourceTier.ABUNDANT, cpu_count=32))
 
-        assert config.max_workers == 12
+        assert config.max_workers == 2
         assert config.chunk_size == 20
         assert config.gc_after_page is False
 
@@ -241,12 +262,18 @@ class TestPipelineConfigEdges:
         assert config.ocr_threads >= 2
 
     def test_the_per_worker_cost_governs_the_worker_count(self):
-        """Pins the 0.7 safety factor and the 200 MB per-worker estimate.
+        """Pins the 0.7 safety factor and the 900 MB per-worker estimate.
 
         These are inline literals; editing one should fail loudly here rather
         than quietly change how much memory the pipeline commits to.
         """
-        config = compute_pipeline_config(self._profile(3000, ResourceTier.MODERATE, cpu_count=32))
+        config = compute_pipeline_config(self._profile(2000, ResourceTier.MODERATE, cpu_count=32))
 
-        usable = 3000 - 400 - 150
-        assert config.max_workers == min(int(usable * 0.7 / 200), 6)
+        usable = 2000 - 400 - 150
+        assert config.max_workers == min(int(usable * 0.7 / 900), 2) == 1
+
+    @pytest.mark.parametrize("tier", list(ResourceTier))
+    def test_a_requested_worker_count_is_honoured(self, tier):
+        config = compute_pipeline_config(self._profile(64000, tier, cpu_count=32), 5)
+
+        assert config.max_workers == 5

@@ -16,7 +16,10 @@ from bigocrpdf.services.rapidocr_service.ocr_postprocess import (
     fix_vertical_overlaps,
     refine_ocr_results,
 )
-from bigocrpdf.services.rapidocr_service.ocr_worker_engine import build_ocr_worker_command
+from bigocrpdf.services.rapidocr_service.ocr_worker_engine import (
+    build_ocr_worker_command,
+    ocr_worker_environment,
+)
 from bigocrpdf.services.rapidocr_service.pdf_assembly import convert_to_pdfa
 from bigocrpdf.utils.logger import logger
 
@@ -82,7 +85,7 @@ class OCRController:
 
     def build_command(self, temp_img_path: str) -> list[str]:
         """Build the OCR subprocess command with all configuration parameters."""
-        cpu_count = os.cpu_count() or 4
+        cpu_count = len(os.sched_getaffinity(0))
         return build_ocr_worker_command(
             self._config,
             image_path=temp_img_path,
@@ -135,7 +138,9 @@ class OCRController:
             self.build_command(image_path),
             capture_output=True,
             text=True,
+            encoding="utf-8",
             timeout=120,
+            env=ocr_worker_environment(),
         )
         if proc.returncode != 0:
             if log_errors:

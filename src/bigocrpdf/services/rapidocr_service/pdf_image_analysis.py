@@ -280,6 +280,7 @@ def parse_pdfimages_list(
             ["pdfimages", "-list", str(pdf_path)],
             capture_output=True,
             text=True,
+            encoding="utf-8",
             timeout=60,
         )
         if result.returncode != 0:

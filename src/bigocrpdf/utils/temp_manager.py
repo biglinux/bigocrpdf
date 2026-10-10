@@ -8,8 +8,11 @@ to prevent orphaned files.
 
 import atexit
 import os
+import re
 import shutil
 import signal
+import socket
+import stat
 import tempfile
 import threading
 from pathlib import Path
@@ -158,6 +161,41 @@ def mkdtemp(
     path = tempfile.mkdtemp(suffix=suffix, prefix=prefix, dir=str(base))
     _tracked_dirs.add(path)
     return path
+
+
+def staging_directory(directory: Path, prefix: str) -> tempfile.TemporaryDirectory[str]:
+    """Create a hidden staging directory for outputs published into ``directory``.
+
+    The name records this process's PID and host, so a later call can remove
+    the ones a crashed or killed run left behind: directories owned by this
+    user whose process on this host is gone.
+    """
+    host = socket.gethostname()
+    stale = re.compile(rf"\.bigocr_[a-z_]+_(\d+)@{re.escape(host)}@")
+    with os.scandir(directory) as entries:
+        for entry in entries:
+            match = stale.match(entry.name)
+            if match is None or not _staging_owner_gone(entry, int(match[1])):
+                continue
+            logger.info(f"Removing staging directory left by an interrupted run: {entry.path}")
+            shutil.rmtree(entry.path, ignore_errors=True)
+    return tempfile.TemporaryDirectory(prefix=f"{prefix}{os.getpid()}@{host}@", dir=directory)
+
+
+def _staging_owner_gone(entry: os.DirEntry[str], pid: int) -> bool:
+    try:
+        info = entry.stat(follow_symlinks=False)
+    except OSError:
+        return False
+    if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid():
+        return False
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return True
+    except OSError:
+        return False
+    return False
 
 
 def track_file(path: str) -> None:

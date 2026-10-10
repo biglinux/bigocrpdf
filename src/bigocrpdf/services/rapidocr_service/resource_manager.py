@@ -14,7 +14,7 @@ Resource tiers:
 All thresholds are derived from measured memory profiles:
   - Base process overhead:   ~150 MB
   - OCR subprocess (model):  ~400 MB
-  - Per-worker preprocessing: ~200 MB peak (large page at 300 DPI)
+  - Per-worker preprocessing: ~900 MB PSS (interpreter, models, page buffers)
   - DBNet inference:          ~50 MB (shared model, per-call ~15 MB)
   - Per-page peak (full):     ~350 MB (preprocessing + probmap + deskew)
 """
@@ -29,6 +29,7 @@ from pathlib import Path
 
 from bigocrpdf.constants import (
     BASE_PROCESS_OVERHEAD_MB,
+    MAX_AUTO_PREPROCESS_WORKERS,
     OCR_SUBPROCESS_OVERHEAD_MB,
     PER_WORKER_COST_MB,
     RESOURCE_TIER_CONSTRAINED_GB,
@@ -92,7 +93,7 @@ def detect_resources() -> ResourceProfile:
     Returns:
         ResourceProfile with current system state.
     """
-    cpu_count = os.cpu_count() or 4
+    cpu_count = len(os.sched_getaffinity(0))
 
     try:
         import psutil
@@ -128,21 +129,9 @@ def detect_resources() -> ResourceProfile:
             available_mb = total_mb // 2
 
     # Respect cgroup v2 memory limits (containers, Flatpak, systemd slices)
-    try:
-        with open("/sys/fs/cgroup/memory.max") as f:
-            raw = f.read().strip()
-            if raw != "max":
-                cgroup_limit_mb = int(raw) // (1024 * 1024)
-                total_mb = min(total_mb, cgroup_limit_mb)
-                available_mb = min(available_mb, cgroup_limit_mb)
-    except (OSError, ValueError):
-        pass
-    try:
-        with open("/sys/fs/cgroup/memory.current") as f:
-            cgroup_used_mb = int(f.read().strip()) // (1024 * 1024)
-            available_mb = min(available_mb, max(0, total_mb - cgroup_used_mb))
-    except (OSError, ValueError):
-        pass
+    for limit_mb, used_mb in _cgroup_memory_limits_mb():
+        total_mb = min(total_mb, limit_mb)
+        available_mb = min(available_mb, max(0, limit_mb - used_mb))
 
     # Determine tier
     available_gb = available_mb / 1024
@@ -168,17 +157,49 @@ def detect_resources() -> ResourceProfile:
     return profile
 
 
-def compute_pipeline_config(profile: ResourceProfile) -> PipelineConfig:
+def _cgroup_memory_limits_mb() -> list[tuple[int, int]]:
+    """Return ``(memory.max, memory.current)`` of each limited cgroup v2 ancestor.
+
+    A limit on any ancestor of the process's own cgroup applies to it, so every
+    level from that cgroup up to the hierarchy root is read.
+    """
+    root = Path("/sys/fs/cgroup")
+    try:
+        with open("/proc/self/cgroup", encoding="utf-8") as f:
+            relative = next(line[3:].strip() for line in f if line.startswith("0::"))
+    except (OSError, StopIteration):
+        return []
+
+    limits: list[tuple[int, int]] = []
+    directory = root / relative.lstrip("/")
+    while directory.is_relative_to(root):
+        try:
+            with open(directory / "memory.max", encoding="utf-8") as f:
+                raw = f.read().strip()
+            if raw != "max":
+                with open(directory / "memory.current", encoding="utf-8") as f:
+                    used = int(f.read().strip())
+                limits.append((int(raw) // (1024 * 1024), used // (1024 * 1024)))
+        except (OSError, ValueError):
+            pass
+        directory = directory.parent
+    return limits
+
+
+def compute_pipeline_config(profile: ResourceProfile, requested_workers: int = 0) -> PipelineConfig:
     """Compute optimal pipeline configuration for the given resource profile.
 
     The algorithm:
     1. Reserve memory for OCR subprocess (400 MB) + base overhead (150 MB)
-    2. Divide remaining available RAM by per-worker cost (200 MB)
-    3. Cap by CPU count (reserve 2 cores for OCR + system)
+    2. Divide remaining available RAM by per-worker cost (900 MB)
+    3. Cap by CPU count (reserve 2 cores for OCR + system) and by the pages the
+       single OCR subprocess can take
     4. Apply tier-specific constraints
 
     Args:
         profile: Current system resource profile.
+        requested_workers: Preprocessing workers the user asked for; 0 sizes the
+            pool from the profile.
 
     Returns:
         PipelineConfig with optimal settings.
@@ -205,7 +226,7 @@ def compute_pipeline_config(profile: ResourceProfile) -> PipelineConfig:
         # Balanced mode
         ram_workers = max(1, int(usable_mb * 0.7 / worker_cost_mb))
         cpu_workers = max(1, cpu_count - 2)
-        max_workers = min(ram_workers, cpu_workers, 6)
+        max_workers = min(ram_workers, cpu_workers, MAX_AUTO_PREPROCESS_WORKERS)
         chunk_size = 8
         ocr_threads = max(2, cpu_count // 2)
         gc_after_page = False
@@ -215,14 +236,17 @@ def compute_pipeline_config(profile: ResourceProfile) -> PipelineConfig:
         # High-performance mode: maximize throughput
         ram_workers = max(1, int(usable_mb * 0.7 / worker_cost_mb))
         cpu_workers = max(1, cpu_count - 2)
-        max_workers = min(ram_workers, cpu_workers, 12)
-        chunk_size = min(max_workers * 2, 20)
+        max_workers = min(ram_workers, cpu_workers, MAX_AUTO_PREPROCESS_WORKERS)
+        chunk_size = 20
         # Single OCR subprocess maximizes throughput: OpenVINO
         # inference scales better with more threads in one process
         # than splitting across multiple processes (cache contention).
         ocr_threads = max(2, cpu_count)
         gc_after_page = False
         downscale_probmap = 1536
+
+    if requested_workers > 0:
+        max_workers = requested_workers
 
     config = PipelineConfig(
         max_workers=max_workers,

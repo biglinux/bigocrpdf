@@ -69,7 +69,7 @@ class BackendPipelineMixin(BackendEmbeddedImagePipelineMixin, ChunkedOCRMixin, M
         )
 
         res_profile = detect_resources()
-        pipe_cfg = compute_pipeline_config(res_profile)
+        pipe_cfg = compute_pipeline_config(res_profile, self.config.workers)
 
         logger.info(f"Processing image-only PDF: {input_pdf}")
 

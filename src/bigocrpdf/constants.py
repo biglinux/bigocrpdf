@@ -20,7 +20,10 @@ RESOURCE_TIER_CONSTRAINED_GB: Final[float] = 2.0
 RESOURCE_TIER_MODERATE_GB: Final[float] = 6.0
 OCR_SUBPROCESS_OVERHEAD_MB: Final[int] = 400
 BASE_PROCESS_OVERHEAD_MB: Final[int] = 150
-PER_WORKER_COST_MB: Final[int] = 200
+PER_WORKER_COST_MB: Final[int] = 900
+# One OCR subprocess reads preprocessed pages one at a time, so beyond this
+# many workers the extra pages only wait in memory.
+MAX_AUTO_PREPROCESS_WORKERS: Final[int] = 2
 
 
 DEFAULT_DPI: Final[int] = 300

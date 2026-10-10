@@ -49,6 +49,8 @@ def render_pdf_page_to_ppm(
             check=True,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=PDF_TOOL_TIMEOUT_SECS,
         )
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
@@ -134,18 +136,34 @@ def _free_font_name(page_fonts: pikepdf.Object, wanted: str) -> str:
     return f"/BigOcr{stem}_{suffix}"
 
 
-def load_image_with_exif_rotation(img_path: Path) -> np.ndarray | None:
-    """Load image and apply EXIF orientation correction."""
-    from PIL import ImageOps
+def load_image_with_exif_rotation(img_path: Path, max_megapixels: float) -> np.ndarray | None:
+    """Load image and apply EXIF orientation correction.
+
+    The declared size is checked against ``max_megapixels`` (0 = no limit)
+    before any pixel is decoded; an image over it raises ValueError. OpenCV
+    only decodes files whose size Pillow has read but cannot decode.
+    """
+    from PIL import ImageOps, UnidentifiedImageError
 
     try:
         with Image.open(img_path) as source:
-            with ImageOps.exif_transpose(source) as oriented:
-                with oriented.convert("RGB") as rgb_image:
-                    img_rgb = np.array(rgb_image)
-        return cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
-    except Exception:
-        return cv2.imread(str(img_path))
+            width, height = source.size
+            if max_megapixels > 0 and width * height > max_megapixels * 1_000_000:
+                raise ValueError(
+                    f"Image is {width * height / 1_000_000:.1f} MP; "
+                    f"configured limit is {max_megapixels:.1f} MP"
+                )
+            try:
+                with ImageOps.exif_transpose(source) as oriented:
+                    with oriented.convert("RGB") as rgb_image:
+                        img_rgb = np.array(rgb_image)
+            except Exception:
+                return cv2.imread(str(img_path))
+    except Image.DecompressionBombError as exc:
+        raise ValueError(f"Image exceeds the decoder safety limit: {exc}") from exc
+    except (UnidentifiedImageError, OSError):
+        return None
+    return cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
 
 
 def get_page_image_encodings(
@@ -172,7 +190,9 @@ def get_page_image_encodings(
     cmd.append(str(pdf_path))
 
     try:
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True, timeout=30)
+        result = subprocess.run(
+            cmd, check=True, capture_output=True, text=True, encoding="utf-8", timeout=30
+        )
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
         return {}
 

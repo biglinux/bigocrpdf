@@ -2,7 +2,6 @@
 
 import atexit
 import os
-import tempfile
 import threading
 from collections.abc import Callable
 from dataclasses import replace
@@ -18,6 +17,7 @@ from bigocrpdf.utils.checkpoint_manager import CheckpointManager, get_checkpoint
 from bigocrpdf.utils.history_manager import HistoryManager, get_history_manager
 from bigocrpdf.utils.i18n import _, ngettext
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.temp_manager import staging_directory
 
 
 class OcrProcessor:
@@ -310,10 +310,7 @@ class OcrProcessor:
             self._current_engine = engine
 
         requested_output_path = Path(requested_output)
-        with tempfile.TemporaryDirectory(
-            prefix=".bigocr_stage_",
-            dir=requested_output_path.parent,
-        ) as staging_dir:
+        with staging_directory(requested_output_path.parent, ".bigocr_stage_") as staging_dir:
             staged_output = Path(staging_dir) / requested_output_path.name
             stats = engine.process(
                 Path(file_path),

@@ -24,6 +24,15 @@ class OcrDependencyState:
     error: str = ""
 
 
+def keep_cwd_out_of_child_imports() -> None:
+    """Stop child interpreters from importing modules found in the working directory.
+
+    ``python -m`` workers and multiprocessing children put their cwd first on
+    sys.path, and file managers start the app in the opened file's directory.
+    """
+    os.environ["PYTHONSAFEPATH"] = "1"
+
+
 def _get_install_cmd(package: str) -> str:
     """Return a distro-appropriate install command for the given package."""
     import shutil
@@ -162,6 +171,7 @@ def main() -> int:
     Returns:
         The application exit code.
     """
+    keep_cwd_out_of_child_imports()
     # Configure locale before building translated UI.
     setup_i18n()
 
@@ -228,6 +238,7 @@ def main_image() -> int:
     Returns:
         The application exit code.
     """
+    keep_cwd_out_of_child_imports()
     setup_i18n()
 
     from bigocrpdf.utils.logger import logger, setup_logger

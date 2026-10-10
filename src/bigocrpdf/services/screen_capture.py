@@ -28,7 +28,10 @@ from bigocrpdf.services.rapidocr_service.config import (
     OCRConfig,
     OCRResult,
 )
-from bigocrpdf.services.rapidocr_service.ocr_worker_engine import build_ocr_worker_command
+from bigocrpdf.services.rapidocr_service.ocr_worker_engine import (
+    build_ocr_worker_command,
+    ocr_worker_environment,
+)
 from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
 from bigocrpdf.services.rapidocr_service.text_formatting_controller import (
     TextFormattingController,
@@ -968,10 +971,17 @@ class ScreenCaptureService:
             # Apply geometric corrections (deskew, orientation, border trim)
             # Color enhancements stay off to preserve the source for OCR.
             preprocessor = ImagePreprocessor(config)
-            img = preprocessor.process(
-                img,
-                cancel_check=request.raise_if_cancelled,
-            )
+            try:
+                img = preprocessor.process(
+                    img,
+                    cancel_check=request.raise_if_cancelled,
+                )
+            finally:
+                # The image window stays open between requests; its compiled
+                # dewarp model would outlive every one of them.
+                from bigocrpdf.services.rapidocr_service.dewarp_probmap import release_model
+
+                release_model()
             request.raise_if_cancelled()
 
             # Write preprocessed image to temp file for OCR worker subprocess
@@ -988,7 +998,12 @@ class ScreenCaptureService:
                 logger.info(f"Running image OCR: language={config.language}")
 
                 proc = subprocess.Popen(
-                    cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    encoding="utf-8",
+                    env=ocr_worker_environment(),
                 )
                 request.bind_process(proc)
                 try:
@@ -1322,7 +1337,7 @@ class ScreenCaptureService:
         Returns:
             Command list for subprocess.run()
         """
-        cpu_count = os.cpu_count() or 4
+        cpu_count = len(os.sched_getaffinity(0))
         return build_ocr_worker_command(
             config,
             image_path=image_path,

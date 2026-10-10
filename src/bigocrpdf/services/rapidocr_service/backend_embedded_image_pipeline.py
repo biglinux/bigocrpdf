@@ -327,7 +327,7 @@ class BackendEmbeddedImagePipelineMixin:
             logger.debug(f"Skipping small image: {img_pos.width}x{img_pos.height}")
             return []
 
-        img = load_image_with_exif_rotation(img_path)
+        img = load_image_with_exif_rotation(img_path, self.config.max_image_megapixels)
         if img is None:
             logger.warning(f"Could not load image: {img_path}")
             return []

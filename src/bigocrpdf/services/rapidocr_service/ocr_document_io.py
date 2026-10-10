@@ -18,7 +18,6 @@ import json
 import os
 import re
 import stat
-import tempfile
 from collections.abc import Callable, Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -36,6 +35,7 @@ from bigocrpdf.utils.durable_writes import (
     RetirementTarget,
     write_text_atomically,
 )
+from bigocrpdf.utils.temp_manager import staging_directory
 
 OCR_JSON_VERSION = 2
 _LEGACY_JSON_VERSION = 1
@@ -169,10 +169,7 @@ def publish_ocr_pdfs(
         publish_files_transactionally,
     )
 
-    with tempfile.TemporaryDirectory(
-        prefix=".bigocr_ocr_bundle_",
-        dir=directory,
-    ) as staging_name:
+    with staging_directory(directory, ".bigocr_ocr_bundle_") as staging_name:
         staging_dir = Path(staging_name)
         flattened: list[tuple[Path, Path]] = []
         expected_source_content: dict[str | Path, tuple[str, int]] = {}

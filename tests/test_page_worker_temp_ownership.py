@@ -230,8 +230,8 @@ def test_single_preprocessing_worker_is_recycled_after_each_page(tmp_path: Path)
             None,
         )
 
-    pool.assert_called_once_with(
-        max_workers=1,
-        initializer=page_worker.worker_init,
-        max_tasks_per_child=1,
-    )
+    pool.assert_called_once()
+    kwargs = pool.call_args.kwargs
+    assert kwargs["max_workers"] == 1
+    assert kwargs["initializer"] is page_worker.worker_init
+    assert kwargs["max_tasks_per_child"] == 1

@@ -77,6 +77,7 @@ def extract_native_text_spans(
             check=False,
             capture_output=True,
             text=True,
+            encoding="utf-8",
             timeout=timeout,
         )
     except (FileNotFoundError, subprocess.SubprocessError, OSError):

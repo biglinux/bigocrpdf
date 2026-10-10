@@ -163,7 +163,7 @@ def test_exif_image_loader_closes_source_file(
     source = Image.open(image_path)
     monkeypatch.setattr(pdf_page_geometry.Image, "open", lambda _path: source)
 
-    result = pdf_page_geometry.load_image_with_exif_rotation(image_path)
+    result = pdf_page_geometry.load_image_with_exif_rotation(image_path, 128.0)
 
     assert result is not None
     assert result.shape == (3, 4, 3)

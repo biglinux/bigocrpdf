@@ -390,7 +390,7 @@ def run_persistent(args: argparse.Namespace) -> None:
     real_stdout = sys.stdout
     sys.stdout = sys.stderr
 
-    threads = args.threads if args.threads > 0 else max(2, os.cpu_count() or 4)
+    threads = args.threads if args.threads > 0 else max(2, len(os.sched_getaffinity(0)))
 
     try:
         engine, runtime = _create_ocr_engine_with_runtime(
@@ -510,7 +510,7 @@ def main():
     args = parser.parse_args()
 
     use_openvino = not args.no_openvino
-    threads = args.threads if args.threads > 0 else max(2, os.cpu_count() or 4)
+    threads = args.threads if args.threads > 0 else max(2, len(os.sched_getaffinity(0)))
 
     if args.persistent:
         run_persistent(args)

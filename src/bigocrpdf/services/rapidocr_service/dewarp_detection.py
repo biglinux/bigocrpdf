@@ -23,6 +23,8 @@ import threading
 import cv2
 import numpy as np
 
+from bigocrpdf.services.rapidocr_service.ocr_worker_engine import ocr_worker_environment
+
 logger = logging.getLogger(__name__)
 
 # Loaded once, shared by all threads. Protected by _detector_lock to
@@ -228,7 +230,9 @@ def _detect_subprocess(
             ],
             capture_output=True,
             text=True,
+            encoding="utf-8",
             timeout=120,
+            env=ocr_worker_environment(),
         )
     except subprocess.TimeoutExpired:
         logger.warning("OCR detection subprocess timed out")

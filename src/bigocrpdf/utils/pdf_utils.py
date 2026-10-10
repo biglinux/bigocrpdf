@@ -50,6 +50,7 @@ def _get_page_count_uncached(file_path: str) -> int:
             ["pdfinfo", file_path],
             capture_output=True,
             text=True,
+            encoding="utf-8",
             check=False,
             timeout=10,  # Prevent hanging on corrupted files
         )
@@ -119,6 +120,7 @@ def get_pdf_info(file_path: str) -> dict[str, Any]:
             ["pdfinfo", file_path],
             capture_output=True,
             text=True,
+            encoding="utf-8",
             check=False,
             timeout=10,
         )

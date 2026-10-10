@@ -130,3 +130,39 @@ def test_remove_dir_retries_after_transient_failure(tmp_path: Path, monkeypatch)
 
     assert not path.exists()
     assert str(path) not in temp_manager._tracked_dirs
+
+
+def test_staging_sweep_removes_only_dead_runs_of_this_user(tmp_path: Path) -> None:
+    import socket
+    import subprocess
+    import sys
+
+    dead = subprocess.Popen([sys.executable, "-c", ""])
+    dead.wait(timeout=30)
+    host = socket.gethostname()
+    crashed = tmp_path / f".bigocr_ocr_bundle_{dead.pid}@{host}@abc"
+    (crashed / "nested").mkdir(parents=True)
+    (crashed / "nested" / "0-payload.pdf").write_bytes(b"%PDF")
+    running = tmp_path / f".bigocr_stage_{os.getpid()}@{host}@def"
+    running.mkdir()
+    other_host = tmp_path / f".bigocr_stage_{dead.pid}@elsewhere.{host}@ghi"
+    other_host.mkdir()
+    target = tmp_path / "linked"
+    target.mkdir()
+    linked = tmp_path / f".bigocr_ocr_{dead.pid}@{host}@jkl"
+    linked.symlink_to(target)
+    document = tmp_path / "scan.pdf"
+    document.write_bytes(b"%PDF")
+
+    with temp_manager.staging_directory(tmp_path, ".bigocr_stage_") as staging:
+        assert Path(staging).name.startswith(f".bigocr_stage_{os.getpid()}@{host}@")
+        survivors = {path.name for path in tmp_path.iterdir()}
+
+    assert survivors == {
+        running.name,
+        other_host.name,
+        target.name,
+        linked.name,
+        document.name,
+        Path(staging).name,
+    }
