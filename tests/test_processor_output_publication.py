@@ -410,3 +410,38 @@ def test_terminal_failure_counts_completed_but_not_successful_input(
     assert processor.get_successful_input_count() == 0
     checkpoint.mark_file_failed.assert_called_once()
     assert processor.get_failures() == [(Path(__file__).name, "simulated failure")]
+
+
+def test_a_non_overwriting_batch_shares_one_free_suffix(tmp_path: Path) -> None:
+    from bigocrpdf.services.rapidocr_service.ocr_document_io import publish_ocr_pdfs
+
+    staged = [tmp_path / ".first.staged", tmp_path / ".second.staged"]
+    for path in staged:
+        _write_pdf(path)
+    (tmp_path / "part_002.pdf").write_bytes(b"existing")
+
+    published = publish_ocr_pdfs(
+        [(staged[0], tmp_path / "part_001.pdf"), (staged[1], tmp_path / "part_002.pdf")],
+        overwrite=False,
+    )
+
+    assert published == [tmp_path / "part_001-1.pdf", tmp_path / "part_002-1.pdf"]
+    assert not (tmp_path / "part_001.pdf").exists()
+    assert (tmp_path / "part_002.pdf").read_bytes() == b"existing"
+
+
+def test_overwriting_a_relative_output_keeps_the_published_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from bigocrpdf.services.rapidocr_service.ocr_document_io import publish_ocr_pdfs
+
+    monkeypatch.chdir(tmp_path)
+    staged = tmp_path / ".out.staged"
+    _write_pdf(staged)
+
+    published = publish_ocr_pdfs(
+        [(staged, Path("out.pdf"))], overwrite=True, family_root=Path("out.pdf")
+    )
+
+    assert published == [tmp_path / "out.pdf"]
+    assert _pdf_page_count(tmp_path / "out.pdf") == 1

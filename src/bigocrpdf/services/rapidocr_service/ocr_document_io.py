@@ -18,7 +18,7 @@ import json
 import os
 import re
 import stat
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -32,10 +32,12 @@ from bigocrpdf.services.rapidocr_service.config import (
     OcrWord,
 )
 from bigocrpdf.utils.durable_writes import (
-    RetirementTarget,
+    fsync_directory,
+    numbered_path,
+    publish_file_atomically,
+    publish_file_exclusively,
     write_text_atomically,
 )
-from bigocrpdf.utils.temp_manager import staging_directory
 
 OCR_JSON_VERSION = 2
 _LEGACY_JSON_VERSION = 1
@@ -145,16 +147,23 @@ def publish_ocr_pdfs(
     overwrite: bool,
     family_root: Path | None = None,
 ) -> list[Path]:
-    """Publish staged OCR PDFs to their requested paths as one recoverable set.
+    """Publish staged OCR PDFs to their requested paths and return the paths used.
 
-    Each publication is ``(staged_pdf, requested_pdf)``. More than one
-    publication is a split output family: each part records its family in the
-    PDF's own metadata, so a later overwrite can retire the parts it replaces.
+    Each publication is ``(staged_pdf, requested_pdf)``, staged in the
+    destination directory. More than one publication is a split output family:
+    each part records its family in the PDF's own metadata, so a later
+    overwrite can retire the parts it replaces. Parts are published one by one;
+    an interrupted run can leave a mixed family that the next run replaces.
+    Without ``overwrite`` the whole batch shares one free ``-N`` suffix.
     """
-    items = [(Path(staged), Path(requested)) for staged, requested in publications]
-    if not items:
+    if not publications:
         return []
-    parents = {requested.parent.resolve(strict=True) for _staged, requested in items}
+    # Canonical targets: retirement compares them with the family root.
+    items = [
+        (Path(staged), Path(requested).parent.resolve(strict=True) / Path(requested).name)
+        for staged, requested in publications
+    ]
+    parents = {requested.parent for _staged, requested in items}
     if len(parents) != 1:
         raise ValueError("OCR PDF outputs must share one directory")
     directory = next(iter(parents))
@@ -164,58 +173,70 @@ def publish_ocr_pdfs(
         if canonical_family_root.parent != directory:
             raise ValueError("OCR output family must use the publication directory")
 
-    from bigocrpdf.utils.durable_writes import (
-        copy_file_atomically,
-        publish_files_transactionally,
-    )
-
-    with staging_directory(directory, ".bigocr_ocr_bundle_") as staging_name:
-        staging_dir = Path(staging_name)
-        flattened: list[tuple[Path, Path]] = []
-        expected_source_content: dict[str | Path, tuple[str, int]] = {}
-        for index, (staged_pdf, requested_pdf) in enumerate(items):
-            snapshot_pdf = staging_dir / f"{index}-payload.pdf"
-            copy_file_atomically(
+    for index, (staged_pdf, _requested) in enumerate(items):
+        _validated_pdf_page_count(staged_pdf)
+        if canonical_family_root is not None and len(items) > 1:
+            _write_split_family(
                 staged_pdf,
-                snapshot_pdf,
-                overwrite=True,
+                _SplitFamily(
+                    family_root=canonical_family_root.name,
+                    part_index=index + 1,
+                    part_count=len(items),
+                ),
             )
-            _validated_pdf_page_count(snapshot_pdf)
-            if canonical_family_root is not None and len(items) > 1:
-                _write_split_family(
-                    snapshot_pdf,
-                    _SplitFamily(
-                        family_root=canonical_family_root.name,
-                        part_index=index + 1,
-                        part_count=len(items),
-                    ),
-                )
-            expected_source_content[snapshot_pdf] = _pdf_fingerprint(snapshot_pdf)
-            flattened.append((snapshot_pdf, requested_pdf))
 
-        def target_candidates(counter: int) -> list[Path]:
-            return [
-                (
-                    requested_pdf
-                    if counter == 0
-                    else requested_pdf.with_name(
-                        f"{requested_pdf.stem}-{counter}{requested_pdf.suffix}"
-                    )
-                )
-                for _staged, requested_pdf in items
-            ]
+    if overwrite:
+        published = [
+            publish_file_atomically(staged, requested, overwrite=True)
+            for staged, requested in items
+        ]
+        if canonical_family_root is not None:
+            _retire_stale_family_parts(canonical_family_root, set(published))
+        return published
 
-        return publish_files_transactionally(
-            flattened,
-            overwrite=overwrite,
-            target_candidates=target_candidates,
-            retire_candidates=(
-                _ocr_output_family_retire_candidates(canonical_family_root)
-                if overwrite and canonical_family_root is not None
-                else None
-            ),
-            expected_source_content=expected_source_content,
-        )
+    counter = 0
+    while True:
+        targets = [numbered_path(requested, counter) for _staged, requested in items]
+        if any(os.path.lexists(target) for target in targets):
+            counter += 1
+            continue
+        installed: list[tuple[Path, Path]] = []
+        try:
+            for (staged, _requested), target in zip(items, targets, strict=True):
+                publish_file_exclusively(staged, target)
+                installed.append((staged, target))
+        except FileExistsError:
+            # Another writer took one of these names: take this batch's parts
+            # back and try the next suffix.
+            for staged, target in installed:
+                os.rename(target, staged)
+            counter += 1
+            continue
+        return targets
+
+
+def _retire_stale_family_parts(family_root: Path, active: set[Path]) -> None:
+    """Remove outputs of an earlier run that this overwrite replaced.
+
+    The plain output name is the user's chosen target; a numbered part is
+    removed only if its own metadata says it belongs to this family.
+    """
+    numbered_pdf = re.compile(
+        rf"^{re.escape(family_root.stem)}-([0-9]{{2,}}){re.escape(family_root.suffix)}$"
+    )
+    stale = []
+    if family_root not in active and os.path.lexists(family_root):
+        stale.append(family_root)
+    for entry in family_root.parent.iterdir():
+        match = numbered_pdf.fullmatch(entry.name)
+        if match is None or entry in active:
+            continue
+        if _is_split_family_part(entry, family_root, int(match.group(1))):
+            stale.append(entry)
+    for path in stale:
+        path.unlink(missing_ok=True)
+    if stale:
+        fsync_directory(family_root.parent)
 
 
 def _write_split_family(pdf_path: Path, family: _SplitFamily) -> None:
@@ -264,58 +285,23 @@ def _read_split_family(pdf_path: Path) -> _SplitFamily | None:
     )
 
 
-def _ocr_output_family_retire_candidates(
-    family_root: Path,
-) -> Callable[[Sequence[Path]], Sequence[RetirementTarget]]:
-    """Build a locked callback that retires inactive canonical OCR outputs."""
-    root = family_root.parent.resolve(strict=True) / family_root.name
-    numbered_pdf = re.compile(rf"^{re.escape(root.stem)}-([0-9]{{2,}}){re.escape(root.suffix)}$")
-
-    def candidates(active_targets: Sequence[Path]) -> list[RetirementTarget]:
-        active = set(active_targets)
-        existing_family: list[RetirementTarget] = []
-        if root not in active and os.path.lexists(root):
-            existing_family.append(RetirementTarget.capture(root))
-        for entry in root.parent.iterdir():
-            match = numbered_pdf.fullmatch(entry.name)
-            if match is None or entry in active:
-                continue
-            part = _verified_split_family_part(entry, root, int(match.group(1)))
-            if part is not None:
-                existing_family.append(part)
-        return sorted(existing_family, key=lambda target: target.path)
-
-    return candidates
-
-
-def _verified_split_family_part(
-    pdf_path: Path,
-    family_root: Path,
-    part_index: int,
-) -> RetirementTarget | None:
-    """Return *pdf_path* as a retirement target only if it is really our part.
+def _is_split_family_part(pdf_path: Path, family_root: Path, part_index: int) -> bool:
+    """Whether *pdf_path* declares itself part *part_index* of this family.
 
     The name alone never decides: a file called ``contract-02.pdf`` may be the
-    user's own. Only a PDF that declares this family and this part index in its
-    own metadata is retired.
+    user's own.
     """
     try:
-        first = RetirementTarget.capture(pdf_path)
         if not stat.S_ISREG(pdf_path.lstat().st_mode):
-            return None
-        family = _read_split_family(pdf_path)
-        if (
-            family is None
-            or family.family_root != family_root.name
-            or family.part_index != part_index
-        ):
-            return None
-        second = RetirementTarget.capture(pdf_path)
-    except (OSError, UnicodeError, ValueError):
-        return None
-    if first != second:
-        return None
-    return second
+            return False
+    except OSError:
+        return False
+    family = _read_split_family(pdf_path)
+    return (
+        family is not None
+        and family.family_root == family_root.name
+        and family.part_index == part_index
+    )
 
 
 def load_ocr_document_json(

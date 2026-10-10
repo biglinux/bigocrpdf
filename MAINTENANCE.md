@@ -84,29 +84,21 @@ algorithm.
 
 ## Durable state
 
-Configuration, history, checkpoints, and published output are user data.
+Published documents are user data; configuration, the queue, history,
+checkpoints and dialog flags are program state.
 
-- Writes use a temporary file on the destination filesystem, flush and fsync the
-  file, replace atomically, fsync the directory, and clean up on failure.
-- Published files use private reflink/copy snapshots, so a staged path that cannot
-  be removed can never remain a mutable hardlink to user-visible output.
-- Multi-file publication is restricted to one canonical destination directory.
-  Its private `PREPARING` -> `PREPARED` -> `COMMITTED`/`ROLLED_BACK` journal makes
-  interrupted batches converge to the complete old or new set. Recovery runs
-  before the next publication in that directory and is also available through
-  `recover_pending_publications()`.
-- An OCR PDF is published on its own; a split output publishes all of its parts
-  as one set, so an interrupted batch converges to the complete old or new
-  family rather than a mixture.
-- Non-overwriting multi-file publication applies one collision counter to the
-  complete batch. Domain callers that derive companion names provide their
-  candidate family under the destination-directory lock.
-- POSIX cannot make several destination names visible as one atomic operation.
-  Readers may observe a mixed set during the interruption window, but journal
-  recovery never accepts that mixed set as the final state.
-- Rollback currently restores destination names, bytes, and regular access mode.
-  Extended attributes, ACLs, and timestamps are not part of that recovery
-  contract; callers must not use publication to preserve those metadata.
+- Every write goes to a temporary file in the destination directory and is
+  renamed over the target, so a reader sees the old or the complete new file.
+- Documents are fsynced before the rename and their directory after it, so a
+  power cut also leaves one of the two. Program state is never fsynced: losing
+  its last seconds costs nothing, and its loaders fall back to defaults.
+- Without overwrite an existing name is never replaced: a file gets the first
+  free `name-N`, and a split output's parts all share one suffix. Where the
+  filesystem lacks rename flags (FUSE, NFS) or hard links (vfat) the no-replace
+  install falls back to a link or an exclusive placeholder.
+- A split output publishes its parts one by one. An interrupted run can leave a
+  mixed family; the next overwrite replaces it, and stale parts are removed only
+  when their own XMP metadata names this family and part.
 - Existing configuration keys and migrations remain readable unless a documented
   migration with rollback replaces them.
 - Corrupt or partial input must not destroy the last readable state.

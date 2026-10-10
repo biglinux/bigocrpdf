@@ -144,6 +144,7 @@ class HistoryManager:
             write_text_file_atomically(
                 HISTORY_FILE,
                 lambda history_file: json.dump(data, history_file, indent=2),
+                durable=False,
             )
             logger.debug(f"Saved {len(self._entries)} history entries")
         except (OSError, TypeError, ValueError) as e:

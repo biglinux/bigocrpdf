@@ -36,7 +36,7 @@ class EditorHelpController:
     def set_show(self, show: bool) -> None:
         try:
             self._config_path.parent.mkdir(parents=True, exist_ok=True)
-            write_text_atomically(self._config_path, "true" if show else "false")
+            write_text_atomically(self._config_path, "true" if show else "false", durable=False)
         except OSError as exc:
             logger.error(f"Error saving editor help preference: {exc}")
 

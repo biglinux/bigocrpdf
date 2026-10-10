@@ -231,6 +231,7 @@ class ConfigManager:
                 backup_path,
                 lambda backup_file: backup_file.write(raw_config),
                 overwrite=False,
+                durable=False,
             )
         except (OSError, ValueError) as e:
             logger.error(f"Could not preserve invalid configuration: {e}")
@@ -378,6 +379,7 @@ class ConfigManager:
                         indent=2,
                         ensure_ascii=False,
                     ),
+                    durable=False,
                 )
         except (OSError, TypeError, ValueError) as e:
             logger.error(f"Error saving config: {e}")
@@ -408,6 +410,7 @@ class ConfigManager:
                         indent=2,
                         ensure_ascii=False,
                     ),
+                    durable=False,
                 )
         except (OSError, TypeError, ValueError) as error:
             logger.error(f"Error resetting config: {error}")

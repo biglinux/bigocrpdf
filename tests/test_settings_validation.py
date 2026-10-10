@@ -508,48 +508,6 @@ def test_move_file_restores_order_when_queue_save_fails(
     assert settings.selected_files == original_order
 
 
-def test_replace_stays_consistent_when_queue_directory_sync_fails_after_replace(
-    settings_environment: tuple[Path, dict[str, ConfigManager]],
-    tmp_path: Path,
-) -> None:
-    from bigocrpdf.utils import durable_writes, temp_manager
-
-    current = tmp_path / "current.pdf"
-    replacement = tmp_path / "replacement.pdf"
-    for path in (current, replacement):
-        path.write_bytes(b"%PDF-1.4\n")
-        temp_manager.track_file(str(path))
-    settings = OcrSettings()
-    assert settings._add_generated_file(str(current), "source.png")
-    selected_path = Path(settings_module.SELECTED_FILE_PATH)
-    original_sync = durable_writes._fsync_directory
-    failure_injected = False
-
-    def fail_once_after_publication(directory: Path) -> None:
-        nonlocal failure_injected
-        persisted = json.loads(selected_path.read_text(encoding="utf-8"))
-        if not failure_injected and persisted["selected_files"] == [str(replacement)]:
-            failure_injected = True
-            raise OSError("simulated directory sync failure")
-        original_sync(directory)
-
-    with patch.object(
-        durable_writes,
-        "_fsync_directory",
-        side_effect=fail_once_after_publication,
-    ):
-        assert not settings._replace_file(str(current), str(replacement))
-
-    assert failure_injected
-    assert settings.selected_files == [str(current)]
-    assert json.loads(selected_path.read_text(encoding="utf-8"))["selected_files"] == [str(current)]
-    assert current.exists()
-    assert replacement.exists()
-
-    assert settings._replace_file(str(current), str(replacement))
-    assert settings._remove_file(str(replacement))
-
-
 def test_clear_removes_only_tracked_generated_inputs_after_queue_save(
     settings_environment: tuple[Path, dict[str, ConfigManager]],
     tmp_path: Path,

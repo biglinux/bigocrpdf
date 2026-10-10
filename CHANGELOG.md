@@ -10,6 +10,7 @@ All notable user-visible and release-engineering changes are documented here.
 - Show file sizes on the results page in translated units with the decimal multiples the file manager uses.
 - Start the OCR worker without importing the rest of the application, which cuts its startup imports from about half a second to a few hundredths.
 - Let the Nix package build against GTK 4.14 and libadwaita 1.5, the floor the application checks at startup.
+- Replace files with a plain atomic rename, which keeps settings after a crash during a save, works on sshfs and NFS, and needs no free space beyond the new file; settings saves no longer sync the disk. An interrupted older build may have left a hidden `.bigocr-publish-*` file next to an output: it holds the previous version and can be renamed back.
 
 ## 3.0.0 - 2026-08-02
 

@@ -29,7 +29,7 @@ class WelcomeDialogController:
         except FileNotFoundError:
             try:
                 self._config_path.parent.mkdir(parents=True, exist_ok=True)
-                write_text_atomically(self._config_path, "true")
+                write_text_atomically(self._config_path, "true", durable=False)
                 return True
             except OSError as exc:
                 logger.error(f"Error creating welcome dialog config: {exc}")
@@ -43,7 +43,7 @@ class WelcomeDialogController:
         """Persist whether the dialog should appear at startup."""
         try:
             self._config_path.parent.mkdir(parents=True, exist_ok=True)
-            write_text_atomically(self._config_path, "true" if show else "false")
+            write_text_atomically(self._config_path, "true" if show else "false", durable=False)
             logger.info(f"Set show welcome dialog: {show}")
         except OSError as exc:
             logger.error(f"Error setting welcome dialog config: {exc}")

@@ -332,6 +332,7 @@ class CheckpointManager:
                     indent=2,
                     ensure_ascii=False,
                 ),
+                durable=False,
             )
 
         except (OSError, TypeError, ValueError) as e:

@@ -652,6 +652,7 @@ class OcrSettings:
             write_text_atomically(
                 SELECTED_FILE_PATH,
                 json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+                durable=False,
             )
             selected_count = len(self.selected_files)
             logger.info(
