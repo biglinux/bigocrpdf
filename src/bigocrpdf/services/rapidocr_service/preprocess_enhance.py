@@ -340,18 +340,13 @@ def auto_adjust_brightness(img: np.ndarray, mean_brightness: float) -> np.ndarra
 
 
 def apply_independent_effects(img: np.ndarray, config: "OCRConfig") -> np.ndarray:
-    """Apply effects that run independently of enable_preprocessing.
+    """Apply the scanner effect to an image that will be shown in the PDF.
 
-    Args:
-        img: Input image
-        config: OCR configuration object
-
-    Returns:
-        Image with effects applied
+    Never feed the result to OCR: the recognizer is trained on natural scans
+    and reads textured paper more accurately than any whitening of it.
     """
     result = img
 
-    # Scanner effect - creates professional scanner document appearance
     if config.enable_scanner_effect:
         logger.debug(f"Applying scanner effect (strength={config.scanner_effect_strength})")
         result = apply_scanner_effect(result, config.scanner_effect_strength)
@@ -459,22 +454,18 @@ def adjust_brightness(img: np.ndarray, factor: float) -> np.ndarray:
 
 
 def apply_scanner_effect(img: np.ndarray, strength: float = 1.0) -> np.ndarray:
-    """Apply professional scanner emulation preserving colors.
+    """Whiten the paper the way a flatbed scanner does, keeping colors.
 
-    Uses LAB color space to enhance only luminosity while preserving original
-    hue and saturation.  Optimized for large images via downscaled background
-    estimation.
+    On the LAB luminosity only:
+      1. Division by a morphological-closing background estimate flattens
+         illumination (shadows, page curl).
+      2. The white point is set from the paper's own noise: pixels within
+         ``3 * strength`` robust standard deviations of the paper level become
+         white, and darker pixels keep their contrast to that white point.
 
-    Pipeline (on L channel only):
-      1. Morphological-closing background estimation → division normalization
-         removes illumination gradients (shadows, page curl).
-      2. Percentile-based contrast stretching maps paper → 255 (white) and
-         ink → 0 (black), maximizing text/background separation.
-
-    This is the established state-of-art for document whitening that also
-    benefits OCR engines: PP-OCRv6 text detection (DBNet) and recognition
-    (SVTR) work best when the background is uniformly white and text edges
-    are sharp.
+    Ink is never stretched toward black: on textured paper the darkest pixels
+    are grain, and stretching them turns it into speckle as dark as the text.
+    Paper chroma goes neutral with the luminosity so whitened paper has no tint.
 
     Args:
         img: Input BGR image
@@ -486,13 +477,15 @@ def apply_scanner_effect(img: np.ndarray, strength: float = 1.0) -> np.ndarray:
     lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
     l_channel, a_channel, b_channel = cv2.split(lab)
 
-    h, w = l_channel.shape
+    normalized = _normalize_background(l_channel, *l_channel.shape).astype(np.float32)
+    paper = float(np.median(normalized))
+    noise = 1.4826 * float(np.median(np.abs(normalized - paper)))
+    white = max(paper - 3.0 * strength * max(noise, 1.0), 1.0)
+    enhanced_l = np.clip(normalized * (255.0 / white), 0, 255).astype(np.uint8)
 
-    # Step 1: Division normalization — flatten illumination
-    normalized = _normalize_background(l_channel, h, w)
-
-    # Step 2: Percentile-based contrast stretching
-    enhanced_l = _stretch_contrast(normalized, strength)
+    paper_mask = enhanced_l == 255
+    a_channel[paper_mask] = 128
+    b_channel[paper_mask] = 128
 
     result_lab = cv2.merge([enhanced_l, a_channel, b_channel])
     return np.asarray(cv2.cvtColor(result_lab, cv2.COLOR_LAB2BGR))
@@ -542,43 +535,6 @@ def _normalize_background(channel: np.ndarray, h: int, w: int) -> np.ndarray:
 
     normalized = np.clip(result, 0, 255).astype(np.uint8)
     return np.asarray(normalized)
-
-
-def _stretch_contrast(channel: np.ndarray, strength: float) -> np.ndarray:
-    """Percentile-based contrast stretching for scanner emulation.
-
-    Maps the paper background (high percentile) to 255 and the text floor
-    (low percentile) towards 0, linearly scaling everything in between.
-    This maximizes text/background contrast while keeping the image natural.
-
-    The strength parameter controls how aggressively the percentiles are
-    chosen: higher strength pushes the mapping harder towards pure white
-    and pure black.
-
-    Args:
-        channel: Division-normalized luminosity channel
-        strength: 0.5=gentle, 1.0=standard, 1.5=aggressive
-
-    Returns:
-        Contrast-stretched channel
-    """
-    # Adaptive percentile bounds based on strength
-    #   strength=0.5 → p_low=5, p_high=99  (gentle)
-    #   strength=1.0 → p_low=2, p_high=98  (standard)
-    #   strength=1.5 → p_low=1, p_high=97  (aggressive)
-    p_low_pct = max(1.0, 5.0 - 3.0 * strength)
-    p_high_pct = min(99.0, 100.0 - 2.0 * strength)
-
-    p_low = float(np.percentile(channel, p_low_pct))
-    p_high = float(np.percentile(channel, p_high_pct))
-
-    if p_high <= p_low:
-        return channel
-
-    # Linear stretch: p_low → 0, p_high → 255
-    scale = 255.0 / (p_high - p_low)
-    result = (channel.astype(np.float32) - p_low) * scale
-    return np.asarray(np.clip(result, 0, 255).astype(np.uint8))
 
 
 def apply_vintage_look(image: np.ndarray, config: "OCRConfig") -> np.ndarray:

@@ -38,7 +38,6 @@ from bigocrpdf.services.rapidocr_service.config import (
     DEFAULT_PAGE_LAYOUT,
     DEFAULT_SCANNER_EFFECT_STRENGTH,
     DEFAULT_TEXT_SCORE_THRESHOLD,
-    DEFAULT_UNCLIP_RATIO,
     DEFAULT_VINTAGE_BW,
     DEFAULT_WORKERS,
     OCRConfig,
@@ -128,7 +127,6 @@ _PERSISTED_SETTINGS: dict[str, tuple[str, Any]] = {
         DEFAULT_TEXT_SCORE_THRESHOLD,
     ),
     "box_thresh": ("rapidocr.box_thresh", DEFAULT_BOX_THRESH),
-    "unclip_ratio": ("rapidocr.unclip_ratio", DEFAULT_UNCLIP_RATIO),
     "ocr_profile": ("rapidocr.ocr_profile", "balanced"),
     "detection_full_resolution": (
         "rapidocr.detection_full_resolution",
@@ -203,7 +201,6 @@ class OcrSettings:
     vintage_bw: bool
     text_score_threshold: float
     box_thresh: float
-    unclip_ratio: float
     ocr_profile: str
     detection_full_resolution: bool
     replace_existing_ocr: bool
@@ -280,7 +277,6 @@ class OcrSettings:
             vintage_bw=self.vintage_bw,
             text_score_threshold=self.text_score_threshold,
             box_thresh=self.box_thresh,
-            unclip_ratio=self.unclip_ratio,
             detection_full_resolution=self.detection_full_resolution,
             convert_to_pdfa=self.convert_to_pdfa,
             max_file_size_mb=self.max_file_size_mb,

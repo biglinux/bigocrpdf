@@ -70,6 +70,7 @@ def _get_inprocess_detector(language: str, limit_side_len: int):
             return _cached_detector
 
         from bigocrpdf.services.rapidocr_service.ocr_worker_engine import (
+            DET_INPUT_NORMALIZATION,
             _import_rapidocr_api,
             _rec_lang,
             _set_model_version_params,
@@ -81,6 +82,7 @@ def _get_inprocess_detector(language: str, limit_side_len: int):
         det_only_params = {
             "Det.engine_type": EngineType.OPENVINO,
             "Det.limit_type": "max",
+            **DET_INPUT_NORMALIZATION,
             "Global.max_side_len": limit_side_len,
             "Global.use_cls": _DEWARP_USE_TEXTLINE_CLS,
             "Global.text_score": 0.3,

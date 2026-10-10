@@ -28,6 +28,16 @@ from bigocrpdf.services.rapidocr_service.config import (
 # scale every page *up* to it.
 _FULL_RESOLUTION_MIN_SIDE = 960
 
+# PaddleOCR feeds its DB detector ImageNet-normalized input; RapidOCR's
+# config.yaml ships mean/std 0.5, which halves the contrast the detector sees,
+# and on low-contrast scans it then drops line ends. RapidOCR, like PaddleOCR,
+# applies these per-channel values to a BGR image; dewarp_probmap applies the
+# same values to RGB.
+DET_INPUT_NORMALIZATION = {
+    "Det.mean": [0.485, 0.456, 0.406],
+    "Det.std": [0.229, 0.224, 0.225],
+}
+
 # Defaults come from OCRConfig so the two cannot drift: the pipeline always
 # passes explicit values, and only direct callers land here.
 _OCR_ENGINE_DEFAULTS = {
@@ -409,6 +419,10 @@ def _build_ocr_engine_params(
         "Det.engine_type": engine_type,
         "Det.box_thresh": options.box_thresh,
         "Det.unclip_ratio": options.unclip_ratio,
+        # Dilation pads every box further; see DEFAULT_UNCLIP_RATIO for why
+        # tall boxes hurt the PP-OCRv6 recognizer.
+        "Det.use_dilation": False,
+        **DET_INPUT_NORMALIZATION,
         "Det.score_mode": options.score_mode,
         # RapidOCR's TextDetector.get_preprocess discards Det.limit_side_len
         # whenever limit_type is "max" and picks 960/1500/2000 from the image

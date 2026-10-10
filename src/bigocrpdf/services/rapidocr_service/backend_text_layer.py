@@ -95,10 +95,9 @@ class BackendTextLayerMixin:
         #   - geometry_changed: dimensions/orientation changed OR coordinate
         #     space changed by perspective/dewarp/deskew
         #   - format_changed: user explicitly requested a different format
-        # Appearance effects (scanner, vintage, etc.) improve OCR accuracy
-        # but should NOT trigger image replacement, because re-encoding
-        # low-quality JPEGs causes generation loss and destroys FG/BG
-        # layer separation in mixed-mode PDFs.
+        # Appearance effects (scanner, vintage) do not trigger replacement:
+        # re-encoding low-quality JPEGs causes generation loss and destroys
+        # the FG/BG layer separation of mixed-mode PDFs.
         use_processed_for_page = geometry_changed or format_changed
 
         page_label = result.get("page_num", "?")
@@ -413,9 +412,10 @@ class BackendTextLayerMixin:
 
         temp_path = result["temp_out_path"]
         try:
-            processed_img = self._load_processed_image(temp_path)
-            proc_h, proc_w = processed_img.shape[:2]
-            ocr_image = processed_img
+            # The OCR copy has the page's geometry without its appearance
+            # effects; the fallback OCR pass must read it, not the page image.
+            ocr_image = self._load_processed_image(result.get("temp_ocr_path") or temp_path)
+            proc_h, proc_w = ocr_image.shape[:2]
 
             page_info = (
                 page_rotations[page_num - 1]
@@ -481,7 +481,7 @@ class BackendTextLayerMixin:
                 preprocess_trace=result.get("preprocess_trace"),
             )
 
-            del processed_img, ocr_image
+            del ocr_image
             return confidence, use_processed_for_page
 
         finally:
@@ -519,9 +519,13 @@ class BackendTextLayerMixin:
         return None, pdf_rotation, pdf_width, pdf_height, ocr_img_size, page_info.get("image_rect")
 
     def _precomputed_ocr_results(self, result: dict) -> list[OCRResult] | None:
+        # None means the OCR subprocess gave no answer and the page falls back
+        # to in-process OCR; a page it read as blank stays blank.
         ocr_raw = result.get("ocr_raw")
-        if not ocr_raw or not ocr_raw.get("boxes"):
+        if ocr_raw is None:
             return None
+        if not ocr_raw.get("boxes"):
+            return []
         min_score = self.config.text_score_threshold
         return [
             OCRResult(text=t, box=b, confidence=s)
@@ -662,7 +666,8 @@ class BackendTextLayerMixin:
     ) -> tuple[float, bool]:
         result = process_page(work_item)
         if result.get("success") and result.get("temp_out_path"):
-            result["ocr_raw"] = self._ocr_subprocess.recognize(ocr_proc, result["temp_out_path"])
+            ocr_path = result.get("temp_ocr_path") or result["temp_out_path"]
+            result["ocr_raw"] = self._ocr_subprocess.recognize(ocr_proc, ocr_path)
 
         if progress_callback:
             progress_callback(

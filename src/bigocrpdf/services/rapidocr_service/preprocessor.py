@@ -28,10 +28,7 @@ from bigocrpdf.services.rapidocr_service.geometry_trace import (
 from bigocrpdf.services.rapidocr_service.preprocess_deskew import (
     probmap_angle_deskew,
 )
-from bigocrpdf.services.rapidocr_service.preprocess_enhance import (
-    apply_color_enhancements,
-    apply_independent_effects,
-)
+from bigocrpdf.services.rapidocr_service.preprocess_enhance import apply_color_enhancements
 from bigocrpdf.services.rapidocr_service.preprocess_orientation import (
     correct_orientation,
     detect_orientation,
@@ -53,10 +50,12 @@ __all__ = ["ImagePreprocessor"]
 class ImagePreprocessor:
     """Adaptive image preprocessing for optimal OCR results.
 
-    The preprocessing is split into three independent phases:
+    The preprocessing is split into two independent phases:
     1. Geometric corrections (perspective, deskew) - Runs based on their own flags
     2. Color/Enhancement processing - Runs if enable_preprocessing=True
-    3. Scanner effect - Runs INDEPENDENTLY if enable_scanner_effect=True
+
+    The scanner effect is not applied here: the result is the OCR input, and
+    apply_independent_effects explains why the effect stays out of it.
 
     Attributes:
         config: OCR configuration object
@@ -97,7 +96,6 @@ class ImagePreprocessor:
 
         Geometric corrections run INDEPENDENTLY of enable_preprocessing.
         Color/enhancement processing only runs if enable_preprocessing=True.
-        Scanner effect runs INDEPENDENTLY if enable_scanner_effect=True.
 
         Args:
             img: Input image in BGR format (OpenCV)
@@ -129,10 +127,6 @@ class ImagePreprocessor:
         self._check_cancel(cancel_check)
         if self.enable_color_processing:
             result = apply_color_enhancements(result, self.config)
-
-        # === PHASE 3: INDEPENDENT EFFECTS ===
-        self._check_cancel(cancel_check)
-        result = apply_independent_effects(result, self.config)
         self._check_cancel(cancel_check)
 
         return result

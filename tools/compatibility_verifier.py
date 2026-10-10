@@ -109,7 +109,7 @@ SETTING_ATTRIBUTES = (
     "enable_auto_contrast", "enable_auto_brightness", "enable_denoise",
     "enable_scanner_effect", "scanner_effect_strength", "enable_border_clean",
     "enable_vintage_look", "vintage_bw", "text_score_threshold", "box_thresh",
-    "unclip_ratio", "ocr_profile", "detection_full_resolution", "parallel_workers",
+    "ocr_profile", "detection_full_resolution", "parallel_workers",
     "quick_start_mode",
 )
 

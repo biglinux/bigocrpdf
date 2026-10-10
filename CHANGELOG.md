@@ -2,6 +2,11 @@
 
 All notable user-visible and release-engineering changes are documented here.
 
+## Unreleased
+
+- Feed the text detector PaddleOCR's input normalization and tighter line boxes, which stops whole lines on low-contrast scans from being read as blanks; the box expansion ratio is no longer stored in the settings file.
+- Run OCR on the page without the scanner effect, which only changes how the page image looks, and rebuild the effect so paper texture turns white instead of into black speckle.
+
 ## 3.0.0 - 2026-08-02
 
 - Use the current libadwaita shortcuts dialog instead of the deprecated GTK widget.

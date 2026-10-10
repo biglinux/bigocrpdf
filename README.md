@@ -74,11 +74,14 @@ fall back to PP-OCRv5 language-specific models.
 - 90°/180°/270° orientation detection
 - Contrast and brightness correction
 - Denoising and dark-border cleanup
-- Background normalization through the scanner-effect option
+- Background whitening through the scanner-effect option
 - Optional correction of embedded images on mixed-content pages
 
 Geometric corrections are enabled by default. Most color enhancements remain opt-in so the
 user can choose between preserving the source appearance and applying stronger cleanup.
+The scanner effect only changes page images the program rewrites into the PDF; OCR always
+reads the page without it, because whitening textured paper costs the recognizer more text
+than it gains.
 
 ### Output and export
 

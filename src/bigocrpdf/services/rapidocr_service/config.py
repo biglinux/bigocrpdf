@@ -19,7 +19,10 @@ from bigocrpdf.services.rapidocr_service.resource_paths import find_font_dir, fi
 DEFAULT_LANGUAGE = "latin"
 DEFAULT_DPI = 300
 DEFAULT_BOX_THRESH = 0.5
-DEFAULT_UNCLIP_RATIO = 1.6
+# Each step of box expansion adds margin above and below the text, and the
+# PP-OCRv6 recognizer reads long lines over textured paper as blanks once the
+# crop carries too much of it.
+DEFAULT_UNCLIP_RATIO = 1.5
 DEFAULT_DETECTION_LIMIT_SIDE_LEN = 4096
 DEFAULT_SCORE_MODE = "slow"
 DEFAULT_TEXT_SCORE_THRESHOLD = 0.3

@@ -19,6 +19,7 @@ from PIL import Image
 
 from bigocrpdf.services.rapidocr_service.pdf_extractor import load_image_with_exif_rotation
 from bigocrpdf.services.rapidocr_service.pdf_page_geometry import render_pdf_page_to_ppm
+from bigocrpdf.services.rapidocr_service.preprocess_enhance import apply_independent_effects
 from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
 from bigocrpdf.services.rapidocr_service.resource_manager import select_pdf_page_render_dpi
 
@@ -537,8 +538,11 @@ def _save_ocr_image_if_needed(
     processed_img: np.ndarray,
     img_format: str,
     scratch_dir: Path | str | None = None,
+    *,
+    page_img_differs: bool = False,
 ) -> str | None:
-    if img_format == "png":
+    """Write the OCR input unless the page image already is it, losslessly."""
+    if img_format == "png" and not page_img_differs:
         return None
 
     fd_ocr, temp_ocr = tempfile.mkstemp(suffix=".png", dir=scratch_dir)
@@ -660,13 +664,20 @@ def process_page(args: dict[str, Any]) -> dict[str, Any]:
 
         img_format, img_quality, detected_quality = _determine_output_format(img_path, config)
         scratch_dir = args.get("scratch_dir")
+        page_img = apply_independent_effects(processed_img, config)
         temp_out = _save_processed_image(
-            processed_img,
+            page_img,
             img_format,
             img_quality,
             scratch_dir,
         )
-        temp_ocr = _save_ocr_image_if_needed(processed_img, img_format, scratch_dir)
+        temp_ocr = _save_ocr_image_if_needed(
+            processed_img,
+            img_format,
+            scratch_dir,
+            page_img_differs=page_img is not processed_img,
+        )
+        del page_img
         result = _page_success_result(
             page_num,
             args,

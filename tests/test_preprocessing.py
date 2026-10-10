@@ -49,10 +49,6 @@ def test_preprocessor_checks_cancellation_between_heavy_phases(monkeypatch):
         "bigocrpdf.services.rapidocr_service.preprocessor.apply_color_enhancements",
         lambda value, _config: phases.append("color") or value,
     )
-    monkeypatch.setattr(
-        "bigocrpdf.services.rapidocr_service.preprocessor.apply_independent_effects",
-        lambda value, _config: phases.append("effects") or value,
-    )
 
     checks = 0
 

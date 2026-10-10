@@ -23,6 +23,7 @@ import os
 import sys
 from typing import Any
 
+from bigocrpdf.services.rapidocr_service.config import DEFAULT_UNCLIP_RATIO
 from bigocrpdf.services.rapidocr_service.ocr_worker_engine import (
     _build_ocr_engine_params,
     _create_ocr_engine,
@@ -88,7 +89,7 @@ def run_ocr_full(
     limit_side_len: int = 4000,
     use_openvino: bool = False,
     box_thresh: float = 0.5,
-    unclip_ratio: float = 1.2,
+    unclip_ratio: float = DEFAULT_UNCLIP_RATIO,
     text_score: float = 0.3,
     score_mode: str = "slow",
     rec_model_path: str = "",
@@ -467,7 +468,9 @@ def main():
         help="Release OpenVINO detector buffers before recognition",
     )
     parser.add_argument("--box-thresh", type=float, default=0.5, help="Box threshold")
-    parser.add_argument("--unclip-ratio", type=float, default=1.2, help="Unclip ratio")
+    parser.add_argument(
+        "--unclip-ratio", type=float, default=DEFAULT_UNCLIP_RATIO, help="Unclip ratio"
+    )
     parser.add_argument("--text-score", type=float, default=0.3, help="Text score threshold")
     parser.add_argument("--score-mode", default="slow", help="Score mode (fast/slow)")
     parser.add_argument("--rec-model-path", default="", help="Recognition model path")

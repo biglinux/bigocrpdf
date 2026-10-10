@@ -1398,7 +1398,6 @@
       "vintage_bw",
       "text_score_threshold",
       "box_thresh",
-      "unclip_ratio",
       "ocr_profile",
       "detection_full_resolution",
       "parallel_workers",
@@ -1469,7 +1468,6 @@
         "ocr_profile": "compat-ocr_profile",
         "scanner_effect_strength": 1.125,
         "text_score_threshold": 0.425,
-        "unclip_ratio": 1.725,
         "vintage_bw": true
       },
       "text_extraction": {
@@ -1483,7 +1481,7 @@
       "version": 1,
       "window": {
         "height": 600,
-        "width": 820
+        "width": 960
       }
     },
     "defaults": {
@@ -1541,7 +1539,6 @@
       "separate_txt_folder": false,
       "text_score_threshold": 0.3,
       "txt_folder": "",
-      "unclip_ratio": 1.6,
       "use_original_filename": false,
       "vintage_bw": false
     },
@@ -1615,7 +1612,6 @@
       "separate_txt_folder": true,
       "text_score_threshold": 0.425,
       "txt_folder": "compat-txt_folder",
-      "unclip_ratio": 1.725,
       "use_original_filename": true,
       "vintage_bw": true
     },

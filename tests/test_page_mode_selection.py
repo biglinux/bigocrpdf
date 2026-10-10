@@ -131,3 +131,13 @@ class TestDiagnosticLogging:
         caplog.clear()
         determine_mode(_page(), 2814, 3864)
         assert "geometry/coordinate change" not in caplog.text
+
+
+def test_a_page_the_ocr_worker_read_as_blank_is_not_read_again():
+    backend = _ModeBackend()
+    backend.config.text_score_threshold = 0.3
+
+    assert (
+        backend._precomputed_ocr_results({"ocr_raw": {"boxes": [], "txts": [], "scores": []}}) == []
+    )
+    assert backend._precomputed_ocr_results({"ocr_raw": None}) is None

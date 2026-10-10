@@ -59,7 +59,7 @@ def test_page_failure_cleans_output_created_before_later_failure(
     args = {
         "page_num": 1,
         "img_path": "source.png",
-        "config": SimpleNamespace(),
+        "config": SimpleNamespace(enable_scanner_effect=False),
         "scratch_dir": str(tmp_path),
     }
 
@@ -87,7 +87,7 @@ def test_successful_page_transfers_only_scratch_owned_outputs(
     args = {
         "page_num": 1,
         "img_path": "source.png",
-        "config": SimpleNamespace(),
+        "config": SimpleNamespace(enable_scanner_effect=False),
         "scratch_dir": str(tmp_path),
     }
 
@@ -105,6 +105,30 @@ def test_successful_page_transfers_only_scratch_owned_outputs(
     }
     assert all(path.parent == tmp_path for path in output_paths)
     assert all(path.is_file() for path in output_paths)
+
+
+def test_ocr_reads_the_page_without_the_scanner_effect(tmp_path: Path) -> None:
+    """OCR reads the page as scanned; the effect only changes the image in the PDF."""
+    rng = np.random.default_rng(0)
+    image = rng.integers(150, 230, size=(64, 64, 3), dtype=np.uint8)
+    args = {
+        "page_num": 1,
+        "img_path": "source.png",
+        "config": SimpleNamespace(enable_scanner_effect=True, scanner_effect_strength=1.0),
+        "scratch_dir": str(tmp_path),
+    }
+
+    with (
+        patch.object(page_worker, "_create_page_preprocessor", return_value=_preprocessor()),
+        patch.object(page_worker, "_load_page_source_image", return_value=image),
+        patch.object(page_worker, "_determine_output_format", return_value=("png", 0, 0)),
+    ):
+        result = page_worker.process_page(args)
+
+    ocr_image = page_worker.cv2.imread(result["temp_ocr_path"])
+    page_image = page_worker.cv2.imread(result["temp_out_path"])
+    assert np.array_equal(ocr_image, image)
+    assert not np.array_equal(page_image, image)
 
 
 def test_chunk_work_items_receive_the_owned_scratch_directory(

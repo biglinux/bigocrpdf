@@ -23,6 +23,7 @@ from bigocrpdf.services.rapidocr_service.pdf_extractor import (
     load_image_with_exif_rotation,
 )
 from bigocrpdf.services.rapidocr_service.pipeline_mixed_content import _prefer_native_text
+from bigocrpdf.services.rapidocr_service.preprocess_enhance import apply_independent_effects
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
@@ -335,7 +336,9 @@ class BackendEmbeddedImagePipelineMixin:
             processed_img = img
         else:
             processed_img = self.preprocessor.process(img)
-            self._replace_pdf_image(page, img_pos.name, processed_img)
+            self._replace_pdf_image(
+                page, img_pos.name, apply_independent_effects(processed_img, self.config)
+            )
 
         if ocr_proc is not None:
             ocr_results = self._ocr_via_persistent(processed_img, ocr_proc)
