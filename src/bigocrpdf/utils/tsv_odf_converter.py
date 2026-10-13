@@ -18,6 +18,7 @@ from bigocrpdf.utils.column_detector import (
     is_table_line,
     split_words_by_columns,
 )
+from bigocrpdf.utils.line_spacing import paragraph_gap_threshold
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.utils.odf_builder import create_odf, create_positioned_text_odf
 from bigocrpdf.utils.tsv_parser import (
@@ -35,9 +36,9 @@ from bigocrpdf.utils.tsv_parser import (
 )
 
 
-def process_page(words: list[Word], page_num: int) -> list[DocElement]:
+def process_page(words: list[Word]) -> list[DocElement]:
     """Full pipeline for one page, with automatic column detection."""
-    clean = filter_words(words, page_num)
+    clean = filter_words(words)
     if not clean:
         return []
 
@@ -167,6 +168,10 @@ def _process_single_column(words: list[Word]) -> list[DocElement]:
     def _indent(min_x: float) -> int:
         return max(0, round((min_x - page_left) / _char_w))
 
+    paragraph_gap = paragraph_gap_threshold(
+        [_gap_ratio_after(lines, index) for index in range(len(lines) - 1)]
+    )
+
     elements: list[DocElement] = []
     i = 0
     para_buf: list[str] = []
@@ -184,6 +189,7 @@ def _process_single_column(words: list[Word]) -> list[DocElement]:
             para_is_indented,
             body_margin,
             page_right,
+            paragraph_gap,
         )
 
     _flush_paragraph(elements, para_buf, para_line_idx, lines, _indent, para_is_indented)
@@ -200,6 +206,7 @@ def _process_column_line(
     para_is_indented: bool,
     body_margin: float | None,
     page_right: float,
+    paragraph_gap: float,
 ) -> tuple[int, bool]:
     line = lines[line_index]
     text = line.text.strip()
@@ -238,7 +245,7 @@ def _process_column_line(
     )
     para_buf.append(text)
     para_line_idx.append(line_index)
-    if _has_paragraph_gap_after(lines, line_index):
+    if line_index + 1 < len(lines) and _gap_ratio_after(lines, line_index) > paragraph_gap:
         para_is_indented = _flush_paragraph(
             elements, para_buf, para_line_idx, lines, indent_fn, para_is_indented
         )
@@ -323,11 +330,13 @@ def _start_indented_paragraph_if_needed(
     return True
 
 
-def _has_paragraph_gap_after(lines: list[TextLine], line_index: int) -> bool:
-    if line_index + 1 >= len(lines):
-        return False
+def _gap_ratio_after(lines: list[TextLine], line_index: int) -> float:
+    """Space below a line up to the next one, in the line's word height."""
     line = lines[line_index]
-    return lines[line_index + 1].y - line.y > line.words[0].height * 2.0
+    height = line.words[0].height
+    if height <= 0:
+        return 0.0
+    return max(lines[line_index + 1].y - line.y - height, 0.0) / height
 
 
 def _flush_paragraph(
@@ -393,7 +402,7 @@ def convert_pdf_to_odf(
     all_elements: list[list[DocElement]] = []
     page_numbers = range(1, len(page_geometries) + 1) if page_geometries else sorted(pages_words)
     for page_num in page_numbers:
-        elements = process_page(pages_words.get(page_num, []), page_num)
+        elements = process_page(pages_words.get(page_num, []))
         all_elements.append(elements)
 
     all_elements = fix_cross_page_breaks(all_elements)
@@ -543,7 +552,7 @@ def convert_pdf_to_text(pdf_path: str) -> str:
 
     all_elements: list[list[DocElement]] = []
     for page_num in sorted(pages_words.keys()):
-        elements = process_page(pages_words[page_num], page_num)
+        elements = process_page(pages_words[page_num])
         all_elements.append(elements)
 
     all_elements = fix_cross_page_breaks(all_elements)
@@ -806,7 +815,7 @@ def convert_pdf_to_markdown(
     for page_num in sorted(pages_words.keys()):
         if cancel_event is not None and cancel_event.is_set():
             raise ExportCancelled
-        elements = process_page(pages_words[page_num], page_num)
+        elements = process_page(pages_words[page_num])
         all_elements.append(elements)
 
     if cancel_event is not None and cancel_event.is_set():

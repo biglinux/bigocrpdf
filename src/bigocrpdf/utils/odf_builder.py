@@ -515,7 +515,7 @@ def create_positioned_text_odf(
         # shrink. The font has to shrink with it, or an oversized photo page
         # keeps full-size text inside frames reduced to a third.
         shrink = scale_y / _CM_PER_POINT
-        source_lines = group_into_lines(filter_words(pages_words.get(page_number, []), page_number))
+        source_lines = group_into_lines(filter_words(pages_words.get(page_number, [])))
         positioned_runs = []
         for source_line in source_lines:
             run_words = []

@@ -83,7 +83,7 @@ MAX_ARTIFACT_TEXT_LEN = 4
 # values. For Helvetica metrics (0.718 / -0.207) that makes the reported height
 # 0.93 em and puts the baseline 0.78 of the way down the box.
 #
-# This is why the ink-box factor used for RapidOCR boxes (FONT_SIZE_SCALE_FACTOR)
+# This is why the ink-box factor used for OCR boxes (FONT_SIZE_SCALE_FACTOR)
 # must not be reused on this data: the two describe different rectangles.
 TSV_BOX_HEIGHT_EM = 0.93
 TSV_BASELINE_FRACTION = 0.78
@@ -135,16 +135,14 @@ def parse_tsv_pages(pdf_path: str) -> dict[int, list[Word]]:
     return pages
 
 
-def filter_words(words: list[Word], page_num: int) -> list[Word]:
+def filter_words(words: list[Word]) -> list[Word]:
     """Remove clear OCR artifacts, without discarding real text.
 
     A sliver of a box holding several characters usually means the detector
     traced a rule or a hatch pattern rather than words. But it also describes
     vertical text: a side caption's box is genuinely narrow, and the export
-    lays words out horizontally, so a 61-character URL down the margin arrives
-    1.8 pixels wide. Width alone would throw it away -- measured, that is
-    exactly what happened to
-    ``https://assinador-web.onr.org.br/docs/UB7MR-ZF2N3-NTFLP-JMF2B``.
+    lays words out horizontally, so a long URL down the margin arrives under
+    two pixels wide, and width alone would throw it away.
 
     So length decides: noise from a rule is a handful of characters, and
     anything longer is content whatever shape its box has.
