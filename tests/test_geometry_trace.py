@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from bigocrpdf.services.rapidocr_service.geometry_trace import (
+from bigocrpdf.services.ocr.geometry_trace import (
     MAX_STEPS,
     REASON_BELOW_THRESHOLD,
     REASON_OK,

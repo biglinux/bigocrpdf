@@ -31,14 +31,13 @@ from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 
-import numpy as np
 import pytest
 
-from bigocrpdf.services.rapidocr_service.backend_text_layer import BackendTextLayerMixin
-from bigocrpdf.services.rapidocr_service.backend_text_layer_geometry import (
+from bigocrpdf.services.ocr.backend_text_layer import BackendTextLayerMixin
+from bigocrpdf.services.ocr.backend_text_layer_geometry import (
     _processed_page_dimensions,
 )
-from bigocrpdf.services.rapidocr_service.pdf_assembly import overlay_text_on_original
+from bigocrpdf.services.ocr.pdf_assembly import overlay_text_on_original
 from tests.positional_oracle import (
     by_token,
     extract_words,
@@ -139,12 +138,10 @@ class TestOverlayRotation:
     @pytest.mark.parametrize("rotation", [90, 270])
     def test_rotated_pages_map_isotropically(self, rotation):
         """A landscape scan of a portrait page must not be squashed."""
-        landscape = np.zeros((2550, 3300, 3), np.uint8)
-
-        _, _, pdf_width, pdf_height, ocr_size = _ModeBackend()._setup_overlay_mode(
+        _, pdf_width, pdf_height, ocr_size = _ModeBackend()._setup_overlay_mode(
             {"image_prerotated": False},
             {"rotation": rotation, "mediabox": [0.0, 0.0, 612.0, 792.0]},
-            landscape,
+            (3300, 2550),
             1,
         )
 
@@ -154,24 +151,19 @@ class TestOverlayRotation:
 
     def test_a_prerotated_image_is_not_rotated_again(self):
         """The worker already oriented it; rotating twice would transpose it."""
-        portrait = np.zeros((3300, 2550, 3), np.uint8)
-
-        image, _, _, _, ocr_size = _ModeBackend()._setup_overlay_mode(
+        _, _, _, ocr_size = _ModeBackend()._setup_overlay_mode(
             {"image_prerotated": True},
             {"rotation": 90, "mediabox": [0.0, 0.0, 612.0, 792.0]},
-            portrait,
+            (2550, 3300),
             1,
         )
 
         assert ocr_size == (2550, 3300)
-        assert image.shape[:2] == (3300, 2550)
 
     def test_a_page_without_a_mediabox_falls_back_to_pixels(self):
         """One pixel per point, so the mapping is at least self-consistent."""
-        image = np.zeros((400, 300, 3), np.uint8)
-
-        _, _, pdf_width, pdf_height, _ = _ModeBackend()._setup_overlay_mode(
-            {"image_prerotated": False}, {"rotation": 0, "mediabox": None}, image, 1
+        _, pdf_width, pdf_height, _ = _ModeBackend()._setup_overlay_mode(
+            {"image_prerotated": False}, {"rotation": 0, "mediabox": None}, (300, 400), 1
         )
 
         assert (pdf_width, pdf_height) == (300.0, 400.0)

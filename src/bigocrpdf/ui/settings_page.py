@@ -22,7 +22,6 @@ class SettingsPageManager(SettingsSidebarMixin, SettingsQueueMixin):
         self.window = window
 
         # UI component references
-        self.lang_dropdown = None
         self.dest_entry = None
         self.folder_combo = None
         self.folder_entry_box = None
@@ -54,13 +53,6 @@ class SettingsPageManager(SettingsSidebarMixin, SettingsQueueMixin):
     def sync_ui_to_settings(self) -> None:
         """Re-sync all UI widgets to current OcrSettings values."""
         settings = self.window.settings
-
-        if self.lang_dropdown:
-            languages = self.window.processing.ocr_processor.get_available_ocr_languages()
-            for i, (code, _name) in enumerate(languages):
-                if code == settings.lang:
-                    self.lang_dropdown.set_selected(i)
-                    break
 
         if self.folder_combo:
             self.folder_combo.set_selected(0 if settings.save_in_same_folder else 1)

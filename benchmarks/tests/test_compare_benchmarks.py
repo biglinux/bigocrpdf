@@ -15,7 +15,7 @@ from benchmarks.compare_benchmarks import (
 def _record(
     sample_id: str,
     *,
-    profile: str = "balanced_cpu",
+    profile: str = "balanced",
     dataset: str = "DharmaOCR",
     page_index: int = 0,
     cer: float = 0.1,
@@ -33,38 +33,20 @@ def _record(
         "text_layer_ok": True,
         "manifest_sha256": "1" * 64,
         "ground_truth_language": "en",
-        "effective_engine_type": "openvino",
-        "effective_ocr_version": "PPOCRV6",
-        "effective_model_type": "small",
-        "effective_rec_batch_num": 1,
-        "effective_gpu_backend": "off",
-        "effective_rec_model_sha256": "2" * 64,
-        "effective_det_model_sha256": "3" * 64,
+        "effective_worker_sha256": "6" * 64,
+        "effective_rec_plan_sha256": "2" * 64,
+        "effective_det_plan_sha256": "3" * 64,
         "effective_dictionary_sha256": "4" * 64,
         "effective_font_sha256": "5" * 64,
-        "effective_language_hint": "latin",
         "effective_ocr_config": {
-            "language": "latin",
+            "model": "PP-OCRv6 small",
             "dpi": 300,
-            "engine_type": "openvino",
-            "requested_engine_type": "openvino",
-            "openvino_available": True,
-            "ocr_version": "PPOCRV6",
-            "model_type": "small",
-            "rec_batch_num": 1,
-            "use_textline_cls": False,
-            "gpu_backend": "off",
-            "requested_gpu_backend": "off",
-            "gpu_device_id": None,
-            "requested_gpu_device_id": 0,
-            "gpu_fp16": False,
-            "gpu_fallback_to_cpu": True,
+            "kernel_tier": 3,
             "detection_limit_side_len": 4000,
             "detection_full_resolution": False,
             "box_thresh": 0.5,
             "unclip_ratio": 1.2,
             "text_score_threshold": 0.3,
-            "score_mode": "slow",
             "ocr_threads": 4,
             "ocr_workers": 1,
             "chunk_size": 8,
@@ -83,11 +65,7 @@ def _record(
                 "numpy": "2.5.1",
                 "Pillow": "12.3.0",
                 "pikepdf": "10.9.1",
-                "rapidocr": "3.9.0",
-                "openvino": "2026.2.0",
             },
-            "gpu_devices": [],
-            "gpu_runtimes": {},
         },
         "peak_rss_method": "linux_proc_process_tree",
         "peak_rss_sample_interval_seconds": 0.05,
@@ -114,7 +92,7 @@ def test_comparison_rejects_candidate_that_drops_a_hard_sample() -> None:
     assert failed is True
     assert coverage["baseline_only_count"] == 1
     assert "coverage_mismatch: True" in markdown
-    assert "balanced_cpu / DharmaOCR / hard / page 0" in markdown
+    assert "balanced / DharmaOCR / hard / page 0" in markdown
 
 
 def test_comparison_accepts_identical_record_identity_sets() -> None:
@@ -128,25 +106,25 @@ def test_comparison_accepts_identical_record_identity_sets() -> None:
     assert coverage["candidate_only_count"] == 0
 
 
-def test_comparison_rejects_different_effective_model_hash() -> None:
+def test_comparison_rejects_different_plan_hash() -> None:
     baseline = _record("same")
-    baseline["effective_rec_model_sha256"] = "a" * 64
+    baseline["effective_rec_plan_sha256"] = "a" * 64
     candidate = _record("same")
-    candidate["effective_rec_model_sha256"] = "b" * 64
+    candidate["effective_rec_plan_sha256"] = "b" * 64
 
     coverage = compare_record_coverage([baseline], [candidate])
 
     assert coverage["comparable"] is False
     assert coverage["configuration_mismatch_count"] == 1
-    assert "effective_rec_model_sha256" in coverage["configuration_mismatches"][0]
+    assert "effective_rec_plan_sha256" in coverage["configuration_mismatches"][0]
 
 
 @pytest.mark.parametrize(
     ("field", "baseline_value", "candidate_value"),
     [
-        ("effective_det_model_sha256", "a" * 64, "b" * 64),
+        ("effective_det_plan_sha256", "a" * 64, "b" * 64),
+        ("effective_worker_sha256", "a" * 64, "b" * 64),
         ("effective_font_sha256", "a" * 64, "b" * 64),
-        ("effective_language_hint", "latin", "ch"),
         ("warmup_runs", 0, 1),
         ("peak_rss_sample_interval_seconds", 0.05, 0.1),
     ],
@@ -304,7 +282,7 @@ def test_comparison_rejects_missing_comparability_metadata_on_both_sides() -> No
     ("field", "partial_value"),
     [
         ("benchmark_environment", {"platform": "Linux"}),
-        ("effective_ocr_config", {"engine_type": "openvino"}),
+        ("effective_ocr_config", {"kernel_tier": 3}),
     ],
 )
 def test_comparison_rejects_partial_nested_contracts(
@@ -321,121 +299,6 @@ def test_comparison_rejects_partial_nested_contracts(
     assert coverage["comparable"] is False
     assert coverage["configuration_missing_count"] == 2
     assert field in coverage["configuration_missing"][0]
-
-
-def test_gpu_comparison_requires_device_and_runtime_identity() -> None:
-    baseline = _record("same")
-    candidate = _record("same")
-    baseline["effective_gpu_backend"] = "paddle"
-    candidate["effective_gpu_backend"] = "paddle"
-    baseline_config = baseline["effective_ocr_config"]
-    candidate_config = candidate["effective_ocr_config"]
-    assert isinstance(baseline_config, dict)
-    assert isinstance(candidate_config, dict)
-    baseline_config["gpu_backend"] = "paddle"
-    candidate_config["gpu_backend"] = "paddle"
-
-    coverage = compare_record_coverage([baseline], [candidate])
-
-    assert coverage["comparable"] is False
-    assert "benchmark_environment" in coverage["configuration_missing"][0]
-
-
-def _configure_gpu_record(
-    row: dict[str, object],
-    backend: str,
-    runtimes: dict[str, str],
-) -> None:
-    row["effective_gpu_backend"] = backend
-    config = row["effective_ocr_config"]
-    environment = row["benchmark_environment"]
-    assert isinstance(config, dict)
-    assert isinstance(environment, dict)
-    config["gpu_backend"] = backend
-    config["requested_gpu_backend"] = backend
-    config["gpu_device_id"] = 0
-    environment["gpu_devices"] = [
-        {
-            "card": "card0",
-            "pci_address": "0000:01:00.0",
-            "vendor_id": "0x10de",
-            "device_id": "0x1234",
-            "driver": "nvidia",
-            "driver_version": "999.1",
-        }
-    ]
-    environment["gpu_runtimes"] = runtimes
-
-
-def test_gpu_contract_requires_runtime_for_the_effective_backend() -> None:
-    baseline = _record("same")
-    candidate = _record("same")
-    _configure_gpu_record(baseline, "paddle", {"torch": "2.0"})
-    _configure_gpu_record(candidate, "paddle", {"torch": "2.0"})
-
-    coverage = compare_record_coverage([baseline], [candidate])
-
-    assert coverage["comparable"] is False
-    assert "benchmark_environment" in coverage["configuration_missing"][0]
-
-
-def test_cpu_comparison_ignores_unrelated_gpu_inventory() -> None:
-    baseline = _record("same")
-    candidate = _record("same")
-    candidate_environment = candidate["benchmark_environment"]
-    assert isinstance(candidate_environment, dict)
-    candidate_environment["gpu_devices"] = [
-        {
-            "card": "card0",
-            "pci_address": "0000:01:00.0",
-            "vendor_id": "0x10de",
-            "device_id": "0x1234",
-            "driver": "nvidia",
-            "driver_version": "999.1",
-        }
-    ]
-    candidate_environment["gpu_runtimes"] = {"torch": "2.0"}
-
-    coverage = compare_record_coverage([baseline], [candidate])
-
-    assert coverage["comparable"] is True
-
-
-def test_gpu_comparison_uses_only_the_effective_backend_runtime() -> None:
-    baseline = _record("same")
-    candidate = _record("same")
-    _configure_gpu_record(
-        baseline,
-        "paddle",
-        {"paddlepaddle-gpu": "3.2", "torch": "2.0"},
-    )
-    _configure_gpu_record(
-        candidate,
-        "paddle",
-        {"paddlepaddle-gpu": "3.2", "torch": "9.0"},
-    )
-
-    assert compare_record_coverage([baseline], [candidate])["comparable"] is True
-
-    candidate_environment = candidate["benchmark_environment"]
-    assert isinstance(candidate_environment, dict)
-    candidate_environment["gpu_runtimes"] = {"paddlepaddle-gpu": "4.0"}
-    coverage = compare_record_coverage([baseline], [candidate])
-
-    assert coverage["comparable"] is False
-    assert "benchmark_environment" in coverage["configuration_mismatches"][0]
-
-
-def test_auto_is_not_a_valid_effective_gpu_backend() -> None:
-    baseline = _record("same")
-    candidate = _record("same")
-    _configure_gpu_record(baseline, "auto", {"torch": "2.0"})
-    _configure_gpu_record(candidate, "auto", {"torch": "2.0"})
-
-    coverage = compare_record_coverage([baseline], [candidate])
-
-    assert coverage["comparable"] is False
-    assert "benchmark_environment" in coverage["configuration_missing"][0]
 
 
 def test_summary_reports_p95_latency() -> None:
@@ -527,17 +390,15 @@ def test_records_without_box_counts_are_ignored_by_the_invariant() -> None:
     assert _record_regression_fields(_record("legacy"), _record("legacy")) == []
 
 
-class TestOptionalDigestsDoNotBlockComparison:
-    """A recogniser with no separate dictionary file still has a comparable run.
-
-    PP-OCRv6 carries its dictionary inside the model, so the producer records
-    ``effective_dictionary_sha256`` as an explicit null. Reading that as "the
-    producer never told us" made every comparison fail on coverage -- a file
-    compared against itself included, which is what exposed it.
+class TestMissingFontDoesNotBlockComparison:
+    """Without the configured font the text layer falls back to a built-in
+    one, and the producer records ``effective_font_sha256`` as an explicit
+    null. Reading that as "the producer never told us" would fail a file
+    compared against itself.
     """
 
     def test_a_null_digest_on_both_sides_is_comparable(self):
-        rows = [_record("amostra", effective_dictionary_sha256=None)]
+        rows = [_record("amostra", effective_font_sha256=None)]
 
         coverage = compare_record_coverage(rows, rows)
 
@@ -545,8 +406,8 @@ class TestOptionalDigestsDoNotBlockComparison:
 
     def test_a_digest_on_one_side_only_is_still_a_mismatch(self):
         """The property that makes the exemption safe: disagreement still fails."""
-        baseline = [_record("amostra", effective_dictionary_sha256=None)]
-        candidate = [_record("amostra", effective_dictionary_sha256="b" * 64)]
+        baseline = [_record("amostra", effective_font_sha256=None)]
+        candidate = [_record("amostra", effective_font_sha256="b" * 64)]
 
         coverage = compare_record_coverage(baseline, candidate)
 
@@ -555,17 +416,17 @@ class TestOptionalDigestsDoNotBlockComparison:
         )
 
     def test_an_omitted_key_still_fails(self):
-        """An older producer that never wrote the field is a real gap."""
+        """A producer that never wrote the field is a real gap."""
         row = _record("amostra")
-        del row["effective_dictionary_sha256"]
+        del row["effective_font_sha256"]
 
         coverage = compare_record_coverage([row], [row])
 
         assert coverage["configuration_missing_count"] > 0
 
     def test_a_required_digest_may_not_be_null(self):
-        """Only the dictionary is optional; the model digests are not."""
-        rows = [_record("amostra", effective_rec_model_sha256=None)]
+        """Only the font is optional; the worker and plan digests are not."""
+        rows = [_record("amostra", effective_rec_plan_sha256=None)]
 
         coverage = compare_record_coverage(rows, rows)
 

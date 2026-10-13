@@ -17,16 +17,11 @@ RecordIdentity = tuple[str, str, str, int, int]
 COMPARABILITY_FIELDS = (
     "manifest_sha256",
     "ground_truth_language",
-    "effective_engine_type",
-    "effective_ocr_version",
-    "effective_model_type",
-    "effective_rec_batch_num",
-    "effective_gpu_backend",
-    "effective_rec_model_sha256",
-    "effective_det_model_sha256",
+    "effective_worker_sha256",
+    "effective_det_plan_sha256",
+    "effective_rec_plan_sha256",
     "effective_dictionary_sha256",
     "effective_font_sha256",
-    "effective_language_hint",
     "effective_ocr_config",
     "dpi",
     "warmup_runs",
@@ -44,46 +39,32 @@ REQUIRED_METRICS = (
     "text_layer_ok",
 )
 MAX_ERROR_RATE_REGRESSION = 0.01
-# A sample that used to yield text and now yields none is never acceptable,
-# whatever the error-rate budget says. An averaged CER cannot see it: the real
-# failure this project shipped produced zero boxes on every page, and a 1%
-# threshold against a baseline that had never seen the file catches nothing.
+# A sample that yields text in the baseline and none in the candidate fails
+# regardless of the CER budget: an averaged CER absorbs a page with zero boxes.
 MAX_NEW_EMPTY_OUTPUTS = 0
 MAX_TIME_REGRESSION = 0.20
 MAX_PEAK_RSS_REGRESSION = 0.20
 SHA256_FIELDS = {
     "manifest_sha256",
-    "effective_rec_model_sha256",
-    "effective_det_model_sha256",
+    "effective_worker_sha256",
+    "effective_det_plan_sha256",
+    "effective_rec_plan_sha256",
     "effective_dictionary_sha256",
     "effective_font_sha256",
 }
-# Digests of files a configuration need not have. Recorded as null when absent,
-# which is a fact about the configuration rather than a gap in the record --
-# and still compared, so one side having a dictionary and the other not fails.
-OPTIONAL_SHA256_FIELDS = {"effective_dictionary_sha256"}
+# With font_path None the text layer is written in built-in Helvetica and the
+# digest is recorded as null, which is still compared, so one side with a font
+# file and the other without fails.
+OPTIONAL_SHA256_FIELDS = {"effective_font_sha256"}
 REQUIRED_OCR_CONFIG_FIELDS = {
-    "language",
+    "model",
     "dpi",
-    "engine_type",
-    "requested_engine_type",
-    "openvino_available",
-    "ocr_version",
-    "model_type",
-    "rec_batch_num",
-    "use_textline_cls",
-    "gpu_backend",
-    "requested_gpu_backend",
-    "gpu_device_id",
-    "requested_gpu_device_id",
-    "gpu_fp16",
-    "gpu_fallback_to_cpu",
+    "kernel_tier",
     "detection_limit_side_len",
     "detection_full_resolution",
     "box_thresh",
     "unclip_ratio",
     "text_score_threshold",
-    "score_mode",
     "ocr_threads",
     "ocr_workers",
     "chunk_size",
@@ -96,30 +77,12 @@ REQUIRED_ENVIRONMENT_FIELDS = {
     "cpu_model",
     "cpu_count",
     "dependencies",
-    "gpu_devices",
-    "gpu_runtimes",
 }
 REQUIRED_CORE_DEPENDENCIES = {
     "bigocrpdf",
     "numpy",
     "Pillow",
     "pikepdf",
-    "rapidocr",
-}
-REQUIRED_GPU_DEVICE_FIELDS = {
-    "card",
-    "pci_address",
-    "vendor_id",
-    "device_id",
-    "driver",
-    "driver_version",
-}
-CPU_GPU_BACKENDS = {"off", "none", "cpu"}
-GPU_BACKEND_RUNTIME_DISTRIBUTIONS = {
-    "paddle": frozenset({"paddlepaddle", "paddlepaddle-gpu"}),
-    "torch": frozenset({"torch"}),
-    "tensorrt": frozenset({"tensorrt"}),
-    "onnxruntime_cuda_experimental": frozenset({"onnxruntime-gpu"}),
 }
 
 
@@ -225,43 +188,6 @@ def _format_record_identity(identity: RecordIdentity) -> str:
     return f"{profile} / {dataset} / {sample_id} / page {page_index} / run {run_index}"
 
 
-def _comparison_value(row: dict[str, Any], field: str) -> Any:
-    if field == "benchmark_environment":
-        return _normalized_benchmark_environment(row, row.get(field))
-    return row.get(field)
-
-
-def _effective_gpu_backend(row: dict[str, Any]) -> str:
-    return str(row.get("effective_gpu_backend") or "").strip().lower()
-
-
-def _relevant_gpu_runtimes(
-    backend: str,
-    runtimes: dict[str, Any],
-) -> dict[str, Any]:
-    expected_names = GPU_BACKEND_RUNTIME_DISTRIBUTIONS.get(backend, frozenset())
-    return {name: version for name, version in runtimes.items() if name in expected_names}
-
-
-def _normalized_benchmark_environment(
-    row: dict[str, Any],
-    value: Any,
-) -> Any:
-    if not isinstance(value, dict):
-        return value
-    normalized = dict(value)
-    backend = _effective_gpu_backend(row)
-    if backend in CPU_GPU_BACKENDS:
-        normalized["gpu_devices"] = []
-        normalized["gpu_runtimes"] = {}
-    elif backend in GPU_BACKEND_RUNTIME_DISTRIBUTIONS:
-        runtimes = value.get("gpu_runtimes")
-        normalized["gpu_runtimes"] = (
-            _relevant_gpu_runtimes(backend, runtimes) if isinstance(runtimes, dict) else runtimes
-        )
-    return normalized
-
-
 def _has_complete_contract_value(value: Any) -> bool:
     if value is None:
         return False
@@ -281,22 +207,19 @@ def _has_complete_contract_value(value: Any) -> bool:
 
 
 def _comparison_field_complete(row: dict[str, Any], field: str) -> bool:
-    value = _comparison_value(row, field)
+    value = row.get(field)
     if field in SHA256_FIELDS:
-        # A recogniser whose dictionary is built into the model has no separate
-        # file to digest, and the producer records that as an explicit null.
         # Reading "there is nothing to hash" as "the producer never told us"
-        # failed every run against every baseline -- including a file compared
-        # with itself. Absence of the key still fails, so an older producer
-        # that simply omitted the field is still caught.
+        # would fail a file compared with itself. Absence of the key still
+        # fails, so a producer that simply omitted the field is still caught.
         if field in OPTIONAL_SHA256_FIELDS and field in row and value is None:
             return True
         return _is_sha256(value)
     if field == "effective_ocr_config":
         return _ocr_config_complete(row, value)
     if field == "benchmark_environment":
-        return _benchmark_environment_complete(row, value)
-    if field in {"effective_rec_batch_num", "dpi"}:
+        return _benchmark_environment_complete(value)
+    if field == "dpi":
         return isinstance(value, int) and not isinstance(value, bool) and value > 0
     if field == "warmup_runs":
         return isinstance(value, int) and not isinstance(value, bool) and value >= 0
@@ -321,43 +244,12 @@ def _is_sha256(value: Any) -> bool:
 def _ocr_config_complete(row: dict[str, Any], value: Any) -> bool:
     if not isinstance(value, dict) or not REQUIRED_OCR_CONFIG_FIELDS.issubset(value):
         return False
-    nullable_fields = {"gpu_device_id"}
-    if not all(
-        field in nullable_fields or _has_complete_contract_value(value[field])
-        for field in REQUIRED_OCR_CONFIG_FIELDS
-    ):
+    if not all(_has_complete_contract_value(value[field]) for field in REQUIRED_OCR_CONFIG_FIELDS):
         return False
-    gpu_backend = _effective_gpu_backend(row)
-    gpu_device_id = value.get("gpu_device_id")
-    requested_gpu_device_id = value.get("requested_gpu_device_id")
-    if (
-        isinstance(requested_gpu_device_id, bool)
-        or not isinstance(requested_gpu_device_id, int)
-        or requested_gpu_device_id < 0
-    ):
-        return False
-    if gpu_backend in CPU_GPU_BACKENDS:
-        if gpu_device_id is not None:
-            return False
-    elif (
-        gpu_backend not in GPU_BACKEND_RUNTIME_DISTRIBUTIONS
-        or isinstance(gpu_device_id, bool)
-        or not isinstance(gpu_device_id, int)
-        or gpu_device_id < 0
-    ):
-        return False
-    return (
-        value.get("engine_type") == row.get("effective_engine_type")
-        and value.get("ocr_version") == row.get("effective_ocr_version")
-        and value.get("model_type") == row.get("effective_model_type")
-        and value.get("rec_batch_num") == row.get("effective_rec_batch_num")
-        and value.get("gpu_backend") == row.get("effective_gpu_backend")
-        and value.get("language") == row.get("effective_language_hint")
-        and value.get("dpi") == row.get("dpi")
-    )
+    return value.get("dpi") == row.get("dpi")
 
 
-def _benchmark_environment_complete(row: dict[str, Any], value: Any) -> bool:
+def _benchmark_environment_complete(value: Any) -> bool:
     if not isinstance(value, dict) or not REQUIRED_ENVIRONMENT_FIELDS.issubset(value):
         return False
     if value.get("schema_version") != 1:
@@ -372,37 +264,9 @@ def _benchmark_environment_complete(row: dict[str, Any], value: Any) -> bool:
     dependencies = value.get("dependencies")
     if not isinstance(dependencies, dict) or not REQUIRED_CORE_DEPENDENCIES.issubset(dependencies):
         return False
-    if not all(
-        isinstance(name, str) and bool(name.strip()) and _has_complete_contract_value(version)
-        for name, version in dependencies.items()
-    ):
-        return False
-    effective_engine = row.get("effective_engine_type")
-    if effective_engine in {"openvino", "onnxruntime"} and effective_engine not in dependencies:
-        return False
-
-    gpu_devices = value.get("gpu_devices")
-    gpu_runtimes = value.get("gpu_runtimes")
-    if not isinstance(gpu_devices, list) or not isinstance(gpu_runtimes, dict):
-        return False
-    gpu_backend = _effective_gpu_backend(row)
-    if gpu_backend in CPU_GPU_BACKENDS:
-        return True
-    if gpu_backend not in GPU_BACKEND_RUNTIME_DISTRIBUTIONS:
-        return False
-    relevant_runtimes = _relevant_gpu_runtimes(gpu_backend, gpu_runtimes)
-    if not gpu_devices or not relevant_runtimes:
-        return False
-    if not all(
-        isinstance(device, dict)
-        and REQUIRED_GPU_DEVICE_FIELDS.issubset(device)
-        and all(_has_complete_contract_value(device[field]) for field in REQUIRED_GPU_DEVICE_FIELDS)
-        for device in gpu_devices
-    ):
-        return False
     return all(
         isinstance(name, str) and bool(name.strip()) and _has_complete_contract_value(version)
-        for name, version in relevant_runtimes.items()
+        for name, version in dependencies.items()
     )
 
 
@@ -525,7 +389,7 @@ def compare_record_coverage(
             for field in COMPARABILITY_FIELDS
             if _comparison_field_complete(baseline_row, field)
             and _comparison_field_complete(candidate_row, field)
-            if _comparison_value(baseline_row, field) != _comparison_value(candidate_row, field)
+            if baseline_row.get(field) != candidate_row.get(field)
         ]
         if mismatched_fields:
             configuration_mismatches.append(

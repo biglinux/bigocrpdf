@@ -1,6 +1,7 @@
 """OCR command implementation for the BigOcrPdf CLI."""
 
 import argparse
+import contextlib
 import logging
 import tempfile
 import time
@@ -11,7 +12,7 @@ from bigocrpdf.cli_parser import _parse_page_list
 from bigocrpdf.utils.temp_manager import staging_directory
 
 if TYPE_CHECKING:
-    from bigocrpdf.services.rapidocr_service.config import OCRConfig, OcrDocument
+    from bigocrpdf.services.ocr.config import OCRConfig, OcrDocument
 
 
 def _cmd_ocr(args: argparse.Namespace, logger: logging.Logger) -> int:
@@ -25,7 +26,7 @@ def _cmd_ocr(args: argparse.Namespace, logger: logging.Logger) -> int:
 
 def _build_ocr_config(args: argparse.Namespace) -> "OCRConfig":
     """Build OCRConfig from parsed CLI arguments."""
-    from bigocrpdf.services.rapidocr_service.config import OCRConfig
+    from bigocrpdf.services.ocr.config import OCRConfig
 
     scanner_enabled = True  # default
     if args.no_scanner:
@@ -43,18 +44,9 @@ def _build_ocr_config(args: argparse.Namespace) -> "OCRConfig":
     )
 
     return OCRConfig(
-        language="latin",
         dpi=args.dpi,
         workers=args.workers,
-        engine_type=args.engine_type,
-        model_type=args.model_type,
         pdf_mode=args.pdf_mode,
-        rec_batch_num=args.rec_batch_num,
-        use_textline_cls=args.use_textline_cls,
-        gpu_backend=args.gpu_backend,
-        gpu_device_id=args.gpu_device_id,
-        gpu_fp16=args.gpu_fp16,
-        gpu_fallback_to_cpu=not args.no_gpu_fallback,
         # Geometric
         enable_baseline_dewarp=not args.no_dewarp,
         enable_deskew=not args.no_deskew,
@@ -103,7 +95,7 @@ def _parse_ocr_page_selection(
 
 def _load_pdf_page_rotations(input_path: Path) -> list[int]:
     """Return each page /Rotate value normalized to 0, 90, 180, or 270."""
-    from bigocrpdf.services.rapidocr_service.rotation import extract_page_rotations
+    from bigocrpdf.services.ocr.rotation import extract_page_rotations
 
     return [page.original_pdf_rotation for page in extract_page_rotations(input_path)]
 
@@ -202,16 +194,18 @@ def _run_dewarp_only(
     else:
         save_dir = Path(tempfile.mkdtemp(prefix="bigocrpdf_debug_"))
 
-    from bigocrpdf.services.rapidocr_service.pdf_extractor import PDFImageExtractor
-    from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
+    from bigocrpdf.services.ocr.pdf_extractor import PDFImageExtractor
+    from bigocrpdf.services.ocr.ppocr_native import Detector
+    from bigocrpdf.services.ocr.preprocessor import ImagePreprocessor
 
     extractor = PDFImageExtractor(config.dpi, config.max_render_megapixels)
-    preprocessor = ImagePreprocessor(config)
+    detector = Detector()
+    preprocessor = ImagePreprocessor(config, detector)
 
     page_rotations = _load_pdf_page_rotations(args.input)
     effective_range = _effective_dewarp_page_range(page_range, page_set)
 
-    with tempfile.TemporaryDirectory() as tmp:
+    with tempfile.TemporaryDirectory() as tmp, contextlib.closing(detector):
         tmp_path = Path(tmp)
         logger.info(f"Extracting images from {args.input}...")
         images = extractor.extract(args.input, tmp_path, page_range=effective_range)
@@ -239,8 +233,8 @@ def _run_full_ocr(
     page_set: set[int] | None = None,
 ) -> int:
     """Run the full OCR pipeline."""
-    from bigocrpdf.services.rapidocr_service.backend import ProfessionalPDFOCR
-    from bigocrpdf.services.rapidocr_service.ocr_document_io import (
+    from bigocrpdf.services.ocr.backend import ProfessionalPDFOCR
+    from bigocrpdf.services.ocr.ocr_document_io import (
         complete_ocr_document,
         publish_ocr_pdfs,
     )
@@ -252,7 +246,7 @@ def _run_full_ocr(
 
     logger.info(f"Processing {args.input} → {args.output}")
     logger.info(
-        f"Config: lang={config.language}, dpi={config.dpi}, workers={config.workers}, "
+        f"Config: dpi={config.dpi}, workers={config.workers}, "
         f"dewarp={config.enable_baseline_dewarp}, deskew={config.enable_deskew}, "
         f"perspective={config.enable_perspective_correction}, "
         f"scanner={config.enable_scanner_effect}, "
@@ -345,7 +339,7 @@ def _write_requested_sidecar_json(
     ``requested_path`` is empty when ``--sidecar-json`` was given without a
     destination, which means the default name beside the output PDF.
     """
-    from bigocrpdf.services.rapidocr_service.ocr_document_io import (
+    from bigocrpdf.services.ocr.ocr_document_io import (
         ocr_document_json_path,
         write_ocr_document_json,
     )

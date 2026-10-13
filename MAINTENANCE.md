@@ -11,7 +11,7 @@ belong in the source tree.
 - `src/bigocrpdf/ui/` owns presentation, focus, actions, and main-loop delivery.
 - `src/bigocrpdf/services/settings.py` owns the flat settings API consumed by the UI.
 - `src/bigocrpdf/services/processor.py` owns queue and OCR orchestration.
-- `src/bigocrpdf/services/rapidocr_service/` owns OCR, PDF inspection, geometry,
+- `src/bigocrpdf/services/ocr/` owns OCR, PDF inspection, geometry,
   text-layer generation, compression, and worker protocols.
 - `src/bigocrpdf/services/export_service.py` and the ODF/Markdown owners implement
   document exports.
@@ -27,7 +27,7 @@ Name a new module after the domain concept it owns. `utils/` and the
 
 | Dependency | Delegate directly | BigOCRPDF must retain |
 | --- | --- | --- |
-| RapidOCR 3.x | model loading, detection, classification, recognition, word boxes | PDF policy, preprocessing policy, retries, process protocol, coordinate mapping, text layer, exports |
+| ppocr-native | PP-OCRv6 detection and recognition, the vertical re-read, the detector's boxes for deskew and its probability map for dewarp | PDF policy, preprocessing policy, retries, process protocol, coordinate mapping, text layer, exports |
 | pikepdf/qpdf | PDF object model, page copying, overlays, image access, save options | editor model, page selection semantics, geometry decisions, resource limits, atomic publication |
 | GTK 4 / libadwaita | widgets, models, list factories, actions, dialogs, accessibility primitives | application state, callbacks, async lifetime checks, workflow and accessible names |
 | OpenCV / SciPy | image transforms, thresholding, contours, interpolation, remapping | parameter selection, document detection, quality gates, fallback order, OCR-coordinate preservation |
@@ -40,20 +40,31 @@ BigOCRPDF is a Linux GTK 4.14+/libadwaita 1.5+ application on Python 3.12+. Pyth
 GTK state, asynchronous delivery, OCR orchestration, and PDF/document models.
 Shell is limited to validation, staging, and packaging.
 
-The base runtime includes GTK4, libadwaita, RapidOCR with the PP-OCRv6 small
-model, OpenVINO, Poppler tools, pikepdf, Pillow, OpenCV, NumPy, SciPy, ReportLab,
-and odfpy. ONNX Runtime is an optional inference backend. `jbig2enc` is optional;
-when it is absent, bilevel output must continue through CCITT Group 4.
+The base runtime includes GTK4, libadwaita, ppocr-native, the text-layer font
+Noto Sans from `noto-fonts`, Poppler tools, pikepdf, Pillow, OpenCV, NumPy, SciPy,
+ReportLab, and odfpy. `jbig2enc` is optional; when it is absent, bilevel output
+must continue through CCITT Group 4.
+
+`services/ocr/ppocr_native.py` owns the OCR engine: it finds the `ppocr-native`
+executable and the plans in `PPOCR_NATIVE_PLANS` (default
+`/usr/share/ppocr-native`), builds the worker's command line, and holds the one
+client of the worker's stdin/stdout JSON-lines protocol: `Worker` for a job's
+persistent OCR worker, and `Detector` for deskew and dewarp, which asks that
+worker or, in the preprocessing pool, a detect-only worker of its own. Image
+OCR runs one worker per request at normal priority. Each job owns its workers, so one job finishing or cancelling never
+touches another's. The worker reads only binary PPM and PGM, so OCR inputs are
+written as PPM. Its recognisers run one per physical core, capped by the
+resource manager's OCR thread count. A request has a 300 s deadline, and a
+cancelled job's waiting request returns within 0.1 s and kills its worker.
 
 Subprocess calls use direct argv. A zero exit status is authoritative success;
 nonzero status, timeout, or signal is an explicit error/cancellation result.
 
 ## OCR and PDF invariants
 
-- CPU OCR remains fully functional.
 - The supported recognition model is PP-OCRv6 small with its unified language
   coverage. Do not reconstruct legacy language-model selection.
-- OCR configuration, including engine, DPI, thresholds, batch size, and render
+- OCR configuration, including DPI, thresholds, detection resolution, and render
   limits, travels through `OCRConfig`; do not rebuild a partial settings object.
 - Unicode searchable PDFs use real extractable text. Validation must include
   `pdftotext`, not only inspection of internal strings.
@@ -200,14 +211,17 @@ bash tools/validate.sh
 The gate covers Python compilation, Ruff, formatting, Pyright, gettext freshness
 and completeness, staged desktop/AppStream data, ShellCheck, shfmt, pytest, and the
 frozen CLI/settings compatibility snapshot in `tools/compatibility-baseline.json`.
-CI runs that gate in Arch Linux, whose GTK is newer than the 4.14/1.5 floor;
-`tests/test_adw_compat.py` exercises the fallbacks that floor needs.
+It runs locally before a release: the CI workflow only triggers the package
+builds, and the PKGBUILD has no `check()`. Arch's GTK is newer than the 4.14/1.5
+floor; `tests/test_adw_compat.py` exercises the fallbacks that floor needs.
 
-Before release, also build and inspect the Arch package, run `nix flake check` and
-`nix build` in a working Nix environment, inspect installed file ownership and
-permissions, and exercise the installed package in a disposable VM. Verify KIO,
-Nemo, Nautilus, desktop launchers, OCR without `jbig2enc`, and a real Unicode
-`pdftotext` round trip.
+Before release, also run `bash tools/quality.sh` with ppocr-native and its plans
+installed, or with `PATH` and `PPOCR_NATIVE_PLANS` pointing at a build: it holds
+the one test that drives the real worker through the protocol. Build and inspect
+the Arch package, run `nix flake check` and `nix build` in a working Nix
+environment, inspect installed file ownership and permissions, and exercise the
+installed package in a disposable VM. Verify KIO, Nemo, Nautilus, desktop
+launchers, OCR without `jbig2enc`, and a real Unicode `pdftotext` round trip.
 
 ## Reduction policy
 

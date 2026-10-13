@@ -1,4 +1,4 @@
-from bigocrpdf.services.rapidocr_service.config import OcrDocument, OcrPage, OCRResult
+from bigocrpdf.services.ocr.config import OcrDocument, OcrPage, OCRResult
 
 
 def test_ocr_document_full_text_prefers_native_text():

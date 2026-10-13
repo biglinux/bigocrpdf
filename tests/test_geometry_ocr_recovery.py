@@ -9,8 +9,8 @@ cannot answer:
   without benefit?
 * Is the synthetic-quadrilateral shortcut used everywhere else sound?
 
-Opt in with ``pytest -m real_ocr`` or ``tools/quality.sh``. Needs the PP-OCRv6
-models on disk, and takes minutes.
+Opt in with ``pytest -m real_ocr`` or ``tools/quality.sh``. Needs ppocr-native
+installed, and takes minutes.
 """
 
 from pathlib import Path
@@ -20,7 +20,8 @@ import numpy as np
 import pytest
 from benchmarks.ocr_metrics import char_error_rate
 
-from bigocrpdf.services.rapidocr_service.config import OCRConfig
+from bigocrpdf.services.ocr import ppocr_native
+from bigocrpdf.services.ocr.config import OCRConfig
 from tests.geometry_fixtures import (
     DEFAULT_LINES,
     apply_rotation,
@@ -32,13 +33,8 @@ pytestmark = pytest.mark.real_ocr
 GROUND_TRUTH = "\n".join(DEFAULT_LINES)
 
 
-def _models_available() -> bool:
-    config = OCRConfig()
-    return bool(config.get_det_model_path() and config.get_rec_model_path())
-
-
 requires_models = pytest.mark.skipif(
-    not _models_available(), reason="PP-OCRv6 models are not installed"
+    ppocr_native.find_worker() is None, reason="ppocr-native and its plans are not installed"
 )
 
 
@@ -55,7 +51,7 @@ def _pdf_from_image(image: np.ndarray, path: Path) -> Path:
 
 def _ocr_text(pdf: Path, out_dir: Path, **config_overrides) -> tuple[str, int]:
     """Run the real pipeline and return (extracted text, region count)."""
-    from bigocrpdf.services.rapidocr_service.backend import ProfessionalPDFOCR
+    from bigocrpdf.services.ocr.backend import ProfessionalPDFOCR
 
     stats = ProfessionalPDFOCR(OCRConfig(**config_overrides)).process(
         pdf, out_dir / f"{pdf.stem}-ocr.pdf"
@@ -145,7 +141,7 @@ class TestSyntheticQuadAssumption:
     """
 
     def test_the_engine_emits_one_quad_per_line_in_reading_order(self, tmp_path: Path):
-        from bigocrpdf.services.rapidocr_service.backend import ProfessionalPDFOCR
+        from bigocrpdf.services.ocr.backend import ProfessionalPDFOCR
 
         pdf = _pdf_from_image(render_synthetic_page(), tmp_path / "clean.pdf")
 
@@ -160,7 +156,7 @@ class TestSyntheticQuadAssumption:
 
     def test_regions_are_close_to_axis_aligned(self, tmp_path: Path):
         """The metric-box fixtures assume so; a heavy shear would invalidate them."""
-        from bigocrpdf.services.rapidocr_service.backend import ProfessionalPDFOCR
+        from bigocrpdf.services.ocr.backend import ProfessionalPDFOCR
 
         pdf = _pdf_from_image(render_synthetic_page(), tmp_path / "clean.pdf")
 

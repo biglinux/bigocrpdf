@@ -11,7 +11,7 @@ import pikepdf
 import pytest
 
 from bigocrpdf.cli_ocr_commands import _prepare_selected_pages, _run_full_ocr
-from bigocrpdf.services.rapidocr_service.config import OCRConfig, ProcessingStats
+from bigocrpdf.services.ocr.config import OCRConfig, ProcessingStats
 
 SIZES = [(100, 200), (300, 400), (500, 600)]
 
@@ -109,7 +109,7 @@ def test_full_ocr_processes_only_selected_pages(
 
     config = OCRConfig()
     with patch(
-        "bigocrpdf.services.rapidocr_service.backend.ProfessionalPDFOCR",
+        "bigocrpdf.services.ocr.backend.ProfessionalPDFOCR",
         return_value=SimpleNamespace(process=process),
     ):
         result = _run_full_ocr(
@@ -133,7 +133,7 @@ def test_full_ocr_rejects_page_outside_document(tmp_path: Path) -> None:
     process = MagicMock()
 
     with patch(
-        "bigocrpdf.services.rapidocr_service.backend.ProfessionalPDFOCR",
+        "bigocrpdf.services.ocr.backend.ProfessionalPDFOCR",
         return_value=SimpleNamespace(process=process),
     ):
         result = _run_full_ocr(

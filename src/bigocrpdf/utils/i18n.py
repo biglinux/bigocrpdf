@@ -73,7 +73,6 @@ def setup_i18n() -> None:
     """Configure locale and bind the application gettext domain once."""
     try:
         locale.setlocale(locale.LC_ALL, "")
-        locale.setlocale(locale.LC_NUMERIC, "C")
     except locale.Error:
         locale.setlocale(locale.LC_ALL, "C")
     locale_dir = str(_find_locale_dir())

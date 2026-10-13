@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from bigocrpdf.services.rapidocr_service.bilevel_analysis import (
+from bigocrpdf.services.ocr.bilevel_analysis import (
     binarize,
     is_bilevel_candidate,
 )

@@ -1,4 +1,4 @@
-"""Truthful mixed-content pipeline outcomes."""
+"""What the mixed-content and embedded-image pipelines record for each page."""
 
 from pathlib import Path
 from types import SimpleNamespace
@@ -6,14 +6,16 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pikepdf
+import pytest
 
-from bigocrpdf.services.rapidocr_service.backend_embedded_image_pipeline import (
+from bigocrpdf.services.ocr.backend_embedded_image_pipeline import (
     BackendEmbeddedImagePipelineMixin,
 )
-from bigocrpdf.services.rapidocr_service.config import OCRConfig, ProcessingStats
-from bigocrpdf.services.rapidocr_service.pipeline_mixed_content import (
+from bigocrpdf.services.ocr.config import OCRConfig, ProcessingStats
+from bigocrpdf.services.ocr.pipeline_mixed_content import (
     MixedContentMixin,
 )
+from bigocrpdf.services.ocr.ppocr_native import ReadError
 
 
 def test_text_only_mixed_pdf_reports_copied_pages_as_processed(
@@ -32,11 +34,11 @@ def test_text_only_mixed_pdf_reports_copied_pages_as_processed(
 
     with (
         patch(
-            "bigocrpdf.services.rapidocr_service.pipeline_mixed_content.extract_image_positions",
+            "bigocrpdf.services.ocr.pipeline_mixed_content.extract_image_positions",
             return_value={},
         ),
         patch(
-            "bigocrpdf.services.rapidocr_service.pipeline_mixed_content.parse_pdfimages_list",
+            "bigocrpdf.services.ocr.pipeline_mixed_content.parse_pdfimages_list",
             return_value=({}, set()),
         ),
     ):
@@ -52,7 +54,7 @@ def test_text_only_mixed_pdf_reports_copied_pages_as_processed(
         assert len(copied.pages) == 2
 
 
-def test_mixed_content_records_the_worker_runtime_that_became_ready(
+def test_mixed_content_records_reported_tier(
     tmp_path: Path,
 ) -> None:
     source = tmp_path / "source.pdf"
@@ -60,87 +62,54 @@ def test_mixed_content_records_the_worker_runtime_that_became_ready(
     with pikepdf.Pdf.new() as pdf:
         pdf.add_blank_page()
         pdf.save(source)
-    runtime = {
-        "schema_version": 1,
-        "engine_label": "onnxruntime_cpu",
-        "engine_type": "onnxruntime",
-        "gpu_backend": "off",
-        "gpu_device_id": None,
-    }
-    process = SimpleNamespace(_bigocr_threads=7)
-    subprocess_controller = SimpleNamespace(
-        launch=MagicMock(return_value=process),
-        wait_until_ready=MagicMock(return_value=runtime),
-        stop=MagicMock(),
-    )
+    worker = SimpleNamespace(threads=7, wait_ready=MagicMock(return_value=2), close=MagicMock())
     engine = SimpleNamespace(
         config=OCRConfig(),
-        _ocr_subprocess=subprocess_controller,
-        _check_openvino_available=MagicMock(return_value=False),
+        _start_ocr_worker=MagicMock(return_value=worker),
         _run_mixed_ocr_pass=MagicMock(),
+        _raise_if_cancelled=MagicMock(),
         _post_process_mixed=MagicMock(),
         _calculate_final_stats=MagicMock(),
     )
 
     with (
         patch(
-            "bigocrpdf.services.rapidocr_service.pipeline_mixed_content.extract_image_positions",
+            "bigocrpdf.services.ocr.pipeline_mixed_content.extract_image_positions",
             return_value={1: []},
         ),
         patch(
-            "bigocrpdf.services.rapidocr_service.pipeline_mixed_content.parse_pdfimages_list",
+            "bigocrpdf.services.ocr.pipeline_mixed_content.parse_pdfimages_list",
             return_value=({}, set()),
         ),
         patch(
-            "bigocrpdf.services.rapidocr_service.pipeline_mixed_content._mixed_render_candidates",
+            "bigocrpdf.services.ocr.pipeline_mixed_content._mixed_render_candidates",
             return_value=set(),
         ),
-        patch(
-            "bigocrpdf.services.rapidocr_service.pipeline_mixed_content.record_ocr_runtime_diagnostics"
-        ) as record_runtime,
     ):
-        MixedContentMixin._process_mixed_content_pdf(engine, source, output)
+        stats = MixedContentMixin._process_mixed_content_pdf(engine, source, output)
 
-    record_runtime.assert_called_once()
-    assert record_runtime.call_args.args[3:] == (7, 1, runtime)
+    runtime = stats.ocr_document.diagnostics["ocr_runtime"]
+    assert (runtime["kernel_tier"], runtime["ocr_threads"]) == (2, 7)
 
 
-def test_embedded_image_ocr_records_the_ready_worker_runtime(
+def test_embedded_image_records_reported_tier(
     tmp_path: Path,
 ) -> None:
     source = tmp_path / "source.pdf"
     with pikepdf.Pdf.new() as pdf:
         pdf.add_blank_page()
         pdf.save(source)
-    runtime = {
-        "schema_version": 1,
-        "engine_label": "paddle_cuda",
-        "engine_type": "paddle",
-        "gpu_backend": "paddle",
-        "gpu_device_id": 0,
-    }
-    process = SimpleNamespace(_bigocr_threads=4)
-    subprocess_controller = SimpleNamespace(
-        launch=MagicMock(return_value=process),
-        wait_until_ready=MagicMock(return_value=runtime),
-        stop=MagicMock(),
-    )
+    worker = SimpleNamespace(threads=4, wait_ready=MagicMock(return_value=2), close=MagicMock())
     engine = SimpleNamespace(
         config=OCRConfig(),
-        _ocr_subprocess=subprocess_controller,
-        _check_openvino_available=MagicMock(return_value=False),
+        _start_ocr_worker=MagicMock(return_value=worker),
         _ocr_native_text_page_image_overlays=MagicMock(),
     )
     stats = ProcessingStats()
 
-    with (
-        patch(
-            "bigocrpdf.services.rapidocr_service.backend_embedded_image_pipeline.extract_image_positions",
-            return_value={1: [object()]},
-        ),
-        patch(
-            "bigocrpdf.services.rapidocr_service.backend_embedded_image_pipeline.record_ocr_runtime_diagnostics"
-        ) as record_runtime,
+    with patch(
+        "bigocrpdf.services.ocr.backend_embedded_image_pipeline.extract_image_positions",
+        return_value={1: [object()]},
     ):
         BackendEmbeddedImagePipelineMixin._ocr_native_text_page_images(
             engine,
@@ -149,26 +118,110 @@ def test_embedded_image_ocr_records_the_ready_worker_runtime(
             stats,
         )
 
-    record_runtime.assert_called_once()
-    assert record_runtime.call_args.args[3:] == (4, 1, runtime)
+    runtime = stats.ocr_document.diagnostics["ocr_runtime"]
+    assert (runtime["kernel_tier"], runtime["ocr_threads"]) == (2, 4)
 
 
 def test_embedded_ocr_skips_worker_when_temp_write_fails() -> None:
-    recognize = MagicMock()
-    engine = SimpleNamespace(
-        _ocr_subprocess=SimpleNamespace(recognize=recognize),
-        config=SimpleNamespace(text_score_threshold=0.5),
-    )
+    worker = SimpleNamespace(recognize=MagicMock())
+    stats = ProcessingStats()
 
     with patch(
-        "bigocrpdf.services.rapidocr_service.backend_embedded_image_pipeline.cv2.imwrite",
+        "bigocrpdf.services.ocr.backend_embedded_image_pipeline.cv2.imwrite",
         return_value=False,
     ):
         result = BackendEmbeddedImagePipelineMixin._ocr_via_persistent(
-            engine,
-            np.zeros((2, 2, 3), dtype=np.uint8),
-            object(),
+            np.zeros((2, 2, 3), dtype=np.uint8), worker, stats, 3
         )
 
     assert result == []
-    recognize.assert_not_called()
+    assert "could not write" in stats.failed_pages[3]
+    worker.recognize.assert_not_called()
+
+
+def test_unread_image_marks_its_page_failed() -> None:
+    worker = SimpleNamespace(recognize=MagicMock(side_effect=ReadError("worker crashed")))
+    stats = ProcessingStats()
+
+    result = BackendEmbeddedImagePipelineMixin._ocr_via_persistent(
+        np.zeros((8, 8, 3), dtype=np.uint8), worker, stats, 2
+    )
+
+    assert result == []
+    assert stats.failed_pages == {2: "worker crashed"}
+
+
+@pytest.mark.parametrize("rendered", [None, "unreadable.ppm"])
+def test_unrendered_page_marks_it_failed(tmp_path: Path, rendered: str | None) -> None:
+    if rendered is not None:
+        rendered = str(tmp_path / rendered)
+        Path(rendered).write_bytes(b"not an image")
+    engine = SimpleNamespace(
+        config=OCRConfig(),
+        _raise_if_cancelled=lambda: None,
+        _prepare_page_for_reocr=lambda *_args: True,
+        _ocr_via_persistent=MagicMock(),
+    )
+    stats = ProcessingStats()
+    with pikepdf.Pdf.new() as pdf:
+        pdf.add_blank_page()
+        with patch(
+            "bigocrpdf.services.ocr.pipeline_mixed_content.render_page_for_ocr",
+            return_value=rendered,
+        ):
+            MixedContentMixin._ocr_rendered_page(
+                engine, tmp_path / "in.pdf", pdf, 1, 0, 1, tmp_path, stats, [], None, None, 0, 10
+            )
+
+    assert stats.failed_pages == {1: "the page could not be rendered"}
+    engine._ocr_via_persistent.assert_not_called()
+    assert rendered is None or not Path(rendered).exists()
+
+
+def test_cancel_during_an_image_stops_the_page() -> None:
+    engine = SimpleNamespace(
+        config=OCRConfig(),
+        _ocr_image_in_page=MagicMock(side_effect=InterruptedError("cancelled")),
+    )
+    pairs = [(SimpleNamespace(name="/Im0"), SimpleNamespace(idx=0))]
+
+    with pytest.raises(InterruptedError):
+        MixedContentMixin._ocr_positioned_image_pairs(
+            engine,
+            None,
+            None,
+            1,
+            612,
+            792,
+            pairs,
+            {0: Path("img-000.png")},
+            ProcessingStats(),
+            [],
+            None,
+        )
+
+
+def test_oversized_embedded_jpeg_is_skipped() -> None:
+    import io
+
+    from PIL import Image
+
+    jpeg = io.BytesIO()
+    Image.new("L", (1200, 1000), 255).save(jpeg, "JPEG")
+    with pikepdf.Pdf.new() as pdf:
+        image = pdf.make_stream(
+            jpeg.getvalue(),
+            Type=pikepdf.Name.XObject,
+            Subtype=pikepdf.Name.Image,
+            Width=400,
+            Height=400,
+            ColorSpace=pikepdf.Name.DeviceGray,
+            BitsPerComponent=8,
+            Filter=pikepdf.Name.DCTDecode,
+        )
+        engine = SimpleNamespace(config=OCRConfig(max_image_megapixels=1.0))
+
+        assert BackendEmbeddedImagePipelineMixin._extract_xobj_image(engine, image, "/Im0") is None
+        engine.config.max_image_megapixels = 2.0
+        pixels = BackendEmbeddedImagePipelineMixin._extract_xobj_image(engine, image, "/Im0")
+        assert pixels.shape == (1000, 1200, 3)

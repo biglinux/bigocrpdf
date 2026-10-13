@@ -10,8 +10,8 @@ and was invisible to the zero-region regression gate.
 
 import pytest
 
-from bigocrpdf.services.rapidocr_service.config import OCRResult, ProcessingStats
-from bigocrpdf.services.rapidocr_service.ocr_document_pages import (
+from bigocrpdf.services.ocr.config import OCRResult, ProcessingStats
+from bigocrpdf.services.ocr.ocr_document_pages import (
     average_confidence,
     record_ocr_page,
 )
@@ -133,7 +133,7 @@ class TestSkippedPageWarning:
     """
 
     def test_a_skipped_page_produces_a_warning(self):
-        from bigocrpdf.services.rapidocr_service.pipeline_mixed_content import (
+        from bigocrpdf.services.ocr.pipeline_mixed_content import (
             _record_skipped_page,
         )
 
@@ -145,7 +145,7 @@ class TestSkippedPageWarning:
         assert "3" in stats.warnings[0]
 
     def test_the_warning_names_the_setting_that_fixes_it(self):
-        from bigocrpdf.services.rapidocr_service.pipeline_mixed_content import (
+        from bigocrpdf.services.ocr.pipeline_mixed_content import (
             _record_skipped_page,
         )
 
@@ -154,11 +154,3 @@ class TestSkippedPageWarning:
         _record_skipped_page(stats, 1)
 
         assert "replace existing OCR" in stats.warnings[0]
-
-    def test_no_stats_object_is_tolerated(self):
-        """The helper is also reachable from paths that do not carry stats."""
-        from bigocrpdf.services.rapidocr_service.pipeline_mixed_content import (
-            _record_skipped_page,
-        )
-
-        _record_skipped_page(None, 1)

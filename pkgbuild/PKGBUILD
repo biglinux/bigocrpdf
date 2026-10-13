@@ -11,13 +11,10 @@ depends=(
 	'python>=3.12'
 	'python-gobject'
 	'python-cairo'
-	# RapidOCR core
-	'python-rapidocr'
-	'rapidocr-fonts'
-	# Unified PP-OCRv6 model (Chinese, English, Japanese and Latin scripts)
-	'rapidocr-models-v6-small'
-	# OCR inference backend
-	'python-openvino'
+	# OCR engine: PP-OCRv6 small (Chinese, English, Japanese and Latin scripts)
+	'ppocr-native'
+	# Noto Sans, the font the text layer is written with
+	'noto-fonts'
 	# PDF processing
 	'python-pikepdf'
 	'python-pillow'
@@ -67,12 +64,12 @@ optdepends=(
 	# File manager integration
 	'python-nautilus: GNOME Files (Nautilus) context menu integration'
 	'nemo-python: Nemo file manager context menu integration'
-	# Alternative inference backend
-	'python-onnxruntime: Alternative inference backend (fallback)'
 	# PDF/A ICC profile fallback
 	'ghostscript: sRGB ICC profile for PDF/A-2b conversion'
 	# Optional best compression for bilevel PDF output
 	'jbig2enc: smaller Black & White PDF output; CCITT G4 is used when absent'
+	# Text-layer font for what Noto Sans lacks
+	'wqy-microhei: searchable Chinese and Japanese text in OCR output'
 )
 
 build() {

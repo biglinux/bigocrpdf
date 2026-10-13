@@ -10,8 +10,8 @@ extracted text.
 
 import pytest
 
-from bigocrpdf.services.rapidocr_service.config import OCRResult
-from bigocrpdf.services.rapidocr_service.ocr_document_structure import (
+from bigocrpdf.services.ocr.config import OCRResult
+from bigocrpdf.services.ocr.ocr_document_structure import (
     _WORD_GAP_PX,
     build_ocr_lines_from_results,
 )

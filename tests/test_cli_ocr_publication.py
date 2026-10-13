@@ -9,13 +9,13 @@ from unittest.mock import patch
 import pikepdf
 
 from bigocrpdf.cli_ocr_commands import _run_full_ocr
-from bigocrpdf.services.rapidocr_service.config import (
+from bigocrpdf.services.ocr.config import (
     OCRConfig,
     OcrDocument,
     OcrPage,
     ProcessingStats,
 )
-from bigocrpdf.services.rapidocr_service.ocr_document_io import (
+from bigocrpdf.services.ocr.ocr_document_io import (
     _read_split_family,
     load_ocr_document_json,
     ocr_document_json_path,
@@ -68,7 +68,7 @@ def test_cli_ocr_stages_beside_destination_before_publication(
 
     engine = SimpleNamespace(process=process)
     with patch(
-        "bigocrpdf.services.rapidocr_service.backend.ProfessionalPDFOCR",
+        "bigocrpdf.services.ocr.backend.ProfessionalPDFOCR",
         return_value=engine,
     ):
         result = _run_full_ocr(
@@ -101,7 +101,7 @@ def test_cli_ocr_logs_confidence_as_percentage(tmp_path: Path, caplog) -> None:
     logger = logging.getLogger("test-confidence")
     caplog.set_level(logging.INFO, logger=logger.name)
     with patch(
-        "bigocrpdf.services.rapidocr_service.backend.ProfessionalPDFOCR",
+        "bigocrpdf.services.ocr.backend.ProfessionalPDFOCR",
         return_value=SimpleNamespace(process=process),
     ):
         result = _run_full_ocr(_args(source, output), OCRConfig(), None, logger)
@@ -125,7 +125,7 @@ def test_cli_ocr_failure_preserves_existing_destination(
 
     engine = SimpleNamespace(process=fail)
     with patch(
-        "bigocrpdf.services.rapidocr_service.backend.ProfessionalPDFOCR",
+        "bigocrpdf.services.ocr.backend.ProfessionalPDFOCR",
         return_value=engine,
     ):
         result = _run_full_ocr(
@@ -169,7 +169,7 @@ def test_cli_split_records_each_part_family_inside_the_pdf(
 
     engine = SimpleNamespace(process=process)
     with patch(
-        "bigocrpdf.services.rapidocr_service.backend.ProfessionalPDFOCR",
+        "bigocrpdf.services.ocr.backend.ProfessionalPDFOCR",
         return_value=engine,
     ):
         result = _run_full_ocr(
@@ -252,7 +252,7 @@ def _run_ocr_writing_one_page(args: argparse.Namespace) -> int:
         return _ocr_stats_with_document()
 
     with patch(
-        "bigocrpdf.services.rapidocr_service.backend.ProfessionalPDFOCR",
+        "bigocrpdf.services.ocr.backend.ProfessionalPDFOCR",
         return_value=SimpleNamespace(process=process),
     ):
         return _run_full_ocr(args, OCRConfig(), None, _logger())
@@ -317,7 +317,7 @@ def test_sidecar_json_reports_that_split_output_has_no_structured_form(
     logger = logging.getLogger("test-split-json")
     caplog.set_level(logging.WARNING, logger=logger.name)
     with patch(
-        "bigocrpdf.services.rapidocr_service.backend.ProfessionalPDFOCR",
+        "bigocrpdf.services.ocr.backend.ProfessionalPDFOCR",
         return_value=SimpleNamespace(process=process),
     ):
         result = _run_full_ocr(_args(source, output, ""), OCRConfig(), None, logger)
@@ -349,7 +349,7 @@ def test_sidecar_json_refuses_a_document_that_misses_pages(
     logger = logging.getLogger("test-partial-json")
     caplog.set_level(logging.WARNING, logger=logger.name)
     with patch(
-        "bigocrpdf.services.rapidocr_service.backend.ProfessionalPDFOCR",
+        "bigocrpdf.services.ocr.backend.ProfessionalPDFOCR",
         return_value=SimpleNamespace(process=process),
     ):
         result = _run_full_ocr(_args(source, output, ""), OCRConfig(), None, logger)

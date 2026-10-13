@@ -13,13 +13,23 @@ from enum import Enum, auto
 from pathlib import Path
 
 import pikepdf
+from PIL import Image
 
 from bigocrpdf.constants import MIN_IMAGE_DIMENSION_PX
-from bigocrpdf.services.rapidocr_service.ocr_document_io import publish_ocr_pdfs
+from bigocrpdf.services.ocr.config import DEFAULT_MAX_IMAGE_MEGAPIXELS
+from bigocrpdf.services.ocr.ocr_document_io import publish_ocr_pdfs
+from bigocrpdf.services.ocr.pdf_image_analysis import open_pdf_image
 from bigocrpdf.utils.durable_writes import publish_file_atomically
 from bigocrpdf.utils.i18n import _
 
 logger = logging.getLogger(__name__)
+
+_MAX_COMPRESS_PIXELS = DEFAULT_MAX_IMAGE_MEGAPIXELS * 1_000_000
+_JPEG_COLOR_SPACES = {
+    "L": pikepdf.Name.DeviceGray,
+    "RGB": pikepdf.Name.DeviceRGB,
+    "CMYK": pikepdf.Name.DeviceCMYK,
+}
 
 
 class ErrorCode(Enum):
@@ -812,7 +822,7 @@ def compress_pdf(
             output_path=str(output_path),
             pages_affected=images_compressed,
         )
-    except (OSError, pikepdf.PdfError, ValueError) as e:
+    except (OSError, pikepdf.PikepdfError, ValueError) as e:
         logger.error("Compress failed: %s", e)
         return _fail(e)
 
@@ -836,12 +846,6 @@ def _compress_page_images(
     if seen_objgen is None:
         seen_objgen = set()
 
-    try:
-        from PIL import Image
-    except ImportError:
-        logger.warning("PIL not available — skipping image compression")
-        return 0
-
     count = 0
 
     try:
@@ -855,10 +859,18 @@ def _compress_page_images(
             obj = xobjects[key]
             if not _should_compress_xobject(obj, seen_objgen):
                 continue
-            if _compress_xobject_image(pdf, page, xobjects, key, obj, quality, target_dpi, Image):
+            if _compress_xobject_image(pdf, page, xobjects, key, obj, quality, target_dpi):
                 count += 1
 
-        except (pikepdf.PdfError, OSError, ValueError) as e:
+        # PikepdfError also covers images pikepdf cannot decode, and TypeError a
+        # /Width or /Height that is not an integer.
+        except (
+            pikepdf.PikepdfError,
+            OSError,
+            TypeError,
+            ValueError,
+            Image.DecompressionBombError,
+        ) as e:
             logger.debug("Skipping image %s: %s", key, e)
             continue
 
@@ -873,9 +885,8 @@ def _should_compress_xobject(obj, seen_objgen: set) -> bool:
     if obj.objgen in seen_objgen:
         return False
     seen_objgen.add(obj.objgen)
-    width = int(obj.get("/Width", 0))
-    height = int(obj.get("/Height", 0))
-    return width >= MIN_IMAGE_DIMENSION_PX and height >= MIN_IMAGE_DIMENSION_PX
+    # A JPEG cannot carry a mask or a /Decode array, nor a stencil mask's meaning.
+    return not any(name in obj for name in ("/SMask", "/Mask", "/Decode", "/ImageMask"))
 
 
 def _compress_xobject_image(
@@ -886,17 +897,17 @@ def _compress_xobject_image(
     obj,
     quality: int,
     target_dpi: int,
-    Image,
 ) -> bool:
     width = int(obj.get("/Width", 0))
     height = int(obj.get("/Height", 0))
-    try:
-        pil_img = pikepdf.PdfImage(obj).as_pil_image()
-    except (pikepdf.PdfError, OSError, ValueError):
+    if width < MIN_IMAGE_DIMENSION_PX or height < MIN_IMAGE_DIMENSION_PX:
+        return False
+    pil_img = open_pdf_image(obj, _MAX_COMPRESS_PIXELS)
+    if pil_img is None or pil_img.mode not in _JPEG_COLOR_SPACES:
         return False
 
     original_size = _xobject_raw_size(obj, width, height)
-    pil_img = _downsample_image_for_dpi(pil_img, width, height, page, target_dpi, Image)
+    pil_img = _downsample_image_for_dpi(pil_img, width, height, page, target_dpi)
     jpeg_data = _encode_pdf_image_as_jpeg(pil_img, quality)
     if len(jpeg_data) >= original_size * 0.90:
         return False
@@ -913,8 +924,8 @@ def _xobject_raw_size(obj, width: int, height: int) -> int:
 
 
 def _downsample_image_for_dpi(
-    pil_img, width: int, height: int, page: pikepdf.Page, target_dpi: int, Image
-):
+    pil_img: Image.Image, width: int, height: int, page: pikepdf.Page, target_dpi: int
+) -> Image.Image:
     current_dpi = _page_image_dpi(page, width, height)
     if current_dpi <= target_dpi * 1.2:
         return pil_img
@@ -936,25 +947,22 @@ def _page_image_dpi(page: pikepdf.Page, width: int, height: int) -> float:
     return 300
 
 
-def _encode_pdf_image_as_jpeg(pil_img, quality: int) -> bytes:
-    import io
-
-    if pil_img.mode in ("RGBA", "LA", "P"):
-        pil_img = pil_img.convert("RGB")
+def _encode_pdf_image_as_jpeg(pil_img: Image.Image, quality: int) -> bytes:
     buf = io.BytesIO()
     pil_img.save(buf, format="JPEG", quality=quality, optimize=True)
     return buf.getvalue()
 
 
-def _new_jpeg_xobject(pdf: pikepdf.Pdf, jpeg_data: bytes, pil_img) -> pikepdf.Stream:
+def _new_jpeg_xobject(pdf: pikepdf.Pdf, jpeg_data: bytes, pil_img: Image.Image) -> pikepdf.Stream:
     new_img = pikepdf.Stream(pdf, jpeg_data)
     new_img["/Type"] = pikepdf.Name.XObject
     new_img["/Subtype"] = pikepdf.Name.Image
     new_img["/Width"] = pil_img.width
     new_img["/Height"] = pil_img.height
-    new_img["/ColorSpace"] = (
-        pikepdf.Name.DeviceGray if pil_img.mode == "L" else pikepdf.Name.DeviceRGB
-    )
+    new_img["/ColorSpace"] = _JPEG_COLOR_SPACES[pil_img.mode]
+    if pil_img.mode == "CMYK":
+        # PIL writes CMYK JPEGs inverted, as Adobe applications do.
+        new_img["/Decode"] = pikepdf.Array([1, 0] * 4)
     new_img["/BitsPerComponent"] = 8
     new_img["/Filter"] = pikepdf.Name.DCTDecode
     return new_img

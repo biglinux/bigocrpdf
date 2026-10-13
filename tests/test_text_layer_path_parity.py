@@ -8,13 +8,12 @@ placement whichever route it takes.
 
 import random
 import re
-from pathlib import Path
 
 import pytest
 
-from bigocrpdf.services.rapidocr_service import pdf_assembly
-from bigocrpdf.services.rapidocr_service.config import OCRConfig, OCRResult
-from bigocrpdf.services.rapidocr_service.renderer import TextLayerRenderer
+from bigocrpdf.services.ocr import pdf_assembly
+from bigocrpdf.services.ocr.config import OCRConfig, OCRResult
+from bigocrpdf.services.ocr.renderer import TextLayerRenderer
 
 SEED = 20260809
 
@@ -25,7 +24,7 @@ SCALE_Y = PAGE[1] / IMAGE[1]
 
 
 def _canvas_placement(box: list[list[float]]) -> tuple[float, float, float]:
-    renderer = TextLayerRenderer(OCRConfig(font_base_path=Path("/nonexistent-font-dir")))
+    renderer = TextLayerRenderer(OCRConfig(font_path=None))
     layer = renderer.create_text_layer(
         [OCRResult(text="WORD", box=box, confidence=0.9)], IMAGE[0], IMAGE[1], page_size_pts=PAGE
     )
@@ -39,7 +38,6 @@ def _stream_commands(box: list[list[float]], offset=(0.0, 0.0), text="WORD") -> 
             [OCRResult(text=text, box=box, confidence=0.9)],
             img_x=offset[0],
             img_y=offset[1],
-            img_width=PAGE[0],
             img_height=PAGE[1],
             scale_x=SCALE_X,
             scale_y=SCALE_Y,

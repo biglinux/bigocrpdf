@@ -2,7 +2,6 @@
 GNOME Screenshot, Flameshot), and OCR of the captured or opened image.
 """
 
-import json
 import math
 import os
 import secrets
@@ -23,17 +22,14 @@ import numpy as np
 from gi.repository import Gio, GLib
 from PIL import Image, ImageOps, UnidentifiedImageError
 
-from bigocrpdf.services.rapidocr_service.config import (
+from bigocrpdf.services.ocr import ppocr_native
+from bigocrpdf.services.ocr.config import (
     DEFAULT_MAX_IMAGE_MEGAPIXELS,
     OCRConfig,
-    OCRResult,
 )
-from bigocrpdf.services.rapidocr_service.ocr_worker_engine import (
-    build_ocr_worker_command,
-    ocr_worker_environment,
-)
-from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
-from bigocrpdf.services.rapidocr_service.text_formatting_controller import (
+from bigocrpdf.services.ocr.ppocr_native import OCR_IMAGE_SUFFIX
+from bigocrpdf.services.ocr.preprocessor import ImagePreprocessor
+from bigocrpdf.services.ocr.text_formatting_controller import (
     TextFormattingController,
 )
 from bigocrpdf.utils.i18n import _
@@ -84,10 +80,10 @@ class ImageOcrOutcome:
     status: ImageOcrStatus
     text: str | None = None
     message: str | None = None
-
-
-class OcrWorkerProtocolError(ValueError):
-    """Raised when the OCR worker does not return its documented JSON contract."""
+    # What the OCR engine itself reported, shown for copying.
+    detail: str | None = None
+    # What failed, when it was not reading the text.
+    heading: str | None = None
 
 
 class ImageInputError(ValueError):
@@ -109,6 +105,11 @@ class ImageOcrRequest:
         self._portal_handle: str | None = None
         self._done = False
         self.cancellable = Gio.Cancellable()
+
+    @property
+    def cancel_event(self) -> threading.Event:
+        """Set on cancel; an OCR worker given it stops its request in flight."""
+        return self._cancelled
 
     @property
     def is_cancelled(self) -> bool:
@@ -259,7 +260,7 @@ class _ImageProcessJob:
 
 
 class ScreenCaptureService:
-    """Service to capture screen regions and extract text using RapidOCR."""
+    """Captures screen regions and reads the text in them, or in image files."""
 
     def __init__(self) -> None:
         """Create one bounded, latest-only lane for direct image OCR."""
@@ -274,20 +275,18 @@ class ScreenCaptureService:
         image_path: str,
         callback: Callable[[ImageOcrOutcome], None],
         on_processing: Callable[[], None] | None = None,
-        language: str = "latin",
         config: OCRConfig | None = None,
     ) -> ImageOcrRequest:
-        """Process an existing image file and extract text using RapidOCR.
+        """Read the text in an existing image file.
 
         Args:
             image_path: Path to the image file
-            callback: Callback function to receive the result (text, error)
+            callback: Receives the ImageOcrOutcome on the main loop
             on_processing: Optional callback invoked when processing starts
-            language: Language/script code for OCR (default: "latin")
         """
         return self._queue_image_job(
             image_path=image_path,
-            config=config or OCRConfig(language=language),
+            config=config or OCRConfig(),
             callback=callback,
             on_processing=on_processing,
         )
@@ -416,12 +415,7 @@ class ScreenCaptureService:
         try:
             request.raise_if_cancelled()
             self._invoke_processing_callback(on_processing)
-            text, error = self._extract_text_result(
-                image_path,
-                config,
-                request=request,
-            )
-            outcome = self._outcome_from_text_result(text, error)
+            outcome = self._extract_text_result(image_path, config, request=request)
         except ImageOcrCancelled:
             outcome = ImageOcrOutcome(ImageOcrStatus.CANCELLED)
         except Exception as e:
@@ -429,6 +423,7 @@ class ScreenCaptureService:
             outcome = ImageOcrOutcome(
                 ImageOcrStatus.ERROR,
                 message=_("OCR processing failed."),
+                detail=str(e),
             )
         if request.complete():
             outcome = ImageOcrOutcome(ImageOcrStatus.CANCELLED)
@@ -438,19 +433,17 @@ class ScreenCaptureService:
         self,
         callback: Callable[[ImageOcrOutcome], None],
         on_processing: Callable[[], None] | None = None,
-        language: str = "latin",
         config: OCRConfig | None = None,
     ) -> ImageOcrRequest:
         """Capture a region of the screen and extract text from it.
 
         Args:
-            callback: Callback function to receive the result (text, error)
+            callback: Receives the ImageOcrOutcome on the main loop
             on_processing: Optional callback invoked when processing starts
-            language: Language/script code for OCR (default: "latin")
         """
         return self._queue_image_job(
             image_path=None,
-            config=config or OCRConfig(language=language),
+            config=config or OCRConfig(),
             callback=callback,
             on_processing=on_processing,
         )
@@ -465,31 +458,24 @@ class ScreenCaptureService:
         """Execute the capture and OCR process in a thread."""
         request = request or ImageOcrRequest()
         temp_path = None
-        outcome: ImageOcrOutcome | None = None
+        outcome: ImageOcrOutcome
         try:
             # Generate a tracked temporary file path
             fd, temp_path = tm_mkstemp(suffix=".png", prefix="bigocrpdf_capture_")
             os.close(fd)
 
             request.raise_if_cancelled()
-            outcome = self._capture_into_owned_file(temp_path, request)
+            failure = self._capture_into_owned_file(temp_path, request)
             request.raise_if_cancelled()
 
-            # Check if file has content (screenshot was taken, not cancelled)
-            if outcome is None and os.path.exists(temp_path) and os.path.getsize(temp_path) > 0:
-                request.raise_if_cancelled()
+            if failure is not None:
+                outcome = failure
+            # An empty file is a screenshot the person cancelled
+            elif os.path.exists(temp_path) and os.path.getsize(temp_path) > 0:
                 self._invoke_processing_callback(on_processing)
-
-                text, error = self._extract_text_result(
-                    temp_path,
-                    config,
-                    request=request,
-                )
-                outcome = self._outcome_from_text_result(text, error)
-            elif outcome is None:
-                outcome = ImageOcrOutcome(
-                    ImageOcrStatus.CANCELLED,
-                )
+                outcome = self._extract_text_result(temp_path, config, request=request)
+            else:
+                outcome = ImageOcrOutcome(ImageOcrStatus.CANCELLED)
 
         except ImageOcrCancelled:
             outcome = ImageOcrOutcome(ImageOcrStatus.CANCELLED)
@@ -501,6 +487,7 @@ class ScreenCaptureService:
             outcome = ImageOcrOutcome(
                 ImageOcrStatus.ERROR,
                 message=_("Screen capture failed. Please try again or open an image file."),
+                heading=_("Could not capture the screen"),
             )
         finally:
             if temp_path:
@@ -508,14 +495,7 @@ class ScreenCaptureService:
 
         if request.complete():
             outcome = ImageOcrOutcome(ImageOcrStatus.CANCELLED)
-        self._invoke_callback(
-            callback,
-            outcome
-            or ImageOcrOutcome(
-                ImageOcrStatus.ERROR,
-                message=_("Screen capture failed."),
-            ),
-        )
+        self._invoke_callback(callback, outcome)
 
     @staticmethod
     def _prefers_native_capture_tool() -> bool:
@@ -577,10 +557,12 @@ class ScreenCaptureService:
                     "No screenshot tool available. Please install spectacle, "
                     "gnome-screenshot, or flameshot."
                 ),
+                heading=_("Could not capture the screen"),
             )
         return ImageOcrOutcome(
             ImageOcrStatus.ERROR,
             message=_("Screen capture failed. Please try again or open an image file."),
+            heading=_("Could not capture the screen"),
         )
 
     @staticmethod
@@ -960,102 +942,72 @@ class ScreenCaptureService:
         config: OCRConfig,
         *,
         request: ImageOcrRequest | None = None,
-    ) -> tuple[str | None, str | None]:
-        """Extract text and preserve a user-facing error for the request owner."""
+    ) -> ImageOcrOutcome:
+        """The text on an image, or a user-facing error for the request owner."""
         request = request or ImageOcrRequest()
         try:
             request.raise_if_cancelled()
             img = self._load_image_for_ocr(image_path, config, request=request)
             request.raise_if_cancelled()
 
-            # Apply geometric corrections (deskew, orientation, border trim)
-            # Color enhancements stay off to preserve the source for OCR.
-            preprocessor = ImagePreprocessor(config)
+            # One worker per request, at normal priority since someone waits
+            # for it: the window stays open between requests, and the deskew
+            # and dewarp steps ask the same worker to detect.
+            worker = ppocr_native.Worker(ppocr_native.worker_command(config), request.cancel_event)
             try:
-                img = preprocessor.process(
-                    img,
-                    cancel_check=request.raise_if_cancelled,
-                )
-            finally:
-                # The image window stays open between requests; its compiled
-                # dewarp model would outlive every one of them.
-                from bigocrpdf.services.rapidocr_service.dewarp_probmap import release_model
-
-                release_model()
-            request.raise_if_cancelled()
-
-            # Write preprocessed image to temp file for OCR worker subprocess
-            fd, temp_img_path = tm_mkstemp(suffix=".png")
-            os.close(fd)
-
-            try:
-                if not cv2.imwrite(temp_img_path, img):
-                    logger.error("Failed to write the preprocessed image")
-                    return None, _("Could not prepare the image for OCR.")
-
-                # Run OCR via subprocess (avoids GTK/ONNX Runtime conflicts)
-                cmd = self._build_ocr_command(temp_img_path, config)
-                logger.info(f"Running image OCR: language={config.language}")
-
-                proc = subprocess.Popen(
-                    cmd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    text=True,
-                    encoding="utf-8",
-                    env=ocr_worker_environment(),
-                )
-                request.bind_process(proc)
-                try:
-                    stdout, stderr = self._communicate_process(
-                        proc,
-                        request,
-                        timeout=120,
-                    )
-                except subprocess.TimeoutExpired:
-                    proc.kill()
-                    proc.communicate()
-                    logger.error("OCR processing timed out")
-                    return None, _("OCR processing timed out.")
-                finally:
-                    request.unbind_process(proc)
-
+                # Geometric corrections only; color enhancements stay off to
+                # preserve the source for OCR.
+                img = ImagePreprocessor(
+                    config, ppocr_native.Detector(request.cancel_event, worker)
+                ).process(img, cancel_check=request.raise_if_cancelled)
                 request.raise_if_cancelled()
-                if proc.returncode != 0:
-                    logger.error(f"OCR subprocess failed: {stderr}")
-                    return None, _("OCR processing failed.")
-
-                # Parse OCR results
-                try:
-                    results = self._parse_ocr_payload(stdout)
-                except OcrWorkerProtocolError as e:
-                    logger.error(f"Invalid OCR worker response: {e}")
-                    return None, _("OCR processing failed.")
-                if not results:
-                    return None, None
-
-                # Reuse the pipeline formatter so a capture and a page of the same
-                # layout produce the same lines, columns, and paragraphs.
-                text = TextFormattingController(config).format(results, float(img.shape[1]))
-                return (text if text.strip() else None), None
-
+                with ppocr_native.temp_file(OCR_IMAGE_SUFFIX) as ocr_path:
+                    if not cv2.imwrite(ocr_path, img):
+                        logger.error("Failed to write the preprocessed image")
+                        return ImageOcrOutcome(
+                            ImageOcrStatus.ERROR, message=_("Could not prepare the image for OCR.")
+                        )
+                    results = ppocr_native.ocr_results(worker.recognize(ocr_path))
+            except InterruptedError:
+                request.raise_if_cancelled()
+                raise
+            except (ppocr_native.ReadError, ppocr_native.ProtocolError) as e:
+                logger.error(f"OCR worker failed: {e}")
+                return ImageOcrOutcome(
+                    ImageOcrStatus.ERROR,
+                    message=_(
+                        "The OCR engine stopped with an error. If the details name "
+                        "a model file, reinstall the {package} package."
+                    ).format(package=ppocr_native.WORKER),
+                    detail=str(e),
+                )
             finally:
-                tm_remove(temp_img_path)
+                worker.close()
+
+            logger.info(f"OCR found {len(results)} text regions")
+            # Reuse the pipeline formatter so a capture and a page of the same
+            # layout produce the same lines, columns, and paragraphs.
+            text = TextFormattingController(config).format(results, float(img.shape[1]))
+            if text.strip():
+                return ImageOcrOutcome(ImageOcrStatus.SUCCESS, text=text)
+            return ImageOcrOutcome(ImageOcrStatus.EMPTY)
 
         except ImageOcrCancelled:
             raise
         except FileNotFoundError:
-            logger.error("RapidOCR worker not found")
-            return (
-                None,
-                _("OCR engine not available. Please check your installation."),
+            logger.error(f"{ppocr_native.WORKER} not found")
+            return ImageOcrOutcome(
+                ImageOcrStatus.ERROR,
+                message=_("OCR engine not available. Please check your installation."),
             )
         except ImageInputError as e:
             logger.warning(f"Rejected image input: {e}")
-            return None, str(e)
+            return ImageOcrOutcome(ImageOcrStatus.ERROR, message=str(e))
         except (OSError, subprocess.SubprocessError, ValueError) as e:
             logger.error(f"OCR processing error: {e}")
-            return None, _("OCR processing failed.")
+            return ImageOcrOutcome(
+                ImageOcrStatus.ERROR, message=_("OCR processing failed."), detail=str(e)
+            )
 
     @staticmethod
     def _communicate_process(
@@ -1327,69 +1279,6 @@ class ScreenCaptureService:
                 _("Image file changed while it was being read. Please try again.")
             )
 
-    def _build_ocr_command(self, image_path: str, config: OCRConfig) -> list[str]:
-        """Build the OCR subprocess command.
-
-        Args:
-            image_path: Path to the image file to process
-            config: OCR configuration
-
-        Returns:
-            Command list for subprocess.run()
-        """
-        cpu_count = len(os.sched_getaffinity(0))
-        return build_ocr_worker_command(
-            config,
-            image_path=image_path,
-            threads=max(2, cpu_count),
-            openvino_available=config.engine_type != "onnxruntime",
-        )
-
-    @staticmethod
-    def _parse_ocr_payload(stdout: str) -> list[OCRResult]:
-        """Parse and validate the OCR worker's JSON contract."""
-        try:
-            raw = json.loads(stdout.strip())
-        except json.JSONDecodeError as e:
-            raise OcrWorkerProtocolError("worker output is not valid JSON") from e
-
-        if not isinstance(raw, dict):
-            raise OcrWorkerProtocolError("worker output must be a JSON object")
-        if raw.get("error"):
-            raise OcrWorkerProtocolError(f"worker reported an error: {raw['error']}")
-
-        if "boxes" not in raw:
-            raise OcrWorkerProtocolError("worker output is missing boxes")
-        boxes = raw["boxes"]
-        txts = raw.get("txts")
-        scores = raw.get("scores")
-        if boxes is None:
-            if txts in (None, []) and scores in (None, []):
-                return []
-            raise OcrWorkerProtocolError("worker empty result contains unexpected values")
-        if boxes == []:
-            if txts == [] and scores == []:
-                return []
-            raise OcrWorkerProtocolError("worker output is missing OCR result arrays")
-        if (
-            not isinstance(boxes, list)
-            or not isinstance(txts, list)
-            or not isinstance(scores, list)
-        ):
-            raise OcrWorkerProtocolError("worker OCR result fields must be arrays")
-        if len(boxes) != len(txts) or len(boxes) != len(scores):
-            raise OcrWorkerProtocolError("worker OCR result arrays have different lengths")
-
-        logger.info(f"RapidOCR found {len(boxes)} text regions")
-        return [
-            OCRResult(
-                text=txts[index],
-                box=boxes[index],
-                confidence=scores[index],
-            )
-            for index in range(len(boxes))
-        ]
-
     def _cleanup_temp_file(self, path: str) -> None:
         """Clean up a tracked temporary file.
 
@@ -1398,17 +1287,6 @@ class ScreenCaptureService:
         """
         if path:
             tm_remove(path)
-
-    @staticmethod
-    def _outcome_from_text_result(
-        text: str | None,
-        error: str | None,
-    ) -> ImageOcrOutcome:
-        if error:
-            return ImageOcrOutcome(ImageOcrStatus.ERROR, message=error)
-        if text:
-            return ImageOcrOutcome(ImageOcrStatus.SUCCESS, text=text)
-        return ImageOcrOutcome(ImageOcrStatus.EMPTY)
 
     @staticmethod
     def _invoke_callback(

@@ -20,7 +20,7 @@ from bigocrpdf.config import (
     IMAGE_APP_ID,
     SHORTCUTS,
 )
-from bigocrpdf.ui.image_ocr_window import ImageOcrWindow
+from bigocrpdf.ui.image_ocr_window import ImageOcrWindow, shortcuts_dialog
 from bigocrpdf.ui.widgets import load_css
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.icons import setup_icons
@@ -50,6 +50,24 @@ class ImageOcrApp(Adw.Application):
             _("Print version information and exit"),
             None,
         )
+        # setup_environment() has applied these already; GApplication only has
+        # to accept them.
+        self.add_main_option(
+            "debug",
+            ord("d"),
+            GLib.OptionFlags.NONE,
+            GLib.OptionArg.NONE,
+            _("Enable debug mode"),
+            None,
+        )
+        self.add_main_option(
+            "verbose",
+            0,
+            GLib.OptionFlags.NONE,
+            GLib.OptionArg.NONE,
+            _("Enable verbose output"),
+            None,
+        )
 
         self.connect("activate", self.on_activate)
         self.connect("open", self.on_open)
@@ -70,14 +88,17 @@ class ImageOcrApp(Adw.Application):
         about_action.connect("activate", self.on_about_action)
         self.add_action(about_action)
 
+        shortcuts_action = Gio.SimpleAction.new("shortcuts", None)
+        shortcuts_action.connect("activate", self._on_shortcuts_action)
+        self.add_action(shortcuts_action)
+
         # Quit action
         quit_action = Gio.SimpleAction.new("quit", None)
         quit_action.connect("activate", self._on_quit_action)
         self.add_action(quit_action)
 
         self.set_accels_for_action("app.quit", [SHORTCUTS.get("quit", "<Control>q")])
-        # The image window has no help or menu; F1 is its only way to About.
-        self.set_accels_for_action("app.about", ["F1"])
+        self.set_accels_for_action("app.shortcuts", ["<Control>question"])
         self.set_accels_for_action(
             "win.paste-clipboard",
             [SHORTCUTS.get("paste-clipboard", "<Control>v")],
@@ -142,6 +163,10 @@ class ImageOcrApp(Adw.Application):
                 logger.warning(f"Could not open image URI: {files[0].get_uri()}")
         else:
             logger.warning(f"on_open: win={win}, files={files}")
+
+    def _on_shortcuts_action(self, _action: Gio.SimpleAction, _param: None) -> None:
+        """Show the keyboard shortcuts dialog."""
+        shortcuts_dialog().present(self.get_active_window())
 
     def on_about_action(self, _action: Gio.SimpleAction, _param: None) -> None:
         """Show the About dialog."""

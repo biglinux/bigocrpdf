@@ -12,7 +12,7 @@ def _structured_document(args: argparse.Namespace, logger: logging.Logger):
     Without ``--from-json`` the PDF's own text layer is the source, which is
     what every other PDF tool reads and needs no second file to exist.
     """
-    from bigocrpdf.services.rapidocr_service.ocr_document_io import load_ocr_document_json
+    from bigocrpdf.services.ocr.ocr_document_io import load_ocr_document_json
 
     if args.from_json is None:
         return None
@@ -30,7 +30,7 @@ def _structured_document(args: argparse.Namespace, logger: logging.Logger):
 
 def _cmd_export_odf(args: argparse.Namespace, logger: logging.Logger) -> int:
     """Handle the 'export-odf' command."""
-    from bigocrpdf.services.rapidocr_service.ocr_document_export import (
+    from bigocrpdf.services.ocr.ocr_document_export import (
         convert_ocr_document_to_odf,
     )
     from bigocrpdf.utils.tsv_odf_converter import convert_pdf_to_odf
@@ -55,7 +55,7 @@ def _cmd_export_odf(args: argparse.Namespace, logger: logging.Logger) -> int:
 
 def _cmd_export_txt(args: argparse.Namespace, logger: logging.Logger) -> int:
     """Handle the 'export-txt' command."""
-    from bigocrpdf.services.rapidocr_service.ocr_document_export import (
+    from bigocrpdf.services.ocr.ocr_document_export import (
         convert_ocr_document_to_text,
     )
     from bigocrpdf.utils.tsv_odf_converter import convert_pdf_to_text
@@ -78,7 +78,7 @@ def _cmd_export_txt(args: argparse.Namespace, logger: logging.Logger) -> int:
 
 def _cmd_export_md(args: argparse.Namespace, logger: logging.Logger) -> int:
     """Handle the 'export-md' command."""
-    from bigocrpdf.services.rapidocr_service.ocr_document_export import (
+    from bigocrpdf.services.ocr.ocr_document_export import (
         convert_ocr_document_to_markdown,
     )
     from bigocrpdf.utils.tsv_odf_converter import convert_pdf_to_markdown

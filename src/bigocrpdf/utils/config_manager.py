@@ -79,6 +79,7 @@ CONFIG_OBJECT_SECTIONS: Final[frozenset[str]] = frozenset(
         "md_export",
         "multi_pdf_dialog",
         "odf_export",
+        # The OCR settings; the name is stored in every settings file.
         "rapidocr",
         "ui",
     }

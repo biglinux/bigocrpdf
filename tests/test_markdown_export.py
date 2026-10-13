@@ -327,7 +327,7 @@ class TestConvertPdfToMarkdown:
         event = threading.Event()
         fake_words = {1: ["w1"]}
 
-        def process_last_page(_words, _page_num):
+        def process_last_page(_words):
             event.set()
             return [DocElement("paragraph", "partial")]
 

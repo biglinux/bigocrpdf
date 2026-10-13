@@ -20,8 +20,8 @@ from unittest import mock
 
 import pikepdf
 
-from bigocrpdf.services.rapidocr_service.config import ProcessingStats
-from bigocrpdf.services.rapidocr_service.pdf_extractor import (
+from bigocrpdf.services.ocr.config import ProcessingStats
+from bigocrpdf.services.ocr.pdf_extractor import (
     ImagePosition,
     PdfImageInfo,
     _get_page_xobjects,
@@ -29,7 +29,7 @@ from bigocrpdf.services.rapidocr_service.pdf_extractor import (
     match_positions_to_images,
     parse_pdfimages_list,
 )
-from bigocrpdf.services.rapidocr_service.pipeline_mixed_content import (
+from bigocrpdf.services.ocr.pipeline_mixed_content import (
     MixedContentMixin,
     _index_extracted_images,
 )
@@ -159,7 +159,7 @@ class TestParsePdfimagesObjectId(unittest.TestCase):
         )
         fake = SimpleNamespace(returncode=0, stdout=stdout)
         with mock.patch(
-            "bigocrpdf.services.rapidocr_service.pdf_extractor.subprocess.run",
+            "bigocrpdf.services.ocr.pdf_extractor.subprocess.run",
             return_value=fake,
         ):
             mapping, masked = parse_pdfimages_list(Path("/does/not/matter.pdf"))
@@ -189,7 +189,7 @@ def _two_image_page(path: str) -> None:
     c.save()
 
 
-class _RecordingBackend:
+class _RecordingBackend(MixedContentMixin):
     """Records which extracted file each position was OCR'd with."""
 
     def __init__(self) -> None:
@@ -199,6 +199,9 @@ class _RecordingBackend:
     def _ocr_image_in_page(self, img_path, img_pos, *args, **kwargs):  # noqa: ANN002
         self.calls.append((img_pos.name, Path(img_path).name))
         return []
+
+    def _raise_if_cancelled(self) -> None:
+        pass
 
 
 class TestPlacementWiring(unittest.TestCase):
@@ -220,8 +223,8 @@ class TestPlacementWiring(unittest.TestCase):
 
         # Build a faithful pdfimages map: idx0 = logo file, idx1 = scan file.
         # Identify logo vs scan by actual embedded area (robust to whatever
-        # pixel dimensions reportlab stores).  comp_size is set so the OLD
-        # sort-by-size matcher would cross-pair (scan first, logo last).
+        # pixel dimensions reportlab stores).  comp_size is set so that
+        # matching by size alone would cross-pair the logo and the scan.
         items = sorted(xobjs.items(), key=lambda kv: kv[1]["width"] * kv[1]["height"])
         (logo_name, logo_d), (scan_name, scan_d) = items[0], items[-1]
         pdfimages_map = {

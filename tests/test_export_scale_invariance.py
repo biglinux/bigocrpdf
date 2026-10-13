@@ -13,7 +13,7 @@ structure is the unit mismatch showing through.
 
 **Outcome: the strong hypothesis is refuted.** Exported structure is identical
 from 72 to 600 DPI for prose, footers and table-shaped input alike. The reason
-is the shape of the data rather than the thresholds: RapidOCR returns one
+is the shape of the data rather than the thresholds: the OCR worker returns one
 region per text line, so ``_ocr_result_words`` emits a single Word per line and
 the line-grouping and column-splitting thresholds never get a decision to make.
 They would bite on ``pdftotext -tsv`` output, which is per-word -- and that
@@ -27,8 +27,8 @@ geometry. These tests are what will notice.
 
 import pytest
 
-from bigocrpdf.services.rapidocr_service.config import OcrDocument, OcrPage, OCRResult
-from bigocrpdf.services.rapidocr_service.ocr_document_export import (
+from bigocrpdf.services.ocr.config import OcrDocument, OcrPage, OCRResult
+from bigocrpdf.services.ocr.ocr_document_export import (
     ocr_document_to_pages_elements,
 )
 from bigocrpdf.utils.tsv_parser import (
@@ -194,7 +194,7 @@ class TestFormGapEntanglement:
         a one-line change -- which is the main thing to know before attempting
         it.
         """
-        from bigocrpdf.services.rapidocr_service.ocr_document_export import _FORM_FIELD_GAP_PX
+        from bigocrpdf.services.ocr.ocr_document_export import _FORM_FIELD_GAP_PX
         from bigocrpdf.utils.tsv_parser import TABLE_TWO_COL_GAP
 
         assert _FORM_FIELD_GAP_PX > TABLE_TWO_COL_GAP

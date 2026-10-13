@@ -13,7 +13,7 @@ from bigocrpdf.config import (
     CONFIG_DIR,
     SELECTED_FILE_PATH,
 )
-from bigocrpdf.services.rapidocr_service.config import (
+from bigocrpdf.services.ocr.config import (
     DEFAULT_AUTO_DETECT_QUALITY,
     DEFAULT_BOX_THRESH,
     DEFAULT_DETECTION_FULL_RESOLUTION,
@@ -33,7 +33,6 @@ from bigocrpdf.services.rapidocr_service.config import (
     DEFAULT_FORCE_BILEVEL_COMPRESSION,
     DEFAULT_IMAGE_EXPORT_FORMAT,
     DEFAULT_IMAGE_EXPORT_QUALITY,
-    DEFAULT_LANGUAGE,
     DEFAULT_MAX_FILE_SIZE_MB,
     DEFAULT_PAGE_LAYOUT,
     DEFAULT_SCANNER_EFFECT_STRENGTH,
@@ -127,7 +126,6 @@ _PERSISTED_SETTINGS: dict[str, tuple[str, Any]] = {
         DEFAULT_TEXT_SCORE_THRESHOLD,
     ),
     "box_thresh": ("rapidocr.box_thresh", DEFAULT_BOX_THRESH),
-    "ocr_profile": ("rapidocr.ocr_profile", "balanced"),
     "detection_full_resolution": (
         "rapidocr.detection_full_resolution",
         DEFAULT_DETECTION_FULL_RESOLUTION,
@@ -201,7 +199,6 @@ class OcrSettings:
     vintage_bw: bool
     text_score_threshold: float
     box_thresh: float
-    ocr_profile: str
     detection_full_resolution: bool
     replace_existing_ocr: bool
     enhance_embedded_images: bool
@@ -215,7 +212,6 @@ class OcrSettings:
         self.file_modifications: dict[str, dict[str, Any]] = {}
         self.pages_count = 0
 
-        self.ocr_language = DEFAULT_LANGUAGE
         self.parallel_workers = DEFAULT_WORKERS
         for attribute, (_key, default) in _PERSISTED_SETTINGS.items():
             setattr(self, attribute, deepcopy(default))
@@ -223,7 +219,6 @@ class OcrSettings:
         self._config = get_config_manager()
 
         # Attributes that stay directly on OcrSettings (cross-cutting / transient)
-        self.lang: str = DEFAULT_LANGUAGE
         self.extracted_text: dict[str, str] = {}
         self.comparison_results: list[Any] = []
         self.ocr_boxes: dict[str, list[Any]] = {}
@@ -237,13 +232,6 @@ class OcrSettings:
         """Load all settings from JSON configuration."""
         if not self._config.reload():
             raise OSError("Could not refresh settings from disk")
-        stored_language = self._config.get("rapidocr.language")
-        if not isinstance(stored_language, str) or not stored_language.strip():
-            stored_language = self._config.get("ocr.language", DEFAULT_LANGUAGE)
-        if not isinstance(stored_language, str) or not stored_language.strip():
-            stored_language = DEFAULT_LANGUAGE
-        self.lang = stored_language
-        self.ocr_language = stored_language
         self._load_persisted_settings()
         self.file_modifications = {}
 
@@ -259,7 +247,6 @@ class OcrSettings:
     def _snapshot_ocr_config(self) -> OCRConfig:
         """Snapshot the persisted OCR preferences for one processing request."""
         return OCRConfig(
-            language=self.ocr_language,
             dpi=self.dpi,
             enable_preprocessing=self.enable_preprocessing,
             enable_perspective_correction=self.enable_perspective_correction,
@@ -532,19 +519,16 @@ class OcrSettings:
 
     def save_settings(
         self,
-        lang: str,
         destination_folder: str,
         save_in_same_folder: bool = False,
     ) -> None:
         """Save current settings to configuration files
 
         Args:
-            lang: OCR language code
             destination_folder: Path to save output files
             save_in_same_folder: Whether to save in same folder as original
         """
         try:
-            self.lang = lang or DEFAULT_LANGUAGE
             self.destination_folder = destination_folder
             self.save_in_same_folder = save_in_same_folder
 
@@ -559,8 +543,6 @@ class OcrSettings:
 
     def _save_all_settings(self) -> bool:
         """Save all settings to JSON configuration."""
-        self.ocr_language = self.lang
-        self._config.set("rapidocr.language", self.ocr_language, save_immediately=False)
         self._save_persisted_settings()
         self._save_editor_settings()
         if not self._config.save():

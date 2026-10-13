@@ -1,23 +1,26 @@
-"""Cascade order, and the paths where a correction quietly declines to run.
+"""Cascade order, and the paths where a correction declines to run.
 
 The preprocessor picks between several dewarp and perspective strategies in a
-first-hit-wins cascade whose branches swallow their own exceptions. Before the
-trace existed, "no distortion was found" and "every detector raised" produced
-identical output and identical silence, so none of this could be asserted.
+first-hit-wins cascade whose branches catch their own exceptions. The trace
+tells a correction that found nothing apart from one whose detector raised.
 
 Detectors are mocked here, never the arithmetic: the question is which branch
 runs and what it records, not whether a warp is correct. That is
 test_geometry_recovery's job.
 """
 
+from types import SimpleNamespace
+
 import numpy as np
 import pytest
 
 from bigocrpdf.services import perspective_correction as perspective_module
-from bigocrpdf.services.rapidocr_service import preprocessor as preprocessor_module
-from bigocrpdf.services.rapidocr_service.config import OCRConfig
-from bigocrpdf.services.rapidocr_service.geometry_trace import REASON_DISABLED
-from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
+from bigocrpdf.services.ocr import preprocessor as preprocessor_module
+from bigocrpdf.services.ocr.config import OCRConfig
+from bigocrpdf.services.ocr.dewarp_probmap import Baselines
+from bigocrpdf.services.ocr.geometry_trace import REASON_DISABLED
+from bigocrpdf.services.ocr.ppocr_native import Detector
+from bigocrpdf.services.ocr.preprocessor import ImagePreprocessor
 
 
 @pytest.fixture
@@ -29,7 +32,7 @@ def page() -> np.ndarray:
 
 
 def _preprocessor(**overrides) -> ImagePreprocessor:
-    return ImagePreprocessor(OCRConfig(enable_scanner_effect=False, **overrides))
+    return ImagePreprocessor(OCRConfig(enable_scanner_effect=False, **overrides), Detector())
 
 
 class TestStageOrder:
@@ -42,7 +45,7 @@ class TestStageOrder:
         monkeypatch.setattr(
             preprocessor,
             "_try_probmap_dewarp",
-            lambda img, step: (calls.append("dewarp"), (img, True))[1],
+            lambda img, step: (calls.append("dewarp"), (img, Baselines(img, 0, [], 1.0, 1.0)))[1],
         )
         monkeypatch.setattr(
             preprocessor,
@@ -55,7 +58,10 @@ class TestStageOrder:
         monkeypatch.setattr(
             preprocessor_module,
             "probmap_angle_deskew",
-            lambda img, max_side, trace=None: (calls.append("deskew"), img)[1],
+            lambda _detector, img, max_side, trace=None, known=None: (
+                calls.append("deskew"),
+                img,
+            )[1],
         )
 
         preprocessor.process(page)
@@ -102,7 +108,7 @@ class TestDisabledStages:
         assert preprocessor.trace.step_named(step).applied is False
 
     def test_border_trimming_has_no_switch(self, page):
-        """It runs on every page, which is worth stating explicitly."""
+        """It runs on every page."""
         preprocessor = _preprocessor(
             enable_baseline_dewarp=False,
             enable_perspective_correction=False,
@@ -116,16 +122,14 @@ class TestDisabledStages:
 
 class TestDewarpFallback:
     def test_a_failing_probmap_records_the_exception_and_falls_back(self, page, monkeypatch):
-        """The swallow stays -- robustness -- but stops being invisible."""
+        """A failing probability map is recorded and the fallback runs."""
         preprocessor = _preprocessor()
         fallback_ran = []
 
-        def explode(image, max_side):
+        def explode(_detector, image, max_side):
             raise RuntimeError("probmap exploded")
 
-        monkeypatch.setattr(
-            "bigocrpdf.services.rapidocr_service.dewarp_probmap.probmap_dewarp", explode
-        )
+        monkeypatch.setattr("bigocrpdf.services.ocr.dewarp_probmap.probmap_dewarp", explode)
         monkeypatch.setattr(
             preprocessor,
             "_try_3d_dewarp",
@@ -137,18 +141,33 @@ class TestDewarpFallback:
         assert fallback_ran == [True]
         assert preprocessor.trace.step_named("dewarp").reason == "exception:RuntimeError"
 
-    def test_a_successful_probmap_never_reaches_the_fallback(self, page, monkeypatch):
-        """Intentional, and worth pinning: a probmap that succeeds owns the page.
+    @pytest.mark.parametrize("enable_baseline_dewarp", [True, False])
+    def test_cancelled_detection_stops_the_page(self, page, monkeypatch, enable_baseline_dewarp):
+        preprocessor = _preprocessor(enable_baseline_dewarp=enable_baseline_dewarp)
+        fallback_ran = []
 
-        So a probmap that succeeds but returns a poor result has no safety net.
-        Changing that should be a deliberate decision, which this makes visible.
-        """
+        def cancelled(*_args):
+            raise InterruptedError("ppocr-native request cancelled")
+
+        preprocessor.detector = SimpleNamespace(probability_map=cancelled, boxes=cancelled)
+        monkeypatch.setattr(
+            preprocessor,
+            "_try_3d_dewarp",
+            lambda img, step: (fallback_ran.append(True), img)[1],
+        )
+
+        with pytest.raises(InterruptedError):
+            preprocessor.process(page)
+        assert fallback_ran == []
+
+    def test_a_successful_probmap_never_reaches_the_fallback(self, page, monkeypatch):
+        """A probmap that succeeds owns the page, even when its result is poor."""
         preprocessor = _preprocessor()
         fallback_ran = []
 
         monkeypatch.setattr(
-            "bigocrpdf.services.rapidocr_service.dewarp_probmap.probmap_dewarp",
-            lambda image, max_side: image,
+            "bigocrpdf.services.ocr.dewarp_probmap.probmap_dewarp",
+            lambda _detector, image, max_side: (image, Baselines(image, max_side, [], 1.0, 1.0)),
         )
         monkeypatch.setattr(
             preprocessor,
@@ -160,6 +179,59 @@ class TestDewarpFallback:
 
         assert fallback_ran == []
         assert preprocessor.trace.step_named("dewarp").method == "probmap"
+
+    def test_a_flat_page_is_measured_once(self, page):
+        """Deskew reuses the dewarp step's reading when the image is unchanged."""
+        preprocessor = _measuring_preprocessor()
+
+        preprocessor.process(page)
+
+        assert len(preprocessor.detector.maps) == 1
+
+    def test_a_trimmed_page_is_measured_once(self, page):
+        """Trimming only translates the page, so its baselines still hold."""
+        page[:20] = 0
+        preprocessor = _measuring_preprocessor()
+
+        preprocessor.process(page)
+
+        assert preprocessor.trace.step_named("trim_dark_borders").applied is True
+        assert len(preprocessor.detector.maps) == 1
+
+    def test_a_warped_page_is_measured_again(self, page, monkeypatch):
+        warped = np.full((320, 256, 3), 255, np.uint8)
+        preprocessor = _measuring_preprocessor(enable_perspective_correction=True)
+        monkeypatch.setattr(preprocessor, "_correct_perspective", lambda img, step: warped)
+
+        preprocessor.process(page)
+
+        assert preprocessor.detector.maps == [(384, 288, 3), (320, 256, 3)]
+
+    def test_crop_keeps_baselines_on_text(self):
+        image = np.zeros((400, 300, 3), np.uint8)
+        line = (60.0, lambda x: 0.1 * x + 50.0, 10.0, 200.0)
+
+        cropped = Baselines(image, 0, [line], 2.0, 2.0).crop(image[40:, 20:], 20, 40)
+
+        y_centre, spline, x_start, x_end = cropped.lines[0]
+        assert (y_centre, x_start, x_end) == (40.0, 0.0, 190.0)
+        assert spline(0.0) == pytest.approx(31.0)
+        assert spline(x_end) - spline(x_start) == pytest.approx(19.0)
+
+
+def _measuring_preprocessor(enable_perspective_correction: bool = False) -> ImagePreprocessor:
+    """A preprocessor whose detector records the shape of each image it maps."""
+    detector = SimpleNamespace(maps=[], boxes=lambda *_args: [])
+
+    def probability_map(image):
+        detector.maps.append(image.shape)
+        return np.zeros(image.shape[:2], np.float32)
+
+    detector.probability_map = probability_map
+    config = OCRConfig(
+        enable_scanner_effect=False, enable_perspective_correction=enable_perspective_correction
+    )
+    return ImagePreprocessor(config, detector)
 
 
 class TestPerspectiveCascade:
@@ -282,12 +354,12 @@ class TestPerspectiveCascade:
 class TestDeskewDiagnostics:
     def test_high_angle_dispersion_is_reported_as_a_skip(self, page, monkeypatch):
         """MAD > 3 deg abandons the rotation; the reason must survive."""
-        from bigocrpdf.services.rapidocr_service import preprocess_deskew
+        from bigocrpdf.services.ocr import preprocess_deskew
 
         monkeypatch.setattr(
             preprocess_deskew,
             "_probmap_measured_angles",
-            lambda img, min_width, max_side: (
+            lambda _detector, img, min_width, max_side, known=None: (
                 [0.0, 12.0, -12.0, 9.0, -9.0, 11.0],
                 [10.0, 60.0, 110.0, 160.0, 210.0, 260.0],
                 [200.0] * 6,
@@ -302,12 +374,12 @@ class TestDeskewDiagnostics:
         assert step.applied is False
 
     def test_measured_angles_reach_the_trace(self, page, monkeypatch):
-        from bigocrpdf.services.rapidocr_service import preprocess_deskew
+        from bigocrpdf.services.ocr import preprocess_deskew
 
         monkeypatch.setattr(
             preprocess_deskew,
             "_probmap_measured_angles",
-            lambda img, min_width, max_side: (
+            lambda _detector, img, min_width, max_side, known=None: (
                 [2.0, 2.1, 1.9, 2.05],
                 [10.0, 60.0, 110.0, 160.0],
                 [200.0] * 4,

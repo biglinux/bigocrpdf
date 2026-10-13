@@ -32,8 +32,8 @@ import pytest
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfgen import canvas as rl_canvas
 
-from bigocrpdf.services.rapidocr_service.config import OCRConfig, OCRResult
-from bigocrpdf.services.rapidocr_service.renderer import (
+from bigocrpdf.services.ocr.config import OCRConfig, OCRResult
+from bigocrpdf.services.ocr.renderer import (
     FONT_SIZE_SCALE_FACTOR,
     TextLayerRenderer,
 )
@@ -222,12 +222,11 @@ def render_layer_pdf(
 ) -> Path:
     """Run the production render path (path A) onto a blank page.
 
-    The renderer is pointed at an empty font directory so it falls back to
-    Helvetica, matching the truth PDF. With the shipped ``latin.ttf`` the two
-    sides would use different metrics, and the comparison would measure the
-    font difference instead of the coordinate mapping.
+    The renderer writes Helvetica, matching the truth PDF. With the shipped
+    Noto Sans the two sides would use different metrics, and the comparison
+    would measure the font difference instead of the coordinate mapping.
     """
-    renderer = TextLayerRenderer(OCRConfig(font_base_path=Path("/nonexistent-font-dir")))
+    renderer = TextLayerRenderer(OCRConfig(font_path=None))
     pdf = rl_canvas.Canvas(str(out_path), pagesize=page_size_pts)
     renderer.render(
         pdf,

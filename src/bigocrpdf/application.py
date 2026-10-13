@@ -22,6 +22,7 @@ from bigocrpdf.config import (
     init_config,
 )
 from bigocrpdf.ui.image_ocr_window import ImageOcrWindow
+from bigocrpdf.ui.image_ocr_window import shortcuts_dialog as image_shortcuts_dialog
 from bigocrpdf.ui.pdf_editor.thumbnail_renderer import shutdown_thumbnail_renderer
 from bigocrpdf.ui.widgets import load_css
 from bigocrpdf.utils.adw_compat import build_shortcuts_dialog
@@ -59,6 +60,24 @@ class BigOcrPdfApp(Adw.Application):
             GLib.OptionFlags.NONE,
             GLib.OptionArg.NONE,
             _("Open files directly in the PDF editor"),
+            None,
+        )
+        # setup_environment() has applied these already; GApplication only has
+        # to accept them.
+        self.add_main_option(
+            "debug",
+            ord("d"),
+            GLib.OptionFlags.NONE,
+            GLib.OptionArg.NONE,
+            _("Enable debug mode"),
+            None,
+        )
+        self.add_main_option(
+            "verbose",
+            0,
+            GLib.OptionFlags.NONE,
+            GLib.OptionArg.NONE,
+            _("Enable verbose output"),
             None,
         )
 
@@ -501,8 +520,12 @@ class BigOcrPdfApp(Adw.Application):
             logger.error(f"Failed to open images in editor: {e}")
 
     def _on_shortcuts_action(self, _action: Gio.SimpleAction, _param: Any) -> None:
-        """Show the keyboard shortcuts dialog."""
-        self._build_shortcuts_dialog().present(self.get_active_window())
+        """Show the keyboard shortcuts dialog of the active window."""
+        window = self.get_active_window()
+        if isinstance(window, ImageOcrWindow):
+            image_shortcuts_dialog().present(window)
+        else:
+            self._build_shortcuts_dialog().present(window)
 
     def _build_shortcuts_dialog(self) -> Adw.Dialog:
         """Build the keyboard shortcuts dialog."""
@@ -578,10 +601,9 @@ class BigOcrPdfApp(Adw.Application):
         about.add_credit_section(
             _("Powered by"),
             [
-                "RapidOCR https://github.com/RapidAI/RapidOCR",
+                "ppocr-native https://github.com/biglinux/ppocr-native",
                 "PaddleOCR (PP-OCRv6) https://github.com/PaddlePaddle/PaddleOCR",
                 "OpenCV https://opencv.org",
-                "OpenVINO https://github.com/openvinotoolkit/openvino",
                 "pikepdf https://github.com/pikepdf/pikepdf",
                 "Pillow https://python-pillow.org",
             ],

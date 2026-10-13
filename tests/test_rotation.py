@@ -8,8 +8,8 @@ from types import SimpleNamespace
 import numpy as np
 
 from bigocrpdf.cli_ocr_commands import _load_pdf_page_rotations
-from bigocrpdf.services.rapidocr_service import preprocess_orientation
-from bigocrpdf.services.rapidocr_service.rotation import (
+from bigocrpdf.services.ocr import preprocess_orientation
+from bigocrpdf.services.ocr.rotation import (
     PageRotation,
     apply_editor_modifications,
 )
@@ -61,7 +61,7 @@ class TestPageRotation(unittest.TestCase):
 def test_cli_rotation_loader_uses_unified_pdf_rotation_parser(monkeypatch, tmp_path) -> None:
     expected = [PageRotation(1, 90), PageRotation(2, 270)]
     monkeypatch.setattr(
-        "bigocrpdf.services.rapidocr_service.rotation.extract_page_rotations",
+        "bigocrpdf.services.ocr.rotation.extract_page_rotations",
         lambda path: expected if path == tmp_path / "input.pdf" else [],
     )
 

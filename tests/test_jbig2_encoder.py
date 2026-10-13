@@ -7,7 +7,7 @@ from unittest.mock import patch
 import numpy as np
 from PIL import Image
 
-from bigocrpdf.services.rapidocr_service.jbig2_encoder import (
+from bigocrpdf.services.ocr.jbig2_encoder import (
     _extract_ccitt_from_tiff,
     encode_bilevel,
     encode_ccitt_g4,
@@ -178,7 +178,7 @@ class TestExtractCcittFromTiff(unittest.TestCase):
 class TestEncodeBilevel(unittest.TestCase):
     def test_none_returns_none_without_jbig2(self):
         with patch(
-            "bigocrpdf.services.rapidocr_service.jbig2_encoder.jbig2enc_available",
+            "bigocrpdf.services.ocr.jbig2_encoder.jbig2enc_available",
             return_value=False,
         ):
             result = encode_bilevel(np.array([], dtype=np.uint8))
@@ -196,7 +196,7 @@ class TestEncodeBilevel(unittest.TestCase):
 
     def test_falls_back_to_ccitt(self):
         with patch(
-            "bigocrpdf.services.rapidocr_service.jbig2_encoder.jbig2enc_available",
+            "bigocrpdf.services.ocr.jbig2_encoder.jbig2enc_available",
             return_value=False,
         ):
             img = _make_binary_image()

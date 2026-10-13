@@ -26,7 +26,7 @@ _WINDOW_ACTION_NAMES = (
 _OCR_AVAILABLE = OcrDependencyState(is_available=True)
 _OCR_UNAVAILABLE = OcrDependencyState(
     is_available=False,
-    error="RapidOCR could not load ONNX Runtime.",
+    error="The OCR engine, ppocr-native, is not installed.",
 )
 
 
@@ -140,12 +140,10 @@ def test_unavailable_processing_stops_before_validation_or_processor_io():
 
 def test_settings_sync_clears_stale_custom_destination():
     settings = SimpleNamespace(
-        lang="en",
         destination_folder="/old/output",
         save_settings=MagicMock(),
     )
     settings_page = SimpleNamespace(
-        lang_dropdown=None,
         dest_entry=SimpleNamespace(get_text=MagicMock(return_value="")),
         folder_combo=SimpleNamespace(get_selected=MagicMock(return_value=1)),
     )
@@ -161,7 +159,7 @@ def test_settings_sync_clears_stale_custom_destination():
     ProcessingController._get_settings_from_ui(processing)
 
     assert settings.destination_folder == ""
-    settings.save_settings.assert_called_once_with("en", "", False)
+    settings.save_settings.assert_called_once_with("", False)
 
 
 def test_cancelled_capture_restores_stable_page_without_showing_error():
@@ -205,7 +203,7 @@ def test_failed_image_ocr_restores_copy_for_previous_result():
         ImageOcrOutcome(ImageOcrStatus.ERROR, message="failed"),
     )
 
-    window._show_error.assert_called_once_with("failed")
+    window._show_error.assert_called_once_with("failed", None, heading=None)
     window._stack.set_visible_child_name.assert_called_once_with("results")
     window._copy_button.set_sensitive.assert_called_once_with(True)
 

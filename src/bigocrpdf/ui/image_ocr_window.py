@@ -13,7 +13,7 @@ gi.require_version("Gdk", "4.0")
 from gi.repository import Adw, Gdk, Gio, GLib, Gtk
 
 from bigocrpdf import OcrDependencyState
-from bigocrpdf.config import IMAGE_WINDOW_STATE_KEY
+from bigocrpdf.config import IMAGE_WINDOW_STATE_KEY, SHORTCUTS
 from bigocrpdf.services.screen_capture import (
     DIRECT_IMAGE_HARD_MAX_MEGAPIXELS,
     ImageOcrOutcome,
@@ -24,16 +24,38 @@ from bigocrpdf.services.screen_capture import (
 )
 from bigocrpdf.services.settings import OcrSettings
 from bigocrpdf.ui.widgets import (
+    failure_details,
     get_default_clipboard,
     parse_clipboard_file_paths,
     present_ocr_unavailable_dialog,
 )
 from bigocrpdf.utils.a11y import set_a11y_label
+from bigocrpdf.utils.adw_compat import build_shortcuts_dialog
 from bigocrpdf.utils.config_manager import get_config_manager
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.utils.temp_manager import mkstemp, remove_file
 from bigocrpdf.utils.timer import safe_remove_source
+
+
+def shortcuts_dialog() -> Adw.Dialog:
+    """The keyboard shortcuts an image window answers, whichever app opened it."""
+    return build_shortcuts_dialog(
+        (
+            (
+                _("File"),
+                (
+                    (_("Paste from clipboard"), SHORTCUTS.get("paste-clipboard", "<Control>v")),
+                    (_("Quit"), SHORTCUTS.get("quit", "<Control>q")),
+                ),
+            ),
+            (
+                _("Processing"),
+                ((_("Cancel processing"), SHORTCUTS.get("cancel-processing", "Escape")),),
+            ),
+            (_("General"), ((_("Keyboard shortcuts"), "<Control>question"),)),
+        )
+    )
 
 
 @dataclass(frozen=True)
@@ -46,7 +68,7 @@ class _ClipboardEncodeJob:
 
 
 class ImageOcrWindow(Adw.ApplicationWindow):
-    """Standalone window for Image OCR operations using RapidOCR."""
+    """Standalone window that reads the text in an image or a screen capture."""
 
     _MAX_CLIPBOARD_URI_BYTES = 64 * 1024
 
@@ -261,6 +283,14 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         # Header Bar
         header = Adw.HeaderBar()
         toolbar_view.add_top_bar(header)
+
+        menu = Gio.Menu.new()
+        menu.append(_("Keyboard Shortcuts"), "app.shortcuts")
+        menu.append(_("About"), "app.about")
+        menu_button = Gtk.MenuButton(icon_name="open-menu-symbolic", menu_model=menu, primary=True)
+        menu_button.set_tooltip_text(_("Menu"))
+        set_a11y_label(menu_button, _("Menu"))
+        header.pack_end(menu_button)
 
         # Toast overlay wraps all content for non-intrusive feedback
         self._toast_overlay = Adw.ToastOverlay()
@@ -492,11 +522,25 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         tmp_path: str | None = None
         try:
             if job.cancellable is None or not job.cancellable.is_cancelled():
-                fd, tmp_path = mkstemp(suffix=".png", prefix="bigocrimage_paste_")
+                # Uncompressed: the OCR step decodes the file at once, and
+                # PNG compression of a screen-sized texture takes a second.
+                fd, tmp_path = mkstemp(suffix=".tiff", prefix="bigocrimage_paste_")
                 os.close(fd)
-                saved = bool(job.texture.save_to_png(tmp_path))
+                # GDK writes float textures as float TIFF, which Pillow cannot
+                # open, so every texture is written as 8-bit RGBA.
+                downloader = Gdk.TextureDownloader.new(job.texture)
+                downloader.set_format(Gdk.MemoryFormat.R8G8B8A8)
+                pixels, stride = downloader.download_bytes()
+                rgba = Gdk.MemoryTexture.new(
+                    job.texture.get_width(),
+                    job.texture.get_height(),
+                    Gdk.MemoryFormat.R8G8B8A8,
+                    pixels,
+                    stride,
+                )
+                saved = bool(rgba.save_to_tiff(tmp_path))
                 if not saved:
-                    error = OSError("GTK could not encode the clipboard texture")
+                    error = OSError("GTK could not write the clipboard texture")
         except Exception as caught_error:
             error = caught_error
         GLib.idle_add(
@@ -889,7 +933,11 @@ class ImageOcrWindow(Adw.ApplicationWindow):
             return
 
         if outcome.status == ImageOcrStatus.ERROR:
-            self._show_error(outcome.message or _("OCR processing failed."))
+            self._show_error(
+                outcome.message or _("OCR processing failed."),
+                outcome.detail,
+                heading=outcome.heading,
+            )
             self._stack.set_visible_child_name(self._stable_page_name)
             self._sync_copy_button_state()
             return
@@ -989,7 +1037,9 @@ class ImageOcrWindow(Adw.ApplicationWindow):
                 self._restore_after_capture(generation)
                 self._stack.set_visible_child_name(self._stable_page_name)
                 self._show_error(
-                    _("Screen capture failed. Please try again or open an image file.")
+                    _("Screen capture failed. Please try again or open an image file."),
+                    str(error),
+                    heading=_("Could not capture the screen"),
                 )
             return False
         if completed or not self._is_current_operation(generation):
@@ -1178,14 +1228,20 @@ class ImageOcrWindow(Adw.ApplicationWindow):
         if file_path:
             self._start_processing(file_path)
 
-    def _show_error(self, message: str) -> None:
-        """Show error dialog.
+    def _show_error(
+        self, message: str, detail: str | None = None, *, heading: str | None = None
+    ) -> None:
+        """Show what failed and what to do next.
 
         Args:
-            message: Error message to display
+            message: The cause and next action, for the dialog body
+            detail: What the OCR engine or system reported, shown for copying
+            heading: What failed; reading the text unless given
         """
         alert = Adw.AlertDialog()
-        alert.set_heading(_("Error"))
+        alert.set_heading(heading or _("Could not read the text"))
         alert.set_body(message)
+        if detail:
+            alert.set_extra_child(failure_details(detail))
         alert.add_response("ok", _("OK"))
         alert.present(self)

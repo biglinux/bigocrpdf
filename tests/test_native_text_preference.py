@@ -17,15 +17,15 @@ Each was found by measuring what reached the export, not by inspection.
 
 import pytest
 
-from bigocrpdf.services.rapidocr_service.config import OCRResult
-from bigocrpdf.services.rapidocr_service.native_text_verification import (
+from bigocrpdf.services.ocr.config import OCRResult
+from bigocrpdf.services.ocr.native_text_verification import (
     NativeTextSpan,
     verify_ocr_results_with_native_spans,
 )
-from bigocrpdf.services.rapidocr_service.ocr_document_export import _split_form_tokens
+from bigocrpdf.services.ocr.ocr_document_export import _split_form_tokens
 from bigocrpdf.utils.tsv_parser import MAX_ARTIFACT_TEXT_LEN, Word, filter_words
 
-URL = "https://assinador-web.onr.org.br/docs/UB7MR-ZF2N3-NTFLP-JMF2B"
+URL = "https://example.org/docs/AAAAA-BBBBB-CCCCC-DDDDD-EEEEE-FFFFFF"
 
 
 def _result(text: str, bbox=(10.0, 10.0, 300.0, 40.0), confidence: float = 0.8) -> OCRResult:
@@ -39,7 +39,7 @@ def _result(text: str, bbox=(10.0, 10.0, 300.0, 40.0), confidence: float = 0.8) 
 
 class TestNativeSubstitution:
     def test_a_truncated_url_is_restored_from_the_native_layer(self):
-        """The measured case: OCR read the address short, the page had it whole."""
+        """OCR read the address short; the page states it whole."""
         results = [_result(URL[:-12])]
         spans = [NativeTextSpan(text=URL, bbox=[10.0, 10.0, 300.0, 40.0])]
 
@@ -109,13 +109,13 @@ class TestFilterWordsKeepsRealText:
         """
         words = [Word(text=URL, left=246.0, top=658.0, width=1.8, height=1440.0)]
 
-        assert filter_words(words, 1) == words
+        assert filter_words(words) == words
 
     def test_short_noise_in_a_sliver_box_is_still_removed(self):
         """A traced rule or hatch pattern reads as a couple of characters."""
         words = [Word(text="il", left=100.0, top=200.0, width=0.4, height=30.0)]
 
-        assert filter_words(words, 1) == []
+        assert filter_words(words) == []
 
     def test_the_boundary_is_the_text_length(self):
         noise = Word(text="x" * MAX_ARTIFACT_TEXT_LEN, left=0.0, top=0.0, width=0.5, height=10.0)
@@ -123,12 +123,12 @@ class TestFilterWordsKeepsRealText:
             text="x" * (MAX_ARTIFACT_TEXT_LEN + 1), left=0.0, top=0.0, width=0.5, height=10.0
         )
 
-        assert filter_words([noise, content], 1) == [content]
+        assert filter_words([noise, content]) == [content]
 
     def test_ordinary_words_are_untouched(self):
         words = [Word(text="Relatorio", left=72.0, top=100.0, width=90.0, height=12.0)]
 
-        assert filter_words(words, 1) == words
+        assert filter_words(words) == words
 
 
 class TestFormSeparatorLeavesUrlsAndTimesWhole:
@@ -142,7 +142,7 @@ class TestFormSeparatorLeavesUrlsAndTimesWhole:
         assert [token.text for token in _split_form_tokens("08:15:42")] == ["08:15:42"]
 
     def test_a_form_field_is_still_split(self):
-        """The behaviour this separator exists for must survive the fix."""
+        """A label and its value still split at the separator."""
         assert [token.text for token in _split_form_tokens("Nome:Ana")] == ["Nome:", "Ana"]
 
     def test_a_label_before_a_time_still_splits(self):

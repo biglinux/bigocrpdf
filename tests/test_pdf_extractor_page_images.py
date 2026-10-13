@@ -1,6 +1,6 @@
 """Choosing between an embedded page image and re-rendering the page."""
 
-from bigocrpdf.services.rapidocr_service.pdf_extractor import (
+from bigocrpdf.services.ocr.pdf_extractor import (
     _add_pdfimages_mapping_line,
     _PageImage,
     _small_page_image_reason,

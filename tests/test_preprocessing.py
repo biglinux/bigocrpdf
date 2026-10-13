@@ -4,21 +4,22 @@ import cv2
 import numpy as np
 import pytest
 
-from bigocrpdf.services.perspective_margins import trim_white_borders
-from bigocrpdf.services.rapidocr_service.config import OCRConfig
-from bigocrpdf.services.rapidocr_service.preprocess_deskew import (
+from bigocrpdf.services.ocr.config import OCRConfig
+from bigocrpdf.services.ocr.ppocr_native import Detector
+from bigocrpdf.services.ocr.preprocess_deskew import (
     _detect_skew_hough,
     measure_box_angles,
     rotate_image,
 )
-from bigocrpdf.services.rapidocr_service.preprocess_enhance import (
+from bigocrpdf.services.ocr.preprocess_enhance import (
     adjust_brightness,
     apply_clahe,
     clean_borders,
     denoise,
     sharpen_text,
 )
-from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
+from bigocrpdf.services.ocr.preprocessor import ImagePreprocessor
+from bigocrpdf.services.perspective_margins import trim_white_borders
 
 
 def _make_bgr(h=100, w=100, value=128):
@@ -34,7 +35,7 @@ def _make_text_image(h=200, w=400):
 
 
 def test_preprocessor_checks_cancellation_between_heavy_phases(monkeypatch):
-    preprocessor = ImagePreprocessor(OCRConfig(enable_preprocessing=True))
+    preprocessor = ImagePreprocessor(OCRConfig(enable_preprocessing=True), Detector())
     image = _make_bgr()
     phases = []
 
@@ -44,7 +45,7 @@ def test_preprocessor_checks_cancellation_between_heavy_phases(monkeypatch):
         lambda value, *, cancel_check=None: phases.append("geometry") or value,
     )
     monkeypatch.setattr(
-        "bigocrpdf.services.rapidocr_service.preprocessor.apply_color_enhancements",
+        "bigocrpdf.services.ocr.preprocessor.apply_color_enhancements",
         lambda value, _config: phases.append("color") or value,
     )
 
@@ -91,25 +92,25 @@ class TestMeasureBoxAngles:
 
     def test_horizontal_box_returns_near_zero(self):
         box = np.array([[10, 50], [200, 50], [200, 70], [10, 70]], dtype=np.float32)
-        angles, ys, widths = measure_box_angles([{"box": box}], page_width=400)
+        angles, ys, widths = measure_box_angles([box], page_width=400)
         assert len(angles) == 1
         assert abs(angles[0]) < 1.0
 
     def test_too_narrow_box_filtered(self):
         box = np.array([[10, 50], [15, 50], [15, 60], [10, 60]], dtype=np.float32)
-        angles, _, _ = measure_box_angles([{"box": box}], page_width=400)
+        angles, _, _ = measure_box_angles([box], page_width=400)
         assert len(angles) == 0
 
     def test_high_angle_box_filtered(self):
         # Create a nearly vertical box (angle > 15°)
         box = np.array([[100, 0], [110, 200], [120, 200], [110, 0]], dtype=np.float32)
-        angles, _, _ = measure_box_angles([{"box": box}], page_width=400)
+        angles, _, _ = measure_box_angles([box], page_width=400)
         assert len(angles) == 0
 
     def test_multiple_boxes(self):
         box1 = np.array([[10, 50], [200, 52], [200, 72], [10, 70]])
         box2 = np.array([[10, 100], [200, 103], [200, 123], [10, 120]])
-        angles, ys, widths = measure_box_angles([{"box": box1}, {"box": box2}], page_width=400)
+        angles, ys, widths = measure_box_angles([box1, box2], page_width=400)
         assert len(angles) == 2
 
     def test_empty_boxes(self):

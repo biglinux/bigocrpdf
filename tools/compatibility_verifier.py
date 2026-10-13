@@ -95,7 +95,7 @@ def invoke(argv):
 
 
 SETTING_ATTRIBUTES = (
-    "lang", "ocr_language", "replace_existing_ocr", "enhance_embedded_images",
+    "replace_existing_ocr", "enhance_embedded_images",
     "destination_folder", "save_in_same_folder", "pdf_suffix",
     "use_original_filename", "overwrite_existing", "include_date", "include_year",
     "include_month", "include_day", "include_time", "date_format_order", "save_txt",
@@ -109,7 +109,7 @@ SETTING_ATTRIBUTES = (
     "enable_auto_contrast", "enable_auto_brightness", "enable_denoise",
     "enable_scanner_effect", "scanner_effect_strength", "enable_border_clean",
     "enable_vintage_look", "vintage_bw", "text_score_threshold", "box_thresh",
-    "ocr_profile", "detection_full_resolution", "parallel_workers",
+    "detection_full_resolution", "parallel_workers",
     "quick_start_mode",
 )
 
@@ -119,8 +119,6 @@ def settings_values(settings):
 
 
 def replacement(name, value):
-    if name in {"lang", "ocr_language"}:
-        return "english"
     if isinstance(value, bool):
         return not value
     if isinstance(value, int):
@@ -138,7 +136,7 @@ def settings_schema():
     for name in SETTING_ATTRIBUTES:
         setattr(settings, name, replacement(name, getattr(settings, name)))
     output = Path.home() / "output"
-    settings.save_settings("english", str(output), save_in_same_folder=False)
+    settings.save_settings(str(output), save_in_same_folder=False)
 
     queued = Path.home() / "line one\nline two.pdf"
     queued.write_bytes(b"%PDF-1.4\n")
@@ -185,7 +183,7 @@ snapshot = {
     "version": __version__,
     "imports": [
         "bigocrpdf", "bigocrpdf.config", "bigocrpdf.cli", "bigocrpdf.services.settings",
-        "bigocrpdf.services.pdf_operations", "bigocrpdf.services.rapidocr_service.config",
+        "bigocrpdf.services.pdf_operations", "bigocrpdf.services.ocr.config",
     ],
     "parser": parser_schema(),
     "parsers": parse_contracts(),

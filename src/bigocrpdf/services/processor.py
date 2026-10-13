@@ -8,10 +8,9 @@ from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
-from bigocrpdf.services.rapidocr_service.config import OCRConfig, ProcessingStats
-from bigocrpdf.services.rapidocr_service.discovery import ModelDiscovery
-from bigocrpdf.services.rapidocr_service.engine import RapidOCREngine
-from bigocrpdf.services.rapidocr_service.ocr_document_io import publish_ocr_pdfs
+from bigocrpdf.services.ocr.backend import ProfessionalPDFOCR
+from bigocrpdf.services.ocr.config import OCRConfig, ProcessingStats
+from bigocrpdf.services.ocr.ocr_document_io import publish_ocr_pdfs
 from bigocrpdf.services.settings import OcrSettings
 from bigocrpdf.utils.checkpoint_manager import CheckpointManager, get_checkpoint_manager
 from bigocrpdf.utils.history_manager import HistoryManager, get_history_manager
@@ -21,10 +20,7 @@ from bigocrpdf.utils.temp_manager import staging_directory
 
 
 class OcrProcessor:
-    """Class to handle OCR processing tasks using RapidOCR.
-
-    This processor uses RapidOCR with the unified PP-OCRv6 model.
-    """
+    """Runs OCR over the queued files, one at a time, on a background thread."""
 
     def __init__(
         self,
@@ -60,14 +56,11 @@ class OcrProcessor:
         self._file_progress = 0.0  # Progress within current file (0.0-1.0)
         self._current_status = ""  # Status message from backend
         self._current_filename = ""  # Current file being processed
-        self._current_engine: RapidOCREngine | None = None
+        self._current_engine: ProfessionalPDFOCR | None = None
         self._engine_lock = threading.Lock()  # Protects _current_engine
         self._state_lock = threading.Lock()  # Protects progress/status fields
         self._run_lock = threading.Lock()  # Protects worker creation and ownership
         self._idle_callbacks: list[Callable[[], None]] = []
-
-        # Model discovery
-        self._discovery = ModelDiscovery()
 
         # Register cleanup for abnormal termination
         atexit.register(self._atexit_cleanup)
@@ -87,7 +80,7 @@ class OcrProcessor:
         return self._history_manager
 
     def process_with_api(self) -> bool:
-        """Process selected files using RapidOCR.
+        """Process the selected files.
 
         Returns:
             True if processing started successfully, False otherwise
@@ -114,8 +107,8 @@ class OcrProcessor:
             file_count = len(self.settings.selected_files)
             logger.info(
                 ngettext(
-                    "Started OCR processing for {count} file using RapidOCR",
-                    "Started OCR processing for {count} files using RapidOCR",
+                    "Started OCR processing for {count} file",
+                    "Started OCR processing for {count} files",
                     file_count,
                 ).format(count=file_count)
             )
@@ -168,7 +161,6 @@ class OcrProcessor:
         # Start checkpoint session for crash recovery
         checkpoint = self.checkpoint_manager
         settings_snapshot = {
-            "ocr_language": self.settings.ocr_language,
             "dpi": self.settings.dpi,
             "destination_folder": self.settings.destination_folder,
             "save_in_same_folder": self.settings.save_in_same_folder,
@@ -314,7 +306,7 @@ class OcrProcessor:
         # Create OCR config from settings, including file-specific page range
         config = self._create_ocr_config(file_path)
 
-        engine = RapidOCREngine(config)
+        engine = ProfessionalPDFOCR(config)
         with self._engine_lock:
             self._current_engine = engine
 
@@ -340,7 +332,7 @@ class OcrProcessor:
             _("Processed {filename}: Pages: {pages} · Words: {words}").format(
                 filename=os.path.basename(file_path),
                 pages=stats.pages_processed,
-                words=stats.total_words,
+                words=len((stats.full_text or "").split()),
             )
         )
 
@@ -417,7 +409,6 @@ class OcrProcessor:
             output_path=output_file,
             pages_processed=stats.pages_processed,
             processing_time_seconds=stats.processing_time_seconds,
-            language=self.settings.ocr_language,
             success=success,
         )
 
@@ -427,10 +418,6 @@ class OcrProcessor:
         Args:
             file_path: Optional file path to look up file-specific settings (e.g., page range)
         """
-        # Map settings to OCRConfig
-        language = self.settings.ocr_language
-        dpi = self.settings.dpi
-
         page_range = None
         if file_path:
             page_range = self.settings.page_ranges.get(file_path)
@@ -461,8 +448,6 @@ class OcrProcessor:
         config = self.settings._snapshot_ocr_config()
         return replace(
             config,
-            language=language,
-            dpi=dpi,
             page_range=page_range,
             page_modifications=page_modifications,
             force_full_ocr=bool(file_path and file_path in self.settings.original_file_paths),
@@ -514,19 +499,6 @@ class OcrProcessor:
                 return os.path.join(output_dir, f"{base_name}-{suffix}.pdf")
             else:
                 return os.path.join(output_dir, f"{base_name}-{suffix}-{index + 1}.pdf")
-
-    def get_available_ocr_languages(self) -> list[tuple[str, str]]:
-        """Report availability of the unified PP-OCRv6 model.
-
-        Returns:
-            List of tuples (language_code, display_name)
-        """
-        try:
-            return self._discovery.get_available_languages()
-
-        except Exception as e:
-            logger.error(_("Error getting OCR languages: {0}").format(e))
-            return []
 
     def get_progress(self) -> float:
         """Get the current OCR processing progress.
@@ -615,8 +587,8 @@ class OcrProcessor:
     def force_cleanup(self) -> None:
         """Force cleanup of all resources and stop processing.
 
-        This method is NON-BLOCKING — it signals the backend to stop and
-        returns immediately so the GTK main thread remains responsive.
+        Returns at once: it signals the backend to stop, so the GTK main
+        thread stays responsive.
         The processing thread will exit on its own after finishing the
         current page.
         """
@@ -626,8 +598,8 @@ class OcrProcessor:
             # Signal the backend to stop between pages
             with self._engine_lock:
                 if self._current_engine is not None:
-                    self._current_engine.cancel_event.set()
-                    logger.info("Cancel event set on current OCR engine")
+                    self._current_engine.cancel()
+                    logger.info("Cancelled the current OCR job")
 
             self._is_processing = False
             self._processing_started = False
@@ -647,7 +619,7 @@ class OcrProcessor:
         self._stop_requested = True
         with self._engine_lock:
             if self._current_engine is not None:
-                self._current_engine.cancel_event.set()
+                self._current_engine.cancel()
         t = self._processing_thread
         if t is not None and t.is_alive():
             t.join(timeout=5)
@@ -711,8 +683,6 @@ class OcrProcessor:
 
         # Restore settings from snapshot if available
         if settings_snapshot:
-            if "ocr_language" in settings_snapshot:
-                self.settings.ocr_language = settings_snapshot["ocr_language"]
             if "dpi" in settings_snapshot:
                 self.settings.dpi = settings_snapshot["dpi"]
             if "destination_folder" in settings_snapshot:

@@ -1,5 +1,5 @@
 """Widgets and helpers shared by the windows: clipboard, illustrations,
-the OCR-unavailable dialog, and the stylesheet.
+copyable failure details, the OCR-unavailable dialog, and the stylesheet.
 """
 
 import gi
@@ -12,9 +12,10 @@ from typing import TYPE_CHECKING
 from urllib.parse import unquote, urlparse
 
 gi.require_version("Gdk", "4.0")
-from gi.repository import Adw, Gdk, GdkPixbuf, Gio, GLib, Gtk
+from gi.repository import Adw, Gdk, GdkPixbuf, Gio, GLib, Gtk, Pango
 
 from bigocrpdf.config import RESOURCES_DIR
+from bigocrpdf.services.ocr.ppocr_native import WORKER
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
@@ -66,17 +67,51 @@ def load_svg_picture(filename: str, size: int = 92) -> Gtk.Image:
     return image
 
 
+def failure_details(details: str) -> Gtk.Widget:
+    """Show failure causes as selectable text with a button that copies them."""
+    label = Gtk.Label(
+        label=details,
+        selectable=True,
+        wrap=True,
+        wrap_mode=Pango.WrapMode.WORD_CHAR,
+        xalign=0,
+    )
+    # A focused selectable label selects all its text, and the dialog passes
+    # focus through it on the way to its default button; the button copies.
+    label.set_focusable(False)
+    scrolled = Gtk.ScrolledWindow(
+        child=label,
+        hscrollbar_policy=Gtk.PolicyType.NEVER,
+        propagate_natural_height=True,
+        max_content_height=240,
+    )
+    copy_button = Gtk.Button(label=_("Copy Details"), halign=Gtk.Align.CENTER)
+
+    def copy(button: Gtk.Button) -> None:
+        button.get_clipboard().set(details)
+        button.set_label(_("Copied to clipboard"))
+
+    copy_button.connect("clicked", copy)
+    box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+    box.append(scrolled)
+    box.append(copy_button)
+    return box
+
+
 def present_ocr_unavailable_dialog(
     parent: Gtk.Widget,
     reason: str,
     response_callback: Callable[[Adw.AlertDialog, str], None],
 ) -> Adw.AlertDialog:
-    """Present the shared actionable error for an unavailable OCR engine."""
-    detail = reason.strip() or _("The OCR engine could not be loaded.")
-    body = _(
-        "{reason}\n\nInstall or repair the required OCR packages, then restart the application."
-    ).format(reason=detail)
+    """Present the shared actionable error for an unavailable OCR engine.
+
+    The cause names the engine's model folder, so it is shown for copying.
+    """
+    body = _("Install the {package} package, then restart the application.").format(package=WORKER)
     dialog = Adw.AlertDialog(heading=_("OCR is unavailable"), body=body)
+    dialog.set_extra_child(
+        failure_details(reason.strip() or _("The OCR engine could not be loaded."))
+    )
     dialog.add_response("close", _("Close"))
     dialog.set_default_response("close")
     dialog.set_close_response("close")

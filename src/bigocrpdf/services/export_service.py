@@ -75,13 +75,7 @@ def save_text_file(
         return None
 
 
-def save_odf_file(
-    output_file: str,
-    extracted_text: str,
-    ocr_boxes: list,
-    source_pdf: str,
-    include_images: bool = True,
-) -> str | None:
+def save_odf_file(output_file: str, include_images: bool = True) -> str | None:
     """Save an OCR'd PDF as a fixed-layout or reflowable structured ODF document.
 
     Uses pdftotext -tsv on the OCR'd PDF (output_file) to extract
@@ -90,9 +84,6 @@ def save_odf_file(
 
     Args:
         output_file: Path to the OCR'd PDF (has text layer). Also used to derive ODF name.
-        extracted_text: Unused.
-        ocr_boxes: Unused.
-        source_pdf: Unused.
         include_images: Whether to position editable text using PDF coordinates.
 
     Returns:

@@ -168,27 +168,15 @@ class TestBuildParser:
         args = p.parse_args(["-v", "info", "input.pdf"])
         assert args.verbose is True
 
-    def test_ocr_pdf_mode_and_batch_options(self):
+    def test_ocr_pdf_mode_and_full_resolution_options(self):
         p = build_parser()
         args = p.parse_args(
-            [
-                "ocr",
-                "in.pdf",
-                "-o",
-                "out.pdf",
-                "--pdf-mode",
-                "auto_verified",
-                "--engine-type",
-                "onnxruntime",
-                "--rec-batch-num",
-                "8",
-                "--use-textline-cls",
-            ]
+            ["ocr", "in.pdf", "-o", "out.pdf", "--pdf-mode", "auto_verified", "--full-resolution"]
         )
         assert args.pdf_mode == "auto_verified"
-        assert args.engine_type == "onnxruntime"
-        assert args.rec_batch_num == 8
-        assert args.use_textline_cls is True
+        assert args.full_resolution is True
+        args = p.parse_args(["ocr", "in.pdf", "-o", "out.pdf", "--no-full-resolution"])
+        assert args.full_resolution is False
 
     def test_ocr_no_flags(self):
         p = build_parser()
@@ -199,7 +187,7 @@ class TestBuildParser:
 
 def test_parser_default_matches_the_pipeline_default() -> None:
     """The parser spells the default out, so something must keep the two equal."""
-    from bigocrpdf.services.rapidocr_service.config import (
+    from bigocrpdf.services.ocr.config import (
         DEFAULT_DETECTION_FULL_RESOLUTION,
         OCRConfig,
     )

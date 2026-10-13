@@ -27,10 +27,10 @@ names above resolve to nothing without this directory and resolve with it,
 while `folder-open-symbolic` and `document-send-symbolic` keep coming from the
 host theme.
 
-The bundle used to be a private theme selected through `gtk-icon-theme-name`.
-That did make the interface identical on every system, but it did so by
-discarding the user's choice: the chain became `bigocrpdf → Adwaita → hicolor`
-and a Papirus or Breeze user never saw one of their own icons.
+The bundle is not selected as a theme through `gtk-icon-theme-name`: that
+would make the interface identical everywhere by discarding the user's choice,
+so the chain would become `bigocrpdf → Adwaita → hicolor` and a Papirus or
+Breeze user would never see one of their own icons.
 
 ## Adding an icon
 

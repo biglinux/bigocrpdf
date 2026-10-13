@@ -40,63 +40,35 @@ from benchmarks.ocr_metrics import (
     word_error_rate,
 )
 from benchmarks.validate_text_layer import build_report
-from bigocrpdf.services.rapidocr_service.ocr_document_io import load_ocr_document_json
+from bigocrpdf.services.ocr.ocr_document_io import load_ocr_document_json
+from bigocrpdf.services.ocr.ppocr_native import PLAN_FILES
 
 PROFILES: dict[str, dict[str, str]] = {
-    "fast_cpu": {
-        "model_type": "small",
-        "dpi": "250",
-        "engine": "openvino",
-        "rec_batch_num": "1",
-    },
-    "balanced_cpu": {
-        "model_type": "small",
-        "dpi": "300",
-        "engine": "openvino",
-        "rec_batch_num": "1",
-    },
-    "quality_cpu": {
-        "model_type": "medium",
-        "dpi": "350",
-        "engine": "openvino",
-        "rec_batch_num": "1",
-    },
+    "fast": {"dpi": "250", "full_resolution": "off"},
+    "balanced": {"dpi": "300", "full_resolution": "off"},
+    "quality": {"dpi": "350", "full_resolution": "on"},
 }
-MATRIX_KEYS = {"engine", "model_type", "rec_batch_num", "dpi", "gpu_backend"}
-REC_BATCH_SWEEP_VALUES = ["1", "2", "4", "8", "16"]
+MATRIX_KEYS = {"dpi", "full_resolution"}
 PROCESS_RSS_SAMPLE_INTERVAL_SECONDS = 0.05
 SAFE_SAMPLE_ID_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}\Z")
 BENCHMARK_DEPENDENCIES = (
     "bigocrpdf",
     "numpy",
-    "onnxruntime",
-    "openvino",
     "opencv-python",
     "Pillow",
     "pikepdf",
     "pycairo",
     "PyGObject",
-    "rapidocr",
     "reportlab",
     "scipy",
 )
-GPU_RUNTIME_DISTRIBUTIONS = (
-    "onnxruntime-gpu",
-    "paddlepaddle",
-    "paddlepaddle-gpu",
-    "tensorrt",
-    "torch",
-)
 DEPENDENCY_MODULES = {
     "numpy": "numpy",
-    "onnxruntime": "onnxruntime",
-    "openvino": "openvino",
     "opencv-python": "cv2",
     "Pillow": "PIL",
     "pikepdf": "pikepdf",
     "pycairo": "cairo",
     "PyGObject": "gi",
-    "rapidocr": "rapidocr",
     "reportlab": "reportlab",
     "scipy": "scipy",
 }
@@ -358,7 +330,6 @@ def run_bigocrpdf(
     profile: dict[str, str],
     output_pdf: Path,
     sidecar_json: Path,
-    gpu_backend: str,
 ) -> tuple[subprocess.CompletedProcess[str], float | None]:
     input_pdf = row.get("pdf")
     if not input_pdf:
@@ -374,14 +345,7 @@ def run_bigocrpdf(
         str(output_pdf),
         "--dpi",
         profile["dpi"],
-        "--engine-type",
-        profile["engine"],
-        "--model-type",
-        profile["model_type"],
-        "--rec-batch-num",
-        profile["rec_batch_num"],
-        "--gpu-backend",
-        gpu_backend,
+        "--full-resolution" if profile["full_resolution"] == "on" else "--no-full-resolution",
         # Structured OCR is opt-in and never lands beside a user's file; the
         # benchmark asks for it inside its own temporary directory.
         "--sidecar-json",
@@ -503,7 +467,6 @@ def benchmark_row(
     row: dict[str, Any],
     profile_name: str,
     profile: dict[str, str],
-    gpu_backend: str,
     *,
     run_index: int = 0,
     warmup_runs: int = 0,
@@ -513,7 +476,7 @@ def benchmark_row(
     with tempfile.TemporaryDirectory(prefix="bigocrpdf_bench_") as temp_dir:
         output_pdf = Path(temp_dir) / "result.pdf"
         sidecar_json = Path(temp_dir) / "result.bigocr.json"
-        result, peak_rss_mb = run_bigocrpdf(row, profile, output_pdf, sidecar_json, gpu_backend)
+        result, peak_rss_mb = run_bigocrpdf(row, profile, output_pdf, sidecar_json)
         elapsed = time.perf_counter() - started
         ground_truth_language = row.get("language")
         source_paths = row.get("_manifest_source_paths")
@@ -536,12 +499,8 @@ def benchmark_row(
             "language": ground_truth_language,
             "requested_language_hint": "latin",
             "tags": _record_tags(row),
-            "engine_type": profile["engine"],
-            "gpu_backend": gpu_backend,
-            "ocr_version": "PPOCRV6",
-            "model_type": profile["model_type"],
-            "rec_batch_num": int(profile["rec_batch_num"]),
             "dpi": int(profile["dpi"]),
+            "full_resolution": profile["full_resolution"] == "on",
             "retry_level": 0,
             "retry_pages": None,
             "ocr_seconds": None,
@@ -549,7 +508,6 @@ def benchmark_row(
             "peak_rss_mb": peak_rss_mb,
             "peak_rss_method": "linux_proc_process_tree",
             "peak_rss_sample_interval_seconds": PROCESS_RSS_SAMPLE_INTERVAL_SECONDS,
-            "gpu_mem_peak_mb": None,
             "pdf_output_size_bytes": output_pdf.stat().st_size if output_pdf.exists() else 0,
             "ocr_text_chars": None,
             "failure_reason": "",
@@ -562,10 +520,8 @@ def benchmark_row(
             return record
 
         record.update(read_ocr_sidecar_metadata(sidecar_json, output_pdf))
-        effective_model_type = str(record.get("effective_model_type") or profile["model_type"])
         record["model_supports_ground_truth_language"] = _ppocrv6_supports_language(
-            str(ground_truth_language or ""),
-            effective_model_type,
+            str(ground_truth_language or "")
         )
 
         expected_path = Path(row["gt_text"]) if row.get("gt_text") else None
@@ -593,11 +549,6 @@ def _benchmark_environment() -> dict[str, Any]:
         for distribution in BENCHMARK_DEPENDENCIES
         if (version := _distribution_version(distribution)) is not None
     }
-    gpu_runtimes = {
-        distribution: version
-        for distribution in GPU_RUNTIME_DISTRIBUTIONS
-        if (version := _distribution_version(distribution)) is not None
-    }
     return {
         "schema_version": 1,
         "platform": platform.platform(),
@@ -606,55 +557,7 @@ def _benchmark_environment() -> dict[str, Any]:
         "cpu_model": _cpu_model(),
         "cpu_count": os.cpu_count() or 1,
         "dependencies": dependencies,
-        "gpu_devices": _gpu_devices(),
-        "gpu_runtimes": gpu_runtimes,
     }
-
-
-def _gpu_devices() -> list[dict[str, str]]:
-    """Return stable Linux GPU/driver identifiers without optional Python APIs."""
-    devices: list[dict[str, str]] = []
-    drm_root = Path("/sys/class/drm")
-    try:
-        card_paths = sorted(drm_root.glob("card[0-9]*"))
-    except OSError:
-        return devices
-
-    seen_devices: set[Path] = set()
-    for card_path in card_paths:
-        device_path = card_path / "device"
-        try:
-            resolved_device = device_path.resolve(strict=True)
-            if resolved_device in seen_devices:
-                continue
-            seen_devices.add(resolved_device)
-            pci_class = _read_sysfs_value(device_path / "class")
-            if pci_class and not pci_class.lower().startswith("0x03"):
-                continue
-            driver_path = device_path / "driver"
-            driver = driver_path.resolve(strict=True).name
-            driver_version = _read_sysfs_value(Path("/sys/module") / driver / "version")
-            devices.append(
-                {
-                    "card": card_path.name,
-                    "pci_address": resolved_device.name,
-                    "vendor_id": _read_sysfs_value(device_path / "vendor") or "unknown",
-                    "device_id": _read_sysfs_value(device_path / "device") or "unknown",
-                    "driver": driver,
-                    "driver_version": driver_version or platform.release(),
-                }
-            )
-        except OSError:
-            continue
-    return devices
-
-
-def _read_sysfs_value(path: Path) -> str | None:
-    try:
-        value = path.read_text(encoding="ascii").strip()
-    except (OSError, UnicodeError):
-        return None
-    return value or None
 
 
 def _cpu_model() -> str:
@@ -688,14 +591,11 @@ def _distribution_version(distribution: str) -> str | None:
         return str(version) if version else None
 
 
-def _ppocrv6_supports_language(language: str, model_type: str) -> bool | None:
+def _ppocrv6_supports_language(language: str) -> bool | None:
     normalized = language.strip().lower().replace("-", "_")
     if not normalized:
         return None
-    normalized = PPOCRV6_LANGUAGE_ALIASES.get(normalized, normalized)
-    if normalized not in PPOCRV6_LANGUAGES:
-        return False
-    return not (model_type.lower() == "tiny" and normalized == "japan")
+    return PPOCRV6_LANGUAGE_ALIASES.get(normalized, normalized) in PPOCRV6_LANGUAGES
 
 
 def _sha256_file(path: Path) -> str:
@@ -731,10 +631,10 @@ def read_ocr_sidecar_metadata(sidecar_json: Path, output_pdf: Path) -> dict[str,
     runtime = document.diagnostics.get("ocr_runtime") or {}
     if not isinstance(runtime, dict):
         runtime = {}
-    rec_model_path = cast(str | None, runtime.get("rec_model_path"))
-    det_model_path = cast(str | None, runtime.get("det_model_path"))
+    worker_path = cast(str | None, runtime.get("worker_path"))
+    plans_dir = Path(cast(str, runtime.get("plans_dir") or ""))
+    det_plan, rec_plan, dictionary = (str(plans_dir / name) for name in PLAN_FILES)
     font_path = cast(str | None, runtime.get("font_path"))
-    rec_keys_path = cast(str | None, runtime.get("rec_keys_path"))
     layout_blocks = [block for page in document.pages for block in page.layout_blocks]
     # Per-region data has always been in the sidecar; it was simply discarded
     # here, leaving ocr_box_count and the confidence fields permanently null.
@@ -750,44 +650,32 @@ def read_ocr_sidecar_metadata(sidecar_json: Path, output_pdf: Path) -> dict[str,
     ]
     return {
         "effective_ocr_runtime": runtime,
+        # The resource snapshot holds the free memory of the moment, which no two
+        # runs share; the worker and chunk counts it decides are compared instead.
         "effective_ocr_config": {
             key: value
             for key, value in runtime.items()
-            if key
-            not in {
-                "rec_model_path",
-                "rec_keys_path",
-                "det_model_path",
-                "font_path",
-            }
+            if key not in {"worker_path", "plans_dir", "font_path", "resource"}
         },
         "ocr_box_count": len(confidences),
         "ocr_confidence_mean": confidence_summary["mean"],
         "ocr_confidence_median": confidence_summary["median"],
         "ocr_confidence_p10": confidence_summary["p10"],
         "ocr_confidence_min": confidence_summary["min"],
-        # The invariant that would have caught the real-world zero-OCR failure:
-        # a CER budget cannot notice a page that produced nothing, because the
-        # document average absorbs it.
+        # A CER budget cannot notice a page that produced nothing, because the
+        # document average absorbs it; this count can.
         "pages_with_zero_boxes": pages_with_zero_boxes,
         "preprocess_traces": [
             page.diagnostics.get("preprocess")
             for page in document.pages
             if page.diagnostics.get("preprocess")
         ],
-        "effective_engine_type": runtime.get("engine_type"),
-        "effective_ocr_version": runtime.get("ocr_version"),
-        "effective_language_hint": runtime.get("language"),
-        "effective_model_type": runtime.get("model_type"),
-        "effective_rec_batch_num": runtime.get("rec_batch_num"),
-        "effective_gpu_backend": runtime.get("gpu_backend"),
-        "effective_rec_model_family": runtime.get("ocr_version"),
-        "effective_rec_model_path": rec_model_path,
-        "effective_rec_model_sha256": _sha256_optional_path(rec_model_path),
-        "effective_det_model_path": det_model_path,
-        "effective_det_model_sha256": _sha256_optional_path(det_model_path),
-        "effective_dictionary_path": rec_keys_path,
-        "effective_dictionary_sha256": _sha256_optional_path(rec_keys_path),
+        "effective_worker_path": worker_path,
+        "effective_worker_sha256": _sha256_optional_path(worker_path),
+        "effective_plans_dir": str(plans_dir),
+        "effective_det_plan_sha256": _sha256_optional_path(det_plan),
+        "effective_rec_plan_sha256": _sha256_optional_path(rec_plan),
+        "effective_dictionary_sha256": _sha256_optional_path(dictionary),
         "effective_font_path": font_path,
         "effective_font_sha256": _sha256_optional_path(font_path),
         "sidecar_page_count": len(document.pages),
@@ -812,6 +700,8 @@ def parse_matrix_arg(raw: str) -> tuple[str, list[str]]:
     values = [value.strip() for value in values_raw.split(",") if value.strip()]
     if not values:
         raise argparse.ArgumentTypeError(f"matrix key {key} has no values")
+    if key == "full_resolution" and not set(values) <= {"on", "off"}:
+        raise argparse.ArgumentTypeError("full_resolution takes on and off")
     return key, values
 
 
@@ -834,17 +724,6 @@ def expand_profiles(
             profile_name_parts.append(f"{key}-{value}")
         expanded.append(("_".join(profile_name_parts), profile))
     return expanded
-
-
-def benchmark_matrix(
-    matrix: list[tuple[str, list[str]]],
-    rec_batch_sweep: bool,
-) -> list[tuple[str, list[str]]]:
-    """Return the effective benchmark matrix requested by CLI flags."""
-    effective = list(matrix)
-    if rec_batch_sweep and not any(key == "rec_batch_num" for key, _values in effective):
-        effective.append(("rec_batch_num", REC_BATCH_SWEEP_VALUES))
-    return effective
 
 
 def summarize_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -1155,7 +1034,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
-    parser.add_argument("--profile", choices=sorted(PROFILES), default="balanced_cpu")
+    parser.add_argument("--profile", choices=sorted(PROFILES), default="balanced")
     parser.add_argument("--limit", type=int)
     parser.add_argument(
         "--repeats",
@@ -1169,7 +1048,6 @@ def main() -> int:
         default=0,
         help="Unrecorded warm-up runs per sample/profile (default: 0).",
     )
-    parser.add_argument("--gpu-backend", default="off")
     parser.add_argument("--summary-md", type=Path)
     parser.add_argument("--summary-csv", type=Path)
     parser.add_argument("--group-summary-md", type=Path)
@@ -1177,16 +1055,11 @@ def main() -> int:
     parser.add_argument("--no-summary", action="store_true")
     parser.add_argument("--no-group-summary", action="store_true")
     parser.add_argument(
-        "--rec-batch-sweep",
-        action="store_true",
-        help="Add the recommended rec_batch_num=1,2,4,8,16 benchmark matrix.",
-    )
-    parser.add_argument(
         "--matrix",
         action="append",
         type=parse_matrix_arg,
         default=[],
-        help="Sweep a benchmark dimension, e.g. --matrix engine=openvino,onnxruntime",
+        help="Sweep a benchmark dimension, e.g. --matrix dpi=250,300,350",
     )
     args = parser.parse_args()
     if args.repeats < 1:
@@ -1194,20 +1067,17 @@ def main() -> int:
     if args.warmup_runs < 0:
         parser.error("--warmup-runs cannot be negative")
 
-    matrix = benchmark_matrix(args.matrix, args.rec_batch_sweep)
-    profiles = expand_profiles(args.profile, matrix)
+    profiles = expand_profiles(args.profile, args.matrix)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     records: list[dict[str, Any]] = []
     with load_manifest(args.manifest, args.limit) as rows:
         for profile_name, profile in profiles:
-            gpu_backend = str(profile.get("gpu_backend") or args.gpu_backend or "off")
             for row in rows:
                 for warmup_index in range(args.warmup_runs):
                     benchmark_row(
                         row,
                         profile_name,
                         profile,
-                        gpu_backend,
                         run_index=-(warmup_index + 1),
                         warmup_runs=args.warmup_runs,
                     )
@@ -1216,7 +1086,6 @@ def main() -> int:
                         row,
                         profile_name,
                         profile,
-                        gpu_backend,
                         run_index=run_index,
                         warmup_runs=args.warmup_runs,
                     )

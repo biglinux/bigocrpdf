@@ -1,16 +1,14 @@
-import os
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 from unittest.mock import MagicMock, patch
 
-import numpy as np
+import pikepdf
 import pytest
 
-from bigocrpdf.services.rapidocr_service import ocr_controller
-from bigocrpdf.services.rapidocr_service.backend import OCRConfig, ProfessionalPDFOCR
-from bigocrpdf.services.rapidocr_service.ocr_controller import OCRController
+from bigocrpdf.services.ocr.backend import OCRConfig, ProfessionalPDFOCR
+from bigocrpdf.services.ocr.config import ProcessingStats
 
 
 class TestBackendModifications(unittest.TestCase):
@@ -37,10 +35,13 @@ class TestBackendModifications(unittest.TestCase):
 
         # Mock dependencies
         self.backend.extractor = MagicMock()
-        self.backend._overlay_text_on_original = MagicMock()
         self.backend._finalize_output = MagicMock()
         self.backend._calculate_final_stats = MagicMock()
         self.backend._process_page_result = MagicMock(return_value=(0.95, False))
+        worker = MagicMock(threads=4)
+        worker.wait_ready.return_value = 3
+        worker.recognize.return_value = {"boxes": None}
+        self.backend._start_ocr_worker = MagicMock(return_value=worker)
 
     def tearDown(self):
         self.temp_dir.cleanup()
@@ -68,7 +69,7 @@ class TestBackendModifications(unittest.TestCase):
 
         self.backend.extractor.extract.side_effect = extract_chunk
 
-        from bigocrpdf.services.rapidocr_service.rotation import PageRotation
+        from bigocrpdf.services.ocr.rotation import PageRotation
 
         original_rotations = [
             PageRotation(page_number=i, original_pdf_rotation=0, mediabox=[0, 0, 595, 842])
@@ -77,16 +78,17 @@ class TestBackendModifications(unittest.TestCase):
 
         with (
             patch(
-                "bigocrpdf.services.rapidocr_service.backend_pipeline.extract_page_rotations",
+                "bigocrpdf.services.ocr.backend_pipeline.extract_page_rotations",
                 return_value=original_rotations,
             ),
             patch(
-                "bigocrpdf.services.rapidocr_service.resource_manager.adjust_chunk_size",
+                "bigocrpdf.services.ocr.resource_manager.adjust_chunk_size",
                 return_value=4,
             ),
             patch(
-                "bigocrpdf.services.rapidocr_service.backend_pipeline.apply_final_rotation_to_pdf",
+                "bigocrpdf.services.ocr.backend_pipeline.apply_final_rotation_to_pdf",
             ) as mock_apply_final,
+            patch("bigocrpdf.services.ocr.backend_pipeline.overlay_text_on_original") as overlay,
         ):
             self.backend._process_image_only_pdf(input_pdf, output_pdf)
 
@@ -113,13 +115,34 @@ class TestBackendModifications(unittest.TestCase):
             self.assertIsNotNone(item["img_path"])
 
         # Verify overlay was used (no standalone pages in mock)
-        self.backend._overlay_text_on_original.assert_called_once()
+        overlay.assert_called_once()
 
         # Verify apply_final_rotation_to_pdf was called
         mock_apply_final.assert_called_once()
 
         # Verify finalize was called
         self.backend._finalize_output.assert_called_once()
+
+
+def test_unread_pages_fail_the_job(tmp_path: Path) -> None:
+    source = tmp_path / "in.pdf"
+    pdf = pikepdf.Pdf.new()
+    pdf.add_blank_page()
+    pdf.save(source)
+    backend = ProfessionalPDFOCR(OCRConfig())
+    backend._process_image_only_pdf = MagicMock(
+        return_value=ProcessingStats(
+            failed_pages={4: "worker crashed", 2: "plan truncated", 7: "plan truncated"}
+        )
+    )
+
+    with pytest.raises(RuntimeError) as raised:
+        backend.process(source, tmp_path / "out.pdf")
+
+    assert str(raised.value).splitlines() == [
+        "Pages 2, 7 could not be read: plan truncated",
+        "Page 4 could not be read: worker crashed",
+    ]
 
 
 def test_processing_temp_paths_do_not_follow_predictable_symlinks(tmp_path: Path) -> None:
@@ -152,31 +175,3 @@ def test_processing_temp_paths_do_not_follow_predictable_symlinks(tmp_path: Path
     assert not worker_scratch_path.exists()
     assert victim.read_text(encoding="utf-8") == "KEEP"
     assert all(path.is_symlink() for path in predictable_paths)
-
-
-def test_onnx_one_shot_command_skips_openvino_probe_and_keeps_full_resolution() -> None:
-    config = OCRConfig(engine_type="onnxruntime", detection_full_resolution=True)
-    openvino_checker = MagicMock(side_effect=AssertionError("must not probe"))
-    controller = OCRController(config, openvino_checker)
-
-    command = controller.build_command("/tmp/page.png")
-
-    assert {"--no-openvino", "--full-resolution"} <= set(command)
-    openvino_checker.assert_not_called()
-
-
-def test_ocr_temp_image_write_failure_removes_staged_file(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    staged = tmp_path / "ocr.png"
-
-    def make_temp(*_args, **_kwargs):
-        return os.open(staged, os.O_CREAT | os.O_EXCL | os.O_RDWR, 0o600), str(staged)
-
-    monkeypatch.setattr(ocr_controller.tempfile, "mkstemp", make_temp)
-    monkeypatch.setattr(ocr_controller.cv2, "imwrite", lambda *_args, **_kwargs: False)
-
-    with pytest.raises(OSError, match="could not write OCR image"):
-        ocr_controller._save_ocr_temp_image(np.zeros((2, 2, 3), dtype=np.uint8))
-
-    assert not staged.exists()

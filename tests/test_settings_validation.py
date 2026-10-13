@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 
 from bigocrpdf.services import settings as settings_module
-from bigocrpdf.services.rapidocr_service.config import (
+from bigocrpdf.services.ocr.config import (
     DEFAULT_DETECTION_FULL_RESOLUTION,
     DEFAULT_ENABLE_BILEVEL_COMPRESSION,
     DEFAULT_FORCE_BILEVEL_COMPRESSION,
@@ -54,14 +54,11 @@ def test_settings_round_trip_preserves_flat_owner_values(
     settings.enable_deskew = False
     settings.quick_start_mode = False
 
-    settings.save_settings("english", str(output_dir), save_in_same_folder=True)
+    settings.save_settings(str(output_dir), save_in_same_folder=True)
 
     managers["current"] = ConfigManager(str(config_path))
     reloaded = OcrSettings()
 
-    assert reloaded.lang == "english"
-    assert reloaded.ocr_language == "english"
-    assert reloaded._snapshot_ocr_config().language == "english"
     assert reloaded.destination_folder == str(output_dir)
     assert reloaded.save_in_same_folder is True
     assert reloaded.pdf_suffix == "searchable"
@@ -89,12 +86,12 @@ def test_load_settings_refreshes_preferences_written_by_other_process(
     config_path, _managers = settings_environment
     settings = OcrSettings()
     external = ConfigManager(str(config_path))
-    external.set("rapidocr.language", "english")
+    external.set("rapidocr.box_thresh", 0.7)
 
     settings.load_settings()
 
-    assert settings.ocr_language == "english"
-    assert settings._snapshot_ocr_config().language == "english"
+    assert settings.box_thresh == 0.7
+    assert settings._snapshot_ocr_config().box_thresh == 0.7
 
 
 def test_reset_to_defaults_reinitializes_owners_and_preserves_saved_queue(
@@ -108,7 +105,7 @@ def test_reset_to_defaults_reinitializes_owners_and_preserves_saved_queue(
     settings.md_include_front_matter = True
     settings.page_layout = "custom-layout"
     settings.detection_full_resolution = not DEFAULT_DETECTION_FULL_RESOLUTION
-    settings.save_settings("english", str(tmp_path), save_in_same_folder=False)
+    settings.save_settings(str(tmp_path), save_in_same_folder=False)
 
     settings.reset_to_defaults()
 
@@ -169,7 +166,7 @@ def test_save_settings_reports_persistence_failure(
     settings._config.save = lambda: False
 
     with pytest.raises(OSError, match="Could not persist settings"):
-        settings.save_settings("english", str(tmp_path))
+        settings.save_settings(str(tmp_path))
 
 
 def test_legacy_selected_file_list_still_loads(

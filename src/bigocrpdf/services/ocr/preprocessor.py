@@ -1,0 +1,444 @@
+"""Page image preprocessing before OCR.
+
+A coordinator over the modules that do the work:
+
+- ``preprocess_deskew``: Deskew, angular perspective correction, rotation
+- ``preprocess_enhance``: Illumination, sharpening, scanner effect, color
+- ``preprocess_orientation``: Document orientation detection/correction
+"""
+
+import logging
+from collections.abc import Callable
+from typing import TYPE_CHECKING
+
+import cv2
+import numpy as np
+
+from bigocrpdf.services.contour_dewarp import dewarp_3d, dewarp_baseline
+from bigocrpdf.services.ocr.geometry_trace import (
+    REASON_BELOW_THRESHOLD,
+    REASON_DISABLED,
+    REASON_OK,
+    GeometryStep,
+    GeometryTrace,
+)
+from bigocrpdf.services.ocr.ppocr_native import Detector
+from bigocrpdf.services.ocr.preprocess_deskew import (
+    probmap_angle_deskew,
+)
+from bigocrpdf.services.ocr.preprocess_enhance import apply_color_enhancements
+from bigocrpdf.services.perspective_correction import PerspectiveCorrector
+
+if TYPE_CHECKING:
+    from bigocrpdf.services.ocr.config import OCRConfig
+    from bigocrpdf.services.ocr.dewarp_probmap import Baselines
+
+logger = logging.getLogger(__name__)
+
+# How much brighter than a dark border the page centre must be for the border
+# to count as a border rather than as the page's own tone.
+_MIN_BORDER_CONTRAST = 30
+
+
+class ImagePreprocessor:
+    """Adaptive image preprocessing for optimal OCR results.
+
+    The preprocessing is split into two independent phases:
+    1. Geometric corrections (perspective, deskew) - Runs based on their own flags
+    2. Color/Enhancement processing - Runs if enable_preprocessing=True
+
+    The scanner effect is not applied here: the result is the OCR input, and
+    apply_independent_effects explains why the effect stays out of it.
+
+    Attributes:
+        config: OCR configuration object
+        detector: The text detector the deskew and dewarp steps measure with,
+            owned by the caller
+        probmap_max_side: Max side for DBNet inference (adaptive per resource tier)
+    """
+
+    def __init__(self, config: "OCRConfig", detector: Detector) -> None:
+        self.config = config
+        self.detector = detector
+        # Color processing requires explicit enable_preprocessing flag
+        self.enable_color_processing = config.enable_preprocessing
+        # Probmap inference side, 0 for the detector's default. resource_manager
+        # lowers it on constrained systems: smaller inference holds less memory.
+        self.probmap_max_side: int = 0
+        # Track whether geometric corrections were actually applied
+        # (perspective warp, dewarp, deskew): even if dimensions stay the same,
+        # the coordinate space changes and standalone mode must be used.
+        self.geometry_applied: bool = False
+        self.crop_applied: bool = False
+        self.crop_offset_px: tuple[int, int] = (0, 0)
+        self.crop_original_size_px: tuple[int, int] | None = None
+        # Which correction actually ran, and why the others did not. Travels to
+        # OcrPage.diagnostics; see geometry_trace.
+        self.trace = GeometryTrace()
+
+    def process(
+        self,
+        img: np.ndarray,
+        *,
+        cancel_check: Callable[[], None] | None = None,
+    ) -> np.ndarray:
+        """Apply preprocessing to image.
+
+        Geometric corrections run independently of enable_preprocessing.
+        Color/enhancement processing only runs if enable_preprocessing=True.
+
+        Args:
+            img: Input image in BGR format (OpenCV)
+
+        Returns:
+            Processed image in BGR format
+        """
+        # No copy needed: all operations (dewarp, perspective, deskew,
+        # illumination, sharpening) return new arrays via cv2/scipy.
+        # trim_dark_borders returns a view, but downstream steps create
+        # new arrays so the original is never mutated in-place.
+        result = img
+
+        # Reset per-image geometry tracking
+        self.geometry_applied = False
+        self.crop_applied = False
+        self.crop_offset_px = (0, 0)
+        self.crop_original_size_px = None
+        self.trace.reset()
+
+        # Phase 1: geometric corrections, each independent of the others
+        self._check_cancel(cancel_check)
+        result = self._apply_geometric_corrections(
+            result,
+            cancel_check=cancel_check,
+        )
+
+        # Phase 2: color and enhancement
+        self._check_cancel(cancel_check)
+        if self.enable_color_processing:
+            result = apply_color_enhancements(result, self.config)
+        self._check_cancel(cancel_check)
+
+        return result
+
+    @staticmethod
+    def _check_cancel(cancel_check: Callable[[], None] | None) -> None:
+        if cancel_check is not None:
+            cancel_check()
+
+    def _apply_geometric_corrections(
+        self,
+        img: np.ndarray,
+        *,
+        cancel_check: Callable[[], None] | None = None,
+    ) -> np.ndarray:
+        """Apply geometric corrections (dewarp, perspective, border trim, deskew).
+
+        Sets ``self.geometry_applied = True`` if any correction changes the
+        coordinate space (even without changing dimensions).
+
+        Args:
+            img: Input image in BGR format
+
+        Returns:
+            Geometrically corrected image
+        """
+        result = img
+        # The detector's reading of the page, reused by deskew when no step
+        # in between replaced the image.
+        baselines = None
+
+        # Step 1: Dewarp: correct page curvature
+        # Primary: DBNet probability-map dewarp
+        # Fallback: 3D Coons patch + baseline refinement
+        # Must run before deskew/perspective: curved pages confuse deskew.
+        if self.config.enable_baseline_dewarp:
+            self._check_cancel(cancel_check)
+            with self.trace.stage("dewarp") as step:
+                before = result
+                result, baselines = self._try_probmap_dewarp(result, step)
+                self._check_cancel(cancel_check)
+                if result is img and baselines is None:
+                    # Probmap could not analyse the page,
+                    # try 3D/baseline fallback
+                    result = self._try_3d_dewarp(img, step)
+                step.applied = result is not before
+                if step.applied:
+                    self.geometry_applied = True
+                    step.reason = REASON_OK
+        else:
+            self.trace.steps.append(GeometryStep("dewarp", reason=REASON_DISABLED))
+
+        # Step 2: Perspective correction, which must run before deskew
+        if self.config.enable_perspective_correction:
+            self._check_cancel(cancel_check)
+            with self.trace.stage("perspective") as step:
+                before = result
+                result = self._correct_perspective(result, step)
+                self._check_cancel(cancel_check)
+                step.applied = result is not before
+                if step.applied:
+                    self.geometry_applied = True
+                    step.reason = REASON_OK
+        else:
+            self.trace.steps.append(GeometryStep("perspective", reason=REASON_DISABLED))
+
+        # Step 3: Trim dark borders whatever the settings: dark margins from
+        # camera photos confuse OCR text detection.
+        self._check_cancel(cancel_check)
+        with self.trace.stage("trim_dark_borders") as step:
+            before = result
+            result = self._trim_dark_borders(result)
+            step.applied = result is not before
+            if step.applied:
+                step.reason = REASON_OK
+                offset_x, offset_y = self.crop_offset_px
+                if baselines is not None and baselines.image is before:
+                    baselines = baselines.crop(result, offset_x, offset_y)
+                step.params = {
+                    "offset_x": offset_x,
+                    "offset_y": offset_y,
+                    "width": result.shape[1],
+                    "height": result.shape[0],
+                }
+
+        # Step 4: Probmap-guided deskew + angular perspective correction
+        if self.config.enable_deskew:
+            self._check_cancel(cancel_check)
+            with self.trace.stage("deskew") as step:
+                before = result
+                deskew_trace: dict[str, float | str] = {}
+                result = probmap_angle_deskew(
+                    self.detector,
+                    result,
+                    self.probmap_max_side,
+                    trace=deskew_trace,
+                    known=baselines,
+                )
+                self._check_cancel(cancel_check)
+                step.method = str(deskew_trace.pop("path", "none"))
+                step.params = {
+                    key: float(value)
+                    for key, value in deskew_trace.items()
+                    if isinstance(value, (int, float))
+                }
+                step.applied = result is not before
+                if step.applied:
+                    self.geometry_applied = True
+                    step.reason = REASON_OK
+        else:
+            self.trace.steps.append(GeometryStep("deskew", reason=REASON_DISABLED))
+
+        return result
+
+    def _trim_dark_borders(self, img: np.ndarray) -> np.ndarray:
+        """Remove truly black borders from photographed documents.
+
+        Photographed documents sometimes have black borders from the camera
+        capturing the background or from scanning artifacts. These black
+        regions confuse OCR text detection.
+
+        Uses per-row/column median brightness to detect borders. Median is
+        robust against text: a row with dark text on bright paper has a high
+        median (paper dominates), while a genuinely dark border row has a
+        low median (most pixels are dark).
+
+        Only trims borders where the median < 60 (uniformly dark), and limits
+        trimming to max 5% of each dimension to avoid removing content.
+
+        Args:
+            img: Input image in BGR format
+
+        Returns:
+            Cropped image without black borders, or original if none found
+        """
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        h, w = gray.shape
+        dark_thresh = 60
+
+        # A border is dark *relative to the page*. Without this, a uniformly
+        # dark image (an underexposed photograph, a dark-mode screenshot, a
+        # scan of black card) has every edge below the threshold and loses 5%
+        # of each side for nothing. This is the only geometric step that runs
+        # on every page unconditionally, so it needs its own guard.
+        center_median = float(np.median(gray[h // 4 : 3 * h // 4, w // 4 : 3 * w // 4]))
+        if center_median < dark_thresh + _MIN_BORDER_CONTRAST:
+            logger.debug(f"Skipping border trim: page centre is itself dark ({center_median:.0f})")
+            return img
+
+        # Max trim: 5% of each dimension
+        max_trim_y = h // 20
+        max_trim_x = w // 20
+
+        # Continuous dark strips from each edge, from the median brightness of
+        # each row or column within the trim limit
+        y_min = _dark_run(np.median(gray[:max_trim_y], axis=1), dark_thresh)
+        y_max = h - _dark_run(np.median(gray[h - max_trim_y :], axis=1)[::-1], dark_thresh)
+        x_min = _dark_run(np.median(gray[:, :max_trim_x], axis=0), dark_thresh)
+        x_max = w - _dark_run(np.median(gray[:, w - max_trim_x :], axis=0)[::-1], dark_thresh)
+
+        # Only crop if we're removing a meaningful amount (> 3px)
+        if y_min <= 3 and h - y_max <= 3 and x_min <= 3 and w - x_max <= 3:
+            return img
+
+        # Add small margin to avoid cutting into content
+        margin = 3
+        y_min = max(0, y_min - margin)
+        y_max = min(h, y_max + margin)
+        x_min = max(0, x_min - margin)
+        x_max = min(w, x_max + margin)
+
+        result = img[y_min:y_max, x_min:x_max]
+
+        # Guard against zero-size result (e.g., very dark scans)
+        if result.shape[0] < 10 or result.shape[1] < 10:
+            logger.warning("Trim would produce too-small image, keeping original")
+            return img
+
+        logger.debug(
+            f"Trimmed dark borders: {img.shape[:2]} -> {result.shape[:2]} "
+            f"(top={y_min}, bottom={h - y_max}, left={x_min}, right={w - x_max})"
+        )
+        self.crop_applied = True
+        self.crop_offset_px = (x_min, y_min)
+        self.crop_original_size_px = (w, h)
+        return result
+
+    def _try_probmap_dewarp(
+        self, image: np.ndarray, step: GeometryStep
+    ) -> "tuple[np.ndarray, Baselines | None]":
+        """Apply curvature correction using DBNet probability map.
+
+        Args:
+            image: Input BGR image.
+
+        Returns:
+            Tuple of (corrected_image, baselines), where baselines is what
+            the probability map showed on ``image``, or None when it could
+            not be analysed.
+        """
+        # Imported here so scipy, which dewarp_probmap needs, loads with the first
+        # page rather than with every window.
+        from bigocrpdf.services.ocr.dewarp_probmap import probmap_dewarp
+
+        try:
+            logger.info("Probmap dewarp: starting curvature correction")
+            step.method = "probmap"
+            result, baselines = probmap_dewarp(self.detector, image, max_side=self.probmap_max_side)
+
+            if result is image:
+                # Analyzed successfully; curvature was below the remap gate.
+                step.reason = REASON_BELOW_THRESHOLD
+            return result, baselines
+
+        except InterruptedError:
+            raise
+        except Exception as exc:
+            logger.warning(f"Probmap dewarp failed: {exc}")
+            import traceback
+
+            logger.debug(traceback.format_exc())
+            step.reason = f"exception:{type(exc).__name__}"
+            return image, None
+
+    def _try_3d_dewarp(self, image: np.ndarray, step: GeometryStep) -> np.ndarray:
+        """Apply 3D page dewarp using Coons patch surface simulation, the
+        dewarp fallback when the probability map cannot be read.
+
+        Two-pass approach:
+        Pass 1: Coons patch from detected page boundary curves (handles
+                 perspective + gross curvature from edges).
+        Pass 2: Text baseline refinement (handles residual interior curvature).
+
+        Falls back to baseline-only dewarp if the 3D approach fails or the
+        page boundaries cannot be detected.
+
+        Args:
+            image: Input BGR image
+
+        Returns:
+            Dewarped image, or original image if dewarp not applicable
+        """
+        try:
+            result = dewarp_3d(image)
+            if result is not None:
+                step.method = "dewarp_3d"
+                return result
+
+            # Fall back to baseline-only dewarp
+            return self._try_baseline_dewarp(image, step)
+
+        except Exception as e:
+            logger.warning(f"3D dewarp failed: {e}")
+            return self._try_baseline_dewarp(image, step)
+
+    def _try_baseline_dewarp(self, image: np.ndarray, step: GeometryStep) -> np.ndarray:
+        """Apply baseline dewarp to correct per-line text curvature.
+
+        Uses Leptonica-style baseline detection: detects text lines via
+        connected components, fits quadratic baselines, and builds a
+        displacement field to straighten curved text. Returns the original
+        image unchanged if there are too few text lines or the curvature is
+        negligible.
+
+        It is the last dewarp fallback and runs before deskew.
+
+        Args:
+            image: Input BGR image
+
+        Returns:
+            Dewarped image, or original image if dewarp not applicable
+        """
+        step.method = "dewarp_baseline"
+        try:
+            result = dewarp_baseline(image)
+            if result is not None:
+                return result
+            step.reason = REASON_BELOW_THRESHOLD
+            return image
+
+        except Exception as e:
+            logger.warning(f"Baseline dewarp failed: {e}")
+            step.reason = f"exception:{type(e).__name__}"
+            return image
+
+    def _correct_perspective(self, image: np.ndarray, step: GeometryStep) -> np.ndarray:
+        """Correct perspective distortion in document images using OpenCV.
+
+        Detects document boundaries and applies perspective transformation
+        to straighten the document. Only applies correction when significant
+        distortion is detected.
+
+        When deskew is also enabled (enable_deskew=True), the perspective
+        cascade skips its own skew correction steps to avoid double-correction.
+
+        Args:
+            image: Input BGR image
+
+        Returns:
+            Corrected image (same dimensions if no correction needed)
+        """
+        try:
+            logger.info("Checking document perspective...")
+            # Skip cascade's skew steps when preprocessor handles deskew separately
+            skip_skew = self.config.enable_deskew
+            corrector = PerspectiveCorrector(skew_threshold=0.5, skip_skew=skip_skew)
+            result = corrector(image)
+            step.method = corrector.last_method
+            if corrector.last_rejected:
+                step.reason = f"rejected:{','.join(corrector.last_rejected)}"
+            return result
+
+        except Exception as e:
+            logger.warning(f"Perspective correction failed: {e}. Returning original image.")
+            import traceback
+
+            logger.debug(traceback.format_exc())
+            step.reason = f"exception:{type(e).__name__}"
+            return image
+
+
+def _dark_run(medians: np.ndarray, dark_thresh: int) -> int:
+    """How many of the leading medians are darker than ``dark_thresh``."""
+    dark = medians < dark_thresh
+    return len(dark) if dark.all() else int(np.argmin(dark))

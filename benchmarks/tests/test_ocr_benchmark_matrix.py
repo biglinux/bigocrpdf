@@ -16,7 +16,6 @@ from benchmarks.ocr_benchmark import (
     _ppocrv6_supports_language,
     _sample_process_tree_rss_kib,
     _write_jsonl_atomically,
-    benchmark_matrix,
     benchmark_row,
     expand_profiles,
     load_manifest,
@@ -31,8 +30,8 @@ from benchmarks.ocr_benchmark import (
     write_summary_markdown,
 )
 from benchmarks.prepare_benchmark_datasets import write_manifest
-from bigocrpdf.services.rapidocr_service.config import OcrDocument, OcrLayoutBlock, OcrPage
-from bigocrpdf.services.rapidocr_service.ocr_document_io import write_ocr_document_json
+from bigocrpdf.services.ocr.config import OcrDocument, OcrLayoutBlock, OcrPage
+from bigocrpdf.services.ocr.ocr_document_io import write_ocr_document_json
 
 
 def _write_proc_stat(proc_root: Path, pid: int, ppid: int, rss_pages: int) -> None:
@@ -57,20 +56,11 @@ def test_peak_rss_samples_complete_process_tree(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(
-    ("language", "model_type", "expected"),
-    [
-        ("pt_BR", "small", True),
-        ("zh", "small", True),
-        ("ja", "small", True),
-        ("ja", "tiny", False),
-        ("ar", "medium", False),
-        ("el", "small", False),
-    ],
+    ("language", "expected"),
+    [("pt_BR", True), ("zh", True), ("ja", True), ("ar", False), ("el", False)],
 )
-def test_ppocrv6_language_support_is_reported_truthfully(
-    language: str, model_type: str, expected: bool
-) -> None:
-    assert _ppocrv6_supports_language(language, model_type) is expected
+def test_ppocrv6_language_support_is_reported_truthfully(language: str, expected: bool) -> None:
+    assert _ppocrv6_supports_language(language) is expected
 
 
 def test_load_manifest_rejects_material_changed_after_publication(tmp_path: Path) -> None:
@@ -225,7 +215,7 @@ def test_manifest_snapshot_rejects_symlinked_material(tmp_path: Path) -> None:
 def test_benchmark_output_path_never_uses_untrusted_sample_id(monkeypatch) -> None:
     captured_paths: list[Path] = []
 
-    def fake_run(_row, _profile, output_pdf, _sidecar_json, _gpu_backend):
+    def fake_run(_row, _profile, output_pdf, _sidecar_json):
         captured_paths.append(output_pdf)
         return subprocess.CompletedProcess([], 1, "", "failed"), 10.0
 
@@ -238,14 +228,8 @@ def test_benchmark_output_path_never_uses_untrusted_sample_id(monkeypatch) -> No
             "pdf": "/input.pdf",
             "language": "en",
         },
-        "balanced_cpu",
-        {
-            "engine": "openvino",
-            "model_type": "small",
-            "rec_batch_num": "1",
-            "dpi": "300",
-        },
-        "off",
+        "balanced",
+        {"dpi": "300", "full_resolution": "off"},
     )
 
     assert captured_paths[0].name == "result.pdf"
@@ -309,8 +293,6 @@ def test_benchmark_environment_records_hardware_and_dependencies() -> None:
     assert environment["cpu_count"]
     assert environment["cpu_model"]
     assert environment["dependencies"]["Pillow"]
-    assert isinstance(environment["gpu_devices"], list)
-    assert isinstance(environment["gpu_runtimes"], dict)
 
 
 def test_run_bigocrpdf_reaps_process_group_when_interrupted(monkeypatch) -> None:
@@ -343,15 +325,9 @@ def test_run_bigocrpdf_reaps_process_group_when_interrupted(monkeypatch) -> None
     with pytest.raises(KeyboardInterrupt):
         run_bigocrpdf(
             {"id": "sample", "pdf": "/input.pdf"},
-            {
-                "dpi": "300",
-                "engine": "openvino",
-                "model_type": "small",
-                "rec_batch_num": "1",
-            },
+            {"dpi": "300", "full_resolution": "off"},
             Path("/output.pdf"),
             Path("/output.bigocr.json"),
-            "off",
         )
 
     assert termination_signals == [signal.SIGTERM, signal.SIGKILL]
@@ -359,50 +335,40 @@ def test_run_bigocrpdf_reaps_process_group_when_interrupted(monkeypatch) -> None
 
 
 def test_parse_matrix_arg_accepts_known_key_values() -> None:
-    key, values = parse_matrix_arg("engine=openvino,onnxruntime")
+    key, values = parse_matrix_arg("dpi=250,350")
 
-    assert key == "engine"
-    assert values == ["openvino", "onnxruntime"]
+    assert key == "dpi"
+    assert values == ["250", "350"]
 
 
-def test_parse_matrix_arg_rejects_unknown_key() -> None:
+@pytest.mark.parametrize("raw", ("backend=native", "full_resolution=yes"))
+def test_matrix_arg_rejects_unknown(raw: str) -> None:
     with pytest.raises(argparse.ArgumentTypeError):
-        parse_matrix_arg("backend=rapidocr")
+        parse_matrix_arg(raw)
 
 
 def test_expand_profiles_builds_cartesian_product() -> None:
     profiles = expand_profiles(
-        "balanced_cpu",
+        "balanced",
         [
-            ("engine", ["openvino", "onnxruntime"]),
-            ("rec_batch_num", ["1", "4"]),
+            ("dpi", ["250", "350"]),
+            ("full_resolution", ["off", "on"]),
         ],
     )
 
     assert len(profiles) == 4
-    assert profiles[0][1]["engine"] == "openvino"
-    assert profiles[-1][1]["engine"] == "onnxruntime"
-    assert profiles[-1][1]["rec_batch_num"] == "4"
-
-
-def test_expand_profiles_can_set_gpu_backend() -> None:
-    profiles = expand_profiles("balanced_cpu", [("gpu_backend", ["paddle"])])
-
-    assert profiles[0][1]["gpu_backend"] == "paddle"
-
-
-def test_benchmark_matrix_adds_rec_batch_sweep_once() -> None:
-    assert benchmark_matrix([], rec_batch_sweep=True) == [
-        ("rec_batch_num", ["1", "2", "4", "8", "16"])
-    ]
-    assert benchmark_matrix(
-        [("rec_batch_num", ["2"])],
-        rec_batch_sweep=True,
-    ) == [("rec_batch_num", ["2"])]
+    assert profiles[0][1] == {"dpi": "250", "full_resolution": "off"}
+    assert profiles[-1][1] == {"dpi": "350", "full_resolution": "on"}
+    assert profiles[-1][0] == "balanced_dpi-350_full_resolution-on"
 
 
 def test_read_ocr_sidecar_metadata_exposes_runtime_and_layout_counts(tmp_path: Path) -> None:
     output_pdf = tmp_path / "out.pdf"
+    worker = tmp_path / "ppocr-native"
+    worker.write_bytes(b"worker")
+    plans = tmp_path / "plans"
+    plans.mkdir()
+    (plans / "PP-OCRv6_det_small.plan").write_bytes(b"det")
     # The JSON writer checks the document against the PDF's real page count.
     with pikepdf.Pdf.new() as pdf:
         pdf.add_blank_page(page_size=(200, 200))
@@ -410,14 +376,12 @@ def test_read_ocr_sidecar_metadata_exposes_runtime_and_layout_counts(tmp_path: P
     document = OcrDocument(
         diagnostics={
             "ocr_runtime": {
-                "engine_type": "openvino",
-                "ocr_version": "PPOCRV6",
-                "model_type": "small",
-                "rec_batch_num": 4,
-                "gpu_backend": "off",
-                "language": "latin",
-                "rec_model_path": "/models/latin_rec.onnx",
-                "det_model_path": "/models/ch_det.onnx",
+                "kernel_tier": 3,
+                "model": "PP-OCRv6 small",
+                "worker_path": str(worker),
+                "plans_dir": str(plans),
+                "font_path": "/missing/latin.ttf",
+                "resource": {"available_ram_mb": 30684, "max_workers": 2},
             }
         },
         pages=[
@@ -439,9 +403,11 @@ def test_read_ocr_sidecar_metadata_exposes_runtime_and_layout_counts(tmp_path: P
 
     metadata = read_ocr_sidecar_metadata(sidecar_json, output_pdf)
 
-    assert metadata["effective_engine_type"] == "openvino"
-    assert metadata["effective_rec_batch_num"] == 4
-    assert metadata["effective_language_hint"] == "latin"
+    assert metadata["effective_ocr_config"] == {"kernel_tier": 3, "model": "PP-OCRv6 small"}
+    assert metadata["effective_worker_sha256"] == hashlib.sha256(b"worker").hexdigest()
+    assert metadata["effective_det_plan_sha256"] == hashlib.sha256(b"det").hexdigest()
+    assert metadata["effective_rec_plan_sha256"] is None
+    assert metadata["effective_font_sha256"] is None
     assert metadata["sidecar_page_count"] == 1
     assert metadata["sidecar_layout_block_count"] == 2
     assert metadata["sidecar_table_block_count"] == 1
@@ -452,7 +418,7 @@ def test_summarize_records_by_dataset_and_tag_tracks_peak_rss() -> None:
     summaries = summarize_records_by_dataset_and_tag(
         [
             {
-                "benchmark_profile": "balanced_cpu",
+                "benchmark_profile": "balanced",
                 "dataset": "DharmaOCR",
                 "tags": ["form", "english"],
                 "text_layer_ok": True,
@@ -465,7 +431,7 @@ def test_summarize_records_by_dataset_and_tag_tracks_peak_rss() -> None:
                 "failure_reason": "",
             },
             {
-                "benchmark_profile": "balanced_cpu",
+                "benchmark_profile": "balanced",
                 "dataset": "DharmaOCR",
                 "tags": ["form"],
                 "text_layer_ok": False,
@@ -491,7 +457,7 @@ def test_summarize_records_groups_profiles_and_metrics() -> None:
     summaries = summarize_records(
         [
             {
-                "benchmark_profile": "balanced_cpu",
+                "benchmark_profile": "balanced",
                 "text_layer_ok": True,
                 "char_error_rate": 0.1,
                 "word_error_rate": 0.2,
@@ -502,7 +468,7 @@ def test_summarize_records_groups_profiles_and_metrics() -> None:
                 "failure_reason": "",
             },
             {
-                "benchmark_profile": "balanced_cpu",
+                "benchmark_profile": "balanced",
                 "text_layer_ok": False,
                 "char_error_rate": 0.3,
                 "word_error_rate": 0.4,
@@ -515,7 +481,7 @@ def test_summarize_records_groups_profiles_and_metrics() -> None:
         ]
     )
 
-    assert summaries[0]["benchmark_profile"] == "balanced_cpu"
+    assert summaries[0]["benchmark_profile"] == "balanced"
     assert summaries[0]["pages"] == 2
     assert summaries[0]["successful_pages"] == 1
     assert summaries[0]["failed_pages"] == 1
@@ -529,7 +495,7 @@ def test_summarize_records_reports_micro_error_rate_and_median_latency() -> None
     summaries = summarize_records(
         [
             {
-                "benchmark_profile": "balanced_cpu",
+                "benchmark_profile": "balanced",
                 "text_layer_ok": True,
                 "char_error_rate": 1.0,
                 "char_edit_distance": 1,
@@ -541,7 +507,7 @@ def test_summarize_records_reports_micro_error_rate_and_median_latency() -> None
                 "failure_reason": "",
             },
             {
-                "benchmark_profile": "balanced_cpu",
+                "benchmark_profile": "balanced",
                 "text_layer_ok": True,
                 "char_error_rate": 0.0,
                 "char_edit_distance": 0,
@@ -553,7 +519,7 @@ def test_summarize_records_reports_micro_error_rate_and_median_latency() -> None
                 "failure_reason": "",
             },
             {
-                "benchmark_profile": "balanced_cpu",
+                "benchmark_profile": "balanced",
                 "text_layer_ok": True,
                 "char_error_rate": 0.0,
                 "char_edit_distance": 0,
@@ -605,7 +571,7 @@ def test_text_layer_report_identifies_the_extractor(monkeypatch, tmp_path: Path)
 def test_summary_writers_create_readable_markdown_and_csv(tmp_path: Path) -> None:
     summaries = [
         {
-            "benchmark_profile": "balanced_cpu",
+            "benchmark_profile": "balanced",
             "summary_group": "profile",
             "pages": 2,
             "successful_pages": 2,
@@ -628,10 +594,10 @@ def test_summary_writers_create_readable_markdown_and_csv(tmp_path: Path) -> Non
     write_summary_markdown(markdown_path, summaries, source_sha256=source_sha256)
     write_summary_csv(csv_path, summaries, source_sha256=source_sha256)
 
-    assert "| balanced_cpu | 2 | 2/2" in markdown_path.read_text(encoding="utf-8")
+    assert "| balanced | 2 | 2/2" in markdown_path.read_text(encoding="utf-8")
     assert source_sha256 in markdown_path.read_text(encoding="utf-8")
     rows = list(csv.DictReader(csv_path.open(encoding="utf-8")))
-    assert rows[0]["benchmark_profile"] == "balanced_cpu"
+    assert rows[0]["benchmark_profile"] == "balanced"
     assert rows[0]["text_layer_ok_percent"] == "100.0"
     assert rows[0]["source_jsonl_sha256"] == source_sha256
 
@@ -639,7 +605,7 @@ def test_summary_writers_create_readable_markdown_and_csv(tmp_path: Path) -> Non
 def test_group_summary_writers_include_group_column(tmp_path: Path) -> None:
     summaries = [
         {
-            "benchmark_profile": "balanced_cpu",
+            "benchmark_profile": "balanced",
             "summary_group": "dataset:DharmaOCR",
             "pages": 2,
             "successful_pages": 2,
@@ -670,9 +636,7 @@ def test_group_summary_writers_include_group_column(tmp_path: Path) -> None:
         source_sha256=source_sha256,
     )
 
-    assert "| balanced_cpu | dataset:DharmaOCR | 2 | 2/2" in markdown_path.read_text(
-        encoding="utf-8"
-    )
+    assert "| balanced | dataset:DharmaOCR | 2 | 2/2" in markdown_path.read_text(encoding="utf-8")
     rows = list(csv.DictReader(csv_path.open(encoding="utf-8")))
     assert rows[0]["source_jsonl_sha256"] == source_sha256
     assert rows[0]["summary_group"] == "dataset:DharmaOCR"
@@ -692,12 +656,7 @@ def test_summary_writer_replaces_symlink_without_overwriting_target(tmp_path: Pa
 
 
 def test_profiles_are_pairwise_distinct() -> None:
-    """Two profiles with identical settings measure the same thing twice.
-
-    ``gpu_experimental`` was byte-identical to ``balanced_cpu`` and set no GPU
-    backend, so its results were indistinguishable while its name promised
-    otherwise. A GPU profile can come back when it configures a GPU.
-    """
+    """Two profiles with identical settings measure the same thing twice."""
     from benchmarks.ocr_benchmark import PROFILES
 
     settings = [tuple(sorted(profile.items())) for profile in PROFILES.values()]
@@ -705,14 +664,3 @@ def test_profiles_are_pairwise_distinct() -> None:
     assert len(set(settings)) == len(settings), (
         f"profiles must differ in at least one setting: {sorted(PROFILES)} -> {settings}"
     )
-
-
-def test_a_profile_named_for_a_backend_configures_it() -> None:
-    """Guards against reintroducing a name that does not match its settings."""
-    from benchmarks.ocr_benchmark import PROFILES
-
-    for name, profile in PROFILES.items():
-        if "gpu" in name:
-            assert profile.get("gpu_backend") not in (None, "", "off"), (
-                f"profile {name!r} claims a GPU but does not select one"
-            )

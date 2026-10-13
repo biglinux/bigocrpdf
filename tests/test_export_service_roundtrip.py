@@ -110,9 +110,6 @@ class TestSaveOdfFile:
     def test_it_writes_a_readable_odt(self, searchable_pdf: Path, include_images: bool):
         result = save_odf_file(
             str(searchable_pdf),
-            extracted_text="",
-            ocr_boxes=[],
-            source_pdf=str(searchable_pdf),
             include_images=include_images,
         )
 
@@ -126,9 +123,6 @@ class TestSaveOdfFile:
     def test_every_line_survives_into_content_xml(self, searchable_pdf: Path, include_images: bool):
         result = save_odf_file(
             str(searchable_pdf),
-            extracted_text="",
-            ocr_boxes=[],
-            source_pdf=str(searchable_pdf),
             include_images=include_images,
         )
 
@@ -140,9 +134,6 @@ class TestSaveOdfFile:
     def test_reading_order_is_preserved_in_the_document(self, searchable_pdf: Path):
         result = save_odf_file(
             str(searchable_pdf),
-            extracted_text="",
-            ocr_boxes=[],
-            source_pdf=str(searchable_pdf),
             include_images=False,
         )
 
@@ -155,9 +146,6 @@ class TestSaveOdfFile:
         """include_images=True positions each line, rather than reflowing it."""
         result = save_odf_file(
             str(searchable_pdf),
-            extracted_text="",
-            ocr_boxes=[],
-            source_pdf=str(searchable_pdf),
             include_images=True,
         )
 
@@ -175,9 +163,6 @@ class TestSaveOdfFile:
 
         result = save_odf_file(
             str(searchable_pdf),
-            extracted_text="",
-            ocr_boxes=[],
-            source_pdf=str(searchable_pdf),
         )
 
         assert result is None
@@ -191,9 +176,6 @@ class TestSaveOdfFile:
 
         result = save_odf_file(
             str(searchable_pdf),
-            extracted_text="",
-            ocr_boxes=[],
-            source_pdf=str(searchable_pdf),
         )
 
         assert result is None
@@ -231,9 +213,7 @@ class TestOdtDocumentStructure:
         pdf = render_layer_pdf(
             truth_to_metric_quads(words, PAGE, IMAGE), IMAGE, PAGE, tmp_path / "estruturado.pdf"
         )
-        result = save_odf_file(
-            str(pdf), extracted_text="", ocr_boxes=[], source_pdf=str(pdf), include_images=False
-        )
+        result = save_odf_file(str(pdf), include_images=False)
         assert result is not None
         return result
 
@@ -303,9 +283,6 @@ class TestFixedLayoutOdtPlacesTextWhereItWas:
         )
         odt = save_odf_file(
             str(source),
-            extracted_text="",
-            ocr_boxes=[],
-            source_pdf=str(source),
             include_images=True,
         )
         assert odt is not None

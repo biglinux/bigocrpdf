@@ -16,7 +16,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from bigocrpdf.services.rapidocr_service.backend_text_layer import BackendTextLayerMixin
+from bigocrpdf.services.ocr.backend_text_layer import BackendTextLayerMixin
+from bigocrpdf.services.ocr.config import ProcessingStats
 
 
 class _ModeBackend(BackendTextLayerMixin):
@@ -131,11 +132,23 @@ class TestDiagnosticLogging:
         assert "geometry/coordinate change" not in caplog.text
 
 
-def test_a_page_the_ocr_worker_read_as_blank_is_not_read_again():
-    backend = _ModeBackend()
-    backend.config.text_score_threshold = 0.3
+def test_blank_page_reads_as_empty():
+    stats = ProcessingStats()
 
-    assert (
-        backend._precomputed_ocr_results({"ocr_raw": {"boxes": [], "txts": [], "scores": []}}) == []
+    lines = BackendTextLayerMixin._page_ocr_results(
+        {"ocr_raw": {"boxes": [], "txts": [], "scores": []}}, 1, stats
     )
-    assert backend._precomputed_ocr_results({"ocr_raw": None}) is None
+
+    assert lines == []
+    assert stats.failed_pages == {}
+
+
+def test_unread_page_is_recorded_as_failed():
+    stats = ProcessingStats()
+
+    lines = BackendTextLayerMixin._page_ocr_results(
+        {"ocr_raw": None, "ocr_error": "worker crashed"}, 4, stats
+    )
+
+    assert lines == []
+    assert stats.failed_pages == {4: "worker crashed"}

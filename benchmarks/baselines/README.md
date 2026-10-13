@@ -6,38 +6,28 @@ The results are committed; the data that produced them is not. A baseline is a
 few hundred kilobytes of text and diffs usefully, while datasets and model
 weights belong outside the repository.
 
-This is safe because `compare_benchmarks.py` enforces a twenty-field
-comparability contract -- model SHA-256s, engine, DPI, environment -- and fails
-closed. A baseline recorded on a different machine or against different model
-files produces an explicit incomparability error rather than a bogus pass, so a
-stale baseline cannot quietly approve a regression.
+This is safe because `compare_benchmarks.py` enforces a comparability
+contract -- worker and plan SHA-256s, OCR settings, DPI, environment -- and
+fails closed. A baseline recorded on a different machine or with a different
+ppocr-native build produces an explicit incomparability error rather than a
+bogus pass, so a stale baseline cannot quietly approve a regression.
 
 Layout:
 
-    benchmarks/baselines/<host-class>/balanced_cpu.jsonl
+    benchmarks/baselines/<host-class>/balanced.jsonl
 
 `<host-class>` is a short slug you choose for a machine profile, for example
-`x86_64-openvino-cpu`. Quality metrics are comparable across machines;
-timing and peak RSS are not, so compare those only within one host class.
+`x86_64-ryzen7-5700u`. A baseline compares only against runs on the same
+host, with the same packages and the same ppocr-native build: the gate checks
+quality, time and peak RSS together. Record it with the packaged worker and
+plans (`/usr/bin/ppocr-native`, `/usr/share/ppocr-native`), so that a later
+package build of the same source can be gated against it.
 
 ## Reference points
 
-The July 2026 runs established:
-
-- all 36 RapidOCR v6 CPU matrix runs completed and produced text layers;
-- ONNX Runtime small was fastest in that six-page run, but startup/model loading
-  was included and the sample is not a universal engine ranking;
-- complex FUNSD pages exposed recognition and layout limits;
-- structured sidecars improved export token recall and restored table structures
-  in two of three dense forms;
-- the form separator refinement preserved recall and table counts;
-- exports read from the PDF text layer agreed with the structured-OCR path
-  within 92-98% on real documents;
-- indentation was 62% of the bytes of an 18-page structured OCR JSON payload,
-  which is why that payload is written compact.
-- full-resolution detection on 20 DharmaOCR documents through the whole
-  pipeline moved mean CER 0.1704 -> 0.1517 and mean WER 0.2705 -> 0.2649,
-  left 10 documents unchanged, took 13% more time and raised per-worker peak
-  RSS 2.5 -> 4.9 GB; the OCR stage alone, over 50 documents, moved CER
-  0.1893 -> 0.1465, because preprocessing and dewarp already recover part of
-  what the downscaled detector loses.
+- `x86_64-ryzen7-5700u`: the 50 DharmaOCR documents, three runs each, with
+  the text layer in Noto Sans and eight recognisers, read with a mean CER of
+  0.154 and WER of 0.270, in 6.5 s a document (median 5.6 s) at a peak of
+  1.6 GB, with the packaged worker and plans.
+- Structured OCR JSON is written compact: indentation was 62% of the bytes of
+  an 18-page payload.

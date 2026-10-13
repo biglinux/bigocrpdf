@@ -18,10 +18,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from bigocrpdf.services.rapidocr_service import page_worker
-from bigocrpdf.services.rapidocr_service.config import ProcessingStats
-from bigocrpdf.services.rapidocr_service.pipeline_chunked_ocr import ChunkedOCRMixin
-from bigocrpdf.services.rapidocr_service.resource_manager import (
+from bigocrpdf.services.ocr import page_worker
+from bigocrpdf.services.ocr.config import ProcessingStats
+from bigocrpdf.services.ocr.pipeline_chunked_ocr import ChunkedOCRMixin
+from bigocrpdf.services.ocr.resource_manager import (
     ResourceProfile,
     ResourceTier,
     compute_pipeline_config,
@@ -33,12 +33,10 @@ A4 = [0, 0, 595, 842]
 def _mixin() -> ChunkedOCRMixin:
     mixin = ChunkedOCRMixin()
     mixin.config = SimpleNamespace()
-    mixin._ocr_subprocess = MagicMock()
-    mixin._ocr_subprocess.launch.return_value = object()
-    mixin._ocr_subprocess.wait_until_ready.return_value = "openvino"
-    mixin._check_openvino_available = MagicMock(return_value=True)
+    mixin._start_ocr_worker = MagicMock(return_value=MagicMock(threads=4))
+    mixin._raise_if_cancelled = MagicMock()
     # Every chunk is skipped: the pipeline still sets up its executor, chunking
-    # and subprocess, which is all this file asserts on.
+    # and OCR worker, which is all this file asserts on.
     mixin._skip_excluded_chunk = MagicMock(return_value=True)
     return mixin
 
@@ -55,9 +53,11 @@ def _run(mixin: ChunkedOCRMixin, tmp_path: Path, pipe_cfg, profile, pages: int):
     }
 
     with (
-        patch("concurrent.futures.ProcessPoolExecutor", return_value=executor) as pool,
         patch(
-            "bigocrpdf.services.rapidocr_service.pipeline_chunked_ocr.record_ocr_runtime_diagnostics"
+            "bigocrpdf.services.ocr.pipeline_chunked_ocr.ProcessPoolExecutor", return_value=executor
+        ) as pool,
+        patch(
+            "bigocrpdf.services.ocr.pipeline_chunked_ocr.record_ocr_runtime_diagnostics"
         ) as diagnostics,
         patch("reportlab.pdfgen.canvas.Canvas", return_value=MagicMock()),
         patch.object(gc, "collect") as collect,
@@ -140,12 +140,10 @@ class TestConstrainedTier:
                 ocr_done,
                 work_items,
                 [],
-                3,
                 ProcessingStats(),
                 [],
                 {},
                 pipe_cfg,
-                None,
             )
 
         assert collect.call_count == len(work_items)
@@ -162,7 +160,7 @@ class TestConstrainedTier:
 
         with patch.object(gc, "collect") as collect:
             mixin._flush_chunk_results(
-                MagicMock(), ocr_done, work_items, [], 3, ProcessingStats(), [], {}, pipe_cfg, None
+                MagicMock(), ocr_done, work_items, [], ProcessingStats(), [], {}, pipe_cfg
             )
 
         assert collect.call_count == 0
@@ -179,8 +177,8 @@ class TestConstrainedTier:
         profile = _profile(1500, ResourceTier.CONSTRAINED)
         _run(mixin, tmp_path, compute_pipeline_config(profile), profile, pages=12)
 
-        assert mixin._ocr_subprocess.launch.call_count == 1
-        assert mixin._ocr_subprocess.stop.call_count == 1
+        assert mixin._start_ocr_worker.call_count == 1
+        assert mixin._start_ocr_worker.return_value.close.call_count == 1
 
 
 class TestAbundantTier:
@@ -218,17 +216,3 @@ class TestDiagnosticsReportTheEffectiveConfiguration:
         assert resource["tier"] == "CONSTRAINED"
         assert resource["available_ram_mb"] == 1500
         assert resource["gc_after_page"] is True
-
-    def test_a_partial_profile_does_not_abort_the_run(self, tmp_path: Path):
-        """Diagnostics are a report, never a reason to fail a page of OCR."""
-        profile = SimpleNamespace(available_ram_mb=4096)
-
-        outcome = _run(
-            _mixin(),
-            tmp_path,
-            compute_pipeline_config(_profile(4096, ResourceTier.MODERATE)),
-            profile,
-            pages=4,
-        )
-
-        assert outcome.diagnostics.call_args.kwargs["resource"]["tier"] is None

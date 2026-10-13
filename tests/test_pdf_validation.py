@@ -1,4 +1,4 @@
-from bigocrpdf.services.rapidocr_service.pdf_validation import (
+from bigocrpdf.services.ocr.pdf_validation import (
     classify_text_layer,
     validate_searchable_pdf_text,
 )

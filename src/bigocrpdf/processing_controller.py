@@ -14,10 +14,11 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, GLib, Gtk, Pango
+from gi.repository import Adw, GLib, Gtk
 
 from bigocrpdf.services.export_service import save_odf_file, save_text_file
 from bigocrpdf.services.processor import OcrProcessor
+from bigocrpdf.ui.widgets import failure_details
 from bigocrpdf.utils.comparison import compare_pdfs
 from bigocrpdf.utils.i18n import _, ngettext
 from bigocrpdf.utils.logger import logger
@@ -97,37 +98,6 @@ def _build_batch_completion(total_files: int, successful_files: int) -> _BatchCo
         successful_files=0,
         failed_files=failed_files,
     )
-
-
-def _failure_details(details: str) -> Gtk.Widget:
-    """Show failure causes as selectable text with a button that copies them."""
-    label = Gtk.Label(
-        label=details,
-        selectable=True,
-        wrap=True,
-        wrap_mode=Pango.WrapMode.WORD_CHAR,
-        xalign=0,
-    )
-    # A focused selectable label selects all its text, and the dialog passes
-    # focus through it on the way to its default button; the button copies.
-    label.set_focusable(False)
-    scrolled = Gtk.ScrolledWindow(
-        child=label,
-        hscrollbar_policy=Gtk.PolicyType.NEVER,
-        propagate_natural_height=True,
-        max_content_height=240,
-    )
-    copy_button = Gtk.Button(label=_("Copy Details"), halign=Gtk.Align.CENTER)
-
-    def copy(button: Gtk.Button) -> None:
-        button.get_clipboard().set(details)
-        button.set_label(_("Copied to clipboard"))
-
-    copy_button.connect("clicked", copy)
-    box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
-    box.append(scrolled)
-    box.append(copy_button)
-    return box
 
 
 def _estimate_output_bytes(selected_files: list[str]) -> int:
@@ -226,19 +196,12 @@ class ProcessingController:
     def _get_settings_from_ui(self) -> None:
         """Get settings from UI components."""
         settings_page = self.ui.settings_page_manager
-        if settings_page.lang_dropdown is not None:
-            lang_index = settings_page.lang_dropdown.get_selected()
-            languages = self.ocr_processor.get_available_ocr_languages()
-            if 0 <= lang_index < len(languages):
-                self.settings.lang = languages[lang_index][0]
-
         save_in_same_folder = self.get_save_in_same_folder()
 
         if settings_page.dest_entry is not None:
             self.settings.destination_folder = settings_page.dest_entry.get_text()
 
         self.settings.save_settings(
-            self.settings.lang,
             self.settings.destination_folder,
             save_in_same_folder,
         )
@@ -365,13 +328,7 @@ class ProcessingController:
             save_text_file(output_file, extracted_text, separate, boxes)
 
         if self.settings.save_odf and extracted_text:
-            save_odf_file(
-                output_file,
-                extracted_text,
-                boxes,
-                input_file,
-                include_images=self.settings.odf_include_images,
-            )
+            save_odf_file(output_file, include_images=self.settings.odf_include_images)
 
         comparison = compare_pdfs(
             input_path=input_file,
@@ -494,7 +451,7 @@ class ProcessingController:
             details = "\n".join(
                 _("{file}: {reason}").format(file=name, reason=reason) for name, reason in failures
             )
-            dialog.set_extra_child(_failure_details(details))
+            dialog.set_extra_child(failure_details(details))
         dialog.present(cast(Gtk.Widget, self.parent))
 
     def cancel(self) -> None:

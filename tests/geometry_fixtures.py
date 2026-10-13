@@ -137,37 +137,6 @@ def apply_rotation(image: np.ndarray, degrees: float) -> np.ndarray:
     )
 
 
-def apply_homography(
-    image: np.ndarray,
-    corner_offsets_frac: float,
-) -> tuple[np.ndarray, np.ndarray]:
-    """A keystone warp; offsets are a fraction of width so tests are scale-free.
-
-    Returns the warped image and the homography that produced it.
-    """
-    height, width = image.shape[:2]
-    shift = corner_offsets_frac * width
-    source = np.float32([[0, 0], [width, 0], [width, height], [0, height]])
-    destination = np.float32(
-        [
-            [shift, shift * 0.5],
-            [width - shift, 0],
-            [width, height],
-            [shift * 0.5, height - shift * 0.5],
-        ]
-    )
-    matrix = cv2.getPerspectiveTransform(source, destination)
-    warped = cv2.warpPerspective(
-        image,
-        matrix,
-        (width, height),
-        flags=cv2.INTER_LINEAR,
-        borderMode=cv2.BORDER_CONSTANT,
-        borderValue=(255, 255, 255),
-    )
-    return warped, matrix
-
-
 def apply_cylindrical_warp(image: np.ndarray, curvature_px: float) -> np.ndarray:
     """Bend text lines into an arc of ``curvature_px`` maximum deviation.
 
@@ -191,16 +160,3 @@ def apply_cylindrical_warp(image: np.ndarray, curvature_px: float) -> np.ndarray
         borderMode=cv2.BORDER_CONSTANT,
         borderValue=(255, 255, 255),
     )
-
-
-def apply_dark_border(image: np.ndarray, width_frac: float = 0.04, value: int = 20) -> np.ndarray:
-    """Frame the page in dark pixels, as a photo on a desk produces."""
-    result = image.copy()
-    height, width = result.shape[:2]
-    band_y = max(1, int(height * width_frac))
-    band_x = max(1, int(width * width_frac))
-    result[:band_y, :] = value
-    result[-band_y:, :] = value
-    result[:, :band_x] = value
-    result[:, -band_x:] = value
-    return result

@@ -7,8 +7,8 @@ import pikepdf
 import pytest
 from reportlab.pdfgen import canvas as reportlab_canvas
 
-from bigocrpdf.services.rapidocr_service.config import OCRConfig, OCRResult
-from bigocrpdf.services.rapidocr_service.pdf_assembly import (
+from bigocrpdf.services.ocr.config import OCRConfig, OCRResult
+from bigocrpdf.services.ocr.pdf_assembly import (
     _filter_invisible_text_ops,
     _pdf_text_operand,
     append_text_to_page,
@@ -17,13 +17,13 @@ from bigocrpdf.services.rapidocr_service.pdf_assembly import (
     merge_single_page,
     strip_invisible_text,
 )
-from bigocrpdf.services.rapidocr_service.pdf_extractor import (
+from bigocrpdf.services.ocr.pdf_extractor import (
     _scan_page_text_ops,
     has_native_text,
     page_has_ocr_text,
 )
-from bigocrpdf.services.rapidocr_service.pdf_page_geometry import merge_page_fonts
-from bigocrpdf.services.rapidocr_service.renderer import TextLayerRenderer
+from bigocrpdf.services.ocr.pdf_page_geometry import merge_page_fonts
+from bigocrpdf.services.ocr.renderer import TextLayerRenderer
 from bigocrpdf.utils.pdf_utils import set_root_page_layout
 
 
@@ -142,7 +142,7 @@ def test_reportlab_text_layer_uses_render_mode_without_alpha_states(tmp_path: Pa
         str(pdf_path),
         pagesize=(200, 100),
     )
-    renderer = TextLayerRenderer(OCRConfig(font_base_path=tmp_path))
+    renderer = TextLayerRenderer(OCRConfig(font_path=None))
     renderer.render(
         pdf_canvas,
         [OCRResult("searchable", [[10, 10], [150, 10], [150, 30], [10, 30]], 1.0)],
@@ -171,7 +171,6 @@ def test_appended_text_layer_extracts_unicode_with_pdftotext(tmp_path: Path) -> 
         [ocr_result],
         img_x=0,
         img_y=0,
-        img_width=500,
         img_height=200,
         scale_x=1,
         scale_y=1,
@@ -217,7 +216,6 @@ def test_appended_text_layer_preserves_existing_page_content(tmp_path: Path) -> 
         [ocr_result],
         img_x=0,
         img_y=0,
-        img_width=500,
         img_height=200,
         scale_x=1,
         scale_y=1,
@@ -249,7 +247,6 @@ def test_appended_actual_text_layer_is_detected_and_stripped(tmp_path: Path) -> 
         [ocr_result],
         img_x=0,
         img_y=0,
-        img_width=500,
         img_height=200,
         scale_x=1,
         scale_y=1,

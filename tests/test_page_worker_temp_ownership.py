@@ -7,15 +7,16 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
-from bigocrpdf.services.rapidocr_service import page_worker
-from bigocrpdf.services.rapidocr_service.config import ProcessingStats
-from bigocrpdf.services.rapidocr_service.geometry_trace import GeometryTrace
-from bigocrpdf.services.rapidocr_service.pipeline_chunked_ocr import ChunkedOCRMixin
+from bigocrpdf.services.ocr import page_worker
+from bigocrpdf.services.ocr.config import ProcessingStats
+from bigocrpdf.services.ocr.geometry_trace import GeometryTrace
+from bigocrpdf.services.ocr.pipeline_chunked_ocr import ChunkedOCRMixin
+from bigocrpdf.services.ocr.resource_manager import PipelineConfig, ResourceProfile, ResourceTier
 
 
 def _preprocessor() -> SimpleNamespace:
     return SimpleNamespace(
-        detect_orientation=lambda _image: 0,
+        config=SimpleNamespace(enable_orientation_detection=False),
         process=lambda image: image,
         geometry_applied=False,
         crop_applied=False,
@@ -44,7 +45,7 @@ def test_failed_ocr_image_write_removes_reserved_file(tmp_path: Path) -> None:
         patch.object(page_worker.cv2, "imwrite", return_value=False),
         pytest.raises(OSError, match="could not write"),
     ):
-        page_worker._save_ocr_image_if_needed(image, "jpeg", tmp_path)
+        page_worker._save_ocr_image(image, tmp_path)
 
     assert list(tmp_path.iterdir()) == []
 
@@ -66,7 +67,7 @@ def test_page_failure_cleans_output_created_before_later_failure(
         patch.object(page_worker, "_determine_output_format", return_value=("jpeg", 85, 0)),
         patch.object(
             page_worker,
-            "_save_ocr_image_if_needed",
+            "_save_ocr_image",
             side_effect=OSError("simulated OCR image failure"),
         ),
     ):
@@ -169,35 +170,58 @@ def test_preprocessing_failure_cancels_unstarted_futures() -> None:
     def fail_iteration(_futures):
         raise InterruptedError("cancelled")
 
-    with pytest.raises(InterruptedError, match="cancelled"):
+    with (
+        patch("bigocrpdf.services.ocr.pipeline_chunked_ocr.as_completed", fail_iteration),
+        pytest.raises(InterruptedError, match="cancelled"),
+    ):
         mixin._ocr_chunk_work_items(
             executor,
-            MagicMock(),
-            fail_iteration,
             [{"page_num": 1}, {"page_num": 2}],
             MagicMock(),
             [],
-            MagicMock(),
             Path("input.pdf"),
         )
 
     assert all(future.cancel.call_count == 1 for future in futures)
 
 
+def test_progress_follows_pages_read() -> None:
+    """A chunk reports each page as it is read, before any page is written."""
+    mixin = ChunkedOCRMixin()
+    mixin.extractor = SimpleNamespace(masked_pages=set())
+    mixin._ocr_chunk_result = MagicMock()
+    mixin._raise_if_cancelled = MagicMock()
+    futures = {MagicMock(): 0, MagicMock(): 1}
+    reported = []
+
+    with patch("bigocrpdf.services.ocr.pipeline_chunked_ocr.as_completed", iter):
+        mixin._ocr_chunk_work_items(
+            MagicMock(submit=MagicMock(side_effect=list(futures))),
+            [{"page_num": 3}, {"page_num": 4}],
+            MagicMock(),
+            [],
+            Path("input.pdf"),
+            progress_callback=lambda *args: reported.append(args),
+            pages_before=2,
+            total_pages=4,
+        )
+
+    assert reported == [(61, 100, "Processing page 3/4..."), (80, 100, "Processing page 4/4...")]
+
+
 def test_single_preprocessing_worker_is_recycled_after_each_page(tmp_path: Path) -> None:
     mixin = ChunkedOCRMixin()
     mixin.config = SimpleNamespace()
-    mixin._ocr_subprocess = MagicMock()
-    mixin._ocr_subprocess.launch.return_value = object()
-    mixin._ocr_subprocess.wait_until_ready.return_value = "openvino"
-    mixin._check_openvino_available = MagicMock(return_value=True)
+    mixin._start_ocr_worker = MagicMock(return_value=MagicMock(threads=2))
     mixin._skip_excluded_chunk = MagicMock(return_value=True)
     executor = MagicMock()
     executor.__enter__.return_value = executor
-    pipe_config = SimpleNamespace(
+    pipe_config = PipelineConfig(
         max_workers=1,
         chunk_size=1,
         ocr_threads=2,
+        gc_after_page=True,
+        downscale_probmap=1024,
     )
     ctx = {
         "total_pages": 1,
@@ -208,14 +232,14 @@ def test_single_preprocessing_worker_is_recycled_after_each_page(tmp_path: Path)
     }
 
     with (
-        patch("concurrent.futures.ProcessPoolExecutor", return_value=executor) as pool,
         patch(
-            "bigocrpdf.services.rapidocr_service.resource_manager.adjust_chunk_size",
+            "bigocrpdf.services.ocr.pipeline_chunked_ocr.ProcessPoolExecutor", return_value=executor
+        ) as pool,
+        patch(
+            "bigocrpdf.services.ocr.pipeline_chunked_ocr.adjust_chunk_size",
             return_value=1,
         ),
-        patch(
-            "bigocrpdf.services.rapidocr_service.pipeline_chunked_ocr.record_ocr_runtime_diagnostics"
-        ),
+        patch("bigocrpdf.services.ocr.pipeline_chunked_ocr.record_ocr_runtime_diagnostics"),
         patch("reportlab.pdfgen.canvas.Canvas", return_value=MagicMock()),
     ):
         mixin._run_chunked_ocr_pipeline(
@@ -225,7 +249,9 @@ def test_single_preprocessing_worker_is_recycled_after_each_page(tmp_path: Path)
             tmp_path / "scratch",
             ctx,
             pipe_config,
-            SimpleNamespace(available_ram_mb=512),
+            ResourceProfile(
+                available_ram_mb=512, total_ram_mb=2048, cpu_count=2, tier=ResourceTier.CONSTRAINED
+            ),
             ProcessingStats(),
             None,
         )

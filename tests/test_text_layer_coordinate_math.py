@@ -7,13 +7,12 @@ file pins *why*, so a failure says which property broke.
 """
 
 import math
-from pathlib import Path
 
 import pytest
 
 from bigocrpdf.constants import FONT_SIZE_SCALE_FACTOR, MAX_FONT_SIZE, MIN_FONT_SIZE
-from bigocrpdf.services.rapidocr_service.config import OCRConfig, OCRResult
-from bigocrpdf.services.rapidocr_service.renderer import (
+from bigocrpdf.services.ocr.config import OCRConfig, OCRResult
+from bigocrpdf.services.ocr.renderer import (
     TextBox,
     TextLayerRenderer,
     _line_horizontal_scale,
@@ -33,7 +32,7 @@ IMAGE = (2550, 3300)
 @pytest.fixture
 def renderer() -> TextLayerRenderer:
     """A renderer pinned to Helvetica, so metrics are the built-in ones."""
-    return TextLayerRenderer(OCRConfig(font_base_path=Path("/nonexistent-font-dir")))
+    return TextLayerRenderer(OCRConfig(font_path=None))
 
 
 def _rect(left: float, top: float, right: float, bottom: float) -> list[list[float]]:

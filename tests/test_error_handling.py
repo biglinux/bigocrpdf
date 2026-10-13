@@ -59,7 +59,7 @@ class TestPdfExtractorErrorHandling:
     """Error handling tests for pdf_extractor module."""
 
     def test_has_native_text_empty_pdf(self):
-        from bigocrpdf.services.rapidocr_service.pdf_extractor import has_native_text
+        from bigocrpdf.services.ocr.pdf_extractor import has_native_text
 
         with tempfile.TemporaryDirectory() as tmpdir:
             pdf_path = os.path.join(tmpdir, "empty.pdf")
@@ -68,14 +68,14 @@ class TestPdfExtractorErrorHandling:
             assert result is False  # Blank pages have no text
 
     def test_has_native_text_nonexistent_returns_false(self):
-        from bigocrpdf.services.rapidocr_service.pdf_extractor import has_native_text
+        from bigocrpdf.services.ocr.pdf_extractor import has_native_text
 
         # The function catches exceptions and returns False
         result = has_native_text(Path("/definitely/not/here.pdf"))
         assert result is False
 
     def test_a_page_without_images_has_no_image_positions(self):
-        from bigocrpdf.services.rapidocr_service.pdf_extractor import (
+        from bigocrpdf.services.ocr.pdf_extractor import (
             extract_image_positions,
         )
 

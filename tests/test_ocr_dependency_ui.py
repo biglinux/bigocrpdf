@@ -15,7 +15,7 @@ import bigocrpdf.config as config
 from bigocrpdf import OcrDependencyState
 from bigocrpdf.application import BigOcrPdfApp
 from bigocrpdf.image_application import ImageOcrApp
-from bigocrpdf.services.rapidocr_service.config import OCRConfig
+from bigocrpdf.services.ocr.config import OCRConfig
 from bigocrpdf.services.screen_capture import ImageOcrOutcome, ImageOcrStatus
 from bigocrpdf.ui.header_bar import HeaderBar
 from bigocrpdf.ui.image_ocr_window import ImageOcrWindow
@@ -24,7 +24,7 @@ from bigocrpdf.window import BigOcrPdfWindow
 _OCR_AVAILABLE = OcrDependencyState(is_available=True)
 _OCR_UNAVAILABLE = OcrDependencyState(
     is_available=False,
-    error="RapidOCR could not load ONNX Runtime.",
+    error="The OCR engine, ppocr-native, is not installed.",
 )
 
 
@@ -285,7 +285,7 @@ def test_main_propagates_failed_probe_to_pdf_application(
         patch.object(
             bigocrpdf,
             "_check_ocr_dependencies",
-            return_value=(False, _OCR_UNAVAILABLE.error),
+            return_value=_OCR_UNAVAILABLE,
         ),
         patch("bigocrpdf.application.BigOcrPdfApp") as application_class,
     ):
@@ -301,7 +301,7 @@ def test_main_image_propagates_successful_probe_to_image_application() -> None:
     with (
         patch.object(bigocrpdf, "setup_i18n"),
         patch.object(bigocrpdf, "_check_gtk_dependencies", return_value=True),
-        patch.object(bigocrpdf, "_check_ocr_dependencies", return_value=(True, "")),
+        patch.object(bigocrpdf, "_check_ocr_dependencies", return_value=_OCR_AVAILABLE),
         patch("bigocrpdf.image_application.ImageOcrApp") as application_class,
     ):
         application_class.return_value.run.return_value = 23
@@ -447,6 +447,7 @@ def test_image_application_uses_window_scoped_clipboard_shortcuts() -> None:
     app = SimpleNamespace(
         ocr_dependency=_OCR_AVAILABLE,
         on_about_action=MagicMock(),
+        _on_shortcuts_action=MagicMock(),
         _on_quit_action=MagicMock(),
         add_action=lambda action: actions.append(action.name),
         set_accels_for_action=MagicMock(),
@@ -465,10 +466,10 @@ def test_image_application_uses_window_scoped_clipboard_shortcuts() -> None:
     ):
         ImageOcrApp._setup_actions(cast(Any, app))
 
-    assert actions == ["about", "quit"]
+    assert actions == ["about", "shortcuts", "quit"]
     assert app.set_accels_for_action.call_args_list == [
         call("app.quit", [config.SHORTCUTS.get("quit", "<Control>q")]),
-        call("app.about", ["F1"]),
+        call("app.shortcuts", ["<Control>question"]),
         call(
             "win.paste-clipboard",
             [config.SHORTCUTS.get("paste-clipboard", "<Control>v")],
@@ -499,12 +500,14 @@ def test_unavailable_dialog_contains_probe_cause_and_recovery_action(
     with (
         patch("bigocrpdf.ui.widgets._", side_effect=lambda text: text),
         patch("bigocrpdf.ui.widgets.Adw.AlertDialog") as alert_class,
+        patch("bigocrpdf.ui.widgets.failure_details") as details,
     ):
         window_type.show_ocr_unavailable_dialog(window)
         window_type.show_ocr_unavailable_dialog(window)
 
     alert_class.assert_called_once()
-    assert _OCR_UNAVAILABLE.error in alert_class.call_args.kwargs["body"]
+    details.assert_called_once_with(_OCR_UNAVAILABLE.error)
+    alert_class.return_value.set_extra_child.assert_called_once_with(details.return_value)
     assert "restart the application" in alert_class.call_args.kwargs["body"]
     alert_class.return_value.present.assert_called_once_with(window)
 
@@ -534,10 +537,7 @@ def test_image_processing_allow_deny_stops_before_service_io(
     state: OcrDependencyState,
     expected_started: bool,
 ) -> None:
-    config = OCRConfig(
-        use_textline_cls=True,
-        detection_full_resolution=True,
-    )
+    config = OCRConfig(detection_full_resolution=True)
     settings = SimpleNamespace(
         lang="en",
         load_settings=MagicMock(),
@@ -589,14 +589,14 @@ def test_image_processing_removes_owned_input_after_async_callback() -> None:
 
     with patch("bigocrpdf.ui.image_ocr_window.remove_file") as remove_file:
         assert ImageOcrWindow._start_processing(
-            window, "/tmp/paste.png", cleanup_path="/tmp/paste.png"
+            window, "/tmp/paste.tiff", cleanup_path="/tmp/paste.tiff"
         )
         callback = window._screen_capture_service.process_image_file.call_args.kwargs["callback"]
         remove_file.assert_not_called()
         outcome = ImageOcrOutcome(ImageOcrStatus.SUCCESS, text="text")
         callback(outcome)
 
-    remove_file.assert_called_once_with("/tmp/paste.png")
+    remove_file.assert_called_once_with("/tmp/paste.tiff")
     window._on_processing_complete.assert_called_once_with(outcome)
 
 
@@ -891,29 +891,27 @@ def test_pdf_application_prepares_editor_window_thumbnail_requests() -> None:
     editor._prepare_close.assert_called_once_with()
 
 
-def test_image_clipboard_texture_save_failure_removes_owned_png() -> None:
+def _encode_texture(
+    texture: Any, tiff_path: str, *, publish: bool = False
+) -> tuple[Any, MagicMock]:
+    """Run a pasted texture through the image window's encoder, inline.
+
+    Returns what the encoder hands to the main loop, and the ``remove_file``
+    mock, which sees the cleanup only when ``publish`` runs the real handler.
+    """
     window = SimpleNamespace(_alive=True, _toast_overlay=MagicMock())
-    window._is_current_input_operation = MethodType(
-        ImageOcrWindow._is_current_input_operation,
-        window,
-    )
-    window._finish_input_operation = MethodType(
-        ImageOcrWindow._finish_input_operation,
-        window,
-    )
-    window._save_clipboard_texture_worker = MethodType(
-        ImageOcrWindow._save_clipboard_texture_worker,
-        window,
-    )
-    window._on_clipboard_texture_saved = MethodType(
-        ImageOcrWindow._on_clipboard_texture_saved,
-        window,
-    )
+    for name in (
+        "_is_current_input_operation",
+        "_finish_input_operation",
+        "_save_clipboard_texture_worker",
+    ):
+        setattr(window, name, MethodType(getattr(ImageOcrWindow, name), window))
+    saved = MagicMock()
+    window._on_clipboard_texture_saved = saved
+    if publish:
+        saved.side_effect = MethodType(ImageOcrWindow._on_clipboard_texture_saved, window)
     clipboard = MagicMock()
-    texture = clipboard.read_texture_finish.return_value
-    texture.get_width.return_value = 100
-    texture.get_height.return_value = 100
-    texture.save_to_png.side_effect = OSError("full")
+    clipboard.read_texture_finish.return_value = texture
 
     class ImmediateThread:
         def __init__(self, *, target, args, daemon):
@@ -927,13 +925,9 @@ def test_image_clipboard_texture_save_failure_removes_owned_png() -> None:
     with (
         patch(
             "bigocrpdf.ui.image_ocr_window.mkstemp",
-            return_value=(10, "/tmp/paste.png"),
+            return_value=(os.open(os.devnull, os.O_RDONLY), tiff_path),
         ),
-        patch("os.close"),
-        patch(
-            "bigocrpdf.ui.image_ocr_window.threading.Thread",
-            ImmediateThread,
-        ),
+        patch("bigocrpdf.ui.image_ocr_window.threading.Thread", ImmediateThread),
         patch(
             "bigocrpdf.ui.image_ocr_window.GLib.idle_add",
             side_effect=lambda callback, *args: callback(*args),
@@ -941,8 +935,61 @@ def test_image_clipboard_texture_save_failure_removes_owned_png() -> None:
         patch("bigocrpdf.ui.image_ocr_window.remove_file") as remove_file,
     ):
         ImageOcrWindow._on_clipboard_texture_ready(window, clipboard, MagicMock())
+    return saved.call_args.args, remove_file
 
-    remove_file.assert_called_once_with("/tmp/paste.png")
+
+def _memory_texture(memory_format: str, pixels: Any) -> Any:
+    from gi.repository import Gdk, GLib
+
+    height, width = pixels.shape[:2]
+    data = pixels.tobytes()
+    return Gdk.MemoryTexture.new(
+        width,
+        height,
+        getattr(Gdk.MemoryFormat, memory_format),
+        GLib.Bytes.new(data),
+        len(data) // height,
+    )
+
+
+def test_unsaved_clipboard_texture_is_removed(tmp_path) -> None:
+    import numpy as np
+
+    texture = _memory_texture("R8G8B8A8", np.zeros((10, 10, 4), dtype=np.uint8))
+    unwritable = str(tmp_path / "missing" / "paste.tiff")
+
+    (_, saved, _error, *_), remove_file = _encode_texture(texture, unwritable, publish=True)
+
+    assert not saved
+    remove_file.assert_called_once_with(unwritable)
+
+
+@pytest.mark.parametrize(
+    ("memory_format", "dtype"),
+    [
+        ("R8G8B8A8", "uint8"),
+        ("R16G16B16A16", "uint16"),
+        ("R16G16B16A16_FLOAT", "float16"),
+        ("R32G32B32A32_FLOAT", "float32"),
+    ],
+)
+def test_pasted_texture_reaches_ocr(tmp_path, memory_format: str, dtype: str) -> None:
+    import numpy as np
+
+    from bigocrpdf.services.screen_capture import ScreenCaptureService
+
+    full = 1.0 if dtype.startswith("float") else np.iinfo(dtype).max
+    pixels = np.full((30, 40, 4), full, dtype=dtype)
+    pixels[10:20, 5:35, :3] = 0
+    tiff_path = str(tmp_path / "paste.tiff")
+
+    (path, saved, error, *_), _ = _encode_texture(_memory_texture(memory_format, pixels), tiff_path)
+
+    assert saved, error
+    image = ScreenCaptureService._load_image_for_ocr(path, OCRConfig())
+    assert image.shape == (30, 40, 3)
+    assert image[15, 20].tolist() == [0, 0, 0]
+    assert image[0, 0].tolist() == [255, 255, 255]
 
 
 def test_oversized_clipboard_texture_is_rejected_before_encoding() -> None:
@@ -964,7 +1011,7 @@ def test_oversized_clipboard_texture_is_rejected_before_encoding() -> None:
         ImageOcrWindow._on_clipboard_texture_ready(window, clipboard, MagicMock())
 
     make_temp.assert_not_called()
-    texture.save_to_png.assert_not_called()
+    texture.save_to_tiff.assert_not_called()
 
 
 def test_clipboard_texture_encoding_starts_in_worker_thread() -> None:
@@ -989,7 +1036,7 @@ def test_clipboard_texture_encoding_starts_in_worker_thread() -> None:
     with (
         patch(
             "bigocrpdf.ui.image_ocr_window.mkstemp",
-            return_value=(10, "/tmp/paste.png"),
+            return_value=(10, "/tmp/paste.tiff"),
         ),
         patch("bigocrpdf.ui.image_ocr_window.os.close"),
         patch("bigocrpdf.ui.image_ocr_window.threading.Thread") as thread_class,
@@ -998,7 +1045,7 @@ def test_clipboard_texture_encoding_starts_in_worker_thread() -> None:
 
     thread_class.assert_called_once()
     thread_class.return_value.start.assert_called_once_with()
-    texture.save_to_png.assert_not_called()
+    texture.save_to_tiff.assert_not_called()
 
 
 def test_clipboard_encoder_keeps_only_the_latest_pending_texture() -> None:

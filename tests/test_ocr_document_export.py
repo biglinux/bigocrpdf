@@ -13,7 +13,7 @@ from unittest.mock import patch
 import pytest
 
 from bigocrpdf.cli import _cmd_export_odf, _cmd_export_txt
-from bigocrpdf.services.rapidocr_service.config import (
+from bigocrpdf.services.ocr.config import (
     OcrDocument,
     OcrLayoutBlock,
     OcrLine,
@@ -21,13 +21,13 @@ from bigocrpdf.services.rapidocr_service.config import (
     OCRResult,
     OcrWord,
 )
-from bigocrpdf.services.rapidocr_service.ocr_document_export import (
+from bigocrpdf.services.ocr.ocr_document_export import (
     convert_ocr_document_to_markdown,
     convert_ocr_document_to_odf,
     convert_ocr_document_to_text,
     ocr_document_to_pages_elements,
 )
-from bigocrpdf.services.rapidocr_service.ocr_document_io import (
+from bigocrpdf.services.ocr.ocr_document_io import (
     complete_ocr_document,
     load_ocr_document_json,
     ocr_document_json_path,
@@ -403,7 +403,6 @@ def test_structured_odt_detects_compact_three_column_table(tmp_path: Path) -> No
             Word("R$", 163, 49, 12, 10),
             Word("80,00", 178, 49, 25, 10),
         ],
-        1,
     )
 
     assert len(elements) == 1
@@ -694,7 +693,7 @@ def test_ocr_document_sidecar_roundtrip(tmp_path: Path) -> None:
     pdf_path = tmp_path / "out.pdf"
     _write_one_page_pdf(pdf_path)
     document = OcrDocument(
-        diagnostics={"engine": "rapidocr"},
+        diagnostics={"engine": "ppocr-native"},
         pages=[
             OcrPage(
                 page_index=1,
@@ -732,7 +731,7 @@ def test_ocr_document_sidecar_roundtrip(tmp_path: Path) -> None:
 
     assert sidecar_path == ocr_document_json_path(pdf_path)
     assert loaded is not None
-    assert loaded.diagnostics == {"engine": "rapidocr"}
+    assert loaded.diagnostics == {"engine": "ppocr-native"}
     assert loaded.pages[0].retry_level == 1
     assert loaded.pages[0].text_results[0].text == "Saved text"
     assert loaded.pages[0].text_results[0].box == _box(20, 20, 80)

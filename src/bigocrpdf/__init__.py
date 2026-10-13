@@ -4,7 +4,7 @@ import os
 import sys
 from dataclasses import dataclass
 
-from bigocrpdf.utils.i18n import setup_i18n
+from bigocrpdf.utils.i18n import _, setup_i18n
 
 __version__ = "3.0.0"
 
@@ -27,87 +27,25 @@ class OcrDependencyState:
 def keep_cwd_out_of_child_imports() -> None:
     """Stop child interpreters from importing modules found in the working directory.
 
-    ``python -m`` workers and multiprocessing children put their cwd first on
-    sys.path, and file managers start the app in the opened file's directory.
+    Multiprocessing children put their cwd first on sys.path, and file
+    managers start the app in the opened file's directory.
     """
     os.environ["PYTHONSAFEPATH"] = "1"
 
 
-def _get_install_cmd(package: str) -> str:
-    """Return a distro-appropriate install command for the given package."""
-    import shutil
+def _check_ocr_dependencies() -> OcrDependencyState:
+    """Whether the OCR engine is installed, and what to tell the user when it is not."""
+    from bigocrpdf.services.ocr import ppocr_native
+    from bigocrpdf.utils.logger import logger
 
-    if shutil.which("pacman"):
-        return f"sudo pacman -S {package}"
-    if shutil.which("apt"):
-        return f"sudo apt install {package}"
-    if shutil.which("dnf"):
-        return f"sudo dnf install {package}"
-    return f"pip install {package}"
-
-
-def _check_ocr_dependencies() -> tuple[bool, str]:
-    """Check if OCR dependencies are available and compatible.
-
-    Returns:
-        Tuple of (success, error_message). If success is True, error_message is empty.
-    """
-    python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
-
-    # Try to import rapidocr
-    try:
-        from rapidocr import OCRVersion, RapidOCR  # noqa: F401
-
-        if not hasattr(OCRVersion, "PPOCRV6"):
-            return False, "Installed RapidOCR does not support PP-OCRv6. Upgrade python-rapidocr."
-
-        from bigocrpdf.services.rapidocr_service.config import OCRConfig
-
-        config = OCRConfig()
-        if config.get_det_model_path() is None or config.get_rec_model_path() is None:
-            # Naming the directory that was actually searched turns an opaque
-            # failure into something a user or packager can act on, which
-            # matters most in relocatable builds where it is not /usr/share.
-            return False, (
-                "Required PP-OCRv6 small models are not installed.\n\n"
-                f"Looked in: {config.model_base_path}\n\n"
-                "Install the rapidocr-models-v6-small package, or point "
-                "BIGOCRPDF_RAPIDOCR_DIR at a directory containing models/ and "
-                "fonts/, then restart the application."
-            )
-
-        return True, ""
-    except ImportError as e:
-        error_msg = str(e)
-
-        # Check for common compatibility errors
-        if "openvino" in error_msg.lower() or "_pyopenvino" in error_msg:
-            cuda_cmd = _get_install_cmd("python-onnxruntime-cuda")
-            cpu_cmd = _get_install_cmd("python-onnxruntime-cpu")
-            return False, (
-                f"OpenVINO is not compatible with Python {python_version}.\n"
-                f"The OCR packages were compiled for a different Python version.\n\n"
-                f"Solution:\n"
-                f"  Install ONNX Runtime as fallback engine:\n"
-                f"    {cuda_cmd}\n"
-                f"  Or for CPU-only:\n"
-                f"    {cpu_cmd}"
-            )
-        elif "onnxruntime" in error_msg.lower():
-            cuda_cmd = _get_install_cmd("python-onnxruntime-cuda")
-            cpu_cmd = _get_install_cmd("python-onnxruntime-cpu")
-            return False, (
-                f"ONNX Runtime is not compatible with Python {python_version}.\n\n"
-                f"Solution:\n"
-                f"  {cuda_cmd}\n"
-                f"  Or for CPU-only:\n"
-                f"    {cpu_cmd}"
-            )
-        else:
-            return False, (
-                f"Failed to import rapidocr: {error_msg}\n\n"
-                f"Please ensure rapidocr is installed for Python {python_version}."
-            )
+    if ppocr_native.find_worker() is not None:
+        return OcrDependencyState(is_available=True)
+    error = _(
+        "The OCR engine, {worker}, is not installed, or its model files are missing from {path}."
+    ).format(worker=ppocr_native.WORKER, path=ppocr_native.plans_dir())
+    logger.error(f"OCR Dependency Error: {error}")
+    print(f"\n*** OCR Dependency Error ***\n{error}\n", file=sys.stderr)
+    return OcrDependencyState(is_available=False, error=error)
 
 
 def _check_gtk_dependencies() -> bool:
@@ -198,13 +136,8 @@ def main() -> int:
 
     from bigocrpdf.application import BigOcrPdfApp
 
-    # Check OCR dependencies next
-    ocr_ok, ocr_error = _check_ocr_dependencies()
-    ocr_dependency = OcrDependencyState(is_available=ocr_ok, error=ocr_error)
-    if not ocr_ok:
-        logger.error(f"OCR Dependency Error: {ocr_error}")
-        # Continue anyway - the GUI can still show the error gracefully or run in limited mode
-        print(f"\n*** OCR Dependency Error ***\n{ocr_error}\n", file=sys.stderr)
+    # The GUI starts without the OCR engine and shows why it is missing.
+    ocr_dependency = _check_ocr_dependencies()
 
     os.makedirs(CONFIG_DIR, exist_ok=True)
 
@@ -249,12 +182,7 @@ def main_image() -> int:
 
     from bigocrpdf.image_application import ImageOcrApp
 
-    # Check OCR dependencies
-    ocr_ok, ocr_error = _check_ocr_dependencies()
-    ocr_dependency = OcrDependencyState(is_available=ocr_ok, error=ocr_error)
-    if not ocr_ok:
-        logger.error(f"OCR Dependency Error: {ocr_error}")
-        print(f"\n*** OCR Dependency Error ***\n{ocr_error}\n", file=sys.stderr)
+    ocr_dependency = _check_ocr_dependencies()
 
     try:
         app = ImageOcrApp(ocr_dependency=ocr_dependency)

@@ -6,13 +6,13 @@ from unittest.mock import Mock
 import pikepdf
 import pytest
 
-from bigocrpdf.services.rapidocr_service import backend as backend_module
-from bigocrpdf.services.rapidocr_service.backend import ProfessionalPDFOCR
-from bigocrpdf.services.rapidocr_service.config import OCRConfig, ProcessingStats
-from bigocrpdf.services.rapidocr_service.pdf_extractor import _page_dimensions
-from bigocrpdf.services.rapidocr_service.pdf_image_analysis import inspect_pdf_resource_metrics
-from bigocrpdf.services.rapidocr_service.pipeline_chunked_ocr import _chunk_result_render_size
-from bigocrpdf.services.rapidocr_service.rotation import extract_page_rotations
+from bigocrpdf.services.ocr import backend as backend_module
+from bigocrpdf.services.ocr.backend import ProfessionalPDFOCR
+from bigocrpdf.services.ocr.config import OCRConfig, ProcessingStats
+from bigocrpdf.services.ocr.pdf_extractor import _page_dimensions
+from bigocrpdf.services.ocr.pdf_image_analysis import inspect_pdf_resource_metrics
+from bigocrpdf.services.ocr.pipeline_chunked_ocr import _chunk_result_render_size
+from bigocrpdf.services.ocr.rotation import extract_page_rotations
 
 
 def _write_metadata_only_pdf(
@@ -226,7 +226,7 @@ def _write_header_only_png(path: Path, width: int, height: int) -> None:
 def test_oversized_page_image_is_rejected_before_decoding(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, side: int
 ) -> None:
-    from bigocrpdf.services.rapidocr_service import pdf_page_geometry
+    from bigocrpdf.services.ocr import pdf_page_geometry
 
     image_path = tmp_path / "page.png"
     _write_header_only_png(image_path, side, side)

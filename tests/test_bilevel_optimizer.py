@@ -12,13 +12,13 @@ from pikepdf import Name
 from PIL import Image
 from reportlab.pdfgen import canvas
 
-from bigocrpdf.services.rapidocr_service.bilevel_optimizer import (
+from bigocrpdf.services.ocr.bilevel_optimizer import (
     _embed_ccitt,
     _embed_jbig2,
     _get_page_xobjects,
     optimize_bilevel_images,
 )
-from bigocrpdf.services.rapidocr_service.jbig2_encoder import jbig2enc_available
+from bigocrpdf.services.ocr.jbig2_encoder import jbig2enc_available
 
 
 def _create_test_pdf(
@@ -108,7 +108,7 @@ class TestOptimizeBilevelImages(_PdfTestCase):
         pdf_path = self.create_test_pdf(num_pages=1, bilevel=True)
 
         with patch(
-            "bigocrpdf.services.rapidocr_service.bilevel_optimizer.jbig2enc_available",
+            "bigocrpdf.services.ocr.bilevel_optimizer.jbig2enc_available",
             return_value=False,
         ):
             count = optimize_bilevel_images(pdf_path, {1: "jbig2"})
@@ -142,7 +142,7 @@ class TestOptimizeBilevelImages(_PdfTestCase):
 
         with (
             patch(
-                "bigocrpdf.services.rapidocr_service.bilevel_optimizer.jbig2enc_available",
+                "bigocrpdf.services.ocr.bilevel_optimizer.jbig2enc_available",
                 return_value=False,
             ),
             patch.object(pikepdf.Pdf, "save", side_effect=OSError("disk full")),

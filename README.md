@@ -19,7 +19,7 @@ dedicated image OCR application and a separate command-line PDF toolbox.
 
 ## Main capabilities
 
-- **Searchable PDF output** using RapidOCR, with PP-OCRv6 selected by default
+- **Searchable PDF output** using PP-OCRv6 on [ppocr-native](https://github.com/biglinux/ppocr-native)
 - **Mixed-content handling** that distinguishes image-only pages from pages with native text
 - **PDF page editing** for reordering, rotating, flipping, deleting, merging, splitting, and
   compressing pages
@@ -52,8 +52,9 @@ dedicated image OCR application and a separate command-line PDF toolbox.
 
 ### OCR pipeline
 
-- RapidOCR PP-OCRv6 exclusively, using one unified model for supported languages
-- OpenVINO as the default CPU inference engine and ONNX Runtime as an alternative
+- PP-OCRv6 small, using one unified model for supported languages
+- [ppocr-native](https://github.com/biglinux/ppocr-native) as the engine: PP-OCRv6 in plain
+  Rust on the CPU, reading a page's lines on one thread per physical core
 - Automatic worker selection for parallel OCR
 - Four detection-threshold presets in the graphical settings
 - Invisible Unicode text layers for searchable and selectable output
@@ -64,7 +65,7 @@ dedicated image OCR application and a separate command-line PDF toolbox.
 
 PP-OCRv6 recognizes Chinese, English, Japanese, and 46 Latin-script languages with one
 unified model, so the graphical applications do not ask users to choose a language. The
-application requires the PP-OCRv6 detection and recognition files at startup.
+application requires ppocr-native and its plans at startup.
 
 ### Image preprocessing
 
@@ -134,12 +135,16 @@ Package names vary by distribution. Before installing the Python project, provid
 - GTK 4.14 or newer, libadwaita 1.5 or newer, PyGObject, Pycairo, and their GObject Introspection data
 - Poppler command-line tools, including `pdfinfo`, `pdfimages`, `pdftotext`, `pdftoppm`,
   `pdffonts`, and `pdfdetach`
-- RapidOCR and the OCR models/fonts required for the languages you intend to use
+- ppocr-native, and Noto Sans, the font the text layer is written with
+  (`/usr/share/fonts/noto/NotoSans-Regular.ttf`; `BIGOCRPDF_TEXT_FONT` names another file)
 - The Python dependencies declared in [`pyproject.toml`](pyproject.toml)
 
 Optional runtime components:
 
 - `jbig2enc` for JBIG2 compression (CCITT Group 4 is used when it is absent)
+- WenQuanYi Micro Hei (`/usr/share/fonts/wenquanyi/wqy-microhei/wqy-microhei.ttc`;
+  `BIGOCRPDF_CJK_FONT` names another file), which keeps Chinese and Japanese text in the
+  text layer; without it those lines are left out
 - An sRGB ICC profile from colord or Ghostscript for the PDF/A-2b option
 - XDG Desktop Portal, Spectacle, GNOME Screenshot, or Flameshot for region capture
 
@@ -155,9 +160,11 @@ python -m pip install -e .
 ```
 
 The editable Python installation creates the three entry points documented below. Desktop
-files, icons, compiled translations, file-manager actions, and distribution-specific model
-packages are outside the Python wheel and must be installed by the system packaging layer;
-see [`pkgbuild/PKGBUILD`](pkgbuild/PKGBUILD) and [`default.nix`](default.nix).
+files, icons, compiled translations, file-manager actions, and the OCR engine are outside the
+Python wheel and must be installed by the system packaging layer; see
+[`pkgbuild/PKGBUILD`](pkgbuild/PKGBUILD) and [`default.nix`](default.nix). nixpkgs has no
+ppocr-native package, so `default.nix` takes one as its `ppocr-native` argument; the flake
+builds without it, and that build reports the engine missing at startup.
 
 ---
 
@@ -221,9 +228,9 @@ portal and then supported screenshot tools installed on the system.
 - Persisted window dimensions
 - Keyboard shortcuts for common queue, editor, image, and application actions
 
-Gettext catalogs are maintained for `bg`, `cs`, `da`, `de`, `el`, `en`, `es`, `et`, `fi`,
-`fr`, `he`, `hr`, `hu`, `is`, `it`, `ja`, `ko`, `nl`, `no`, `pl`, `pt`, `pt_BR`, `ro`,
-`ru`, `sk`, `sv`, `tr`, `uk`, and `zh`.
+Gettext catalogs are maintained for `be`, `bg`, `cs`, `da`, `de`, `el`, `en`, `es`, `et`,
+`fi`, `fr`, `he`, `hr`, `hu`, `is`, `it`, `ja`, `ko`, `nl`, `no`, `pl`, `pt`, `pt_BR`,
+`ro`, `ru`, `sk`, `sv`, `tr`, `uk`, `zh`, `zh_CN`, and `zh_TW`.
 
 ---
 
@@ -246,10 +253,10 @@ graph TD
     C --> C3[export_service.py<br/>Automatic TXT and ODT export]
     C --> C4[pdf_operations.py<br/>PDF editing operations]
     C --> C5[perspective_correction.py<br/>Geometric correction]
-    C --> C6[rapidocr_service/]
+    C --> C6[ocr/]
 
-    C6 --> C6a[engine.py — Cached backend lifecycle]
-    C6 --> C6b[ocr_worker.py — Subprocess worker]
+    C6 --> C6a[backend.py — One OCR job over a PDF]
+    C6 --> C6b[ppocr_native.py — The OCR worker and its detector]
     C6 --> C6c[preprocessor.py — Image pipeline]
     C6 --> C6d[pdf_assembly.py — Text-layer and PDF output]
 

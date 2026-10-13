@@ -1,0 +1,623 @@
+"""PDF assembly and merging utilities."""
+
+import logging
+import re
+from pathlib import Path
+from typing import Any
+
+import pikepdf
+
+from bigocrpdf.services.ocr.config import OCRResult
+from bigocrpdf.services.ocr.pdf_extractor import (
+    extract_content_streams,
+    merge_page_fonts,
+)
+from bigocrpdf.services.ocr.renderer import (
+    TextBox,
+    line_run,
+    place_text_box,
+    snap_baselines,
+    text_lines,
+)
+from bigocrpdf.utils import pdf_utils
+
+logger = logging.getLogger(__name__)
+
+
+def escape_pdf_text(text: str) -> str:
+    """Escape text for inclusion in a PDF literal string."""
+    text = text.replace("\\", "\\\\")
+    text = text.replace("(", "\\(")
+    text = text.replace(")", "\\)")
+
+    # Replace common Unicode characters that fall outside latin-1
+    _UNICODE_REPLACEMENTS = {
+        "\u2014": "-",  # em dash
+        "\u2013": "-",  # en dash
+        "\u2018": "'",  # left single quote
+        "\u2019": "'",  # right single quote
+        "\u201c": '"',  # left double quote
+        "\u201d": '"',  # right double quote
+        "\u2026": "...",  # ellipsis
+        "\u2022": "*",  # bullet
+        "\u2010": "-",  # hyphen
+        "\u2011": "-",  # non-breaking hyphen
+        "\u2012": "-",  # figure dash
+        "\u2015": "-",  # horizontal bar
+        "\u2032": "'",  # prime
+        "\u2033": '"',  # double prime
+        "\u2212": "-",  # minus sign
+        "\ufb01": "fi",  # fi ligature
+        "\ufb02": "fl",  # fl ligature
+        "\u200b": "",  # zero-width space
+        "\u200c": "",  # zero-width non-joiner
+        "\u200d": "",  # zero-width joiner
+        "\ufeff": "",  # BOM / zero-width no-break space
+    }
+    for char, replacement in _UNICODE_REPLACEMENTS.items():
+        text = text.replace(char, replacement)
+
+    return text
+
+
+def _pdf_text_operand(text: str) -> str:
+    """Return a PDF text operand, preserving Unicode without lossy replacement."""
+    escaped = escape_pdf_text(text)
+    try:
+        escaped.encode("latin-1")
+    except UnicodeEncodeError:
+        utf16_hex = ("\ufeff" + text).encode("utf-16-be").hex().upper()
+        return f"<{utf16_hex}>"
+    return f"({escaped})"
+
+
+def _pdf_actual_text_operand(text: str) -> str:
+    """Return an exact Unicode PDF string for marked-content /ActualText."""
+    utf16_hex = ("\ufeff" + text).encode("utf-16-be").hex().upper()
+    return f"<{utf16_hex}>"
+
+
+def _pdf_font_placeholder_operand(text: str) -> str:
+    """Return invisible Type1-compatible glyph text for a searchable ActualText span."""
+    chars: list[str] = []
+    for char in text:
+        if char.isspace():
+            chars.append(" ")
+            continue
+        try:
+            char.encode("latin-1")
+        except UnicodeEncodeError:
+            chars.append("x")
+        else:
+            chars.append(char)
+    placeholder = "".join(chars).strip() or "x"
+    return f"({escape_pdf_text(placeholder)})"
+
+
+def _emit_line_commands(line_boxes: list[TextBox]) -> list[str]:
+    """Build BT/ET PDF commands for one text line, left to right."""
+    run = line_run(line_boxes, "Helvetica")
+    return [
+        "/GSOcrInvisible gs",
+        "BT",
+        f"1 0 0 1 {run.x:.2f} {run.y:.2f} Tm",
+        f"/FOcr {run.font_size:.1f} Tf",
+        f"{run.horizontal_scale:.1f} Tz",
+        f"/Span << /ActualText {_pdf_actual_text_operand(run.text)} >> BDC",
+        f"{_pdf_font_placeholder_operand(run.text)} Tj",
+        "EMC",
+        "ET",
+    ]
+
+
+def create_text_layer_commands(
+    ocr_results: list[OCRResult],
+    img_x: float,
+    img_y: float,
+    img_height: float,
+    scale_x: float,
+    scale_y: float,
+) -> list[str]:
+    """Create PDF text layer commands for OCR results."""
+    top_y = img_y + img_height
+    boxes = [
+        box
+        for result in ocr_results
+        if (box := place_text_box(result, scale_x, scale_y, img_x, top_y)) is not None
+    ]
+    if not boxes:
+        return []
+
+    snap_baselines(boxes)
+    commands: list[str] = ["q"]
+    for line_boxes in text_lines(boxes):
+        commands.extend(_emit_line_commands(line_boxes))
+    commands.append("Q")
+    return commands
+
+
+def append_text_to_page(pdf: pikepdf.Pdf, page: pikepdf.Page, text_commands: list[str]) -> None:
+    """Append text layer commands to a PDF page."""
+    if not text_commands:
+        return
+
+    # Ensure page has font resources
+    if "/Resources" not in page:
+        page["/Resources"] = pikepdf.Dictionary()
+    if "/Font" not in page.Resources:
+        page.Resources["/Font"] = pikepdf.Dictionary()
+    if "/ExtGState" not in page.Resources:
+        page.Resources["/ExtGState"] = pikepdf.Dictionary()
+
+    # Add OCR font with unique name to avoid conflicts
+    if "/FOcr" not in page.Resources.Font:
+        page.Resources.Font["/FOcr"] = pikepdf.Dictionary(
+            {
+                "/Type": pikepdf.Name("/Font"),
+                "/Subtype": pikepdf.Name("/Type1"),
+                "/BaseFont": pikepdf.Name("/Helvetica"),
+                "/Encoding": pikepdf.Name("/WinAnsiEncoding"),
+            }
+        )
+    if "/GSOcrInvisible" not in page.Resources.ExtGState:
+        page.Resources.ExtGState["/GSOcrInvisible"] = pikepdf.Dictionary(
+            {
+                "/Type": pikepdf.Name("/ExtGState"),
+                "/CA": 0,
+                "/ca": 0,
+            }
+        )
+
+    text_content = "\n".join(text_commands)
+
+    # Wrap existing content in q/Q so any CTM changes (e.g. cm scaling)
+    # from the original page don't affect our text overlay coordinates.
+    contents = page.get("/Contents")
+    q_stream = pikepdf.Stream(pdf, b"q\n")
+    Q_stream = pikepdf.Stream(pdf, b"\nQ\n")
+    new_stream = pikepdf.Stream(pdf, text_content.encode("latin-1", errors="replace"))
+    if contents is None or _content_stream_is_empty(contents):
+        page["/Contents"] = new_stream
+    elif isinstance(contents, pikepdf.Array):
+        # Wrap: q + existing_streams... + Q + text_overlay
+        wrapped = pikepdf.Array([q_stream] + list(contents) + [Q_stream, new_stream])
+        page["/Contents"] = wrapped
+    else:
+        page["/Contents"] = pikepdf.Array([q_stream, contents, Q_stream, new_stream])
+
+
+def _content_stream_is_empty(contents) -> bool:
+    if isinstance(contents, pikepdf.Array):
+        return all(_content_stream_is_empty(stream) for stream in contents)
+    try:
+        return not contents.read_bytes().strip()
+    except (AttributeError, pikepdf.PdfError):
+        return False
+
+
+def _collect_q_group(ops: list[Any], start: int) -> tuple[list[Any], int]:
+    """Collect a full q...Q graphics state group from the ops list."""
+    group: list[Any] = [ops[start]]
+    depth = 1
+    j = start + 1
+    while j < len(ops) and depth > 0:
+        group.append(ops[j])
+        g_op = str(ops[j][1])
+        if g_op == "q":
+            depth += 1
+        elif g_op == "Q":
+            depth -= 1
+        j += 1
+    return group, j
+
+
+def _is_invisible_text_group(group: list[Any]) -> bool:
+    """Check if a q/Q group contains only invisible OCR text."""
+    has_invisible_text = False
+    has_visible_content = False
+    in_bt = False
+    bt_is_invisible = False
+    graphics_state_is_invisible = False
+
+    for g_operands, g_operator in group:
+        g_op = str(g_operator)
+        if g_op == "gs" and _is_ocr_invisible_graphics_state(g_operands):
+            graphics_state_is_invisible = True
+        elif g_op == "BT":
+            in_bt = True
+            bt_is_invisible = graphics_state_is_invisible
+        elif g_op == "ET":
+            in_bt = False
+        elif g_op == "Tr" and in_bt and g_operands:
+            bt_is_invisible = graphics_state_is_invisible or int(g_operands[0]) == 3
+        elif g_op in {"Tj", "TJ"} and in_bt:
+            if bt_is_invisible:
+                has_invisible_text = True
+            else:
+                has_visible_content = True
+        elif g_op == "Do":
+            has_visible_content = True
+
+    return has_invisible_text and not has_visible_content
+
+
+def _is_ocr_invisible_graphics_state(operands: list) -> bool:
+    return bool(operands) and str(operands[0]) == "/GSOcrInvisible"
+
+
+def _collect_bt_block(ops: list[Any], start: int) -> tuple[list[Any], int]:
+    """Collect a top-level BT...ET text block.
+
+    Returns:
+        (block_ops, end_index) where end_index is the position after the block.
+    """
+    group: list[Any] = [ops[start]]
+    j = start + 1
+    while j < len(ops) and str(ops[j][1]) != "ET":
+        group.append(ops[j])
+        j += 1
+    if j < len(ops):
+        group.append(ops[j])
+        j += 1
+    return group, j
+
+
+def _bt_block_is_invisible(group: list[Any]) -> bool:
+    """Check if a BT/ET block contains invisible text and no visible text."""
+    is_invisible = False
+    has_invisible_text = False
+    has_visible_text = False
+    for operands, operator in group:
+        op = str(operator)
+        if op == "Tr" and operands:
+            is_invisible = int(operands[0]) == 3
+        elif op in {"Tj", "TJ"}:
+            if is_invisible:
+                has_invisible_text = True
+            else:
+                has_visible_text = True
+    return has_invisible_text and not has_visible_text
+
+
+def strip_invisible_text(page: pikepdf.Page, pdf: pikepdf.Pdf) -> int:
+    """Remove invisible text (render mode 3) from page content stream.
+
+    Parses the content stream and removes q/Q groups or standalone
+    BT/ET blocks whose only purpose is invisible text overlay (from
+    a previous OCR pass).  Image display commands (cm + Do) and
+    visible text are preserved.
+
+    Args:
+        page: PDF page to clean.
+        pdf: Owner PDF (for creating new stream objects).
+
+    Returns:
+        Number of operator groups removed.
+    """
+    if not _page_may_have_invisible_text(page):
+        return 0
+
+    try:
+        ops = list(pikepdf.parse_content_stream(page))
+    except Exception:
+        return 0
+
+    filtered, removed = _filter_invisible_text_ops(ops)
+    if removed > 0:
+        new_content = pikepdf.unparse_content_stream(filtered)
+        page["/Contents"] = pikepdf.Stream(pdf, new_content)
+
+    return removed
+
+
+def _page_may_have_invisible_text(page: pikepdf.Page) -> bool:
+    contents = page.get("/Contents")
+    if contents is None:
+        return False
+
+    try:
+        streams = list(contents) if isinstance(contents, pikepdf.Array) else [contents]
+        return any(
+            b"3 Tr" in (raw := stream.read_bytes()) or b"/GSOcrInvisible" in raw
+            for stream in streams
+        )
+    except Exception:
+        return True
+
+
+def _filter_invisible_text_ops(ops: list[Any]) -> tuple[list[Any], int]:
+    filtered: list[Any] = []
+    removed = 0
+    i = 0
+
+    while i < len(ops):
+        op = str(ops[i][1])
+
+        if op == "q":
+            group, j = _collect_q_group(ops, i)
+            if _is_invisible_text_group(group):
+                removed += 1
+                i = j
+                continue
+            filtered.extend(group)
+            i = j
+
+        elif op == "BT":
+            group, j = _collect_bt_block(ops, i)
+            if _bt_block_is_invisible(group):
+                removed += 1
+                i = j
+                continue
+            filtered.extend(group)
+            i = j
+
+        else:
+            filtered.append(ops[i])
+            i += 1
+
+    return filtered, removed
+
+
+# A font is selected by "/Name size Tf". Only that operator is rewritten: the
+# same token elsewhere -- a marked-content property, an inline image key --
+# names something else entirely.
+_FONT_SELECT_RE = re.compile(rb"(/[^\s/\[\]<>(){}]+)(\s+[\d.+-]+\s+Tf)")
+
+
+def _rename_stream_fonts(
+    stream: pikepdf.Stream, renames: dict[str, str], pdf: pikepdf.Pdf
+) -> pikepdf.Stream:
+    """Point a text-layer stream at the font names it was actually filed under."""
+    encoded = {name.encode("ascii"): new.encode("ascii") for name, new in renames.items()}
+
+    def substitute(match: re.Match[bytes]) -> bytes:
+        return encoded.get(match.group(1), match.group(1)) + match.group(2)
+
+    data = stream.read_bytes()
+    renamed = _FONT_SELECT_RE.sub(substitute, data)
+    return stream if renamed == data else pikepdf.Stream(pdf, renamed)
+
+
+def merge_single_page(
+    orig_page: pikepdf.Page,
+    text_page: pikepdf.Page,
+    original_pdf: pikepdf.Pdf,
+    page_num: int,
+) -> bool:
+    """Merge text layer content into a single original page.
+
+    Directly prepends the text content stream to the original page's
+    content streams, preserving all original XObjects (images) intact.
+    Any existing invisible text (from a previous OCR pass) is stripped
+    first to prevent duplicate overlapping text layers.
+
+    Args:
+        orig_page: Original PDF page
+        text_page: Text layer PDF page
+        original_pdf: Original PDF for copying foreign objects
+        page_num: Page number (0-indexed) for logging
+
+    Returns:
+        True if merge succeeded, False otherwise
+    """
+    if "/Contents" not in text_page:
+        return True  # No content to merge is not an error
+
+    # Strip existing invisible OCR text from original page
+    stripped = strip_invisible_text(orig_page, original_pdf)
+    if stripped:
+        logger.debug(f"Page {page_num + 1}: stripped {stripped} old OCR text blocks")
+
+    # Extract text layer content streams and copy as foreign objects
+    text_streams = extract_content_streams(text_page["/Contents"], original_pdf, copy_foreign=True)
+
+    # Get original content streams (don't copy, they're already in this PDF)
+    orig_streams = extract_content_streams(
+        orig_page.get("/Contents", []), original_pdf, copy_foreign=False
+    )
+
+    # Copy fonts from text layer to original page resources
+    text_resources = text_page.get("/Resources")
+    if isinstance(text_resources, pikepdf.Dictionary):
+        renames = merge_page_fonts(orig_page, text_resources, original_pdf)
+        if renames:
+            text_streams = [_rename_stream_fonts(s, renames, original_pdf) for s in text_streams]
+
+    # Prepend text layer streams (text goes underneath original content)
+    orig_page["/Contents"] = pikepdf.Array(text_streams + orig_streams)
+
+    logger.debug(
+        f"Page {page_num + 1}: merged {len(text_streams)} text streams "
+        f"with {len(orig_streams)} original streams"
+    )
+    return True
+
+
+def overlay_text_on_original(
+    original_pdf_path: Path,
+    text_layer_pdf_path: Path,
+    output_pdf_path: Path,
+) -> None:
+    """Overlay text layer PDF on original PDF, preserving everything from original.
+
+    Uses pikepdf to merge the text layer as an underlay while keeping
+    all original PDF content (images, metadata, rotation, etc.) intact.
+
+    Args:
+        original_pdf_path: Path to the original PDF
+        text_layer_pdf_path: Path to the text layer PDF
+        output_pdf_path: Path for the merged output PDF
+    """
+    logger.info("Merging text layer with original PDF...")
+
+    with (
+        pikepdf.open(original_pdf_path) as original,
+        pikepdf.open(text_layer_pdf_path) as text_layer,
+    ):
+        if len(original.pages) != len(text_layer.pages):
+            logger.warning(
+                f"Page count mismatch: original={len(original.pages)}, "
+                f"text_layer={len(text_layer.pages)}"
+            )
+
+        for page_num, (orig_page, text_page) in enumerate(
+            zip(original.pages, text_layer.pages, strict=False)
+        ):
+            try:
+                merge_single_page(orig_page, text_page, original, page_num)
+            except Exception as e:
+                logger.warning(f"Failed to merge text layer for page {page_num + 1}: {e}")
+                import traceback
+
+                logger.debug(traceback.format_exc())
+
+        original.save(
+            output_pdf_path,
+            object_stream_mode=pikepdf.ObjectStreamMode.preserve,
+            stream_decode_level=pikepdf.StreamDecodeLevel.none,
+            compress_streams=True,
+        )
+
+    logger.info(f"Merged PDF saved: {output_pdf_path}")
+
+
+def smart_merge_pdfs(
+    original_pdf_path: Path,
+    text_layer_pdf_path: Path,
+    output_pdf_path: Path,
+    page_standalone_flags: list[bool],
+) -> None:
+    """Merge text layer with original PDF using per-page strategy.
+
+    For pages that need standalone mode (geometry changes, appearance effects,
+    format changes), the text layer page is used as-is (it contains the
+    processed image + text).  For all other pages, the text layer is overlaid
+    onto the original page, preserving original image quality.
+
+    Args:
+        original_pdf_path: Path to original PDF
+        text_layer_pdf_path: Path to text layer PDF (may contain images on some pages)
+        output_pdf_path: Path for merged output PDF
+        page_standalone_flags: Per-page booleans — True means use standalone
+    """
+    logger.info("Smart merging text layer with per-page strategy...")
+
+    with (
+        pikepdf.open(original_pdf_path) as original,
+        pikepdf.open(text_layer_pdf_path) as text_layer,
+    ):
+        page_count = min(len(original.pages), len(text_layer.pages))
+        standalone_count = 0
+        overlay_count = 0
+
+        for i in range(page_count):
+            needs_standalone = page_standalone_flags[i] if i < len(page_standalone_flags) else False
+
+            if needs_standalone:
+                original.pages[i] = text_layer.pages[i]
+                standalone_count += 1
+            else:
+                try:
+                    merge_single_page(original.pages[i], text_layer.pages[i], original, i)
+                except Exception as e:
+                    logger.warning(f"Failed to merge text layer for page {i + 1}: {e}")
+                overlay_count += 1
+
+        logger.info(
+            f"Smart merge: {overlay_count} overlay pages, {standalone_count} standalone pages"
+        )
+
+        original.save(
+            output_pdf_path,
+            object_stream_mode=pikepdf.ObjectStreamMode.preserve,
+            stream_decode_level=pikepdf.StreamDecodeLevel.none,
+            compress_streams=True,
+        )
+
+    logger.info(f"Smart merged PDF saved: {output_pdf_path}")
+
+
+def convert_to_pdfa(input_pdf: Path, output_pdf: Path, page_layout: str = "default") -> None:
+    """Convert PDF to PDF/A-2b format using pikepdf metadata injection.
+
+    Instead of re-rendering the entire PDF through Ghostscript (which
+    re-encodes all images causing quality loss and slow processing),
+    this approach injects the required PDF/A metadata directly:
+      - XMP metadata declaring PDF/A-2b conformance
+      - OutputIntents with embedded sRGB ICC profile
+
+    Images are preserved byte-for-byte, so there is zero quality loss
+    and the operation is nearly instantaneous.
+
+    Args:
+        input_pdf: Path to source PDF
+        output_pdf: Path for PDF/A output
+        page_layout: Viewer page-layout setting written to the catalog
+            ``/PageLayout`` ("default" leaves it unset).
+    """
+    import shutil
+
+    logger.info("Converting to PDF/A-2b using pikepdf metadata injection...")
+
+    srgb_icc = Path("/usr/share/color/icc/colord/sRGB.icc")
+    if not srgb_icc.exists():
+        # Fallback to Ghostscript location
+        srgb_icc = Path("/usr/share/ghostscript/iccprofiles/srgb.icc")
+
+    if not srgb_icc.exists():
+        logger.warning("sRGB ICC profile not found, skipping PDF/A conversion")
+        shutil.copy2(input_pdf, output_pdf)
+        return
+
+    try:
+        icc_data = srgb_icc.read_bytes()
+
+        with pikepdf.open(input_pdf) as pdf:
+            # 0. Apply viewer page layout (no-op for "default")
+            pdf_utils.set_root_page_layout(pdf, page_layout)
+
+            # 1. Create and embed sRGB ICC stream
+            icc_stream = pdf.make_stream(icc_data)
+            icc_stream[pikepdf.Name.N] = 3  # Number of color components (RGB)
+
+            # 2. Build OutputIntent dictionary
+            output_intent = pikepdf.Dictionary(
+                Type=pikepdf.Name.OutputIntent,
+                S=pikepdf.Name("/GTS_PDFA1"),
+                OutputConditionIdentifier=pikepdf.String("sRGB IEC61966-2.1"),
+                RegistryName=pikepdf.String("http://www.color.org"),
+                Info=pikepdf.String("sRGB IEC61966-2.1"),
+                DestOutputProfile=icc_stream,
+            )
+
+            # 3. Add OutputIntents array to document catalog
+            pdf.Root.OutputIntents = pikepdf.Array([output_intent])
+
+            # 4. Set XMP metadata with PDF/A-2b conformance
+            with pdf.open_metadata(set_pikepdf_as_editor=False) as meta:
+                meta["pdfaid:part"] = "2"
+                meta["pdfaid:conformance"] = "B"
+                # Preserve existing title/author or set sensible defaults
+                if "/Title" in pdf.docinfo:
+                    meta["dc:title"] = str(pdf.docinfo["/Title"])
+                if "/Author" in pdf.docinfo:
+                    meta["dc:creator"] = [str(pdf.docinfo["/Author"])]
+                meta["xmp:CreatorTool"] = "BigOCRPDF"
+                meta["pdf:Producer"] = "BigOCRPDF (pikepdf)"
+
+            # 5. Save preserving all streams as-is (no image re-encoding)
+            #    force_version="1.7" sets PDF header to 1.7 (PDF/A-2 requires ≥1.7)
+            pdf.save(
+                output_pdf,
+                object_stream_mode=pikepdf.ObjectStreamMode.preserve,
+                stream_decode_level=pikepdf.StreamDecodeLevel.none,
+                compress_streams=True,
+                force_version="1.7",
+            )
+
+        logger.info(f"PDF/A-2b conversion successful: {output_pdf}")
+
+    except Exception as e:
+        logger.error(f"PDF/A conversion failed: {e}")
+        shutil.copy2(input_pdf, output_pdf)
+        logger.warning("Using non-PDF/A output due to conversion failure")

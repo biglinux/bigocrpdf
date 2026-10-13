@@ -5,7 +5,7 @@
     "bigocrpdf.cli",
     "bigocrpdf.services.settings",
     "bigocrpdf.services.pdf_operations",
-    "bigocrpdf.services.rapidocr_service.config"
+    "bigocrpdf.services.ocr.config"
   ],
   "invocations": {
     "help": {
@@ -668,33 +668,6 @@
           "type": null
         },
         {
-          "choices": null,
-          "class": "_StoreAction",
-          "default": "small",
-          "dest": "model_type",
-          "nargs": null,
-          "options": [
-            "--model-type"
-          ],
-          "required": false,
-          "type": null
-        },
-        {
-          "choices": [
-            "openvino",
-            "onnxruntime"
-          ],
-          "class": "_StoreAction",
-          "default": "openvino",
-          "dest": "engine_type",
-          "nargs": null,
-          "options": [
-            "--engine-type"
-          ],
-          "required": false,
-          "type": null
-        },
-        {
           "choices": [
             "ocr",
             "geometric",
@@ -713,104 +686,13 @@
         },
         {
           "choices": null,
-          "class": "_StoreAction",
-          "default": 1,
-          "dest": "rec_batch_num",
-          "nargs": null,
-          "options": [
-            "--rec-batch-num"
-          ],
-          "required": false,
-          "type": "int"
-        },
-        {
-          "choices": null,
-          "class": "_StoreTrueAction",
-          "default": false,
-          "dest": "use_textline_cls",
-          "nargs": 0,
-          "options": [
-            "--use-textline-cls"
-          ],
-          "required": false,
-          "type": null
-        },
-        {
-          "choices": null,
-          "class": "_StoreTrueAction",
-          "default": false,
-          "dest": "full_resolution",
-          "nargs": 0,
-          "options": [
-            "--full-resolution"
-          ],
-          "required": false,
-          "type": null
-        },
-        {
-          "choices": null,
-          "class": "_StoreFalseAction",
-          "default": true,
-          "dest": "full_resolution",
-          "nargs": 0,
-          "options": [
-            "--no-full-resolution"
-          ],
-          "required": false,
-          "type": null
-        },
-        {
-          "choices": [
-            "off",
-            "auto",
-            "paddle",
-            "torch",
-            "tensorrt",
-            "onnxruntime_cuda_experimental"
-          ],
-          "class": "_StoreAction",
-          "default": "off",
-          "dest": "gpu_backend",
-          "nargs": null,
-          "options": [
-            "--gpu-backend"
-          ],
-          "required": false,
-          "type": null
-        },
-        {
-          "choices": null,
-          "class": "_StoreAction",
-          "default": 0,
-          "dest": "gpu_device_id",
-          "nargs": null,
-          "options": [
-            "--gpu-device-id"
-          ],
-          "required": false,
-          "type": "int"
-        },
-        {
-          "choices": null,
           "class": "BooleanOptionalAction",
-          "default": true,
-          "dest": "gpu_fp16",
-          "nargs": 0,
-          "options": [
-            "--gpu-fp16",
-            "--no-gpu-fp16"
-          ],
-          "required": false,
-          "type": null
-        },
-        {
-          "choices": null,
-          "class": "_StoreTrueAction",
           "default": false,
-          "dest": "no_gpu_fallback",
+          "dest": "full_resolution",
           "nargs": 0,
           "options": [
-            "--no-gpu-fallback"
+            "--full-resolution",
+            "--no-full-resolution"
           ],
           "required": false,
           "type": null
@@ -1350,8 +1232,6 @@
   },
   "settings": {
     "attributes": [
-      "lang",
-      "ocr_language",
       "replace_existing_ocr",
       "enhance_embedded_images",
       "destination_folder",
@@ -1398,7 +1278,6 @@
       "vintage_bw",
       "text_score_threshold",
       "box_thresh",
-      "ocr_profile",
       "detection_full_resolution",
       "parallel_workers",
       "quick_start_mode"
@@ -1464,8 +1343,6 @@
         "enable_preprocessing": true,
         "enable_scanner_effect": false,
         "enable_vintage_look": true,
-        "language": "english",
-        "ocr_profile": "compat-ocr_profile",
         "scanner_effect_strength": 1.125,
         "text_score_threshold": 0.425,
         "vintage_bw": true
@@ -1518,12 +1395,9 @@
       "include_month": false,
       "include_time": false,
       "include_year": false,
-      "lang": "latin",
       "max_file_size_mb": 0,
       "md_include_front_matter": false,
       "md_open_after_export": false,
-      "ocr_language": "latin",
-      "ocr_profile": "balanced",
       "odf_include_images": true,
       "odf_open_after_export": false,
       "overwrite_existing": false,
@@ -1590,12 +1464,9 @@
       "include_month": true,
       "include_time": true,
       "include_year": true,
-      "lang": "english",
       "max_file_size_mb": 7,
       "md_include_front_matter": true,
       "md_open_after_export": true,
-      "ocr_language": "english",
-      "ocr_profile": "compat-ocr_profile",
       "odf_include_images": false,
       "odf_open_after_export": true,
       "overwrite_existing": true,

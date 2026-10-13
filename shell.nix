@@ -8,7 +8,6 @@ pkgs.mkShell {
     python3
     python3Packages.pygobject3
     python3Packages.pycairo
-    python3Packages.rapidocr
     python3Packages.pikepdf
     python3Packages.reportlab
     python3Packages.opencv4
@@ -27,6 +26,7 @@ pkgs.mkShell {
     poppler_utils
     ghostscript
     fribidi
+    noto-fonts
 
     # Development tools
     ruff
@@ -37,5 +37,6 @@ pkgs.mkShell {
     echo "BigOcrPdf development environment loaded"
     echo "Run with: python -m bigocrpdf"
     export PYTHONPATH="$PWD/src:$PYTHONPATH"
+    export BIGOCRPDF_TEXT_FONT="${pkgs.noto-fonts}/share/fonts/noto/NotoSans.ttf"
   '';
 }

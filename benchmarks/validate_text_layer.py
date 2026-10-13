@@ -17,14 +17,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 
-from benchmarks.ocr_metrics import (
-    char_error_rate,
-    levenshtein,
-    levenshtein_ratio,
-    normalize_for_ocr_metric,
-    word_error_rate,
-)
-from bigocrpdf.services.rapidocr_service.pdf_validation import validate_searchable_pdf_text
+from benchmarks.ocr_metrics import levenshtein, normalize_for_ocr_metric
+from bigocrpdf.services.ocr.pdf_validation import validate_searchable_pdf_text
 
 
 def extract_text_with_pdftotext(pdf_path: Path) -> str | None:
@@ -114,12 +108,18 @@ def build_report(pdf_path: Path, expected_path: Path | None) -> dict[str, Any]:
         normalized_expected = normalize_for_ocr_metric(expected)
         extracted_words = normalized_extracted.split()
         expected_words = normalized_expected.split()
-        report["char_error_rate"] = char_error_rate(extracted, expected)
-        report["word_error_rate"] = word_error_rate(extracted, expected)
-        report["levenshtein_ratio"] = levenshtein_ratio(extracted, expected)
-        report["char_edit_distance"] = levenshtein(normalized_extracted, normalized_expected)
+        # The character distance is quadratic in the document length, so it is
+        # computed once and the rates are derived from it.
+        char_distance = levenshtein(normalized_extracted, normalized_expected)
+        word_distance = levenshtein(extracted_words, expected_words)
+        report["char_error_rate"] = char_distance / max(len(normalized_expected), 1)
+        report["word_error_rate"] = word_distance / max(len(expected_words), 1)
+        report["levenshtein_ratio"] = 1.0 - char_distance / max(
+            len(normalized_extracted), len(normalized_expected), 1
+        )
+        report["char_edit_distance"] = char_distance
         report["expected_char_count"] = len(normalized_expected)
-        report["word_edit_distance"] = levenshtein(extracted_words, expected_words)
+        report["word_edit_distance"] = word_distance
         report["expected_word_count"] = len(expected_words)
         report["unicode_loss_count"] = sum(extracted.count(char) for char in "�□")
     return report

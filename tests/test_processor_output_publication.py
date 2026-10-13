@@ -7,12 +7,12 @@ from unittest.mock import MagicMock, patch
 import pikepdf
 import pytest
 
-from bigocrpdf.services.processor import OcrProcessor
-from bigocrpdf.services.rapidocr_service.config import (
+from bigocrpdf.services.ocr.config import (
     OcrDocument,
     OcrPage,
     ProcessingStats,
 )
+from bigocrpdf.services.processor import OcrProcessor
 
 
 def _write_pdf(path: Path, pages: int = 1) -> None:
@@ -33,8 +33,7 @@ def _processor(target: Path, *, overwrite: bool = False) -> OcrProcessor:
         overwrite_existing=overwrite,
         display_name=lambda path: Path(path).name,
     )
-    with patch("bigocrpdf.services.processor.ModelDiscovery"):
-        processor = OcrProcessor(settings)  # type: ignore[arg-type]
+    processor = OcrProcessor(settings)  # type: ignore[arg-type]
     processor._get_output_file_path = MagicMock(return_value=str(target))
     processor._create_ocr_config = MagicMock()
     processor._record_processing_history = MagicMock()
@@ -47,7 +46,7 @@ def _run_with_engine(
 ) -> tuple[bool, str, list, str]:
     engine = MagicMock()
     engine.process.side_effect = engine_process
-    with patch("bigocrpdf.services.processor.RapidOCREngine", return_value=engine):
+    with patch("bigocrpdf.services.processor.ProfessionalPDFOCR", return_value=engine):
         return processor._process_single_file(__file__, 0)
 
 
@@ -369,7 +368,7 @@ def test_split_uses_first_part_as_primary_and_counts_one_input(
 
     engine = MagicMock()
     engine.process.side_effect = succeed
-    with patch("bigocrpdf.services.processor.RapidOCREngine", return_value=engine):
+    with patch("bigocrpdf.services.processor.ProfessionalPDFOCR", return_value=engine):
         should_continue = processor._process_file_with_checkpoint(
             __file__,
             0,
@@ -413,7 +412,7 @@ def test_terminal_failure_counts_completed_but_not_successful_input(
 
 
 def test_a_non_overwriting_batch_shares_one_free_suffix(tmp_path: Path) -> None:
-    from bigocrpdf.services.rapidocr_service.ocr_document_io import publish_ocr_pdfs
+    from bigocrpdf.services.ocr.ocr_document_io import publish_ocr_pdfs
 
     staged = [tmp_path / ".first.staged", tmp_path / ".second.staged"]
     for path in staged:
@@ -433,7 +432,7 @@ def test_a_non_overwriting_batch_shares_one_free_suffix(tmp_path: Path) -> None:
 def test_overwriting_a_relative_output_keeps_the_published_file(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from bigocrpdf.services.rapidocr_service.ocr_document_io import publish_ocr_pdfs
+    from bigocrpdf.services.ocr.ocr_document_io import publish_ocr_pdfs
 
     monkeypatch.chdir(tmp_path)
     staged = tmp_path / ".out.staged"

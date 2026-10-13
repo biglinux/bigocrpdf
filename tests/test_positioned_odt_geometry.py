@@ -1,9 +1,8 @@
 """Geometry of the fixed-layout ODT, read back out of the file it writes.
 
-This is the layer that would have caught the defect that prompted it: on a real
-six-page export, 302 of 303 consecutive frames overlapped the next one, because
-each frame was 1.8 line-heights tall while lines sit about one line-height
-apart. Nothing measured the output, so nothing noticed.
+Consecutive text frames must not overlap: lines sit about one line-height
+apart, so a frame taller than its line covers the next one, and only the
+written file shows it.
 
 It needs no office suite -- it parses ``content.xml`` -- so unlike the
 round-trip test it cannot be silently skipped on a machine without LibreOffice.
@@ -41,7 +40,7 @@ A4 = (595.28, 841.89, 21.0, 29.7)
 CM_PER_POINT = 2.54 / 72.0
 # Frames may reach a little into the line below without harm: they have no fill
 # and run through, so only text colliding with text is visible. This is the
-# descender's worth of room, not licence for the 0.24cm overlap that shipped.
+# descender's worth of room; a frame reaching further covers the next line.
 OVERLAP_ALLOWANCE_CM = 0.05
 
 
@@ -152,7 +151,6 @@ def collisions(frames, tolerance: float = OVERLAP_ALLOWANCE_CM) -> list[tuple[st
 
 class TestFramesDoNotCollide:
     def test_consecutive_frames_do_not_overlap(self, tmp_path: Path):
-        """The defect that prompted this file, in its own terms."""
         frames = frames_of(build(tmp_path, paragraph_page()))
         assert len(frames) == 40
 

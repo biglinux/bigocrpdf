@@ -1,6 +1,6 @@
 """Tests for spread detection and splitting."""
 
-from bigocrpdf.services.rapidocr_service.config import OCRBoxData
+from bigocrpdf.services.ocr.config import OCRBoxData
 from bigocrpdf.utils.spread_detector import (
     _find_center_gap,
     detect_and_split_spreads,

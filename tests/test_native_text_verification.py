@@ -1,5 +1,5 @@
-from bigocrpdf.services.rapidocr_service.config import OcrLine, OcrWord
-from bigocrpdf.services.rapidocr_service.native_text_verification import (
+from bigocrpdf.services.ocr.config import OcrLine, OcrWord
+from bigocrpdf.services.ocr.native_text_verification import (
     NativeTextSpan,
     parse_pdftotext_bbox_layout,
     verify_ocr_lines_with_native_spans,

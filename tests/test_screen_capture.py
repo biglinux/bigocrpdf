@@ -1,8 +1,6 @@
-"""Tests for ScreenCaptureService static parsing methods."""
+"""Screen capture, the image OCR lane, cancellation and image loading."""
 
-import json
 import os
-import sys
 import threading
 from types import SimpleNamespace
 from unittest.mock import MagicMock
@@ -10,38 +8,17 @@ from unittest.mock import MagicMock
 import pytest
 from PIL import Image
 
-# Mock GTK and heavy deps before importing the module
-_MOCK_MODULES = [
-    "gi",
-    "gi.repository",
-    "gi.repository.Gtk",
-    "gi.repository.Gio",
-    "gi.repository.GLib",
-    "gi.repository.Gdk",
-    "bigocrpdf.services.rapidocr_service.preprocessor",
-]
-_saved = {}
-for mod in _MOCK_MODULES:
-    _saved[mod] = sys.modules.get(mod)
-    if mod not in sys.modules:
-        sys.modules[mod] = MagicMock()
-
-# Must mock gi.require_version before importing
-mock_gi = sys.modules["gi"]
-mock_gi.require_version = MagicMock()
-
 from bigocrpdf.services import screen_capture as screen_capture_module
-from bigocrpdf.services.rapidocr_service.config import OCRConfig, OCRResult
-from bigocrpdf.services.rapidocr_service.text_formatting_controller import (
+from bigocrpdf.services.ocr import ppocr_native
+from bigocrpdf.services.ocr.config import OCRConfig, OCRResult
+from bigocrpdf.services.ocr.text_formatting_controller import (
     TextFormattingController,
 )
-from bigocrpdf.services.screen_capture import ScreenCaptureService
-
-for mod, original in _saved.items():
-    if original is None:
-        sys.modules.pop(mod, None)
-    else:
-        sys.modules[mod] = original
+from bigocrpdf.services.screen_capture import (
+    ImageOcrCancelled,
+    ImageOcrRequest,
+    ScreenCaptureService,
+)
 
 
 def test_portal_capture_keeps_borrowed_image_and_processes_owned_copy(
@@ -72,8 +49,10 @@ def test_portal_capture_keeps_borrowed_image_and_processes_owned_copy(
         service,
         "_extract_text_result",
         lambda path, _config, *, request: (
-            processed_paths.append(path) or "text",
-            None,
+            processed_paths.append(path)
+            or screen_capture_module.ImageOcrOutcome(
+                screen_capture_module.ImageOcrStatus.SUCCESS, text="text"
+            )
         ),
     )
     monkeypatch.setattr(
@@ -88,7 +67,7 @@ def test_portal_capture_keeps_borrowed_image_and_processes_owned_copy(
     )
 
     service._run_capture_thread(
-        OCRConfig(language="latin"),
+        OCRConfig(),
         completed.append,
         None,
     )
@@ -213,7 +192,7 @@ def test_portal_cancellation_is_terminal_and_does_not_launch_cli_fallback(
     )
 
     service._run_capture_thread(
-        OCRConfig(language="latin"),
+        OCRConfig(),
         completed.append,
         None,
     )
@@ -266,6 +245,26 @@ def test_capture_falls_back_to_the_portal_when_no_native_tool_answers(monkeypatc
     )
 
     assert outcome is None
+
+
+@pytest.mark.parametrize(
+    "status",
+    [
+        screen_capture_module.CliCaptureStatus.UNAVAILABLE,
+        screen_capture_module.CliCaptureStatus.FAILED,
+    ],
+)
+def test_capture_failure_names_the_capture(monkeypatch, tmp_path, status):
+    service = ScreenCaptureService()
+    monkeypatch.setattr("bigocrpdf.services.screen_capture._", lambda message: message)
+    monkeypatch.setattr(service, "_capture_with_cli_tools", lambda _path, _request: status)
+    monkeypatch.setattr(service, "_capture_via_portal_into", lambda _path, _request: status)
+
+    outcome = service._capture_into_owned_file(str(tmp_path / "owned.png"), ImageOcrRequest())
+
+    assert outcome is not None
+    assert outcome.status == "error"
+    assert outcome.heading == "Could not capture the screen"
 
 
 def test_screenshot_tool_that_crashes_after_writing_still_yields_the_capture(
@@ -366,7 +365,9 @@ def test_image_lane_cancels_active_and_superseded_jobs_but_runs_latest(monkeypat
             first_started.set()
             assert release_first.wait(2)
         request.raise_if_cancelled()
-        return path, None
+        return screen_capture_module.ImageOcrOutcome(
+            screen_capture_module.ImageOcrStatus.SUCCESS, text=path
+        )
 
     def callback_for(path):
         def on_complete(outcome):
@@ -447,7 +448,9 @@ def test_image_lane_start_failure_rolls_back_and_allows_retry(monkeypatch):
     monkeypatch.setattr(
         service,
         "_extract_text_result",
-        lambda path, _config, *, request: (path, None),
+        lambda path, _config, *, request: screen_capture_module.ImageOcrOutcome(
+            screen_capture_module.ImageOcrStatus.SUCCESS, text=path
+        ),
     )
     monkeypatch.setattr(
         "bigocrpdf.services.screen_capture.GLib.idle_add",
@@ -643,7 +646,7 @@ def test_unexpected_image_worker_error_still_completes_request(monkeypatch):
 
     service._run_image_process(
         "image.png",
-        OCRConfig(language="latin"),
+        OCRConfig(),
         outcomes.append,
         None,
     )
@@ -655,165 +658,102 @@ def test_unexpected_image_worker_error_still_completes_request(monkeypatch):
     assert outcomes[0].message == "OCR processing failed."
 
 
-def test_image_ocr_command_propagates_the_complete_ocr_configuration(monkeypatch):
-    monkeypatch.setattr(
-        "bigocrpdf.services.screen_capture.os.sched_getaffinity", lambda _pid: set(range(6))
-    )
-    config = OCRConfig(
-        use_textline_cls=True,
-        gpu_backend="auto",
-        detection_full_resolution=True,
-    )
+class _FakeWorker:
+    """Stands in for ppocr_native.Worker, answering ``recognize`` with ``reply``."""
 
-    command = ScreenCaptureService()._build_ocr_command("/tmp/capture.png", config)
+    def __init__(self, reply):
+        self.reply = reply
+        self.cancel_event = None
+        self.read = []
+        self.closed = False
 
-    assert command[:4] == [
-        sys.executable,
-        "-m",
-        "bigocrpdf.services.rapidocr_service.ocr_worker",
-        "/tmp/capture.png",
-    ]
-    assert command[command.index("--threads") + 1] == "6"
-    assert {"--gpu-backend", "--use-textline-cls", "--full-resolution"} <= set(command)
+    def __call__(self, _command, cancel_event):
+        self.cancel_event = cancel_event
+        return self
 
+    def recognize(self, path):
+        self.read.append(path)
+        if isinstance(self.reply, Exception):
+            raise self.reply
+        return self.reply
 
-def test_image_extraction_uses_the_provided_configuration_snapshot(
-    monkeypatch,
-    tmp_path,
-):
-    preprocessed_path = tmp_path / "preprocessed.png"
-    captured_configs = []
-
-    class FakePreprocessor:
-        def __init__(self, config):
-            captured_configs.append(config)
-
-        def process(self, image, *, cancel_check):
-            cancel_check()
-            return image
-
-    class CompletedProcess:
-        returncode = 0
-
-        def communicate(self, timeout):
-            assert 0 < timeout <= 0.2
-            return ('{"boxes":[],"txts":[],"scores":[]}', "")
-
-    def fake_mkstemp(*, suffix):
-        fd = os.open(preprocessed_path, os.O_CREAT | os.O_EXCL | os.O_RDWR, 0o600)
-        return fd, str(preprocessed_path)
-
-    config = OCRConfig(
-        use_textline_cls=True,
-        detection_full_resolution=True,
-        max_image_megapixels=7,
-    )
-    service = ScreenCaptureService()
-    monkeypatch.setattr(
-        service,
-        "_load_image_for_ocr",
-        lambda _path, _config, *, request: object(),
-    )
-    monkeypatch.setattr(screen_capture_module.cv2, "imwrite", lambda _path, _image: True)
-    monkeypatch.setattr(screen_capture_module, "ImagePreprocessor", FakePreprocessor)
-    monkeypatch.setattr(screen_capture_module, "tm_mkstemp", fake_mkstemp)
-    monkeypatch.setattr(service, "_build_ocr_command", lambda *_args: ["ocr-worker"])
-    monkeypatch.setattr(
-        screen_capture_module.subprocess,
-        "Popen",
-        lambda *_args, **_kwargs: CompletedProcess(),
-    )
-
-    text, error = service._extract_text_result("image.png", config)
-
-    assert (text, error) == (None, None)
-    assert captured_configs == [config]
+    def close(self):
+        self.closed = True
 
 
-def test_invalid_worker_payload_is_an_error_instead_of_empty_success(
-    monkeypatch,
-    tmp_path,
-):
-    preprocessed_path = tmp_path / "preprocessed.png"
+def _read_image(monkeypatch, reply, *, config=None, request=None, process=None, imwrite=True):
+    """Image OCR through a fake worker: the outcome, the worker, the preprocessor's arguments."""
+    worker = _FakeWorker(reply)
+    preprocessor_args = []
 
-    def fake_mkstemp(*, suffix):
-        assert suffix == ".png"
-        fd = os.open(preprocessed_path, os.O_CREAT | os.O_EXCL | os.O_RDWR, 0o600)
-        return fd, str(preprocessed_path)
+    def preprocessor(config, detector):
+        preprocessor_args.append((config, detector))
+        return SimpleNamespace(
+            process=process or (lambda image, *, cancel_check: cancel_check() or image)
+        )
 
-    process = SimpleNamespace(
-        returncode=0,
-        communicate=MagicMock(return_value=("not json{", "")),
-        kill=MagicMock(),
-    )
     service = ScreenCaptureService()
     monkeypatch.setattr("bigocrpdf.services.screen_capture._", lambda message: message)
-    monkeypatch.setattr(
-        service,
-        "_load_image_for_ocr",
-        lambda _path, _config, *, request: object(),
-    )
-    monkeypatch.setattr(
-        screen_capture_module,
-        "ImagePreprocessor",
-        lambda _config: SimpleNamespace(
-            process=lambda image, *, cancel_check: cancel_check() or image
-        ),
-    )
-    monkeypatch.setattr(screen_capture_module.cv2, "imwrite", lambda _path, _image: True)
-    monkeypatch.setattr(screen_capture_module, "tm_mkstemp", fake_mkstemp)
-    monkeypatch.setattr(service, "_build_ocr_command", lambda *_args: ["ocr-worker"])
-    monkeypatch.setattr(
-        screen_capture_module.subprocess, "Popen", lambda *_args, **_kwargs: process
-    )
+    image = SimpleNamespace(shape=(4, 4, 3))
+    monkeypatch.setattr(service, "_load_image_for_ocr", lambda *_args, **_kwargs: image)
+    monkeypatch.setattr(screen_capture_module, "ImagePreprocessor", preprocessor)
+    monkeypatch.setattr(screen_capture_module.cv2, "imwrite", lambda _path, _image: imwrite)
+    monkeypatch.setattr(ppocr_native, "worker_command", lambda _config: ["ocr-worker"])
+    monkeypatch.setattr(ppocr_native, "Worker", worker)
+    outcome = service._extract_text_result("image.png", config or OCRConfig(), request=request)
+    return outcome, worker, preprocessor_args
 
-    text, error = service._extract_text_result(
-        "image.png",
-        OCRConfig(language="latin"),
+
+def test_image_ocr_shares_one_worker(monkeypatch):
+    config = OCRConfig(detection_full_resolution=True, max_image_megapixels=7)
+    request = ImageOcrRequest()
+
+    outcome, worker, preprocessor_args = _read_image(
+        monkeypatch, {"boxes": [], "txts": [], "scores": []}, config=config, request=request
     )
 
-    assert text is None
-    assert error == "OCR processing failed."
+    assert outcome.status == "empty"
+    [(seen_config, detector)] = preprocessor_args
+    assert seen_config is config
+    assert detector._worker is worker
+    assert worker.cancel_event is request.cancel_event
+    assert worker.read[0].endswith(ppocr_native.OCR_IMAGE_SUFFIX)
+    assert worker.closed
 
 
-def test_failed_preprocessed_image_write_stops_before_worker_launch(
-    monkeypatch,
-    tmp_path,
-):
-    preprocessed_path = tmp_path / "preprocessed.png"
+def test_cancelled_detection_cancels_request(monkeypatch):
+    request = ImageOcrRequest()
 
-    def fake_mkstemp(*, suffix):
-        fd = os.open(preprocessed_path, os.O_CREAT | os.O_EXCL | os.O_RDWR, 0o600)
-        return fd, str(preprocessed_path)
+    def process(_image, *, cancel_check):
+        request.cancel()
+        raise InterruptedError("ppocr-native request cancelled")
 
-    worker = MagicMock()
-    service = ScreenCaptureService()
-    monkeypatch.setattr("bigocrpdf.services.screen_capture._", lambda message: message)
-    monkeypatch.setattr(
-        service,
-        "_load_image_for_ocr",
-        lambda _path, _config, *, request: object(),
-    )
-    monkeypatch.setattr(
-        screen_capture_module,
-        "ImagePreprocessor",
-        lambda _config: SimpleNamespace(
-            process=lambda image, *, cancel_check: cancel_check() or image
-        ),
-    )
-    monkeypatch.setattr(screen_capture_module.cv2, "imwrite", lambda _path, _image: False)
-    monkeypatch.setattr(screen_capture_module, "tm_mkstemp", fake_mkstemp)
-    monkeypatch.setattr(screen_capture_module.subprocess, "Popen", worker)
+    with pytest.raises(ImageOcrCancelled):
+        _read_image(monkeypatch, {"boxes": []}, request=request, process=process)
 
-    text, error = service._extract_text_result(
-        "image.png",
-        OCRConfig(language="latin"),
-    )
 
-    assert text is None
-    assert error == "Could not prepare the image for OCR."
-    worker.assert_not_called()
-    assert not preprocessed_path.exists()
+@pytest.mark.parametrize(
+    ("reply", "detail"),
+    [
+        (ppocr_native.ReadError("could not read: /plans/rec.plan: truncated"), "truncated"),
+        ({"txts": ["text"]}, "reply has no boxes"),
+    ],
+)
+def test_worker_failure_cause_is_shown(monkeypatch, reply, detail):
+    outcome, worker, _ = _read_image(monkeypatch, reply)
+
+    assert outcome.status == "error"
+    assert detail in (outcome.detail or "")
+    assert ppocr_native.WORKER in (outcome.message or "")
+    assert worker.closed
+
+
+def test_unwritten_image_is_not_read(monkeypatch):
+    outcome, worker, _ = _read_image(monkeypatch, {"boxes": []}, imwrite=False)
+
+    assert outcome.message == "Could not prepare the image for OCR."
+    assert worker.read == []
+    assert worker.closed
 
 
 def test_image_loader_rejects_pixel_budget_before_array_conversion(
@@ -966,61 +906,12 @@ def test_supported_image_extensions_follow_safe_runtime_decoders():
     assert ".jxl" not in extensions
 
 
-class TestParseOcrPayload:
-    """ScreenCaptureService._parse_ocr_payload enforces the worker JSON contract."""
-
-    def test_valid_json(self):
-        data = {
-            "boxes": [[[0, 0], [100, 0], [100, 20], [0, 20]]],
-            "txts": ["Hello"],
-            "scores": [0.95],
-        }
-        results = ScreenCaptureService._parse_ocr_payload(json.dumps(data))
-        assert len(results) == 1
-        assert results[0].text == "Hello"
-        assert results[0].confidence == 0.95
-
-    def test_invalid_json_is_a_protocol_error(self):
-        with pytest.raises(screen_capture_module.OcrWorkerProtocolError):
-            ScreenCaptureService._parse_ocr_payload("not json{")
-
-    def test_error_in_response_is_a_protocol_error(self):
-        with pytest.raises(screen_capture_module.OcrWorkerProtocolError, match="model not found"):
-            ScreenCaptureService._parse_ocr_payload(json.dumps({"error": "model not found"}))
-
-    def test_empty_boxes(self):
-        data = {"boxes": [], "txts": [], "scores": []}
-        assert ScreenCaptureService._parse_ocr_payload(json.dumps(data)) == []
-
-    def test_null_boxes_are_an_empty_result(self):
-        results = ScreenCaptureService._parse_ocr_payload('{"boxes": null}')
-
-        assert results == []
-
-    def test_missing_boxes_key_is_a_protocol_error(self):
-        with pytest.raises(screen_capture_module.OcrWorkerProtocolError):
-            ScreenCaptureService._parse_ocr_payload('{"result": "none"}')
-
-    def test_multiple_results(self):
-        data = {
-            "boxes": [
-                [[0, 0], [100, 0], [100, 20], [0, 20]],
-                [[0, 30], [100, 30], [100, 50], [0, 50]],
-            ],
-            "txts": ["Line 1", "Line 2"],
-            "scores": [0.9, 0.85],
-        }
-        results = ScreenCaptureService._parse_ocr_payload(json.dumps(data))
-        assert len(results) == 2
-        assert results[1].text == "Line 2"
-
-
 class TestFormatText:
     """Image captures are formatted by the shared pipeline formatter."""
 
     @staticmethod
     def _format(results):
-        return TextFormattingController(OCRConfig(language="latin")).format(results, 400.0)
+        return TextFormattingController(OCRConfig()).format(results, 400.0)
 
     def test_empty_results(self):
         assert self._format([]) == ""
@@ -1044,6 +935,30 @@ class TestFormatText:
             OCRResult(text="Para 2", box=[[0, 60], [200, 60], [200, 80], [0, 80]]),
         ]
         assert "\n\n" in self._format(results)
+
+    @pytest.mark.parametrize(
+        ("gaps", "paragraph_sizes"),
+        [
+            ([5, 5, 25, 5, 5], [3, 3]),  # single-spaced, one paragraph gap
+            ([24, 23, 25, 24, 24], [6]),  # double-spaced, no paragraph gap
+            ([24, 23, 68, 24, 24], [3, 3]),  # double-spaced, one paragraph gap
+        ],
+    )
+    def test_paragraph_gap_relative_to_line_spacing(self, gaps, paragraph_sizes):
+        lines = [f"line {index} of flowing body text" for index in range(len(gaps) + 1)]
+        results, top = [], 10
+        for index, text in enumerate(lines):
+            results.append(
+                OCRResult(text=text, box=[[0, top], [390, top], [390, top + 20], [0, top + 20]])
+            )
+            if index < len(gaps):
+                top += 20 + gaps[index]
+
+        expected, start = [], 0
+        for size in paragraph_sizes:
+            expected.append(" ".join(lines[start : start + size]))
+            start += size
+        assert self._format(results).split("\n\n") == expected
 
     def test_boxes_on_one_visual_line_keep_left_to_right_order(self):
         # Real detections jitter vertically by a few pixels on the same line. Sorting

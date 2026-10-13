@@ -81,7 +81,6 @@ class TestProcessorThreadSafety:
         proc._current_filename = "old.pdf"
 
         proc.settings.selected_files = ["a.pdf", "b.pdf"]
-        proc.settings.ocr_language = "latin"
         proc.settings.dpi = 300
         proc.settings.destination_folder = "/tmp"  # nosec B108
         proc.settings.save_in_same_folder = False
@@ -97,7 +96,6 @@ class TestProcessorThreadSafety:
         checkpoint.start_session.assert_called_once_with(
             ["a.pdf", "b.pdf"],
             {
-                "ocr_language": "latin",
                 "dpi": 300,
                 "destination_folder": "/tmp",  # nosec B108
                 "save_in_same_folder": False,
@@ -144,7 +142,6 @@ class TestProcessorThreadSafety:
     def test_thread_start_failure_rolls_back_processing_session(self):
         proc = self._make_processor()
         proc.settings.selected_files = ["queued.pdf"]
-        proc.settings.ocr_language = "latin"
         proc.settings.dpi = 300
         proc.settings.destination_folder = "/tmp"  # nosec B108
         proc.settings.save_in_same_folder = False
@@ -176,50 +173,3 @@ class TestProcessorThreadSafety:
 
         assert proc.settings.selected_files == ["pending.pdf"]
         assert proc.settings.file_modifications == {"pending.pdf": {"pages": [{"rotation": 90}]}}
-
-
-class TestEngineCacheThreadSafety:
-    """Thread safety tests for _OCRModelCache."""
-
-    def test_lock_exists(self):
-        from bigocrpdf.services.rapidocr_service.engine import _OCRModelCache
-
-        assert hasattr(_OCRModelCache, "_lock")
-        assert isinstance(_OCRModelCache._lock, type(threading.Lock()))
-
-    def test_concurrent_cache_access(self):
-        """Multiple threads requesting engine should not crash."""
-        from bigocrpdf.services.rapidocr_service.config import OCRConfig
-        from bigocrpdf.services.rapidocr_service.engine import _OCRModelCache
-
-        # Reset cache state
-        _OCRModelCache._instance = None
-        _OCRModelCache._config_hash = 0
-
-        config = OCRConfig()
-        errors = []
-
-        with patch("bigocrpdf.services.rapidocr_service.engine.ProfessionalPDFOCR") as mock_cls:
-            mock_engine = MagicMock()
-            mock_engine.config = config
-            mock_cls.return_value = mock_engine
-
-            def get_engine() -> None:
-                try:
-                    _OCRModelCache.get_cached_engine(config)
-                except Exception as e:
-                    errors.append(e)
-
-            threads = [threading.Thread(target=get_engine) for _ in range(8)]
-            for t in threads:
-                t.start()
-            for t in threads:
-                t.join()
-
-        assert not errors
-        # Should have created engine exactly once (all threads see same config)
-        assert mock_cls.call_count == 1
-
-        # Cleanup
-        _OCRModelCache._instance = None
-        _OCRModelCache._config_hash = 0

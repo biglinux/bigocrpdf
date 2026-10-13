@@ -117,20 +117,6 @@ def _add_ocr_behavior_options(ocr_parser: argparse.ArgumentParser) -> None:
         default=False,
         help=_("Process all pages as image-only (for editor-merged files)."),
     )
-    _add_ocr_model_options(behavior)
-    _add_ocr_gpu_options(behavior)
-
-
-def _add_ocr_model_options(behavior: argparse._ArgumentGroup) -> None:
-    behavior.add_argument(
-        "--model-type", default="small", help=_("RapidOCR model size/type (default: small).")
-    )
-    behavior.add_argument(
-        "--engine-type",
-        default="openvino",
-        choices=["openvino", "onnxruntime"],
-        help=_("RapidOCR CPU inference engine (default: openvino)."),
-    )
     behavior.add_argument(
         "--pdf-mode",
         default="auto",
@@ -138,59 +124,18 @@ def _add_ocr_model_options(behavior: argparse._ArgumentGroup) -> None:
         help=_("PDF text handling mode (default: auto)."),
     )
     behavior.add_argument(
-        "--rec-batch-num",
-        type=int,
-        default=1,
-        help=_("RapidOCR recognition batch size (default: 1)."),
-    )
-    behavior.add_argument(
-        "--use-textline-cls",
-        action="store_true",
-        default=False,
-        help=_("Enable RapidOCR text-line orientation classifier."),
-    )
-    full_resolution = behavior.add_mutually_exclusive_group()
-    full_resolution.add_argument(
         "--full-resolution",
-        dest="full_resolution",
-        action="store_true",
+        action=argparse.BooleanOptionalAction,
         # Spelled out rather than imported: importing the OCR configuration here
         # would pull cv2, numpy, pikepdf and reportlab into every CLI start,
         # --help included. A test pins this to DEFAULT_DETECTION_FULL_RESOLUTION.
         default=False,
-        help=_("Detect text on the page as rendered, without letting RapidOCR downscale it."),
-    )
-    full_resolution.add_argument(
-        "--no-full-resolution",
-        dest="full_resolution",
-        action="store_false",
-        help=_("Let RapidOCR downscale the page before detection: faster, less memory."),
-    )
-
-
-def _add_ocr_gpu_options(behavior: argparse._ArgumentGroup) -> None:
-    behavior.add_argument(
-        "--gpu-backend",
-        default="off",
-        choices=["off", "auto", "paddle", "torch", "tensorrt", "onnxruntime_cuda_experimental"],
-        help=_("Experimental GPU backend (default: off)."),
-    )
-    behavior.add_argument(
-        "--gpu-device-id",
-        type=int,
-        default=0,
-        help=_("GPU device id for experimental GPU backends."),
-    )
-    behavior.add_argument(
-        "--gpu-fp16",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help=_("Use FP16 for supported experimental GPU backends."),
-    )
-    behavior.add_argument(
-        "--no-gpu-fallback",
-        action="store_true",
-        help=_("Fail instead of falling back to CPU when GPU initialization fails."),
+        # The settings switch's description, so both read the same.
+        help=_(
+            "Analyzes the image at full resolution for text detection. Finds more text in "
+            "high-resolution scans but takes longer. The faster mode is good enough for "
+            "most documents."
+        ),
     )
 
 

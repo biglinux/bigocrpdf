@@ -10,7 +10,13 @@
   poppler,
   poppler_utils,
   ghostscript,
+  noto-fonts,
+  wqy_microhei,
   jbig2enc ? null,
+  # The OCR engine, built from github.com/biglinux/ppocr-native; nixpkgs has no
+  # package for it, so the caller passes one. Without it the application starts
+  # and reports the engine missing.
+  ppocr-native ? null,
 }:
 
 assert lib.versionAtLeast python3Packages.python.version "3.12";
@@ -29,7 +35,6 @@ python3Packages.buildPythonApplication {
   dependencies = with python3Packages; [
     pygobject3
     pycairo
-    rapidocr
     pikepdf
     reportlab
     opencv4
@@ -53,6 +58,16 @@ python3Packages.buildPythonApplication {
     poppler_utils
     ghostscript
   ] ++ (if jbig2enc != null then [ jbig2enc ] else []);
+
+  # nixpkgs installs Noto Sans as one variable font with the axis tag removed
+  # from its name.
+  makeWrapperArgs = [
+    "--set-default" "BIGOCRPDF_TEXT_FONT" "${noto-fonts}/share/fonts/noto/NotoSans.ttf"
+    "--set-default" "BIGOCRPDF_CJK_FONT" "${wqy_microhei}/share/fonts/truetype/wqy-microhei.ttc"
+  ] ++ (if ppocr-native != null then [
+    "--prefix" "PATH" ":" "${ppocr-native}/bin"
+    "--set-default" "PPOCR_NATIVE_PLANS" "${ppocr-native}/share/ppocr-native"
+  ] else []);
 
   # stage-data.sh lays out a DESTDIR with usr/share; Nix wants $out/share.
   postInstall = ''

@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from bigocrpdf.services.rapidocr_service import backend
-from bigocrpdf.services.rapidocr_service.config import OCRConfig
+from bigocrpdf.services.ocr import backend
+from bigocrpdf.services.ocr.config import OCRConfig
 
 
 def test_pdf_mode_ocr_forces_image_only_pipeline(monkeypatch):

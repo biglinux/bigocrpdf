@@ -11,7 +11,7 @@ import builtins
 
 import pytest
 
-from bigocrpdf.services.rapidocr_service.resource_manager import (
+from bigocrpdf.services.ocr.resource_manager import (
     ResourceProfile,
     ResourceTier,
     adjust_chunk_size,

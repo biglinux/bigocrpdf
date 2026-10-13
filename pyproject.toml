@@ -1,7 +1,7 @@
 [project]
 name = "bigocrpdf"
 version = "3.0.0"
-description = "Add OCR to your PDF documents to make them searchable - Powered by RapidOCR"
+description = "Add OCR to your PDF documents to make them searchable"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "GPL-3.0-or-later"
@@ -27,9 +27,7 @@ classifiers = [
 dependencies = [
     "PyGObject>=3.42.0",
     "pycairo>=1.20.0",
-    # RapidOCR engine; OpenVINO is its default backend and runs the dewarp model
-    "rapidocr>=3.9.0",
-    "openvino>=2026.3.0",
+    # The OCR engine, ppocr-native, is an executable from its own package.
     # PDF processing
     "pikepdf>=10.0.0",
     "reportlab>=4.0.0",
@@ -103,7 +101,7 @@ addopts = "-v --tb=short --strict-markers -m 'not slow and not real_ocr and not 
 pythonpath = ["src"]
 markers = [
     "slow: needs LibreOffice or rasterization; seconds per test",
-    "real_ocr: runs the actual OCR engine and needs the models on disk; minutes",
+    "real_ocr: runs the actual OCR engine, ppocr-native and its plans; minutes",
     "benchmark: drives the benchmark harness end to end; very slow",
     "network: downloads external datasets",
 ]

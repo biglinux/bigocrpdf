@@ -1,18 +1,23 @@
 """Mapping OCR boxes from a cropped image back onto the original.
 
-``_map_crop_only_ocr_to_original_image`` is the only place in the codebase that
-remaps preprocessed coordinates to the original image space, and until now only
-the two helpers it calls were covered -- not the caller, and not the bail-out
-that keeps it away from geometry it cannot invert.
+``_map_crop_only_ocr_to_original_image`` is the only place that remaps
+preprocessed coordinates to the original image space. These tests cover it,
+the helpers it calls, and the bail-out that keeps it away from geometry it
+cannot invert.
 """
+
+from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
 
-from bigocrpdf.services.rapidocr_service.config import OCRConfig
-from bigocrpdf.services.rapidocr_service.ocr_postprocess import apply_ocr_box_offset
-from bigocrpdf.services.rapidocr_service.pipeline_chunked_ocr import ChunkedOCRMixin
-from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
+from bigocrpdf.services.ocr.backend import ProfessionalPDFOCR
+from bigocrpdf.services.ocr.config import OCRConfig
+from bigocrpdf.services.ocr.ocr_postprocess import apply_ocr_box_offset
+from bigocrpdf.services.ocr.pipeline_chunked_ocr import ChunkedOCRMixin
+from bigocrpdf.services.ocr.ppocr_native import Detector
+from bigocrpdf.services.ocr.preprocessor import ImagePreprocessor
 
 remap = ChunkedOCRMixin._map_crop_only_ocr_to_original_image
 
@@ -39,7 +44,7 @@ def test_trim_dark_borders_records_crop_offset():
     config = OCRConfig(
         enable_baseline_dewarp=False, enable_perspective_correction=False, enable_deskew=False
     )
-    preprocessor = ImagePreprocessor(config)
+    preprocessor = ImagePreprocessor(config, Detector())
     image = np.full((100, 100, 3), 255, dtype=np.uint8)
     image[:, :8] = 0
     image[:8, :] = 0
@@ -131,3 +136,30 @@ class TestCropOnlyRemap:
         remap(result)
 
         assert (result["ocr_img_w"], result["ocr_img_h"]) == (80, 160)
+
+
+def test_fresh_render_keeps_its_coordinates(tmp_path: Path, monkeypatch):
+    """A masked page is read from a new render of the whole page, which the
+    crop never touched."""
+    processed = tmp_path / "processed.ppm"
+    processed.write_bytes(b"P6 4 3 255 " + bytes(36))
+    render = tmp_path / "render.ppm"
+    render.write_bytes(b"P6 8 6 255 " + bytes(144))
+    monkeypatch.setattr(
+        "bigocrpdf.services.ocr.pipeline_chunked_ocr.render_page_for_ocr",
+        lambda *_args: str(render),
+    )
+    box = [[100, 100], [300, 100], [300, 150], [100, 150]]
+    reply = {"boxes": [box], "txts": ["abc"], "scores": [0.9]}
+    result = _result(page_num=1, success=True, temp_out_path=str(processed))
+
+    ProfessionalPDFOCR(OCRConfig())._ocr_chunk_result(
+        result,
+        SimpleNamespace(recognize=lambda _path: reply),
+        [{"rotation": 0, "mediabox": [0, 0, 595, 842], "image_rect": None}],
+        input_pdf=tmp_path / "in.pdf",
+        masked_pages={1},
+    )
+
+    assert result["ocr_raw"]["boxes"] == [box]
+    assert (result["ocr_img_w"], result["ocr_img_h"]) == (8, 6)

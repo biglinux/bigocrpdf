@@ -4,7 +4,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from bigocrpdf.services.rapidocr_service.resource_manager import (
+from bigocrpdf.services.ocr.config import OCRConfig
+from bigocrpdf.services.ocr.resource_manager import (
     PipelineConfig,
     ResourceProfile,
     ResourceTier,
@@ -185,32 +186,24 @@ class TestPdfResourceLimits:
         assert 8.0 < megapixels < 9.0
 
     def test_accepts_pdf_within_limits(self):
-        config = type("Config", (), {"max_pdf_pages": 10, "dpi": 300})()
+        config = OCRConfig(max_pdf_pages=10)
         enforce_pdf_resource_limits(2, config)
 
     def test_accepts_embedded_image_within_limit(self):
-        config = type(
-            "Config",
-            (),
-            {"max_pdf_pages": 10, "max_image_megapixels": 128, "dpi": 300},
-        )()
+        config = OCRConfig(max_pdf_pages=10, max_image_megapixels=128)
         enforce_pdf_resource_limits(1, config, image_dimensions=[(1, 4000, 3000)])
 
     def test_page_count_limit_is_disabled_by_default(self):
-        config = type("Config", (), {"max_pdf_pages": 0, "dpi": 300})()
+        config = OCRConfig(max_pdf_pages=0)
         enforce_pdf_resource_limits(10_000, config)
 
     def test_rejects_too_many_pages(self):
-        config = type("Config", (), {"max_pdf_pages": 1, "dpi": 300})()
+        config = OCRConfig(max_pdf_pages=1)
         with pytest.raises(ValueError, match="configured limit is 1"):
             enforce_pdf_resource_limits(2, config)
 
     def test_rejects_too_large_embedded_image(self):
-        config = type(
-            "Config",
-            (),
-            {"max_pdf_pages": 10, "max_image_megapixels": 128, "dpi": 300},
-        )()
+        config = OCRConfig(max_pdf_pages=10, max_image_megapixels=128)
         with pytest.raises(ValueError, match=r"page 1.*200\.0 MP.*128\.0 MP"):
             enforce_pdf_resource_limits(1, config, image_dimensions=[(1, 20_000, 10_000)])
 

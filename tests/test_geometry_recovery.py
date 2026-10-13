@@ -5,16 +5,20 @@ Each test applies a distortion whose parameters the test already knows and measu
 of it comes back, using metrics that survive the corrector changing the image
 size (see tests/geometry_metrics).
 
-Thresholds are measured, not guessed: every number below came from running the
-real pipeline over these fixtures.
+Each threshold is what the real pipeline achieves on these fixtures, with a
+margin.
+
+The deskew and photo-perspective classes measure with the text detector, so they
+run with ppocr-native installed (``real_ocr``) and skip without it.
 """
 
 import cv2
 import numpy as np
 import pytest
 
-from bigocrpdf.services.rapidocr_service.config import OCRConfig
-from bigocrpdf.services.rapidocr_service.preprocessor import ImagePreprocessor
+from bigocrpdf.services.ocr import ppocr_native
+from bigocrpdf.services.ocr.config import OCRConfig
+from bigocrpdf.services.ocr.preprocessor import ImagePreprocessor
 from tests.geometry_fixtures import (
     apply_cylindrical_warp,
     apply_rotation,
@@ -32,9 +36,12 @@ from tests.geometry_metrics import (
 pytestmark = pytest.mark.slow
 
 # Deskew clamps its correction to +/-5 degrees (preprocess_deskew), so a page
-# tilted further comes out partly tilted. Measured: 8 deg leaves 3.01, 12 leaves
-# 7.01.
+# tilted further comes out tilted by the excess.
 DESKEW_CLAMP_DEG = 5.0
+
+requires_models = pytest.mark.skipif(
+    ppocr_native.find_worker() is None, reason="ppocr-native and its plans are not installed"
+)
 
 
 @pytest.fixture(scope="module")
@@ -48,8 +55,14 @@ def _process(image: np.ndarray, **config_overrides):
     The scanner effect is disabled throughout: it thickens strokes, which is
     good for OCR and pure noise for a geometric measurement.
     """
-    preprocessor = ImagePreprocessor(OCRConfig(enable_scanner_effect=False, **config_overrides))
-    return preprocessor.process(image), preprocessor
+    detector = ppocr_native.Detector()
+    preprocessor = ImagePreprocessor(
+        OCRConfig(enable_scanner_effect=False, **config_overrides), detector
+    )
+    try:
+        return preprocessor.process(image), preprocessor
+    finally:
+        detector.close()
 
 
 def _photographed(page: np.ndarray, keystone_frac: float = 0.0) -> np.ndarray:
@@ -113,6 +126,8 @@ class TestIdentity:
         assert text_pixel_retention(processed, clean_page) >= 0.98
 
 
+@pytest.mark.real_ocr
+@requires_models
 class TestRotationRecovery:
     """Assertions read the angle the pipeline applied, from its own trace.
 
@@ -214,6 +229,8 @@ class TestCurvatureRecovery:
         assert ssim(processed, warped) > 0.99
 
 
+@pytest.mark.real_ocr
+@requires_models
 class TestPhotoPerspectiveRecovery:
     def test_a_flat_photo_is_cropped_back_to_the_page(self, clean_page):
         photo = _photographed(clean_page)

@@ -48,7 +48,7 @@ class PageThumbnailExporter:
             base = os.path.splitext(os.path.basename(source))[0]
             self._open_save_image_dialog(f"{base}_page{page_num}{ext}", extracted, tmpdir)
 
-        _run_in_worker(
+        run_in_worker(
             lambda: self._extract_or_render_page_image(source, page_num, tmpdir), on_ready
         )
 
@@ -125,8 +125,8 @@ class PageThumbnailExporter:
         import glob
         import subprocess
 
-        from bigocrpdf.services.rapidocr_service.config import DEFAULT_MAX_RENDER_MEGAPIXELS
-        from bigocrpdf.services.rapidocr_service.resource_manager import (
+        from bigocrpdf.services.ocr.config import DEFAULT_MAX_RENDER_MEGAPIXELS
+        from bigocrpdf.services.ocr.resource_manager import (
             select_pdf_page_render_dpi,
         )
 
@@ -182,7 +182,7 @@ class PageThumbnailExporter:
                     self._remove_temp_image_dir(tmpdir)
                 return None
 
-            _run_in_worker(publish, lambda error: self._report_saved(save_path, error))
+            run_in_worker(publish, lambda error: self._report_saved(save_path, error))
 
         file_dialog.save(window, None, _on_save)
 
@@ -243,7 +243,7 @@ class PageThumbnailExporter:
             save_path = self._chosen_local_path(_dialog, result)
             if save_path is None:
                 return
-            _run_in_worker(
+            run_in_worker(
                 lambda: self._extract_page_pdf(source, page_num, save_path),
                 lambda error: self._report_saved(save_path, error),
             )
@@ -262,7 +262,7 @@ class PageThumbnailExporter:
         return result.message
 
 
-def _run_in_worker[T](work: Callable[[], T], on_done: Callable[[T], None]) -> None:
+def run_in_worker[T](work: Callable[[], T], on_done: Callable[[T], None]) -> None:
     """Run blocking work off the GTK main loop and deliver its result on it."""
 
     def run() -> None:

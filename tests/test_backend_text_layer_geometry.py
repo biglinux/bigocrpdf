@@ -9,11 +9,11 @@ import pikepdf
 import pytest
 from PIL import Image
 
-from bigocrpdf.services.rapidocr_service import backend_pipeline, pdf_page_geometry
-from bigocrpdf.services.rapidocr_service import backend_text_layer_geometry as geometry
-from bigocrpdf.services.rapidocr_service.config import ProcessingStats
-from bigocrpdf.services.rapidocr_service.pdf_page_geometry import render_pdf_page_to_ppm
-from bigocrpdf.services.rapidocr_service.rotation import PageRotation
+from bigocrpdf.services.ocr import backend_pipeline, pdf_page_geometry
+from bigocrpdf.services.ocr import backend_text_layer_geometry as geometry
+from bigocrpdf.services.ocr.config import ProcessingStats
+from bigocrpdf.services.ocr.pdf_page_geometry import render_pdf_page_to_ppm
+from bigocrpdf.services.ocr.rotation import PageRotation
 
 
 class _MetadataBackend(backend_pipeline.BackendPipelineMixin):
@@ -147,7 +147,6 @@ def test_metadata_analysis_consumes_bulk_rectangles_in_page_order(
         backend,
         input_pdf,
         ProcessingStats(),
-        object(),
         None,
     )
 
