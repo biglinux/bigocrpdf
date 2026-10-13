@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: bigocrpdf 3.0.0\n"
+"Project-Id-Version: bigocrpdf 4.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-10-13 01:07-0300\n"
+"POT-Creation-Date: 2026-10-13 03:32-0300\n"
 "PO-Revision-Date: 2026-10-03 09:30+0000\n"
 "Last-Translator: BigLinux Translation Team <biglinux@biglinux.com.br>\n"
 "Language-Team: German\n"
@@ -2381,6 +2381,7 @@ msgid "Save page as PDF"
 msgstr "Seite als PDF speichern"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:387
+#: src/bigocrpdf/ui/settings_queue_mixin.py:989
 #, python-brace-format
 msgid "Page {n}"
 msgstr "Seite {n}"
@@ -2827,38 +2828,38 @@ msgid_plural "{count} images"
 msgstr[0] "{count} Bild"
 msgstr[1] "{count} Bilder"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:995
 #: src/bigocrpdf/ui/settings_queue_mixin.py:996
+#: src/bigocrpdf/ui/settings_queue_mixin.py:997
 msgid "Extract this image"
 msgstr "Dieses Bild extrahieren"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1019
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1020
 msgid "Information copied"
 msgstr "Informationen kopiert"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1053
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1059
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1072
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1054
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1060
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1073
 msgid "Failed to extract image"
 msgstr "Bild konnte nicht extrahiert werden"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1072
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1073
 msgid "Image extracted"
 msgstr "Bild extrahiert"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1127
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1128
 msgid "Failed to open PDF editor"
 msgstr "PDF-Editor konnte nicht geöffnet werden."
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1141
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1142
 msgid "Changes saved"
 msgstr "Änderungen gespeichert"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1189
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1190
 msgid "Multiple Images Dropped"
 msgstr "Mehrere Bilder abgelegt"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1191
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1192
 #, python-brace-format
 msgid "You dropped {count} image. How would you like to add it?"
 msgid_plural "You dropped {count} images. How would you like to add them?"
@@ -2867,7 +2868,7 @@ msgstr[0] ""
 msgstr[1] ""
 "Sie haben {count} Bilder hier abgelegt. Wie möchten Sie sie hinzufügen?"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1243
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1244
 #: src/bigocrpdf/ui/window_ui.py:108
 #, python-brace-format
 msgid "{count} file in queue"
@@ -2875,7 +2876,7 @@ msgid_plural "{count} files in queue"
 msgstr[0] "{count} Datei in der Warteschlange"
 msgstr[1] "{count} Dateien in der Warteschlange"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1258
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1259
 msgid "All files removed from queue"
 msgstr "Alle Dateien aus Warteschlange entfernt"
 

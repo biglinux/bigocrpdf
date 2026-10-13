@@ -6,11 +6,11 @@ from dataclasses import dataclass
 
 from bigocrpdf.utils.i18n import _, setup_i18n
 
-__version__ = "3.0.0"
+__version__ = "4.0.0"
 
 # The real floor, not the version we develop against.  Widgets introduced after
 # this point are used through bigocrpdf.utils.adw_compat, which falls back when
-# they are absent -- an AppImage runs on whatever its build container shipped,
+# they are absent: an AppImage runs on whatever its build container shipped,
 # and Ubuntu 24.04 carries GTK 4.14 with libadwaita 1.5.
 _MIN_GTK_VERSION = (4, 14)
 _MIN_ADW_VERSION = (1, 5)

@@ -1,11 +1,14 @@
 """Installed desktop integration metadata."""
 
 import ast
+import re
 import tomllib
 from configparser import ConfigParser
 from pathlib import Path
 from typing import Any, cast
 from xml.etree import ElementTree
+
+import bigocrpdf
 
 ROOT = Path(__file__).resolve().parents[1]
 APPLICATIONS = ROOT / "usr/share/applications"
@@ -114,11 +117,19 @@ def test_editor_name_covers_project_locales() -> None:
 
 
 def test_appstream_release_matches_project_version() -> None:
+    """pyproject, the package, the CHANGELOG and AppStream name one release."""
     with (ROOT / "pyproject.toml").open("rb") as file:
         version = tomllib.load(file)["project"]["version"]
+    heading = re.search(
+        r"^## (\S+) - (\d{4}-\d{2}-\d{2})$",
+        (ROOT / "CHANGELOG.md").read_text(encoding="utf-8"),
+        re.MULTILINE,
+    )
+    assert heading is not None
 
     component = ElementTree.parse(METAINFO).getroot()
     assert component.findtext("launchable") == "br.com.biglinux.bigocrpdf.desktop"
     release = component.find("./releases/release")
     assert release is not None
-    assert release.attrib == {"version": version, "date": "2026-08-02"}
+    assert bigocrpdf.__version__ == heading[1] == version
+    assert release.attrib == {"version": version, "date": heading[2]}

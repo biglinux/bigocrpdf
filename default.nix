@@ -23,7 +23,7 @@ assert lib.versionAtLeast gtk4.version "4.14";
 assert lib.versionAtLeast libadwaita.version "1.5";
 python3Packages.buildPythonApplication {
   pname = "bigocrpdf";
-  version = "3.0.0";
+  version = "4.0.0";
 
   src = ./.;
 

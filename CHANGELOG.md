@@ -2,20 +2,50 @@
 
 All notable user-visible and release-engineering changes are documented here.
 
-## Unreleased
+## 4.0.0 - 2026-10-13
 
-- Write the text layer in Noto Sans from `noto-fonts`, so Greek, Cyrillic and extended Latin words stay searchable and copyable; a missing font now fails the job instead of falling back to Helvetica, which dropped every character outside Latin-1. `BIGOCRPDF_TEXT_FONT` names another font file. Lines with Chinese or Japanese characters use WenQuanYi Micro Hei from `wqy-microhei` when it is installed (`BIGOCRPDF_CJK_FONT` names another file).
-- Feed the text detector PaddleOCR's input normalization and tighter line boxes, which stops whole lines on low-contrast scans from being read as blanks; the box expansion ratio is no longer stored in the settings file.
-- Run OCR on the page without the scanner effect, which only changes how the page image looks, and rebuild the effect so paper texture turns white instead of into black speckle.
-- Place OCR text of skewed lines on mixed-content and embedded-image pages the way scanned pages do, on the line's own baseline and glyph height instead of its bounding box.
-- Show file sizes in the queue, the file details and the results page in translated units with the decimal multiples the file manager uses, and size changes and text counts with the locale's separators.
-- Start the graphical application with `--debug` or `--verbose`, which it refused as unknown options.
-- Let the Nix package build against GTK 4.14 and libadwaita 1.5, the floor the application checks at startup.
-- Replace files with a plain atomic rename, which keeps settings after a crash during a save, works on sshfs and NFS, and needs no free space beyond the new file; settings saves no longer sync the disk. An interrupted older build may have left a hidden `.bigocr-publish-*` file next to an output: it holds the previous version and can be renamed back.
-- Write the PDF editor's merged or saved PDF in the background: the window keeps responding and shows Saving…, editing waits until the file is written, closing the window waits for the save, and a failed save says why. Unsaved changes in the standalone editor are saved through Save As instead of an Apply that did nothing.
-- Give the image OCR window a main menu with Keyboard Shortcuts (Ctrl+?) and About; F1 no longer opens About there.
-- Read pages with ppocr-native, PP-OCRv6 in plain Rust, instead of RapidOCR on OpenVINO, and straighten pages with its detector. A 30-page scanned PDF took 110–116 s instead of 216 s on an 8-core laptop, at a peak of 2.5–2.8 GB instead of 17.3 GB of memory (PSS summed over all processes), with the same text on 26 of the pages and the same character error rate. RapidOCR, OpenVINO, ONNX Runtime and the GPU backends are gone, and with them the `--engine-type`, `--model-type`, `--rec-batch-num`, `--use-textline-cls`, `--gpu-backend`, `--gpu-device-id`, `--gpu-fp16` and `--no-gpu-fallback` options. The benchmark profiles are `fast`, `balanced` and `quality`.
-- Hand pages to the OCR worker as uncompressed PPM, which ppocr-native requires: a 12-megapixel page is written in 29 ms instead of 438 ms as PNG and read in 43 ms instead of 195 ms; the 30-page PDF above peaked at 288 MiB of temporary files instead of 162 MiB.
+### OCR engine
+
+- Read pages with [ppocr-native](https://github.com/biglinux/ppocr-native), PP-OCRv6 in plain Rust, instead of RapidOCR on OpenVINO, and straighten pages with its detector. A 30-page scanned PDF takes 110–116 s instead of 216 s on an 8-core laptop, at a peak of 2.5–2.8 GB instead of 17.3 GB of memory, with the same character error rate.
+- Remove RapidOCR, OpenVINO, ONNX Runtime and the GPU backends, and with them the `bigocrpdf-cli ocr` options `--engine-type`, `--model-type`, `--rec-batch-num`, `--use-textline-cls`, `--gpu-backend`, `--gpu-device-id`, `--gpu-fp16` and `--no-gpu-fallback`. Scripts that pass them must drop them.
+- Remove the language selection: PP-OCRv6 reads Chinese, English, Japanese and Latin-script languages with one model.
+- Add `--full-resolution` and `--no-full-resolution` to `bigocrpdf-cli ocr`; full-resolution detection stays off by default.
+- Stop lines on low-contrast scans from being read as blank, and stop one vertical line from disabling detection on the pages after it.
+- Run OCR on the page without the scanner effect, which only changes how the page looks, and make the effect turn paper texture white instead of into black speckle.
+- Place OCR text of skewed lines on mixed-content and embedded-image pages on the line's own baseline and glyph height, as on scanned pages.
+- Restore perspective correction, which did nothing with NumPy 2.
+
+### Searchable text
+
+- Write the text layer in Noto Sans from `noto-fonts`, so Greek, Cyrillic and extended Latin words stay searchable and copyable. A missing font fails the job instead of falling back to Helvetica, which dropped every character outside Latin-1. `BIGOCRPDF_TEXT_FONT` names another font file.
+- Write lines with Chinese or Japanese characters in WenQuanYi Micro Hei when `wqy-microhei` is installed (`BIGOCRPDF_CJK_FONT` names another file).
+- Publish one file per OCR run: the structured OCR JSON is written only with `ocr --sidecar-json [FILE]` and read only with `export-* --from-json FILE`.
+- Fix inverted pages in Black & White output when `jbig2enc` is absent.
+
+### Exports
+
+- Keep double-spaced pages as paragraphs in text, Markdown and ODT exports instead of one paragraph per line.
+- Export detected headings as ODT headings, which gives the document an outline and a table of contents.
+- Stop the fixed-layout ODT from overlapping its own lines, and give it the page's real size.
+
+### Interface
+
+- Write the PDF editor's merged or saved PDF in the background: the window keeps responding and shows Saving…, closing it waits for the save, and a failed save says why. The standalone editor saves unsaved changes through Save As.
+- Keep `--edit` working when BigOCR PDF is already running, so Create PDF from the file manager opens the editor.
+- Accept `--debug` and `--verbose` in the graphical application.
+- Clear the finished queue when returning to the start screen.
+- Show file sizes in translated units with the decimal multiples the file manager uses, and counts with the locale's separators.
+- Give the image OCR window a main menu with Keyboard Shortcuts (Ctrl+?) and About.
+- Keep the text order of a screen capture, and open Spectacle's region selector directly on KDE Plasma.
+- Use the icon theme the user chose, with bundled icons only for names it lacks.
+- Name editor pages and other controls for screen readers.
+- Complete the translations in every catalog and fix plural forms that showed both forms at once.
+
+### Files and packaging
+
+- Replace files with a plain atomic rename, which keeps settings after a crash during a save and works on sshfs, NFS and OverlayFS. An interrupted save in an earlier version may have left a hidden `.bigocr-publish-*` file next to an output: it holds the previous version and can be renamed back.
+- Require `ppocr-native` and `noto-fonts` in the Arch package, and drop the RapidOCR and OpenVINO packages from its dependencies.
+- Build the Nix package against GTK 4.14 and libadwaita 1.5, the floor the application checks at startup.
 
 ## 3.0.0 - 2026-08-02
 

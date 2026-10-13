@@ -9,8 +9,8 @@ trap 'rm -rf -- "$workdir"' EXIT
 export LC_ALL=C
 # LC_ALL alone is not enough to get untranslated output from a Python program.
 # GNU gettext ignores LANGUAGE when the locale is C; Python's gettext.find()
-# does not, so it would still load the developer's own catalog -- which makes
-# the CLI compatibility baseline, a snapshot of English output, fail on any
+# does not, so it would still load the developer's own catalog, and the CLI
+# compatibility baseline, a snapshot of English output, would fail on any
 # translated desktop.
 export LANGUAGE=C
 export PYTHONPYCACHEPREFIX="$workdir/pycache"
@@ -23,6 +23,7 @@ python3 tools/compatibility_verifier.py verify \
 	--source-root . \
 	--baseline tools/compatibility-baseline.json
 
+version=$(python3 -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
 mapfile -d '' sources < <(find src/bigocrpdf usr/share/nautilus-python/extensions \
 	-type f -name '*.py' -print0 | sort -z)
 xgettext \
@@ -32,7 +33,7 @@ xgettext \
 	--keyword=N_ \
 	--keyword=ngettext:1,2 \
 	--package-name=bigocrpdf \
-	--package-version=3.0.0 \
+	--package-version="$version" \
 	--msgid-bugs-address=biglinux@biglinux.com.br \
 	--copyright-holder='BigLinux Team' \
 	--output="$workdir/bigocrpdf.pot" \
@@ -89,9 +90,8 @@ if bash tools/stage-data.sh "$workdir/root-link" >/dev/null 2>&1; then
 fi
 
 bash tools/stage-data.sh "$workdir/stage"
-# Bytecode is excluded because stage-data.sh deletes it from the stage on
-# purpose, so anyone who has run the application once left a __pycache__ under
-# usr/ that this comparison would then demand back.
+# stage-data.sh leaves bytecode out of the stage, so a __pycache__ that running
+# the application from the checkout leaves under usr/ is not compared.
 while IFS= read -r -d '' file; do
 	cmp "$file" "$workdir/stage/$file"
 done < <(find usr/share -type f -not -name '*.py[co]' -not -path '*/__pycache__/*' -print0)

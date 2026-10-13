@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: bigocrpdf 3.0.0\n"
+"Project-Id-Version: bigocrpdf 4.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-10-13 01:07-0300\n"
+"POT-Creation-Date: 2026-10-13 03:32-0300\n"
 "PO-Revision-Date: 2026-10-03 09:30+0000\n"
 "Last-Translator: BigLinux Translation Team <biglinux@biglinux.com.br>\n"
 "Language-Team: Slovak\n"
@@ -2378,6 +2378,7 @@ msgid "Save page as PDF"
 msgstr "Uložiť stranu ako PDF"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:387
+#: src/bigocrpdf/ui/settings_queue_mixin.py:989
 #, python-brace-format
 msgid "Page {n}"
 msgstr "Stránka {n}"
@@ -2823,38 +2824,38 @@ msgstr[0] "{count} obrázok"
 msgstr[1] "{count} obrázky"
 msgstr[2] "{count} obrázkov"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:995
 #: src/bigocrpdf/ui/settings_queue_mixin.py:996
+#: src/bigocrpdf/ui/settings_queue_mixin.py:997
 msgid "Extract this image"
 msgstr "Extrahovať tento obrázok"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1019
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1020
 msgid "Information copied"
 msgstr "Informácie boli skopírované"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1053
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1059
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1072
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1054
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1060
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1073
 msgid "Failed to extract image"
 msgstr "Nepodarilo sa extrahovať obrázok"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1072
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1073
 msgid "Image extracted"
 msgstr "Obrázok bol extrahovaný"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1127
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1128
 msgid "Failed to open PDF editor"
 msgstr "Nepodarilo sa otvoriť editor PDF."
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1141
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1142
 msgid "Changes saved"
 msgstr "Zmeny boli uložené"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1189
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1190
 msgid "Multiple Images Dropped"
 msgstr "Bolo sem presunutých viacero obrázkov"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1191
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1192
 #, python-brace-format
 msgid "You dropped {count} image. How would you like to add it?"
 msgid_plural "You dropped {count} images. How would you like to add them?"
@@ -2862,7 +2863,7 @@ msgstr[0] "Presunuli ste sem {count} obrázok. Ako ho chcete pridať?"
 msgstr[1] "Presunuli ste sem {count} obrázky. Ako ich chcete pridať?"
 msgstr[2] "Presunuli ste sem {count} obrázkov. Ako ich chcete pridať?"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1243
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1244
 #: src/bigocrpdf/ui/window_ui.py:108
 #, python-brace-format
 msgid "{count} file in queue"
@@ -2871,7 +2872,7 @@ msgstr[0] "{count} súbor vo fronte"
 msgstr[1] "{count} súbory vo fronte"
 msgstr[2] "{count} súborov vo fronte"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1258
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1259
 msgid "All files removed from queue"
 msgstr "Všetky súbory boli odstránené z fronty"
 

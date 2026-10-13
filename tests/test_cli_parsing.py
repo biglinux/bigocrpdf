@@ -94,7 +94,7 @@ class TestBuildParser:
             parser.parse_args(["--version"])
 
         assert exit_info.value.code == 0
-        assert capsys.readouterr().out == "bigocrpdf-cli 3.0.0\n"
+        assert capsys.readouterr().out == "bigocrpdf-cli 4.0.0\n"
 
     def test_ocr_subcommand(self):
         p = build_parser()

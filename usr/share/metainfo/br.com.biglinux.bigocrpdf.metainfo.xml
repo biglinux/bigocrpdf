@@ -30,6 +30,20 @@
   <url type="vcs-browser">https://github.com/biglinux/bigocrpdf</url>
   <translation type="gettext">bigocrpdf</translation>
   <releases>
+    <release version="4.0.0" date="2026-10-13">
+      <description>
+        <p>
+          Pages are read by ppocr-native, which runs PP-OCRv6 on the CPU in a
+          fraction of the memory the previous engine needed.
+        </p>
+        <ul>
+          <li>Greek, Cyrillic and extended Latin text stays searchable and copyable</li>
+          <li>The PDF editor saves in the background and reports failed saves</li>
+          <li>Double-spaced pages and headings survive text, Markdown and ODT export</li>
+          <li>The interface follows the chosen icon theme and is complete in every translation</li>
+        </ul>
+      </description>
+    </release>
     <release version="3.0.0" date="2026-08-02" />
   </releases>
   <content_rating type="oars-1.1" />
