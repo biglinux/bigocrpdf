@@ -160,7 +160,7 @@ class TestEditorWindowLogic(unittest.TestCase):
         window._close_window.assert_not_called()
         window._show_error.assert_called_once_with("Error saving changes.")
 
-    def test_failed_merge_keeps_editor_open_and_modified(self):
+    def _editor(self, save_callback=None, standalone=False, save_in_place=False):
         with (
             patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_ui"),
             patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_actions"),
@@ -171,74 +171,221 @@ class TestEditorWindowLogic(unittest.TestCase):
             patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._load_document"),
             patch("os.path.basename", return_value="test.pdf"),
         ):
-            mock_save_callback = MagicMock()
-            window = PDFEditorWindow(self.mock_app, "test.pdf", on_save_callback=mock_save_callback)
+            window = PDFEditorWindow(
+                self.mock_app,
+                "test.pdf",
+                on_save_callback=save_callback,
+                standalone=standalone,
+                save_in_place=save_in_place,
+            )
+        for name in (
+            "_sidebar_box",
+            "_page_grid",
+            "_add_button_header",
+            "_apply_button",
+            "_show_busy",
+            "_end_busy",
+            "_show_info",
+            "_show_error",
+            "_close_window",
+            "_save_editor_window_size",
+        ):
+            setattr(window, name, MagicMock())
+        return window
 
-            doc = PDFDocument(path="test.pdf", total_pages=1)
-            doc.pages[0].source_file = "added.pdf"
-            doc.modified = True
-            window._document = doc
-            window._save_merged_pdf = MagicMock(return_value=False)
-            window._close_window = MagicMock()
+    def _merge(self, save_callback, *, write_error=None, close_during_save=False):
+        """Apply a merge with the worker held until the main-loop checks ran."""
+        window = self._editor(save_callback)
+        document = PDFDocument(path="test.pdf", total_pages=1)
+        document.pages[0].source_file = "added.pdf"
+        document.modified = True
+        window._document = document
+        jobs = []
+        temp_dir = self.enterContext(tempfile.TemporaryDirectory())
+        fd, temp_path = tempfile.mkstemp(suffix=".pdf", dir=temp_dir)
 
-            window._on_ok_clicked(cast(Any, MagicMock()))
+        with (
+            patch(
+                "bigocrpdf.ui.pdf_editor.page_thumbnail_export.run_in_worker",
+                side_effect=lambda work, done: jobs.append((work, done)),
+            ),
+            patch(
+                "bigocrpdf.ui.pdf_editor.page_operations.write_changes_to_pdf",
+                side_effect=write_error,
+            ) as write,
+            patch("bigocrpdf.utils.temp_manager.mkstemp", return_value=(fd, temp_path)),
+        ):
+            window._on_ok_clicked(None)
+            window._on_ok_clicked(None)
 
-            window._save_merged_pdf.assert_called_once_with("test.pdf")
-            mock_save_callback.assert_not_called()
-            self.assertTrue(doc.modified)
+            self.assertEqual(len(jobs), 1)
+            write.assert_not_called()
+            save_callback.assert_not_called()
+            window._close_window.assert_not_called()
+            window._apply_button.set_sensitive.assert_called_with(False)
+            window._page_grid.set_sensitive.assert_called_with(False)
+            window._show_busy.assert_called_once_with("Saving…")
+            if close_during_save:
+                self.assertTrue(window._on_close_request(window))
+                window._close_window.assert_not_called()
+
+            work, done = jobs[0]
+            done(work())
+
+        snapshot, written_path = write.call_args.args
+        self.assertIsNot(snapshot, document)
+        self.assertEqual(written_path, temp_path)
+        window._apply_button.set_sensitive.assert_called_with(True)
+        window._end_busy.assert_called_once_with()
+        return window, document, temp_path
+
+    def test_merge_writes_in_worker_then_closes(self):
+        save_callback = MagicMock()
+        window, document, temp_path = self._merge(save_callback, close_during_save=True)
+
+        merged = save_callback.call_args.args[0]
+        self.assertEqual(merged.path, temp_path)
+        self.assertEqual(merged.total_pages, 1)
+        self.assertFalse(document.modified)
+        window._close_window.assert_called_once_with()
+        window._show_error.assert_not_called()
+
+    def test_failed_merge_reports_cause_and_stays_open(self):
+        save_callback = MagicMock()
+        window, document, temp_path = self._merge(
+            save_callback,
+            write_error=OSError("No space left on device"),
+            close_during_save=True,
+        )
+
+        save_callback.assert_not_called()
+        self.assertTrue(document.modified)
+        self.assertFalse(os.path.exists(temp_path))
+        window._close_window.assert_not_called()
+        self.assertIn("No space left on device", window._show_error.call_args.args[0])
+        self.assertFalse(window._saving)
+        self.assertFalse(window._close_after_save)
+
+    def test_rejected_merge_removes_temp_and_stays_open(self):
+        window, document, temp_path = self._merge(MagicMock(return_value=False))
+
+        self.assertTrue(document.modified)
+        self.assertFalse(os.path.exists(temp_path))
+        window._close_window.assert_not_called()
+        window._show_error.assert_called_once_with("Error saving changes.")
+
+    def test_close_during_save_as_waits_for_it(self):
+        window = self._editor(standalone=True)
+        document = PDFDocument(path="test.pdf", total_pages=1)
+        document.modified = True
+        window._document = document
+        dialog = MagicMock()
+        dialog.save_finish.return_value.get_path.return_value = "/output/edited.pdf"
+        jobs = []
+
+        with (
+            patch(
+                "bigocrpdf.ui.pdf_editor.page_thumbnail_export.run_in_worker",
+                side_effect=lambda work, done: jobs.append((work, done)),
+            ),
+            patch("bigocrpdf.ui.pdf_editor.page_operations.publish_changes_to_pdf") as publish,
+        ):
+            window._on_save_as_response(dialog, MagicMock(), False)
+
+            publish.assert_not_called()
+            self.assertTrue(window._on_close_request(window))
             window._close_window.assert_not_called()
 
-    def test_flip_is_materialized_before_the_document_enters_ocr(self):
-        with (
-            patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_ui"),
-            patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_actions"),
-            patch(
-                "bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_keyboard_shortcuts"
-            ),
-            patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_drag_drop"),
-            patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._load_document"),
-            patch("os.path.basename", return_value="test.pdf"),
-        ):
-            save_callback = MagicMock()
-            window = PDFEditorWindow(self.mock_app, "test.pdf", on_save_callback=save_callback)
+            work, done = jobs[0]
+            done(work())
 
+        self.assertEqual(publish.call_args.args[1], "/output/edited.pdf")
+        self.assertFalse(document.modified)
+        window._show_info.assert_called_once_with("Saved: edited.pdf")
+        window._close_window.assert_called_once_with()
+
+    def _apply_in_place(self, publish_error=None):
+        """Apply to the opened file with the worker held until the main-loop checks ran."""
+        window = self._editor(save_in_place=True)
+        document = PDFDocument(path="test.pdf", total_pages=1)
+        document.pages[0].rotation = 90
+        document.modified = True
+        window._document = document
+        jobs = []
+
+        with (
+            patch(
+                "bigocrpdf.ui.pdf_editor.page_thumbnail_export.run_in_worker",
+                side_effect=lambda work, done: jobs.append((work, done)),
+            ),
+            patch(
+                "bigocrpdf.ui.pdf_editor.page_operations.publish_changes_to_pdf",
+                side_effect=publish_error,
+            ) as publish,
+        ):
+            window._on_ok_clicked(None)
+
+            publish.assert_not_called()
+            self.assertEqual(len(jobs), 1)
+            self.assertTrue(window._on_close_request(window))
+            window._close_window.assert_not_called()
+
+            work, done = jobs[0]
+            done(work())
+
+        snapshot, target = publish.call_args.args
+        self.assertIsNot(snapshot, document)
+        self.assertEqual(target, "test.pdf")
+        return window, document
+
+    def test_in_place_apply_saves_then_closes(self):
+        window, document = self._apply_in_place()
+
+        self.assertFalse(document.modified)
+        window._close_window.assert_called_once_with()
+        window._show_error.assert_not_called()
+
+    def test_failed_in_place_apply_stays_open(self):
+        window, document = self._apply_in_place(OSError("Permission denied"))
+
+        self.assertTrue(document.modified)
+        window._close_window.assert_not_called()
+        self.assertIn("Permission denied", window._show_error.call_args.args[0])
+
+    def test_flipped_page_needs_merge(self):
+        save_callback = MagicMock()
+        window = self._editor(save_callback)
+        window._apply_merged = MagicMock()
         document = PDFDocument(path="test.pdf", total_pages=1)
         document.pages[0].flip_horizontal = True
         document.modified = True
         window._document = document
-        window._save_merged_pdf = MagicMock(return_value=True)
 
-        saved = window._save_and_callback()
+        window._on_ok_clicked(None)
 
-        self.assertTrue(saved)
-        window._save_merged_pdf.assert_called_once_with("test.pdf")
+        window._apply_merged.assert_called_once_with(document)
         save_callback.assert_not_called()
 
-    def test_reordered_pages_are_materialized_before_the_document_enters_ocr(self):
+    def test_reordered_pages_need_merge(self):
         save_callback = MagicMock()
-        window = PDFEditorWindow.__new__(PDFEditorWindow)
-        window._on_save_callback = save_callback
+        window = self._editor(save_callback)
         window._original_page_count = 2
-        window._show_error = MagicMock()
-        window._save_merged_pdf = MagicMock(return_value=True)
+        window._apply_merged = MagicMock()
         document = PDFDocument(path="test.pdf", total_pages=2)
         document.pages[0].position = 1
         document.pages[1].position = 0
         window._document = document
 
-        saved = window._save_and_callback()
+        window._on_ok_clicked(None)
 
-        self.assertTrue(saved)
-        window._save_merged_pdf.assert_called_once_with("test.pdf")
+        window._apply_merged.assert_called_once_with(document)
         save_callback.assert_not_called()
 
-    def test_excluded_foreign_page_is_materialized_before_ocr(self):
+    def test_excluded_foreign_page_needs_merge(self):
         save_callback = MagicMock()
-        window = PDFEditorWindow.__new__(PDFEditorWindow)
-        window._on_save_callback = save_callback
+        window = self._editor(save_callback)
         window._original_page_count = 1
-        window._show_error = MagicMock()
-        window._save_merged_pdf = MagicMock(return_value=True)
+        window._apply_merged = MagicMock()
         document = PDFDocument(path="test.pdf", total_pages=1)
         document.pages.append(
             PageState(
@@ -251,107 +398,25 @@ class TestEditorWindowLogic(unittest.TestCase):
         document.total_pages = 2
         window._document = document
 
-        saved = window._save_and_callback()
+        window._on_ok_clicked(None)
 
-        self.assertTrue(saved)
-        window._save_merged_pdf.assert_called_once_with("test.pdf")
+        window._apply_merged.assert_called_once_with(document)
         save_callback.assert_not_called()
 
-    def test_save_dialog_keeps_editor_open_when_save_fails(self):
-        window = MagicMock()
-        window._save_and_callback.return_value = False
+    def test_unsaved_changes_save_follows_editor_mode(self):
+        for standalone in (False, True):
+            window = MagicMock()
+            window._standalone = standalone
 
-        PDFEditorWindow._on_save_dialog_response(window, MagicMock(), "save")
+            PDFEditorWindow._on_save_dialog_response(window, MagicMock(), "save")
 
-        window._save_and_callback.assert_called_once_with()
-        window._close_window.assert_not_called()
-
-    def test_failed_merge_preserves_modifications_and_reports_error(self):
-        with (
-            patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_ui"),
-            patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_actions"),
-            patch(
-                "bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_keyboard_shortcuts"
-            ),
-            patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_drag_drop"),
-            patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._load_document"),
-            patch("os.path.basename", return_value="test.pdf"),
-        ):
-            window = PDFEditorWindow(self.mock_app, "test.pdf", on_save_callback=MagicMock())
-
-        doc = PDFDocument(path="test.pdf", total_pages=1)
-        doc.modified = True
-        window._document = doc
-        window._show_error = MagicMock()
-
-        with tempfile.TemporaryDirectory() as temp_dir:
-            fd, temp_path = tempfile.mkstemp(suffix=".pdf", dir=temp_dir)
-            with (
-                patch(
-                    "bigocrpdf.utils.temp_manager.mkstemp",
-                    return_value=(fd, temp_path),
-                ),
-                patch(
-                    "bigocrpdf.ui.pdf_editor.page_operations.apply_changes_to_pdf",
-                    return_value=False,
-                ),
-                patch(
-                    "bigocrpdf.utils.temp_manager.remove_file",
-                    wraps=lambda path: os.remove(path),
-                ) as remove_file,
-            ):
-                saved = window._save_merged_pdf("test.pdf")
-
-            remove_file.assert_called_once_with(temp_path)
-            self.assertFalse(os.path.exists(temp_path))
-
-        self.assertFalse(saved)
-        self.assertTrue(doc.modified)
-        window._show_error.assert_called_once_with("Failed to merge PDF pages.")
-
-    def test_rejected_merged_save_callback_removes_temp_and_preserves_changes(self):
-        with (
-            patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_ui"),
-            patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_actions"),
-            patch(
-                "bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_keyboard_shortcuts"
-            ),
-            patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._setup_drag_drop"),
-            patch("bigocrpdf.ui.pdf_editor.editor_window.PDFEditorWindow._load_document"),
-            patch("os.path.basename", return_value="test.pdf"),
-        ):
-            save_callback = MagicMock(return_value=False)
-            window = PDFEditorWindow(self.mock_app, "test.pdf", on_save_callback=save_callback)
-
-        document = PDFDocument(path="test.pdf", total_pages=1)
-        document.modified = True
-        window._document = document
-        window._show_error = MagicMock()
-
-        with tempfile.TemporaryDirectory() as temp_dir:
-            fd, temp_path = tempfile.mkstemp(suffix=".pdf", dir=temp_dir)
-            with (
-                patch(
-                    "bigocrpdf.utils.temp_manager.mkstemp",
-                    return_value=(fd, temp_path),
-                ),
-                patch(
-                    "bigocrpdf.ui.pdf_editor.page_operations.apply_changes_to_pdf",
-                    return_value=True,
-                ),
-                patch(
-                    "bigocrpdf.utils.temp_manager.remove_file",
-                    wraps=lambda path: os.remove(path),
-                ) as remove_file,
-            ):
-                saved = window._save_merged_pdf("test.pdf")
-
-            remove_file.assert_called_once_with(temp_path)
-            self.assertFalse(os.path.exists(temp_path))
-
-        self.assertFalse(saved)
-        self.assertTrue(document.modified)
-        window._show_error.assert_called_once_with("Error saving changes.")
+            if standalone:
+                window._save_as.assert_called_once_with(close_after=True)
+                window._apply_and_close.assert_not_called()
+            else:
+                window._apply_and_close.assert_called_once_with()
+                window._save_as.assert_not_called()
+            window._close_window.assert_not_called()
 
     def test_back_behavior(self):
         # Verify Back button discards and clears modifications
@@ -376,7 +441,7 @@ class TestEditorWindowLogic(unittest.TestCase):
             # Call Back
             window._on_back_clicked(cast(Any, MagicMock()))
 
-            # Verify callback NOT called
+            # The save callback stays uncalled
             mock_save_callback.assert_not_called()
             # Verify modifications cleared (explicit discard)
             self.assertFalse(doc.modified)

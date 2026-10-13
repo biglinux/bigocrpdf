@@ -86,6 +86,7 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
         on_close_callback: Callable[[], None] | None = None,
         initial_state: dict | None = None,
         standalone: bool = False,
+        save_in_place: bool = False,
     ) -> None:
         """Initialize the PDF editor window.
 
@@ -96,6 +97,8 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
             on_close_callback: Callback when window is closed
             initial_state: Optional dictionary to restore page states
             standalone: If True, show Save As button instead of Apply
+            save_in_place: If True, Apply rewrites ``pdf_path`` instead of
+                handing the changes to ``on_save_callback``
         """
         super().__init__(application=application)
         self.add_css_class("bigocrpdf-editor")
@@ -107,11 +110,19 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
         self._on_close_callback = on_close_callback
         self._initial_state = initial_state
         self._standalone = standalone
+        self._save_in_place = save_in_place
         self._document: PDFDocument | None = None
         self._original_page_count: int | None = None
         self._undo_stack: list[list[dict]] = []
         self._notification_timer_id: int | None = None
+        # The banner of work running in the background, shown again whenever
+        # another message is dismissed before that work ends.
+        self._busy_message: str | None = None
         self._close_prepared = False
+        # A save runs in a worker; edits wait for it, and a close request
+        # made meanwhile is carried out once it succeeds.
+        self._saving = False
+        self._close_after_save = False
 
         # Window configuration
         if pdf_path:
@@ -149,10 +160,12 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
             "help": self._help.show,
         }
 
+        self._actions: dict[str, Gio.SimpleAction] = {}
         for name, callback in actions.items():
             action = Gio.SimpleAction.new(name, None)
             action.connect("activate", callback)
             action_group.add_action(action)
+            self._actions[name] = action
 
         self.insert_action_group("editor", action_group)
 
@@ -307,55 +320,90 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
         self._notification_revealer.set_reveal_child(True)
 
         if timeout > 0:
-            self._notification_timer_id = GLib.timeout_add_seconds(timeout, self._hide_notification)
+            self._notification_timer_id = GLib.timeout_add_seconds(
+                timeout, self._on_notification_timeout
+            )
 
-    def _hide_notification(self) -> bool:
-        """Hide the notification banner.
-
-        Returns:
-            False to stop the timer.
-        """
-        self._notification_revealer.set_reveal_child(False)
+    def _on_notification_timeout(self) -> bool:
         self._notification_timer_id = None
+        self._hide_notification()
         return False
+
+    def _hide_notification(self) -> None:
+        """Hide the banner, or return to the busy banner while that work runs."""
+        if self._notification_timer_id is not None:
+            GLib.source_remove(self._notification_timer_id)
+            self._notification_timer_id = None
+        if self._busy_message is not None:
+            self._show_notification(self._busy_message, "content-loading-symbolic", timeout=0)
+            return
+        self._notification_revealer.set_reveal_child(False)
+
+    def _show_busy(self, message: str) -> None:
+        """Show a banner that stays until ``_end_busy``."""
+        self._busy_message = message
+        self._show_notification(message, "content-loading-symbolic", timeout=0)
+        self.announce(message, Gtk.AccessibleAnnouncementPriority.MEDIUM)
+
+    def _end_busy(self) -> None:
+        """Drop the busy banner, leaving any other message to its own timer."""
+        message, self._busy_message = self._busy_message, None
+        if self._notification_label.get_text() == message:
+            self._hide_notification()
 
     def _show_info(self, message: str, timeout: int = 3) -> None:
         """Show a success/info banner (e.g. save completed)."""
         self._show_notification(message, "emblem-ok-symbolic", timeout)
 
-    def _show_saving(self) -> None:
-        """Show a persistent 'Saving…' banner until the next notification."""
-        self._show_notification(_("Saving…"), "document-save-symbolic", timeout=0)
+    def _run_save(
+        self, name: str, write: Callable[[], None], on_written: Callable[[], None]
+    ) -> None:
+        """Run ``write`` in a worker with editing locked, then ``on_written`` on the main loop.
 
-    def _save_with_feedback(self, save_fn, success_message: str) -> None:
-        """Run a blocking save while showing saving/saved feedback.
-
-        Shows a persistent 'Saving…' banner, then defers the blocking save to
-        the next idle cycle so the banner is painted before the UI freezes, and
-        finally reports success or failure.
-
-        Args:
-            save_fn: Callable returning True on success.
-            success_message: Banner text shown when save_fn returns True.
+        On failure the edits stay in the editor and the error names the cause.
         """
-        self._show_saving()
+        from bigocrpdf.ui.pdf_editor.page_thumbnail_export import run_in_worker
 
-        def _run() -> bool:
+        def work() -> Exception | None:
             try:
-                ok = save_fn()
-            except Exception as e:
-                logger.error("Save failed: %s", e)
-                self._show_error(_("Failed to save PDF."))
-                return False
-            if ok:
-                self._show_info(success_message)
-            else:
-                self._show_error(_("Failed to save PDF."))
-            return False
+                write()
+            except Exception as error:
+                logger.exception("Could not save %s", name)
+                return error
+            return None
 
-        # Small delay so the "Saving…" banner is painted before the blocking
-        # save freezes the main loop.
-        GLib.timeout_add(50, _run)
+        def finish(error: Exception | None) -> None:
+            self._set_saving(False)
+            if error is None:
+                on_written()
+                return
+            self._close_after_save = False
+            self._show_error(
+                _("Could not save {name}: {error}").format(name=name, error=error)
+                + "\n\n"
+                + _(
+                    "Your changes are still in the editor. Check that the source files "
+                    "still exist and that the disk has free space, then save again."
+                )
+            )
+
+        self._set_saving(True)
+        run_in_worker(work, finish)
+
+    def _set_saving(self, saving: bool) -> None:
+        """Lock the controls that edit the document while a save writes it."""
+        self._saving = saving
+        for widget in (
+            self._sidebar_box,
+            self._page_grid,
+            self._add_button_header,
+            self._apply_button,
+        ):
+            widget.set_sensitive(not saving)
+        if saving:
+            self._show_busy(_("Saving…"))
+        else:
+            self._end_busy()
 
     def _on_back_clicked(self, _button: Gtk.Button) -> None:
         """Handle back button click.
@@ -386,14 +434,9 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
         if new_idx != current:
             self._zoom_dropdown.set_selected(new_idx)
 
-    def _on_ok_clicked(self, _button: Gtk.Button) -> None:
-        """Handle OK button click - apply changes and close.
-
-        Args:
-            _button: The button widget
-        """
-        if self._save_and_callback():
-            self._close_window()
+    def _on_ok_clicked(self, _button: Gtk.Button | None) -> None:
+        """Apply the changes and go back."""
+        self._apply_and_close()
 
     def _on_page_layout_changed(self, combo: Adw.ComboRow, _pspec) -> None:
         """Persist the viewer page-layout (/PageLayout) selection."""
@@ -433,9 +476,13 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
             return folder
         return os.path.expanduser("~")
 
-    def _on_save_as_clicked(self, _button: Gtk.Button) -> None:
-        """Handle Save As button click — show file dialog and save PDF."""
-        if not self._document:
+    def _on_save_as_clicked(self, _button: Gtk.Button | None) -> None:
+        """Ask where to save the PDF, then save it."""
+        self._save_as(close_after=False)
+
+    def _save_as(self, close_after: bool) -> None:
+        """Show the Save dialog and save the PDF, closing the editor afterwards if asked."""
+        if not self._document or self._saving:
             return
 
         dialog = Gtk.FileDialog()
@@ -455,117 +502,107 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
             dialog.set_initial_name(_("document.pdf"))
         dialog.set_initial_folder(Gio.File.new_for_path(self._default_save_dir()))
 
-        dialog.save(self, None, self._on_save_as_response)
+        dialog.save(self, None, lambda d, r: self._on_save_as_response(d, r, close_after))
 
-    def _on_save_as_response(self, dialog: Gtk.FileDialog, result: Gio.AsyncResult) -> None:
-        """Handle Save As file dialog response."""
+    def _on_save_as_response(
+        self, dialog: Gtk.FileDialog, result: Gio.AsyncResult, close_after: bool
+    ) -> None:
+        """Save the PDF to the chosen file."""
         try:
             gfile = dialog.save_finish(result)
-            if not gfile:
-                return
-            dest_path = gfile.get_path()
-            if not dest_path:
-                return
-            document = self._document
-            if document is None:
-                return
-
-            from bigocrpdf.ui.pdf_editor.page_operations import (
-                apply_changes_to_pdf_atomically,
-            )
-
-            def _save() -> bool:
-                if not apply_changes_to_pdf_atomically(document, dest_path):
-                    return False
-                document.clear_modifications()
-                logger.info("Saved PDF via Save As: %s", dest_path)
-                return True
-
-            self._save_with_feedback(_save, _("Saved: {}").format(os.path.basename(dest_path)))
         except GLib.Error as e:
             if "dismissed" not in str(e).lower():
                 logger.error(f"Save As error: {e}")
+            return
+        dest_path = gfile.get_path() if gfile else None
+        if dest_path:
+            self._publish(dest_path, close_after)
 
-    def _save_and_callback(self) -> bool:
-        """Save editor changes and trigger callback.
+    def _publish(self, dest_path: str, close_after: bool) -> None:
+        """Write the PDF to ``dest_path`` in a worker, closing the editor afterwards if asked."""
+        document = self._document
+        if document is None or self._saving:
+            return
 
-        If only rotations/deletions on the original file, saves state
-        metadata (no intermediate file). If pages from other files were
-        added, creates a merged PDF.
+        from bigocrpdf.ui.pdf_editor.page_operations import publish_changes_to_pdf
 
-        Returns:
-            True when the changes were applied successfully.
+        name = os.path.basename(dest_path)
+        snapshot = document.snapshot()
+
+        def saved() -> None:
+            document.clear_modifications()
+            logger.info("Saved PDF: %s", dest_path)
+            self._show_info(_("Saved: {}").format(name))
+            if close_after or self._close_after_save:
+                self._close_window()
+
+        self._run_save(name, lambda: publish_changes_to_pdf(snapshot, dest_path), saved)
+
+    def _apply_and_close(self) -> None:
+        """Hand the changes to the caller, or rewrite the opened file, then close.
+
+        Rotations, deletions and OCR selection on the original file travel as
+        metadata. Added, reordered or flipped pages need a merged PDF, written
+        in a worker first.
         """
-        if not self._document or not self._on_save_callback:
-            return False
-
-        try:
-            original_path = self._document.path
-
-            original_page_count = self._original_page_count
-            if original_page_count is None:
-                original_page_count = self._document.total_pages
-            needs_merge = requires_materialization(
-                self._document,
-                original_path,
-                original_page_count,
-            )
-
-            if needs_merge:
-                return self._save_merged_pdf(original_path)
-
-            # No merge needed — just pass modifications as state
-            if self._on_save_callback(self._document) is False:
-                self._show_error(_("Error saving changes."))
-                return False
-            self._document.clear_modifications()
+        document = self._document
+        if self._save_in_place and self._pdf_path:
+            self._publish(self._pdf_path, close_after=True)
+            return
+        if document is None or self._on_save_callback is None or self._saving:
+            return
+        original_page_count = self._original_page_count
+        if original_page_count is None:
+            original_page_count = document.total_pages
+        if requires_materialization(document, document.path, original_page_count):
+            self._apply_merged(document)
+            return
+        if self._deliver(document):
+            document.clear_modifications()
             logger.info("Editor changes saved as metadata (no intermediate file)")
-            return True
+            self._close_window()
 
-        except Exception as e:
-            logger.error(f"Error saving editor changes: {e}")
-            self._show_error(_("Error saving changes."))
-            return False
+    def _apply_merged(self, document: PDFDocument) -> None:
+        """Write the merged PDF in a worker, then hand it to the caller and close."""
+        from bigocrpdf.ui.pdf_editor.page_operations import write_changes_to_pdf
+        from bigocrpdf.utils.temp_manager import mkstemp, remove_file
 
-    def _save_merged_pdf(self, original_path: str) -> bool:
-        """Create a merged PDF when pages from multiple sources are present.
-
-        Returns:
-            True when the merged document was created and delivered.
-        """
-        from bigocrpdf.utils.temp_manager import mkstemp as _mkstemp
-        from bigocrpdf.utils.temp_manager import remove_file as _rmfile
-
-        # Tracked temp file — cleaned up after OCR or on exit
-        fd, temp_path = _mkstemp(suffix=".pdf", prefix="bigocr_merge_")
+        # Tracked temp file: the caller owns it once delivered, else it goes now.
+        fd, temp_path = mkstemp(suffix=".pdf", prefix="bigocr_merge_")
         os.close(fd)
+        snapshot = document.snapshot()
+        page_count = sum(page.included_for_ocr for page in snapshot.pages)
 
-        logger.info("Merging pages from multiple sources into new PDF...")
-        from bigocrpdf.ui.pdf_editor.page_operations import apply_changes_to_pdf
-
-        delivered = False
-        if self._document is not None and apply_changes_to_pdf(self._document, temp_path):
-            active_count = sum(page.included_for_ocr for page in self._document.get_active_pages())
-            clean_doc = PDFDocument(path=temp_path, total_pages=active_count)
-            for i in range(active_count):
-                clean_doc.pages[i].source_file = temp_path
-                clean_doc.pages[i].page_number = i + 1
-
+        def write() -> None:
             try:
-                if self._on_save_callback and self._on_save_callback(clean_doc) is False:
-                    self._show_error(_("Error saving changes."))
-                    return False
-                delivered = True
-            finally:
-                if not delivered:
-                    _rmfile(temp_path)
-            self._document.clear_modifications()
-            logger.info(f"Merged PDF saved to {temp_path}")
-            return True
+                write_changes_to_pdf(snapshot, temp_path)
+            except BaseException:
+                remove_file(temp_path)
+                raise
 
-        _rmfile(temp_path)
-        self._show_error(_("Failed to merge PDF pages."))
-        return False
+        def written() -> None:
+            merged = PDFDocument(path=temp_path, total_pages=page_count)
+            if not self._deliver(merged):
+                remove_file(temp_path)
+                return
+            document.clear_modifications()
+            logger.info(f"Merged PDF saved to {temp_path}")
+            self._close_window()
+
+        self._run_save(os.path.basename(document.path), write, written)
+
+    def _deliver(self, document: PDFDocument) -> bool:
+        """Pass the edited document to the caller; report a refusal."""
+        try:
+            accepted = self._on_save_callback is not None and (
+                self._on_save_callback(document) is not False
+            )
+        except Exception:
+            logger.exception("Error saving editor changes")
+            accepted = False
+        if not accepted:
+            self._show_error(_("Error saving changes."))
+        return accepted
 
     def _maybe_save_and_close(self) -> None:
         """Check for unsaved changes and close."""
@@ -575,7 +612,7 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
             dialog.set_body(_("What would you like to do with your changes?"))
 
             dialog.add_response("discard", _("Discard"))
-            dialog.add_response("save", _("Apply"))
+            dialog.add_response("save", _("Save As") if self._standalone else _("Apply"))
             dialog.set_response_appearance("discard", Adw.ResponseAppearance.DESTRUCTIVE)
             dialog.set_response_appearance("save", Adw.ResponseAppearance.SUGGESTED)
             dialog.set_default_response("save")
@@ -593,8 +630,10 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
             response: Response ID
         """
         if response == "save":
-            if self._save_and_callback():
-                self._close_window()
+            if self._standalone:
+                self._save_as(close_after=True)
+            else:
+                self._apply_and_close()
         elif response == "discard":
             if self._document:
                 self._document.clear_modifications()
@@ -638,6 +677,9 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
     def _on_close_request(self, window: Adw.Window) -> bool:
         """Handle window close request."""
         self._save_editor_window_size()
+        if self._saving:
+            self._close_after_save = True
+            return True
         if self._document and self._document.modified:
             self._maybe_save_and_close()
             return True

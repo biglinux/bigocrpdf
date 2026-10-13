@@ -2,6 +2,8 @@
 # Host attributes are supplied by PDFEditorWindow's explicit mixin composition.
 # pyright: reportAttributeAccessIssue=false
 
+from collections.abc import Callable
+
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -12,6 +14,19 @@ from bigocrpdf.ui.pdf_editor.page_grid import PageGrid
 from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.config_manager import get_config_manager
 from bigocrpdf.utils.i18n import _
+
+
+def _offer_activation(row: Gtk.ListBoxRow, activate: Callable[[], object]) -> None:
+    """Give an activatable row a ``row.activate`` action.
+
+    GTK's AT-SPI bridge offers a list row only the actions in its own action
+    muxer, so without one assistive technology cannot activate the row.
+    """
+    action = Gio.SimpleAction.new("activate", None)
+    action.connect("activate", lambda *_: activate())
+    group = Gio.SimpleActionGroup()
+    group.add_action(action)
+    row.insert_action_group("row", group)
 
 
 class EditorWindowLayoutMixin:
@@ -68,14 +83,14 @@ class EditorWindowLayoutMixin:
         return sidebar_header
 
     def _create_sidebar_box(self) -> Gtk.Box:
-        sidebar_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=24)
-        sidebar_box.set_margin_top(12)
-        sidebar_box.set_margin_bottom(24)
-        sidebar_box.set_margin_start(12)
-        sidebar_box.set_margin_end(12)
-        sidebar_box.append(self._create_document_actions_group())
-        sidebar_box.append(self._create_page_actions_group())
-        return sidebar_box
+        self._sidebar_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=24)
+        self._sidebar_box.set_margin_top(12)
+        self._sidebar_box.set_margin_bottom(24)
+        self._sidebar_box.set_margin_start(12)
+        self._sidebar_box.set_margin_end(12)
+        self._sidebar_box.append(self._create_document_actions_group())
+        self._sidebar_box.append(self._create_page_actions_group())
+        return self._sidebar_box
 
     def _create_document_actions_group(self) -> Adw.PreferencesGroup:
         doc_group = Adw.PreferencesGroup()
@@ -102,6 +117,7 @@ class EditorWindowLayoutMixin:
         row.add_prefix(Gtk.Image.new_from_icon_name(icon_name))
         row.set_activatable(True)
         row.set_action_name(action_name)
+        _offer_activation(row, lambda: row.activate_action(action_name, None))
         return row
 
     def _add_page_layout_row(self, doc_group: Adw.PreferencesGroup) -> None:
@@ -132,16 +148,16 @@ class EditorWindowLayoutMixin:
 
     def _create_page_actions_group(self) -> Adw.PreferencesGroup:
         page_group = Adw.PreferencesGroup()
-        self._select_all_btn = self._page_action_row(
-            _("Select All"), "object-select-symbolic", lambda _r: self._on_select_all(None)
+        self._include_all_row = self._page_action_row(
+            _("Include All Pages"), "object-select-symbolic", lambda _r: self._on_include_all()
         )
-        self._select_all_btn.set_tooltip_text(_("Select all pages in the document") + " (Ctrl+A)")
-        page_group.add(self._select_all_btn)
-        self._deselect_all_btn = self._page_action_row(
-            _("Deselect All"), "edit-clear-all-symbolic", lambda _r: self._on_deselect_all(None)
+        self._include_all_row.set_tooltip_text(_("Include every page in the final document"))
+        page_group.add(self._include_all_row)
+        self._exclude_all_row = self._page_action_row(
+            _("Exclude All Pages"), "edit-clear-all-symbolic", lambda _r: self._on_exclude_all()
         )
-        self._deselect_all_btn.set_tooltip_text(_("Clear page selection"))
-        page_group.add(self._deselect_all_btn)
+        self._exclude_all_row.set_tooltip_text(_("Exclude every page from the final document"))
+        page_group.add(self._exclude_all_row)
         self._add_rotate_flip_row(page_group)
         self._reverse_btn = self._document_action_row(
             _("Reverse Order"), "view-sort-ascending-symbolic", "editor.reverse"
@@ -155,6 +171,7 @@ class EditorWindowLayoutMixin:
         row.add_prefix(Gtk.Image.new_from_icon_name(icon_name))
         row.set_activatable(True)
         row.connect("activated", callback)
+        _offer_activation(row, lambda: callback(row))
         return row
 
     def _add_rotate_flip_row(self, page_group: Adw.PreferencesGroup) -> None:
@@ -177,6 +194,7 @@ class EditorWindowLayoutMixin:
         set_a11y_label(menu_button, _("Open rotate and flip actions"))
         self._rotate_flip_btn.add_suffix(menu_button)
         self._rotate_flip_btn.connect("activated", lambda _r: menu_button.popup())
+        _offer_activation(self._rotate_flip_btn, menu_button.popup)
         self._rotate_flip_btn.set_tooltip_text(
             _("Rotate or flip selected pages") + " (Ctrl+L / Ctrl+R)"
         )

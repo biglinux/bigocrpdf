@@ -1,6 +1,6 @@
 """Document and page state edited by the PDF editor."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -146,6 +146,13 @@ class PDFDocument:
         return sorted(
             [p for p in self.pages if not p.deleted],
             key=lambda p: p.position,
+        )
+
+    def snapshot(self) -> "PDFDocument":
+        """Copy the active pages without thumbnails, for a worker thread to write."""
+        return PDFDocument(
+            path=self.path,
+            pages=[replace(page, thumbnail_pixbuf=None) for page in self.get_active_pages()],
         )
 
     def get_page_by_position(self, position: int) -> PageState | None:

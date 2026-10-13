@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import locale
 import os
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -16,6 +17,7 @@ from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
 if TYPE_CHECKING:
+    from bigocrpdf.services.pdf_operations import OperationResult
     from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
 
 
@@ -100,50 +102,109 @@ class EditorToolsController:
 
     def _do_compress(self, quality: int, dpi: int) -> None:
         """Execute PDF compression."""
-        if not self._owner._document:
+        document = self._owner._document
+        if not document:
             return
 
-        from bigocrpdf.services.pdf_operations import compress_pdf
+        from bigocrpdf.services.pdf_operations import OperationResult, compress_pdf
         from bigocrpdf.ui.pdf_editor.page_operations import apply_changes_to_pdf
+        from bigocrpdf.ui.pdf_editor.page_thumbnail_export import run_in_worker
         from bigocrpdf.utils.temp_manager import mkstemp as _mkstemp
         from bigocrpdf.utils.temp_manager import remove_file as _rmfile
 
+        # The worker writes a copy, since the user may keep editing meanwhile.
+        snapshot = document.snapshot()
         fd, tmp_edited = _mkstemp(suffix=".pdf", prefix="bigocr_edit_")
         os.close(fd)
-
-        if not apply_changes_to_pdf(self._owner._document, tmp_edited):
-            self._owner._show_error(_("Failed to prepare document for compression."))
-            _rmfile(tmp_edited)
-            return
-
         fd2, tmp_compressed = _mkstemp(suffix=".pdf", prefix="bigocr_cmp_")
         os.close(fd2)
 
-        result = compress_pdf(tmp_edited, tmp_compressed, image_quality=quality, image_dpi=dpi)
-        _rmfile(tmp_edited)
+        def compress() -> tuple[OperationResult, int]:
+            try:
+                if not apply_changes_to_pdf(snapshot, tmp_edited):
+                    message = _("Failed to prepare document for compression.")
+                    return OperationResult(success=False, message=message), 0
+                size_before = os.path.getsize(tmp_edited)
+                result = compress_pdf(
+                    tmp_edited, tmp_compressed, image_quality=quality, image_dpi=dpi
+                )
+            except Exception as error:
+                # The result must reach the main loop, or the busy banner stays.
+                logger.exception("Compression failed")
+                return OperationResult(success=False, message=str(error)), 0
+            finally:
+                _rmfile(tmp_edited)
+            return result, size_before
 
-        if result.success:
-            dialog = Gtk.FileDialog()
-            dialog.set_title(_("Save Compressed PDF"))
-            source_name = os.path.basename(self._owner._pdf_path or "document.pdf")
-            dialog.set_initial_name("compressed_" + source_name)
-            dialog.set_initial_folder(Gio.File.new_for_path(self._owner._default_save_dir()))
+        self._owner._actions["compress"].set_enabled(False)
+        self._owner._show_busy(_("Optimizing image compression…"))
+        run_in_worker(compress, lambda outcome: self._offer_compressed(*outcome, tmp_compressed))
 
-            pdf_filter = Gtk.FileFilter()
-            pdf_filter.set_name(_("PDF Files"))
-            pdf_filter.add_pattern("*.pdf")
-            store = Gio.ListStore.new(Gtk.FileFilter)
-            store.append(pdf_filter)
-            dialog.set_filters(store)
+    def _offer_compressed(
+        self, result: OperationResult, size_before: int, tmp_compressed: str
+    ) -> None:
+        """Show what compression achieved and offer to save it, or report why there is none."""
+        from bigocrpdf.utils.temp_manager import remove_file as _rmfile
 
-            dialog.save(
-                self._owner,
-                None,
-                lambda d, r: self._finish_compress_save(d, r, tmp_compressed, result.message),
-            )
-        else:
+        self._owner._actions["compress"].set_enabled(True)
+        self._owner._end_busy()
+        if not self._owner.get_mapped():
+            # The editor was closed while the document was being compressed.
+            _rmfile(tmp_compressed)
+            return
+        if not result.success:
             _rmfile(tmp_compressed)
             self._owner._show_error(_("Compression failed: {}").format(result.message))
+            return
+
+        size_after = os.path.getsize(tmp_compressed)
+        change = (size_after - size_before) / size_before * 100 if size_before else 0.0
+        message = _("Size change: {before} → {after} ({percent}%)").format(
+            before=GLib.format_size(size_before),
+            after=GLib.format_size(size_after),
+            percent=locale.format_string("%+.1f", change),
+        )
+        dialog = Adw.AlertDialog()
+        dialog.set_body(message)
+        if size_after < size_before:
+            dialog.set_heading(_("Save Compressed PDF"))
+            dialog.add_response("cancel", _("Cancel"))
+            dialog.add_response("save", _("Save As"))
+            dialog.set_response_appearance("save", Adw.ResponseAppearance.SUGGESTED)
+            dialog.set_default_response("save")
+        else:
+            dialog.set_heading(_("Compression would not make this PDF smaller"))
+            dialog.add_response("cancel", _("Close"))
+        dialog.set_close_response("cancel")
+        dialog.connect(
+            "response",
+            lambda _d, response: (
+                self._choose_compressed_destination(tmp_compressed, message)
+                if response == "save"
+                else _rmfile(tmp_compressed)
+            ),
+        )
+        dialog.present(self._owner)
+
+    def _choose_compressed_destination(self, tmp_compressed: str, message: str) -> None:
+        dialog = Gtk.FileDialog()
+        dialog.set_title(_("Save Compressed PDF"))
+        source_name = os.path.basename(self._owner._pdf_path or "document.pdf")
+        dialog.set_initial_name("compressed_" + source_name)
+        dialog.set_initial_folder(Gio.File.new_for_path(self._owner._default_save_dir()))
+
+        pdf_filter = Gtk.FileFilter()
+        pdf_filter.set_name(_("PDF Files"))
+        pdf_filter.add_pattern("*.pdf")
+        store = Gio.ListStore.new(Gtk.FileFilter)
+        store.append(pdf_filter)
+        dialog.set_filters(store)
+
+        dialog.save(
+            self._owner,
+            None,
+            lambda d, r: self._finish_compress_save(d, r, tmp_compressed, message),
+        )
 
     def _finish_compress_save(self, dialog, result, tmp_path, message) -> None:
         """Finish saving the compressed file."""

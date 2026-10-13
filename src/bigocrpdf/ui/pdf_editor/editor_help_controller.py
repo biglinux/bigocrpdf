@@ -104,6 +104,9 @@ class EditorHelpController:
             ("Ctrl+S", _("Save and close")),
             ("Delete", _("Remove or restore selected pages")),
             ("Ctrl+L / Ctrl+R", _("Rotate left / right")),
+            ("Ctrl+Up", _("Move up")),
+            ("Ctrl+Down", _("Move down")),
+            ("Ctrl+V", _("Paste from clipboard")),
             ("+  /  -", _("Zoom in / out")),
         ]
         shortcuts_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)

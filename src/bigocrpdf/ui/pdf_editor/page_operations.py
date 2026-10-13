@@ -1,9 +1,10 @@
 """PDF page rotation, deletion, reordering and OCR selection with pikepdf."""
 
 import math
+import os
+import stat
 from contextlib import ExitStack
 from pathlib import Path
-from tempfile import TemporaryDirectory
 
 from bigocrpdf.ui.pdf_editor.page_model import PageState, PDFDocument
 from bigocrpdf.utils.logger import logger
@@ -546,84 +547,71 @@ def _add_pdf_page(source_file, page_state, new_pdf, opened_pdfs, resources: Exit
 _IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff", ".bmp")
 
 
-def apply_changes_to_pdf(doc: PDFDocument | None, output_path: str) -> bool:
-    """Apply all changes and save to a new PDF file.
+def write_changes_to_pdf(doc: PDFDocument, output_path: str) -> None:
+    """Write the document's active, included pages to a new PDF.
 
-    Merges pages from multiple source files (PDFs and Images).
-    Uses pikepdf for PDF manipulation and PIL for image conversion.
-
-    Args:
-        doc: The PDFDocument with changes
-        output_path: Path for the output PDF
-
-    Returns:
-        True if successful
+    Merges pages from multiple source files (PDFs and images). Raises on a
+    missing source, an unreadable page or a failed write.
     """
+    import pikepdf
+
+    with ExitStack() as resources:
+        new_pdf = pikepdf.Pdf.new()
+        resources.callback(new_pdf.close)
+        opened_pdfs: dict[str, pikepdf.Pdf] = {}
+        active_pages = [page for page in doc.get_active_pages() if page.included_for_ocr]
+
+        _append_active_pages_to_pdf(
+            active_pages,
+            doc.path,
+            new_pdf,
+            opened_pdfs,
+            resources,
+        )
+
+        # Apply the viewer page layout (/PageLayout) from the shared setting.
+        from bigocrpdf.utils.config_manager import get_config_manager
+        from bigocrpdf.utils.pdf_utils import set_root_page_layout
+
+        layout = get_config_manager().get("output.page_layout", "default")
+        set_root_page_layout(new_pdf, layout)
+
+        new_pdf.save(output_path)
+    logger.info(f"Saved modified PDF to {output_path}")
+
+
+def apply_changes_to_pdf(doc: PDFDocument | None, output_path: str) -> bool:
+    """Write the edited document to ``output_path``; False, logged, on failure."""
     if doc is None:
         return False
     try:
-        import pikepdf
-
-        with ExitStack() as resources:
-            new_pdf = pikepdf.Pdf.new()
-            resources.callback(new_pdf.close)
-            opened_pdfs: dict[str, pikepdf.Pdf] = {}
-            active_pages = [page for page in doc.get_active_pages() if page.included_for_ocr]
-
-            _append_active_pages_to_pdf(
-                active_pages,
-                doc.path,
-                new_pdf,
-                opened_pdfs,
-                resources,
-            )
-
-            # Apply the viewer page layout (/PageLayout) from the shared setting.
-            from bigocrpdf.utils.config_manager import get_config_manager
-            from bigocrpdf.utils.pdf_utils import set_root_page_layout
-
-            layout = get_config_manager().get("output.page_layout", "default")
-            set_root_page_layout(new_pdf, layout)
-
-            new_pdf.save(output_path)
-        logger.info(f"Saved modified PDF to {output_path}")
-        return True
-
-    except ImportError:
-        logger.error("pikepdf or PIL is not installed")
-        return False
+        write_changes_to_pdf(doc, output_path)
     except Exception as e:
         logger.error(f"Failed to save PDF: {e}")
         return False
+    return True
 
 
-def apply_changes_to_pdf_atomically(
-    doc: PDFDocument | None,
-    output_path: str | Path,
-) -> bool:
-    """Materialize editor changes privately, then publish the complete PDF."""
-    if doc is None:
-        return False
+def publish_changes_to_pdf(doc: PDFDocument, output_path: str | Path) -> None:
+    """Write the edited document privately, then publish the complete PDF.
+
+    A replaced file keeps its access mode. Raises on failure, leaving any
+    existing file at ``output_path`` untouched.
+    """
+    from bigocrpdf.utils.durable_writes import publish_file_atomically
+    from bigocrpdf.utils.temp_manager import staging_directory
+
     destination = Path(output_path)
     try:
-        with TemporaryDirectory(
-            prefix=f".{destination.name}.",
-            dir=destination.parent,
-        ) as staging_name:
-            staged_path = Path(staging_name) / destination.name
-            if not apply_changes_to_pdf(doc, str(staged_path)):
-                return False
-            from bigocrpdf.utils.durable_writes import publish_file_atomically
-
-            publish_file_atomically(
-                staged_path,
-                destination,
-                overwrite=True,
-            )
-        return True
-    except (OSError, ValueError) as error:
-        logger.error("Failed to publish edited PDF: %s", error)
-        return False
+        mode = stat.S_IMODE(destination.stat().st_mode)
+    except FileNotFoundError:
+        mode = None
+    with staging_directory(destination.parent, ".bigocr_edit_") as staging_name:
+        staged_path = Path(staging_name) / destination.name
+        write_changes_to_pdf(doc, str(staged_path))
+        if mode is not None:
+            os.chmod(staged_path, mode)
+        publish_file_atomically(staged_path, destination, overwrite=True)
 
 
 def _append_active_pages_to_pdf(

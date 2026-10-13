@@ -1,4 +1,5 @@
 import shutil
+import stat
 import subprocess
 from pathlib import Path
 from unittest.mock import patch
@@ -7,8 +8,8 @@ import pikepdf
 import pytest
 from PIL import Image, ImageOps
 
-from bigocrpdf.services.rapidocr_service.config import OcrDocument, OcrPage
-from bigocrpdf.services.rapidocr_service.ocr_document_io import (
+from bigocrpdf.services.ocr.config import OcrDocument, OcrPage
+from bigocrpdf.services.ocr.ocr_document_io import (
     load_ocr_document_json,
     ocr_document_json_path,
     write_ocr_document_json,
@@ -17,7 +18,7 @@ from bigocrpdf.ui.pdf_editor.page_model import PageState, PDFDocument
 from bigocrpdf.ui.pdf_editor.page_operations import (
     _page_flip_matrix,
     apply_changes_to_pdf,
-    apply_changes_to_pdf_atomically,
+    publish_changes_to_pdf,
 )
 
 
@@ -340,15 +341,33 @@ def test_atomic_apply_preserves_existing_destination_on_publication_failure(
             "bigocrpdf.utils.durable_writes.publish_file_atomically",
             side_effect=OSError("simulated publication failure"),
         ),
+        pytest.raises(OSError, match="simulated publication failure"),
     ):
-        saved = apply_changes_to_pdf_atomically(document, output_pdf)
+        publish_changes_to_pdf(document, output_pdf)
 
-    assert saved is False
     assert output_pdf.read_bytes() == b"existing destination"
     assert sorted(path.name for path in tmp_path.iterdir()) == [
         "edited.pdf",
         "source.pdf",
     ]
+
+
+def test_in_place_publish_keeps_file_mode(tmp_path: Path) -> None:
+    document_pdf = tmp_path / "document.pdf"
+    with pikepdf.Pdf.new() as pdf:
+        pdf.add_blank_page()
+        pdf.add_blank_page()
+        pdf.save(document_pdf)
+    document_pdf.chmod(0o640)
+    document = PDFDocument(path=str(document_pdf), total_pages=2)
+    document.pages[1].included_for_ocr = False
+
+    publish_changes_to_pdf(document, document_pdf)
+
+    assert stat.S_IMODE(document_pdf.stat().st_mode) == 0o640
+    with pikepdf.open(document_pdf) as edited:
+        assert len(edited.pages) == 1
+    assert [path.name for path in tmp_path.iterdir()] == ["document.pdf"]
 
 
 def test_structured_json_is_refused_after_the_pdf_it_describes_is_edited(
@@ -377,7 +396,7 @@ def test_structured_json_is_refused_after_the_pdf_it_describes_is_edited(
     assert load_ocr_document_json(json_path, output_pdf) is not None
 
     document = PDFDocument(path=str(source_pdf), total_pages=1)
-    assert apply_changes_to_pdf_atomically(document, output_pdf)
+    publish_changes_to_pdf(document, output_pdf)
 
     assert load_ocr_document_json(json_path, output_pdf) is None
 

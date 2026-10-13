@@ -79,15 +79,18 @@ class EditorPageActionsMixin:
             if not valid_paths:
                 return False
 
-            return self._add_files_to_document(valid_paths) > 0
+            return self._add_files_to_document(valid_paths, "dropped") > 0
 
         except Exception as e:
             logger.error(f"Error handling dropped files: {e}")
             return False
 
-    def _add_files_to_document(self, file_paths: list[str]) -> int:
-        """Add external files (PDFs or images) to the current document."""
-        if not self._document:
+    def _add_files_to_document(self, file_paths: list[str], origin: str = "opened") -> int:
+        """Add external files (PDFs or images) to the current document.
+
+        ``origin`` names how the files arrived, for the log.
+        """
+        if not self._document or self._saving:
             return 0
 
         added_pages: list[PageState] = []
@@ -121,9 +124,7 @@ class EditorPageActionsMixin:
             self._document.mark_modified()
             self._page_grid.refresh()
             self._update_status_bar()
-            logger.info(
-                f"Added {added_count} pages via drag-and-drop. Total: {self._document.total_pages}"
-            )
+            logger.info(f"Added {added_count} {origin} pages. Total: {self._document.total_pages}")
         return added_count
 
     def _on_key_pressed(
@@ -140,7 +141,7 @@ class EditorPageActionsMixin:
             return self._handle_ctrl_shortcut(keyval)
 
         if keyval == Gdk.KEY_Delete:
-            if self._page_grid.selected_indices:
+            if self._page_grid.selected_indices and not self._saving:
                 self._page_grid.toggle_ocr_for_selected()
             return True
         if keyval == Gdk.KEY_Escape:
@@ -168,15 +169,17 @@ class EditorPageActionsMixin:
             Gdk.KEY_Up: lambda: self._move_selected_pages(-1),
             Gdk.KEY_Down: lambda: self._move_selected_pages(1),
             Gdk.KEY_v: self._paste_from_clipboard,
+            Gdk.KEY_s: lambda: (
+                self._on_save_as_clicked if self._standalone else self._on_ok_clicked
+            )(None),
         }
         handler = dispatch.get(keyval)
-        if handler:
+        if handler is None:
+            return False
+        # Edits wait for a running save, which writes the pages as they were.
+        if not self._saving:
             handler()
-            return True
-        if keyval == Gdk.KEY_s:
-            (self._on_save_as_clicked if self._standalone else self._on_ok_clicked)(None)
-            return True
-        return False
+        return True
 
     def _scroll_page(self, up: bool) -> None:
         """Scroll the page grid by ~80% of visible area."""
@@ -251,7 +254,7 @@ class EditorPageActionsMixin:
 
         valid = [p for p in file_paths if p.lower().endswith(self._SUPPORTED_EXTENSIONS)]
         if valid:
-            self._add_files_to_document(valid)
+            self._add_files_to_document(valid, "pasted")
 
     def _on_editor_clipboard_texture_ready(
         self, clipboard: Gdk.Clipboard, result: Gio.AsyncResult
@@ -280,7 +283,7 @@ class EditorPageActionsMixin:
             logger.error(f"Editor: failed to save clipboard image: {e}")
             return
 
-        if self._add_files_to_document([tmp_path]) == 0:
+        if self._add_files_to_document([tmp_path], "pasted") == 0:
             remove_file(tmp_path)
 
     def _on_add_files_clicked(self, _button: Gtk.Button) -> None:
@@ -312,12 +315,10 @@ class EditorPageActionsMixin:
             if "dismissed" not in str(e).lower():
                 logger.error(f"Error selecting files: {e}")
 
-    def _on_select_all(self, _button: Gtk.Button) -> None:
-        """Handle Select All button click."""
+    def _on_include_all(self) -> None:
         self._page_grid.select_all_for_ocr()
 
-    def _on_deselect_all(self, _button: Gtk.Button) -> None:
-        """Handle Deselect All button click."""
+    def _on_exclude_all(self) -> None:
         self._page_grid.deselect_all_for_ocr()
 
     def _on_rotate_left(self, _action: Gio.SimpleAction, _param: GLib.Variant | None) -> None:
