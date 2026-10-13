@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 3.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-10-10 16:10-0300\n"
+"POT-Creation-Date: 2026-10-13 01:07-0300\n"
 "PO-Revision-Date: 2026-10-03 09:30+0000\n"
 "Last-Translator: BigLinux Translation Team\n"
 "Language-Team: Icelandic\n"
@@ -18,80 +18,84 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n % 10 != 1 || n % 100 == 11);\n"
 "Generated-By: Babel 2.18.0\n"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 70
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 41
-#: src/bigocrpdf/application.py:53 src/bigocrpdf/cli_parser.py:72
+#: src/bigocrpdf/__init__.py:44
+#, python-brace-format
+msgid ""
+"The OCR engine, {worker}, is not installed, or its model files are missing "
+"from {path}."
+msgstr ""
+"OCR-vélin {worker} er ekki uppsett eða líkanaskrár hennar vantar í {path}."
+
+#: src/bigocrpdf/application.py:54 src/bigocrpdf/cli_parser.py:72
 #: src/bigocrpdf/config.py:84 src/bigocrpdf/image_application.py:50
 msgid "Print version information and exit"
 msgstr "Sýna útgáfuupplýsingar og hætta"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 57
-# File: bigocrpdf/src/bigocrpdf/config.py, line: 146
-#: src/bigocrpdf/application.py:61 src/bigocrpdf/config.py:96
+#: src/bigocrpdf/application.py:62 src/bigocrpdf/config.py:96
 msgid "Open files directly in the PDF editor"
 msgstr "Opna skrár beint í PDF-ritlinum"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 106
-#: src/bigocrpdf/application.py:220
+#: src/bigocrpdf/application.py:72 src/bigocrpdf/config.py:86
+#: src/bigocrpdf/image_application.py:60
+msgid "Enable debug mode"
+msgstr "Virkja villuleitarham"
+
+#: src/bigocrpdf/application.py:80 src/bigocrpdf/config.py:87
+#: src/bigocrpdf/image_application.py:68
+msgid "Enable verbose output"
+msgstr "Virkja ítarlegt úttak"
+
+#: src/bigocrpdf/application.py:239
 msgid "Application started successfully"
 msgstr "Forritið var ræst án vandræða"
 
-#: src/bigocrpdf/application.py:223
+#: src/bigocrpdf/application.py:242
 msgid "Error activating application"
 msgstr "Villa við að virkja forritið"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 111
-#: src/bigocrpdf/application.py:225
+#: src/bigocrpdf/application.py:244
 msgid "Error starting application"
 msgstr "Villa við að ræsa forritið"
 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 270
-#: src/bigocrpdf/application.py:318
+#: src/bigocrpdf/application.py:337
 msgid "PDF Editor - Combined PDF"
 msgstr "PDF-ritill - sameinuð PDF-skrá"
 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 273
-#: src/bigocrpdf/application.py:321
+#: src/bigocrpdf/application.py:340
 #, python-brace-format
 msgid "Combined PDF ({count} file)"
 msgid_plural "Combined PDF ({count} files)"
 msgstr[0] "Samsett PDF ({count} skrá)"
 msgstr[1] "Samsett PDF ({count} skrár)"
 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 191
-#: src/bigocrpdf/application.py:363
+#: src/bigocrpdf/application.py:382
 #, python-brace-format
 msgid "Added {count} file from command line"
 msgid_plural "Added {count} files from command line"
 msgstr[0] "{count} skrá bætt við frá skipanalínunni"
 msgstr[1] "{count} skrár bættar við frá skipanalínunni"
 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 270
-#: src/bigocrpdf/application.py:400
+#: src/bigocrpdf/application.py:419
 #, python-brace-format
 msgid "Opened {count} file"
 msgid_plural "Opened {count} files"
 msgstr[0] "Opnaði {count} skrá"
 msgstr[1] "Opnaði {count} skrár"
 
-#: src/bigocrpdf/application.py:409
+#: src/bigocrpdf/application.py:428
 msgid "Error opening files"
 msgstr "Villa við að opna skrár"
 
-# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 258
-#: src/bigocrpdf/application.py:415 src/bigocrpdf/services/settings.py:517
+#: src/bigocrpdf/application.py:434 src/bigocrpdf/services/settings.py:504
 #, python-brace-format
 msgid "Unsupported file type: {0}"
 msgstr "Óstudd skráartegund: {0}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 179
-#: src/bigocrpdf/application.py:419 src/bigocrpdf/ui/image_ocr_window.py:303
+#: src/bigocrpdf/application.py:438 src/bigocrpdf/ui/image_ocr_window.py:333
 msgid "Unsupported file format"
 msgstr "Óstutt skráarsnið"
 
-#: src/bigocrpdf/application.py:421
+#: src/bigocrpdf/application.py:440
 #, python-brace-format
 msgid ""
 "{files}\n"
@@ -104,99 +108,81 @@ msgstr ""
 "Big OCR PDF opnar PDF-skjöl og myndir á sniðunum PNG, JPEG, WebP, BMP, TIFF "
 "og AVIF."
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1493
-#: src/bigocrpdf/application.py:425 src/bigocrpdf/processing_controller.py:490
-#: src/bigocrpdf/ui/text_viewer_controller.py:220
-#: src/bigocrpdf/ui/text_viewer_controller.py:222
-#: src/bigocrpdf/ui/widgets.py:80
+#: src/bigocrpdf/application.py:444 src/bigocrpdf/processing_controller.py:447
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:177
+#: src/bigocrpdf/ui/text_viewer_controller.py:221
+#: src/bigocrpdf/ui/text_viewer_controller.py:223
+#: src/bigocrpdf/ui/widgets.py:115
 msgid "Close"
 msgstr "Loka"
 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 372
-#: src/bigocrpdf/application.py:511
+#: src/bigocrpdf/application.py:534 src/bigocrpdf/ui/image_ocr_window.py:46
 msgid "File"
 msgstr "Skrá"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 309
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 375
-#: src/bigocrpdf/application.py:513
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:231
+#: src/bigocrpdf/application.py:536
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:249
 msgid "Add files"
 msgstr "Bæta við skrám"
 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 376
-#: src/bigocrpdf/application.py:514
+#: src/bigocrpdf/application.py:537 src/bigocrpdf/ui/image_ocr_window.py:48
+#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:109
 msgid "Paste from clipboard"
 msgstr "Líma úr klippiborði"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 129
-# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 249
-#: src/bigocrpdf/application.py:515 src/bigocrpdf/ui/header_bar.py:120
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:259
+#: src/bigocrpdf/application.py:538 src/bigocrpdf/ui/header_bar.py:120
+#: src/bigocrpdf/ui/image_ocr_window.py:49
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:277
 #: src/bigocrpdf/ui/window_ui.py:266
 msgid "Quit"
 msgstr "Hætta"
 
-# File: bigocrpdf/src/bigocrpdf/window.py, line: 108
-#: src/bigocrpdf/application.py:519 src/bigocrpdf/ui/window_ui.py:209
+#: src/bigocrpdf/application.py:542 src/bigocrpdf/ui/image_ocr_window.py:53
+#: src/bigocrpdf/ui/window_ui.py:209
 msgid "Processing"
 msgstr "Vinnsla"
 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 102
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 110
-#: src/bigocrpdf/application.py:521 src/bigocrpdf/processing_controller.py:286
-#: src/bigocrpdf/processing_controller.py:318 src/bigocrpdf/ui/header_bar.py:88
+#: src/bigocrpdf/application.py:544 src/bigocrpdf/processing_controller.py:249
+#: src/bigocrpdf/processing_controller.py:281 src/bigocrpdf/ui/header_bar.py:88
 #: src/bigocrpdf/ui/header_bar.py:93 src/bigocrpdf/ui/header_bar.py:208
 msgid "Start OCR"
 msgstr "Hefja OCR"
 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 393
-#: src/bigocrpdf/application.py:522
+#: src/bigocrpdf/application.py:545 src/bigocrpdf/ui/image_ocr_window.py:54
 msgid "Cancel processing"
 msgstr "Hætta við vinnslu"
 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 394
-#: src/bigocrpdf/application.py:523
+#: src/bigocrpdf/application.py:546
 msgid "Clear file queue"
 msgstr "Hreinsa skráabiðröð"
 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 406
-#: src/bigocrpdf/application.py:527
+#: src/bigocrpdf/application.py:550 src/bigocrpdf/ui/image_ocr_window.py:56
 msgid "General"
 msgstr "Almennt"
 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 409
-#: src/bigocrpdf/application.py:529
+#: src/bigocrpdf/application.py:552 src/bigocrpdf/ui/image_ocr_window.py:56
 msgid "Keyboard shortcuts"
 msgstr "Flýtileiðir"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 141
-#: src/bigocrpdf/application.py:530 src/bigocrpdf/ui/header_bar.py:118
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:257
+#: src/bigocrpdf/application.py:553 src/bigocrpdf/ui/header_bar.py:118
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:275
 #: src/bigocrpdf/ui/window_ui.py:264
 msgid "Help"
 msgstr "Hjálp"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 129
-#: src/bigocrpdf/application.py:549 src/bigocrpdf/image_application.py:152
+#: src/bigocrpdf/application.py:572 src/bigocrpdf/image_application.py:177
 msgid "BigLinux Team"
 msgstr "BigLinux teymi"
 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 249
-#: src/bigocrpdf/application.py:557
+#: src/bigocrpdf/application.py:580
 msgid "Interface"
 msgstr "Viðmót"
 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 255
-#: src/bigocrpdf/application.py:563
+#: src/bigocrpdf/application.py:586
 msgid "Third-party Components"
 msgstr "Íhlutir þriðju aðila"
 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 257
-#: src/bigocrpdf/application.py:565
+#: src/bigocrpdf/application.py:588
 msgid ""
 "The OCR engine and other libraries used by this application are independent "
 "projects, each distributed under its own license."
@@ -204,251 +190,161 @@ msgstr ""
 "OCR-vélin og önnur söfn sem forritið notar eru sjálfstæð verkefni sem hvert "
 "um sig er dreift samkvæmt eigin leyfi."
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/app.py, line: 139
-#: src/bigocrpdf/application.py:575
+#: src/bigocrpdf/application.py:598
 msgid "Developers"
 msgstr "Þróunaraðilar"
 
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 272
-#: src/bigocrpdf/application.py:579
+#: src/bigocrpdf/application.py:602
 msgid "Powered by"
 msgstr "Knúið af"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 163
 #: src/bigocrpdf/cli_parser.py:74
 msgid "Verbose logging (DEBUG)"
 msgstr "Ítarleg skráning (DEBUG)"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 165
 #: src/bigocrpdf/cli_parser.py:75
 msgid "Available commands"
 msgstr "Tiltækar skipanir"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 168
 #: src/bigocrpdf/cli_parser.py:84
 msgid "OCR processing for PDF files"
 msgstr "OCR-vinnsla fyrir PDF-skrár"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 169
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 277
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 309
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 328
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 346
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 357
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 394
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 411
-#: src/bigocrpdf/cli_parser.py:85 src/bigocrpdf/cli_parser.py:304
-#: src/bigocrpdf/cli_parser.py:309 src/bigocrpdf/cli_parser.py:334
-#: src/bigocrpdf/cli_parser.py:356 src/bigocrpdf/cli_parser.py:377
-#: src/bigocrpdf/cli_parser.py:388 src/bigocrpdf/cli_parser.py:428
+#: src/bigocrpdf/cli_parser.py:85 src/bigocrpdf/cli_parser.py:249
+#: src/bigocrpdf/cli_parser.py:254 src/bigocrpdf/cli_parser.py:279
+#: src/bigocrpdf/cli_parser.py:301 src/bigocrpdf/cli_parser.py:322
+#: src/bigocrpdf/cli_parser.py:333 src/bigocrpdf/cli_parser.py:373
 msgid "Input PDF file"
 msgstr "PDF-inntaksskrá"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 170
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 305
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 310
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 329
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 347
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 358
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 369
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 395
-#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:329
-#: src/bigocrpdf/cli_parser.py:336 src/bigocrpdf/cli_parser.py:358
-#: src/bigocrpdf/cli_parser.py:379 src/bigocrpdf/cli_parser.py:390
-#: src/bigocrpdf/cli_parser.py:401 src/bigocrpdf/cli_parser.py:430
+#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:274
+#: src/bigocrpdf/cli_parser.py:281 src/bigocrpdf/cli_parser.py:303
+#: src/bigocrpdf/cli_parser.py:324 src/bigocrpdf/cli_parser.py:335
+#: src/bigocrpdf/cli_parser.py:346 src/bigocrpdf/cli_parser.py:375
 msgid "Output PDF file"
 msgstr "PDF-úttaksskrá"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 175
 #: src/bigocrpdf/cli_parser.py:91
 msgid "Pages to process (e.g. '7', '3-10', '1,3,7'). Default: all."
 msgstr "Síður til vinnslu (t.d. '7', '3-10', '1,3,7'). Sjálfgefið: allar."
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 187
 #: src/bigocrpdf/cli_parser.py:94
 msgid "Parallel workers (0 = auto). Default: 0."
 msgstr "Samhliða ferli (0 = sjálfvirkt). Sjálfgefið: 0."
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 189
 #: src/bigocrpdf/cli_parser.py:97
 msgid "DPI for extraction (default: 300)"
 msgstr "DPI fyrir útdrátt (sjálfgefið: 300)"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 192
 #: src/bigocrpdf/cli_parser.py:107
 msgid "OCR behavior"
 msgstr "OCR-hegðun"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 197
 #: src/bigocrpdf/cli_parser.py:112
 msgid "Re-OCR pages that already have text (default: skip them)."
 msgstr "Endurgera OCR á síðum með texta (sjálfgefið: sleppa)."
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 203
 #: src/bigocrpdf/cli_parser.py:118
 msgid "Process all pages as image-only (for editor-merged files)."
 msgstr "Vinna allar síður sem myndir (fyrir sameinaðar skrár)."
 
-# File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 126
-#: src/bigocrpdf/cli_parser.py:126
-msgid "RapidOCR model size/type (default: small)."
-msgstr "Stærð/gerð RapidOCR-líkans (sjálfgefið: small)."
-
-# File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 132
-#: src/bigocrpdf/cli_parser.py:132
-msgid "RapidOCR CPU inference engine (default: openvino)."
-msgstr "RapidOCR CPU ályktunarvél (sjálfgefið: openvino)."
-
-# File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 138
-#: src/bigocrpdf/cli_parser.py:138
+#: src/bigocrpdf/cli_parser.py:124
 msgid "PDF text handling mode (default: auto)."
 msgstr "PDF textameðferðarstilling (sjálfgefið: auto)."
 
-# File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 144
-#: src/bigocrpdf/cli_parser.py:144
-msgid "RapidOCR recognition batch size (default: 1)."
-msgstr "Lotustærð RapidOCR-greiningar (sjálfgefið: 1)."
-
-# File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 150
-#: src/bigocrpdf/cli_parser.py:150
-msgid "Enable RapidOCR text-line orientation classifier."
-msgstr "Virkja RapidOCR textalínustefnuflokkara."
-
-#: src/bigocrpdf/cli_parser.py:161
+#: src/bigocrpdf/cli_parser.py:135 src/bigocrpdf/ui/advanced_dialog.py:49
 msgid ""
-"Detect text on the page as rendered, without letting RapidOCR downscale it."
+"Analyzes the image at full resolution for text detection. Finds more text in "
+"high-resolution scans but takes longer. The faster mode is good enough for "
+"most documents."
 msgstr ""
-"Greina texta á síðunni í þeirri stærð sem hún var mynduð, án þess að "
-"RapidOCR minnki hana."
+"Greinir myndina í fullri upplausn til að finna texta. Finnur meiri texta í "
+"skönnunum með hárri upplausn en tekur lengri tíma. Hraðari hamurinn nægir "
+"fyrir flest skjöl."
 
-#: src/bigocrpdf/cli_parser.py:167
-msgid "Let RapidOCR downscale the page before detection: faster, less memory."
-msgstr "Leyfa RapidOCR að minnka síðuna fyrir greiningu: hraðara, minna minni."
-
-# File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 159
-#: src/bigocrpdf/cli_parser.py:176
-msgid "Experimental GPU backend (default: off)."
-msgstr "Tilrauna-GPU-bakendi (sjálfgefið: off)."
-
-# File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 165
-#: src/bigocrpdf/cli_parser.py:182
-msgid "GPU device id for experimental GPU backends."
-msgstr "Auðkenni GPU-tækis fyrir tilrauna-GPU-bakenda."
-
-# File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 171
-#: src/bigocrpdf/cli_parser.py:188
-msgid "Use FP16 for supported experimental GPU backends."
-msgstr "Notaðu FP16 fyrir studda tilrauna-GPU-bakenda."
-
-# File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 176
-#: src/bigocrpdf/cli_parser.py:193
-msgid "Fail instead of falling back to CPU when GPU initialization fails."
-msgstr ""
-"Hætta í stað þess að nota CPU sem varaleið ef frumstilling GPU misheppnast."
-
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 213
-#: src/bigocrpdf/cli_parser.py:198
+#: src/bigocrpdf/cli_parser.py:143
 msgid "Geometric corrections"
 msgstr "Rúmfræðilegar leiðréttingar"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 214
-#: src/bigocrpdf/cli_parser.py:200
+#: src/bigocrpdf/cli_parser.py:145
 msgid "Disable curvature correction"
 msgstr "Slökkva á sveigjuleiðréttingu"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 215
-#: src/bigocrpdf/cli_parser.py:202
+#: src/bigocrpdf/cli_parser.py:147
 msgid "Disable skew correction"
 msgstr "Slökkva á hallaleiðréttingu"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 217
-#: src/bigocrpdf/cli_parser.py:204
+#: src/bigocrpdf/cli_parser.py:149
 msgid "Disable perspective correction"
 msgstr "Slökkva á sjónarhornsleiðréttingu"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 220
-#: src/bigocrpdf/cli_parser.py:207
+#: src/bigocrpdf/cli_parser.py:152
 msgid "Disable orientation detection"
 msgstr "Slökkva á stefnugreiningu"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 224
-#: src/bigocrpdf/cli_parser.py:212
+#: src/bigocrpdf/cli_parser.py:157
 msgid "Image enhancements"
 msgstr "Myndbætur"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 229
-#: src/bigocrpdf/cli_parser.py:217
+#: src/bigocrpdf/cli_parser.py:162
 msgid "Enable scanner effect (whitens background)."
 msgstr "Virkja skannaáhrif (gerir bakgrunninn hvítari)."
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 231
-#: src/bigocrpdf/cli_parser.py:219
+#: src/bigocrpdf/cli_parser.py:164
 msgid "Disable scanner effect."
 msgstr "Slökkva á skannaáhrifum."
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 232
-#: src/bigocrpdf/cli_parser.py:220
+#: src/bigocrpdf/cli_parser.py:165
 msgid "Enable CLAHE contrast"
 msgstr "Virkja CLAHE-birtuskil"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 233
-#: src/bigocrpdf/cli_parser.py:221
+#: src/bigocrpdf/cli_parser.py:166
 msgid "Enable auto brightness"
 msgstr "Virkja sjálfvirka birtustillingu"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 234
-#: src/bigocrpdf/cli_parser.py:222
+#: src/bigocrpdf/cli_parser.py:167
 msgid "Enable denoising"
 msgstr "Virkja suðminnkun"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 235
-#: src/bigocrpdf/cli_parser.py:223
+#: src/bigocrpdf/cli_parser.py:168
 msgid "Remove dark borders"
 msgstr "Fjarlægja dökkar brúnir"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 239
-#: src/bigocrpdf/cli_parser.py:224
+#: src/bigocrpdf/cli_parser.py:169
 msgid "Enable vintage look (sepia/BW)."
 msgstr "Virkja gamaldags útlit (sepía/SH)."
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 241
-#: src/bigocrpdf/cli_parser.py:225
+#: src/bigocrpdf/cli_parser.py:170
 msgid "Vintage in black & white"
 msgstr "Gamaldags í svarthvítu"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 401
-#: src/bigocrpdf/cli_parser.py:229 src/bigocrpdf/ui/settings_queue_mixin.py:304
+#: src/bigocrpdf/cli_parser.py:174 src/bigocrpdf/ui/settings_queue_mixin.py:304
 #: src/bigocrpdf/ui/settings_queue_mixin.py:306
 msgid "Output options"
 msgstr "Úttaksvalkostir"
 
-# File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 219
-#: src/bigocrpdf/cli_parser.py:236
+#: src/bigocrpdf/cli_parser.py:181
 msgid "Convert output to PDF/A-2b (default)"
 msgstr "Umbreyta úttaki í PDF/A-2b (sjálfgefið)"
 
-# File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 225
-#: src/bigocrpdf/cli_parser.py:242
+#: src/bigocrpdf/cli_parser.py:187
 msgid "Create a regular PDF instead of PDF/A-2b"
 msgstr "Búa til venjulegt PDF í stað PDF/A-2b"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 255
-#: src/bigocrpdf/cli_parser.py:249
+#: src/bigocrpdf/cli_parser.py:194
 msgid "Viewer page layout (/PageLayout) in output PDF. Default: default."
 msgstr ""
 "Síðuskipan lesara (/PageLayout) í úttaks-PDF-skránni. Sjálfgefið: default."
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 251
-#: src/bigocrpdf/cli_parser.py:256
+#: src/bigocrpdf/cli_parser.py:201
 msgid "Image format in output PDF. Default: original."
 msgstr "Myndsnið í úttaks-PDF. Sjálfgefið: original."
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 258
-#: src/bigocrpdf/cli_parser.py:263
+#: src/bigocrpdf/cli_parser.py:208
 msgid "Image quality for JPEG/WebP (1-95, default: 85)."
 msgstr "Myndgæði fyrir JPEG/WebP (1-95, sjálfgefið: 85)."
 
-#: src/bigocrpdf/cli_parser.py:272
+#: src/bigocrpdf/cli_parser.py:217
 msgid ""
 "Also write structured OCR data (text, word boxes, confidence, layout) as "
 "JSON. Nothing is written without this option. If FILE is omitted, the name "
@@ -458,214 +354,169 @@ msgstr ""
 "Ekkert er skrifað án þessa valkosts. Sé FILE sleppt er heitið úttaks-PDF með "
 "viðskeytinu .bigocr.json."
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 262
-#: src/bigocrpdf/cli_parser.py:280
+#: src/bigocrpdf/cli_parser.py:225
 msgid "Debugging"
 msgstr "Villuleit"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 267
-#: src/bigocrpdf/cli_parser.py:285
+#: src/bigocrpdf/cli_parser.py:230
 msgid "Save preprocessed images to this directory."
 msgstr "Vista forunnar myndir í þessa möppu."
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 272
-#: src/bigocrpdf/cli_parser.py:290
+#: src/bigocrpdf/cli_parser.py:235
 msgid "Only run preprocessing (dewarp/deskew), save images, skip OCR."
 msgstr ""
 "Keyra aðeins forvinnslu (sveigju- og hallaleiðréttingu), vista myndir og "
 "sleppa OCR."
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 410
-#: src/bigocrpdf/cli_parser.py:303
+#: src/bigocrpdf/cli_parser.py:248
 msgid "Show PDF metadata and page count"
 msgstr "Sýna PDF-lýsigögn og síðufjölda"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 276
-#: src/bigocrpdf/cli_parser.py:308
+#: src/bigocrpdf/cli_parser.py:253
 msgid "Split PDF into smaller files"
 msgstr "Skipta PDF í smærri skrár"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 278
-#: src/bigocrpdf/cli_parser.py:311
+#: src/bigocrpdf/cli_parser.py:256
 msgid "Output directory"
 msgstr "Úttaksmappa"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 284
-#: src/bigocrpdf/cli_parser.py:314
+#: src/bigocrpdf/cli_parser.py:259
 msgid "Split every N pages"
 msgstr "Skipta á N síðna fresti"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 290
-#: src/bigocrpdf/cli_parser.py:316
+#: src/bigocrpdf/cli_parser.py:261
 msgid "Maximum file size per part in megabytes"
 msgstr "Hámarksstærð hverrar skráar í megabætum"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 296
-#: src/bigocrpdf/cli_parser.py:319
+#: src/bigocrpdf/cli_parser.py:264
 msgid "Explicit ranges (e.g. '1-5,6-10,11-15')"
 msgstr "Ákveðin bil (t.d. '1-5,6-10,11-15')"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 299
-#: src/bigocrpdf/cli_parser.py:322
+#: src/bigocrpdf/cli_parser.py:267
 msgid "Filename prefix for output parts"
 msgstr "Forskeyti skráarnafns fyrir úttakshluta"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 303
-#: src/bigocrpdf/cli_parser.py:327
+#: src/bigocrpdf/cli_parser.py:272
 msgid "Merge multiple PDFs into one"
 msgstr "Sameina mörg PDF í eitt"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 304
-#: src/bigocrpdf/cli_parser.py:328
+#: src/bigocrpdf/cli_parser.py:273
 msgid "Input PDF files (in order)"
 msgstr "PDF-inntaksskrár (í röð)"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 308
-#: src/bigocrpdf/cli_parser.py:333
+#: src/bigocrpdf/cli_parser.py:278
 msgid "Compress PDF to reduce file size"
 msgstr "Þjappa PDF til að minnka skráarstærð"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 316
-#: src/bigocrpdf/cli_parser.py:343
+#: src/bigocrpdf/cli_parser.py:288
 msgid "JPEG quality for images (1-95, default: 60)"
 msgstr "JPEG-gæði fyrir myndir (1-95, sjálfgefið: 60)"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 323
-#: src/bigocrpdf/cli_parser.py:350
+#: src/bigocrpdf/cli_parser.py:295
 msgid "Target DPI for images (default: 150)"
 msgstr "Markupplausn mynda í DPI (sjálfgefið: 150)"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 327
-#: src/bigocrpdf/cli_parser.py:355
+#: src/bigocrpdf/cli_parser.py:300
 msgid "Rotate pages in a PDF"
 msgstr "Snúa síðum í PDF"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 335
-#: src/bigocrpdf/cli_parser.py:365
+#: src/bigocrpdf/cli_parser.py:310
 msgid "Rotation angle in degrees (clockwise)"
 msgstr "Snúningshorn í gráðum (réttsælis)"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 341
-#: src/bigocrpdf/cli_parser.py:371
+#: src/bigocrpdf/cli_parser.py:316
 msgid "Pages to rotate (e.g. '1,3,5' or '1-5'). Default: all."
 msgstr "Síður til að snúa (t.d. '1,3,5' eða '1-5'). Sjálfgefið: allar."
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 345
-#: src/bigocrpdf/cli_parser.py:376
+#: src/bigocrpdf/cli_parser.py:321
 msgid "Remove pages from a PDF"
 msgstr "Fjarlægja síður úr PDF"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 352
-#: src/bigocrpdf/cli_parser.py:382
+#: src/bigocrpdf/cli_parser.py:327
 msgid "Pages to delete (e.g. '3,5,7' or '2-4')"
 msgstr "Síður til að eyða (t.d. '3,5,7' eða '2-4')"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 356
-#: src/bigocrpdf/cli_parser.py:387
+#: src/bigocrpdf/cli_parser.py:332
 msgid "Extract pages to a new PDF"
 msgstr "Draga síður út í nýtt PDF"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 363
-#: src/bigocrpdf/cli_parser.py:393
+#: src/bigocrpdf/cli_parser.py:338
 msgid "Pages to extract (e.g. '3-5' or '1,3,7')"
 msgstr "Síður til að draga út (t.d. '3-5' eða '1,3,7')"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 367
-#: src/bigocrpdf/cli_parser.py:398
+#: src/bigocrpdf/cli_parser.py:343
 msgid "Insert pages from another PDF"
 msgstr "Setja inn síður úr öðru PDF"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 368
-#: src/bigocrpdf/cli_parser.py:399
+#: src/bigocrpdf/cli_parser.py:344
 msgid "Target PDF file"
 msgstr "PDF-markskrá"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 376
-#: src/bigocrpdf/cli_parser.py:409
+#: src/bigocrpdf/cli_parser.py:354
 msgid "PDF file to insert pages from"
 msgstr "PDF-skrá til að setja inn síður úr"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 383
-#: src/bigocrpdf/cli_parser.py:416
+#: src/bigocrpdf/cli_parser.py:361
 msgid "Insert at this page position (1-indexed, 0 = append). Default: append."
 msgstr "Setja inn á þessari stöðu (frá 1, 0 = aftast). Sjálfgefið: aftast."
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 389
-#: src/bigocrpdf/cli_parser.py:422
+#: src/bigocrpdf/cli_parser.py:367
 msgid "Pages to insert from the source (e.g. '1-3'). Default: all."
 msgstr "Síður til að setja inn úr uppruna (t.d. '1-3'). Sjálfgefið: allar."
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 393
-#: src/bigocrpdf/cli_parser.py:427
+#: src/bigocrpdf/cli_parser.py:372
 msgid "Reorder or reverse pages"
 msgstr "Endurraða síðum eða snúa röð þeirra við"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 401
-#: src/bigocrpdf/cli_parser.py:434
+#: src/bigocrpdf/cli_parser.py:379
 msgid "New page order (e.g. '3,1,2,5,4')"
 msgstr "Ný síðuröð (t.d. '3,1,2,5,4')"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 406
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 197
-#: src/bigocrpdf/cli_parser.py:436
+#: src/bigocrpdf/cli_parser.py:381
 msgid "Reverse the page order"
 msgstr "Snúa röð síðna við"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 419
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 430
-#: src/bigocrpdf/cli_parser.py:440
+#: src/bigocrpdf/cli_parser.py:385
 msgid "Input PDF file (must have text layer)"
 msgstr "PDF-inntaksskrá (verður að hafa textalag)"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 418
-#: src/bigocrpdf/cli_parser.py:444
+#: src/bigocrpdf/cli_parser.py:389
 msgid "Export OCR'd PDF as ODF document"
 msgstr "Flytja út OCR-PDF sem ODF-skjal"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 425
-#: src/bigocrpdf/cli_parser.py:446
+#: src/bigocrpdf/cli_parser.py:391
 msgid "Output ODF file (default: same name as input with .odt)"
 msgstr "ODF-úttaksskrá (sjálfgefið: sama heiti með .odt)"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 35
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_controller.py, line: 233
-# File: bigocrpdf/src/bigocrpdf/cli_parser.py, line: 422
-#: src/bigocrpdf/cli_parser.py:451
+#: src/bigocrpdf/cli_parser.py:396
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:36
 #: src/bigocrpdf/ui/pdf_options_controller.py:233
 msgid "Preserve Text Layout"
 msgstr "Varðveita textauppsetningu"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 429
-#: src/bigocrpdf/cli_parser.py:456
+#: src/bigocrpdf/cli_parser.py:401
 msgid "Export OCR'd PDF as formatted text"
 msgstr "Flytja út OCR-PDF sem sniðinn texta"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 436
-#: src/bigocrpdf/cli_parser.py:458
+#: src/bigocrpdf/cli_parser.py:403
 msgid "Output text file (default: same name as input with .txt)"
 msgstr "Textaúttaksskrá (sjálfgefið: sama heiti með .txt)"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 443
-#: src/bigocrpdf/cli_parser.py:463
+#: src/bigocrpdf/cli_parser.py:408
 msgid "Export OCR'd PDF as Markdown"
 msgstr "Flytja OCR-meðhöndlað PDF út sem Markdown"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 450
-#: src/bigocrpdf/cli_parser.py:465
+#: src/bigocrpdf/cli_parser.py:410
 msgid "Output Markdown file (default: same name as input with .md)"
 msgstr "Markdown-úttaksskrá (sjálfgefið: sama heiti og inntak með .md)"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 455
-#: src/bigocrpdf/cli_parser.py:470
+#: src/bigocrpdf/cli_parser.py:415
 msgid "Prepend YAML front-matter (title, source, page count, date)."
 msgstr ""
 "Bæta YAML-lýsigögnum fremst við (titill, uppruni, blaðsíðufjöldi, "
 "dagsetning)."
 
-#: src/bigocrpdf/cli_parser.py:490
+#: src/bigocrpdf/cli_parser.py:435
 msgid ""
 "Export from structured OCR JSON written earlier by 'ocr --sidecar-json', "
 "instead of reading the PDF text layer."
@@ -673,13 +524,11 @@ msgstr ""
 "Flytja út úr uppbyggðu OCR-JSON sem „ocr --sidecar-json“ skrifaði áður, í "
 "stað þess að lesa textalag PDF-skjalsins."
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 414
-#: src/bigocrpdf/cli_parser.py:498
+#: src/bigocrpdf/cli_parser.py:443
 msgid "Open interactive GUI editor"
 msgstr "Opna gagnvirkan grafískan ritil"
 
-# File: bigocrpdf/src/bigocrpdf/cli.py, line: 415
-#: src/bigocrpdf/cli_parser.py:499
+#: src/bigocrpdf/cli_parser.py:444
 msgid "PDF file to edit"
 msgstr "PDF-skrá til að breyta"
 
@@ -687,391 +536,180 @@ msgstr "PDF-skrá til að breyta"
 msgid "Add OCR to your PDF documents to make them searchable"
 msgstr "Bættu OCR við PDF-skjölin þín til að gera þau leitanleg"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 72
-#: src/bigocrpdf/config.py:86
-msgid "Enable debug mode"
-msgstr "Virkja villuleitarham"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 74
-#: src/bigocrpdf/config.py:87
-msgid "Enable verbose output"
-msgstr "Virkja ítarlegt úttak"
-
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 57
-# File: bigocrpdf/src/bigocrpdf/config.py, line: 139
 #: src/bigocrpdf/config.py:91
 msgid "Start in image conversion mode"
 msgstr "Byrja í myndbreytingarham"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/config.py, line: 76
 #: src/bigocrpdf/config.py:98
 msgid "PDF files to process"
 msgstr "PDF-skrár til vinnslu"
 
-# File: bigocrpdf/src/bigocrpdf/image_application.py, line: 115
-#: src/bigocrpdf/image_application.py:153
+#: src/bigocrpdf/image_application.py:178
 msgid "Extract text from images using OCR"
 msgstr "Draga texta úr myndum með OCR"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 912
-#: src/bigocrpdf/processing_controller.py:67
+#: src/bigocrpdf/processing_controller.py:68
 msgid "OCR processing complete"
 msgstr "OCR-vinnslu lokið"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 906
-#: src/bigocrpdf/processing_controller.py:69
+#: src/bigocrpdf/processing_controller.py:70
 #, python-brace-format
 msgid "OCR processing completed successfully for {count} file"
 msgid_plural "OCR processing completed successfully for {count} files"
 msgstr[0] "OCR-vinnslu lokið fyrir {count} skrá"
 msgstr[1] "OCR-vinnslu lokið fyrir {count} skrár"
 
-#: src/bigocrpdf/processing_controller.py:81
+#: src/bigocrpdf/processing_controller.py:82
 msgid "Some files were not processed"
 msgstr "Sumar skrár voru ekki unnar"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 817
-#: src/bigocrpdf/processing_controller.py:82
+#: src/bigocrpdf/processing_controller.py:83
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:733
 #, python-brace-format
 msgid "Saved {ok}; {n} failed"
 msgstr "Vistað: {ok}; mistök: {n}"
 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 305
-#: src/bigocrpdf/processing_controller.py:90
-#: src/bigocrpdf/services/screen_capture.py:431
-#: src/bigocrpdf/services/screen_capture.py:1026
-#: src/bigocrpdf/services/screen_capture.py:1033
-#: src/bigocrpdf/services/screen_capture.py:1058
-#: src/bigocrpdf/ui/image_ocr_window.py:892
+#: src/bigocrpdf/processing_controller.py:91
+#: src/bigocrpdf/services/screen_capture.py:425
+#: src/bigocrpdf/services/screen_capture.py:1009
+#: src/bigocrpdf/ui/image_ocr_window.py:937
 msgid "OCR processing failed."
 msgstr "OCR-vinnsla mistókst."
 
-#: src/bigocrpdf/processing_controller.py:92
+#: src/bigocrpdf/processing_controller.py:93
 #, python-brace-format
 msgid "{count} file could not be processed."
 msgid_plural "{count} files could not be processed."
 msgstr[0] "Ekki tókst að vinna {count} skrá."
 msgstr[1] "Ekki tókst að vinna {count} skrár."
 
-#: src/bigocrpdf/processing_controller.py:120
-msgid "Copy Details"
-msgstr "Afrita nánari upplýsingar"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
-#: src/bigocrpdf/processing_controller.py:124
-#: src/bigocrpdf/ui/image_ocr_window.py:1136
-msgid "Copied to clipboard"
-msgstr "Afritað á klippiborð"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 611
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 612
-#: src/bigocrpdf/processing_controller.py:179
-#: src/bigocrpdf/processing_controller.py:180
+#: src/bigocrpdf/processing_controller.py:149
+#: src/bigocrpdf/processing_controller.py:150
 msgid "No files selected for processing"
 msgstr "Engar skrár valdar til vinnslu"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 620
-#: src/bigocrpdf/processing_controller.py:186
+#: src/bigocrpdf/processing_controller.py:156
 msgid "No destination folder selected"
 msgstr "Engin áfangamappa valin"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 621
-#: src/bigocrpdf/processing_controller.py:187
+#: src/bigocrpdf/processing_controller.py:157
 msgid "Please select a destination folder"
 msgstr "Vinsamlegast veldu áfangamöppu"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 701
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 702
-#: src/bigocrpdf/processing_controller.py:260
-#: src/bigocrpdf/processing_controller.py:284
-#: src/bigocrpdf/processing_controller.py:285
+#: src/bigocrpdf/processing_controller.py:223
+#: src/bigocrpdf/processing_controller.py:247
+#: src/bigocrpdf/processing_controller.py:248
 msgid "Failed to start OCR processing"
 msgstr "Ekki tókst að hefja OCR-vinnslu"
 
-# File: bigocrpdf/src/bigocrpdf/window_processing.py, line: 161
-#: src/bigocrpdf/processing_controller.py:271
+#: src/bigocrpdf/processing_controller.py:234
 msgid "Starting…"
 msgstr "Byrjar…"
 
-# File: bigocrpdf/src/bigocrpdf/window_processing.py, line: 192
-#: src/bigocrpdf/processing_controller.py:295
+#: src/bigocrpdf/processing_controller.py:258
 msgid "OCR processing started"
 msgstr "OCR-vinnsla hafin"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 717
-#: src/bigocrpdf/processing_controller.py:296
+#: src/bigocrpdf/processing_controller.py:259
 msgid "OCR processing started using Python API"
 msgstr "OCR-vinnsla hafin með Python API"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 868
-#: src/bigocrpdf/processing_controller.py:397
+#: src/bigocrpdf/processing_controller.py:354
 #: src/bigocrpdf/ui/terminal_page.py:201
 #, python-brace-format
 msgid "Processed file {current}/{total}: {filename}"
 msgstr "Unnin skrá {current}/{total}: {filename}"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 877
-#: src/bigocrpdf/processing_controller.py:418
+#: src/bigocrpdf/processing_controller.py:375
 msgid "OCR processing complete callback triggered"
 msgstr "Afturkall vegna lokinnar OCR-vinnslu var virkjað"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 882
-#: src/bigocrpdf/processing_controller.py:423
+#: src/bigocrpdf/processing_controller.py:380
 msgid "Processing complete but no longer on terminal page, likely cancelled"
 msgstr "Vinnslu lokið en stöðusíðan er ekki lengur virk; líklega var hætt við."
 
-#: src/bigocrpdf/processing_controller.py:488
+#: src/bigocrpdf/processing_controller.py:445
 msgid "Back to Queue"
 msgstr "Aftur í biðröðina"
 
-#: src/bigocrpdf/processing_controller.py:495
+#: src/bigocrpdf/processing_controller.py:452
 #, python-brace-format
 msgid "{file}: {reason}"
 msgstr "{file}: {reason}"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1114
-#: src/bigocrpdf/processing_controller.py:502
+#: src/bigocrpdf/processing_controller.py:459
 msgid "OCR processing cancelled by user"
 msgstr "Notandi hætti við OCR-vinnslu"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1122
-#: src/bigocrpdf/processing_controller.py:503
+#: src/bigocrpdf/processing_controller.py:460
 msgid "OCR processing cancelled"
 msgstr "Hætt við OCR-vinnslu"
 
-# File: bigocrpdf/src/bigocrpdf/services/export_service.py, line: 42
 #: src/bigocrpdf/services/export_service.py:70
 #, python-brace-format
 msgid "Saved extracted text to: {0}"
 msgstr "Útdreginn texti vistaður í: {0}"
 
-# File: bigocrpdf/src/bigocrpdf/services/export_service.py, line: 46
 #: src/bigocrpdf/services/export_service.py:74
 #, python-brace-format
 msgid "Failed to save text file: {0}"
 msgstr "Ekki tókst að vista textaskrá: {0}"
 
-# File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 34
-#: src/bigocrpdf/services/pdf_operations.py:55
-msgid "Could not find the file. Was it moved or deleted?"
-msgstr "Skráin fannst ekki. Var hún færð eða henni eytt?"
-
-# File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 36
-#: src/bigocrpdf/services/pdf_operations.py:57
-msgid "Cannot write to this folder. Choose a different location."
-msgstr "Get ekki skrifað í þessa möppu. Veldu annan stað."
-
-# File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 38
-#: src/bigocrpdf/services/pdf_operations.py:59
-msgid "This PDF is password-protected. Remove the password first."
-msgstr "Þetta PDF er varið með lykilorði. Fjarlægðu lykilorðið fyrst."
-
-# File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 40
-#: src/bigocrpdf/services/pdf_operations.py:61
+#: src/bigocrpdf/services/ocr/backend.py:135
 #, python-brace-format
-msgid "The PDF file appears to be damaged or invalid: {error}"
-msgstr "PDF-skráin virðist vera skemmd eða ógild: {error}"
+msgid "Page {pages} could not be read: {cause}"
+msgid_plural "Pages {pages} could not be read: {cause}"
+msgstr[0] "Ekki tókst að lesa bls. {pages}: {cause}"
+msgstr[1] "Ekki tókst að lesa síður {pages}: {cause}"
 
-# File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 370
-#: src/bigocrpdf/services/pdf_operations.py:447
-msgid "No input files provided."
-msgstr "Engar inntaksskrár gefnar."
-
-# File: bigocrpdf/src/bigocrpdf/services/pdf_operations.py, line: 541
-#: src/bigocrpdf/services/pdf_operations.py:476
-msgid "No readable input files were provided."
-msgstr "Engar læsilegar inntaksskrár voru gefnar upp."
-
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 85
-#: src/bigocrpdf/services/processor.py:117
-#, python-brace-format
-msgid "Started OCR processing for {count} file using RapidOCR"
-msgid_plural "Started OCR processing for {count} files using RapidOCR"
-msgstr[0] "OCR-vinnsla hafin fyrir {count} skrá með RapidOCR"
-msgstr[1] "OCR-vinnsla hafin fyrir {count} skrár með RapidOCR"
-
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
-# line: 82
-#: src/bigocrpdf/services/processor.py:132
-#, python-brace-format
-msgid "Error starting OCR processing: {0}"
-msgstr "Villa við að hefja OCR-vinnslu: {0}"
-
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
-# line: 92
-#: src/bigocrpdf/services/processor.py:145
-msgid "No files to process"
-msgstr "Engar skrár til að vinna úr"
-
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 135
-#: src/bigocrpdf/services/processor.py:190
-msgid "Processing stopped by user"
-msgstr "Vinnsla stöðvuð af notanda"
-
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 178
-#: src/bigocrpdf/services/processor.py:199
-#, python-brace-format
-msgid "Processing thread error: {0}"
-msgstr "Villa í vinnsluþræði: {0}"
-
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 158
-#: src/bigocrpdf/services/processor.py:220
-#, python-brace-format
-msgid "Processing cancelled by user during file: {0}"
-msgstr "Notandi hætti við vinnslu meðan unnið var með skrána: {0}"
-
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 177
-#: src/bigocrpdf/services/processor.py:223
-#, python-brace-format
-msgid "Out of memory processing {0}"
-msgstr "Minnið kláraðist við vinnslu {0}"
-
-#: src/bigocrpdf/services/processor.py:234
-msgid "No page could be processed."
-msgstr "Ekki tókst að vinna neina síðu."
-
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 163
-#: src/bigocrpdf/services/processor.py:282
-#, python-brace-format
-msgid "Error processing {0}: {1}"
-msgstr "Villa við að vinna úr {0}: {1}"
-
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
-# line: 136
-#: src/bigocrpdf/services/processor.py:307
-#, python-brace-format
-msgid "Error: File not found or invalid: {0}"
-msgstr "Villa: Skrá fannst ekki eða er ógild: {0}"
-
-# File: bigocrpdf/src/bigocrpdf/services/processor.py, line: 223
-#: src/bigocrpdf/services/processor.py:340
-#, python-brace-format
-msgid "Processed {filename}: Pages: {pages} · Words: {words}"
-msgstr "Unnið {filename}: Síður: {pages} · Orð: {words}"
-
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
-# line: 172
-#: src/bigocrpdf/services/processor.py:485
-#, python-brace-format
-msgid "Could not determine output directory for {0}"
-msgstr "Gat ekki ákvarðað úttaksmöppu fyrir {0}"
-
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
-# line: 185
-#: src/bigocrpdf/services/processor.py:492
-#, python-brace-format
-msgid "Error creating output path for {0}: {1}"
-msgstr "Villa við að búa til úttaksslóð fyrir {0}: {1}"
-
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
-# line: 388
-#: src/bigocrpdf/services/processor.py:528
-#, python-brace-format
-msgid "Error getting OCR languages: {0}"
-msgstr "Villa við að fá OCR tungumál: {0}"
-
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/processor.py,
-# line: 508
-#: src/bigocrpdf/services/processor.py:612
-#, python-brace-format
-msgid "Removed processed file from queue: {0}"
-msgstr "Unnin skrá fjarlægð úr biðröð: {0}"
-
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 357
-# File:
-# bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_text_layer.py,
-# line: 422
-#: src/bigocrpdf/services/rapidocr_service/backend_embedded_image_pipeline.py:245
-#: src/bigocrpdf/services/rapidocr_service/pipeline_chunked_ocr.py:576
+#: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:250
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:450
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "Vinnsla síðu {0}/{1}..."
 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 464
-# line: 715
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:146
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:301
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:150
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:295
 msgid "Done!"
 msgstr "Gert!"
 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 41
-# 42
-# 43
-# 44
-# 45
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 245
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:166
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:169
 msgid "Analyzing PDF..."
 msgstr "Greini PDF..."
 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 417
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:230
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:233
 msgid "Merging text layer..."
 msgstr "Sameina textalag..."
 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 564
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:280
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:283
 msgid "Processing text page images..."
 msgstr "Vinn textasíðumyndir..."
 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 480
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:298
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:301
 msgid "Optimizing image compression..."
 msgstr "Fínstilli myndþjöppun..."
 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 491
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:311
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:314
 #, python-brace-format
 msgid "{count} page re-encoded with JBIG2"
 msgid_plural "{count} pages re-encoded with JBIG2"
 msgstr[0] "{count} síða endurkóðuð með JBIG2"
 msgstr[1] "{count} síður endurkóðaðar með JBIG2"
 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 746
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:341
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:344
 msgid "Converting to PDF/A..."
 msgstr "Að breyta í PDF/A..."
 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 698
-# line: 758
-#: src/bigocrpdf/services/rapidocr_service/backend_pipeline.py:366
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:620
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:369
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:593
 msgid "Splitting PDF by size limit..."
 msgstr "Að skipta PDF eftir stærðarmörkum..."
 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/discovery.py, line:
-# 68
-#: src/bigocrpdf/services/rapidocr_service/discovery.py:63
-msgid "Automatic multilingual recognition (PP-OCRv6)"
-msgstr "Sjálfvirk fjöltyngd greining (PP-OCRv6)"
-
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 293
-#: src/bigocrpdf/services/rapidocr_service/pipeline_chunked_ocr.py:347
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:291
 msgid "Starting OCR..."
 msgstr "Byrjar OCR..."
 
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:102
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:101
 #, python-brace-format
 msgid ""
 "Page {page} already has an OCR text layer and was left unchanged. Enable "
@@ -1080,60 +718,140 @@ msgstr ""
 "Síða {page} er þegar með OCR-textalag og var skilin eftir óbreytt. Virkjaðu "
 "„Skipta út núverandi OCR“ til að vinna hana aftur."
 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 633
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:151
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:150
 msgid "Extracting images..."
 msgstr "Að draga út myndir..."
 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 464
-# line: 715
-# line: 610
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:187
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:181
 msgid "Analyzing PDF structure..."
 msgstr "Greini uppbyggingu PDF..."
 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 687
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:276
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:270
 msgid "Saving PDF..."
 msgstr "Vista PDF..."
 
-# File: bigocrpdf/src/bigocrpdf/services/rapidocr_service/backend_pipeline.py,
-# line: 655
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:383
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:376
 #, python-brace-format
 msgid "OCR page {0}..."
 msgstr "OCR á síðu {0}…"
 
-# File:
-# bigocrpdf/src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py,
-# line: 407
-#: src/bigocrpdf/services/rapidocr_service/pipeline_mixed_content.py:523
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:518
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "OCR á síðu {0} (eftir myndgerð)…"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 985
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 500
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 536
-#: src/bigocrpdf/services/screen_capture.py:503
-#: src/bigocrpdf/services/screen_capture.py:583
-#: src/bigocrpdf/ui/image_ocr_window.py:992
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:533
+msgid "the page could not be rendered"
+msgstr "gat ekki myndgert síðuna"
+
+#: src/bigocrpdf/services/pdf_operations.py:65
+msgid "Could not find the file. Was it moved or deleted?"
+msgstr "Skráin fannst ekki. Var hún færð eða henni eytt?"
+
+#: src/bigocrpdf/services/pdf_operations.py:67
+msgid "Cannot write to this folder. Choose a different location."
+msgstr "Get ekki skrifað í þessa möppu. Veldu annan stað."
+
+#: src/bigocrpdf/services/pdf_operations.py:69
+msgid "This PDF is password-protected. Remove the password first."
+msgstr "Þetta PDF er varið með lykilorði. Fjarlægðu lykilorðið fyrst."
+
+#: src/bigocrpdf/services/pdf_operations.py:71
+#, python-brace-format
+msgid "The PDF file appears to be damaged or invalid: {error}"
+msgstr "PDF-skráin virðist vera skemmd eða ógild: {error}"
+
+#: src/bigocrpdf/services/pdf_operations.py:457
+msgid "No input files provided."
+msgstr "Engar inntaksskrár gefnar."
+
+#: src/bigocrpdf/services/pdf_operations.py:486
+msgid "No readable input files were provided."
+msgstr "Engar læsilegar inntaksskrár voru gefnar upp."
+
+#: src/bigocrpdf/services/processor.py:110
+#, python-brace-format
+msgid "Started OCR processing for {count} file"
+msgid_plural "Started OCR processing for {count} files"
+msgstr[0] "OCR-vinnsla hafin fyrir {count} skrá"
+msgstr[1] "OCR-vinnsla hafin fyrir {count} skrár"
+
+#: src/bigocrpdf/services/processor.py:125
+#, python-brace-format
+msgid "Error starting OCR processing: {0}"
+msgstr "Villa við að hefja OCR-vinnslu: {0}"
+
+#: src/bigocrpdf/services/processor.py:138
+msgid "No files to process"
+msgstr "Engar skrár til að vinna úr"
+
+#: src/bigocrpdf/services/processor.py:182
+msgid "Processing stopped by user"
+msgstr "Vinnsla stöðvuð af notanda"
+
+#: src/bigocrpdf/services/processor.py:191
+#, python-brace-format
+msgid "Processing thread error: {0}"
+msgstr "Villa í vinnsluþræði: {0}"
+
+#: src/bigocrpdf/services/processor.py:212
+#, python-brace-format
+msgid "Processing cancelled by user during file: {0}"
+msgstr "Notandi hætti við vinnslu meðan unnið var með skrána: {0}"
+
+#: src/bigocrpdf/services/processor.py:215
+#, python-brace-format
+msgid "Out of memory processing {0}"
+msgstr "Minnið kláraðist við vinnslu {0}"
+
+#: src/bigocrpdf/services/processor.py:226
+msgid "No page could be processed."
+msgstr "Ekki tókst að vinna neina síðu."
+
+#: src/bigocrpdf/services/processor.py:274
+#, python-brace-format
+msgid "Error processing {0}: {1}"
+msgstr "Villa við að vinna úr {0}: {1}"
+
+#: src/bigocrpdf/services/processor.py:299
+#, python-brace-format
+msgid "Error: File not found or invalid: {0}"
+msgstr "Villa: Skrá fannst ekki eða er ógild: {0}"
+
+#: src/bigocrpdf/services/processor.py:332
+#, python-brace-format
+msgid "Processed {filename}: Pages: {pages} · Words: {words}"
+msgstr "Unnið {filename}: Síður: {pages} · Orð: {words}"
+
+#: src/bigocrpdf/services/processor.py:470
+#, python-brace-format
+msgid "Could not determine output directory for {0}"
+msgstr "Gat ekki ákvarðað úttaksmöppu fyrir {0}"
+
+#: src/bigocrpdf/services/processor.py:477
+#, python-brace-format
+msgid "Error creating output path for {0}: {1}"
+msgstr "Villa við að búa til úttaksslóð fyrir {0}: {1}"
+
+#: src/bigocrpdf/services/processor.py:584
+#, python-brace-format
+msgid "Removed processed file from queue: {0}"
+msgstr "Unnin skrá fjarlægð úr biðröð: {0}"
+
+#: src/bigocrpdf/services/screen_capture.py:489
+#: src/bigocrpdf/services/screen_capture.py:564
+#: src/bigocrpdf/ui/image_ocr_window.py:1040
 msgid "Screen capture failed. Please try again or open an image file."
 msgstr "Skjámyndataka mistókst. Reyndu aftur eða opnaðu myndaskrá."
 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 480
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 489
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 549
-#: src/bigocrpdf/services/screen_capture.py:516
-msgid "Screen capture failed."
-msgstr "Skjámyndataka mistókst."
+#: src/bigocrpdf/services/screen_capture.py:490
+#: src/bigocrpdf/services/screen_capture.py:560
+#: src/bigocrpdf/services/screen_capture.py:565
+#: src/bigocrpdf/ui/image_ocr_window.py:1042
+msgid "Could not capture the screen"
+msgstr "Skjámyndataka mistókst"
 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 118
-#: src/bigocrpdf/services/screen_capture.py:577
+#: src/bigocrpdf/services/screen_capture.py:557
 msgid ""
 "No screenshot tool available. Please install spectacle, gnome-screenshot, or "
 "flameshot."
@@ -1141,177 +859,139 @@ msgstr ""
 "Ekkert skjámyndatæki tiltækt. Vinsamlegast settu upp spectacle, gnome-"
 "screenshot eða flameshot."
 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 979
-#: src/bigocrpdf/services/screen_capture.py:994
+#: src/bigocrpdf/services/screen_capture.py:968
 msgid "Could not prepare the image for OCR."
 msgstr "Ekki tókst að undirbúa myndina fyrir OCR."
 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 331
-#: src/bigocrpdf/services/screen_capture.py:1019
-msgid "OCR processing timed out."
-msgstr "Tímamörk OCR-vinnslu runnu út."
+#: src/bigocrpdf/services/screen_capture.py:979
+#, python-brace-format
+msgid ""
+"The OCR engine stopped with an error. If the details name a model file, "
+"reinstall the {package} package."
+msgstr ""
+"OCR-vélin stöðvaðist með villu. Ef líkanaskrá er nefnd í nánari upplýsingum "
+"skaltu setja pakkann {package} upp aftur."
 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 326
-#: src/bigocrpdf/services/screen_capture.py:1051
+#: src/bigocrpdf/services/screen_capture.py:1001
 msgid "OCR engine not available. Please check your installation."
 msgstr "OCR-vélin er ekki tiltæk. Athugaðu uppsetninguna."
 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 277
-#: src/bigocrpdf/services/screen_capture.py:1110
-#: src/bigocrpdf/services/screen_capture.py:1116
-#: src/bigocrpdf/services/screen_capture.py:1122
-#: src/bigocrpdf/services/screen_capture.py:1196
-#: src/bigocrpdf/services/screen_capture.py:1219
-#: src/bigocrpdf/services/screen_capture.py:1227
+#: src/bigocrpdf/services/screen_capture.py:1062
+#: src/bigocrpdf/services/screen_capture.py:1068
+#: src/bigocrpdf/services/screen_capture.py:1074
+#: src/bigocrpdf/services/screen_capture.py:1148
+#: src/bigocrpdf/services/screen_capture.py:1171
+#: src/bigocrpdf/services/screen_capture.py:1179
 msgid "Could not load image file."
 msgstr "Gat ekki hlaðið myndaskrá."
 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1103
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1170
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1277
-#: src/bigocrpdf/services/screen_capture.py:1124
-#: src/bigocrpdf/services/screen_capture.py:1191
-#: src/bigocrpdf/services/screen_capture.py:1298
+#: src/bigocrpdf/services/screen_capture.py:1076
+#: src/bigocrpdf/services/screen_capture.py:1143
+#: src/bigocrpdf/services/screen_capture.py:1250
 msgid "Unsupported or corrupted image file."
 msgstr "Óstudd eða skemmd myndaskrá."
 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1105
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1208
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1235
-#: src/bigocrpdf/services/screen_capture.py:1126
-#: src/bigocrpdf/services/screen_capture.py:1229
-#: src/bigocrpdf/services/screen_capture.py:1256
+#: src/bigocrpdf/services/screen_capture.py:1078
+#: src/bigocrpdf/services/screen_capture.py:1181
+#: src/bigocrpdf/services/screen_capture.py:1208
 msgid "Image file is too large to process safely."
 msgstr "Myndaskráin er of stór til að vinna hana á öruggan hátt."
 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1121
-#: src/bigocrpdf/services/screen_capture.py:1142
+#: src/bigocrpdf/services/screen_capture.py:1094
 msgid "No supported image decoder is available."
 msgstr "Enginn studdur myndafkóðari er tiltækur."
 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1274
-#: src/bigocrpdf/services/screen_capture.py:1295
+#: src/bigocrpdf/services/screen_capture.py:1247
 msgid "Unsupported image format."
 msgstr "Óstutt myndsnið."
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1279
-#: src/bigocrpdf/services/screen_capture.py:1300
-#: src/bigocrpdf/ui/image_ocr_window.py:403
+#: src/bigocrpdf/services/screen_capture.py:1252
+#: src/bigocrpdf/ui/image_ocr_window.py:433
 msgid "Image dimensions exceed the configured safety limit."
 msgstr "Víddir myndarinnar fara yfir stillt öryggismörk."
 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1285
-#: src/bigocrpdf/services/screen_capture.py:1306
+#: src/bigocrpdf/services/screen_capture.py:1258
 msgid "Animated or multi-page images are not supported."
 msgstr "Hreyfimyndir eða margsíðna myndir eru ekki studdar."
 
-# File: bigocrpdf/src/bigocrpdf/services/screen_capture.py, line: 1306
-#: src/bigocrpdf/services/screen_capture.py:1327
+#: src/bigocrpdf/services/screen_capture.py:1279
 msgid "Image file changed while it was being read. Please try again."
 msgstr "Myndaskráin breyttist á meðan hún var lesin. Reyndu aftur."
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 105
-#: src/bigocrpdf/services/settings.py:312
+#: src/bigocrpdf/services/settings.py:299
 #, python-brace-format
 msgid "Attempting to add {count} file"
 msgid_plural "Attempting to add {count} files"
 msgstr[0] "Reynir að bæta við {count} skrá"
 msgstr[1] "Reynir að bæta við {count} skrám"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 120
-#: src/bigocrpdf/services/settings.py:334
+#: src/bigocrpdf/services/settings.py:321
 #, python-brace-format
 msgid "Successfully added {count} file"
 msgid_plural "Successfully added {count} files"
 msgstr[0] "{count} skrá bætt við"
 msgstr[1] "{count} skrár bættar við"
 
-# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 229
-#: src/bigocrpdf/services/settings.py:340
+#: src/bigocrpdf/services/settings.py:327
 msgid "No valid files were found to add"
 msgstr "Engar gildar skrár fundust til að bæta við"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 140
-#: src/bigocrpdf/services/settings.py:496
+#: src/bigocrpdf/services/settings.py:483
 msgid "Empty file path provided"
 msgstr "Tóm skráarslóð gefin upp"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 145
-#: src/bigocrpdf/services/settings.py:501
+#: src/bigocrpdf/services/settings.py:488
 #, python-brace-format
 msgid "File does not exist: {0}"
 msgstr "Skráin er ekki til: {0}"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 155
-#: src/bigocrpdf/services/settings.py:523
+#: src/bigocrpdf/services/settings.py:510
 #, python-brace-format
 msgid "File already in list: {0}"
 msgstr "Skráin er þegar á listanum: {0}"
 
-# File: bigocrpdf/src/bigocrpdf/services/settings.py, line: 267
-#: src/bigocrpdf/services/settings.py:527
+#: src/bigocrpdf/services/settings.py:514
 #, python-brace-format
 msgid "Adding valid file: {0}"
 msgstr "Bæti við gildri skrá: {0}"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 231
-#: src/bigocrpdf/services/settings.py:554
+#: src/bigocrpdf/services/settings.py:538
 msgid "Settings saved successfully"
 msgstr "Stillingar vistaðar með góðum árangri"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 234
-#: src/bigocrpdf/services/settings.py:557
+#: src/bigocrpdf/services/settings.py:541
 #: src/bigocrpdf/ui/settings_reset_controller.py:65
 #, python-brace-format
 msgid "Error saving settings: {0}"
 msgstr "Villa við að vista stillingar: {0}"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 404
-#: src/bigocrpdf/services/settings.py:660
+#: src/bigocrpdf/services/settings.py:642
 #, python-brace-format
 msgid "Saved {count} selected file"
 msgid_plural "Saved {count} selected files"
 msgstr[0] "{count} valin skrá vistuð"
 msgstr[1] "{count} valdar skrár vistaðar"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 406
-#: src/bigocrpdf/services/settings.py:666
+#: src/bigocrpdf/services/settings.py:648
 #, python-brace-format
 msgid "Error saving selected files: {0}"
 msgstr "Villa við að vista valdar skrár: {0}"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 430
-#: src/bigocrpdf/services/settings.py:714
+#: src/bigocrpdf/services/settings.py:696
 #, python-brace-format
 msgid "Error loading selected files: {0}"
 msgstr "Villa við að hlaða valdar skrár: {0}"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/services/settings.py,
-# line: 594
-#: src/bigocrpdf/services/settings.py:763
+#: src/bigocrpdf/services/settings.py:745
 msgid "Processing state reset successfully"
 msgstr "Vinnslustaða endurstillt með góðum árangri"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 165
 #: src/bigocrpdf/ui/advanced_dialog.py:25
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:245
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:246
 msgid "OCR Precision"
 msgstr "OCR-nákvæmni"
 
-# File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 49
 #: src/bigocrpdf/ui/advanced_dialog.py:27
 msgid ""
 "How carefully the program reads text from your documents. Lower precision "
@@ -1322,13 +1002,11 @@ msgstr ""
 "meiri texta (gott fyrir óskýrar síður), en meiri nákvæmni gerir færri mistök "
 "en gæti misst af daufu letri."
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 657
 #: src/bigocrpdf/ui/advanced_dialog.py:36
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:257
 msgid "Replace Existing OCR"
 msgstr "Skipta út núverandi OCR"
 
-# File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 60
 #: src/bigocrpdf/ui/advanced_dialog.py:38
 msgid ""
 "When enabled, redoes the text recognition even if the PDF already has "
@@ -1339,32 +1017,16 @@ msgstr ""
 "innihaldi þegar leitanlegan texta. Notaðu hann ef núverandi textalag er "
 "rangt eða af lélegum gæðum."
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 279
-# File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 69
 #: src/bigocrpdf/ui/advanced_dialog.py:47
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:260
 msgid "Full Resolution Detection"
 msgstr "Greining í fullri upplausn"
 
-# File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 71
-#: src/bigocrpdf/ui/advanced_dialog.py:49
-msgid ""
-"Analyzes the image at full resolution for text detection. Finds more text in "
-"high-resolution scans but takes longer. The faster mode is good enough for "
-"most documents."
-msgstr ""
-"Greinir myndina í fullri upplausn til að finna texta. Finnur meiri texta í "
-"skönnunum með hárri upplausn en tekur lengri tíma. Hraðari hamurinn nægir "
-"fyrir flest skjöl."
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 111
 #: src/bigocrpdf/ui/advanced_dialog.py:68
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:63
 msgid "Advanced"
 msgstr "Ítarlegt"
 
-# File: bigocrpdf/src/bigocrpdf/ui/advanced_dialog.py, line: 111
 #: src/bigocrpdf/ui/advanced_dialog.py:88
 msgid ""
 "Fine-tune how OCR text recognition works. The default settings work well for "
@@ -1373,51 +1035,39 @@ msgstr ""
 "Fínstilltu hvernig OCR-textagreining virkar. Sjálfgefnu stillingarnar henta "
 "flestum skjölum."
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 102
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:33
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:94
 msgid "Export to OpenDocument"
 msgstr "Flytja út í OpenDocument"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 36
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_controller.py, line: 234
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:37
 #: src/bigocrpdf/ui/pdf_options_controller.py:234
 msgid "Turn off for easier paragraph, table, and column editing"
 msgstr "Slökktu til að auðvelda breytingar á málsgreinum, töflum og dálkum"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 65
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:48
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:367
 msgid "Open after export"
 msgstr "Opna eftir útflutning"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 66
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:49
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:368
 msgid "Open file in the default application"
 msgstr "Opna skrá í sjálfgefnu forriti"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 157
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:96
 msgid "OpenDocument Text (*.odt)"
 msgstr "OpenDocument-texti (*.odt)"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 230
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:118
 msgid "Exporting to OpenDocument…"
 msgstr "Flyt út í OpenDocument…"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 81
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 88
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:158
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:164
 msgid "Export"
 msgstr "Flytja út"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 340
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 350
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:215
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:504
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:550
@@ -1425,8 +1075,6 @@ msgstr "Flytja út"
 msgid "Export failed"
 msgstr "Útflutningur mistókst"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 583
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 732
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:221
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:555
 #: src/bigocrpdf/ui/file_save_controller.py:69
@@ -1435,17 +1083,14 @@ msgstr "Útflutningur mistókst"
 msgid "Remote locations are not supported"
 msgstr "Fjarstaðsetningar eru ekki studdar"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 398
-# line: 1641
-# line: 1752
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:303
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:308
 #: src/bigocrpdf/ui/file_save_controller.py:84
-#: src/bigocrpdf/ui/header_bar.py:158 src/bigocrpdf/ui/image_ocr_window.py:745
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:87
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:189
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:221
+#: src/bigocrpdf/ui/header_bar.py:158 src/bigocrpdf/ui/image_ocr_window.py:789
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:89
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:171
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:250
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:282
 #: src/bigocrpdf/ui/pdf_options_controller.py:55
 #: src/bigocrpdf/ui/pdf_options_controller.py:165
 #: src/bigocrpdf/ui/session_recovery_controller.py:59
@@ -1454,104 +1099,80 @@ msgstr "Fjarstaðsetningar eru ekki studdar"
 msgid "Cancel"
 msgstr "Hætta við"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 411
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 412
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:318
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:319
 msgid "Cancelling…"
 msgstr "Hætti við…"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 413
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:320
 msgid "Finishing current step…"
 msgstr "Að ljúka núverandi skrefi…"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 425
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 520
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:352
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:406
 msgid "Export to Markdown"
 msgstr "Flytja út í Markdown"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 445
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:355
 msgid "Include YAML front-matter"
 msgstr "Hafa YAML-lýsigögn fremst"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 446
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:356
 msgid "Adds title, source path, page count and date"
 msgstr "Bætir við titli, heimildarleið, blaðsíðufjölda og dagsetningu"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 528
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:408
 msgid "Markdown (*.md)"
 msgstr "Markdown (*.md)"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 570
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:436
 msgid "Exporting to Markdown…"
 msgstr "Útflutningur í Markdown…"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 287
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:498
 msgid "Export cancelled"
 msgstr "Hætt við útflutning"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 338
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:500
 #, python-brace-format
 msgid "Exported to {}"
 msgstr "Flutt í {}"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 639
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 468
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:514
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:309
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:308
 msgid "OpenDocument (.odt)"
 msgstr "OpenDocument (.odt)"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 640
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 469
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:515
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:310
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:309
 msgid "Markdown (.md)"
 msgstr "Markdown (.md)"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 644
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:519
 msgid "Export selected files"
 msgstr "Flytja út valdar skrár"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 668
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:541
 msgid "Choose destination folder"
 msgstr "Veldu áfangamöppu"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 691
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:571
 msgid "Destination folder not found"
 msgstr "Áfangamappa fannst ekki"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 694
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:574
 msgid "Destination folder is not writable"
 msgstr "Ekki er hægt að skrifa í áfangamöppuna."
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 699
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:589
 msgid "Exporting selected files…"
 msgstr "Útflutningur á valdum skrám…"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 814
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:729
 #, python-brace-format
 msgid "Cancelled — saved {ok} of {total}"
 msgstr "Hætt við — vistað {ok} af {total}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 820
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:741
 #, python-brace-format
 msgid "Saved {count} file to {folder}"
@@ -1559,143 +1180,111 @@ msgid_plural "Saved {count} files to {folder}"
 msgstr[0] "{count} skrá vistuð í {folder}"
 msgstr[1] "{count} skrár vistaðar í {folder}"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 424
 #: src/bigocrpdf/ui/conclusion_page_builder.py:31
 msgid "Processing Summary"
 msgstr "Samantekt vinnslu"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 197
 #: src/bigocrpdf/ui/conclusion_page_builder.py:61
 msgid "Files processed"
 msgstr "Skrár unnar"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 207
 #: src/bigocrpdf/ui/conclusion_page_builder.py:63
 msgid "Pages processed"
 msgstr "Síður unnar"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 217
 #: src/bigocrpdf/ui/conclusion_page_builder.py:65
 msgid "Processing time"
 msgstr "Vinnslutími"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 227
 #: src/bigocrpdf/ui/conclusion_page_builder.py:67
 msgid "Output file size"
 msgstr "Stærð úttaksskrár"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 237
 #: src/bigocrpdf/ui/conclusion_page_builder.py:69
 msgid "File size change"
 msgstr "Breyting á skráarstærð"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 450
 #: src/bigocrpdf/ui/conclusion_page_builder.py:76
 msgid "Files processed:"
 msgstr "Skrár unnar:"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 466
 #: src/bigocrpdf/ui/conclusion_page_builder.py:79
 msgid "Total pages:"
 msgstr "Heildarsíður:"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 488
 #: src/bigocrpdf/ui/conclusion_page_builder.py:80
 msgid "Processing time:"
 msgstr "Vinnslutími:"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 140
 #: src/bigocrpdf/ui/conclusion_page_builder.py:85
 msgid "Output size:"
 msgstr "Úttaksstærð:"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 149
 #: src/bigocrpdf/ui/conclusion_page_builder.py:92
 msgid "Size change:"
 msgstr "Stærðarbreyting:"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 529
 #: src/bigocrpdf/ui/conclusion_page_builder.py:120
 msgid "Generated Files"
 msgstr "Búnar til skrár"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 265
 #: src/bigocrpdf/ui/conclusion_page_builder.py:128
 msgid "Select files for bulk actions"
 msgstr "Velja skrár fyrir fjöldaaðgerðir"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 281
 #: src/bigocrpdf/ui/conclusion_page_builder.py:149
 msgid "Output files"
 msgstr "Úttaksskrár"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 290
 #: src/bigocrpdf/ui/conclusion_page_builder.py:162
 msgid "Selected: 0"
 msgstr "Valið: 0"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 296
 #: src/bigocrpdf/ui/conclusion_page_builder.py:169
 msgid "Select all"
 msgstr "Veldu allt"
 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 185
 #: src/bigocrpdf/ui/conclusion_page_builder.py:173
 #: src/bigocrpdf/ui/header_bar.py:159
 msgid "Clear"
 msgstr "Tæma"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 341
 #: src/bigocrpdf/ui/conclusion_ui_mixin.py:228
 #, python-brace-format
 msgid "Selected: {count}"
 msgstr "Valið: {count}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 493
 #: src/bigocrpdf/ui/conclusion_ui_mixin.py:248
-#: src/bigocrpdf/ui/settings_queue_mixin.py:553
-#: src/bigocrpdf/ui/settings_queue_mixin.py:663
+#: src/bigocrpdf/ui/settings_queue_mixin.py:552
+#: src/bigocrpdf/ui/settings_queue_mixin.py:662
 #, python-brace-format
 msgid "{count} page"
 msgid_plural "{count} pages"
 msgstr[0] "{count} síða"
 msgstr[1] "{count} síður"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 374
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:279
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:278
 msgid "Open the processed file"
 msgstr "Opna unnu skrána"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 348
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 482
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:288
-#: src/bigocrpdf/ui/settings_queue_mixin.py:710
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:287
+#: src/bigocrpdf/ui/settings_queue_mixin.py:709
 msgid "Show in file manager"
 msgstr "Sýna í skráastjóra"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 410
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:295
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:294
 msgid "View the text found in this document"
 msgstr "Skoða textann sem fannst í þessu skjali"
 
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_ui_mixin.py, line: 473
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:314
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:316
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:313
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:315
 msgid "Export to other formats"
 msgstr "Flytja út í önnur snið"
 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 46
 #: src/bigocrpdf/ui/corrections_dialog.py:24
 msgid "Straighten Pages"
 msgstr "Rétta síður af"
 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 48
 #: src/bigocrpdf/ui/corrections_dialog.py:26
 msgid ""
 "Fixes pages that were scanned at a slight angle. The text lines become "
@@ -1704,12 +1293,10 @@ msgstr ""
 "Leiðréttir síður sem voru skannaðar örlítið skakkt. Textalínurnar verða "
 "alveg láréttar."
 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 55
 #: src/bigocrpdf/ui/corrections_dialog.py:33
 msgid "Fix Curved Text"
 msgstr "Laga boginn texta"
 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 57
 #: src/bigocrpdf/ui/corrections_dialog.py:35
 msgid ""
 "Corrects wavy or curved text that appears when photographing a book or a "
@@ -1718,12 +1305,10 @@ msgstr ""
 "Lagar bylgjaðan eða boginn texta sem verður þegar bók eða beygt skjal er "
 "ljósmyndað."
 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 64
 #: src/bigocrpdf/ui/corrections_dialog.py:42
 msgid "Fix Perspective"
 msgstr "Laga sjónarhorn"
 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 66
 #: src/bigocrpdf/ui/corrections_dialog.py:44
 msgid ""
 "Corrects pages that look like a trapezoid because the photo was taken at an "
@@ -1732,12 +1317,10 @@ msgstr ""
 "Leiðréttir síður sem líta út eins og trapisa vegna þess að myndin var tekin "
 "á ská í stað þess að vera tekin beint ofan frá."
 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 73
 #: src/bigocrpdf/ui/corrections_dialog.py:51
 msgid "Fix Page Direction"
 msgstr "Leiðrétta stefnu síðna"
 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 75
 #: src/bigocrpdf/ui/corrections_dialog.py:53
 msgid ""
 "Detects and fixes pages that are upside-down or sideways, automatically "
@@ -1746,12 +1329,10 @@ msgstr ""
 "Greinir og lagar síður sem eru á hvolfi eða á hliðinni, og snýr þeim "
 "sjálfvirkt á réttan hátt."
 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 82
 #: src/bigocrpdf/ui/corrections_dialog.py:60
 msgid "Enhance Readability"
 msgstr "Bæta læsileika"
 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 84
 #: src/bigocrpdf/ui/corrections_dialog.py:62
 msgid ""
 "Makes text darker and the background lighter, producing a cleaner result "
@@ -1760,14 +1341,10 @@ msgstr ""
 "Gerir texta dekkri og bakgrunn ljósari og gefur hreinlegri niðurstöðu líkt "
 "og hágæða skönnun."
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 125
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 91
 #: src/bigocrpdf/ui/corrections_dialog.py:69
 msgid "Enhance Embedded Images"
 msgstr "Bæta innfelldar myndir"
 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 93
 #: src/bigocrpdf/ui/corrections_dialog.py:71
 msgid ""
 "Apply image corrections (deskew, dewarp, perspective) to images inside pages "
@@ -1778,13 +1355,11 @@ msgstr ""
 "texta. Þessu er venjulega sleppt þar sem myndirnar eru þegar rétt stilltar. "
 "Virkjaðu aðeins ef innfelldar myndir eru skakkar eða afmyndaðar."
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 97
 #: src/bigocrpdf/ui/corrections_dialog.py:94
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:47
 msgid "Image Corrections"
 msgstr "Myndaleiðréttingar"
 
-# File: bigocrpdf/src/bigocrpdf/ui/corrections_dialog.py, line: 134
 #: src/bigocrpdf/ui/corrections_dialog.py:114
 msgid ""
 "These corrections automatically improve your scanned or photographed "
@@ -1793,23 +1368,14 @@ msgstr ""
 "Þessar leiðréttingar bæta sjálfvirkt skönnuð eða ljósmynduð skjöl. Hver "
 "þeirra lagar ákveðið vandamál."
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1215
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 194
 #: src/bigocrpdf/ui/dialogs_manager.py:81
 msgid "Separate PDFs"
 msgstr "Búa til aðskildar PDF-skrár"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1216
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 195
 #: src/bigocrpdf/ui/dialogs_manager.py:82
 msgid "Merge into One PDF"
 msgstr "Sameina í eina PDF-skrá"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1227
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 221
 #: src/bigocrpdf/ui/dialogs_manager.py:91
 #, python-brace-format
 msgid "Merged {count} image into one PDF"
@@ -1817,115 +1383,75 @@ msgid_plural "Merged {count} images into one PDF"
 msgstr[0] "{count} mynd sameinuð í eitt PDF"
 msgstr[1] "{count} myndir sameinaðar í eitt PDF"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1231
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 225
 #: src/bigocrpdf/ui/dialogs_manager.py:97
 msgid "Error merging images"
 msgstr "Villa við að sameina myndir"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 439
-# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 170
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 119
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 685
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 445
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 363
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 428
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1565
 #: src/bigocrpdf/ui/file_save_controller.py:31
 msgid "Save Extracted Text"
 msgstr "Vista útdreginn texta"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1821
 #: src/bigocrpdf/ui/file_save_controller.py:35
 #: src/bigocrpdf/ui/pdf_options_controller.py:177
 msgid "Text Extraction"
 msgstr "Textaútdráttur"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1616
-# line: 1726
 #: src/bigocrpdf/ui/file_save_controller.py:64
 #: src/bigocrpdf/ui/file_save_controller.py:69
 #: src/bigocrpdf/ui/file_save_controller.py:109
 msgid "Save Failed"
 msgstr "Vistun mistókst"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1632
 #: src/bigocrpdf/ui/file_save_controller.py:77
 msgid "File Already Exists"
 msgstr "Skrá er þegar til"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1633
 #: src/bigocrpdf/ui/file_save_controller.py:78
 #, python-brace-format
 msgid "The file '{0}' already exists. What would you like to do?"
 msgstr "Skráin '{0}' er þegar til. Hvað viltu gera?"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1639
 #: src/bigocrpdf/ui/file_save_controller.py:82
 msgid "Overwrite"
 msgstr "Yfirskrifa"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1640
 #: src/bigocrpdf/ui/file_save_controller.py:83
 msgid "Auto-Rename"
 msgstr "Sjálfvirk endurnefning"
 
-# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 143
 #: src/bigocrpdf/ui/file_save_controller.py:113
 #, python-brace-format
 msgid "Text saved to {filename}"
 msgstr "Texti vistaður í {filename}"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 457
-# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 169
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1225
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_export_mixin.py, line: 443
 #: src/bigocrpdf/ui/file_save_controller.py:117
-#: src/bigocrpdf/ui/image_ocr_window.py:1190
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:672
+#: src/bigocrpdf/ui/image_ocr_window.py:1246
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:714
 msgid "OK"
 msgstr "Í lagi"
 
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 63
 #: src/bigocrpdf/ui/file_selection_manager.py:45
 msgid "Select Files"
 msgstr "Veldu skrár"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 478
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 68
 #: src/bigocrpdf/ui/file_selection_manager.py:46
-#: src/bigocrpdf/ui/pdf_editor/editor_page_actions_mixin.py:292
+#: src/bigocrpdf/ui/pdf_editor/editor_page_actions_mixin.py:295
 msgid "PDFs and Images"
 msgstr "PDF-skjöl og myndir"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 525
 #: src/bigocrpdf/ui/file_selection_manager.py:81
 #: src/bigocrpdf/ui/file_selection_manager.py:125
 msgid "Error adding files"
 msgstr "Villa við að bæta við skrám"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 521
 #: src/bigocrpdf/ui/file_selection_manager.py:133
 msgid "No valid files were selected"
 msgstr "Engar gildar skrár voru valdar."
 
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 189
 #: src/bigocrpdf/ui/file_selection_manager.py:139
 msgid "Multiple Images Selected"
 msgstr "Margar myndir valdar"
 
-# File: bigocrpdf/src/bigocrpdf/ui/file_selection_manager.py, line: 191
 #: src/bigocrpdf/ui/file_selection_manager.py:141
 #, python-brace-format
 msgid "You selected {count} image. How would you like to add it?"
@@ -1933,33 +1459,26 @@ msgid_plural "You selected {count} images. How would you like to add them?"
 msgstr[0] "Þú valdir {count} mynd. Hvernig viltu bæta henni við?"
 msgstr[1] "Þú valdir {count} myndir. Hvernig viltu bæta þeim við?"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 546
 #: src/bigocrpdf/ui/file_selection_manager.py:150
 msgid "Select destination folder"
 msgstr "Veldu áfangamöppu"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 601
 #: src/bigocrpdf/ui/file_selection_manager.py:176
 msgid "Error selecting destination folder"
 msgstr "Villa við val á áfangamöppu"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 597
 #: src/bigocrpdf/ui/file_selection_manager.py:194
 msgid "Destination folder selected"
 msgstr "Áfangamappa valin"
 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 46
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 47
 #: src/bigocrpdf/ui/header_bar.py:42 src/bigocrpdf/ui/header_bar.py:43
 msgid "Toggle sidebar"
 msgstr "Sýna/fela hliðarstiku"
 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 70
 #: src/bigocrpdf/ui/header_bar.py:56 src/bigocrpdf/ui/header_bar.py:57
 msgid "Remove all files from the list"
 msgstr "Fjarlægja allar skrár af listanum"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
 #: src/bigocrpdf/ui/header_bar.py:65 src/bigocrpdf/ui/header_bar.py:194
 #, python-brace-format
 msgid "{count} file"
@@ -1967,60 +1486,45 @@ msgid_plural "{count} files"
 msgstr[0] "{count} skrá"
 msgstr[1] "{count} skrár"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 126
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 474
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 95
 #: src/bigocrpdf/ui/header_bar.py:82 src/bigocrpdf/ui/header_bar.py:85
-#: src/bigocrpdf/ui/pdf_editor/editor_page_actions_mixin.py:289
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:228
+#: src/bigocrpdf/ui/pdf_editor/editor_page_actions_mixin.py:292
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:246
 msgid "Add Files"
 msgstr "Bæta við skrám"
 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 123
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 124
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 205
 #: src/bigocrpdf/ui/header_bar.py:103 src/bigocrpdf/ui/header_bar.py:104
 #: src/bigocrpdf/ui/header_bar.py:179
 msgid "List view (click for grid)"
 msgstr "Listayfirlit (smelltu fyrir reitayfirlit)"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 137
 #: src/bigocrpdf/ui/header_bar.py:112 src/bigocrpdf/ui/header_bar.py:113
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:254
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:255
+#: src/bigocrpdf/ui/image_ocr_window.py:291
+#: src/bigocrpdf/ui/image_ocr_window.py:292
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:272
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:273
 #: src/bigocrpdf/ui/window_ui.py:259 src/bigocrpdf/ui/window_ui.py:260
 msgid "Menu"
 msgstr "Valmynd"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 126
-# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 246
 #: src/bigocrpdf/ui/header_bar.py:116 src/bigocrpdf/ui/window_ui.py:262
 msgid "Reset Settings"
 msgstr "Endurstilla stillingar"
 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 137
-#: src/bigocrpdf/ui/header_bar.py:117 src/bigocrpdf/ui/window_ui.py:263
-#: src/bigocrpdf/utils/adw_compat.py:137
+#: src/bigocrpdf/ui/header_bar.py:117 src/bigocrpdf/ui/image_ocr_window.py:288
+#: src/bigocrpdf/ui/window_ui.py:263 src/bigocrpdf/utils/adw_compat.py:137
 msgid "Keyboard Shortcuts"
 msgstr "Flýtileiðir"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 128
-# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 248
-#: src/bigocrpdf/ui/header_bar.py:119
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:258
+#: src/bigocrpdf/ui/header_bar.py:119 src/bigocrpdf/ui/image_ocr_window.py:289
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:276
 #: src/bigocrpdf/ui/window_ui.py:265
 msgid "About"
 msgstr "Um forritið"
 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 181
 #: src/bigocrpdf/ui/header_bar.py:151
 msgid "Clear file queue?"
 msgstr "Tæma skráabiðröð?"
 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 182
 #: src/bigocrpdf/ui/header_bar.py:153
 #, python-brace-format
 msgid "This will remove {count} file from the queue."
@@ -2028,73 +1532,59 @@ msgid_plural "This will remove {count} files from the queue."
 msgstr[0] "Þetta mun fjarlægja {count} skrá úr biðröðinni."
 msgstr[1] "Þetta mun fjarlægja {count} skrár úr biðröðinni."
 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 202
 #: src/bigocrpdf/ui/header_bar.py:176
 msgid "Grid view (click for list)"
 msgstr "Reitayfirlit (smelltu fyrir lista)"
 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 218
 #: src/bigocrpdf/ui/header_bar.py:215
 msgid "Start OCR processing"
 msgstr "Hefja OCR-vinnslu"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1139
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 221
-#: src/bigocrpdf/ui/header_bar.py:218 src/bigocrpdf/ui/image_ocr_window.py:1142
+#: src/bigocrpdf/ui/header_bar.py:218 src/bigocrpdf/ui/image_ocr_window.py:1192
 msgid ""
 "OCR is unavailable. Install the required engine and restart the application."
 msgstr "OCR er ekki tiltækt. Settu upp nauðsynlega vél og endurræstu forritið."
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 198
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 236
-#: src/bigocrpdf/ui/image_ocr_window.py:315
-#: src/bigocrpdf/ui/image_ocr_window.py:342
-#: src/bigocrpdf/ui/image_ocr_window.py:396
-#: src/bigocrpdf/ui/image_ocr_window.py:647
+#: src/bigocrpdf/ui/image_ocr_window.py:345
+#: src/bigocrpdf/ui/image_ocr_window.py:372
+#: src/bigocrpdf/ui/image_ocr_window.py:426
+#: src/bigocrpdf/ui/image_ocr_window.py:691
 msgid "No image found in clipboard"
 msgstr "Engin mynd fannst í klippiborðinu."
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 428
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 539
-#: src/bigocrpdf/ui/image_ocr_window.py:416
-#: src/bigocrpdf/ui/image_ocr_window.py:527
+#: src/bigocrpdf/ui/image_ocr_window.py:446
+#: src/bigocrpdf/ui/image_ocr_window.py:571
 msgid "Could not read the clipboard image"
 msgstr "Gat ekki lesið myndina af klippiborðinu"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 633
-#: src/bigocrpdf/ui/image_ocr_window.py:621
+#: src/bigocrpdf/ui/image_ocr_window.py:665
 msgid "Clipboard file list is too large"
 msgstr "Skráalistinn á klippiborðinu er of stór"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
-#: src/bigocrpdf/ui/image_ocr_window.py:688
-#: src/bigocrpdf/ui/image_ocr_window.py:692
-#: src/bigocrpdf/ui/image_ocr_window.py:814
+#: src/bigocrpdf/ui/image_ocr_window.py:732
+#: src/bigocrpdf/ui/image_ocr_window.py:736
+#: src/bigocrpdf/ui/image_ocr_window.py:858
 msgid "Open Image"
 msgstr "Opna mynd"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 152
-#: src/bigocrpdf/ui/image_ocr_window.py:699
-#: src/bigocrpdf/ui/image_ocr_window.py:704
+#: src/bigocrpdf/ui/image_ocr_window.py:743
+#: src/bigocrpdf/ui/image_ocr_window.py:748
 msgid "Screen Capture"
 msgstr "Skjámynd"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
-#: src/bigocrpdf/ui/image_ocr_window.py:715
+#: src/bigocrpdf/ui/image_ocr_window.py:759
 msgid "Image OCR"
 msgstr "OCR textagreining mynda"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
-#: src/bigocrpdf/ui/image_ocr_window.py:716
+#: src/bigocrpdf/ui/image_ocr_window.py:760
 msgid "Extract text from images or screen captures using OCR."
 msgstr "Dregðu texta úr myndum eða skjámyndum með því að nota OCR."
 
-#: src/bigocrpdf/ui/image_ocr_window.py:724
+#: src/bigocrpdf/ui/image_ocr_window.py:768
 msgid "No text found"
 msgstr "Enginn texti fannst"
 
-#: src/bigocrpdf/ui/image_ocr_window.py:727
+#: src/bigocrpdf/ui/image_ocr_window.py:771
 msgid ""
 "OCR finished but found no readable text. Capture a tighter region, or try a "
 "sharper image."
@@ -2102,86 +1592,71 @@ msgstr ""
 "Textagreiningu er lokið en enginn læsilegur texti fannst. Taktu mynd af "
 "minna svæði eða prófaðu skarpari mynd."
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 167
-#: src/bigocrpdf/ui/image_ocr_window.py:738
+#: src/bigocrpdf/ui/image_ocr_window.py:782
 msgid "Extracting text…"
 msgstr "Að draga út texta…"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 740
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 741
-#: src/bigocrpdf/ui/image_ocr_window.py:748
-#: src/bigocrpdf/ui/image_ocr_window.py:749
+#: src/bigocrpdf/ui/image_ocr_window.py:792
+#: src/bigocrpdf/ui/image_ocr_window.py:793
 msgid "Cancel text extraction"
 msgstr "Hætta við textaútdrátt"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 196
-#: src/bigocrpdf/ui/image_ocr_window.py:779
-#: src/bigocrpdf/ui/text_viewer_controller.py:408
+#: src/bigocrpdf/ui/image_ocr_window.py:823
+#: src/bigocrpdf/ui/text_viewer_controller.py:409
 msgid "Extracted text"
 msgstr "Útdreginn texti"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
-#: src/bigocrpdf/ui/image_ocr_window.py:791
+#: src/bigocrpdf/ui/image_ocr_window.py:835
 msgid "Copy"
 msgstr "Afrita"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
-#: src/bigocrpdf/ui/image_ocr_window.py:793
-#: src/bigocrpdf/ui/image_ocr_window.py:795
-#: src/bigocrpdf/ui/text_viewer_controller.py:208
+#: src/bigocrpdf/ui/image_ocr_window.py:837
+#: src/bigocrpdf/ui/image_ocr_window.py:839
 #: src/bigocrpdf/ui/text_viewer_controller.py:209
+#: src/bigocrpdf/ui/text_viewer_controller.py:210
 msgid "Copy text to clipboard"
 msgstr "Afrita texta í klippiborð"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
-#: src/bigocrpdf/ui/image_ocr_window.py:803
+#: src/bigocrpdf/ui/image_ocr_window.py:847
 msgid "New Capture"
 msgstr "Ný skjámynd"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 216
-#: src/bigocrpdf/ui/image_ocr_window.py:806
-#: src/bigocrpdf/ui/image_ocr_window.py:807
+#: src/bigocrpdf/ui/image_ocr_window.py:850
+#: src/bigocrpdf/ui/image_ocr_window.py:851
 msgid "Capture a screen region"
 msgstr "Taka skjámynd af svæði"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 224
-#: src/bigocrpdf/ui/image_ocr_window.py:816
-#: src/bigocrpdf/ui/image_ocr_window.py:817
+#: src/bigocrpdf/ui/image_ocr_window.py:860
+#: src/bigocrpdf/ui/image_ocr_window.py:861
 msgid "Open an image file"
 msgstr "Opna myndaskrá"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 451
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
-#: src/bigocrpdf/ui/image_ocr_window.py:1056
+#: src/bigocrpdf/ui/image_ocr_window.py:1106
 msgid "Open Image to OCR"
 msgstr "Opna mynd til OCR"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 496
-#: src/bigocrpdf/ui/image_ocr_window.py:1059
-#: src/bigocrpdf/ui/settings_queue_mixin.py:888
-#: src/bigocrpdf/ui/settings_queue_mixin.py:972
+#: src/bigocrpdf/ui/image_ocr_window.py:1109
+#: src/bigocrpdf/ui/settings_queue_mixin.py:887
+#: src/bigocrpdf/ui/settings_queue_mixin.py:971
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:108
 msgid "Images"
 msgstr "Myndir"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1102
-#: src/bigocrpdf/ui/image_ocr_window.py:1109
+#: src/bigocrpdf/ui/image_ocr_window.py:1159
 msgid "Could not open the selected image"
 msgstr "Gat ekki opnað valda mynd"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1127
-#: src/bigocrpdf/ui/image_ocr_window.py:1132
+#: src/bigocrpdf/ui/image_ocr_window.py:1182
 msgid "Could not copy text to the clipboard"
 msgstr "Gat ekki afritað texta á klippiborðið"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
-#: src/bigocrpdf/ui/image_ocr_window.py:1188
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:670
-msgid "Error"
-msgstr "Villa"
+#: src/bigocrpdf/ui/image_ocr_window.py:1186 src/bigocrpdf/ui/widgets.py:92
+msgid "Copied to clipboard"
+msgstr "Afritað á klippiborð"
+
+#: src/bigocrpdf/ui/image_ocr_window.py:1242
+msgid "Could not read the text"
+msgstr "Gat ekki lesið textann"
 
 #: src/bigocrpdf/ui/navigation_manager.py:22
 msgid "Step 1/3: Settings"
@@ -2195,10 +1670,6 @@ msgstr "Skref 2/3: Vinnsla"
 msgid "Step 3/3: Results"
 msgstr "Skref 3/3: Niðurstöður"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 186
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 187
-# File: bigocrpdf/src/bigocrpdf/ui/output_dialog.py, line: 77
 #: src/bigocrpdf/ui/output_dialog.py:25
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:151
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:152
@@ -2223,13 +1694,11 @@ msgstr ""
 "og hvítt, þjappað með JBIG2 ef jbig2enc er uppsett en annars með CCITT G4. "
 "Hann gefur minnstu skrárnar fyrir textaskjöl, en allir litir tapast."
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 249
 #: src/bigocrpdf/ui/output_dialog.py:40
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:166
 msgid "Export as PDF/A"
 msgstr "Flytja út sem PDF/A"
 
-# File: bigocrpdf/src/bigocrpdf/ui/output_dialog.py, line: 93
 #: src/bigocrpdf/ui/output_dialog.py:42
 msgid ""
 "Creates an archival PDF designed for long-term storage. The file will open "
@@ -2239,19 +1708,13 @@ msgstr ""
 "Býr til safnvörslu-PDF hannað til langtímageymslu. Skráin opnast rétt á "
 "hvaða tæki sem er, núna og í framtíðinni. Ráðlagt fyrir mikilvæg skjöl."
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/output_dialog.py, line: 100
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 205
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 205
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 206
 #: src/bigocrpdf/ui/output_dialog.py:51
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:109
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:125
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:170
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:171
 msgid "Page Layout"
 msgstr "Síðuskipan"
 
-# File: bigocrpdf/src/bigocrpdf/ui/output_dialog.py, line: 102
 #: src/bigocrpdf/ui/output_dialog.py:53
 msgid ""
 "Sets how PDF viewers arrange the pages when the file is opened: one page at "
@@ -2264,14 +1727,12 @@ msgstr ""
 "leyfir hverjum lesara að velja. Notaðu þetta ef síður birtast í mismunandi "
 "stærðum í símum."
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 264
 #: src/bigocrpdf/ui/output_dialog.py:63
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:182
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:183
 msgid "Maximum Output Size"
 msgstr "Hámarksstærð úttaksskrár"
 
-# File: bigocrpdf/src/bigocrpdf/ui/output_dialog.py, line: 104
 #: src/bigocrpdf/ui/output_dialog.py:65
 msgid ""
 "Sets a size limit for the final file. If the result is too large, it is "
@@ -2282,13 +1743,11 @@ msgstr ""
 "sjálfvirkt skipt í minni, tölusettar skrár (t.d. document-01.pdf). Gagnlegt "
 "fyrir tölvupóst eða upphleðslu."
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 105
 #: src/bigocrpdf/ui/output_dialog.py:79
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:55
 msgid "Output Settings"
 msgstr "Úttaksstillingar"
 
-# File: bigocrpdf/src/bigocrpdf/ui/output_dialog.py, line: 139
 #: src/bigocrpdf/ui/output_dialog.py:99
 msgid ""
 "Configure how the final PDF is generated. These settings affect file size, "
@@ -2297,18 +1756,15 @@ msgstr ""
 "Stilltu hvernig endanlegt PDF er búið til. Þessar stillingar hafa áhrif á "
 "stærð, gæði og samhæfni."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 495
 #: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:45
 msgid "PDF Editor Help"
 msgstr "Hjálp PDF-ritils"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 92
 #: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:76
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:120
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:131
 msgid "PDF Editor"
 msgstr "PDF-ritill"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 523
 #: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:84
 msgid ""
 "Use the PDF editor to view and organize your documents. You can rearrange, "
@@ -2319,22 +1775,18 @@ msgstr ""
 "snúið eða fjarlægt síður, þjappað skrám og skipt skjölum eftir síðum eða "
 "stærð."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 536
 #: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:96
 msgid "Keyboard shortcuts:"
 msgstr "Flýtileiðir:"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 542
 #: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:102
 msgid "Undo last action"
 msgstr "Afturkalla síðustu aðgerð"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 543
 #: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:103
 msgid "Select all pages"
 msgstr "Velja allar síður"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 544
 #: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:104
 msgid "Save and close"
 msgstr "Vista og loka"
@@ -2343,70 +1795,67 @@ msgstr "Vista og loka"
 msgid "Remove or restore selected pages"
 msgstr "Fjarlægja eða endurheimta valdar síður"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 546
 #: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:106
 msgid "Rotate left / right"
 msgstr "Snúa til vinstri / hægri"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 547
 #: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:107
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:246
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:247
+msgid "Move up"
+msgstr "Færa upp"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:108
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:255
+#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:256
+msgid "Move down"
+msgstr "Færa niður"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:110
 msgid "Zoom in / out"
 msgstr "Þysja inn / út"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 566
-#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:126
+#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:129
 msgid "Tips:"
 msgstr "Ráð:"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 573
-#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:133
+#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:136
 msgid "Drag and drop pages to reorder them"
 msgstr "Dragðu og slepptu síðum til að endurraða þeim"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 574
-#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:134
+#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:137
 msgid "Right-click a page to save it as image or PDF"
 msgstr "Hægrismelltu á síðu til að vista sem mynd eða PDF"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 575
-#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:135
+#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:138
 msgid "Drag external files onto the editor to add them"
 msgstr "Dragðu ytri skrár á ritilinn til að bæta þeim við"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
-#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:136
+#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:139
 msgid "Use the menu to compress or split documents"
 msgstr "Notaðu valmyndina til að þjappa eða skipta skjölum"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 611
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 616
-#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:153
-#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:158
+#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:156
+#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:161
 msgid "Got it"
 msgstr "Allt í lagi"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 596
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 603
-#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:167
-#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:174
+#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:170
+#: src/bigocrpdf/ui/pdf_editor/editor_help_controller.py:177
 msgid "Show when opening the editor"
 msgstr "Sýna þegar ritill opnast"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 343
-#: src/bigocrpdf/ui/pdf_editor/editor_page_actions_mixin.py:113
+#: src/bigocrpdf/ui/pdf_editor/editor_page_actions_mixin.py:116
 #, python-brace-format
 msgid "Failed to add file {}: {}"
 msgstr "Ekki tókst að bæta við skrá {}: {}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 217
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 685
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:34
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:83
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:36
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:98
 msgid "Compress PDF"
 msgstr "Þjappa PDF"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 688
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:37
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:39
 msgid ""
 "Reduce the file size by compressing the images inside the PDF. Lower values "
 "produce smaller files but with less image detail."
@@ -2414,441 +1863,367 @@ msgstr ""
 "Minnkar skráarstærð með því að þjappa myndum í PDF-skránni. Lægri gildi gefa "
 "minni skrár en draga úr smáatriðum myndanna."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 699
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:47
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:49
 msgid "Image Quality:"
 msgstr "Myndgæði:"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 707
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:55
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:57
 msgid "10 = smallest file, 95 = best quality. 60 is a good default."
 msgstr "10 = minnsta skrá, 95 = bestu gæðin. 60 er góð sjálfgefin stilling."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 719
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:66
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:68
 msgid "Image Resolution (DPI):"
 msgstr "Myndupplausn (DPI):"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 727
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:74
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:76
 msgid "72 = screen only, 150 = digital reading, 300 = print quality."
 msgstr "72 = aðeins skjár, 150 = stafræn lesning, 300 = prentgæði."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 741
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:88
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:90
 msgid "Compress"
 msgstr "Þjappa"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 770
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:115
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:125
 msgid "Failed to prepare document for compression."
 msgstr "Tókst ekki að undirbúa skjal til þjöppunar."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 784
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:127
-msgid "Save Compressed PDF"
-msgstr "Vista þjappað PDF"
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:140
+msgid "Optimizing image compression…"
+msgstr "Fínstilli myndþjöppun…"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 653
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 788
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:133
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:445
-msgid "PDF Files"
-msgstr "PDF-skrár"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 801
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:146
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:157
 #, python-brace-format
 msgid "Compression failed: {}"
 msgstr "Þjöppun mistókst: {}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py,
-# line:
-# 169
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:167
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:162
+#, python-brace-format
+msgid "Size change: {before} → {after} ({percent}%)"
+msgstr "Stærðarbreyting: {before} → {after} ({percent}%)"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:170
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:191
+msgid "Save Compressed PDF"
+msgstr "Vista þjappað PDF"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:172
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:615
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:256
+msgid "Save As"
+msgstr "Vista sem"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:176
+msgid "Compression would not make this PDF smaller"
+msgstr "Þjöppun myndi ekki minnka þetta PDF-skjal"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:197
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:492
+msgid "PDF Files"
+msgstr "PDF-skrár"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:228
 #, python-brace-format
 msgid "Failed to save compressed PDF: {}"
 msgstr "Ekki tókst að vista þjappaða PDF-skrá: {}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 828
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:177
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:88
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:238
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:103
 msgid "Split by Page Count"
 msgstr "Skipta eftir síðufjölda"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 829
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:178
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:239
 msgid "Split the document into parts with a fixed number of pages each."
 msgstr "Skipta skjalinu í hluta með föstum fjölda síðna."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 833
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:182
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:243
 msgid "Pages per file:"
 msgstr "Síður í hverri skrá:"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 841
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 873
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:190
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:222
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:251
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:283
 msgid "Split"
 msgstr "Skipta"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 860
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:209
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:270
 msgid "Split by File Size"
 msgstr "Skipta eftir skráarstærð"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 861
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:210
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:271
 msgid "Split the document so each part is at most the specified size."
 msgstr "Skipta skjalinu þannig að hver hluti sé ekki stærri en tilgreind mörk."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 865
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:214
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:275
 msgid "Max size (MB):"
 msgstr "Hámarksstærð (MB):"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 889
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:238
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:299
 msgid "Select Output Directory"
 msgstr "Veldu úttaksmöppu"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 918
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:273
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:334
 msgid "Failed to prepare document for splitting."
 msgstr "Tókst ekki að undirbúa skjal til skiptingar."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py,
-# line:
-# 291
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:289
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:350
 #, python-brace-format
 msgid "Parts: {parts} · Pages: {pages}"
 msgstr "Skrár búnar til: {parts} · Síður: {pages}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 939
-#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:295
+#: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:356
 #, python-brace-format
 msgid "Split failed: {}"
 msgstr "Skipting mistókst: {}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 72
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:118
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:129
 #, python-brace-format
 msgid "PDF Editor - {}"
 msgstr "PDF-ritill - {}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 397
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:209
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:222
 msgid "Could not open PDF file or file has no pages."
 msgstr "Gat ekki opnað PDF-skrá eða skráin inniheldur engar síður."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 428
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:240
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:253
 #, python-brace-format
 msgid "Failed to load PDF: {}"
 msgstr "Ekki tókst að hlaða PDF: {}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 605
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:250
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:263
 #, python-brace-format
 msgid "{total} page · {included} included"
 msgid_plural "{total} pages · {included} included"
 msgstr[0] "{total} síða · þar af: {included}"
 msgstr[1] "{total} síður · þar af: {included}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:257
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:270
 #, python-brace-format
 msgid "{count} selected"
 msgstr "{count} valdar"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 737
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:273
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:286
 #, python-brace-format
 msgid "{count} page selected"
 msgid_plural "{count} pages selected"
 msgstr[0] "{count} síða valin"
 msgstr[1] "{count} síður valdar"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:328
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:382
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:206
+#, python-brace-format
+msgid "Could not save {name}: {error}"
+msgstr "Gat ekki vistað {name}: {error}"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:385
+msgid ""
+"Your changes are still in the editor. Check that the source files still "
+"exist and that the disk has free space, then save again."
+msgstr ""
+"Breytingarnar þínar eru enn í ritlinum. Athugaðu hvort upprunaskrárnar séu "
+"enn til og hvort laust pláss sé á diskinum og vistaðu svo aftur."
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:404
 msgid "Saving…"
 msgstr "Vista…"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 674
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:348
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:353
-msgid "Failed to save PDF."
-msgstr "Tókst ekki að vista PDF."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 822
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:442
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:489
 msgid "Save PDF As"
 msgstr "Vista PDF sem"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 836
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:455
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:502
 msgid "document.pdf"
 msgstr "document.pdf"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 854
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:484
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:535
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:211
 #, python-brace-format
 msgid "Saved: {}"
 msgstr "Vistað: {}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:519
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:527
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:556
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:604
 msgid "Error saving changes."
 msgstr "Villa við að vista breytingar."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 604
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:567
-msgid "Failed to merge PDF pages."
-msgstr "Ekki tókst að sameina PDF-síður."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 626
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:574
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:611
 msgid "Unsaved Changes"
 msgstr "Óvistaðar breytingar"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 627
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:575
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:612
 msgid "What would you like to do with your changes?"
 msgstr "Hvað viltu gera með breytingarnar þínar?"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 197
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 629
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:577
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:614
 #: src/bigocrpdf/ui/session_recovery_controller.py:60
 msgid "Discard"
 msgstr "Henda"
 
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:578
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:238
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:615
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:256
 msgid "Apply"
 msgstr "Beita"
 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 239
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:53
+#: src/bigocrpdf/ui/pdf_editor/editor_window.py:712
+msgid "Error"
+msgstr "Villa"
+
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:68
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:109
 msgid "Edit PDF"
 msgstr "Breyta PDF"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 190
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:85
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:100
 msgid "Reduce document file size"
 msgstr "Minnka stærð skjals"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 198
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:90
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:105
 msgid "Split document by number of pages"
 msgstr "Skipta skjali eftir síðufjölda"
 
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:93
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:108
 msgid "Split by Size"
 msgstr "Skipta eftir stærð"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 207
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:95
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:110
 msgid "Split document by target file size"
 msgstr "Skipta skjali eftir markstærð"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 210
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:114
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:130
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:174
 msgid "Default (viewer decides)"
 msgstr "Sjálfgefið (lesarinn velur)"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 211
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:115
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:131
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:175
 msgid "Single page"
 msgstr "Ein síða"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 212
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:116
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:132
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:176
 msgid "Continuous scroll"
 msgstr "Samfelld skrunun"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 213
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:117
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:133
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:177
 msgid "Two pages"
 msgstr "Tvær síður"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 225
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:129
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:145
 msgid "How PDF viewers arrange pages when opening the file"
 msgstr "Hvernig PDF-lesarar raða síðum þegar skráin er opnuð"
 
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:136
-msgid "Select All"
-msgstr "Velja allt"
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:152
+msgid "Include All Pages"
+msgstr "Hafa allar síður með"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 221
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:138
-msgid "Select all pages in the document"
-msgstr "Velja allar síður í skjalinu"
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:154
+msgid "Include every page in the final document"
+msgstr "Hafa allar síður með í lokaskjalinu"
 
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:141
-msgid "Deselect All"
-msgstr "Afvelja allt"
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:157
+msgid "Exclude All Pages"
+msgstr "Útiloka allar síður"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 229
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:143
-msgid "Clear page selection"
-msgstr "Hreinsa síðuval"
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:159
+msgid "Exclude every page from the final document"
+msgstr "Útiloka allar síður úr lokaskjalinu"
 
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:147
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:163
 msgid "Reverse Order"
 msgstr "Snúa röðinni við"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 261
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:149
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:165
 msgid "Reverse the order of all pages"
 msgstr "Snúa röð allra síðna við"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 232
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:161
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:178
 msgid "Rotate / Flip"
 msgstr "Snúa / Spegla"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 239
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:167
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:184
 msgid "Rotate Left 90º"
 msgstr "Snúa 90º til vinstri"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 240
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:168
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:185
 msgid "Rotate Right 90º"
 msgstr "Snúa 90º til hægri"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 241
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:169
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:186
 msgid "Flip Vertically"
 msgstr "Spegla lóðrétt"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 242
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:170
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:187
 msgid "Flip Horizontally"
 msgstr "Spegla lárétt"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line:
-# 176
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line:
-# 177
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:176
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:177
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:193
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:194
 msgid "Open rotate and flip actions"
 msgstr "Opna snúnings- og speglunaraðgerðir"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 253
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:181
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:199
 msgid "Rotate or flip selected pages"
 msgstr "Snúa eða spegla valdar síður"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 596
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 603
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:210
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:228
 msgid "Show or hide the editor sidebar"
 msgstr "Sýna eða fela hliðarstiku ritilsins"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 308
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:230
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:248
 msgid "Insert PDF or image files"
 msgstr "Setja inn PDF eða myndaskrár"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 314
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:238
-msgid "Save As"
-msgstr "Vista sem"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 320
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:242
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:260
 msgid "Save PDF to a new file (Ctrl+S)"
 msgstr "Vista PDF í nýja skrá (Ctrl+S)"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 322
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:243
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:261
 msgid "Save PDF to a new file"
 msgstr "Vista PDF í nýja skrá"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 187
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:246
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:264
 msgid "Save changes and go back (Ctrl+S)"
 msgstr "Vista breytingar og fara til baka (Ctrl+S)"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 121
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:247
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:265
 msgid "Save changes and go back"
 msgstr "Vista breytingar og fara til baka"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 288
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:309
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:327
 msgid "Current file"
 msgstr "Núverandi skrá"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 299
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:316
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:334
 msgid "Document status"
 msgstr "Staða skjals"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 431
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:321
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:339
 msgid "Selection count"
 msgstr "Fjöldi valinna síðna"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 224
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:330
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:348
 msgid "Change the size of page previews"
 msgstr "Breyta stærð forsýninga síðna"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 313
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:331
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:349
 msgid "Zoom level"
 msgstr "Aðdráttarstig"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line:
-# 339
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:342
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:360
 msgid "Hide editor sidebar"
 msgstr "Fela hliðarstiku ritilsins"
 
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 46
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 47
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:344
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:362
 msgid "Show editor sidebar"
 msgstr "Sýna hliðarstiku ritilsins"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 37
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 53
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:38
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:54
 msgid "Open selected PDFs"
 msgstr "Opna valdar PDF-skrár"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 68
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:66
 msgid "How would you like to open these files?"
 msgstr "Hvernig viltu opna þessar skrár?"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 76
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:75
 #, python-brace-format
 msgid "{count} PDF file was selected."
@@ -2856,85 +2231,51 @@ msgid_plural "{count} PDF files were selected."
 msgstr[0] "{count} PDF-skrá var valin."
 msgstr[1] "{count} PDF-skrár voru valdar."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 86
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:88
 msgid "Open in separate windows"
 msgstr "Opna í aðskildum gluggum"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 87
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:89
 msgid "Edit each PDF in its own editor window."
 msgstr "Breyta hverri PDF-skrá í sínum eigin ritilglugga."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 94
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:96
 msgid "Combine in one editor"
 msgstr "Sameina í einum ritli"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 95
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:97
 msgid "Import all pages using the current selection order."
 msgstr "Flytja inn allar síður í núverandi valröð."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 102
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:104
 msgid "Choose order and combine"
 msgstr "Velja röð og sameina"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 103
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:105
 msgid "Set the document order before importing the pages."
 msgstr "Stilltu röð skjala áður en síðurnar eru fluttar inn."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 136
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:136
 msgid "Choose import order"
 msgstr "Velja innflutningsröð"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 142
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:142
 msgid "Pages will be imported from top to bottom."
 msgstr "Síður verða fluttar inn frá toppi til botns."
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 182
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 755
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:162
 #: src/bigocrpdf/ui/window_ui.py:244 src/bigocrpdf/ui/window_ui.py:249
 msgid "Back"
 msgstr "Til baka"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 166
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:166
 msgid "Open combined"
 msgstr "Opna sameinaða PDF-skrá"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 199
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:199
 #, python-brace-format
 msgid "{position}. {filename}"
 msgstr "{position}. {filename}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 246
-# 247
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:246
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:247
-msgid "Move up"
-msgstr "Færa upp"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 255
-# 256
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:255
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:256
-msgid "Move down"
-msgstr "Færa niður"
 
 #: src/bigocrpdf/ui/pdf_editor/page_grid.py:125
 msgid ""
@@ -2944,85 +2285,70 @@ msgstr ""
 "Smámyndir síðna. Ctrl+A velja allt, Ctrl+Upp/Niður endurraða, Delete "
 "fjarlægja eða endurheimta valdar síður, Ctrl+L/R snúa, Ctrl+Z afturkalla"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 131
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:142
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:389
 msgid "Excluded"
 msgstr "Útilokuð"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 153
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:162
 msgid "Include this page in the final document"
 msgstr "Hafa þessa síðu með í lokaskjalinu"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 164
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:165
 #, python-brace-format
 msgid "Include page {} in the final document"
 msgstr "Hafa síðu {} með í lokaskjalinu"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 169
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:181
 msgid "Rotate this page to the left"
 msgstr "Snúa þessari síðu til vinstri"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 183
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:184
 #, python-brace-format
 msgid "Rotate page {} to the left"
 msgstr "Snúa síðu {} til vinstri"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 178
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:194
 msgid "Rotate this page to the right"
 msgstr "Snúa þessari síðu til hægri"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 196
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:197
 #, python-brace-format
 msgid "Rotate page {} to the right"
 msgstr "Snúa síðu {} til hægri"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 211
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:210
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:393
 msgid "Horizontal Flip"
 msgstr "Lárétt speglun"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 212
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:211
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:395
 msgid "Vertical Flip"
 msgstr "Lóðrétt speglun"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 231
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:228
 msgid "Mirror this page (Horizontal/Vertical)"
 msgstr "Spegla þessa síðu (lárétt/lóðrétt)"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 235
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:231
 #, python-brace-format
 msgid "Mirror page {}"
 msgstr "Spegla síðu {}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 268
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:263
 msgid "Save page as image"
 msgstr "Vista síðu sem mynd"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 269
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:264
 msgid "Save page as PDF"
 msgstr "Vista síðu sem PDF"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 556
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:387
 #, python-brace-format
 msgid "Page {n}"
 msgstr "Síða {n}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 560
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:391
 #, python-brace-format
 msgid "Rotated {deg}°"
@@ -3037,60 +2363,38 @@ msgstr "Gat ekki myndgert síðu {page}"
 msgid "Choose a folder on this computer to save the page."
 msgstr "Veldu möppu á þessari tölvu til að vista síðuna."
 
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:206
-#, python-brace-format
-msgid "Could not save {name}: {error}"
-msgstr "Gat ekki vistað {name}: {error}"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1738
 #: src/bigocrpdf/ui/pdf_options_controller.py:46
 msgid "PDF Output Options"
 msgstr "PDF-úttaksvalkostir"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1757
 #: src/bigocrpdf/ui/pdf_options_controller.py:59
 msgid "Save"
 msgstr "Vista"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 2003
 #: src/bigocrpdf/ui/pdf_options_controller.py:71
 msgid "Preview"
 msgstr "Forskoðun"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 2007
 #: src/bigocrpdf/ui/pdf_options_controller.py:75
 msgid "Filename Example:"
 msgstr "Dæmi um skráarheiti:"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1772
 #: src/bigocrpdf/ui/pdf_options_controller.py:107
 msgid "File Settings"
 msgstr "Skráarstillingar"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1776
 #: src/bigocrpdf/ui/pdf_options_controller.py:110
 msgid "Use Original Filename"
 msgstr "Notaðu upprunalega skráarheitið"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1777
 #: src/bigocrpdf/ui/pdf_options_controller.py:111
 msgid "Use the same name as the original file"
 msgstr "Notaðu sama nafn og upprunalega skráin."
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1785
 #: src/bigocrpdf/ui/pdf_options_controller.py:116
 msgid "Warning"
 msgstr "Viðvörun"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 212
 #: src/bigocrpdf/ui/pdf_options_controller.py:118
 msgid ""
 "To replace original files, also enable 'Overwrite Existing Files' below and "
@@ -3099,35 +2403,26 @@ msgstr ""
 "Til að skipta út upprunalegu skránum skaltu einnig virkja 'Yfirskrifa "
 "núverandi skrár' hér fyrir neðan og vista í sömu möppu"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1802
 #: src/bigocrpdf/ui/pdf_options_controller.py:129
 msgid "Filename Suffix"
 msgstr "Viðskeyti skráarheitis"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 176
 #: src/bigocrpdf/ui/pdf_options_controller.py:135
 msgid "Text added to the end of the filename (e.g. document-ocr.pdf)"
 msgstr "Texti sem bætt er aftan við skráarheitið (t.d. skjal-ocr.pdf)"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1814
 #: src/bigocrpdf/ui/pdf_options_controller.py:139
 msgid "Overwrite Existing Files"
 msgstr "Yfirskrifa núverandi skrár"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1815
 #: src/bigocrpdf/ui/pdf_options_controller.py:140
 msgid "Replace files with the same name"
 msgstr "Skipta út skrám með sama heiti"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 231
 #: src/bigocrpdf/ui/pdf_options_controller.py:159
 msgid "Overwrite Existing Files?"
 msgstr "Skrifa yfir núverandi skrár?"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 234
 #: src/bigocrpdf/ui/pdf_options_controller.py:161
 msgid ""
 "If files with the same name already exist in the output folder, they will be "
@@ -3136,37 +2431,26 @@ msgstr ""
 "Ef skrár með sama heiti eru þegar til í úttaksmöppu verða þær varanlega "
 "yfirskrifaðar. Þetta er ekki hægt að afturkalla."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 239
 #: src/bigocrpdf/ui/pdf_options_controller.py:166
 msgid "Enable"
 msgstr "Virkja"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1825
 #: src/bigocrpdf/ui/pdf_options_controller.py:179
 msgid "Save Text Files"
 msgstr "Vista textaskrár"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1826
 #: src/bigocrpdf/ui/pdf_options_controller.py:180
 msgid "Automatically save extracted text as .txt files"
 msgstr "Vista útdreginn texta sjálfvirkt sem .txt-skrár"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1834
 #: src/bigocrpdf/ui/pdf_options_controller.py:184
 msgid "Use Separate Folder for Text Files"
 msgstr "Notaðu aðskilda möppu fyrir textaskrár"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1835
 #: src/bigocrpdf/ui/pdf_options_controller.py:185
 msgid "Save text files to a different folder"
 msgstr "Vista textaskrár í aðra möppu"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1852
 #: src/bigocrpdf/ui/pdf_options_controller.py:192
 #: src/bigocrpdf/ui/pdf_options_controller.py:336
 #: src/bigocrpdf/ui/pdf_options_controller.py:432
@@ -3174,143 +2458,103 @@ msgstr "Vista textaskrár í aðra möppu"
 msgid "Not set"
 msgstr "Ekki stillt"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 287
 #: src/bigocrpdf/ui/pdf_options_controller.py:203
 #: src/bigocrpdf/ui/pdf_options_controller.py:205
 msgid "Choose where to save the text files"
 msgstr "Veldu hvar á að vista textaskrárnar"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1846
 #: src/bigocrpdf/ui/pdf_options_controller.py:208
 msgid "Text Files Folder"
 msgstr "Mappa textaskráa"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1847
 #: src/bigocrpdf/ui/pdf_options_controller.py:209
 msgid "Select where to save text files"
 msgstr "Veldu hvar á að vista textaskrár."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 306
 #: src/bigocrpdf/ui/pdf_options_controller.py:226
 msgid "ODF Export"
 msgstr "ODF-útflutningur"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 310
 #: src/bigocrpdf/ui/pdf_options_controller.py:228
 msgid "Save ODF Files"
 msgstr "Vista ODF-skrár"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 311
 #: src/bigocrpdf/ui/pdf_options_controller.py:229
 msgid "Automatically save extracted text as .odt files"
 msgstr "Vista útdreginn texta sjálfvirkt sem .odt-skrár"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1919
 #: src/bigocrpdf/ui/pdf_options_controller.py:245
 msgid "Date and Time"
 msgstr "Dagsetning og tími"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1923
 #: src/bigocrpdf/ui/pdf_options_controller.py:247
 msgid "Add Date to Filename"
 msgstr "Bæta dagsetningu við skráarnafn"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1924
 #: src/bigocrpdf/ui/pdf_options_controller.py:248
 msgid "Include date elements in the filename"
 msgstr "Hafa dagsetningarhluta með í skráarheitinu"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1930
 #: src/bigocrpdf/ui/pdf_options_controller.py:253
 msgid "Date Format"
 msgstr "Dagsetningarsnið"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 449
 #: src/bigocrpdf/ui/pdf_options_controller.py:257
 msgid "Standard (2026-02-23)"
 msgstr "Staðlað (2026-02-23)"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 450
 #: src/bigocrpdf/ui/pdf_options_controller.py:258
 msgid "European (23-02-2026)"
 msgstr "Evrópskt (23-02-2026)"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 451
 #: src/bigocrpdf/ui/pdf_options_controller.py:259
 msgid "American (02-23-2026)"
 msgstr "Amerískt (02-23-2026)"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1959
 #: src/bigocrpdf/ui/pdf_options_controller.py:280
 msgid "Include Year"
 msgstr "Hafa ár með"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1960
 #: src/bigocrpdf/ui/pdf_options_controller.py:280
 msgid "Add YYYY to the date"
 msgstr "Bættu YYYY við dagsetninguna"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1970
 #: src/bigocrpdf/ui/pdf_options_controller.py:283
 msgid "Include Month"
 msgstr "Hafa mánuð með"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1971
 #: src/bigocrpdf/ui/pdf_options_controller.py:283
 msgid "Add MM to the date"
 msgstr "Bættu MM við dagsetninguna"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1981
 #: src/bigocrpdf/ui/pdf_options_controller.py:286
 msgid "Include Day"
 msgstr "Hafa dag með"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1982
 #: src/bigocrpdf/ui/pdf_options_controller.py:286
 msgid "Add DD to the date"
 msgstr "Bættu DD við dagsetninguna"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1992
 #: src/bigocrpdf/ui/pdf_options_controller.py:289
 msgid "Include Time"
 msgstr "Hafa tíma með"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1993
 #: src/bigocrpdf/ui/pdf_options_controller.py:289
 msgid "Add HHMM to the filename"
 msgstr "Bættu HHMM við skráarnafnið"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1898
 #: src/bigocrpdf/ui/pdf_options_controller.py:428
 msgid "Select Folder for Text Files"
 msgstr "Veldu möppu fyrir textaskrár"
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_callbacks_mixin.py, line: 317
 #: src/bigocrpdf/ui/pdf_options_controller.py:502
 msgid "PDF output settings saved"
 msgstr "PDF-úttaksstillingar vistaðar"
 
-# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 189
 #: src/bigocrpdf/ui/session_recovery_controller.py:51
 msgid "Resume Previous Session?"
 msgstr "Halda áfram fyrri lotu?"
 
-# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 191
 #: src/bigocrpdf/ui/session_recovery_controller.py:53
 #, python-brace-format
 msgid ""
@@ -3328,12 +2572,10 @@ msgstr ""
 "\n"
 "Viltu halda áfram vinnslu?"
 
-# File: bigocrpdf/src/bigocrpdf/ui/file_save_mixin.py, line: 198
 #: src/bigocrpdf/ui/session_recovery_controller.py:61
 msgid "Resume"
 msgstr "Halda áfram"
 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 393
 #: src/bigocrpdf/ui/session_recovery_controller.py:84
 #, python-brace-format
 msgid "Session resumed with {count} file"
@@ -3341,309 +2583,250 @@ msgid_plural "Session resumed with {count} files"
 msgstr[0] "Vinnslulotu haldið áfram með {count} skrá"
 msgstr[1] "Vinnslulotu haldið áfram með {count} skrám"
 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 398
 #: src/bigocrpdf/ui/session_recovery_controller.py:93
 msgid "Could not resume session"
 msgstr "Gat ekki haldið áfram vinnslulotu"
 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 404
 #: src/bigocrpdf/ui/session_recovery_controller.py:101
 msgid "Previous session discarded"
 msgstr "Fyrri vinnslulotu var hent"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 400
 #: src/bigocrpdf/ui/settings_queue_mixin.py:186
 #: src/bigocrpdf/ui/settings_queue_mixin.py:226
 msgid "File queue"
 msgstr "Skráabiðröð"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 57
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 100
 #: src/bigocrpdf/ui/settings_queue_mixin.py:190
 #: src/bigocrpdf/ui/settings_queue_mixin.py:233
 msgid "Add your PDFs"
 msgstr "Bættu PDF-skjölum við"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 59
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 102
 #: src/bigocrpdf/ui/settings_queue_mixin.py:192
 #: src/bigocrpdf/ui/settings_queue_mixin.py:235
 msgid "Drag PDF files and images here, or use the button in the header bar"
 msgstr "Dragðu PDF-skrár og myndir hingað, eða notaðu hnappinn í hausstiku"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 362
 #: src/bigocrpdf/ui/settings_queue_mixin.py:260
 msgid "Save in the same folder as the original file"
 msgstr "Vista í sömu möppu og upprunalega skráin"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 363
 #: src/bigocrpdf/ui/settings_queue_mixin.py:261
 msgid "Custom folder"
 msgstr "Sérsniðin mappa"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 442
 #: src/bigocrpdf/ui/settings_queue_mixin.py:268
 msgid "Output folder location"
 msgstr "Staðsetning úttaksmöppu"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1862
 #: src/bigocrpdf/ui/settings_queue_mixin.py:279
 msgid "Select folder"
 msgstr "Veldu möppu"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 458
 #: src/bigocrpdf/ui/settings_queue_mixin.py:282
 msgid "Destination folder path"
 msgstr "Slóð markmöppu"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 465
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 466
 #: src/bigocrpdf/ui/settings_queue_mixin.py:288
 #: src/bigocrpdf/ui/settings_queue_mixin.py:289
 msgid "Browse for folder"
 msgstr "Fletta í möppum"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 983
 #: src/bigocrpdf/ui/settings_queue_mixin.py:417
 #: src/bigocrpdf/ui/settings_queue_mixin.py:418
+#: src/bigocrpdf/ui/settings_queue_mixin.py:590
 #: src/bigocrpdf/ui/settings_queue_mixin.py:591
-#: src/bigocrpdf/ui/settings_queue_mixin.py:592
 msgid "Edit pages of this file"
 msgstr "Breyta síðum þessarar skráar"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 999
 #: src/bigocrpdf/ui/settings_queue_mixin.py:425
 #: src/bigocrpdf/ui/settings_queue_mixin.py:426
+#: src/bigocrpdf/ui/settings_queue_mixin.py:598
 #: src/bigocrpdf/ui/settings_queue_mixin.py:599
-#: src/bigocrpdf/ui/settings_queue_mixin.py:600
 msgid "Remove this file from the list"
 msgstr "Fjarlægja þessa skrá af listanum"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:544
-#: src/bigocrpdf/ui/settings_queue_mixin.py:667
+#: src/bigocrpdf/ui/settings_queue_mixin.py:543
+#: src/bigocrpdf/ui/settings_queue_mixin.py:666
 msgid "Cannot read this PDF"
 msgstr "Ekki er hægt að lesa þessa PDF-skrá"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 290
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 384
-#: src/bigocrpdf/ui/settings_queue_mixin.py:555
-#: src/bigocrpdf/ui/settings_queue_mixin.py:660
-#, python-brace-format
-msgid "{size} MB"
-msgstr "{size} MB"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 481
-#: src/bigocrpdf/ui/settings_queue_mixin.py:709
+#: src/bigocrpdf/ui/settings_queue_mixin.py:708
 msgid "Open file"
 msgstr "Opna skrá"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 486
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 746
-#: src/bigocrpdf/ui/settings_queue_mixin.py:714
-#: src/bigocrpdf/ui/settings_queue_mixin.py:929
+#: src/bigocrpdf/ui/settings_queue_mixin.py:713
+#: src/bigocrpdf/ui/settings_queue_mixin.py:928
 msgid "File information"
 msgstr "Upplýsingar um skrá"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 679
-#: src/bigocrpdf/ui/settings_queue_mixin.py:842
+#: src/bigocrpdf/ui/settings_queue_mixin.py:841
 msgid "Name"
 msgstr "Heiti"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 680
-#: src/bigocrpdf/ui/settings_queue_mixin.py:843
+#: src/bigocrpdf/ui/settings_queue_mixin.py:842
 msgid "Path"
 msgstr "Slóð"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 685
-#: src/bigocrpdf/ui/settings_queue_mixin.py:849
+#: src/bigocrpdf/ui/settings_queue_mixin.py:848
 msgid "Size"
 msgstr "Stærð"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 693
-#: src/bigocrpdf/ui/settings_queue_mixin.py:856
+#: src/bigocrpdf/ui/settings_queue_mixin.py:855
 msgid "Modified (local)"
 msgstr "Breytt (staðartími)"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 701
-#: src/bigocrpdf/ui/settings_queue_mixin.py:862
+#: src/bigocrpdf/ui/settings_queue_mixin.py:861
 msgid "Document"
 msgstr "Skjal"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:864
+#: src/bigocrpdf/ui/settings_queue_mixin.py:863
 msgid "Pages"
 msgstr "Síður"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:865
+#: src/bigocrpdf/ui/settings_queue_mixin.py:864
 msgid "Page size"
 msgstr "Síðustærð"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:866
+#: src/bigocrpdf/ui/settings_queue_mixin.py:865
 msgid "PDF version"
 msgstr "PDF-útgáfa"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:867
+#: src/bigocrpdf/ui/settings_queue_mixin.py:866
 msgid "Encrypted"
 msgstr "Dulritað"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:868
+#: src/bigocrpdf/ui/settings_queue_mixin.py:867
 msgid "Optimized"
 msgstr "Fínstillt"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:869
+#: src/bigocrpdf/ui/settings_queue_mixin.py:868
 msgid "Tagged"
 msgstr "Merkt"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 706
-#: src/bigocrpdf/ui/settings_queue_mixin.py:874
+#: src/bigocrpdf/ui/settings_queue_mixin.py:873
 msgid "Form"
 msgstr "Eyðublað"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 708
-#: src/bigocrpdf/ui/settings_queue_mixin.py:876
+#: src/bigocrpdf/ui/settings_queue_mixin.py:875
 msgid "JavaScript"
 msgstr "JavaScript"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 711
-#: src/bigocrpdf/ui/settings_queue_mixin.py:887
-#: src/bigocrpdf/ui/settings_queue_mixin.py:972
+#: src/bigocrpdf/ui/settings_queue_mixin.py:886
+#: src/bigocrpdf/ui/settings_queue_mixin.py:971
 msgid "Content"
 msgstr "Efni"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 715
-#: src/bigocrpdf/ui/settings_queue_mixin.py:891
+#: src/bigocrpdf/ui/settings_queue_mixin.py:890
 msgid "Image formats"
 msgstr "Myndsnið"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 721
-#: src/bigocrpdf/ui/settings_queue_mixin.py:895
+#: src/bigocrpdf/ui/settings_queue_mixin.py:894
 msgid "Fonts"
 msgstr "Leturgerðir"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 725
-#: src/bigocrpdf/ui/settings_queue_mixin.py:897
+#: src/bigocrpdf/ui/settings_queue_mixin.py:896
 msgid "Embedded fonts"
 msgstr "Innfelldar leturgerðir"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 729
-#: src/bigocrpdf/ui/settings_queue_mixin.py:899
+#: src/bigocrpdf/ui/settings_queue_mixin.py:898
 msgid "Font names"
 msgstr "Heiti leturgerða"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 732
-#: src/bigocrpdf/ui/settings_queue_mixin.py:902
+#: src/bigocrpdf/ui/settings_queue_mixin.py:901
 msgid "Attached files"
 msgstr "Meðfylgjandi skrár"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 735
-#: src/bigocrpdf/ui/settings_queue_mixin.py:906
+#: src/bigocrpdf/ui/settings_queue_mixin.py:905
 msgid "Metadata"
 msgstr "Lýsigögn"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:908
+#: src/bigocrpdf/ui/settings_queue_mixin.py:907
 msgid "Title"
 msgstr "Titill"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:909
+#: src/bigocrpdf/ui/settings_queue_mixin.py:908
 msgid "Subject"
 msgstr "Viðfangsefni"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:910
+#: src/bigocrpdf/ui/settings_queue_mixin.py:909
 msgid "Author"
 msgstr "Höfundur"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:911
+#: src/bigocrpdf/ui/settings_queue_mixin.py:910
 msgid "Creator"
 msgstr "Gert af"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:912
+#: src/bigocrpdf/ui/settings_queue_mixin.py:911
 msgid "Producer"
 msgstr "Framleiðandi"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:913
+#: src/bigocrpdf/ui/settings_queue_mixin.py:912
 msgid "Keywords"
 msgstr "Stikkorð"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 740
-#: src/bigocrpdf/ui/settings_queue_mixin.py:918
+#: src/bigocrpdf/ui/settings_queue_mixin.py:917
 msgid "Created"
 msgstr "Búið til"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 742
-#: src/bigocrpdf/ui/settings_queue_mixin.py:920
+#: src/bigocrpdf/ui/settings_queue_mixin.py:919
 msgid "Modified"
 msgstr "Breytt"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 755
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 756
+#: src/bigocrpdf/ui/settings_queue_mixin.py:947
 #: src/bigocrpdf/ui/settings_queue_mixin.py:948
-#: src/bigocrpdf/ui/settings_queue_mixin.py:949
 msgid "Copy all information"
 msgstr "Afrita allar upplýsingar"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 782
-#: src/bigocrpdf/ui/settings_queue_mixin.py:979
+#: src/bigocrpdf/ui/settings_queue_mixin.py:978
 msgid "Image list"
 msgstr "Myndalisti"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 493
-#: src/bigocrpdf/ui/settings_queue_mixin.py:982
+#: src/bigocrpdf/ui/settings_queue_mixin.py:981
 #, python-brace-format
 msgid "{count} image"
 msgid_plural "{count} images"
 msgstr[0] "{count} mynd"
 msgstr[1] "{count} myndir"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 792
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 793
+#: src/bigocrpdf/ui/settings_queue_mixin.py:995
 #: src/bigocrpdf/ui/settings_queue_mixin.py:996
-#: src/bigocrpdf/ui/settings_queue_mixin.py:997
 msgid "Extract this image"
 msgstr "Draga út þessa mynd"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 823
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1020
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1019
 msgid "Information copied"
 msgstr "Upplýsingar afritaðar"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 879
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 887
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1054
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1060
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1073
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1053
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1059
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1072
 msgid "Failed to extract image"
 msgstr "Tókst ekki að draga út mynd"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 885
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1073
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1072
 msgid "Image extracted"
 msgstr "Mynd dregin út"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1114
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1128
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1127
 msgid "Failed to open PDF editor"
 msgstr "Ekki tókst að opna PDF-ritil"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1094
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1142
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1141
 msgid "Changes saved"
 msgstr "Breytingar vistaðar"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1210
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1190
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1189
 msgid "Multiple Images Dropped"
 msgstr "Margar myndir dregnar inn"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1212
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1192
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1191
 #, python-brace-format
 msgid "You dropped {count} image. How would you like to add it?"
 msgid_plural "You dropped {count} images. How would you like to add them?"
 msgstr[0] "Þú slepptir {count} mynd hér. Hvernig viltu bæta henni við?"
 msgstr[1] "Þú slepptir {count} myndum hér. Hvernig viltu bæta þeim við?"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 1082
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1244
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1243
 #: src/bigocrpdf/ui/window_ui.py:108
 #, python-brace-format
 msgid "{count} file in queue"
@@ -3651,17 +2834,14 @@ msgid_plural "{count} files in queue"
 msgstr[0] "{count} skrá í biðröð"
 msgstr[1] "{count} skrár í biðröð"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 1094
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1259
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1258
 msgid "All files removed from queue"
 msgstr "Allar skrár fjarlægðar úr biðröð"
 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 319
 #: src/bigocrpdf/ui/settings_reset_controller.py:37
 msgid "Reset All Settings?"
 msgstr "Endurstilla allar stillingar?"
 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 321
 #: src/bigocrpdf/ui/settings_reset_controller.py:39
 msgid ""
 "This will restore all options to their default values. Your file queue will "
@@ -3670,51 +2850,40 @@ msgstr ""
 "Þetta endurstillir alla valkosti á sjálfgefin gildi. Skráabiðröðin breytist "
 "ekki."
 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 326
 #: src/bigocrpdf/ui/settings_reset_controller.py:44
 msgid "Reset"
 msgstr "Endurstilla"
 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 341
 #: src/bigocrpdf/ui/settings_reset_controller.py:75
 msgid "Settings restored to defaults"
 msgstr "Stillingar endurstilltar á sjálfgefin gildi"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 145
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:120
 #, python-brace-format
 msgid "{active} of {total} enabled"
 msgstr "Virkir: {active} af {total}"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 149
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 240
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:155
 #: src/bigocrpdf/ui/terminal_page.py:118
 msgid "Keep Original"
 msgstr "Halda upprunalegu"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 227
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:156
 msgid "Very Low (30%)"
 msgstr "Mjög lítil gæði (30%)"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 228
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:157
 msgid "Low (50%)"
 msgstr "Lítil gæði (50%)"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 229
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:158
 msgid "Medium (70%)"
 msgstr "Miðlungs gæði (70%)"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 230
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:159
 msgid "High (85%)"
 msgstr "Mikil gæði (85%)"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 231
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:160
 msgid "Maximum (95%)"
 msgstr "Hámark (95%)"
@@ -3723,42 +2892,34 @@ msgstr "Hámark (95%)"
 msgid "Black & White"
 msgstr "Svart og hvítt"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 270
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:187
 msgid "No limit"
 msgstr "Engin takmörk"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:188
 msgid "5 MB"
 msgstr "5 MB"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:189
 msgid "10 MB"
 msgstr "10 MB"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:190
 msgid "15 MB"
 msgstr "15 MB"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:191
 msgid "20 MB"
 msgstr "20 MB"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 213
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:192
 msgid "25 MB"
 msgstr "25 MB"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 214
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:193
 msgid "50 MB"
 msgstr "50 MB"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 215
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:194
 msgid "100 MB"
 msgstr "100 MB"
@@ -3770,114 +2931,89 @@ msgid_plural "{n} options enabled"
 msgstr[0] "{n} valkostur virkur"
 msgstr[1] "{n} valkostir virkir"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 171
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:249
 msgid "Low Precision"
 msgstr "Lág nákvæmni"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 172
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:250
 msgid "Standard"
 msgstr "Venjuleg"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 173
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:251
 msgid "Precise"
 msgstr "Nákvæm"
 
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 174
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:252
 msgid "Very Precise"
 msgstr "Mjög nákvæm"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 380
 #: src/bigocrpdf/ui/terminal_page.py:60
 msgid "Processing PDF files..."
 msgstr "Vinn PDF-skrár..."
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 109
 #: src/bigocrpdf/ui/terminal_page.py:68
 msgid "0%"
 msgstr "0%"
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 114
 #: src/bigocrpdf/ui/terminal_page.py:70
 msgid "OCR processing progress"
 msgstr "Framvinda OCR-vinnslu"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 385
 #: src/bigocrpdf/ui/terminal_page.py:74 src/bigocrpdf/ui/terminal_page.py:381
 msgid "Preparing processing..."
 msgstr "Undirbý vinnslu..."
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 149
 #: src/bigocrpdf/ui/terminal_page.py:120
 #, python-brace-format
 msgid "JPEG {quality}%"
 msgstr "JPEG {quality}%"
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 148
 #: src/bigocrpdf/ui/terminal_page.py:151
 msgid "Recognition"
 msgstr "Greining"
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 148
 #: src/bigocrpdf/ui/terminal_page.py:151
 msgid "Automatic multilingual (PP-OCRv6)"
 msgstr "Sjálfvirkt fjöltyngt (PP-OCRv6)"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 184
-# line: 194
 #: src/bigocrpdf/ui/terminal_page.py:152
 msgid "Quality"
 msgstr "Gæði"
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 191
 #: src/bigocrpdf/ui/terminal_page.py:154
 msgid "Format"
 msgstr "Snið"
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 194
 #: src/bigocrpdf/ui/terminal_page.py:156
 msgid "Max Size"
 msgstr "Hámarksstærð"
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 194
 #: src/bigocrpdf/ui/terminal_page.py:156
 #, python-brace-format
 msgid "{mb} MB"
 msgstr "{mb} MB"
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 196
 #: src/bigocrpdf/ui/terminal_page.py:158
 msgid "Mode"
 msgstr "Hamur"
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 196
 #: src/bigocrpdf/ui/terminal_page.py:158
 msgid "Replace OCR"
 msgstr "Skipta út OCR"
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 193
 #: src/bigocrpdf/ui/terminal_page.py:160
 msgid "Active"
 msgstr "Virkt"
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 208
 #: src/bigocrpdf/ui/terminal_page.py:162
 msgid "Inactive"
 msgstr "Óvirkt"
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 189
 #: src/bigocrpdf/ui/terminal_page.py:192
 #, python-brace-format
 msgid "<b>Completed: {completed}/{total}</b> · Remaining: {remaining}"
 msgstr "<b>Lokið: {completed}/{total}</b> · Eftir: {remaining}"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 1050
 #: src/bigocrpdf/ui/terminal_page.py:288
 #, python-brace-format
 msgid ""
@@ -3887,7 +3023,6 @@ msgid_plural ""
 msgstr[0] "<b>OCR-vinnslu lokið!</b> {total} skrá unnin · Heildartími: {time}"
 msgstr[1] "<b>OCR-vinnslu lokið!</b> {total} skrár unnar · Heildartími: {time}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 409
 #: src/bigocrpdf/ui/terminal_page.py:296
 #, python-brace-format
 msgid "OCR processing complete. {total} file processed."
@@ -3895,33 +3030,26 @@ msgid_plural "OCR processing complete. {total} files processed."
 msgstr[0] "OCR-vinnslu lokið. {total} skrá unnin."
 msgstr[1] "OCR-vinnslu lokið. {total} skrár unnar."
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 325
 #: src/bigocrpdf/ui/terminal_page.py:316
 #, python-brace-format
 msgid "File {current}/{total}: <b>{filename}</b> - {status} • Time: {time}"
 msgstr "Skrá {current}/{total}: <b>{filename}</b> - {status} • Tími: {time}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 335
 #: src/bigocrpdf/ui/terminal_page.py:326
 #, python-brace-format
 msgid "Processing file {current}/{total}: <b>{filename}</b> • Time: {time}"
 msgstr "Vinnsla skráar {current}/{total}: <b>{filename}</b> • Tími: {time}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 445
 #: src/bigocrpdf/ui/terminal_page.py:337
 #, python-brace-format
 msgid "Processing file {current} of {total}: {filename}"
 msgstr "Vinnur skrá {current} af {total}: {filename}"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py,
-# line: 370
 #: src/bigocrpdf/ui/terminal_page.py:354
 #, python-brace-format
 msgid "Completed: {processed}/{total} · Time: {time}"
 msgstr "Lokið: {processed}/{total} · Tími: {time}"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/terminal_page.py,
-# line: 382
 #: src/bigocrpdf/ui/terminal_page.py:368
 #, python-brace-format
 msgid "Starting processing of {total} file... · Time: {time}"
@@ -3929,117 +3057,88 @@ msgid_plural "Starting processing of {total} files... · Time: {time}"
 msgstr[0] "Vinnsla á {total} skrá hefst… · Tími: {time}"
 msgstr[1] "Vinnsla á {total} skrám hefst… · Tími: {time}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 482
 #: src/bigocrpdf/ui/terminal_page.py:379
 #, python-brace-format
 msgid "{percent}%"
 msgstr "{percent}%"
 
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 708
-#: src/bigocrpdf/ui/text_viewer_controller.py:82
+#: src/bigocrpdf/ui/text_viewer_controller.py:83
 msgid ""
 "OCR processing was completed for this file, but the extracted text could not "
 "be found."
 msgstr "OCR-vinnslu lauk fyrir þessa skrá, en útdreginn texti fannst ekki."
 
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
-#: src/bigocrpdf/ui/text_viewer_controller.py:154
+#: src/bigocrpdf/ui/text_viewer_controller.py:155
 #, python-brace-format
 msgid "{count} word"
 msgid_plural "{count} words"
 msgstr[0] "{count} orð"
 msgstr[1] "{count} orð"
 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
-#: src/bigocrpdf/ui/text_viewer_controller.py:157
+#: src/bigocrpdf/ui/text_viewer_controller.py:158
 #, python-brace-format
 msgid "{count} character"
 msgid_plural "{count} characters"
 msgstr[0] "{count} stafur"
 msgstr[1] "{count} stafir"
 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
-#: src/bigocrpdf/ui/text_viewer_controller.py:161
+#: src/bigocrpdf/ui/text_viewer_controller.py:162
 #, python-brace-format
 msgid "{words} · {characters}"
 msgstr "{words} · {characters}"
 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 371
-#: src/bigocrpdf/ui/text_viewer_controller.py:214
-#: src/bigocrpdf/ui/text_viewer_controller.py:217
+#: src/bigocrpdf/ui/text_viewer_controller.py:215
+#: src/bigocrpdf/ui/text_viewer_controller.py:218
 msgid "Save TXT"
 msgstr "Vista TXT"
 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 203
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 204
-#: src/bigocrpdf/ui/text_viewer_controller.py:237
+#: src/bigocrpdf/ui/text_viewer_controller.py:238
 msgid "Decrease font size"
 msgstr "Minnka leturstærð"
 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 209
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 210
-#: src/bigocrpdf/ui/text_viewer_controller.py:244
+#: src/bigocrpdf/ui/text_viewer_controller.py:245
 msgid "Increase font size"
 msgstr "Stækka leturstærð"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1291
-# line: 1272
-# line: 1324
-#: src/bigocrpdf/ui/text_viewer_controller.py:357
+#: src/bigocrpdf/ui/text_viewer_controller.py:358
 msgid "Search in text..."
 msgstr "Leita í texta..."
 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 287
-#: src/bigocrpdf/ui/text_viewer_controller.py:359
+#: src/bigocrpdf/ui/text_viewer_controller.py:360
 msgid "Search in text"
 msgstr "Leita í texta"
 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 294
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 295
-#: src/bigocrpdf/ui/text_viewer_controller.py:366
 #: src/bigocrpdf/ui/text_viewer_controller.py:367
+#: src/bigocrpdf/ui/text_viewer_controller.py:368
 msgid "Previous match"
 msgstr "Fyrri samsvörun"
 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 301
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 302
-#: src/bigocrpdf/ui/text_viewer_controller.py:373
 #: src/bigocrpdf/ui/text_viewer_controller.py:374
+#: src/bigocrpdf/ui/text_viewer_controller.py:375
 msgid "Next match"
 msgstr "Næsta samsvörun"
 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 507
-#: src/bigocrpdf/ui/text_viewer_controller.py:503
+#: src/bigocrpdf/ui/text_viewer_controller.py:504
 msgid "No matches"
 msgstr "Engar niðurstöður"
 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 458
-#: src/bigocrpdf/ui/text_viewer_controller.py:544
+#: src/bigocrpdf/ui/text_viewer_controller.py:545
 msgid "Wrapped to first match"
 msgstr "Fór á fyrstu niðurstöðu"
 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 467
-#: src/bigocrpdf/ui/text_viewer_controller.py:557
+#: src/bigocrpdf/ui/text_viewer_controller.py:558
 msgid "Wrapped to last match"
 msgstr "Fór á síðustu niðurstöðu"
 
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 449
-#: src/bigocrpdf/ui/text_viewer_controller.py:587
+#: src/bigocrpdf/ui/text_viewer_controller.py:588
 #, python-brace-format
 msgid "{current}/{total}"
 msgstr "{current}/{total}"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 335
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:70
 msgid "What is Big OCR PDF?"
 msgstr "Hvað er Big OCR PDF?"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 324
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:81
 msgid ""
 "Big OCR PDF adds optical character recognition to your PDF files, making "
@@ -4050,140 +3149,104 @@ msgstr ""
 "þannig að hægt er að leita í þeim og velja og afrita texta úr skönnuðum "
 "skjölum."
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 335
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:93
 msgid "Benefits of using Big OCR PDF:"
 msgstr "Kostir við notkun Big OCR PDF:"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:106
 msgid "Search"
 msgstr "Leita"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:106
 msgid "Search through your scanned PDF documents"
 msgstr "Leita í skönnuðum PDF-skjölum"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 361
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:107
 msgid "Copy text"
 msgstr "Afrita texta"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:107
 msgid "Copy text from images and scanned documents"
 msgstr "Afrita texta úr myndum og skönnuðum skjölum"
 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 238
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:108
 msgid "Add image files and generate new PDFs from them"
 msgstr "Bæta við myndaskrám og búa til ný PDF-skjöl úr þeim"
 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 239
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:109
 msgid "Rearrange, rotate or remove pages before processing"
 msgstr "Endurraða, snúa eða fjarlægja síður fyrir vinnslu"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:110
 msgid "Batch processing"
 msgstr "Lotuvinnsla"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:110
 msgid "Process multiple files at once"
 msgstr "Vinna margar skrár í einu"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:112
 msgid "Auto-correction"
 msgstr "Sjálfvirk leiðrétting"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:113
 msgid "Automatically correct page alignment and rotation"
 msgstr "Sjálfvirk leiðrétting á síðuuppsetningu og snúningi"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 363
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:139
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:147
 msgid "Show this dialog at startup"
 msgstr "Sýna þennan glugga við ræsingu"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 377
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:153
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:158
 msgid "Let's Get Started"
 msgstr "Byrjum"
 
-# File: bigocrpdf/src/bigocrpdf/ui/widgets.py, line: 76
-#: src/bigocrpdf/ui/widgets.py:75
-msgid "The OCR engine could not be loaded."
-msgstr "Ekki tókst að hlaða OCR-vélinni."
+#: src/bigocrpdf/ui/widgets.py:88
+msgid "Copy Details"
+msgstr "Afrita nánari upplýsingar"
 
-# File: bigocrpdf/src/bigocrpdf/ui/widgets.py, line: 78
-#: src/bigocrpdf/ui/widgets.py:77
+#: src/bigocrpdf/ui/widgets.py:110
 #, python-brace-format
-msgid ""
-"{reason}\n"
-"\n"
-"Install or repair the required OCR packages, then restart the application."
-msgstr ""
-"{reason}\n"
-"\n"
-"Settu upp eða lagfærðu nauðsynlega OCR-pakka og endurræstu síðan forritið."
+msgid "Install the {package} package, then restart the application."
+msgstr "Settu upp pakkann {package} og endurræstu síðan forritið."
 
-# File: bigocrpdf/src/bigocrpdf/ui/widgets.py, line: 80
-#: src/bigocrpdf/ui/widgets.py:79
+#: src/bigocrpdf/ui/widgets.py:111
 msgid "OCR is unavailable"
 msgstr "OCR er ekki tiltækt"
 
-#: src/bigocrpdf/ui/widgets.py:110
+#: src/bigocrpdf/ui/widgets.py:113
+msgid "The OCR engine could not be loaded."
+msgstr "Ekki tókst að hlaða OCR-vélinni."
+
+#: src/bigocrpdf/ui/widgets.py:145
 #, python-brace-format
 msgid "Could not open {name}: {error}"
 msgstr "Gat ekki opnað {name}: {error}"
 
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/dialogs_manager.py, line: 1232
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 521
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page.py, line: 579
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 1206
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/conclusion_page.py,
-# line: 568
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line:
-# 34
-#: src/bigocrpdf/ui/widgets.py:130
+#: src/bigocrpdf/ui/widgets.py:165
 #, python-brace-format
 msgid "CSS file not found: {0}"
 msgstr "CSS-skrá fannst ekki: {0}"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line:
-# 46
-#: src/bigocrpdf/ui/widgets.py:135 src/bigocrpdf/ui/widgets.py:142
+#: src/bigocrpdf/ui/widgets.py:170 src/bigocrpdf/ui/widgets.py:177
 #, python-brace-format
 msgid "Error loading CSS styles: {0}"
 msgstr "Villa við að hlaða CSS-stílum: {0}"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/widgets.py, line:
-# 43
-#: src/bigocrpdf/ui/widgets.py:151
+#: src/bigocrpdf/ui/widgets.py:186
 msgid "Custom CSS styles loaded successfully"
 msgstr "Sérsniðin CSS-stílsnið hlóðust inn"
 
-# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 42
 #: src/bigocrpdf/ui/window_ui.py:69
 msgid "Main"
 msgstr "Aðalsýn"
 
-# File: bigocrpdf/src/bigocrpdf/window_ui_setup.py, line: 203
 #: src/bigocrpdf/ui/window_ui.py:219
 msgid "Results"
 msgstr "Niðurstöður"
 
-# File: bigocrpdf/src/bigocrpdf/utils/temp_manager.py, line: 85
 #: src/bigocrpdf/utils/temp_manager.py:81
 #, python-brace-format
 msgid ""
@@ -4191,18 +3254,15 @@ msgid ""
 msgstr ""
 "Ekki nóg diskpláss. Þarf {needed:.0f} MB en aðeins {free:.0f} MB tiltækt."
 
-# File: bigocrpdf/src/bigocrpdf/utils/temp_manager.py, line: 98
 #: src/bigocrpdf/utils/temp_manager.py:94
 #, python-brace-format
 msgid "No write permission for folder: {path}"
 msgstr "Engin skrifheimild fyrir möppu: {path}"
 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 162
 #: src/bigocrpdf/window_controller.py:195
 msgid "No supported files in clipboard"
 msgstr "Engar studdar skrár á klippiborðinu"
 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 191
 #: src/bigocrpdf/window_controller.py:203
 #, python-brace-format
 msgid "{count} file added from clipboard"
@@ -4210,12 +3270,10 @@ msgid_plural "{count} files added from clipboard"
 msgstr[0] "{count} skrá bætt við af klippiborðinu"
 msgstr[1] "{count} skrár bættar við af klippiborðinu"
 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 175
 #: src/bigocrpdf/window_controller.py:256
 msgid "Multiple Images Pasted"
 msgstr "Margar myndir límdar inn"
 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 176
 #: src/bigocrpdf/window_controller.py:258
 #, python-brace-format
 msgid "You pasted {count} image. How would you like to add it?"
@@ -4223,27 +3281,19 @@ msgid_plural "You pasted {count} images. How would you like to add them?"
 msgstr[0] "Þú límdir inn {count} mynd. Hvernig viltu bæta henni við?"
 msgstr[1] "Þú límdir inn {count} myndir. Hvernig viltu bæta þeim við?"
 
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 224
 #: src/bigocrpdf/window_controller.py:307
 msgid "Image from clipboard added"
 msgstr "Mynd úr klippiborði bætt við"
 
-# File: bigocrpdf/usr/share/nautilus-python/extensions/bigocrpdf-actions.py,
-# line: 75
-# line: 93
 #: usr/share/nautilus-python/extensions/bigocrpdf-actions.py:75
 #: usr/share/nautilus-python/extensions/bigocrpdf-actions.py:93
 msgid "Text recognition (OCR)"
 msgstr "Textagreining (OCR)"
 
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 466
 #: usr/share/nautilus-python/extensions/bigocrpdf-actions.py:83
 msgid "Edit pages"
 msgstr "Breyta síðum"
 
-# File: bigocrpdf/usr/share/nautilus-python/extensions/bigocrpdf-actions.py,
-# line: 102
 #: usr/share/nautilus-python/extensions/bigocrpdf-actions.py:102
 msgid "Create PDF"
 msgstr "Búa til PDF"
