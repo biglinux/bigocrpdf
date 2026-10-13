@@ -4,7 +4,7 @@ version = "3.0.0"
 description = "Add OCR to your PDF documents to make them searchable"
 readme = "README.md"
 requires-python = ">=3.12"
-license = "GPL-3.0-or-later"
+license = "GPL-3.0-or-later AND (CC-BY-SA-3.0 OR LGPL-3.0-only) AND LGPL-3.0-or-later"
 authors = [
     {name = "BigLinux Team", email = "biglinux@biglinux.com.br"}
 ]
@@ -45,8 +45,6 @@ dependencies = [
 memory = ["psutil>=7.2.2"]
 dev = ["pytest", "pytest-cov", "ruff"]
 
-
-
 [project.scripts]
 bigocrpdf-cli = "bigocrpdf.cli:main"
 
@@ -60,7 +58,7 @@ Repository = "https://github.com/biglinux/bigocrpdf"
 Issues = "https://github.com/biglinux/bigocrpdf/issues"
 
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]

@@ -49,7 +49,8 @@ makedepends=(
 pkgver=$(date -d "@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%y.%m.%d)
 pkgrel=$(date -d "@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%H%M)
 arch=('any')
-license=('GPL-3.0-or-later')
+# The bundled symbolic icons come from Adwaita and Breeze under their own terms.
+license=('GPL-3.0-or-later' 'CC-BY-SA-3.0 OR LGPL-3.0-only' 'LGPL-3.0-or-later')
 url="https://github.com/biglinux/bigocrpdf"
 options=('!strip')
 
@@ -64,7 +65,7 @@ optdepends=(
 	'gnome-screenshot: screenshot capture on GNOME'
 	'flameshot: cross-desktop screenshot capture'
 	# File manager integration
-	'python-nautilus: GNOME Files (Nautilus) context menu integration'
+	'nautilus-python: GNOME Files (Nautilus) context menu integration'
 	'nemo-python: Nemo file manager context menu integration'
 	# PDF/A ICC profile fallback
 	'ghostscript: sRGB ICC profile for PDF/A-2b conversion'

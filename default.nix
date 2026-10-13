@@ -79,7 +79,7 @@ python3Packages.buildPythonApplication {
   meta = {
     description = "OCR toolkit for Linux — searchable PDFs, image OCR, PDF editor";
     homepage = "https://github.com/biglinux/bigocrpdf";
-    license = lib.licenses.gpl3Plus;
+    license = with lib.licenses; [ gpl3Plus cc-by-sa-30 lgpl3Only lgpl3Plus ];
     mainProgram = "bigocrpdf";
     platforms = lib.platforms.linux;
   };
