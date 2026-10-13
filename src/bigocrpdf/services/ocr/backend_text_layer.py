@@ -153,7 +153,7 @@ class BackendTextLayerMixin:
             # pass actual page dimensions for correct coordinate mapping.
             # Always map OCR pixel coords to the actual PDF page dimensions.
             # In standalone mode the processed image is drawn at pdf_width×pdf_height,
-            # so text coordinates must match that space — not config DPI which
+            # so text coordinates must match that space, not the config DPI, which
             # may differ from the rendering DPI (e.g. pdftoppm at 150 vs config 300).
             # In overlay mode the same logic applies to the original page.
             overlay_page_size = (pdf_width, pdf_height)

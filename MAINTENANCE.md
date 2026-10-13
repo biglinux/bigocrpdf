@@ -1,8 +1,7 @@
 # BigOCRPDF maintenance guide
 
-This document records durable implementation contracts. Temporary plans, audit
-checklists, command logs, screenshots, and generated benchmark exports do not
-belong in the source tree.
+This document records the implementation contracts a change must keep. Plans,
+logs, screenshots and generated benchmark exports stay out of the repository.
 
 ## Ownership map
 
@@ -63,7 +62,7 @@ nonzero status, timeout, or signal is an explicit error/cancellation result.
 ## OCR and PDF invariants
 
 - The supported recognition model is PP-OCRv6 small with its unified language
-  coverage. Do not reconstruct legacy language-model selection.
+  coverage, so there is no per-language model to choose.
 - OCR configuration, including DPI, thresholds, detection resolution, and render
   limits, travels through `OCRConfig`; do not rebuild a partial settings object.
 - Unicode searchable PDFs use real extractable text. Validation must include
@@ -72,9 +71,9 @@ nonzero status, timeout, or signal is an explicit error/cancellation result.
   working after crop, deskew, dewarp, rotation, and mixed-content processing.
 - PDF resource limits and hostile-input checks remain enforced.
 - An OCR run publishes exactly one file: the PDF. Nothing else may appear beside
-  a user's document. Structured OCR is written only where the caller names it —
-  `ocr --sidecar-json [FILE]` — and read back only when the caller names it —
-  `export-* --from-json FILE`. Without it, TXT, Markdown, and ODT export read
+  a user's document. Structured OCR is written only where the caller names it
+  (`ocr --sidecar-json [FILE]`) and read back only when the caller names it
+  (`export-* --from-json FILE`). Without it, TXT, Markdown, and ODT export read
   the PDF's own text layer.
 - Structured OCR JSON stays bound to the PDF by byte size and SHA-256, so a file
   that describes a different PDF loads as nothing rather than as stale text.
@@ -137,8 +136,8 @@ or custom transient widgets when the toolkit already owns the interaction.
 The supported floor is GTK 4.14 with libadwaita 1.5, which is what an AppImage
 built on Ubuntu 24.04 carries; it is not the version we develop against. Widgets
 introduced after that floor go through `utils/adw_compat.py`, which probes with
-`hasattr` -- a symbol can be missing because the library is old or because its
-typelib was bundled incompletely -- and falls back to an equivalent that renders
+`hasattr` (a symbol can be missing because the library is old or because its
+typelib was bundled incompletely) and falls back to an equivalent that renders
 the same. `tests/test_adw_compat.py` exercises both branches and fails if such a
 widget is used directly anywhere else.
 

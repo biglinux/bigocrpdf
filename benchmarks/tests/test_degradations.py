@@ -1,4 +1,4 @@
-"""Degradations must be reproducible, bounded, and honest about the text.
+"""Degradations must be reproducible, bounded, and leave the text exact.
 
 A corpus is only a measuring instrument if regenerating it produces the same
 images. These tests cover the properties that make that true, and the one

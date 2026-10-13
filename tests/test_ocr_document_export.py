@@ -850,8 +850,8 @@ def test_invalidation_marker_written_by_older_versions_still_loads_as_nothing(
 ) -> None:
     """Older versions dropped a marker beside every PDF they could not describe.
 
-    Nothing writes one now, but the ones already on disk must keep reading as
-    'no structured OCR' rather than as an error.
+    Markers already on disk must read as 'no structured OCR' rather than as an
+    error.
     """
     pdf_path = tmp_path / "out.pdf"
     pdf_path.write_bytes(b"PDF without structured OCR")

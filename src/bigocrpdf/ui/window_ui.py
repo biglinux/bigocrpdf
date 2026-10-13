@@ -72,7 +72,7 @@ class BigOcrPdfUI:
 
         self.window.actions.setup_global_drag_drop()
 
-        # Set up responsive breakpoint — collapse sidebar when window is narrow
+        # Responsive breakpoint: collapse the sidebar when the window is narrow
         breakpoint = Adw.Breakpoint.new(
             Adw.BreakpointCondition.parse(f"max-width: {_RESPONSIVE_BREAKPOINT}sp")
         )

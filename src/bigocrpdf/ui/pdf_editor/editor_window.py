@@ -209,7 +209,7 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
     def _load_document(self) -> None:
         """Load the PDF document."""
         if not self._pdf_path:
-            # Standalone mode without a file — start with empty document
+            # Standalone mode without a file: start with an empty document
             self._document = None
             self._update_status_bar()
             return

@@ -3,9 +3,9 @@
 The preprocessor decides between several dewarp and perspective strategies
 through a first-hit-wins cascade whose branches mostly swallow their own
 exceptions.  Without a record, a correction that silently declined to run and
-one that ran and did nothing are indistinguishable from the outside -- which is
-why nothing could test the cascade, and why a page that came out uncorrected
-gave no clue about which gate rejected it.
+one that ran and did nothing are indistinguishable from the outside: the
+cascade cannot be tested, and a page that comes out uncorrected gives no clue
+about which gate rejected it.
 
 The trace travels with the page: ``page_worker`` puts it in the result dict,
 ``backend_text_layer`` copies it into ``OcrPage.diagnostics``, and from there it

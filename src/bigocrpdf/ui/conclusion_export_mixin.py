@@ -508,7 +508,7 @@ class ConclusionExportMixin:
         """Build the export menu shown inside the selection action bar.
 
         Uses ``Gio.Menu`` + ``Gtk.PopoverMenu`` for native keyboard nav
-        and accessibility — matches the per-row export button's pattern.
+        and accessibility, matching the per-row export button's pattern.
         """
         menu_model = Gio.Menu()
         menu_model.append(_("OpenDocument (.odt)"), "bulk.odt")
@@ -559,7 +559,7 @@ class ConclusionExportMixin:
         dialog.select_folder(parent=self.window, cancellable=None, callback=_on_folder_chosen)
 
     def _run_bulk_export(self, files: list[str], dest_folder: str, fmt: str) -> None:
-        """Bulk export entry point — validates the destination and spawns the worker.
+        """Bulk export entry point: validate the destination and spawn the worker.
 
         Per-format settings are snapshotted here at batch start so a mid-batch
         toggle from another dialog can't make some files honour different
@@ -631,7 +631,7 @@ class ConclusionExportMixin:
         (``include_front_matter`` for Markdown, ``include_images`` for ODF).
 
         Raises ``ExportCancelled`` if the user cancels mid-file, or any other
-        converter exception on failure — the caller is responsible for
+        converter exception on failure. The caller is responsible for
         recording the outcome and cleaning up the partial file.
         """
         if fmt == "md":

@@ -1,9 +1,9 @@
 """Widgets that need a fallback on older libadwaita.
 
 The application targets current libadwaita but must also run on the stack it is
-bundled against in AppImage builds, which is whatever the build container ships
--- Ubuntu 24.04 carries libadwaita 1.5, so anything newer is simply absent from
-the introspection data.
+bundled against in AppImage builds, which is whatever the build container ships.
+Ubuntu 24.04 carries libadwaita 1.5, so anything newer is absent from the
+introspection data.
 
 Availability is probed with ``hasattr`` rather than
 ``Adw.get_minor_version()``: a symbol can be missing because the library is old

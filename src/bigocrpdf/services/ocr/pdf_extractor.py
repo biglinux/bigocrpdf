@@ -680,7 +680,7 @@ class PDFImageExtractor:
         indices match the files produced by a corresponding pdfimages -all
         call with the same range.
 
-        Also populates ``self.masked_pages`` — a set of page numbers that
+        Also populates ``self.masked_pages``, the set of page numbers that
         contain image masks (SMask / soft-mask).  Pages with masks typically
         use DjVu-like foreground/background layer separation where the
         extracted background layer is heavily compressed (~Q10) and

@@ -382,7 +382,7 @@ def enforce_pdf_resource_limits(
     Page size is not checked here.  A large page is not a
     failure: ``select_render_dpi_for_page`` lowers the render DPI until the
     page fits ``max_render_megapixels``.  Rejecting up front at the preferred
-    DPI would refuse documents the renderer handles fine — notably photos and
+    DPI would refuse documents the renderer handles fine, notably photos and
     scans whose PDF page box maps one point per source pixel.
     """
     max_pdf_pages = config.max_pdf_pages

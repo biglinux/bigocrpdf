@@ -7,7 +7,7 @@ few hundred kilobytes of text and diffs usefully, while datasets and model
 weights belong outside the repository.
 
 This is safe because `compare_benchmarks.py` enforces a comparability
-contract -- worker and plan SHA-256s, OCR settings, DPI, environment -- and
+contract (worker and plan SHA-256s, OCR settings, DPI, environment) and
 fails closed. A baseline recorded on a different machine or with a different
 ppocr-native build produces an explicit incomparability error rather than a
 bogus pass, so a stale baseline cannot quietly approve a regression.

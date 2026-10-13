@@ -1,4 +1,4 @@
-"""Truthful queue outcomes for PDF editor save callbacks."""
+"""Queue outcomes reported for PDF editor save callbacks."""
 
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch

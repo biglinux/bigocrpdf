@@ -1,12 +1,12 @@
 """Bundled fallback icons.
 
 The application ships its own copy of every symbolic icon it references, so a
-host theme that lacks one of those names -- common in relocatable builds such as
-AppImage -- does not fall back to GTK's "image missing" icon.
+host theme that lacks one of those names (common in relocatable builds such as
+AppImage) does not fall back to GTK's "image missing" icon.
 
 Adding the bundle to the icon search path (instead of loading each SVG by path)
 keeps every ``icon-name`` call site working untouched, including widgets that
-accept only a name -- ``Adw.ButtonContent``, ``Adw.StatusPage``, ``Gio.MenuItem``
+accept only a name: ``Adw.ButtonContent``, ``Adw.StatusPage``, ``Gio.MenuItem``
 and ``Gio.Notification``.
 """
 
@@ -64,8 +64,8 @@ def setup_icons(display=None) -> bool:
     their theme. Selecting the bundle through ``gtk-icon-theme-name`` would
     hide the user's Papirus or Breeze icons entirely.
 
-    Must be called after a ``Gdk.Display`` exists -- that is, from the
-    application ``startup`` handler -- and before any widget is built.
+    Must be called after a ``Gdk.Display`` exists (that is, from the
+    application ``startup`` handler) and before any widget is built.
 
     Returns ``True`` when the bundled icons were registered.  A missing bundle
     is not fatal: the application simply keeps using the host theme.

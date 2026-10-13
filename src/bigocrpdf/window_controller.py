@@ -359,12 +359,12 @@ class WindowController:
         The repaint is unconditional because an empty model does not imply an
         empty screen: every file is removed as it finishes processing, while
         the terminal page is showing and nothing repaints. Returning early on
-        "the model did not change" therefore left a finished batch still listed
-        and the header button stuck on the label it took when processing began.
+        "the model did not change" would leave a finished batch still listed and
+        the header button stuck on the label it took when processing began.
 
         It repaints from the model rather than asserting zero, because
         ``_clear_files`` also reports False when saving failed and the queue was
-        rolled back -- and in that case the files are still there.
+        rolled back, and in that case the files are still there.
         """
         self.settings._clear_files()
         self.ui.update_file_info()

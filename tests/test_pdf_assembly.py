@@ -381,9 +381,9 @@ class TestTextLayerFontNamesDoNotCollide:
     def test_a_font_that_fails_to_copy_records_no_rename(self, tmp_path: Path, monkeypatch):
         """A rename is a promise that the font is there under the new name.
 
-        Recording it before the copy meant a failed copy sent the stream to a
-        resource the page does not have -- worse than the wrong font, which at
-        least renders something.
+        Recorded before the copy, a failed copy would send the stream to a
+        resource the page does not have. That is worse than the wrong font,
+        which at least renders something.
         """
         page = pikepdf.open(self._draw(tmp_path / "page.pdf", self.PAGE_TEXT))
         layer = pikepdf.open(self._draw(tmp_path / "layer.pdf", self.LAYER_TEXT))

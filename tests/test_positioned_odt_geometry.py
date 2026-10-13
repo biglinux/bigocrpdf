@@ -4,7 +4,7 @@ Consecutive text frames must not overlap: lines sit about one line-height
 apart, so a frame taller than its line covers the next one, and only the
 written file shows it.
 
-It needs no office suite -- it parses ``content.xml`` -- so unlike the
+It needs no office suite (it parses ``content.xml``), so unlike the
 round-trip test it cannot be silently skipped on a machine without LibreOffice.
 """
 

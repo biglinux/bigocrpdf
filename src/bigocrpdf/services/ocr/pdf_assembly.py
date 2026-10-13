@@ -359,7 +359,7 @@ def _filter_invisible_text_ops(ops: list[Any]) -> tuple[list[Any], int]:
 
 
 # A font is selected by "/Name size Tf". Only that operator is rewritten: the
-# same token elsewhere -- a marked-content property, an inline image key --
+# same token elsewhere (a marked-content property, an inline image key)
 # names something else entirely.
 _FONT_SELECT_RE = re.compile(rb"(/[^\s/\[\]<>(){}]+)(\s+[\d.+-]+\s+Tf)")
 
@@ -498,7 +498,7 @@ def smart_merge_pdfs(
         original_pdf_path: Path to original PDF
         text_layer_pdf_path: Path to text layer PDF (may contain images on some pages)
         output_pdf_path: Path for merged output PDF
-        page_standalone_flags: Per-page booleans — True means use standalone
+        page_standalone_flags: Per-page booleans; True means use standalone
     """
     logger.info("Smart merging text layer with per-page strategy...")
 

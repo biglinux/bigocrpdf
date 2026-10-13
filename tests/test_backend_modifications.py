@@ -96,7 +96,7 @@ class TestBackendModifications(unittest.TestCase):
         self.assertTrue(self.backend.extractor.extract.called)
 
         # Verify _process_page_result was called for each page
-        # (4 pages total — page 2 deleted gets None img_path)
+        # (4 pages total; deleted page 2 gets a None img_path)
         self.assertEqual(self.backend._process_page_result.call_count, 4)
 
         # Check that page 2 was passed with None img_path (deleted)

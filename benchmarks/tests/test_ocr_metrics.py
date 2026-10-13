@@ -1,8 +1,7 @@
 """The measuring instrument for every OCR quality claim in this project.
 
-``ocr_metrics`` decides whether a change improved or degraded OCR, and it had
-no tests of its own -- so a defect in it would silently move every threshold
-that depends on it.
+``ocr_metrics`` decides whether a change improved or degraded OCR, so a defect
+in it would silently move every threshold that depends on it.
 """
 
 import math
@@ -87,7 +86,7 @@ class TestErrorRates:
         assert char_error_rate("", "texto original") == pytest.approx(1.0)
 
     def test_pure_insertion_can_exceed_one(self):
-        """Uncapped on purpose -- a hallucinating engine should look worse."""
+        """Uncapped, so a hallucinating engine looks worse."""
         assert char_error_rate("abcabcabc", "abc") > 1.0
 
     def test_word_rate_counts_words_not_characters(self):

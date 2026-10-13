@@ -1,28 +1,26 @@
 """The same physical layout must export the same way at any DPI.
 
-Every threshold in ``tsv_parser`` -- Y_TOLERANCE, COLUMN_MIN_VALLEY_WIDTH,
-FOOTER_REGION_Y and the rest -- was tuned for PDF points, because the layout
-analyser was written for ``pdftotext -tsv`` output. ``ocr_document_export``
-feeds the same analyser OCR coordinates in *pixels at page.dpi*, which at 300
-DPI are about 4.17x larger, and nothing converts between the two.
+Every threshold in ``tsv_parser`` (Y_TOLERANCE, COLUMN_MIN_VALLEY_WIDTH,
+FOOTER_REGION_Y and the rest) is tuned for PDF points, because the layout
+analyser reads ``pdftotext -tsv`` output. ``ocr_document_export`` feeds the
+same analyser OCR coordinates in *pixels at page.dpi*, which at 300 DPI are
+about 4.17x larger, and nothing converts between the two.
 
-Whether that matters is a question with an answer, and this file is the
-measurement. A layout is declared once in points and materialised at several
-DPIs; the physical page is identical every time, so any change in the exported
-structure is the unit mismatch showing through.
+A layout is declared once in points and materialised at several DPIs; the
+physical page is identical every time, so any change in the exported structure
+is the unit mismatch showing through.
 
-**Outcome: the strong hypothesis is refuted.** Exported structure is identical
-from 72 to 600 DPI for prose, footers and table-shaped input alike. The reason
-is the shape of the data rather than the thresholds: the OCR worker returns one
-region per text line, so ``_ocr_result_words`` emits a single Word per line and
-the line-grouping and column-splitting thresholds never get a decision to make.
-They would bite on ``pdftotext -tsv`` output, which is per-word -- and that
-path does receive points, as designed.
+Exported structure is identical from 72 to 600 DPI for prose, footers and
+table-shaped input alike. The reason is the shape of the data rather than the
+thresholds: the OCR worker returns one region per text line, so
+``_ocr_result_words`` emits a single Word per line and the line-grouping and
+column-splitting thresholds never get a decision to make. They would bite on
+``pdftotext -tsv`` output, which is per-word, and that path receives points.
 
-So the constants are left alone. They are genuinely inconsistent in physical
-terms, which ``TestThresholdsAgainstRealPixelSizes`` records, and that becomes
-a live problem the moment anything starts feeding the analyser per-word OCR
-geometry. These tests are what will notice.
+The constants are inconsistent in physical terms, which
+``TestThresholdsAgainstRealPixelSizes`` records. That becomes a live problem as
+soon as anything feeds the analyser per-word OCR geometry, and these tests are
+what will notice.
 """
 
 import pytest
@@ -173,7 +171,7 @@ class TestThresholdsAgainstRealPixelSizes:
         """COLUMN_MIN_VALLEY_WIDTH = 30 is 0.1 inch at 300 DPI.
 
         That is narrower than an ordinary paragraph indent, so a single-column
-        page with one wide word gap can be read as two columns -- which
+        page with one wide word gap can be read as two columns, which
         scrambles reading order in both TXT and ODT.
         """
         valley_inches = COLUMN_MIN_VALLEY_WIDTH / dpi
@@ -190,9 +188,8 @@ class TestFormGapEntanglement:
 
         ``ocr_document_export`` inserts a 120-*pixel* gap between a form label
         and its value precisely so ``is_table_line``'s 100-*point* threshold
-        fires. Any DPI normalisation has to move both together, so this is not
-        a one-line change -- which is the main thing to know before attempting
-        it.
+        fires. Any DPI normalisation has to move both together, so it is not a
+        one-line change.
         """
         from bigocrpdf.services.ocr.ocr_document_export import _FORM_FIELD_GAP_PX
         from bigocrpdf.utils.tsv_parser import TABLE_TWO_COL_GAP

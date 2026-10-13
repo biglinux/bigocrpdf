@@ -357,7 +357,7 @@ class BackendPipelineMixin(BackendEmbeddedImagePipelineMixin, ChunkedOCRMixin, M
                 pdf.save(output_pdf)
             merged_pdf.unlink(missing_ok=True)
         else:
-            # Use move instead of copy — instant rename on same filesystem
+            # Move instead of copy: an instant rename on the same filesystem
             shutil.move(str(merged_pdf), str(output_pdf))
 
         # Split by file size if limit is configured

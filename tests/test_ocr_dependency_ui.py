@@ -183,7 +183,7 @@ def test_pdf_application_uses_libadwaita_shortcuts_dialog() -> None:
         ShortcutsItem=FakeItem,
     )
 
-    # The widgets now live behind utils.adw_compat, which picks the native
+    # The widgets live behind utils.adw_compat, which picks the native
     # implementation whenever libadwaita exposes it.
     with (
         patch("bigocrpdf.utils.adw_compat.Adw", fake_adw),

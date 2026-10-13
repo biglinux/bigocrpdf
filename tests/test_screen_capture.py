@@ -921,7 +921,7 @@ class TestFormatText:
         assert "Hello World" in self._format(results)
 
     def test_reading_order(self):
-        # Second box is above first box — should appear first in output
+        # Second box is above first box, so it should appear first in output
         results = [
             OCRResult(text="Line 2", box=[[0, 50], [200, 50], [200, 70], [0, 70]]),
             OCRResult(text="Line 1", box=[[0, 10], [200, 10], [200, 30], [0, 30]]),

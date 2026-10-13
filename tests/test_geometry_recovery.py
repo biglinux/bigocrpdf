@@ -69,9 +69,9 @@ def _photographed(page: np.ndarray, keystone_frac: float = 0.0) -> np.ndarray:
     """A page lying on a dark surface, optionally shot at an angle.
 
     The perspective cascade keys on dark page borders, so text floating on
-    white gives it nothing to detect -- correctly, since there is no page edge
-    to find. This is the fixture that exercises it, and the one that matches
-    the real phone photo the pipeline failed on.
+    white gives it nothing to detect, correctly, since there is no page edge
+    to find. This is the fixture that exercises it, modelled on a real phone
+    photo.
     """
     height, width = page.shape[:2]
     canvas = np.full((int(height * 1.25), int(width * 1.25), 3), 18, np.uint8)
@@ -100,8 +100,8 @@ class TestIdentity:
     """A clean page must come out untouched. This is the regression guard.
 
     Photo perspective, margin normalisation, the contour four-point transform
-    and the gentle margin path are all applied without any quality validation,
-    so "correcting" an already-correct page is a real failure mode.
+    and the gentle margin path each fire on their own detector, so "correcting"
+    an already-correct page is a real failure mode.
     """
 
     def test_nothing_is_applied_to_a_clean_page(self, clean_page):
@@ -132,7 +132,7 @@ class TestRotationRecovery:
     """Assertions read the angle the pipeline applied, from its own trace.
 
     Image registration is used only as a cross-check: on a page rotated by -5
-    degrees ECC converges on a solution carrying a 12% scale factor, which
+    degrees ECC converges on a solution carrying a spurious scale factor, which
     inflates its rotation estimate. The trace reports the correction directly,
     so it is both exact and the thing a regression would actually change.
     """
@@ -143,8 +143,7 @@ class TestRotationRecovery:
 
         step = preprocessor.trace.step_named("deskew")
         assert step.applied is True
-        # The correction opposes the applied tilt. Worst measured error is
-        # 0.67 deg, at -5; the other three land within 0.11.
+        # The correction opposes the applied tilt.
         assert step.params["applied_angle"] == pytest.approx(-degrees, abs=0.8)
         assert text_pixel_retention(processed, clean_page) >= 0.9
 
@@ -201,11 +200,11 @@ class TestCurvatureRecovery:
         """Not a defect: over a narrow span an arc *is* a tilt.
 
         The default page sets its text in a column covering about 62% of the
-        width. Measured there, a page-centred bow arrives at each baseline as
-        36px of slope and 10px of residual bow, because the text only sees one
-        flank of the arc. Removing the line's linear trend is what separates
-        the two, and rotation is the deskew's job -- so the dewarp declining
-        here is the design working, not failing.
+        width. There, a page-centred bow arrives at each baseline as mostly
+        slope and little residual bow, because the text only sees one flank of
+        the arc. Removing the line's linear trend is what separates the two,
+        and rotation is the deskew's job, so the dewarp declining here is the
+        design working.
         """
         warped = apply_cylindrical_warp(clean_page, curvature)
 
@@ -217,7 +216,7 @@ class TestCurvatureRecovery:
     def test_curvature_below_the_gate_is_left_alone(self, wide_page):
         """Asserts the gate, not the correction.
 
-        ``dewarp_probmap._MIN_CURVATURE_PX`` deliberately skips a remap that
+        ``dewarp_probmap._MIN_CURVATURE_PX`` skips a remap that
         would cost a resample for no benefit. Measured on full-width text, so
         the gate is the only reason nothing fires.
         """

@@ -437,8 +437,8 @@ def _copy_staged_material(
     if not destination_parent.is_relative_to(output_root):
         raise ValueError(f"Benchmark sample {sample_id} has an unsafe material path: {raw_path}")
 
-    # Degraded variants share their clean sample's ground truth on purpose --
-    # the degradation moved pixels, not text -- so the same file is published
+    # Degraded variants share their clean sample's ground truth, since the
+    # degradation moved pixels and not text, so the same file is published
     # once per row that cites it. Re-publishing identical bytes is that case
     # and is fine; different bytes at the same path is a real collision and
     # must still fail, which is why this compares rather than just overwriting.
@@ -665,8 +665,8 @@ def main() -> int:
         )
 
     if not rows:
-        # A dataset can publish images and no transcription -- one of the
-        # Portuguese sets on the Hub does exactly that. Every row is then
+        # A dataset can publish images and no transcription, as one of the
+        # Portuguese sets on the Hub does. Every row is then
         # dropped for having no ground truth, and printing a manifest path
         # afterwards reports success for a corpus that can measure nothing.
         sys.stderr.write(

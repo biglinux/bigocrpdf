@@ -4,11 +4,6 @@ This decides whether the processed image replaces the original. Get it wrong
 and OCR coordinates measured on a corrected image are drawn over an
 uncorrected one, displacing every word on the page.
 
-Replaces ``TestGeometryChangeThreshold`` in tests/test_rotation.py, which
-reimplemented the formula inside the test and so protected nothing -- it had
-already drifted from production, missing the ``geometry_applied`` branch
-entirely and unable to express the two-value return at all.
-
 Rule for this file: never reimplement a production formula. Call it.
 """
 

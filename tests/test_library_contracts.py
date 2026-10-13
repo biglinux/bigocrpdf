@@ -2,8 +2,8 @@
 
 These are not tests of our code. They pin the handful of library behaviours
 that the geometry and rendering paths silently assume, so that a dependency
-upgrade which changes one of them fails here -- loudly, in one obvious place --
-instead of degrading OCR quality in a way no other test can see.
+upgrade which changes one of them fails here, in one obvious place, instead of
+degrading OCR quality in a way no other test can see.
 
 Each test names the call site it protects. If one starts failing, the fix is in
 that call site, not here.

@@ -2,9 +2,9 @@
 
 ``compute_pipeline_config`` decides how many workers to start, how many pages
 to hold in memory at once, and whether to collect garbage per page. Those
-decisions are what keep the process inside a 2 GB container -- and nothing
-checked that the pipeline actually applies them. A change that ignored the
-tier would look identical to one that honoured it, until a small machine died
+decisions are what keep the process inside a 2 GB container, so these tests
+check that the pipeline applies them: a change that ignored the tier would
+otherwise look identical to one that honoured it, until a small machine died
 on a large PDF.
 
 The OCR engine and the page workers are stubbed: the question here is which

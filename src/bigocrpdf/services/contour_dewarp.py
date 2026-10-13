@@ -2,9 +2,9 @@
 
 Primary entry point: **dewarp_3d**
   Two-pass 3D dewarp that models the page as a curved surface:
-  Pass 1 — Perspective correction via homography from detected page
-           corners (cv2.warpPerspective — preserves text sharpness).
-  Pass 2 — Text baseline refinement (handles residual interior curvature
+  Pass 1: Perspective correction via homography from detected page
+          corners (cv2.warpPerspective, which preserves text sharpness).
+  Pass 2: Text baseline refinement (handles residual interior curvature
            from spine binding).
 
 Fallback: **dewarp_baseline**
@@ -15,15 +15,15 @@ Also provides: **detect_skew_from_contours**
   Text contour span analysis for page skew angle detection.
 
 Signals used for curvature estimation:
-  1. Page boundary edges — cv2 contour detection + Otsu thresholding
-  2. Text baselines — morphological ops + polynomial baseline fitting
-  3. Illumination gradient — column-wise brightness for spine detection
+  1. Page boundary edges: cv2 contour detection + Otsu thresholding
+  2. Text baselines: morphological ops + polynomial baseline fitting
+  3. Illumination gradient: column-wise brightness for spine detection
 
 The perspective transform uses 4 detected corner points to map the
 page to a rectangular output. This preserves text sharpness because
 cv2.warpPerspective is a single projective transform with minimal
-interpolation artifacts — unlike cv2.remap which introduces more
-quality loss due to per-pixel coordinate lookups.
+interpolation artifacts. cv2.remap loses more quality to its per-pixel
+coordinate lookups.
 
 Based on techniques from:
 - Matt Zucker's page_dewarp (2016)
@@ -849,7 +849,7 @@ def _detect_skew_from_spans(span_points: list[np.ndarray]) -> float:
     if len(angles) < 3:
         return 0.0
 
-    # Weighted median — sort by angle and find the weight-median
+    # Weighted median: sort by angle and find the weight-median
     sorted_pairs = sorted(zip(angles, weights, strict=True), key=lambda p: p[0])
     total_weight = sum(weights)
     cumulative = 0.0

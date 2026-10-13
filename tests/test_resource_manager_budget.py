@@ -1,10 +1,8 @@
 """Memory budgeting: cgroup limits, chunk sizing, and the tier arithmetic.
 
-Two areas here had never executed under test. ``adjust_chunk_size`` was only
-ever patched out, and the cgroup v2 branches were unreachable because every
-existing test replaces ``builtins.open`` with something that raises -- yet
-those branches are the only thing standing between a container or Flatpak with
-a memory limit and the OOM killer.
+The cgroup v2 branches are the only thing standing between a container or
+Flatpak with a memory limit and the OOM killer, so they run here against a fake
+cgroup filesystem.
 """
 
 import builtins
@@ -38,11 +36,8 @@ class TestAdjustChunkSize:
         assert adjust_chunk_size(4, [A4], 1_000_000) == 4
 
     def test_the_largest_page_decides_for_the_whole_document(self):
-        """A known pessimisation, stated rather than discovered later.
-
-        One oversized page shrinks the chunk for every page in the document,
-        including the ninety-nine ordinary ones next to it.
-        """
+        """One oversized page shrinks the chunk for every page in the document,
+        including the ninety-nine ordinary ones next to it."""
         mixed = [A4] * 99 + [A0]
 
         assert adjust_chunk_size(8, mixed, 4000) < adjust_chunk_size(8, [A4] * 99, 4000)
@@ -81,10 +76,10 @@ class TestAdjustChunkSize:
 
 
 class _FakeCgroupFS:
-    """Serves the cgroup v2 files and nothing else.
+    """Serves the given cgroup v2 files.
 
-    Existing tests patch ``open`` to raise for everything, which is why these
-    branches have never run.
+    Other cgroup paths and ``/proc/meminfo`` raise ``OSError``; anything else
+    goes to the real ``open``.
     """
 
     def __init__(self, files: dict[str, str]) -> None:
@@ -192,21 +187,6 @@ class TestCgroupV2Limits:
 
         assert profile.total_ram_mb == 16 * 1024
         assert profile.available_ram_mb == 12 * 1024
-
-    @pytest.mark.xfail(
-        strict=True,
-        reason=(
-            "cgroup v1 (/sys/fs/cgroup/memory/memory.limit_in_bytes) is not read. "
-            "Documented rather than silently missing; v1 hosts get no clamping."
-        ),
-    )
-    def test_cgroup_v1_limits_are_respected(self, monkeypatch, host_memory):
-        profile = _with_cgroup(
-            monkeypatch,
-            **{"/sys/fs/cgroup/memory/memory.limit_in_bytes": str(1024 * 1024 * 1024)},
-        )
-
-        assert profile.total_ram_mb == 1024
 
 
 class TestPipelineConfigEdges:

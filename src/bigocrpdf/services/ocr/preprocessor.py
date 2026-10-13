@@ -240,7 +240,7 @@ class ImagePreprocessor:
 
         Uses per-row/column median brightness to detect borders. Median is
         robust against text: a row with dark text on bright paper has a high
-        median (paper dominates), while a genuinely dark border row has a
+        median (paper dominates), while a dark border row has a
         low median (most pixels are dark).
 
         Only trims borders where the median < 60 (uniformly dark), and limits

@@ -287,14 +287,14 @@ def create_odf(
 
 
 # The fixed-layout export writes every line in Liberation Sans and measures it
-# with ReportLab's Helvetica metrics. That is exact rather than approximate:
-# across the ASCII range the two differ by at most 0.08% in advance width
-# (measured), because Liberation Sans is metric-compatible with Arial, which is
+# with ReportLab's Helvetica metrics, a close proxy:
+# across the ASCII range their advance widths match within a fraction of a
+# percent, because Liberation Sans is metric-compatible with Arial, which is
 # metric-compatible with Helvetica.
 POSITIONED_FONT_FAMILY = "Liberation Sans"
 _METRIC_PROXY_FONT = "Helvetica"
 
-# Liberation Sans hhea, measured: ascender 0.9053, descender -0.2119,
+# Liberation Sans hhea: ascender 0.9053, descender -0.2119,
 # lineGap 0.0327 em, so its natural line box is 1.1499 em and LibreOffice puts
 # the first baseline ~0.94 em below the box top. These two are calibrations of
 # LibreOffice's layout, not derivations from the format; the round-trip test is
@@ -303,8 +303,8 @@ LIBERATION_LINE_BOX_EM = 1.15
 LIBERATION_FIRST_BASELINE_EM = 0.94
 
 # How far the width fit may stray from the height estimate. The width fit is
-# exact for Helvetica-metric sources and drifts for others -- Times needs about
-# 1.11, monospace less than 1 -- so the band keeps a wrong proxy from producing
+# exact for Helvetica-metric sources and drifts for others (Times needs about
+# 1.11, monospace less than 1), so the band keeps a wrong proxy from producing
 # an absurd size while leaving the fit free to do the fine work.
 WIDTH_FIT_MIN_RATIO = 0.75
 WIDTH_FIT_MAX_RATIO = 1.30
@@ -321,7 +321,7 @@ def _proxy_width(text: str, size_pt: float) -> float | None:
 
     The encodability check is the measurement, not a guard around it:
     ``stringWidth`` does not refuse text outside the font's encoding, it
-    silently returns a number -- 45.66 pt for six CJK characters at 10 pt --
+    silently returns a number (45.66 pt for six CJK characters at 10 pt),
     and a fit built on that number would be confidently wrong. Latin-1 is
     Helvetica's encoding, so text outside it has no advance width to report.
     """
@@ -368,8 +368,8 @@ def _width_fitted_size(words) -> tuple[float | None, float]:
 def positioned_font_size(line, shrink: float = 1.0) -> tuple[float, float]:
     """Return ``(size in source points, size to write)`` for one line.
 
-    The width is what breaks a layout -- a line 15% too wide overruns its
-    column, while one 5% too tall merely looks off -- so the width fit leads and
+    The width is what breaks a layout: a line 15% too wide overruns its
+    column, while one 5% too tall merely looks off. So the width fit leads and
     the height estimate only bounds it.
     """
     from bigocrpdf.constants import MAX_FONT_SIZE, MIN_FONT_SIZE
@@ -485,8 +485,8 @@ def create_positioned_text_odf(
             paddingright="0cm",
             border="none",
             # This, not the computed width, is what guarantees a line never
-            # wraps: when the font is substituted -- CJK, or a host without
-            # Liberation Sans -- no width we could compute would be right, and
+            # wraps: when the font is substituted (CJK, or a host without
+            # Liberation Sans), no width we could compute would be right, and
             # a wrapped line drops its tail onto the line below.
             autogrowwidth="true",
             autogrowheight="true",
@@ -531,9 +531,9 @@ def create_positioned_text_odf(
                 positioned_runs.append(TextLine(run_words, source_line.y))
 
         # Reading order, made explicit: a later change to the run splitter must
-        # not be able to scramble it silently, because the z-index below -- and
+        # not be able to scramble it silently, because the z-index below (and
         # with it hit-testing, Tab order and the order LibreOffice emits text
-        # when exporting -- follows the order frames are written in.
+        # when exporting) follows the order frames are written in.
         positioned_runs.sort(key=lambda run: (round(run.y, 1), run.min_x))
 
         for line_index, line in enumerate(positioned_runs):
@@ -741,8 +741,7 @@ def _render_odf_element(
         # A heading has to be a heading, not a paragraph that happens to be
         # bold and larger. Only text:h gives an outline in the navigator, an
         # automatic table of contents, and heading semantics to a screen
-        # reader -- and the analyser had already identified 29 of them in an
-        # eighteen-page contract that exported as a flat wall of paragraphs.
+        # reader.
         heading = H(outlinelevel=outline_level, stylename=style)
         heading.addText(elem.text)
         (container or doc.text).addElement(heading)

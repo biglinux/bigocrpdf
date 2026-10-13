@@ -55,7 +55,7 @@ class _BatchCompletion:
 
 
 def _build_batch_completion(total_files: int, successful_files: int) -> _BatchCompletion:
-    """Build a truthful user-visible outcome from confirmed input-file counts."""
+    """Build the user-visible outcome from confirmed input-file counts."""
     if total_files <= 0:
         raise ValueError("total_files must be positive")
     if successful_files < 0 or successful_files > total_files:

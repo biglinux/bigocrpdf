@@ -1,11 +1,10 @@
 """Turning OCR regions into positioned lines and words.
 
-Everything structured -- reading order, the TXT/Markdown/ODT exports, the
-per-word boxes in the sidecar -- is built on this module, and no test imported
-it. A region arrives as one box for a whole line, so the word boxes inside it
-are estimated by splitting that box proportionally; getting that wrong
-misplaces every word in a document without changing a single character of the
-extracted text.
+Everything structured (reading order, the TXT/Markdown/ODT exports, the
+per-word boxes in the sidecar) is built on this module. A region arrives as one
+box for a whole line, so the word boxes inside it are estimated by splitting
+that box proportionally; getting that wrong misplaces every word in a document
+without changing a single character of the extracted text.
 """
 
 import pytest

@@ -1,7 +1,5 @@
 """Synthetic pages and known forward distortions for the geometry tests.
 
-Not a test module -- imported, not collected.
-
 The design point: a corrector is judged by how much of a *known* distortion it
 removes. So each function here applies a distortion whose parameters the test
 already has, and the corrector's job is to undo it. Nothing here inspects the
@@ -42,7 +40,7 @@ DEFAULT_LINES = [
 
 
 def _font(size: int) -> ImageFont.FreeTypeFont:
-    """A real TrueType face, or skip -- bitmap fallbacks are unmeasurable."""
+    """A real TrueType face, or skip: bitmap fallbacks are unmeasurable."""
     try:
         matched = subprocess.run(
             ["fc-match", "--format=%{file}", "Noto Sans"],
@@ -90,8 +88,8 @@ def render_synthetic_page(
 # Fraction of the page width the wide fixture's text must reach. The dewarp
 # fits one spline per text line and removes each line's linear trend, so what
 # it can see is the bow *across the span the text occupies*. Over a narrow
-# column an arc is genuinely indistinguishable from a tilt -- and a tilt is the
-# deskew's job -- so only a line reaching both margins exercises the remap.
+# column an arc is indistinguishable from a tilt, and a tilt is the deskew's
+# job, so only a line reaching both margins exercises the remap.
 WIDE_TEXT_COVERAGE = 0.94
 
 

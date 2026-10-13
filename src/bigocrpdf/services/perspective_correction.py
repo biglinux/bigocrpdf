@@ -107,10 +107,10 @@ class PerspectiveCorrector:
     ) -> np.ndarray | None:
         """Accept a correction only if it did not blur the text lines.
 
-        Until now only the mesh path was validated; photo perspective, margin
-        normalisation, the contour transform and the gentle margin were applied
-        on the detector's word alone. A detector that fires on the wrong edges
-        produces a warp that is worse than doing nothing, and nothing noticed.
+        Photo perspective, margin normalisation and the gentle margin pass
+        through here; the contour transform and the mesh path call
+        ``_validate_correction`` directly. A detector that fires on the wrong
+        edges produces a warp that is worse than doing nothing.
 
         Returning None lets the cascade try the next strategy instead of
         keeping a bad result.
@@ -183,8 +183,8 @@ class PerspectiveCorrector:
             (image_height - y - height) / image_height,
         )
         # These two return None rather than the image, as the docstring says:
-        # returning the image ends the whole cascade, and an internal frame --
-        # a table border, a scanned photo inside the page -- must not stop the
+        # returning the image ends the whole cascade, and an internal frame
+        # (a table border, a scanned photo inside the page) must not stop the
         # gentle-margin step. Both only say this contour cannot provide a
         # correction.
         if max(insets) > _MAX_CONTOUR_INSET_RATIO:
@@ -240,7 +240,7 @@ class PerspectiveCorrector:
         A strict first-hit-wins cascade: the first strategy that produces a
         result owns the page and the rest never run.  ``last_method`` records
         which one that was and ``last_rejected`` the ones that declined, so the
-        choice is observable from the outside -- without it, "no distortion
+        choice is observable from the outside. Without it, "no distortion
         found" and "every detector failed" look identical.
         """
         self.last_method = "none"

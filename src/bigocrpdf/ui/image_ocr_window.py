@@ -151,7 +151,7 @@ class ImageOcrWindow(Adw.ApplicationWindow):
             config.set(f"{IMAGE_WINDOW_STATE_KEY}.height", height, save_immediately=True)
 
     def _on_close_request(self, _window: Gtk.Window) -> bool:
-        """Handle window close request — save state."""
+        """Handle window close request: save state."""
         self.prepare_close()
         return False
 

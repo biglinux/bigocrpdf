@@ -23,8 +23,8 @@ from bigocrpdf.utils.tsv_parser import DocElement
 def _mock_pdf_path(name: str) -> str:
     """Build a temp-dir path used as an opaque PDF identifier in mocked tests.
 
-    The file is never actually read or written — ``parse_tsv_pages`` is
-    mocked — but using the system temp dir instead of a hardcoded ``/tmp``
+    The file is never read or written (``parse_tsv_pages`` is mocked), but
+    using the system temp dir instead of a hardcoded ``/tmp``
     keeps static analyzers (and Windows CI) happy.
     """
     return os.path.join(tempfile.gettempdir(), name)
@@ -496,7 +496,7 @@ class TestSaveMdSettings:
     def test_save_md_settings_writes_both_keys(self):
         from bigocrpdf.services.settings import OcrSettings
 
-        # Minimal config double — record .set() calls and replay .get().
+        # Minimal config double: record .set() calls and replay .get().
         store: dict = {}
 
         class _Cfg:
@@ -519,7 +519,7 @@ class TestSaveMdSettings:
         assert store.get("md_export.open_after_export") is True
 
     def test_save_md_settings_defaults_when_unset(self):
-        # Settings object freshly constructed may not have the attributes —
+        # Settings object freshly constructed may not have the attributes;
         # the saver must default to False instead of raising AttributeError.
         from bigocrpdf.services.settings import OcrSettings
 

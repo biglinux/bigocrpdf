@@ -5,7 +5,7 @@ import logging
 
 
 def _cmd_edit(args: argparse.Namespace, logger: logging.Logger) -> int:
-    """Handle the 'edit' command — launch GUI editor directly."""
+    """Handle the 'edit' command: launch the GUI editor directly."""
     from bigocrpdf import _check_gtk_dependencies
 
     if not _check_gtk_dependencies():

@@ -67,7 +67,7 @@ def check_disk_space(path: str | Path, needed_bytes: int) -> tuple[bool, str]:
     """Check whether *path* has at least *needed_bytes* free.
 
     Returns:
-        (ok, message) — *ok* is False when space is insufficient.
+        (ok, message); *ok* is False when space is insufficient.
     """
     free = get_free_space(path)
     if free == 0:
@@ -115,7 +115,7 @@ def choose_temp_base(needed_bytes: int = 0) -> Path:
     if cache_free > needed_bytes + _MIN_FREE_BYTES:
         return _get_run_cache_dir()
 
-    # Fallback — the system temp dir is still best-effort
+    # Fallback: the system temp dir is best-effort
     return Path(system_temp_dir)
 
 

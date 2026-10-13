@@ -363,7 +363,7 @@ def split_by_size(
                 # Estimate size by summing per-page sizes (O(n) total).
                 # Individual page sizes overestimate the combined PDF
                 # (shared fonts/images counted per page), so splits are
-                # conservative — safe but may produce slightly more parts.
+                # conservative: safe, but may produce slightly more parts.
                 est_size = sum(page_sizes[pn] for pn in part_pages)
 
                 # If we exceed the limit and have more than one page,

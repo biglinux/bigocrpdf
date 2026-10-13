@@ -73,10 +73,10 @@ FIXTURE_DPI = 300
 # axes x 3 levels x 8 samples, which nobody re-runs; these are the curated
 # subsets that make the corpus usable as a gate.
 #
-#   smoke -- the fast inner loop, one sample, the six axes that discriminate most
-#   gate  -- the regression baseline
-#   full  -- everything, including the severity-3 rows, which are diagnostic
-#            rather than gating: their job is to show where the cliff is
+#   smoke: the fast inner loop, one sample, the six axes that discriminate most
+#   gate:  the regression baseline
+#   full:  everything, including the severity-3 rows, which are diagnostic
+#          rather than gating: their job is to show where the cliff is
 GATE_SAMPLES = ("pt_accented", "pt_legal")
 SMOKE_AXES = ("perspective", "illumination", "low_dpi", "blur", "jpeg", "broken_glyphs")
 TIERS = {
@@ -98,7 +98,7 @@ TABLE_ROWS = [["Produto", "Quantidade", "Valor"], ["Livro", "2", "R$ 80,00"]]
 def sample_ground_truth(sample_id: str, declared_text: str) -> str:
     """The text a sample actually draws, in reading order.
 
-    Reading order across two columns is genuinely ambiguous, which is why both
+    Reading order across two columns is ambiguous, which is why both
     layout samples are tagged ``layout_order_uncertain``: gate them on
     ``sorted_line_char_error_rate`` and report plain CER without gating it.
     """
@@ -111,7 +111,7 @@ def sample_ground_truth(sample_id: str, declared_text: str) -> str:
 
 # More than one family per language because the same typeface ships under
 # different names: the CJK font is "Noto Sans CJK SC" on Debian and "Source Han
-# Sans CN" on Arch, and asking for the wrong one is not an error -- fc-match
+# Sans CN" on Arch, and asking for the wrong one is not an error: fc-match
 # answers with *something* whatever it is asked, so a missing family silently
 # yields a font that cannot write the language.
 _FONT_FAMILIES = {

@@ -104,9 +104,9 @@ def _line_horizontal_scale(
 ) -> float:
     """Horizontal stretch, as a percentage, bounded to the HORIZ_SCALE range.
 
-    A single OCR box much wider or narrower than its text -- a stray detection,
-    or a CJK line whose placeholder glyphs bear no relation to the real widths
-    -- would otherwise stretch the invisible run by a factor of ten, making the
+    A single OCR box much wider or narrower than its text (a stray detection,
+    or a CJK line whose placeholder glyphs bear no relation to the real widths)
+    would otherwise stretch the invisible run by a factor of ten, making the
     selection rectangle cover half the page.
     """
     natural_width = pdfmetrics.stringWidth(line_text, font_name, line_font_size)

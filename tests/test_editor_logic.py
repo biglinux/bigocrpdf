@@ -131,7 +131,6 @@ class TestEditorWindowLogic(unittest.TestCase):
             # Verify modifications cleared
             self.assertFalse(doc.modified)
             window._close_window.assert_called_once_with()
-            print("Save behavior test passed!")
 
     def test_rejected_save_callback_keeps_editor_open_and_modified(self):
         with (
@@ -445,7 +444,6 @@ class TestEditorWindowLogic(unittest.TestCase):
             mock_save_callback.assert_not_called()
             # Verify modifications cleared (explicit discard)
             self.assertFalse(doc.modified)
-            print("Back/Discard behavior test passed!")
 
     def test_undo_stack_ignores_consecutive_duplicate_snapshots(self):
         window = PDFEditorWindow.__new__(PDFEditorWindow)

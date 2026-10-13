@@ -323,8 +323,8 @@ def test_clear_file_queue_repaints_even_when_the_model_was_already_empty():
 
     Files are removed one by one as they finish, while the terminal page is up
     and nothing repaints. By the time the user comes back the model is empty
-    and ``_clear_files`` reports "nothing to do" -- and returning early on that
-    left the finished batch still listed with the header button stuck on the
+    and ``_clear_files`` reports "nothing to do". Returning early on that would
+    leave the finished batch still listed with the header button stuck on the
     label it took when processing started.
     """
     controller = _make_window_controller()

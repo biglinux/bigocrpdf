@@ -123,8 +123,8 @@ def merge_page_fonts(
     Keeping it would drop our font and read our text through a stranger's
     encoding: our layer writes subset code 1 for whatever
     character it happened to meet first, so a page carrying an unrelated
-    ``/F2+0`` decoded every accent as some other accent -- ``Jürgen`` came out
-    ``Jçrgen``. Names like ``/F1`` are as generic as they look, and re-running
+    ``/F2+0`` would decode every accent as some other accent (``Jürgen`` comes
+    out ``Jçrgen``). Names like ``/F1`` are as generic as they look, and re-running
     OCR on a file we produced hits this every time.
     """
     if "/Font" not in text_resources:

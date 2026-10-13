@@ -63,7 +63,7 @@ def levenshtein_ratio(predicted: str, ground_truth: str) -> float:
 def sorted_line_char_error_rate(predicted: str, ground_truth: str) -> float:
     """Character error rate that ignores the order of whole lines.
 
-    A two-column page has genuinely ambiguous reading order: a correct read
+    A two-column page has ambiguous reading order: a correct read
     that interleaves the columns differently from the ground truth is not an
     OCR error, but plain CER punishes it as one. Sorting both line lists before
     comparing removes the order while keeping every character exact, so these
@@ -160,7 +160,7 @@ def match_boxes(
 
     Greedy rather than optimal assignment: it is the convention for OCR
     detection evaluation, it is deterministic, and it is simple enough to
-    verify by hand -- all of which matter more here than the last fraction of a
+    verify by hand. All of that matters more here than the last fraction of a
     percent an optimal matcher would recover.
 
     Returns (predicted index, ground-truth index, IoU) for each accepted pair.

@@ -44,7 +44,7 @@ class TestFindCenterGap:
         assert gap is None
 
     def test_gap_too_small(self):
-        # Boxes very close together — gap between consecutive centers < _MIN_GAP_PCT (4%)
+        # Boxes very close together: gap between consecutive centers < _MIN_GAP_PCT (4%)
         boxes = [
             _make_box(45, 2),  # center=46
             _make_box(47, 2),  # center=48
@@ -55,7 +55,7 @@ class TestFindCenterGap:
         assert gap is None
 
     def test_gap_off_center(self):
-        # Gap at ~20% — too far from center
+        # Gap at ~20%, too far from center
         boxes = [
             _make_box(2, 5),  # center=4.5
             _make_box(5, 5),  # center=7.5

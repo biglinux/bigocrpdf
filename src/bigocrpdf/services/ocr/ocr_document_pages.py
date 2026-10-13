@@ -5,12 +5,10 @@ structured OCR JSON a caller may ask for, the structured TXT/Markdown/ODT
 exports, the average confidence the interface reports, and every per-region
 field in a benchmark record.
 
-Only the image-only pipeline ever filled it. Mixed-content and embedded-image
-documents counted their regions and then dropped them, so those documents
-reported a confidence of exactly zero, exported through the ``pdftotext``
-fallback instead of their own OCR geometry, and were invisible to the
-zero-region regression gate. This module is what the three pipelines share so
-that cannot drift again.
+The mixed-content and embedded-image pipelines record their pages here. A
+pipeline that counts its regions without recording them reports a confidence
+of exactly zero, exports through the ``pdftotext`` fallback instead of its own
+OCR geometry, and is invisible to the zero-region regression gate.
 """
 
 from bigocrpdf.services.ocr.config import (
@@ -36,7 +34,7 @@ def record_ocr_page(
     """Append one OCR'd page to the document, and count its regions.
 
     Counting happens here too so a caller cannot record the page and forget the
-    tally, or the reverse -- which is exactly how the two ran apart.
+    tally, or the reverse.
 
     Args:
         image_size_px: Size of the image the OCR boxes were measured on, which

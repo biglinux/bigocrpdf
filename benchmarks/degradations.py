@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Reproducible image degradations for the difficult-image benchmark corpus.
 
-The synthetic fixtures were eight clean renderings: no blur, no noise, no
-rotation, no lighting variation. A corpus like that cannot tell a robustness
-improvement from a robustness regression, because every sample is easy.
+Clean renderings alone (no blur, no noise, no rotation, no lighting variation)
+cannot tell a robustness improvement from a robustness regression, because
+every sample is easy.
 
 Each function here applies one degradation whose parameters are recorded into
 the manifest, so a fixture can always be regenerated and a metric shift can
@@ -17,10 +17,9 @@ Two rules hold throughout:
   axis and level, so a fixture regenerates identically regardless of the order
   or process it is generated in. No ``random``, no ``np.random.seed``.
 
-cv2 is deliberately not used here. It is already a runtime dependency, and
-making it a *fixture identity* dependency too would mean an OpenCV upgrade
-silently changes the corpus -- the 4-to-5 upgrade this project just went
-through changed interpolation and return shapes, which is exactly the risk.
+cv2 is not used here. It is already a runtime dependency, and making it a
+*fixture identity* dependency too would mean an OpenCV upgrade silently changes
+the corpus: a major upgrade can change interpolation and return shapes.
 """
 
 from __future__ import annotations

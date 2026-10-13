@@ -184,7 +184,7 @@ def _add_image_page(source_file, page_state, new_pdf, resources: ExitStack):
     # Force the page box to the image's native pixel size (1 px = 1 pt).
     # PIL sizes the page from the image DPI, so images of the same resolution
     # but differing embedded DPI would otherwise yield inconsistent physical
-    # page sizes — which mobile viewers (honoring per-page MediaBox) render at
+    # page sizes, which mobile viewers (honoring per-page MediaBox) render at
     # different scales. Pinning to native pixels keeps every image page uniform.
     page.MediaBox = [0, 0, img.width, img.height]
     final_rotation = page_state.rotation

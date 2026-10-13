@@ -1,4 +1,4 @@
-"""Headless contracts for truthful OCR batch completion states."""
+"""Headless contracts for OCR batch completion states."""
 
 from types import SimpleNamespace
 from unittest.mock import MagicMock, call, patch

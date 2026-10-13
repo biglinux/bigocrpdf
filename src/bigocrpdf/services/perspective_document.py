@@ -22,8 +22,8 @@ def _refine_corners_with_edges(
 
     When brightness-based corner detection clips to image edges (because the
     document extends to or beyond the frame), we can still recover precise
-    corners.  The brightness mask contour already follows the document border
-    — we just need to compute where its sides actually intersect instead of
+    corners.  The brightness mask contour already follows the document border;
+    we just need to compute where its sides actually intersect instead of
     using the approximated polygon vertices.
 
     Algorithm:
@@ -213,11 +213,10 @@ def _valid_refined_quad(refined: np.ndarray, width: int, height: int) -> bool:
 def _is_convex_quad(q: np.ndarray) -> bool:
     """Whether the four corners turn the same way all the way round.
 
-    The 2-D cross product is written out because NumPy 2.0 removed it from
-    ``np.cross``, which now raises for two-element vectors rather than
-    returning the scalar z-component. Every call raised, so quad refinement was
-    never validated and the exception took the whole perspective cascade down
-    with it -- silently, since the caller falls back to the original image.
+    The 2-D cross product is written out because ``np.cross`` raises for
+    two-element vectors on NumPy 2.0. That exception would take the whole
+    perspective cascade down silently, since the caller falls back to the
+    original image.
     """
     for i in range(4):
         origin = q[i]

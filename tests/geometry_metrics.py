@@ -1,7 +1,5 @@
 """Measuring how much of a known distortion a corrector removed.
 
-Not a test module -- imported, not collected.
-
 Correctors legitimately change the image size: a four-point transform reshapes
 the page, and border trimming crops it. So comparing pixels against the
 original is invalid, and the metrics here are built to be invariant to
@@ -11,7 +9,7 @@ resampling and cropping:
   transform that still separates them, reporting rotation, scale and a corner
   error normalised by width.
 * ``baseline_curvature_px`` measures an image on its own terms, which is the
-  only workable oracle for dewarp -- dewarp changes global geometry by design,
+  only workable oracle for dewarp: dewarp changes global geometry by design,
   so registration alone cannot judge it. It is monotonic in the true bow rather
   than equal to it, so assertions on it should be relative.
 * ``text_pixel_retention`` guards against a "correction" that improves every

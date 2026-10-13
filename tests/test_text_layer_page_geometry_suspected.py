@@ -1,28 +1,25 @@
-"""Page-geometry hazards that were suspected of displacing the text layer.
+"""Page-geometry hazards that could displace the text layer.
 
-Written as hypotheses and then tested. Recording the outcome matters as much
-as the tests themselves, so the same ground is not re-suspected later:
+Each hazard below looks plausible from the code; the tests pin why it does not
+happen, or that it does:
 
-* **MediaBox origin** -- suspected: nothing subtracts a non-zero origin, so the
-  layer would be offset by ``(-x0, -y0)`` after merging into the original page.
-  **Refuted.** Measured through the real ``overlay_text_on_original`` with
-  positive and negative origins: displacement is 0.00 pt. Both the layer and
-  the original are drawn in the same content-stream space, so the origin
-  cancels. Locked in by ``TestMediaBoxOrigin``.
+* **MediaBox origin**: nothing subtracts a non-zero origin, yet the layer is
+  not offset after merging into the original page. Both the layer and the
+  original are drawn in the same content-stream space, so the origin cancels.
+  ``TestMediaBoxOrigin`` checks it through the real ``overlay_text_on_original``
+  with positive and negative origins.
 
-* **/UserUnit** -- suspected: ignored in the text-layer path. **Refuted, and
-  the suspicion was misframed.** /UserUnit scales the physical interpretation
-  of user space; it does not change the numbers written into a content stream.
-  Reading the raw MediaBox is therefore correct. The real hazard is mixing the
-  two conventions, which ``TestUserUnit`` checks instead.
+* **/UserUnit**: it scales the physical interpretation of user space; it does
+  not change the numbers written into a content stream, so reading the raw
+  MediaBox is correct. The hazard is mixing the two conventions, which
+  ``TestUserUnit`` checks.
 
-* **Overlay + /Rotate 90/270 aspect mismatch** -- suspected: the OCR image is
-  rotated (swapping width and height) while the MediaBox dimensions come back
-  unswapped, giving an anisotropic mapping. **Refuted.** Rotating the image is
-  precisely what makes its aspect match the page: measured scale ratio is
-  1.000 for 90 and 270. Locked in by ``TestOverlayRotation``.
+* **Overlay + /Rotate 90/270**: the OCR image is rotated (swapping width and
+  height) while the MediaBox dimensions come back unswapped. Rotating the image
+  is what makes its aspect match the page, so the mapping stays isotropic.
+  Locked in by ``TestOverlayRotation``.
 
-* **force_overlay over a geometrically corrected page** -- reachable; the
+* **force_overlay over a geometrically corrected page**: reachable; the
   override is conditional on ``geometry_applied``. See
   ``TestForceOverlayWithGeometry``.
 """
@@ -206,7 +203,7 @@ class TestForceOverlayWithGeometry:
     ``use_rendered_source`` for a masked (JBIG2 foreground/background) page
     whenever geometric correction is enabled, which is the default. The worker
     then renders the page, applies the corrections, and OCRs the corrected
-    image -- while ``_process_page_result`` passes
+    image, while ``_process_page_result`` passes
     ``force_overlay=use_rendered_source``, which resets
     ``use_processed_for_page`` to False. The text is then drawn over the
     *original* image using coordinates measured on the *corrected* one.

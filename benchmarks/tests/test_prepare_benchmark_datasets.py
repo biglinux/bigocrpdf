@@ -25,9 +25,9 @@ def _unrenderable_samples() -> list[str]:
 
     The generator refuses to draw tofu, so on a host without CJK or Arabic
     fonts every synthetic run raises.  Asking it the same question up front
-    turns that into an honest skip instead of a failure that looks like a code
-    defect -- and keeps the check truthful, since it is the generator's own
-    coverage test rather than a guess about which packages are installed.
+    turns that into a skip instead of a failure that looks like a code defect,
+    and the check is the generator's own coverage test rather than a guess
+    about which packages are installed.
     """
     unrenderable = []
     for sample_id, language, _tags, text in fixture_tools.SAMPLES:
@@ -254,8 +254,8 @@ def test_rows_may_share_one_ground_truth_file(tmp_path: Path) -> None:
     """A degraded variant cites the clean sample's ground truth, not a copy of it.
 
     The degradation moves pixels and leaves the text alone, which is what keeps
-    the corpus exact however severe the damage -- so the same path is published
-    once per row citing it. Refusing the second row made every tier that
+    the corpus exact however severe the damage, so the same path is published
+    once per row citing it. Refusing the second row would make every tier that
     generates variants unbuildable.
     """
     stage = tmp_path / "stage"

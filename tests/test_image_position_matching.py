@@ -2,7 +2,7 @@
 
 On a mixed-content page that carries BOTH a full-page scan and a small
 decorative image (a logo, a signature stamp), the OCR text of the
-full-page scan must land in the scan's display box — not in the logo's tiny
+full-page scan must land in the scan's display box, not in the logo's tiny
 box. Pairing images with positions by compressed size cross-pairs the two and
 crams the scan's text into, e.g., a 75 pt logo box at the bottom of the page.
 ``match_positions_to_images`` pairs by PDF object number (exact), falling back

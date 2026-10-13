@@ -41,7 +41,7 @@ def _locale_dir_candidates() -> list[Path]:
         candidates.append(Path(textdomaindir))
 
     # Walking up from this module covers every layout the package can be
-    # installed in -- source checkout, wheel under site-packages, AppDir --
+    # installed in (source checkout, wheel under site-packages, AppDir)
     # without needing to know the prefix in advance.
     for parent in Path(__file__).resolve().parents:
         candidates.append(parent / "share/locale")
@@ -80,7 +80,7 @@ def setup_i18n() -> None:
     gettext.textdomain(_DOMAIN)
 
     # Bind on the C library as well so translations still apply to strings
-    # resolved outside Python's gettext -- GtkBuilder templates and anything
+    # resolved outside Python's gettext: GtkBuilder templates and anything
     # GLib translates on our behalf.  Absent on non-glibc platforms.
     try:
         locale.bindtextdomain(_DOMAIN, locale_dir)  # type: ignore[attr-defined]

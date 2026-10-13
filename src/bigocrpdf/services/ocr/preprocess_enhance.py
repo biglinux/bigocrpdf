@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-_BG_ESTIMATION_MAX_SIZE = 1000  # pixels — downscale larger images
+_BG_ESTIMATION_MAX_SIZE = 1000  # pixels; larger images are downscaled
 
 
 _MORPH_KERN_DIVISOR = 20
@@ -201,7 +201,7 @@ def denoise(img: np.ndarray) -> np.ndarray:
     laplacian_var = cv2.Laplacian(gray, cv2.CV_64F).var()
 
     if laplacian_var > _NOISE_LAPLACIAN_THRESHOLD:
-        # Very noisy image — use stronger NL-means denoising
+        # Very noisy image: use stronger NL-means denoising
         logger.debug(
             f"High noise detected (laplacian_var={laplacian_var:.0f}), "
             "using fastNlMeansDenoisingColored"

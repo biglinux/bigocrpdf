@@ -75,7 +75,7 @@ CENTER_CLUSTER_TOLERANCE = 30.0
 BOUNDARY_SPLIT_MIN_GAP = 2.0
 MIN_WORD_WIDTH = 2.0  # Words narrower than this are OCR artifacts
 # Longest text a sliver-width box may hold and still be treated as noise.
-# Beyond this the box shape is wrong, not the text -- see filter_words.
+# Beyond this the box shape is wrong, not the text (see filter_words).
 MAX_ARTIFACT_TEXT_LEN = 4
 # Poppler does not measure ink: it derives a word's box from the font's own
 # metrics, as yMin = baseline - ascent*size and yMax = baseline - descent*size,
@@ -95,7 +95,7 @@ MIN_TABLE_ROWS = 2  # Minimum rows to confirm a table region
 MAX_TABLE_CELL_LEN = 14  # Median cell text length above this rejects as table
 HEADER_WORD_GAP = 8.0  # Minimum gap for header line word groups
 PARA_INDENT_THRESHOLD = 20.0  # min_x shift to detect first-line indent (new paragraph)
-PARA_INDENT_MAX = 60.0  # max_x shift — beyond this, it's not a first-line indent
+PARA_INDENT_MAX = 60.0  # max_x shift; beyond this, it's not a first-line indent
 
 
 def parse_tsv_pages(pdf_path: str) -> dict[int, list[Word]]:
@@ -140,7 +140,7 @@ def filter_words(words: list[Word]) -> list[Word]:
 
     A sliver of a box holding several characters usually means the detector
     traced a rule or a hatch pattern rather than words. But it also describes
-    vertical text: a side caption's box is genuinely narrow, and the export
+    vertical text: a side caption's box is narrow too, and the export
     lays words out horizontally, so a long URL down the margin arrives under
     two pixels wide, and width alone would throw it away.
 

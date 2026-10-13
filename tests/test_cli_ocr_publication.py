@@ -291,7 +291,7 @@ def test_sidecar_json_is_compact(tmp_path: Path) -> None:
 
     assert _run_ocr_writing_one_page(_args(source, output, "")) == 0
 
-    # One line: indentation was 62% of the bytes of an 18-page document.
+    # One line: indentation would be most of the bytes.
     assert ocr_document_json_path(output).read_text(encoding="utf-8").count("\n") == 1
 
 

@@ -25,7 +25,7 @@ class TestIsBilevelCandidate:
         assert is_bilevel_candidate(img) is True
 
     def test_grayscale_gradient_fails(self):
-        """A smooth gradient has many mid-gray pixels — not bilevel."""
+        """A smooth gradient has many mid-gray pixels, so it is not bilevel."""
         img = np.tile(np.arange(256, dtype=np.uint8), (100, 1))
         assert is_bilevel_candidate(img) is False
 

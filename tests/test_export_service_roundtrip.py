@@ -3,7 +3,7 @@
 This is where the two halves of the project meet. ``export_service`` runs
 ``pdftotext`` over the *finished* searchable PDF, so the quality of every TXT
 and ODT a user gets is a direct function of whether the invisible text layer
-landed on the right glyphs -- the property tests/test_text_layer_placement
+landed on the right glyphs, the property tests/test_text_layer_placement
 establishes. Here that layer is built by the real renderer and then exported.
 """
 
@@ -319,9 +319,9 @@ class TestFixedLayoutOdtPlacesTextWhereItWas:
     def test_the_error_does_not_grow_down_the_page(self, rendered_pair):
         """A page-size mistake shows up as drift proportional to position.
 
-        The header was 4 points out and the footer 42 -- the signature of a
-        scale error rather than a constant offset, and what makes this test
-        worth having separately from the tolerance above.
+        A header 4 points out and a footer 42 points out is the signature of a
+        scale error rather than a constant offset, which is what makes this
+        test worth having separately from the tolerance above.
         """
         source_words, rendered_words = rendered_pair
 

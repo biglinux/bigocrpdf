@@ -1,8 +1,7 @@
 """The OCR text layer must land on top of the glyphs it describes.
 
-Nothing in this project asserted that before. The searchable PDF could have its
-text displaced by any amount and every existing test would still pass, because
-they all check that text is *present* and extractable, never *where* it is.
+Text displaced by any amount is still *present* and extractable; these tests
+check *where* it is.
 
 Method: see tests/positional_oracle. Each test builds a visible-text PDF and an
 invisible-OCR-layer PDF with identical geometry and compares what poppler
@@ -31,7 +30,7 @@ from tests.positional_oracle import (
 pytestmark = requires_pdftotext
 
 # (page size in points, OCR image size in pixels). The image sizes are the ones
-# these page sizes really produce at 300 DPI, plus one deliberately odd pair so
+# these page sizes really produce at 300 DPI, plus one odd pair so
 # an accidentally isotropic mapping cannot pass.
 PAGE_GEOMETRIES = [
     pytest.param((612.0, 792.0), (2550, 3300), id="letter-300dpi"),

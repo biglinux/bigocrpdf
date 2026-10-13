@@ -1,22 +1,20 @@
 """Helpers for proving OCR text lands where the glyphs it describes are.
 
-Not a test module -- it is imported, not collected.
-
 The method is differential. For each scenario two PDFs are built with the
 *same* page geometry:
 
-* ``truth.pdf``  -- visible Helvetica text drawn at known coordinates.
-* ``layer.pdf``  -- the invisible OCR layer produced by the real render path,
+* ``truth.pdf``: visible Helvetica text drawn at known coordinates.
+* ``layer.pdf``: the invisible OCR layer produced by the real render path,
   from synthetic OCR quadrilaterals derived from those same coordinates.
 
 Both are read back with ``pdftotext -bbox-layout`` and compared word for word.
-Every convention we do not control -- whether poppler applies ``/Rotate`` to
+Every convention we do not control (whether poppler applies ``/Rotate`` to
 the boxes it reports, whether it subtracts the MediaBox origin, how it derives
-a word's vertical extent from font metrics -- applies identically to both sides
+a word's vertical extent from font metrics) applies identically to both sides
 and cancels out. That is what makes these assertions stable, and it is why no
 absolute poppler behaviour is hard-coded anywhere below.
 
-A consequence worth stating: proving the *mapping* needs no OCR engine. The
+So proving the *mapping* needs no OCR engine. The
 engine's job is to produce quadrilaterals; turning those into PDF text
 coordinates is fully exercised with synthetic ones.
 """
@@ -39,14 +37,14 @@ from bigocrpdf.services.ocr.renderer import (
 )
 
 FONT = "Helvetica"
-# renderer.py:238 -- Helvetica descent as a fraction of the em size.
+# renderer._DESCENT_FRAC: Helvetica descent as a fraction of the em size.
 DESCENT_FRAC = 0.207
 
 # Placement error expected to be exactly zero for the metric-box family, so the
 # tolerance only has to absorb serialisation rounding: ReportLab and
 # pdf_assembly both write coordinates with two decimals, and poppler prints six
 # significant figures, which bounds the accumulated error below 0.02 pt. 0.5 pt
-# leaves a 25x margin over that while staying far below any real defect -- a
+# leaves a 25x margin over that while staying far below any real defect: a
 # wrong page size, a missing Y-flip or a double conversion all displace text by
 # tens to hundreds of points.
 TOL_TIGHT = 0.5
@@ -178,7 +176,7 @@ def truth_to_metric_quads(
     rather than the descent approximation.
 
     The box width is set to the exact rendered string width, which keeps
-    ``_line_horizontal_scale`` at 100 -- see ``assert_tz_is_unity``.
+    ``_line_horizontal_scale`` at 100 (see ``assert_tz_is_unity``).
     """
     width_pts, height_pts = page_size_pts
     image_width_px, image_height_px = image_size_px
@@ -239,7 +237,7 @@ def render_layer_pdf(
     pdf.save()
     # ``rotation`` is the counter-rotation applied to the text; ``page_rotate``
     # is the /Rotate attribute a viewer will apply on top. They are separate
-    # knobs on purpose -- conflating them is what makes rotation behaviour hard
+    # knobs because conflating them is what makes rotation behaviour hard
     # to reason about, and telling them apart is the point of the rotation
     # tests in test_text_layer_page_geometry_suspected.py.
     _apply_page_attributes(out_path, mediabox_origin, page_rotate, user_unit, page_size_pts)

@@ -615,7 +615,7 @@ def _format_table_markdown(rows: list[list[str]]) -> list[str]:
 
 def _yaml_escape(value: str) -> str:
     """Escape a value for safe inclusion in a single-line YAML scalar."""
-    # Strip control characters (including NUL, newlines, tabs) — they can't
+    # Strip control characters (including NUL, newlines, tabs): they can't
     # appear in a single-line YAML scalar regardless of quoting.
     sanitized = "".join(c for c in value if ord(c) >= 0x20 or c == " ")
     return sanitized.replace("\\", "\\\\").replace('"', '\\"')
@@ -794,7 +794,7 @@ def convert_pdf_to_markdown(
     Args:
         pdf_path: Path to a PDF containing a text layer (post-OCR).
         include_front_matter: If True, prepend YAML front-matter with title,
-            source path, page count and date — handy for ingesting into
+            source path, page count and date, handy for ingesting into
             Obsidian/Hugo or as LLM context.
         cancel_event: Optional event polled between pages so long batches
             stay responsive to a cancel button.  Raises

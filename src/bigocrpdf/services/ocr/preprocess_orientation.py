@@ -22,9 +22,9 @@ def detect_orientation(img: np.ndarray, config: "OCRConfig") -> int:
     """Detect document orientation (0, 90, 180, or 270 degrees).
 
     Uses a multi-signal approach:
-    1. Aspect ratio check — documents are typically portrait
-    2. Hough line analysis — text lines indicate reading direction
-    3. Edge energy ratio — fallback for simple cases
+    1. Aspect ratio check: documents are typically portrait
+    2. Hough line analysis: text lines indicate reading direction
+    3. Edge energy ratio: fallback for simple cases
 
     Args:
         img: Input image in BGR format

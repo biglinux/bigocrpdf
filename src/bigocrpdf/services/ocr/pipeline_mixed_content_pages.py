@@ -19,7 +19,7 @@ def _index_extracted_images(paths: Sequence[Path | str]) -> dict[int, Path]:
 
     ``pdfimages`` names files ``<prefix>-NNN.<ext>`` where ``NNN`` is the same
     global counter reported in the ``pdfimages -list`` "num" column.  Indexing
-    by that number — instead of by position in the (filtered) file list — stays
+    by that number, instead of by position in the (filtered) file list, stays
     correct even when ``_extract_and_filter_images`` drops small-PNG masks and
     shifts later entries.
     """

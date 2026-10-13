@@ -15,7 +15,7 @@ import os
 # tests that round-trip non-ASCII through pdftotext.  "C" rather than "en"
 # because an English catalog is installed and would be selected.
 #
-# This must run before any bigocrpdf import -- gettext caches its translation
+# This must run before any bigocrpdf import: gettext caches its translation
 # objects, so a module that resolves a string first would keep the catalog.
 os.environ["LANGUAGE"] = "C"
 

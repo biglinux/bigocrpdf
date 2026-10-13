@@ -1,8 +1,8 @@
 """Ground truth must describe what the generator actually drew.
 
 ``two_columns`` and ``table`` derive their ground truth from the segments the
-generator draws. A separate literal drifts from the drawing -- different line
-breaks -- and leaves an error floor no OCR improvement can clear.
+generator draws. A separate literal drifts from the drawing (different line
+breaks) and leaves an error floor no OCR improvement can clear.
 """
 
 from pathlib import Path
@@ -177,7 +177,7 @@ class TestDegradedGeneration:
         assert any("photo_geometry" in variant["tags"] for variant in variants)
 
     def test_generation_is_reproducible(self, tmp_path: Path):
-        """Same inputs, same bytes -- otherwise the corpus cannot be a baseline."""
+        """Same inputs, same bytes; otherwise the corpus cannot be a baseline."""
         from benchmarks.make_synthetic_ocr_fixtures import generate_degraded_rows
 
         clean = self._clean_row(tmp_path)

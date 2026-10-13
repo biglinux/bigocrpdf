@@ -112,7 +112,7 @@ class TestConfigManager:
             assert cm.get("a.b.c") == 42
 
     def test_default_config_ocr_language_absent(self):
-        # Language is intentionally omitted from defaults so Settings can
+        # Language is omitted from defaults so Settings can
         # auto-detect from system locale on first run; see config_manager
         # DEFAULT_CONFIG and services.settings._load_language_settings.
         with tempfile.TemporaryDirectory() as d:

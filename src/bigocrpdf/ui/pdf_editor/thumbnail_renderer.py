@@ -283,7 +283,7 @@ class ThumbnailRenderer:
             if is_image:
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(pdf_path, size, -1, True)
             else:
-                # Use pdftoppm for fast single-page render (25x faster than Poppler GI)
+                # pdftoppm renders a single page much faster than Poppler GI
                 pixbuf = self._render_pdf_page_pdftoppm(
                     pdf_path,
                     page_num,
@@ -524,7 +524,7 @@ class ThumbnailRenderer:
             page.render(ctx)
             surface.flush()
 
-            # Direct pixel copy — Cairo ARGB32 matches B8G8R8A8_PREMULTIPLIED
+            # Direct pixel copy: Cairo ARGB32 matches B8G8R8A8_PREMULTIPLIED
             data = bytes(surface.get_data())
             stride = surface.get_stride()
             texture = Gdk.MemoryTexture.new(

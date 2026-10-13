@@ -241,7 +241,7 @@ def gentle_margin_perspective_correction(
 
     Analyses horizontal text-density projections in vertical strips to
     estimate left/right margin trend lines.  When the margins *converge*
-    (i.e. opposite-sign slopes — a hallmark of true perspective rather
+    (i.e. opposite-sign slopes, a hallmark of true perspective rather
     than rotational skew), a per-row horizontal remap is applied.
 
     Header/footer strips (top and bottom ~15 %) are excluded from the

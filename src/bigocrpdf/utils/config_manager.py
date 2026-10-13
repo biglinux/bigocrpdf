@@ -39,7 +39,7 @@ DEFAULT_CONFIG: Final[dict[str, Any]] = {
         "height": 600,
     },
     "ocr": {
-        # "language" intentionally omitted to allow automatic detection
+        # "language" is omitted to allow automatic detection
         "quality": "normal",
         "alignment": "alignrotate",
     },

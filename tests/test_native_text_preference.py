@@ -1,18 +1,15 @@
 """Keeping every character a mixed-content page has to offer.
 
 A page that keeps its native text and gets its images OCR'd on top holds the
-same words twice wherever the image repeats the page. Measured across two real
-documents, 21% of OCR regions sat on native text.
+same words twice wherever the image repeats the page.
 
-The native reading is the authoritative one -- it is exact, where OCR truncates
-long URLs and mangles rare characters -- so it wins. Three things had to hold
-for that to be an improvement rather than a trade:
+The native reading is the authoritative one: it is exact, where OCR truncates
+long URLs and mangles rare characters, so it wins. That is an improvement
+rather than a trade only while three things hold:
 
 * substitution never removes a region (``verify_ocr_results_with_native_spans``)
 * the export must not discard a narrow box that holds real text (``filter_words``)
 * a colon inside a URL or a clock time is not a form separator
-
-Each was found by measuring what reached the export, not by inspection.
 """
 
 import pytest
@@ -102,10 +99,10 @@ class TestNativeSubstitution:
 
 class TestFilterWordsKeepsRealText:
     def test_a_long_word_in_a_sliver_box_survives(self):
-        """Vertical captions arrive with a genuinely narrow box.
+        """Vertical captions arrive with a narrow box.
 
-        The URL above reached the export 1.8 pixels wide because the export
-        lays words out horizontally; width alone would have deleted it.
+        The URL above reaches the export 1.8 pixels wide because the export
+        lays words out horizontally; width alone would delete it.
         """
         words = [Word(text=URL, left=246.0, top=658.0, width=1.8, height=1440.0)]
 

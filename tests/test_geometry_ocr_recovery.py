@@ -1,7 +1,7 @@
 """End-to-end OCR quality: the tier that runs the real engine.
 
-Everything else in the suite is deliberately engine-free -- the mapping from
-OCR quadrilaterals to PDF points is provable with synthetic ones, and geometric
+Everything else in the suite is engine-free: the mapping from OCR
+quadrilaterals to PDF points is provable with synthetic ones, and geometric
 recovery is measurable on pixels. This file exists for the two questions those
 cannot answer:
 
@@ -106,12 +106,12 @@ class TestCorrectionsBuyAccuracy:
 
 @requires_models
 class TestOversizedPageStillProducesText:
-    """The regression that started all of this.
+    """A photo-sized page box must still produce text.
 
     A phone photo converted to PDF has a page box of one point per source
-    pixel, which implies 85 MP at 300 DPI. A pre-flight guard rejected the
-    whole document before any OCR ran, and no test noticed because none
-    measured "did anything come out at all".
+    pixel, which implies 85 MP at 300 DPI. A pre-flight guard that rejects it
+    stops the whole document before any OCR runs, so this checks that anything
+    comes out at all.
     """
 
     def test_a_photo_sized_page_box_yields_text(self, tmp_path: Path):

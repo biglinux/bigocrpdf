@@ -6,11 +6,11 @@ theme, added to the icon search path at startup by
 
 ## Why
 
-Relying on the host icon theme makes the interface look different — and often
-broken — from one system to the next. On a machine using `bigicons-papient`,
+Relying on the host icon theme makes the interface look different, and often
+broken, from one system to the next. On a machine using `bigicons-papient`,
 four of the names the application asks for (`clock-symbolic`,
 `document-multiple-symbolic`, `format-text-uppercase-symbolic`,
-`window-new-symbolic`) already resolved to `image-missing`. Inside an AppImage,
+`window-new-symbolic`) resolve to `image-missing` from the host theme alone. Inside an AppImage,
 where the host theme is whatever the user happens to have installed, the problem
 is worse.
 
@@ -40,9 +40,10 @@ source tree has no bundled file.
 
 ## Sources and licensing
 
-35 icons come from the **Adwaita** icon theme (GNOME) — CC0-1.0 / CC-BY-SA-3.0.
+35 icons come from the **Adwaita** icon theme (GNOME), under CC-BY-SA-3.0 or
+LGPL-3.0-only.
 
-5 icons come from the **Breeze** icon theme (KDE) — LGPL-3.0-or-later:
+5 icons come from the **Breeze** icon theme (KDE), under LGPL-3.0-or-later:
 `clock-symbolic`, `document-multiple-symbolic`, `emblem-ok-symbolic`,
 `emblem-synchronizing-symbolic`, `format-text-uppercase-symbolic`.
 
