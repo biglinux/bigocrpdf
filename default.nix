@@ -9,7 +9,6 @@
   gettext,
   poppler,
   poppler_utils,
-  ghostscript,
   noto-fonts,
   wqy_microhei,
   jbig2enc ? null,
@@ -55,13 +54,13 @@ python3Packages.buildPythonApplication {
     gtk4
     libadwaita
     poppler
-    poppler_utils
-    ghostscript
-  ] ++ (if jbig2enc != null then [ jbig2enc ] else []);
+  ];
 
-  # nixpkgs installs Noto Sans as one variable font with the axis tag removed
-  # from its name.
+  # The application runs the Poppler tools and jbig2 from PATH. nixpkgs
+  # installs Noto Sans as one variable font with the axis tag removed from its
+  # name.
   makeWrapperArgs = [
+    "--prefix" "PATH" ":" (lib.makeBinPath ([ poppler_utils ] ++ lib.optional (jbig2enc != null) jbig2enc))
     "--set-default" "BIGOCRPDF_TEXT_FONT" "${noto-fonts}/share/fonts/noto/NotoSans.ttf"
     "--set-default" "BIGOCRPDF_CJK_FONT" "${wqy_microhei}/share/fonts/truetype/wqy-microhei.ttc"
   ] ++ (if ppocr-native != null then [
@@ -77,7 +76,7 @@ python3Packages.buildPythonApplication {
   '';
 
   meta = {
-    description = "OCR toolkit for Linux — searchable PDFs, image OCR, PDF editor";
+    description = "Make scanned PDFs searchable with OCR";
     homepage = "https://github.com/biglinux/bigocrpdf";
     license = with lib.licenses; [ gpl3Plus cc-by-sa-30 lgpl3Only lgpl3Plus ];
     mainProgram = "bigocrpdf";

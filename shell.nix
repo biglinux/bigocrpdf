@@ -22,10 +22,10 @@ pkgs.mkShell {
     libadwaita
     gobject-introspection
 
-    # Runtime tools
+    # Runtime tools; ppocr-native has no nixpkgs package and must be on PATH
+    poppler
     poppler_utils
-    ghostscript
-    fribidi
+    gettext
     noto-fonts
 
     # Development tools
