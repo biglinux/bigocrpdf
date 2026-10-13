@@ -44,8 +44,10 @@ makedepends=(
 # published artifact tags (bigocrpdf-26.06.18-0243-x86_64). The source line
 # carries no tag because .github/workflows/build-package.yml passes the pushed
 # branch to the builder.
-pkgver=$(date +%y.%m.%d)
-pkgrel=$(date +%H%M)
+# makepkg sources this file again after the build; SOURCE_DATE_EPOCH, which it
+# fixes at start, keeps the date from moving between the build and the package.
+pkgver=$(date -d "@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%y.%m.%d)
+pkgrel=$(date -d "@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%H%M)
 arch=('any')
 license=('GPL-3.0-or-later')
 url="https://github.com/biglinux/bigocrpdf"
