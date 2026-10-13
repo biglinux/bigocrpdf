@@ -1,1 +1,0 @@
-"""BigOCRPDF developer tooling package."""
