@@ -668,13 +668,13 @@ class SettingsQueueMixin:
             page_label.set_visible(True)
 
     def _on_list_row_activated(self, _listbox: Gtk.ListBox, row) -> None:
-        """Handle list row activation (Enter key) — open file editor."""
+        """Handle list row activation (Enter key): open the file editor."""
         idx = getattr(row, "_file_idx", None)
         if idx is not None and 0 <= idx < len(self.window.settings.selected_files):
             self._on_edit_file(self.window.settings.selected_files[idx])
 
     def _on_grid_child_activated(self, _flowbox: Gtk.FlowBox, child) -> None:
-        """Handle grid tile activation (double-click / Enter key) — open file editor."""
+        """Handle grid tile activation (double-click / Enter key): open the file editor."""
         idx = child.get_index()
         if 0 <= idx < len(self.window.settings.selected_files):
             self._on_edit_file(self.window.settings.selected_files[idx])
@@ -986,7 +986,8 @@ class SettingsQueueMixin:
 
     def _image_detail_row(self, file_path: str, img: dict) -> Adw.ActionRow:
         img_row = Adw.ActionRow()
-        img_row.set_title(f"Page {img['page']} — {img['width']}×{img['height']}")
+        page = _("Page {n}").format(n=img["page"])
+        img_row.set_title(f"{page} — {img['width']}×{img['height']}")
         img_row.set_subtitle(f"{img['enc'].upper()} · {img['size']} · {img['color']}")
 
         extract_btn = Gtk.Button.new_from_icon_name("document-save-symbolic")
