@@ -5,7 +5,6 @@
 **OCR for scanned PDFs and images, with PDF page editing and native Linux interfaces.**
 
 [![License: GPL-3.0-or-later](https://img.shields.io/badge/License-GPL--3.0--or--later-blue.svg)](LICENSE)
-[![Version: 3.0.0](https://img.shields.io/badge/Version-3.0.0-green.svg)](pyproject.toml)
 [![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-3776AB.svg)](pyproject.toml)
 [![GTK4 + Libadwaita](https://img.shields.io/badge/GTK4-Libadwaita-4A86CF.svg)](https://gnome.org)
 
@@ -30,6 +29,97 @@ dedicated image OCR application and a separate command-line PDF toolbox.
 - **Image and screen-capture OCR** in the standalone `bigocrimage` interface
 - **File-manager actions** for KDE Dolphin, GNOME Files (Nautilus), and Nemo when the
   corresponding integration files are installed
+
+---
+
+## Installation
+
+On BigLinux, install the `bigocrpdf` package from the BigLinux repository:
+
+```bash
+sudo pacman -S bigocrpdf
+```
+
+The package pulls in ppocr-native, the OCR engine, and Noto Sans, the font the text layer is
+written with. On other Arch-based systems, build [`pkgbuild/PKGBUILD`](pkgbuild/PKGBUILD) with
+`makepkg -si` after installing ppocr-native from its own repository. Nix users can build
+[`default.nix`](default.nix); nixpkgs has no ppocr-native package, so `default.nix` takes one
+as its `ppocr-native` argument, and a build without it reports the engine missing at startup.
+
+### Requirements
+
+Package names vary by distribution. Outside the packages above, provide:
+
+- Python 3.12 or newer
+- GTK 4.14 or newer, libadwaita 1.5 or newer, PyGObject, Pycairo, and their GObject
+  Introspection data, including Poppler's (`poppler-glib` on Arch)
+- Poppler command-line tools, including `pdfinfo`, `pdfimages`, `pdftotext`, `pdftoppm`,
+  `pdffonts`, and `pdfdetach`
+- [ppocr-native](https://github.com/biglinux/ppocr-native) and its plans in
+  `/usr/share/ppocr-native` (`PPOCR_NATIVE_PLANS` names another directory)
+- Noto Sans (`/usr/share/fonts/noto/NotoSans-Regular.ttf`; `BIGOCRPDF_TEXT_FONT` names
+  another file)
+- The Python dependencies declared in [`pyproject.toml`](pyproject.toml)
+
+Optional runtime components:
+
+- `jbig2enc` for JBIG2 compression (CCITT Group 4 is used when it is absent)
+- WenQuanYi Micro Hei (`/usr/share/fonts/wenquanyi/wqy-microhei/wqy-microhei.ttc`;
+  `BIGOCRPDF_CJK_FONT` names another file), which keeps Chinese and Japanese text in the
+  text layer; without it those lines are left out
+- An sRGB ICC profile from colord or Ghostscript for the PDF/A-2b option
+- `python-psutil` for accurate available-memory detection
+- XDG Desktop Portal, Spectacle, GNOME Screenshot, or Flameshot for region capture
+- `nautilus-python` or `nemo-python` for the GNOME Files and Nemo context-menu actions
+
+---
+
+## Usage
+
+### Graphical applications
+
+```bash
+bigocrpdf [FILES...]          # PDF OCR interface
+bigocrpdf --edit FILE.pdf     # Open the PDF page editor
+bigocrimage [IMAGE]           # Standalone image OCR interface
+```
+
+Use `bigocrpdf --help` for graphical-launch options such as `--debug`, `--verbose`,
+`--image-mode`, and `--edit`.
+
+### Command-line toolbox
+
+The non-graphical command is `bigocrpdf-cli`, not `bigocrpdf`:
+
+```bash
+bigocrpdf-cli --help
+bigocrpdf-cli ocr input.pdf -o searchable.pdf
+bigocrpdf-cli split input.pdf -o parts --pages 10
+bigocrpdf-cli merge first.pdf second.pdf -o combined.pdf
+bigocrpdf-cli export-txt searchable.pdf
+```
+
+Available subcommands are `ocr`, `split`, `merge`, `compress`, `rotate`, `delete`, `extract`,
+`insert`, `reorder`, `info`, `export-odf`, `export-txt`, `export-md`, and `edit`. Use
+`export-odf --preserve-text-layout` for editable text fixed at the PDF positions;
+without that option, ODT paragraphs, tables, and columns remain reflowable. Run
+`bigocrpdf-cli COMMAND --help` for the current options of a specific operation.
+
+### File-manager integration
+
+The files under [`usr/share`](usr/share/) provide:
+
+- KDE KIO/Dolphin service menus for PDF OCR, image OCR, PDF editing, and PDF creation
+- A Nautilus extension for PDF/image actions
+- Nemo actions for the same workflows
+
+These integrations are available only when installed by the system package and when the
+file manager's required extension package is present.
+
+### Screen capture
+
+Open `bigocrimage` and select **Screen Capture**. The application first tries the desktop
+portal and then supported screenshot tools installed on the system.
 
 ---
 
@@ -125,98 +215,6 @@ of those formats depends on the image loaders available on the system.
 
 ---
 
-## Installation
-
-### System requirements
-
-Package names vary by distribution. Before installing the Python project, provide:
-
-- Python 3.12 or newer
-- GTK 4.14 or newer, libadwaita 1.5 or newer, PyGObject, Pycairo, and their GObject Introspection data
-- Poppler command-line tools, including `pdfinfo`, `pdfimages`, `pdftotext`, `pdftoppm`,
-  `pdffonts`, and `pdfdetach`
-- ppocr-native, and Noto Sans, the font the text layer is written with
-  (`/usr/share/fonts/noto/NotoSans-Regular.ttf`; `BIGOCRPDF_TEXT_FONT` names another file)
-- The Python dependencies declared in [`pyproject.toml`](pyproject.toml)
-
-Optional runtime components:
-
-- `jbig2enc` for JBIG2 compression (CCITT Group 4 is used when it is absent)
-- WenQuanYi Micro Hei (`/usr/share/fonts/wenquanyi/wqy-microhei/wqy-microhei.ttc`;
-  `BIGOCRPDF_CJK_FONT` names another file), which keeps Chinese and Japanese text in the
-  text layer; without it those lines are left out
-- An sRGB ICC profile from colord or Ghostscript for the PDF/A-2b option
-- XDG Desktop Portal, Spectacle, GNOME Screenshot, or Flameshot for region capture
-
-### Editable source installation
-
-```bash
-git clone https://github.com/biglinux/bigocrpdf.git
-cd bigocrpdf
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -e .
-```
-
-The editable Python installation creates the three entry points documented below. Desktop
-files, icons, compiled translations, file-manager actions, and the OCR engine are outside the
-Python wheel and must be installed by the system packaging layer; see
-[`pkgbuild/PKGBUILD`](pkgbuild/PKGBUILD) and [`default.nix`](default.nix). nixpkgs has no
-ppocr-native package, so `default.nix` takes one as its `ppocr-native` argument; the flake
-builds without it, and that build reports the engine missing at startup.
-
----
-
-## Usage
-
-### Graphical applications
-
-```bash
-bigocrpdf [FILES...]          # PDF OCR interface
-bigocrpdf --edit FILE.pdf     # Open the PDF page editor
-bigocrimage [IMAGE]           # Standalone image OCR interface
-```
-
-Use `bigocrpdf --help` for graphical-launch options such as `--debug`, `--verbose`,
-`--image-mode`, and `--edit`.
-
-### Command-line toolbox
-
-The non-graphical command is `bigocrpdf-cli`, not `bigocrpdf`:
-
-```bash
-bigocrpdf-cli --help
-bigocrpdf-cli ocr input.pdf -o searchable.pdf
-bigocrpdf-cli split input.pdf -o parts --pages 10
-bigocrpdf-cli merge first.pdf second.pdf -o combined.pdf
-bigocrpdf-cli export-txt searchable.pdf
-```
-
-Available subcommands are `ocr`, `split`, `merge`, `compress`, `rotate`, `delete`, `extract`,
-`insert`, `reorder`, `info`, `export-odf`, `export-txt`, `export-md`, and `edit`. Use
-`export-odf --preserve-text-layout` for editable text fixed at the PDF positions;
-without that option, ODT paragraphs, tables, and columns remain reflowable. Run
-`bigocrpdf-cli COMMAND --help` for the current options of a specific operation.
-
-### File-manager integration
-
-The files under [`usr/share`](usr/share/) provide:
-
-- KDE KIO/Dolphin service menus for PDF OCR, image OCR, PDF editing, and PDF creation
-- A Nautilus extension for PDF/image actions
-- Nemo actions for the same workflows
-
-These integrations are available only when installed by the system package and when the
-file manager's required extension package is present.
-
-### Screen capture
-
-Open `bigocrimage` and select **Screen Capture**. The application first tries the desktop
-portal and then supported screenshot tools installed on the system.
-
----
-
 ## Interface
 
 - GTK4 and libadwaita application windows
@@ -234,58 +232,54 @@ Gettext catalogs are maintained for `be`, `bg`, `cs`, `da`, `de`, `el`, `en`, `e
 
 ---
 
-## Architecture
+## Development
 
-```mermaid
-graph TD
-    A[bigocrpdf] --> B[Application Layer]
-    A --> C[Services Layer]
-    A --> D[UI Layer]
-    A --> E[Utils Layer]
-    A --> F[CLI Layer]
+With the requirements above installed, run the applications from a checkout:
 
-    B --> B1[application.py<br/>Adw.Application entry point]
-    B --> B2[window.py<br/>Main PDF OCR window]
-    B --> B3[config.py<br/>Launch configuration]
-
-    C --> C1[processor.py<br/>Queue and OCR orchestration]
-    C --> C2[screen_capture.py<br/>Screen capture and image OCR]
-    C --> C3[export_service.py<br/>Automatic TXT and ODT export]
-    C --> C4[pdf_operations.py<br/>PDF editing operations]
-    C --> C5[perspective_correction.py<br/>Geometric correction]
-    C --> C6[ocr/]
-
-    C6 --> C6a[backend.py — One OCR job over a PDF]
-    C6 --> C6b[ppocr_native.py — The OCR worker and its detector]
-    C6 --> C6c[preprocessor.py — Image pipeline]
-    C6 --> C6d[pdf_assembly.py — Text-layer and PDF output]
-
-    D --> D1[image_ocr_window.py<br/>Standalone image OCR]
-    D --> D2[settings_page.py<br/>OCR settings]
-    D --> D3[conclusion_page.py<br/>Results and export]
-    D --> D4[pdf_editor/<br/>PDF page editor]
-
-    E --> E1[tsv_odf_converter.py<br/>Structured text conversion]
-    E --> E2[odf_builder.py<br/>ODT document generation]
-    E --> E3[checkpoint_manager.py<br/>Session recovery]
-    E --> E4[durable_writes.py<br/>Atomic file publication]
-
-    F --> F1[cli.py and cli_parser.py<br/>Command dispatch and arguments]
-
-    style A fill:#4A86CF,color:#fff
-    style C6 fill:#3776AB,color:#fff
+```bash
+git clone https://github.com/biglinux/bigocrpdf.git
+cd bigocrpdf
+PYTHONPATH=src python3 -m bigocrpdf          # PDF OCR interface
+PYTHONPATH=src python3 -m bigocrpdf.cli --help
 ```
 
----
+Desktop files, icons, compiled translations and file-manager actions live under
+[`usr/share`](usr/share/) and are installed by the package. A source run therefore uses the
+installed translations; [`MAINTENANCE.md`](MAINTENANCE.md) shows how to test a catalog change.
 
-## Quality checks
+### Layout
 
-The repository contains automated coverage for the OCR pipeline, PDF operations, export,
-preprocessing, editor behavior, persistence, security boundaries, and utilities. Run it with:
+- `src/bigocrpdf/`: the applications and the CLI; `services/ocr/` holds the OCR pipeline,
+  `ui/` the GTK interface, `ui/pdf_editor/` the page editor
+- `usr/share/`: desktop entries, AppStream metadata, icons and file-manager actions
+- `locale/`: the gettext template and catalogs
+- `tests/`: the test suite; `benchmarks/`: the OCR benchmark harness and its baselines
+- `tools/`: the validation gate, data staging for packages, and the benchmark driver
+
+[`MAINTENANCE.md`](MAINTENANCE.md) maps each module to what it owns and records the contracts a
+change must keep.
+
+### Checks
 
 ```bash
 bash tools/validate.sh
 ```
+
+The gate runs Ruff, Pyright, the gettext checks, the desktop and AppStream validators,
+ShellCheck and the test suite. `bash tools/quality.sh` adds the slow tests that drive the real
+OCR engine; it needs ppocr-native and its plans installed.
+
+### Translations
+
+`locale/bigocrpdf.pot` is the template and `locale/<language>.po` the catalogs. The gate fails
+when the template no longer matches the source: regenerate it with the `xgettext` command in
+[`tools/validate.sh`](tools/validate.sh), then merge each catalog:
+
+```bash
+for po in locale/*.po; do msgmerge --update --backup=none "$po" locale/bigocrpdf.pot; done
+```
+
+Every catalog must stay free of fuzzy, obsolete and untranslated entries.
 
 ---
 
