@@ -1,6 +1,7 @@
 """Extracted-text viewer controller for DialogsManager."""
 
 import csv
+import locale
 import os
 import subprocess
 from dataclasses import dataclass, field
@@ -152,10 +153,10 @@ class TextViewerController:
         word_count = len(extracted_text.split())
         char_count = len(extracted_text)
         words = ngettext("{count} word", "{count} words", word_count).format(
-            count=f"{word_count:,}"
+            count=locale.format_string("%d", word_count, grouping=True)
         )
         characters = ngettext("{count} character", "{count} characters", char_count).format(
-            count=f"{char_count:,}"
+            count=locale.format_string("%d", char_count, grouping=True)
         )
         subtitle_label = Gtk.Label(
             label=_("{words} · {characters}").format(words=words, characters=characters)

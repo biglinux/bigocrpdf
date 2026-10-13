@@ -476,7 +476,7 @@ class SettingsQueueMixin:
     def _load_queue_metadata(
         self,
         file_path: str,
-        callback: Callable[[int, float | None], None],
+        callback: Callable[[int, int | None], None],
     ) -> None:
         if self._queue_metadata_closed:
             return
@@ -492,28 +492,27 @@ class SettingsQueueMixin:
             return
         future = pool.submit(self._read_queue_metadata, file_path)
 
-        def on_complete(completed: Future[tuple[int, float | None]]) -> None:
+        def on_complete(completed: Future[tuple[int, int | None]]) -> None:
             if not self._queue_metadata_closed:
                 GLib.idle_add(self._deliver_queue_metadata, file_path, completed)
 
         future.add_done_callback(on_complete)
 
     @staticmethod
-    def _read_queue_metadata(file_path: str) -> tuple[int, float | None]:
-        from bigocrpdf.constants import BYTES_PER_MB
+    def _read_queue_metadata(file_path: str) -> tuple[int, int | None]:
         from bigocrpdf.utils.pdf_utils import get_pdf_page_count
 
         pages = get_pdf_page_count(file_path)
         try:
-            size_mb = os.path.getsize(file_path) / BYTES_PER_MB
+            size = os.path.getsize(file_path)
         except OSError:
-            size_mb = None
-        return pages, size_mb
+            size = None
+        return pages, size
 
     def _deliver_queue_metadata(
         self,
         file_path: str,
-        future: Future[tuple[int, float | None]],
+        future: Future[tuple[int, int | None]],
     ) -> bool:
         if self._queue_metadata_closed:
             self._queue_metadata_waiters.pop(file_path, None)
@@ -535,11 +534,11 @@ class SettingsQueueMixin:
         label: Gtk.Label,
         file_path: str,
         pages: int,
-        size_mb: float | None,
+        size: int | None,
     ) -> None:
         if box.get_parent() is None or file_path not in self.window.settings.selected_files:
             return
-        parts = self._format_queue_metadata(pages, size_mb)
+        parts = self._format_queue_metadata(pages, size)
         if _is_unreadable_pdf(file_path, pages):
             parts.insert(0, _("Cannot read this PDF"))
             label.add_css_class("warning")
@@ -547,12 +546,12 @@ class SettingsQueueMixin:
         label.set_visible(bool(parts))
 
     @staticmethod
-    def _format_queue_metadata(pages: int, size_mb: float | None) -> list[str]:
+    def _format_queue_metadata(pages: int, size: int | None) -> list[str]:
         parts: list[str] = []
         if pages > 0:
             parts.append(ngettext("{count} page", "{count} pages", pages).format(count=pages))
-        if size_mb is not None:
-            parts.append(_("{size} MB").format(size=f"{size_mb:.1f}"))
+        if size is not None:
+            parts.append(GLib.format_size(size))
         return parts
 
     def _load_grid_thumbnail(self, file_path: str, image_widget: Gtk.Picture) -> None:
@@ -652,12 +651,12 @@ class SettingsQueueMixin:
         file_path: str,
         directory: str,
         pages: int,
-        size_mb: float | None,
+        size: int | None,
     ) -> None:
         if row.get_parent() is None or file_path not in self.window.settings.selected_files:
             return
-        if size_mb is not None:
-            row.set_subtitle(f"{directory}  •  {_('{size} MB').format(size=f'{size_mb:.1f}')}")
+        if size is not None:
+            row.set_subtitle(f"{directory}  •  {GLib.format_size(size)}")
         if pages > 0:
             page_label.set_label(
                 ngettext("{count} page", "{count} pages", pages).format(count=pages)
@@ -843,10 +842,10 @@ class SettingsQueueMixin:
         all_info.append(("", _("Path"), os.path.dirname(file_path)))
 
         try:
-            from bigocrpdf.constants import BYTES_PER_MB
-
-            size = os.path.getsize(file_path)
-            all_info.append(("", _("Size"), f"{size / BYTES_PER_MB:.2f} MB ({size:,} bytes)"))
+            size = GLib.format_size_full(
+                os.path.getsize(file_path), GLib.FormatSizeFlags.LONG_FORMAT
+            )
+            all_info.append(("", _("Size"), size))
         except OSError:
             pass
 

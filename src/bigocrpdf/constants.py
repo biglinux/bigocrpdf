@@ -4,16 +4,12 @@ module can use it without an import cycle; strings and paths live in config.py.
 
 from typing import Final
 
-BYTES_PER_MB: Final[int] = 1024 * 1024
-
-
 FONT_SIZE_SCALE_FACTOR: Final[float] = 0.85
 MIN_FONT_SIZE: Final[float] = 4.0
 MAX_FONT_SIZE: Final[float] = 72.0
 
 
 MIN_IMAGE_DIMENSION_PX: Final[int] = 64
-MIN_IMAGE_FILE_SIZE_BYTES: Final[int] = 2048
 
 
 RESOURCE_TIER_CONSTRAINED_GB: Final[float] = 2.0
@@ -27,8 +23,6 @@ MAX_AUTO_PREPROCESS_WORKERS: Final[int] = 2
 
 
 DEFAULT_DPI: Final[int] = 300
-DEFAULT_PDF_RESOLUTION: Final[int] = 150
-DEFAULT_JPEG_QUALITY: Final[int] = 85
 
 
 MIN_TEXT_BOX_WIDTH_PX: Final[int] = 50

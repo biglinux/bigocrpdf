@@ -2,6 +2,7 @@
 # Host attributes are supplied by the conclusion page's explicit mixin composition.
 # pyright: reportAttributeAccessIssue=false
 
+import locale
 import os
 import time
 from collections.abc import Callable
@@ -117,10 +118,9 @@ class ConclusionStatsFileListMixin:
             return
 
         change_percent = round(((total_output - total_input) / total_input) * 100, 1)
-        sign = "+" if change_percent >= 0 else ""
         self.result_size_change.set_text(
             f"{GLib.format_size(total_input)} → {GLib.format_size(total_output)} "
-            f"({sign}{change_percent:.1f}%)"
+            f"({locale.format_string('%+.1f', change_percent)}%)"
         )
         if change_percent < 0:
             self.result_size_change.add_css_class("success")
@@ -257,8 +257,7 @@ class ConclusionStatsFileListMixin:
         # Add size change indicator with theme-aware CSS classes
         if comparison and comparison.input_size_bytes > 0:
             change_pct = comparison.size_change_percent
-            sign = "+" if change_pct >= 0 else ""
-            change_label = Gtk.Label(label=f"({sign}{change_pct:.0f}%)")
+            change_label = Gtk.Label(label=f"({locale.format_string('%+.0f', change_pct)}%)")
             change_label.add_css_class("caption")
             if change_pct < 0:
                 change_label.add_css_class("success")
