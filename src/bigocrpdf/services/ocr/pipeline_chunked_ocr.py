@@ -570,6 +570,7 @@ class ChunkedOCRMixin:
                 "config": self.config,
                 "input_pdf": str(input_pdf) if input_pdf else None,
                 "pdf_rotation": rot.original_pdf_rotation,
+                "image_turn": rot.image_turn,
                 "skip_rotation": rendered,
                 "skip_geometric": masked and not use_rendered_source,
                 "probmap_max_side": pipe_cfg.downscale_probmap,

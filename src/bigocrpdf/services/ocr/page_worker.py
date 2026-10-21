@@ -277,14 +277,17 @@ def _apply_pdf_rotation(
     img_path: str,
     page_num: int,
     pdf_rotation: int,
+    image_turn: tuple[bool, int],
 ) -> tuple[np.ndarray, int, int, bool]:
-    """Apply PDF /Rotate metadata, accounting for EXIF orientation.
+    """Turn the image as the page shows it: the turn of its drawing matrix,
+    then /Rotate, accounting for EXIF orientation.
 
     Returns:
         Tuple of (rotated_image, orig_h, orig_w, image_prerotated).
     """
     orig_h, orig_w = original_img.shape[:2]
-    if pdf_rotation == 0:
+    mirrored, image_degrees = image_turn
+    if pdf_rotation == 0 and image_turn == (False, 0):
         return original_img, orig_h, orig_w, False
 
     exif_degrees = 0
@@ -297,13 +300,18 @@ def _apply_pdf_rotation(
     except Exception as e:
         logger.debug("EXIF orientation read failed for page %d: %s", page_num, e)
 
-    effective_rotation = (pdf_rotation - exif_degrees) % 360
+    # The loaded pixels already carry the EXIF turn; a mirror reverses its sense.
+    exif_undo = exif_degrees if mirrored else -exif_degrees
+    effective_rotation = (pdf_rotation + image_degrees + exif_undo) % 360
 
     if exif_degrees:
         logger.info(
             f"Page {page_num}: EXIF orientation={exif_degrees}°, "
             f"PDF /Rotate={pdf_rotation}° → effective={effective_rotation}°"
         )
+
+    if mirrored:
+        original_img = cv2.flip(original_img, 1)
 
     if effective_rotation == 90:
         original_img = cv2.rotate(original_img, cv2.ROTATE_90_CLOCKWISE)
@@ -320,7 +328,8 @@ def _apply_pdf_rotation(
 
     logger.info(
         f"Page {page_num}: Image is display-oriented "
-        f"(pdf_rotation={pdf_rotation}°, exif={exif_degrees}°)"
+        f"(pdf_rotation={pdf_rotation}°, image_turn={image_degrees}°, "
+        f"mirrored={mirrored}, exif={exif_degrees}°)"
     )
     return original_img, orig_h, orig_w, True
 
@@ -498,15 +507,17 @@ def _orient_page_image(
     args: dict[str, Any],
     preprocessor: ImagePreprocessor,
 ) -> tuple[np.ndarray, int, bool, int, int]:
+    image_turn: tuple[bool, int] = args.get("image_turn", (False, 0))
     if args.get("skip_rotation", False) or has_rendered_source:
         orig_h, orig_w = original_img.shape[:2]
         image_prerotated = pdf_rotation != 0
     else:
         original_img, orig_h, orig_w, image_prerotated = _apply_pdf_rotation(
-            original_img, img_path, page_num, pdf_rotation
+            original_img, img_path, page_num, pdf_rotation, image_turn
         )
 
-    if pdf_rotation != 0:
+    # The PDF states how the page is turned; detection would only second-guess it.
+    if pdf_rotation != 0 or image_turn != (False, 0):
         return original_img, 0, image_prerotated, orig_h, orig_w
 
     orientation_angle = detect_orientation(original_img, preprocessor.config)

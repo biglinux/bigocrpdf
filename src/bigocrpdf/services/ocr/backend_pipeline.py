@@ -15,7 +15,7 @@ from bigocrpdf.services.ocr.backend_embedded_image_pipeline import (
     BackendEmbeddedImagePipelineMixin,
 )
 from bigocrpdf.services.ocr.backend_text_layer_geometry import (
-    _extract_image_rects_from_pdf,
+    _extract_image_placements_from_pdf,
 )
 from bigocrpdf.services.ocr.config import ProcessingStats
 from bigocrpdf.services.ocr.pdf_assembly import (
@@ -177,15 +177,18 @@ class BackendPipelineMixin(BackendEmbeddedImagePipelineMixin, ChunkedOCRMixin, M
         total_pages = len(page_rotations)
         stats.pages_total = total_pages
 
-        image_rects = _extract_image_rects_from_pdf(input_pdf, page_count=total_pages)
+        placements = _extract_image_placements_from_pdf(input_pdf, page_count=total_pages)
         all_rotation_dicts = []
-        for i, rot in enumerate(page_rotations):
+        for rot, placement in zip(page_rotations, placements, strict=True):
+            image_rect = None
+            if placement is not None:
+                image_rect, rot.image_turn = placement
             all_rotation_dicts.append(
                 {
                     "rotation": rot.original_pdf_rotation,
                     "mediabox": rot.mediabox,
                     "page_rotation": rot,
-                    "image_rect": image_rects[i],
+                    "image_rect": image_rect,
                 }
             )
         native_text_pages: set[int] = set()

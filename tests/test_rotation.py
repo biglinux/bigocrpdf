@@ -6,9 +6,10 @@ import unittest
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 
 from bigocrpdf.cli_ocr_commands import _load_pdf_page_rotations
-from bigocrpdf.services.ocr import preprocess_orientation
+from bigocrpdf.services.ocr import page_worker, preprocess_orientation
 from bigocrpdf.services.ocr.rotation import (
     PageRotation,
     apply_editor_modifications,
@@ -115,6 +116,30 @@ def test_orientation_accepts_correlated_line_and_energy_evidence(monkeypatch) ->
     )
 
     assert angle == 90
+
+
+@pytest.mark.parametrize(
+    ("image_turn", "pdf_rotation", "counterclockwise_quarters"),
+    [
+        ((False, 180), 0, 2),
+        ((False, 180), 90, 1),
+        ((True, 90), 0, -1),
+    ],
+)
+def test_worker_shows_image_as_drawn(
+    image_turn: tuple[bool, int], pdf_rotation: int, counterclockwise_quarters: int
+) -> None:
+    image = np.arange(3 * 5 * 3, dtype=np.uint8).reshape(3, 5, 3)
+    preprocessor = SimpleNamespace(config=SimpleNamespace(enable_orientation_detection=True))
+
+    oriented, detected, prerotated, height, width = page_worker._orient_page_image(
+        image, "missing.png", 1, pdf_rotation, False, {"image_turn": image_turn}, preprocessor
+    )
+
+    source = np.fliplr(image) if image_turn[0] else image
+    expected = np.rot90(source, counterclockwise_quarters)
+    assert np.array_equal(oriented, expected)
+    assert (detected, prerotated, height, width) == (0, True, *expected.shape[:2])
 
 
 class TestApplyEditorModifications(unittest.TestCase):

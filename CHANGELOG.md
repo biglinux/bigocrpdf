@@ -2,6 +2,10 @@
 
 All notable user-visible and release-engineering changes are documented here.
 
+## Unreleased
+
+- Keep scanned pages the way the PDF shows them when it draws the page image turned or mirrored, also from inside a form XObject. Such pages came out upside down or mirrored after OCR.
+
 ## 4.0.0 - 2026-10-13
 
 ### OCR engine

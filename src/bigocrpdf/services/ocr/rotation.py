@@ -23,6 +23,8 @@ class PageRotation:
         deleted: Whether page is marked for deletion
         mediabox: PDF MediaBox as [x0, y0, x1, y1] or None
         user_unit: PDF /UserUnit scale applied to MediaBox coordinates
+        image_turn: (mirrored, degrees) the page's drawing matrix applies to
+            the stored pixels of its main image, before /Rotate
     """
 
     page_number: int
@@ -32,6 +34,7 @@ class PageRotation:
     included_for_ocr: bool = True
     mediabox: list[float] | None = None
     user_unit: float = 1.0
+    image_turn: tuple[bool, int] = (False, 0)
 
     @property
     def effective_rotation(self) -> int:

@@ -144,6 +144,7 @@ def test_chunk_work_items_receive_the_owned_scratch_directory(
         deleted=False,
         included_for_ocr=True,
         original_pdf_rotation=0,
+        image_turn=(False, 0),
     )
     pipe_config = SimpleNamespace(downscale_probmap=0)
 
