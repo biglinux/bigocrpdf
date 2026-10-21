@@ -278,7 +278,8 @@ class BackendTextLayerMixin:
         """Compute overlay-mode parameters for an OCR image of ``proc_size`` (w, h),
         measured turned by /Rotate unless the worker already rotated it.
 
-        Returns (pdf_rotation, pdf_width, pdf_height, ocr_img_size).
+        Returns (pdf_rotation, pdf_width, pdf_height, ocr_img_size), the page
+        size taken in the frame the OCR image was measured in.
         """
         rotation = page_info.get("rotation", 0)
         ocr_img_w, ocr_img_h = proc_size
@@ -289,6 +290,9 @@ class BackendTextLayerMixin:
         if mediabox:
             pdf_width = mediabox[2] - mediabox[0]
             pdf_height = mediabox[3] - mediabox[1]
+            # A prerotated image shows the page as displayed, turned from its MediaBox.
+            if result.get("image_prerotated") and rotation in (90, 270):
+                pdf_width, pdf_height = pdf_height, pdf_width
         else:
             pdf_width, pdf_height = float(ocr_img_w), float(ocr_img_h)
         return rotation, pdf_width, pdf_height, (ocr_img_w, ocr_img_h)
@@ -358,7 +362,11 @@ class BackendTextLayerMixin:
                 pdf_rotation, pdf_width, pdf_height, ocr_img_size = self._setup_overlay_mode(
                     result, page_info, (proc_w, proc_h), page_num
                 )
-                page_image_rect = page_info.get("image_rect")
+                # A page render holds the whole page, not only its image.
+                page_rendered = work_item.get("page_rendered") or work_item.get(
+                    "use_rendered_source"
+                )
+                page_image_rect = None if page_rendered else page_info.get("image_rect")
                 if "ocr_img_w" in result and "ocr_img_h" in result:
                     ocr_img_size = (result["ocr_img_w"], result["ocr_img_h"])
 

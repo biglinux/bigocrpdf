@@ -198,7 +198,9 @@ def _run_dewarp_only(
     from bigocrpdf.services.ocr.ppocr_native import Detector
     from bigocrpdf.services.ocr.preprocessor import ImagePreprocessor
 
-    extractor = PDFImageExtractor(config.dpi, config.max_render_megapixels)
+    extractor = PDFImageExtractor(
+        config.dpi, config.max_render_megapixels, config.max_image_megapixels
+    )
     detector = Detector()
     preprocessor = ImagePreprocessor(config, detector)
 

@@ -142,6 +142,19 @@ def test_worker_shows_image_as_drawn(
     assert (detected, prerotated, height, width) == (0, True, *expected.shape[:2])
 
 
+def test_skipped_geometry_keeps_orientation(monkeypatch) -> None:
+    image = np.zeros((3, 5, 3), dtype=np.uint8)
+    preprocessor = SimpleNamespace(config=SimpleNamespace(enable_orientation_detection=True))
+    monkeypatch.setattr(page_worker, "detect_orientation", lambda *_args: 90)
+
+    oriented, detected, *_ = page_worker._orient_page_image(
+        image, "missing.png", 1, 0, False, {"skip_geometric": True}, preprocessor
+    )
+
+    assert detected == 0
+    assert oriented is image
+
+
 class TestApplyEditorModifications(unittest.TestCase):
     """Tests for apply_editor_modifications function."""
 

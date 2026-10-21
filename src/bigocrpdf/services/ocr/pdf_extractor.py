@@ -422,14 +422,22 @@ class PDFImageExtractor:
     # Extensions that OpenCV and PIL cannot read natively
     _UNSUPPORTED_EXTENSIONS = frozenset({".jb2e", ".jb2g", ".ccitt"})
 
-    def __init__(self, dpi: int | None = None, max_render_megapixels: float = 45):
+    def __init__(
+        self,
+        dpi: int | None = None,
+        max_render_megapixels: float = 45,
+        max_image_megapixels: float = 0,
+    ):
         # pdfimages extracts at native resolution; dpi applies only to pages
         # that have to be rendered with pdftoppm.
         self.dpi = dpi
         self.max_render_megapixels = max_render_megapixels
+        self.max_image_megapixels = max_image_megapixels
         # Track which 1-indexed pages were rendered via pdftoppm
         # (rotation already baked into the image)
         self.rendered_pages: set[int] = set()
+        # Rendered pages whose own image is too large to decode
+        self.oversized_pages: set[int] = set()
         # Pages with image masks (DjVu-like FG/BG layers)
         self.masked_pages: set[int] = set()
 
@@ -457,6 +465,7 @@ class PDFImageExtractor:
         """
         output_dir.mkdir(parents=True, exist_ok=True)
         self.rendered_pages = set()
+        self.oversized_pages = set()
 
         with pikepdf.open(pdf_path) as pdf:
             total_pages = len(pdf.pages)
@@ -545,6 +554,18 @@ class PDFImageExtractor:
         if not img_entries:
             _append_fallback_or_skip_text_page(
                 current_page, text_rich_pages, fallback_pages, "no images"
+            )
+            return
+
+        largest = max(img_entries, key=lambda image: image.width * image.height)
+        megapixels = largest.width * largest.height / 1_000_000
+        if 0 < self.max_image_megapixels < megapixels:
+            # Decoding it would take gigabytes; poppler renders it in budget.
+            fallback_pages.append(current_page)
+            self.oversized_pages.add(current_page)
+            logger.info(
+                f"Page {current_page}: image is {megapixels:.0f} MP, over "
+                f"{self.max_image_megapixels:g} MP, will render with pdftoppm"
             )
             return
 

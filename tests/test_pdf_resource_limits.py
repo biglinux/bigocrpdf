@@ -65,20 +65,6 @@ def test_ocr_config_defaults_enable_resource_guards() -> None:
     assert config.max_image_megapixels == 128.0
 
 
-def test_inspection_finds_nested_image_without_decoding_stream(tmp_path: Path) -> None:
-    pdf_path = tmp_path / "nested-image.pdf"
-    _write_metadata_only_pdf(
-        pdf_path,
-        image_size=(20_000, 10_000),
-        nested_image=True,
-    )
-
-    metrics = inspect_pdf_resource_metrics(pdf_path)
-
-    assert metrics.page_dimensions == ((612.0, 792.0),)
-    assert metrics.image_dimensions == ((1, 20_000, 10_000),)
-
-
 def test_inspection_accounts_for_page_user_unit(tmp_path: Path) -> None:
     pdf_path = tmp_path / "large-user-unit.pdf"
     _write_metadata_only_pdf(pdf_path)
@@ -178,10 +164,11 @@ def test_process_accepts_photo_sized_page_box(
     assert engine.process(pdf_path, tmp_path / "out.pdf") is expected
 
 
-def test_process_rejects_nested_oversized_image_before_pipeline_selection(
+def test_process_accepts_oversized_image(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """The page holding it is read from a render within the render budget."""
     pdf_path = tmp_path / "oversized-image.pdf"
     _write_metadata_only_pdf(
         pdf_path,
@@ -189,13 +176,11 @@ def test_process_rejects_nested_oversized_image_before_pipeline_selection(
         nested_image=True,
     )
     engine = _backend(OCRConfig(max_image_megapixels=128))
-    pipeline_choice = Mock(return_value=True)
-    monkeypatch.setattr(backend_module, "should_use_mixed_content_pipeline", pipeline_choice)
+    expected = ProcessingStats(pages_total=1)
+    engine._process_mixed_content_pdf = Mock(return_value=expected)
+    monkeypatch.setattr(backend_module, "should_use_mixed_content_pipeline", lambda *_: True)
 
-    with pytest.raises(ValueError, match=r"page 1.*200\.0 MP.*128\.0 MP"):
-        engine.process(pdf_path, tmp_path / "unused.pdf")
-
-    pipeline_choice.assert_not_called()
+    assert engine.process(pdf_path, tmp_path / "out.pdf") is expected
 
 
 def _write_header_only_png(path: Path, width: int, height: int) -> None:

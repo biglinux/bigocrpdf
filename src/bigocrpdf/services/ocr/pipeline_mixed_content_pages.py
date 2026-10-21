@@ -93,10 +93,20 @@ def _mixed_render_candidates(
     image_positions: dict,
     pdfimages_map: dict[int, list[PdfImageInfo]],
     masked_pages: set[int],
+    max_image_megapixels: float,
 ) -> set[int]:
     render_candidates = (set(pdfimages_map.keys()) - set(image_positions.keys())) | (
         masked_pages & set(image_positions.keys())
     )
+    # Decoding an image this large takes gigabytes; poppler renders it in budget.
+    if max_image_megapixels > 0:
+        render_candidates |= {
+            page_num
+            for page_num, images in pdfimages_map.items()
+            if any(
+                image.width * image.height > max_image_megapixels * 1_000_000 for image in images
+            )
+        }
     for page_num, images in image_positions.items():
         if len(images) < 2 or page_num in render_candidates:
             continue

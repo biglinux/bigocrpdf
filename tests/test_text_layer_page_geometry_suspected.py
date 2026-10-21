@@ -157,6 +157,17 @@ class TestOverlayRotation:
 
         assert ocr_size == (2550, 3300)
 
+    def test_a_prerotated_image_maps_to_the_displayed_page(self):
+        """It shows the page turned by /Rotate, so its frame is the turned MediaBox."""
+        _, pdf_width, pdf_height, ocr_size = _ModeBackend()._setup_overlay_mode(
+            {"image_prerotated": True},
+            {"rotation": 90, "mediabox": [0.0, 0.0, 842.0, 595.0]},
+            (2480, 3508),
+            1,
+        )
+
+        assert pdf_width / ocr_size[0] == pytest.approx(pdf_height / ocr_size[1], rel=1e-3)
+
     def test_a_page_without_a_mediabox_falls_back_to_pixels(self):
         """One pixel per point, so the mapping is at least self-consistent."""
         _, pdf_width, pdf_height, _ = _ModeBackend()._setup_overlay_mode(

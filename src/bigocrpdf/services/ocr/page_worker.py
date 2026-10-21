@@ -508,7 +508,7 @@ def _orient_page_image(
     preprocessor: ImagePreprocessor,
 ) -> tuple[np.ndarray, int, bool, int, int]:
     image_turn: tuple[bool, int] = args.get("image_turn", (False, 0))
-    if args.get("skip_rotation", False) or has_rendered_source:
+    if args.get("page_rendered", False) or has_rendered_source:
         orig_h, orig_w = original_img.shape[:2]
         image_prerotated = pdf_rotation != 0
     else:
@@ -516,8 +516,8 @@ def _orient_page_image(
             original_img, img_path, page_num, pdf_rotation, image_turn
         )
 
-    # The PDF states how the page is turned; detection would only second-guess it.
-    if pdf_rotation != 0 or image_turn != (False, 0):
+    # The PDF states how the page is turned, or the page keeps its geometry.
+    if pdf_rotation != 0 or image_turn != (False, 0) or args.get("skip_geometric", False):
         return original_img, 0, image_prerotated, orig_h, orig_w
 
     orientation_angle = detect_orientation(original_img, preprocessor.config)

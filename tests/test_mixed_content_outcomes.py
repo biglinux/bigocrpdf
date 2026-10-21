@@ -12,9 +12,11 @@ from bigocrpdf.services.ocr.backend_embedded_image_pipeline import (
     BackendEmbeddedImagePipelineMixin,
 )
 from bigocrpdf.services.ocr.config import OCRConfig, ProcessingStats
+from bigocrpdf.services.ocr.pdf_image_analysis import ImagePosition, PdfImageInfo
 from bigocrpdf.services.ocr.pipeline_mixed_content import (
     MixedContentMixin,
 )
+from bigocrpdf.services.ocr.pipeline_mixed_content_pages import _mixed_render_candidates
 from bigocrpdf.services.ocr.ppocr_native import ReadError
 
 
@@ -225,3 +227,12 @@ def test_oversized_embedded_jpeg_is_skipped() -> None:
         engine.config.max_image_megapixels = 2.0
         pixels = BackendEmbeddedImagePipelineMixin._extract_xobj_image(engine, image, "/Im0")
         assert pixels.shape == (1000, 1200, 3)
+
+
+def test_page_with_oversized_image_is_rendered() -> None:
+    position = ImagePosition(name="/Im0", page_num=1, x=0, y=0, width=595, height=842)
+    scan = PdfImageInfo(idx=0, img_type="image", width=10_000, height=15_000, comp_size=0)
+
+    candidates = _mixed_render_candidates(None, {1: [position]}, {1: [scan]}, set(), 128.0)
+
+    assert candidates == {1}

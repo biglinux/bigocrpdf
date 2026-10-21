@@ -5,6 +5,7 @@ All notable user-visible and release-engineering changes are documented here.
 ## Unreleased
 
 - Keep scanned pages the way the PDF shows them when it draws the page image turned or mirrored, also from inside a form XObject. Such pages came out upside down or mirrored after OCR.
+- OCR PDFs that hold an image over 128 MP instead of refusing the whole document. The page with that image is read from a render within the 45 MP render budget, and the text is laid over the original image, which is kept as is and gets no geometric correction.
 
 ## 4.0.0 - 2026-10-13
 

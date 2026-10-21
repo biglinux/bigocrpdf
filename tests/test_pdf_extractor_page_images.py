@@ -1,6 +1,9 @@
 """Choosing between an embedded page image and re-rendering the page."""
 
+from pathlib import Path
+
 from bigocrpdf.services.ocr.pdf_extractor import (
+    PDFImageExtractor,
     _add_pdfimages_mapping_line,
     _PageImage,
     _small_page_image_reason,
@@ -32,6 +35,21 @@ def test_logo_on_a_page_falls_back_to_rendering():
 def test_unknown_placement_resolution_keeps_the_image():
     unplaced = _PageImage(index=0, width=1920, height=2560, x_ppi=0, y_ppi=0)
     assert _small_page_image_reason(PHOTO_PAGE, unplaced) is None
+
+
+def test_oversized_scan_is_rendered_instead(tmp_path: Path):
+    """Decoding a 150 MP scan takes gigabytes; a page render stays in budget."""
+    extractor = PDFImageExtractor(max_render_megapixels=45, max_image_megapixels=128)
+    scan = _PageImage(index=0, width=10_000, height=15_000, x_ppi=1210, y_ppi=1282)
+    fallback_pages: list[int] = []
+    results: list[Path | None] = [None]
+
+    extractor._process_extracted_page(
+        1, 0, tmp_path, {1: [scan]}, {1: (595.0, 842.0)}, set(), fallback_pages, results
+    )
+
+    assert fallback_pages == [1]
+    assert extractor.oversized_pages == {1}
 
 
 def test_mapping_line_reads_placement_resolution():

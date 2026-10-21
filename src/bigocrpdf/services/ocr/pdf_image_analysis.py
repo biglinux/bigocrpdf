@@ -123,14 +123,9 @@ class ImagePosition:
 
 @dataclass(frozen=True)
 class PdfResourceMetrics:
-    """Lightweight dimensions needed to enforce OCR resource limits.
-
-    ``image_dimensions`` entries are ``(page_number, width_px, height_px)``.
-    Only PDF dictionaries are inspected; image streams are never decoded.
-    """
+    """Page dimensions needed to enforce OCR resource limits."""
 
     page_dimensions: tuple[tuple[float, float], ...]
-    image_dimensions: tuple[tuple[int, int, int], ...]
 
     @property
     def total_pages(self) -> int:
@@ -142,9 +137,8 @@ def inspect_pdf_resource_metrics(
     *,
     max_pages: int = 0,
 ) -> PdfResourceMetrics:
-    """Inspect page and nested image dimensions without decoding image data."""
+    """Read each page's size in points, refusing invalid page boxes."""
     page_dimensions: list[tuple[float, float]] = []
-    image_dimensions: list[tuple[int, int, int]] = []
 
     with pikepdf.open(pdf_path) as pdf:
         total_pages = len(pdf.pages)
@@ -170,63 +164,7 @@ def inspect_pdf_resource_metrics(
                 raise ValueError(f"Page {page_num} has invalid dimensions")
             page_dimensions.append((width_pts, height_pts))
 
-            resources = page.get("/Resources")
-            image_dimensions.extend(
-                _resource_image_dimensions(resources, page_num, seen_objects=set(), depth=0)
-            )
-
-    return PdfResourceMetrics(tuple(page_dimensions), tuple(image_dimensions))
-
-
-def _resource_image_dimensions(  # noqa: C901 - recursive PDF trust checks stay together
-    resources,
-    page_num: int,
-    *,
-    seen_objects: set[tuple[int, int]],
-    depth: int,
-) -> list[tuple[int, int, int]]:
-    """Collect image dimensions through nested Form XObject resources."""
-    if resources is None:
-        return []
-    if depth > 64:
-        raise ValueError(f"Page {page_num} has excessively nested PDF resources")
-
-    xobjects = resources.get("/XObject")
-    if xobjects is None:
-        return []
-
-    dimensions: list[tuple[int, int, int]] = []
-    for _name, xobject in xobjects.items():
-        object_number, generation = xobject.objgen
-        object_key = (int(object_number), int(generation))
-        if object_number and object_key in seen_objects:
-            continue
-        if object_number:
-            seen_objects.add(object_key)
-
-        subtype = str(xobject.get("/Subtype", ""))
-        if subtype == "/Image":
-            try:
-                width_px = int(xobject.get("/Width", 0))
-                height_px = int(xobject.get("/Height", 0))
-            except (TypeError, ValueError, OverflowError) as exc:
-                raise ValueError(f"Page {page_num} has invalid image dimensions") from exc
-            if width_px <= 0 or height_px <= 0:
-                raise ValueError(
-                    f"Page {page_num} has invalid image dimensions: {width_px}x{height_px}"
-                )
-            dimensions.append((page_num, width_px, height_px))
-        elif subtype == "/Form":
-            dimensions.extend(
-                _resource_image_dimensions(
-                    xobject.get("/Resources"),
-                    page_num,
-                    seen_objects=seen_objects,
-                    depth=depth + 1,
-                )
-            )
-
-    return dimensions
+    return PdfResourceMetrics(tuple(page_dimensions))
 
 
 def _multiply_ctm(current: list[float], m: list[float]) -> list[float]:

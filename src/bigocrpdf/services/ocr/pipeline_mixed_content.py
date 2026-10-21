@@ -46,7 +46,6 @@ from bigocrpdf.services.ocr.pipeline_mixed_content_pages import (
     _reflow_text,
 )
 from bigocrpdf.services.ocr.ppocr_native import Worker
-from bigocrpdf.services.ocr.resource_manager import enforce_image_resource_limits
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 
@@ -182,14 +181,6 @@ class MixedContentMixin:
 
         image_positions = extract_image_positions(input_pdf)
         pdfimages_map, masked_pages = parse_pdfimages_list(input_pdf)
-        enforce_image_resource_limits(
-            (
-                (page_num, image.width, image.height)
-                for page_num, images in pdfimages_map.items()
-                for image in images
-            ),
-            self.config,
-        )
 
         if not image_positions and not pdfimages_map:
             logger.info("No images found in PDF. Copying original.")
@@ -205,7 +196,11 @@ class MixedContentMixin:
         with pikepdf.open(input_pdf) as pdf_scan:
             total_pages = len(pdf_scan.pages)
             render_candidates = _mixed_render_candidates(
-                pdf_scan, image_positions, pdfimages_map, masked_pages
+                pdf_scan,
+                image_positions,
+                pdfimages_map,
+                masked_pages,
+                self.config.max_image_megapixels,
             )
         stats.pages_total = total_pages
 

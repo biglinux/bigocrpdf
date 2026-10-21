@@ -18,7 +18,6 @@ The tier bounds and each process's memory budget live in
 import logging
 import math
 import os
-from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
@@ -372,47 +371,17 @@ def select_pdf_page_render_dpi(
     )
 
 
-def enforce_pdf_resource_limits(
-    total_pages: int,
-    config: OCRConfig,
-    image_dimensions: Iterable[tuple[int, int, int]] = (),
-) -> None:
-    """Fail early when a PDF would exceed configured OCR resource limits.
+def enforce_pdf_resource_limits(total_pages: int, config: OCRConfig) -> None:
+    """Fail early when a PDF has more pages than the configured limit.
 
-    Page size is not checked here.  A large page is not a
-    failure: ``select_render_dpi_for_page`` lowers the render DPI until the
-    page fits ``max_render_megapixels``.  Rejecting up front at the preferred
-    DPI would refuse documents the renderer handles fine, notably photos and
-    scans whose PDF page box maps one point per source pixel.
+    Sizes are not checked here. A large page is rendered at a DPI that fits
+    ``max_render_megapixels``, and a page whose image is over
+    ``max_image_megapixels`` is read from such a render instead of decoding
+    the image, so neither needs to refuse the document.
     """
     max_pdf_pages = config.max_pdf_pages
     if max_pdf_pages > 0 and total_pages > max_pdf_pages:
         raise ValueError(f"PDF has {total_pages} pages; configured limit is {max_pdf_pages}")
-
-    enforce_image_resource_limits(image_dimensions, config)
-
-
-def enforce_image_resource_limits(
-    image_dimensions: Iterable[tuple[int, int, int]],
-    config: OCRConfig,
-) -> None:
-    """Reject embedded images whose declared decoded size exceeds the limit."""
-    max_image_megapixels = config.max_image_megapixels
-    if max_image_megapixels <= 0:
-        return
-
-    for image_index, (page_num, width_px, height_px) in enumerate(image_dimensions, 1):
-        if width_px <= 0 or height_px <= 0:
-            raise ValueError(
-                f"Image {image_index} on page {page_num} has invalid dimensions: "
-                f"{width_px}x{height_px}"
-            )
-        megapixels = width_px * height_px / 1_000_000
-        if megapixels > max_image_megapixels:
-            raise ValueError(
-                f"Image {image_index} on page {page_num} is {megapixels:.1f} MP; "
-                f"configured limit is {max_image_megapixels:.1f} MP"
-            )
 
 
 def adjust_chunk_size(

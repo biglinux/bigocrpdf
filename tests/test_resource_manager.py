@@ -189,10 +189,6 @@ class TestPdfResourceLimits:
         config = OCRConfig(max_pdf_pages=10)
         enforce_pdf_resource_limits(2, config)
 
-    def test_accepts_embedded_image_within_limit(self):
-        config = OCRConfig(max_pdf_pages=10, max_image_megapixels=128)
-        enforce_pdf_resource_limits(1, config, image_dimensions=[(1, 4000, 3000)])
-
     def test_page_count_limit_is_disabled_by_default(self):
         config = OCRConfig(max_pdf_pages=0)
         enforce_pdf_resource_limits(10_000, config)
@@ -201,11 +197,6 @@ class TestPdfResourceLimits:
         config = OCRConfig(max_pdf_pages=1)
         with pytest.raises(ValueError, match="configured limit is 1"):
             enforce_pdf_resource_limits(2, config)
-
-    def test_rejects_too_large_embedded_image(self):
-        config = OCRConfig(max_pdf_pages=10, max_image_megapixels=128)
-        with pytest.raises(ValueError, match=r"page 1.*200\.0 MP.*128\.0 MP"):
-            enforce_pdf_resource_limits(1, config, image_dimensions=[(1, 20_000, 10_000)])
 
     def test_render_dpi_stays_preferred_when_within_budget(self):
         assert select_render_dpi_for_page(612, 792, 300, 45) == 300

@@ -46,7 +46,9 @@ class ProfessionalPDFOCR(
         self.config = config or OCRConfig()
         self.cancel_event = threading.Event()
         self._text_formatting = TextFormattingController(self.config)
-        self.extractor = PDFImageExtractor(self.config.dpi, self.config.max_render_megapixels)
+        self.extractor = PDFImageExtractor(
+            self.config.dpi, self.config.max_render_megapixels, self.config.max_image_megapixels
+        )
         self.renderer = TextLayerRenderer(self.config)
 
     def cancel(self) -> None:
@@ -103,11 +105,7 @@ class ProfessionalPDFOCR(
             input_pdf,
             max_pages=self.config.max_pdf_pages,
         )
-        enforce_pdf_resource_limits(
-            resource_metrics.total_pages,
-            self.config,
-            resource_metrics.image_dimensions,
-        )
+        enforce_pdf_resource_limits(resource_metrics.total_pages, self.config)
 
         # Choose pipeline: mixed content (text + images) vs image-only.
         # force_full_ocr is set by the editor for merged files.

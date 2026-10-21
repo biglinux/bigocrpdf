@@ -8,11 +8,13 @@ Rule for this file: never reimplement a production formula. Call it.
 """
 
 from types import SimpleNamespace
+from unittest.mock import Mock
 
 import pytest
 
 from bigocrpdf.services.ocr.backend_text_layer import BackendTextLayerMixin
 from bigocrpdf.services.ocr.config import ProcessingStats
+from bigocrpdf.services.ocr.pipeline_chunked_ocr import ChunkedOCRMixin
 
 
 class _ModeBackend(BackendTextLayerMixin):
@@ -125,6 +127,48 @@ class TestDiagnosticLogging:
         caplog.clear()
         determine_mode(_page(), 2814, 3864)
         assert "geometry/coordinate change" not in caplog.text
+
+
+@pytest.mark.parametrize(("export_format", "keeps_original"), [("original", True), ("jpeg", False)])
+def test_oversized_page_keeps_its_image(export_format: str, keeps_original: bool):
+    """The page was read from a render: lay the text over the original scan,
+    unless the user asked for the images to be re-encoded anyway."""
+    mixin = ChunkedOCRMixin()
+    mixin.config = SimpleNamespace(
+        image_export_format=export_format,
+        enable_deskew=True,
+        enable_perspective_correction=False,
+        enable_baseline_dewarp=False,
+    )
+    mixin.extractor = SimpleNamespace(masked_pages=set(), rendered_pages={1}, oversized_pages={1})
+    rotation = SimpleNamespace(
+        deleted=False, included_for_ocr=True, original_pdf_rotation=0, image_turn=(False, 0)
+    )
+
+    [item] = mixin._build_chunk_work_items(
+        ["page_1.png"], 0, [rotation], set(), {}, SimpleNamespace(downscale_probmap=0)
+    )
+
+    assert (item["skip_geometric"], item["force_overlay"]) == (keeps_original, keeps_original)
+
+
+@pytest.mark.parametrize(
+    ("page_rendered", "expected_rect"), [(True, None), (False, (100, 50, 400, 600))]
+)
+def test_page_render_text_spans_the_page(tmp_path, page_rendered: bool, expected_rect):
+    """OCR of a page render is measured on the whole page, not on its image."""
+    backend = _ModeBackend()
+    backend._render_ocr_to_page = Mock(return_value=0.0)
+    out = tmp_path / "page.png"
+    out.write_bytes(b"")
+    result = {"success": True, "temp_out_path": str(out), "proc_w": 1240, "proc_h": 1754}
+    result.update(_page(orig_w=1240, orig_h=1754), ocr_raw={"boxes": [], "txts": [], "scores": []})
+    page_info = {"rotation": 0, "mediabox": [0, 0, 595, 842], "image_rect": (100, 50, 400, 600)}
+    work_item = {"img_path": str(out), "page_rendered": page_rendered}
+
+    backend._process_page_result(None, result, work_item, [page_info], 1, ProcessingStats())
+
+    assert backend._render_ocr_to_page.call_args.kwargs["image_rect"] == expected_rect
 
 
 def test_blank_page_reads_as_empty():

@@ -503,7 +503,7 @@ class ChunkedOCRMixin:
                 all_rotation_dicts,
                 page_num,
                 stats,
-                force_overlay=work_item.get("use_rendered_source", False),
+                force_overlay=work_item["force_overlay"],
             )
             page_standalone_flags.append(needs_standalone)
             if result.get("original_encoding", ""):
@@ -563,6 +563,12 @@ class ChunkedOCRMixin:
             # - Otherwise, skip geometry to preserve the original composite
             #   via overlay mode.
             use_rendered_source = masked and (format_changed or geometry_enabled)
+            # A page read from a render because its image is too large keeps
+            # that image, uncorrected, beside the OCR text, unless the user
+            # asked for the images to be re-encoded.
+            keep_original = (
+                page_num in getattr(self.extractor, "oversized_pages", set()) and not format_changed
+            )
 
             work_item: dict[str, Any] = {
                 "page_num": page_num,
@@ -571,8 +577,9 @@ class ChunkedOCRMixin:
                 "input_pdf": str(input_pdf) if input_pdf else None,
                 "pdf_rotation": rot.original_pdf_rotation,
                 "image_turn": rot.image_turn,
-                "skip_rotation": rendered,
-                "skip_geometric": masked and not use_rendered_source,
+                "page_rendered": rendered,
+                "skip_geometric": (masked and not use_rendered_source) or keep_original,
+                "force_overlay": keep_original or bool(use_rendered_source and input_pdf),
                 "probmap_max_side": pipe_cfg.downscale_probmap,
                 "original_encoding": page_encodings.get(page_num, ""),
                 "scratch_dir": str(scratch_dir) if scratch_dir else None,
