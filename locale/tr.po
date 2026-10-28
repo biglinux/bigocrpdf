@@ -2,7 +2,7 @@
 # Copyright (C) 2026 BigLinux Team
 # This file is distributed under the same license as the bigocrpdf package.
 # BigLinux Translation Team <biglinux@biglinux.com.br>, 2026.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 4.0.0\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: Turkish\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.18.0\n"
@@ -1671,9 +1671,8 @@ msgstr "Görüntü kalitesi"
 
 #: src/bigocrpdf/ui/output_dialog.py:27
 msgid ""
-"Controls the compression applied to images inside the PDF. Lower quality "
-"means smaller files but some detail is lost. 'Keep Original' preserves "
-"images exactly as they are.\n"
+"Controls the compression applied to images inside the PDF. Lower quality means smaller files but "
+"some detail is lost. 'Keep Original' preserves images exactly as they are.\n"
 "\n"
 "The last option, 'Black & White', converts all pages to pure black and "
 "white, compressed with JBIG2 when jbig2enc is installed and with CCITT G4 "
@@ -1695,9 +1694,8 @@ msgstr "PDF/A olarak dışa aktar"
 
 #: src/bigocrpdf/ui/output_dialog.py:42
 msgid ""
-"Creates an archival PDF designed for long-term storage. The file will open "
-"correctly on any device, now and in the future. Recommended for important "
-"documents."
+"Creates an archival PDF designed for long-term storage. The file will open correctly on any device, "
+"now and in the future. Recommended for important documents."
 msgstr ""
 "Uzun süreli depolama için tasarlanmış arşiv PDF'si oluşturur. Dosya herhangi "
 "bir cihazda doğru açılır, şimdi ve gelecekte. Önemli belgeler için önerilir."
@@ -1711,10 +1709,9 @@ msgstr "Sayfa Düzeni"
 
 #: src/bigocrpdf/ui/output_dialog.py:53
 msgid ""
-"Sets how PDF viewers arrange the pages when the file is opened: one page at "
-"a time, a continuous vertical scroll, or two pages side by side. 'Default' "
-"lets each viewer choose. Use this if pages appear at inconsistent sizes on "
-"phones."
+"Sets how PDF viewers arrange the pages when the file is opened: one page at a time, a continuous "
+"vertical scroll, or two pages side by side. 'Default' lets each viewer choose. Use this if pages "
+"appear at inconsistent sizes on phones."
 msgstr ""
 "PDF görüntüleyicilerin dosya açıldığında sayfaları nasıl düzenleyeceğini "
 "belirler: her seferinde bir sayfa, sürekli dikey kaydırma veya yan yana iki "
@@ -1730,9 +1727,8 @@ msgstr "Maksimum çıkış dosyası boyutu"
 
 #: src/bigocrpdf/ui/output_dialog.py:65
 msgid ""
-"Sets a size limit for the final file. If the result is too large, it is "
-"automatically split into smaller numbered files (e.g. document-01.pdf). "
-"Useful for email or uploads."
+"Sets a size limit for the final file. If the result is too large, it is automatically split into "
+"smaller numbered files (e.g. document-01.pdf). Useful for email or uploads."
 msgstr ""
 "Son dosya için boyut sınırı belirler. Sonuç çok büyükse, otomatik olarak "
 "daha küçük numaralı dosyalara bölünür (ör. document-01.pdf). E-posta veya "
@@ -1745,8 +1741,8 @@ msgstr "Çıkış ayarları"
 
 #: src/bigocrpdf/ui/output_dialog.py:99
 msgid ""
-"Configure how the final PDF is generated. These settings affect file size, "
-"quality, and compatibility."
+"Configure how the final PDF is generated. These settings affect file size, quality, and "
+"compatibility."
 msgstr ""
 "Son PDF'nin nasıl oluşturulacağını yapılandırın. Bu ayarlar dosya boyutunu, "
 "kaliteyi ve uyumluluğu etkiler."
@@ -3236,8 +3232,246 @@ msgstr "Sonuçlar"
 
 #: src/bigocrpdf/utils/temp_manager.py:81
 #, python-brace-format
-msgid ""
-"Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
+msgid "{active} of {total} enabled"
+msgstr "{active} / {total} etkin"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 175
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 256
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:145
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:237
+#, python-brace-format
+msgid "{n} options enabled"
+msgstr "{n} seçenek etkin"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 227
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:158
+msgid "Very Low (30%)"
+msgstr "Çok Düşük (30%)"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 228
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:159
+msgid "Low (50%)"
+msgstr "Düşük (50%)"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 229
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:160
+msgid "Medium (70%)"
+msgstr "Orta (70%)"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 230
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:161
+msgid "High (85%)"
+msgstr "Yüksek (85%)"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 231
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:162
+msgid "Maximum (95%)"
+msgstr "Maksimum (95%)"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 196
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:163
+msgid "Black & White (JBIG2)"
+msgstr "Siyah Beyaz (JBIG2)"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 210
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:114
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:176
+msgid "Default (viewer decides)"
+msgstr "Varsayılan (görüntüleyici karar verir)"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 211
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:115
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:177
+msgid "Single page"
+msgstr "Tek sayfa"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 212
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:116
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:178
+msgid "Continuous scroll"
+msgstr "Sürekli kaydırma"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 213
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:117
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:179
+msgid "Two pages"
+msgstr "İki sayfa"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 270
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:189
+msgid "No limit"
+msgstr "Sınırsız"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:190
+msgid "5 MB"
+msgstr "5 MB"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:191
+msgid "10 MB"
+msgstr "10 MB"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:192
+msgid "15 MB"
+msgstr "15 MB"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:193
+msgid "20 MB"
+msgstr "20 MB"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 213
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:194
+msgid "25 MB"
+msgstr "25 MB"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 214
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:195
+msgid "50 MB"
+msgstr "50 MB"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 215
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:196
+msgid "100 MB"
+msgstr "100 MB"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 171
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:249
+msgid "Low Precision"
+msgstr "Düşük hassasiyet"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 172
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:250
+msgid "Standard"
+msgstr "Standart"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 173
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:251
+msgid "Precise"
+msgstr "Hassas"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 174
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:252
+msgid "Very Precise"
+msgstr "Çok hassas"
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 708
+#: src/bigocrpdf/ui/text_viewer_controller.py:82
+msgid "OCR processing was completed for this file, but the extracted text could not be found."
+msgstr "Bu dosya için OCR işlemi tamamlandı, ancak çıkarılan metin bulunamadı."
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
+#: src/bigocrpdf/ui/text_viewer_controller.py:154
+#, python-brace-format
+msgid "{count} word"
+msgid_plural "{count} words"
+msgstr[0] "{count} kelime"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
+#: src/bigocrpdf/ui/text_viewer_controller.py:157
+#, python-brace-format
+msgid "{count} character"
+msgid_plural "{count} characters"
+msgstr[0] "{count} karakter"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
+#: src/bigocrpdf/ui/text_viewer_controller.py:161
+#, python-brace-format
+msgid "{words} · {characters}"
+msgstr "{words} · {characters}"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
+#: src/bigocrpdf/ui/image_ocr_window.py:782
+#: src/bigocrpdf/ui/image_ocr_window.py:784
+#: src/bigocrpdf/ui/text_viewer_controller.py:208
+#: src/bigocrpdf/ui/text_viewer_controller.py:209
+msgid "Copy text to clipboard"
+msgstr "Metni panoya kopyala"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 371
+#: src/bigocrpdf/ui/text_viewer_controller.py:214
+#: src/bigocrpdf/ui/text_viewer_controller.py:217
+msgid "Save TXT"
+msgstr "TXT Kaydet"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 203
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 204
+#: src/bigocrpdf/ui/text_viewer_controller.py:237
+msgid "Decrease font size"
+msgstr "Yazı boyutunu küçült"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 209
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 210
+#: src/bigocrpdf/ui/text_viewer_controller.py:244
+msgid "Increase font size"
+msgstr "Yazı boyutunu büyüt"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1291
+# line: 1343
+#: src/bigocrpdf/ui/text_viewer_controller.py:351
+msgid "Search in text..."
+msgstr "Metin içinde ara..."
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 287
+#: src/bigocrpdf/ui/text_viewer_controller.py:353
+msgid "Search in text"
+msgstr "Metinde ara"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 294
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 295
+#: src/bigocrpdf/ui/text_viewer_controller.py:360
+#: src/bigocrpdf/ui/text_viewer_controller.py:361
+msgid "Previous match"
+msgstr "Önceki eşleşme"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 301
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 302
+#: src/bigocrpdf/ui/text_viewer_controller.py:367
+#: src/bigocrpdf/ui/text_viewer_controller.py:368
+msgid "Next match"
+msgstr "Sonraki eşleşme"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 507
+#: src/bigocrpdf/ui/text_viewer_controller.py:496
+msgid "No matches"
+msgstr "Eşleşme yok."
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 458
+#: src/bigocrpdf/ui/text_viewer_controller.py:537
+msgid "Wrapped to first match"
+msgstr "İlk eşleşmeye geri dönüldü"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 467
+#: src/bigocrpdf/ui/text_viewer_controller.py:550
+msgid "Wrapped to last match"
+msgstr "Son eşleşmeye geri dönüldü"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 449
+#: src/bigocrpdf/ui/text_viewer_controller.py:580
+#, python-brace-format
+msgid "{current}/{total}"
+msgstr "{current}/{total}"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 179
+#: src/bigocrpdf/application.py:402 src/bigocrpdf/ui/image_ocr_window.py:313
+msgid "Unsupported file format"
+msgstr "Desteklenmeyen dosya formatı"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 198
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 236
+#: src/bigocrpdf/ui/image_ocr_window.py:327
+#: src/bigocrpdf/ui/image_ocr_window.py:354
+#: src/bigocrpdf/ui/image_ocr_window.py:408
+#: src/bigocrpdf/ui/image_ocr_window.py:659
+msgid "No image found in clipboard"
+msgstr "Panoda görüntü bulunamadı."
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 428
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 539
+#: src/bigocrpdf/ui/image_ocr_window.py:428
+#: src/bigocrpdf/ui/image_ocr_window.py:539
+msgid "Could not read the clipboard image"
+msgstr "Panodaki görüntü okunamadı"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 633
+#: src/bigocrpdf/ui/image_ocr_window.py:633
+msgid "Clipboard file list is too large"
+msgstr "Panodaki dosya listesi çok büyük"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
+#: src/bigocrpdf/ui/image_ocr_window.py:702
+#: src/bigocrpdf/ui/image_ocr_window.py:706
+#: src/bigocrpdf/ui/image_ocr_window.py:803
+msgid "Open Image"
+msgstr "Görüntüyü aç"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 152
+#: src/bigocrpdf/ui/image_ocr_window.py:713
+#: src/bigocrpdf/ui/image_ocr_window.py:718
+msgid "Screen Capture"
+msgstr "Ekran görüntüsü"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
+#: src/bigocrpdf/ui/image_ocr_window.py:693
+msgid "Image OCR"
+msgstr "Görüntü OCR'si"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
+#: src/bigocrpdf/ui/image_ocr_window.py:694
+msgid "Extract text from images or screen captures using OCR."
+msgstr "Görüntülerden veya ekran görüntülerinden metin çıkarma işlemi için OCR kullanın."
+# 
+# File: src/bigocrpdf/ui/image_ocr_window.py, line: 737
+#: NEEDS WORK
+msgid "No text found"
 msgstr ""
 "Yeterli disk alanı yok. {needed:.0f} MB gerekli ama yalnızca {free:.0f} MB "
 "mevcut."

@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: Greek\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.18.0\n"
@@ -635,8 +635,8 @@ msgstr "Ενεργοποιήθηκε η επανάκληση ολοκλήρωσ�
 #: src/bigocrpdf/processing_controller.py:380
 msgid "Processing complete but no longer on terminal page, likely cancelled"
 msgstr ""
-"Η επεξεργασία ολοκληρώθηκε, αλλά η σελίδα επεξεργασίας δεν είναι πλέον "
-"ενεργή· πιθανότατα η ενέργεια ακυρώθηκε."
+"Δεν υπάρχει διαθέσιμο εργαλείο στιγμιότυπων οθόνης. Εγκαταστήστε το "
+"spectacle, το gnome-screenshot ή το flameshot."
 
 #: src/bigocrpdf/processing_controller.py:445
 msgid "Back to Queue"
@@ -868,8 +868,7 @@ msgid ""
 "No screenshot tool available. Please install spectacle, gnome-screenshot, or "
 "flameshot."
 msgstr ""
-"Δεν υπάρχει διαθέσιμο εργαλείο στιγμιότυπων οθόνης. Εγκαταστήστε το "
-"spectacle, το gnome-screenshot ή το flameshot."
+"Η επεξεργασία ακυρώθηκε από τον χρήστη κατά την επεξεργασία του αρχείου: {0}"
 
 #: src/bigocrpdf/services/screen_capture.py:968
 msgid "Could not prepare the image for OCR."
@@ -1559,10 +1558,10 @@ msgstr "Έναρξη επεξεργασίας OCR"
 
 #: src/bigocrpdf/ui/header_bar.py:218 src/bigocrpdf/ui/image_ocr_window.py:1192
 msgid ""
-"OCR is unavailable. Install the required engine and restart the application."
+"Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
 msgstr ""
-"Το OCR δεν είναι διαθέσιμο. Εγκαταστήστε την απαιτούμενη μηχανή και "
-"επανεκκινήστε την εφαρμογή."
+"Δεν υπάρχει αρκετός χώρος στο δίσκο. Χρειάζονται {needed:.0f} MB αλλά μόνο "
+"{free:.0f} MB διαθέσιμα."
 
 #: src/bigocrpdf/ui/image_ocr_window.py:345
 #: src/bigocrpdf/ui/image_ocr_window.py:372
@@ -2256,10 +2255,10 @@ msgstr "Πώς θέλετε να ανοίξετε αυτά τα αρχεία;"
 
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:75
 #, python-brace-format
-msgid "{count} PDF file was selected."
-msgid_plural "{count} PDF files were selected."
-msgstr[0] "Επιλέχθηκε {count} αρχείο PDF."
-msgstr[1] "Επιλέχθηκαν {count} αρχεία PDF."
+msgid "{count} file"
+msgid_plural "{count} files"
+msgstr[0] "{count} αρχείο"
+msgstr[1] "{count} αρχεία"
 
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:88
 msgid "Open in separate windows"
@@ -2304,8 +2303,10 @@ msgstr "Άνοιγμα συνενωμένου PDF"
 
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:199
 #, python-brace-format
-msgid "{position}. {filename}"
-msgstr "{position}. {filename}"
+msgid "This will remove {count} file from the queue."
+msgid_plural "This will remove {count} files from the queue."
+msgstr[0] "Αυτό θα αφαιρέσει {count} αρχείο από την ουρά."
+msgstr[1] "Αυτό θα αφαιρέσει {count} αρχεία από την ουρά."
 
 #: src/bigocrpdf/ui/pdf_editor/page_grid.py:125
 msgid ""
@@ -2327,8 +2328,10 @@ msgstr "Συμπεριλάβετε αυτή τη σελίδα στο τελικ�
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:165
 #, python-brace-format
-msgid "Include page {} in the final document"
-msgstr "Συμπερίληψη σελίδας {} στο τελικό έγγραφο"
+msgid "{count} file in queue"
+msgid_plural "{count} files in queue"
+msgstr[0] "{count} αρχείο στην ουρά"
+msgstr[1] "{count} αρχεία στην ουρά"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:181
 msgid "Rotate this page to the left"
@@ -2336,8 +2339,8 @@ msgstr "Γυρίστε αυτή τη σελίδα αριστερά"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:184
 #, python-brace-format
-msgid "Rotate page {} to the left"
-msgstr "Περιστροφή σελίδας {} αριστερά"
+msgid "JPEG {quality}%"
+msgstr "JPEG {quality}%"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:194
 msgid "Rotate this page to the right"
@@ -2345,8 +2348,8 @@ msgstr "Γυρίστε αυτή τη σελίδα προς τα δεξιά"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:197
 #, python-brace-format
-msgid "Rotate page {} to the right"
-msgstr "Περιστροφή σελίδας {} δεξιά"
+msgid "{mb} MB"
+msgstr "{mb} MB"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:210
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:393
@@ -2364,8 +2367,8 @@ msgstr "Κατοπτρισμός αυτής της σελίδας (Οριζόν�
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:231
 #, python-brace-format
-msgid "Mirror page {}"
-msgstr "Κατοπτρισμός σελίδας {}"
+msgid "<b>Completed: {completed}/{total}</b> · Remaining: {remaining}"
+msgstr "<b>Ολοκληρώθηκε: {completed}/{total}</b> · Απομένουν: {remaining}"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:263
 msgid "Save page as image"
@@ -2378,8 +2381,8 @@ msgstr "Αποθήκευση σελίδας ως PDF"
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:387
 #: src/bigocrpdf/ui/settings_queue_mixin.py:989
 #, python-brace-format
-msgid "Page {n}"
-msgstr "Σελίδα {n}"
+msgid "Processed file {current}/{total}: {filename}"
+msgstr "Επεξεργασμένο αρχείο {current}/{total}: {filename}"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:391
 #, python-brace-format
@@ -2430,11 +2433,28 @@ msgstr "Προειδοποίηση"
 
 #: src/bigocrpdf/ui/pdf_options_controller.py:118
 msgid ""
-"To replace original files, also enable 'Overwrite Existing Files' below and "
-"save to the same folder"
+"<b>OCR processing complete!</b> {total} file processed · Total time: {time}"
+msgid_plural ""
+"<b>OCR processing complete!</b> {total} files processed · Total time: {time}"
+msgstr[0] ""
+"<b>Η επεξεργασία OCR ολοκληρώθηκε!</b> Έγινε επεξεργασία {total} αρχείου · "
+"Συνολικός χρόνος: {time}"
+msgstr[1] ""
+"<b>Η επεξεργασία OCR ολοκληρώθηκε!</b> Έγινε επεξεργασία {total} αρχείων · "
+"Συνολικός χρόνος: {time}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 409
+#, python-brace-format
+msgid "OCR processing complete. {total} file processed."
+msgid_plural "OCR processing complete. {total} files processed."
+msgstr[0] "Η επεξεργασία OCR ολοκληρώθηκε. Έγινε επεξεργασία {total} αρχείου."
+msgstr[1] "Η επεξεργασία OCR ολοκληρώθηκε. Έγινε επεξεργασία {total} αρχείων."
+
+# File: bigocrpdf/src/bigocrpdf/ui/terminal_page.py, line: 325
+#, python-brace-format
+msgid "File {current}/{total}: <b>{filename}</b> - {status} • Time: {time}"
 msgstr ""
-"Για να αντικαταστήσετε τα αρχικά αρχεία, ενεργοποιήστε επίσης την επιλογή "
-"«Αντικατάσταση υπαρχόντων αρχείων» παρακάτω και αποθηκεύστε στον ίδιο φάκελο."
+"Αρχείο {current}/{total}: <b>{filename}</b> - {status} • Χρόνος: {time}"
 
 #: src/bigocrpdf/ui/pdf_options_controller.py:129
 msgid "Filename Suffix"
@@ -2443,8 +2463,7 @@ msgstr "Κατάληξη ονόματος αρχείου"
 #: src/bigocrpdf/ui/pdf_options_controller.py:135
 msgid "Text added to the end of the filename (e.g. document-ocr.pdf)"
 msgstr ""
-"Κείμενο που προστίθεται στο τέλος του ονόματος αρχείου (π.χ. document-"
-"ocr.pdf)"
+"Επεξεργασία αρχείου {current}/{total}: <b>{filename}</b> • Χρόνος: {time}"
 
 #: src/bigocrpdf/ui/pdf_options_controller.py:139
 msgid "Overwrite Existing Files"
@@ -2820,10 +2839,10 @@ msgstr "Λίστα εικόνων"
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:981
 #, python-brace-format
-msgid "{count} image"
-msgid_plural "{count} images"
-msgstr[0] "{count} εικόνα"
-msgstr[1] "{count} εικόνες"
+msgid "{count} page"
+msgid_plural "{count} pages"
+msgstr[0] "{count} σελίδα"
+msgstr[1] "{count} σελίδες"
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:996
 #: src/bigocrpdf/ui/settings_queue_mixin.py:997
@@ -2858,18 +2877,14 @@ msgstr "Αφέθηκαν πολλές εικόνες"
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:1192
 #, python-brace-format
-msgid "You dropped {count} image. How would you like to add it?"
-msgid_plural "You dropped {count} images. How would you like to add them?"
-msgstr[0] "Αποθέσατε {count} εικόνα. Πώς θέλετε να την προσθέσετε;"
-msgstr[1] "Αποθέσατε {count} εικόνες. Πώς θέλετε να τις προσθέσετε;"
+msgid "Exported to {}"
+msgstr "Εξήχθη στο {}"
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:1244
 #: src/bigocrpdf/ui/window_ui.py:108
 #, python-brace-format
-msgid "{count} file in queue"
-msgid_plural "{count} files in queue"
-msgstr[0] "{count} αρχείο στην ουρά"
-msgstr[1] "{count} αρχεία στην ουρά"
+msgid "Cancelled — saved {ok} of {total}"
+msgstr "Ακυρώθηκε — αποθηκεύτηκε {ok} από {total}"
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:1259
 msgid "All files removed from queue"
@@ -3075,7 +3090,9 @@ msgstr[1] "Η επεξεργασία OCR ολοκληρώθηκε. Έγινε ε
 #, python-brace-format
 msgid "File {current}/{total}: <b>{filename}</b> - {status} • Time: {time}"
 msgstr ""
-"Αρχείο {current}/{total}: <b>{filename}</b> - {status} • Χρόνος: {time}"
+"Αναλύει την εικόνα σε πλήρη ανάλυση για τον εντοπισμό κειμένου. Εντοπίζει "
+"περισσότερο κείμενο σε σαρώσεις υψηλής ανάλυσης, αλλά απαιτεί περισσότερο "
+"χρόνο. Η ταχύτερη λειτουργία είναι επαρκής για τα περισσότερα έγγραφα."
 
 #: src/bigocrpdf/ui/terminal_page.py:326
 #, python-brace-format
@@ -3107,8 +3124,8 @@ msgstr "{percent}%"
 
 #: src/bigocrpdf/ui/text_viewer_controller.py:83
 msgid ""
-"OCR processing was completed for this file, but the extracted text could not "
-"be found."
+"Fine-tune how OCR text recognition works. The default settings work well for "
+"most documents."
 msgstr ""
 "Η επεξεργασία OCR ολοκληρώθηκε για αυτό το αρχείο, αλλά το κείμενο που "
 "εξήχθη δεν βρέθηκε."
@@ -3296,16 +3313,1383 @@ msgstr "Αποτελέσματα"
 
 #: src/bigocrpdf/utils/temp_manager.py:81
 #, python-brace-format
+msgid "{active} of {total} enabled"
+msgstr "{active} από {total} ενεργοποιημένα"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 175
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 256
+#, python-brace-format
+msgid "{n} options enabled"
+msgstr "{n} επιλογές ενεργοποιημένες"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 227
+msgid "Very Low (30%)"
+msgstr "Πολύ χαμηλή (30%)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 228
+msgid "Low (50%)"
+msgstr "Χαμηλή (50%)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 229
+msgid "Medium (70%)"
+msgstr "Μέτρια (70%)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 230
+msgid "High (85%)"
+msgstr "Υψηλή (85%)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 231
+msgid "Maximum (95%)"
+msgstr "Μέγιστη (95%)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 196
+msgid "Black & White (JBIG2)"
+msgstr "Ασπρόμαυρη (JBIG2)"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 210
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
+msgid "Default (viewer decides)"
+msgstr "Προεπιλογή (αποφασίζει το πρόγραμμα προβολής)"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 211
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
+msgid "Single page"
+msgstr "Μία σελίδα"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 212
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
+msgid "Continuous scroll"
+msgstr "Συνεχής κύλιση"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 213
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
+msgid "Two pages"
+msgstr "Δύο σελίδες"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 270
+msgid "No limit"
+msgstr "Κανένας περιορισμός"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
+msgid "5 MB"
+msgstr "5 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
+msgid "10 MB"
+msgstr "10 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
+msgid "15 MB"
+msgstr "15 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
+msgid "20 MB"
+msgstr "20 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 213
+msgid "25 MB"
+msgstr "25 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 214
+msgid "50 MB"
+msgstr "50 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 215
+msgid "100 MB"
+msgstr "100 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 171
+msgid "Low Precision"
+msgstr "Χαμηλή ακρίβεια"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 172
+msgid "Standard"
+msgstr "Τυπική"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 173
+msgid "Precise"
+msgstr "Ακριβής"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 174
+msgid "Very Precise"
+msgstr "Πολύ ακριβής"
+
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 708
 msgid ""
-"Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
+"OCR processing was completed for this file, but the extracted text could not "
+"be found."
 msgstr ""
-"Δεν υπάρχει αρκετός χώρος στο δίσκο. Χρειάζονται {needed:.0f} MB αλλά μόνο "
-"{free:.0f} MB διαθέσιμα."
+"Η επεξεργασία OCR ολοκληρώθηκε για αυτό το αρχείο, αλλά το κείμενο που "
+"εξήχθη δεν βρέθηκε."
 
 #: src/bigocrpdf/utils/temp_manager.py:94
 #, python-brace-format
-msgid "No write permission for folder: {path}"
-msgstr "Δεν υπάρχει δικαίωμα εγγραφής για τον φάκελο: {path}"
+msgid "{count} word"
+msgid_plural "{count} words"
+msgstr[0] "{count} λέξη"
+msgstr[1] "{count} λέξεις"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
+#, python-brace-format
+msgid "{count} character"
+msgid_plural "{count} characters"
+msgstr[0] "{count} χαρακτήρας"
+msgstr[1] "{count} χαρακτήρες"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
+#, python-brace-format
+msgid "{words} · {characters}"
+msgstr "{words} · {characters}"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
+msgid "Copy text to clipboard"
+msgstr "Αντιγραφή κειμένου στο πρόχειρο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 371
+msgid "Save TXT"
+msgstr "Αποθήκευση TXT"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 203
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 204
+msgid "Decrease font size"
+msgstr "Μείωση μεγέθους γραμματοσειράς"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 209
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 210
+msgid "Increase font size"
+msgstr "Αύξηση μεγέθους γραμματοσειράς"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1291
+# line: 1272
+# line: 1324
+msgid "Search in text..."
+msgstr "Αναζήτηση στο κείμενο..."
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 287
+msgid "Search in text"
+msgstr "Αναζήτηση στο κείμενο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 294
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 295
+msgid "Previous match"
+msgstr "Προηγούμενο αποτέλεσμα"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 301
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 302
+msgid "Next match"
+msgstr "Επόμενο αποτέλεσμα"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 507
+msgid "No matches"
+msgstr "Δεν υπάρχουν αντιστοιχίες"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 458
+msgid "Wrapped to first match"
+msgstr "Μετάβαση στο πρώτο αποτέλεσμα"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 467
+msgid "Wrapped to last match"
+msgstr "Μετάβαση στο τελευταίο αποτέλεσμα"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 449
+#, python-brace-format
+msgid "{current}/{total}"
+msgstr "{current}/{total}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 179
+msgid "Unsupported file format"
+msgstr "Μη υποστηριζόμενη μορφή αρχείου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 198
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 236
+msgid "No image found in clipboard"
+msgstr "Δεν βρέθηκε εικόνα στο πρόχειρο."
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 428
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 539
+msgid "Could not read the clipboard image"
+msgstr "Δεν ήταν δυνατή η ανάγνωση της εικόνας από το πρόχειρο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 633
+msgid "Clipboard file list is too large"
+msgstr "Η λίστα αρχείων στο πρόχειρο είναι πολύ μεγάλη"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
+msgid "Open Image"
+msgstr "Άνοιγμα εικόνας"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 152
+msgid "Screen Capture"
+msgstr "Στιγμιότυπο οθόνης"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
+msgid "Image OCR"
+msgstr "Αναγνώριση κειμένου από εικόνα"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
+msgid "Extract text from images or screen captures using OCR."
+msgstr ""
+"Εξαγάγετε κείμενο από εικόνες ή στιγμιότυπα οθόνης χρησιμοποιώντας OCR."
+
+#
+# File: src/bigocrpdf/ui/image_ocr_window.py, line: 737
+msgid "No text found"
+msgstr ""
+
+#
+# File: src/bigocrpdf/ui/image_ocr_window.py, line: 740
+msgid ""
+"OCR finished but found no readable text. Capture a tighter region, or try a "
+"sharper image."
+msgstr ""
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 167
+msgid "Extracting text…"
+msgstr "Εξαγωγή κειμένου…"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 740
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 741
+msgid "Cancel text extraction"
+msgstr "Ακύρωση εξαγωγής κειμένου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 196
+msgid "Extracted text"
+msgstr "Εξαγμένο κείμενο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
+msgid "Copy"
+msgstr "Αντιγραφή"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
+msgid "New Capture"
+msgstr "Νέα λήψη"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 216
+msgid "Capture a screen region"
+msgstr "Καταγραφή περιοχής της οθόνης"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 224
+msgid "Open an image file"
+msgstr "Άνοιγμα αρχείου εικόνας"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
+msgid "Open Image to OCR"
+msgstr "Άνοιγμα εικόνας για OCR"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 496
+msgid "Images"
+msgstr "Εικόνες"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1102
+msgid "Could not open the selected image"
+msgstr "Δεν ήταν δυνατό το άνοιγμα της επιλεγμένης εικόνας"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1127
+msgid "Could not copy text to the clipboard"
+msgstr "Δεν ήταν δυνατή η αντιγραφή του κειμένου στο πρόχειρο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
+msgid "Copied to clipboard"
+msgstr "Αντιγράφηκε στο πρόχειρο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
+msgid "Error"
+msgstr "Σφάλμα"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 37
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 53
+msgid "Open selected PDFs"
+msgstr "Άνοιγμα επιλεγμένων PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 68
+msgid "How would you like to open these files?"
+msgstr "Πώς θέλετε να ανοίξετε αυτά τα αρχεία;"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 76
+#, python-brace-format
+msgid "{count} PDF file was selected."
+msgid_plural "{count} PDF files were selected."
+msgstr[0] "Επιλέχθηκε {count} αρχείο PDF."
+msgstr[1] "Επιλέχθηκαν {count} αρχεία PDF."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 86
+msgid "Open in separate windows"
+msgstr "Άνοιγμα σε ξεχωριστά παράθυρα"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 87
+msgid "Edit each PDF in its own editor window."
+msgstr "Επεξεργασία κάθε PDF στο δικό του παράθυρο επεξεργαστή."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 94
+msgid "Combine in one editor"
+msgstr "Συνένωση σε έναν επεξεργαστή"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 95
+msgid "Import all pages using the current selection order."
+msgstr "Εισαγωγή όλων των σελίδων με την τρέχουσα σειρά επιλογής."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 102
+msgid "Choose order and combine"
+msgstr "Επιλογή σειράς και συνένωση"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 103
+msgid "Set the document order before importing the pages."
+msgstr "Ορίστε τη σειρά των εγγράφων πριν από την εισαγωγή των σελίδων."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 136
+msgid "Choose import order"
+msgstr "Επιλογή σειράς εισαγωγής"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 142
+msgid "Pages will be imported from top to bottom."
+msgstr "Οι σελίδες θα εισαχθούν από πάνω προς τα κάτω."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 166
+msgid "Open combined"
+msgstr "Άνοιγμα συνενωμένου PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 199
+#, python-brace-format
+msgid "{position}. {filename}"
+msgstr "{position}. {filename}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 246
+# 247
+msgid "Move up"
+msgstr "Μετακίνηση πάνω"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 255
+# 256
+msgid "Move down"
+msgstr "Μετακίνηση κάτω"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_grid.py, line: 126
+msgid ""
+"Page thumbnails. Ctrl+A select all, Ctrl+Up/Down reorder, Delete toggle "
+"page, Ctrl+L/R rotate, Ctrl+Z undo"
+msgstr ""
+"Μικρογραφίες σελίδων. Ctrl+A επιλογή όλων, Ctrl+Πάνω/Κάτω αναδιάταξη, Delete "
+"εναλλαγή συμπερίληψης της σελίδας, Ctrl+L/R περιστροφή, Ctrl+Z αναίρεση"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 343
+#, python-brace-format
+msgid "Failed to add file {}: {}"
+msgstr "Αποτυχία προσθήκης αρχείου {}: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 495
+msgid "PDF Editor Help"
+msgstr "Βοήθεια επεξεργαστή PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 92
+msgid "PDF Editor"
+msgstr "Επεξεργαστής PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 523
+msgid ""
+"Use the PDF editor to view and organize your documents. You can rearrange, "
+"rotate, or remove pages, compress files, and split documents by pages or "
+"file size."
+msgstr ""
+"Χρησιμοποιήστε τον επεξεργαστή PDF για προβολή και οργάνωση εγγράφων. "
+"Μπορείτε να αναδιατάξετε, περιστρέψετε ή αφαιρέσετε σελίδες, να συμπιέσετε "
+"αρχεία και να χωρίσετε έγγραφα ανά σελίδες ή μέγεθος."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 536
+msgid "Keyboard shortcuts:"
+msgstr "Συντομεύσεις πληκτρολογίου:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 542
+msgid "Undo last action"
+msgstr "Αναίρεση τελευταίας ενέργειας"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 543
+msgid "Select all pages"
+msgstr "Επιλογή όλων των σελίδων"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 544
+msgid "Save and close"
+msgstr "Αποθήκευση και κλείσιμο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 545
+msgid "Remove selected pages"
+msgstr "Αφαίρεση επιλεγμένων σελίδων"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 546
+msgid "Rotate left / right"
+msgstr "Περιστροφή αριστερά / δεξιά"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 547
+msgid "Zoom in / out"
+msgstr "Μεγέθυνση / σμίκρυνση"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 566
+msgid "Tips:"
+msgstr "Συμβουλές:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 573
+msgid "Drag and drop pages to reorder them"
+msgstr "Σύρετε και αποθέστε σελίδες για αναδιάταξη"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 574
+msgid "Right-click a page to save it as image or PDF"
+msgstr "Δεξί κλικ σε σελίδα για αποθήκευση ως εικόνα ή PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 575
+msgid "Drag external files onto the editor to add them"
+msgstr "Σύρετε εξωτερικά αρχεία στον επεξεργαστή για προσθήκη"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
+msgid "Use the menu to compress or split documents"
+msgstr "Χρησιμοποιήστε το μενού για συμπίεση ή διαίρεση εγγράφων"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 611
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 616
+msgid "Got it"
+msgstr "Κατάλαβα"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 596
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 603
+msgid "Show when opening the editor"
+msgstr "Εμφάνιση κατά το άνοιγμα του επεξεργαστή"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 80
+#, python-brace-format
+msgid "Page {}"
+msgstr "Σελίδα {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 131
+msgid "Excluded"
+msgstr "Αποκλεισμένη"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 153
+msgid "Include this page in the final document"
+msgstr "Συμπεριλάβετε αυτή τη σελίδα στο τελικό έγγραφο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 164
+#, python-brace-format
+msgid "Include page {} in the final document"
+msgstr "Συμπερίληψη σελίδας {} στο τελικό έγγραφο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 169
+msgid "Rotate this page to the left"
+msgstr "Γυρίστε αυτή τη σελίδα αριστερά"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 183
+#, python-brace-format
+msgid "Rotate page {} to the left"
+msgstr "Περιστροφή σελίδας {} αριστερά"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 178
+msgid "Rotate this page to the right"
+msgstr "Γυρίστε αυτή τη σελίδα προς τα δεξιά"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 196
+#, python-brace-format
+msgid "Rotate page {} to the right"
+msgstr "Περιστροφή σελίδας {} δεξιά"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 211
+msgid "Horizontal Flip"
+msgstr "Οριζόντια αναστροφή"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 212
+msgid "Vertical Flip"
+msgstr "Κατακόρυφη αναστροφή"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 231
+msgid "Mirror this page (Horizontal/Vertical)"
+msgstr "Κατοπτρισμός αυτής της σελίδας (Οριζόντια/Κατακόρυφα)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 235
+#, python-brace-format
+msgid "Mirror page {}"
+msgstr "Κατοπτρισμός σελίδας {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 268
+msgid "Save page as image"
+msgstr "Αποθήκευση σελίδας ως εικόνα"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 269
+msgid "Save page as PDF"
+msgstr "Αποθήκευση σελίδας ως PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 556
+#, python-brace-format
+msgid "Page {n}"
+msgstr "Σελίδα {n}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 560
+#, python-brace-format
+msgid "Rotated {deg}°"
+msgstr "Περιστράφηκε κατά {deg}°"
+
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 239
+msgid "Edit PDF"
+msgstr "Επεξεργασία PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 190
+msgid "Reduce document file size"
+msgstr "Μείωση μεγέθους αρχείου εγγράφου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 198
+msgid "Split document by number of pages"
+msgstr "Διαίρεση εγγράφου ανά αριθμό σελίδων"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 207
+msgid "Split document by target file size"
+msgstr "Διαίρεση εγγράφου ανά μέγεθος στόχο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 225
+msgid "How PDF viewers arrange pages when opening the file"
+msgstr ""
+"Πώς τα προγράμματα προβολής PDF διατάσσουν τις σελίδες κατά το άνοιγμα του "
+"αρχείου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 221
+msgid "Select all pages in the document"
+msgstr "Επιλογή όλων των σελίδων στο έγγραφο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 229
+msgid "Clear page selection"
+msgstr "Εκκαθάριση επιλογής σελίδων"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 261
+msgid "Reverse the order of all pages"
+msgstr "Αντιστροφή σειράς όλων των σελίδων"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 232
+msgid "Rotate / Flip"
+msgstr "Περιστροφή / Αναστροφή"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 239
+msgid "Rotate Left 90º"
+msgstr "Περιστροφή αριστερά 90º"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 240
+msgid "Rotate Right 90º"
+msgstr "Περιστροφή δεξιά 90º"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 241
+msgid "Flip Vertically"
+msgstr "Κατακόρυφη αναστροφή"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 242
+msgid "Flip Horizontally"
+msgstr "Οριζόντια αναστροφή"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 176
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 177
+msgid "Open rotate and flip actions"
+msgstr "Άνοιγμα ενεργειών περιστροφής και αναστροφής"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 253
+msgid "Rotate or flip selected pages"
+msgstr "Περιστροφή ή αναστροφή επιλεγμένων σελίδων"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 596
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 603
+msgid "Show or hide the editor sidebar"
+msgstr "Εμφάνιση ή απόκρυψη της πλαϊνής γραμμής του προγράμματος επεξεργασίας"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 308
+msgid "Insert PDF or image files"
+msgstr "Εισαγωγή αρχείων PDF ή εικόνων"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 309
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 375
+msgid "Add files"
+msgstr "Προσθήκη αρχείων"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 314
+msgid "Save As"
+msgstr "Αποθήκευση ως"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
+msgid "Apply"
+msgstr "Εφαρμογή"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 320
+msgid "Save PDF to a new file (Ctrl+S)"
+msgstr "Αποθήκευση PDF σε νέο αρχείο (Ctrl+S)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 322
+msgid "Save PDF to a new file"
+msgstr "Αποθήκευση PDF σε νέο αρχείο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 187
+msgid "Save changes and go back (Ctrl+S)"
+msgstr "Αποθήκευση αλλαγών και επιστροφή (Ctrl+S)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 121
+msgid "Save changes and go back"
+msgstr "Αποθήκευση αλλαγών και επιστροφή"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 288
+msgid "Current file"
+msgstr "Τρέχον αρχείο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 299
+msgid "Document status"
+msgstr "Κατάσταση εγγράφου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 431
+msgid "Selection count"
+msgstr "Αριθμός επιλεγμένων σελίδων"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 224
+msgid "Change the size of page previews"
+msgstr "Αλλαγή μεγέθους των προεπισκοπήσεων σελίδων"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 313
+msgid "Zoom level"
+msgstr "Επίπεδο μεγέθυνσης"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 339
+msgid "Hide editor sidebar"
+msgstr "Απόκρυψη πλαϊνής γραμμής επεξεργασίας"
+
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 46
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 47
+msgid "Show editor sidebar"
+msgstr "Εμφάνιση πλαϊνής γραμμής επεξεργασίας"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 72
+#, python-brace-format
+msgid "PDF Editor - {}"
+msgstr "Επεξεργαστής PDF - {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 397
+msgid "Could not open PDF file or file has no pages."
+msgstr ""
+"Δεν ήταν δυνατό το άνοιγμα του αρχείου PDF ή το αρχείο δεν περιέχει σελίδες."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 428
+#, python-brace-format
+msgid "Failed to load PDF: {}"
+msgstr "Αποτυχία φόρτωσης PDF: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 605
+#, python-brace-format
+msgid "{total} page · {included} included"
+msgid_plural "{total} pages · {included} included"
+msgstr[0] "{total} σελίδα · περιλαμβάνονται: {included}"
+msgstr[1] "{total} σελίδες · περιλαμβάνονται: {included}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
+#, python-brace-format
+msgid "{count} selected"
+msgstr "{count} επιλεγμένα"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 737
+#, python-brace-format
+msgid "{count} page selected"
+msgid_plural "{count} pages selected"
+msgstr[0] "Επιλέχθηκε {count} σελίδα"
+msgstr[1] "Επιλέχθηκαν {count} σελίδες"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
+msgid "Saving…"
+msgstr "Αποθήκευση…"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 674
+msgid "Failed to save PDF."
+msgstr "Αποτυχία αποθήκευσης PDF."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 822
+msgid "Save PDF As"
+msgstr "Αποθήκευση PDF ως"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 653
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 788
+msgid "PDF Files"
+msgstr "Αρχεία PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 836
+msgid "document.pdf"
+msgstr "document.pdf"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 854
+#, python-brace-format
+msgid "Saved: {}"
+msgstr "Αποθηκεύτηκε: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
+msgid "Error saving changes."
+msgstr "Σφάλμα κατά την αποθήκευση αλλαγών."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 604
+msgid "Failed to merge PDF pages."
+msgstr "Αποτυχία συγχώνευσης σελίδων PDF."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 626
+msgid "Unsaved Changes"
+msgstr "Μη αποθηκευμένες αλλαγές"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 627
+msgid "What would you like to do with your changes?"
+msgstr "Τι θα θέλατε να κάνετε με τις αλλαγές σας;"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 217
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 685
+msgid "Compress PDF"
+msgstr "Συμπίεση PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 688
+msgid ""
+"Reduce the file size by compressing the images inside the PDF. Lower values "
+"produce smaller files but with less image detail."
+msgstr ""
+"Μείωση του μεγέθους αρχείου συμπιέζοντας τις εικόνες στο PDF. Χαμηλότερες "
+"τιμές παράγουν μικρότερα αρχεία αλλά με λιγότερες λεπτομέρειες."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 699
+msgid "Image Quality:"
+msgstr "Ποιότητα εικόνας:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 707
+msgid "10 = smallest file, 95 = best quality. 60 is a good default."
+msgstr ""
+"10 = μικρότερο αρχείο, 95 = καλύτερη ποιότητα. 60 είναι καλή προεπιλογή."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 719
+msgid "Image Resolution (DPI):"
+msgstr "Ανάλυση εικόνας (DPI):"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 727
+msgid "72 = screen only, 150 = digital reading, 300 = print quality."
+msgstr "72 = μόνο οθόνη, 150 = ψηφιακή ανάγνωση, 300 = ποιότητα εκτύπωσης."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 741
+msgid "Compress"
+msgstr "Συμπίεση"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 770
+msgid "Failed to prepare document for compression."
+msgstr "Αποτυχία προετοιμασίας εγγράφου για συμπίεση."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 784
+msgid "Save Compressed PDF"
+msgstr "Αποθήκευση συμπιεσμένου PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 801
+#, python-brace-format
+msgid "Compression failed: {}"
+msgstr "Η συμπίεση απέτυχε: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
+# 169
+#, python-brace-format
+msgid "Failed to save compressed PDF: {}"
+msgstr "Δεν ήταν δυνατή η αποθήκευση του συμπιεσμένου PDF: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 828
+msgid "Split by Page Count"
+msgstr "Διαίρεση ανά αριθμό σελίδων"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 829
+msgid "Split the document into parts with a fixed number of pages each."
+msgstr "Διαίρεση εγγράφου σε μέρη με σταθερό αριθμό σελίδων."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 833
+msgid "Pages per file:"
+msgstr "Σελίδες ανά αρχείο:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 841
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 873
+msgid "Split"
+msgstr "Διαίρεση"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 860
+msgid "Split by File Size"
+msgstr "Διαίρεση ανά μέγεθος αρχείου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 861
+msgid "Split the document so each part is at most the specified size."
+msgstr ""
+"Διαίρεση εγγράφου ώστε κάθε μέρος να είναι το πολύ το καθορισμένο μέγεθος."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 865
+msgid "Max size (MB):"
+msgstr "Μέγιστο μέγεθος (MB):"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 889
+msgid "Select Output Directory"
+msgstr "Επιλογή καταλόγου εξόδου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 918
+msgid "Failed to prepare document for splitting."
+msgstr "Αποτυχία προετοιμασίας εγγράφου για διαίρεση."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
+# 291
+#, python-brace-format
+msgid "Parts: {parts} · Pages: {pages}"
+msgstr "Αρχεία που δημιουργήθηκαν: {parts} · Σελίδες: {pages}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 939
+#, python-brace-format
+msgid "Split failed: {}"
+msgstr "Η διαίρεση απέτυχε: {}"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 424
+msgid "Processing Summary"
+msgstr "Περίληψη επεξεργασίας"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 197
+msgid "Files processed"
+msgstr "Επεξεργασμένα αρχεία"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 207
+msgid "Pages processed"
+msgstr "Επεξεργασμένες σελίδες"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 217
+msgid "Processing time"
+msgstr "Χρόνος επεξεργασίας"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 227
+msgid "Output file size"
+msgstr "Μέγεθος αρχείου εξόδου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 237
+msgid "File size change"
+msgstr "Αλλαγή μεγέθους αρχείου"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 450
+msgid "Files processed:"
+msgstr "Αρχεία που επεξεργάστηκαν:"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 466
+msgid "Total pages:"
+msgstr "Συνολικές σελίδες:"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 488
+msgid "Processing time:"
+msgstr "Χρόνος επεξεργασίας:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 140
+msgid "Output size:"
+msgstr "Μέγεθος εξόδου:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 149
+msgid "Size change:"
+msgstr "Αλλαγή μεγέθους:"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 529
+msgid "Generated Files"
+msgstr "Δημιουργημένα αρχεία"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 265
+msgid "Select files for bulk actions"
+msgstr "Επιλέξτε αρχεία για μαζικές ενέργειες"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 281
+msgid "Output files"
+msgstr "Αρχεία εξόδου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 290
+msgid "Selected: 0"
+msgstr "Επιλεγμένο: 0"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 296
+msgid "Select all"
+msgstr "Επιλογή όλων"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 335
+msgid "What is Big OCR PDF?"
+msgstr "Τι είναι το Big OCR PDF;"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 324
+msgid ""
+"Big OCR PDF adds optical character recognition to your PDF files, making "
+"them searchable and allowing you to select and copy text from scanned "
+"documents."
+msgstr ""
+"Το Big OCR PDF προσθέτει οπτική αναγνώριση χαρακτήρων στα αρχεία PDF σας, "
+"καθιστώντας τα αναζητήσιμα και επιτρέποντάς σας να επιλέγετε και να "
+"αντιγράφετε κείμενο από σαρωμένα έγγραφα."
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 335
+msgid "Benefits of using Big OCR PDF:"
+msgstr "Οφέλη από τη χρήση του Big OCR PDF:"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
+msgid "Search"
+msgstr "Αναζήτηση"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
+msgid "Search through your scanned PDF documents"
+msgstr "Αναζήτηση στα σαρωμένα έγγραφα PDF"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
+msgid "Copy text"
+msgstr "Αντιγραφή κειμένου"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
+msgid "Copy text from images and scanned documents"
+msgstr "Αντιγραφή κειμένου από εικόνες και σαρωμένα έγγραφα"
+
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 238
+msgid "Add image files and generate new PDFs from them"
+msgstr "Προσθήκη αρχείων εικόνας και δημιουργία νέων PDF από αυτά"
+
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 239
+msgid "Rearrange, rotate or remove pages before processing"
+msgstr "Αναδιάταξη, περιστροφή ή αφαίρεση σελίδων πριν από την επεξεργασία"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
+msgid "Batch processing"
+msgstr "Μαζική επεξεργασία"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
+msgid "Process multiple files at once"
+msgstr "Επεξεργασία πολλών αρχείων ταυτόχρονα"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
+msgid "Auto-correction"
+msgstr "Αυτόματη διόρθωση"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
+msgid "Automatically correct page alignment and rotation"
+msgstr "Αυτόματη διόρθωση ευθυγράμμισης σελίδας και περιστροφής"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 363
+msgid "Show this dialog at startup"
+msgstr "Εμφάνιση αυτού του διαλόγου κατά την εκκίνηση"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 377
+msgid "Let's Get Started"
+msgstr "Ας ξεκινήσουμε"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 400
+msgid "File queue"
+msgstr "Ουρά αρχείων"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 57
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 100
+msgid "Add your PDFs"
+msgstr "Προσθήκη αρχείων PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 59
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 102
+msgid "Drag PDF files and images here, or use the button in the header bar"
+msgstr ""
+"Σύρετε αρχεία PDF και εικόνες εδώ ή χρησιμοποιήστε το κουμπί στη γραμμή "
+"τίτλου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 362
+msgid "Save in the same folder as the original file"
+msgstr "Αποθήκευση στον ίδιο φάκελο με το αρχικό αρχείο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 363
+msgid "Custom folder"
+msgstr "Προσαρμοσμένος φάκελος"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 442
+msgid "Output folder location"
+msgstr "Τοποθεσία φακέλου εξόδου"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1862
+msgid "Select folder"
+msgstr "Επιλέξτε φάκελο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 458
+msgid "Destination folder path"
+msgstr "Διαδρομή φακέλου προορισμού"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 465
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 466
+msgid "Browse for folder"
+msgstr "Αναζήτηση φακέλου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 401
+msgid "Output options"
+msgstr "Επιλογές εξόδου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 983
+msgid "Edit pages of this file"
+msgstr "Επεξεργασία των σελίδων αυτού του αρχείου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 999
+msgid "Remove this file from the list"
+msgstr "Αφαίρεση αυτού του αρχείου από τη λίστα"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 290
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 384
+#, python-brace-format
+msgid "{size} MB"
+msgstr "{size} MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 481
+msgid "Open file"
+msgstr "Άνοιγμα αρχείου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 486
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 746
+msgid "File information"
+msgstr "Πληροφορίες αρχείου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 679
+msgid "Name"
+msgstr "Όνομα"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 680
+msgid "Path"
+msgstr "Διαδρομή"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 685
+msgid "Size"
+msgstr "Μέγεθος"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 693
+msgid "Modified (local)"
+msgstr "Τροποποιήθηκε (τοπική ώρα)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 701
+msgid "Document"
+msgstr "Έγγραφο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 706
+msgid "Form"
+msgstr "Φόρμα"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 708
+msgid "JavaScript"
+msgstr "JavaScript"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 711
+msgid "Content"
+msgstr "Περιεχόμενο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 715
+msgid "Image formats"
+msgstr "Μορφές εικόνων"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 721
+msgid "Fonts"
+msgstr "Γραμματοσειρές"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 725
+msgid "Embedded fonts"
+msgstr "Ενσωματωμένες γραμματοσειρές"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 729
+msgid "Font names"
+msgstr "Ονόματα γραμματοσειρών"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 732
+msgid "Attached files"
+msgstr "Συνημμένα αρχεία"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 735
+msgid "Metadata"
+msgstr "Μεταδεδομένα"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 740
+msgid "Created"
+msgstr "Δημιουργήθηκε"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 742
+msgid "Modified"
+msgstr "Τροποποιήθηκε"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 755
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 756
+msgid "Copy all information"
+msgstr "Αντιγραφή όλων των πληροφοριών"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 782
+msgid "Image list"
+msgstr "Λίστα εικόνων"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 493
+#, python-brace-format
+msgid "{count} image"
+msgid_plural "{count} images"
+msgstr[0] "{count} εικόνα"
+msgstr[1] "{count} εικόνες"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 792
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 793
+msgid "Extract this image"
+msgstr "Εξαγωγή αυτής της εικόνας"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 823
+msgid "Information copied"
+msgstr "Οι πληροφορίες αντιγράφηκαν"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 879
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 887
+msgid "Failed to extract image"
+msgstr "Αποτυχία εξαγωγής εικόνας"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 885
+msgid "Image extracted"
+msgstr "Η εικόνα εξήχθη"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1114
+msgid "Failed to open PDF editor"
+msgstr "Αποτυχία ανοίγματος επεξεργαστή PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1094
+msgid "Changes saved"
+msgstr "Οι αλλαγές αποθηκεύτηκαν"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1210
+msgid "Multiple Images Dropped"
+msgstr "Αφέθηκαν πολλές εικόνες"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1212
+#, python-brace-format
+msgid "You dropped {count} image. How would you like to add it?"
+msgid_plural "You dropped {count} images. How would you like to add them?"
+msgstr[0] "Αποθέσατε {count} εικόνα. Πώς θέλετε να την προσθέσετε;"
+msgstr[1] "Αποθέσατε {count} εικόνες. Πώς θέλετε να τις προσθέσετε;"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 1094
+msgid "All files removed from queue"
+msgstr "Όλα τα αρχεία αφαιρέθηκαν από την ουρά"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1738
+msgid "PDF Output Options"
+msgstr "Επιλογές εξόδου PDF"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1757
+msgid "Save"
+msgstr "Αποθήκευση"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 2003
+msgid "Preview"
+msgstr "Προεπισκόπηση"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 2007
+msgid "Filename Example:"
+msgstr "Παράδειγμα ονόματος αρχείου:"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1772
+msgid "File Settings"
+msgstr "Ρυθμίσεις αρχείου"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1776
+msgid "Use Original Filename"
+msgstr "Χρήση αρχικού ονόματος αρχείου"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1777
+msgid "Use the same name as the original file"
+msgstr "Χρήση του ίδιου ονόματος με το αρχικό αρχείο"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1785
+msgid "Warning"
+msgstr "Προειδοποίηση"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 212
+msgid ""
+"To replace original files, also enable 'Overwrite Existing Files' below and "
+"save to the same folder"
+msgstr ""
+"Για να αντικαταστήσετε τα αρχικά αρχεία, ενεργοποιήστε επίσης την επιλογή "
+"«Αντικατάσταση υπαρχόντων αρχείων» παρακάτω και αποθηκεύστε στον ίδιο φάκελο."
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1802
+msgid "Filename Suffix"
+msgstr "Κατάληξη ονόματος αρχείου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 163
+msgid "Text added to the end of the filename (e.g. document-ocr.pdf)"
+msgstr ""
+"Κείμενο που προστίθεται στο τέλος του ονόματος αρχείου (π.χ. document-"
+"ocr.pdf)"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1814
+msgid "Overwrite Existing Files"
+msgstr "Αντικατάσταση υπαρχόντων αρχείων"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1815
+msgid "Replace files with the same name"
+msgstr "Αντικατάσταση αρχείων με το ίδιο όνομα"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 231
+msgid "Overwrite Existing Files?"
+msgstr "Αντικατάσταση υπαρχόντων αρχείων;"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 234
+msgid ""
+"If files with the same name already exist in the output folder, they will be "
+"permanently replaced. This cannot be undone."
+msgstr ""
+"Αν αρχεία με το ίδιο όνομα υπάρχουν ήδη στο φάκελο εξόδου, θα "
+"αντικατασταθούν μόνιμα. Αυτό δεν μπορεί να αναιρεθεί."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 239
+msgid "Enable"
+msgstr "Ενεργοποίηση"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1825
+msgid "Save Text Files"
+msgstr "Αποθήκευση Αρχείων Κειμένου"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1826
+msgid "Automatically save extracted text as .txt files"
+msgstr "Αυτόματη αποθήκευση του εξαγόμενου κειμένου ως αρχεία .txt"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1834
+msgid "Use Separate Folder for Text Files"
+msgstr "Χρήση ξεχωριστού φακέλου για αρχεία κειμένου"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1835
+msgid "Save text files to a different folder"
+msgstr "Αποθήκευση αρχείων κειμένου σε διαφορετικό φάκελο"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1852
+msgid "Not set"
+msgstr "Μη καθορισμένο"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 271
+msgid "Choose where to save the text files"
+msgstr "Επιλογή θέσης αποθήκευσης των αρχείων κειμένου"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1846
+msgid "Text Files Folder"
+msgstr "Φάκελος αρχείων κειμένου"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1847
+msgid "Select where to save text files"
+msgstr "Επιλογή θέσης αποθήκευσης των αρχείων κειμένου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 290
+msgid "ODF Export"
+msgstr "Εξαγωγή ODF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 294
+msgid "Save ODF Files"
+msgstr "Αποθήκευση αρχείων ODF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 295
+msgid "Automatically save extracted text as .odt files"
+msgstr "Αυτόματη αποθήκευση του εξαγόμενου κειμένου ως αρχεία .odt"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1919
+msgid "Date and Time"
+msgstr "Ημερομηνία και ώρα"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1923
+msgid "Add Date to Filename"
+msgstr "Προσθήκη ημερομηνίας στο όνομα αρχείου"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1924
+msgid "Include date elements in the filename"
+msgstr "Συμπερίληψη στοιχείων ημερομηνίας στο όνομα αρχείου"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1930
+msgid "Date Format"
+msgstr "Μορφή Ημερομηνίας"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 449
+msgid "Standard (2026-02-23)"
+msgstr "Τυπική (2026-02-23)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 450
+msgid "European (23-02-2026)"
+msgstr "Ευρωπαϊκό (23-02-2026)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 451
+msgid "American (02-23-2026)"
+msgstr "Αμερικανικό (02-23-2026)"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1959
+msgid "Include Year"
+msgstr "Συμπερίληψη έτους"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1960
+msgid "Add YYYY to the date"
+msgstr "Προσθήκη YYYY στην ημερομηνία"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1970
+msgid "Include Month"
+msgstr "Συμπερίληψη μήνα"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1971
+msgid "Add MM to the date"
+msgstr "Προσθήκη MM στην ημερομηνία"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1981
+msgid "Include Day"
+msgstr "Συμπερίληψη ημέρας"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1982
+msgid "Add DD to the date"
+msgstr "Προσθήκη DD στην ημερομηνία"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1992
+msgid "Include Time"
+msgstr "Συμπερίληψη ώρας"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1993
+msgid "Add HHMM to the filename"
+msgstr "Προσθήκη HHMM στο όνομα αρχείου"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1898
+msgid "Select Folder for Text Files"
+msgstr "Επιλέξτε Φάκελο για Αρχεία Κειμένου"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_callbacks_mixin.py, line: 317
+msgid "PDF output settings saved"
+msgstr "Οι ρυθμίσεις εξόδου PDF αποθηκεύτηκαν."
 
 #: src/bigocrpdf/window_controller.py:195
 msgid "No supported files in clipboard"

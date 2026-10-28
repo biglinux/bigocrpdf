@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: Slovak\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n >= 2 && n <= 4 ? 1 : 2);\n"
 "Generated-By: Babel 2.18.0\n"
@@ -634,8 +634,7 @@ msgstr "Spätné volanie po dokončení spracovania OCR bolo spustené."
 #: src/bigocrpdf/processing_controller.py:380
 msgid "Processing complete but no longer on terminal page, likely cancelled"
 msgstr ""
-"Spracovanie bolo dokončené, ale stránka spracovania už nie je aktívna; "
-"operácia bola pravdepodobne zrušená."
+"Zachytenie obrazovky zlyhalo. Skúste to znova alebo otvorte súbor s obrázkom."
 
 #: src/bigocrpdf/processing_controller.py:445
 msgid "Back to Queue"
@@ -1565,10 +1564,10 @@ msgstr "Spustite spracovanie OCR"
 
 #: src/bigocrpdf/ui/header_bar.py:218 src/bigocrpdf/ui/image_ocr_window.py:1192
 msgid ""
-"OCR is unavailable. Install the required engine and restart the application."
+"Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
 msgstr ""
-"OCR nie je k dispozícii. Nainštalujte požadovaný motor a reštartujte "
-"aplikáciu."
+"Nedostatok miesta na disku. Potrebných {needed:.0f} MB, ale dostupných je "
+"len {free:.0f} MB."
 
 #: src/bigocrpdf/ui/image_ocr_window.py:345
 #: src/bigocrpdf/ui/image_ocr_window.py:372
@@ -2258,11 +2257,11 @@ msgstr "Ako chcete otvoriť tieto súbory?"
 
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:75
 #, python-brace-format
-msgid "{count} PDF file was selected."
-msgid_plural "{count} PDF files were selected."
-msgstr[0] "Bol vybratý {count} súbor PDF."
-msgstr[1] "Boli vybraté {count} súbory PDF."
-msgstr[2] "Bolo vybratých {count} súborov PDF."
+msgid "{count} file"
+msgid_plural "{count} files"
+msgstr[0] "{count} súbor"
+msgstr[1] "{count} súbory"
+msgstr[2] "{count} súborov"
 
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:88
 msgid "Open in separate windows"
@@ -2307,8 +2306,11 @@ msgstr "Otvoriť zlúčený PDF"
 
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:199
 #, python-brace-format
-msgid "{position}. {filename}"
-msgstr "{position}. {filename}"
+msgid "This will remove {count} file from the queue."
+msgid_plural "This will remove {count} files from the queue."
+msgstr[0] "Týmto sa z frontu odstráni {count} súbor."
+msgstr[1] "Týmto sa z frontu odstránia {count} súbory."
+msgstr[2] "Týmto sa z frontu odstráni {count} súborov."
 
 #: src/bigocrpdf/ui/pdf_editor/page_grid.py:125
 msgid ""
@@ -3112,19 +3114,27 @@ msgstr "{percent}%"
 
 #: src/bigocrpdf/ui/text_viewer_controller.py:83
 msgid ""
-"OCR processing was completed for this file, but the extracted text could not "
-"be found."
+"An incomplete processing session was found.\n"
+"\n"
+"Completed: {completed}/{total}\n"
+"Remaining: {pending}\n"
+"\n"
+"Would you like to resume processing?"
 msgstr ""
-"Spracovanie OCR bolo dokončené pre tento súbor, ale extrahovaný text nebol "
-"nájdený."
+"Našla sa neúplná relácia spracovania.\n"
+"\n"
+"Dokončené: {completed}/{total}\n"
+"Zostáva: {pending}\n"
+"\n"
+"Chcete obnoviť spracovanie?"
 
 #: src/bigocrpdf/ui/text_viewer_controller.py:155
 #, python-brace-format
-msgid "{count} word"
-msgid_plural "{count} words"
-msgstr[0] "{count} slovo"
-msgstr[1] "{count} slová"
-msgstr[2] "{count} slov"
+msgid "Session resumed with {count} file"
+msgid_plural "Session resumed with {count} files"
+msgstr[0] "Relácia bola obnovená s {count} súborom"
+msgstr[1] "Relácia bola obnovená s {count} súbormi"
+msgstr[2] "Relácia bola obnovená s {count} súbormi"
 
 #: src/bigocrpdf/ui/text_viewer_controller.py:158
 #, python-brace-format
@@ -3184,8 +3194,8 @@ msgstr "Prechod na poslednú zhodu"
 
 #: src/bigocrpdf/ui/text_viewer_controller.py:588
 #, python-brace-format
-msgid "{current}/{total}"
-msgstr "{current}/{total}"
+msgid "The file '{0}' already exists. What would you like to do?"
+msgstr "Súbor '{0}' už existuje. Čo by ste chceli urobiť?"
 
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:70
 msgid "What is Big OCR PDF?"
@@ -3193,13 +3203,11 @@ msgstr "Čo je Big OCR PDF?"
 
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:81
 msgid ""
-"Big OCR PDF adds optical character recognition to your PDF files, making "
-"them searchable and allowing you to select and copy text from scanned "
-"documents."
+"Fixes pages that were scanned at a slight angle. The text lines become "
+"perfectly horizontal."
 msgstr ""
-"Big OCR PDF pridáva do PDF súborov optické rozpoznávanie znakov, vďaka čomu "
-"v nich možno vyhľadávať a z naskenovaných dokumentov vyberať a kopírovať "
-"text."
+"Opravuje strany naskenované pod miernym uhlom. Riadky textu sa stanú "
+"dokonale vodorovnými."
 
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:93
 msgid "Benefits of using Big OCR PDF:"
@@ -3301,16 +3309,1382 @@ msgstr "Výsledky"
 
 #: src/bigocrpdf/utils/temp_manager.py:81
 #, python-brace-format
+msgid "{active} of {total} enabled"
+msgstr "{active} z {total} zapnutých"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 175
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 256
+#, python-brace-format
+msgid "{n} options enabled"
+msgstr "{n} možností zapnutých"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 227
+msgid "Very Low (30%)"
+msgstr "Veľmi nízka (30%)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 228
+msgid "Low (50%)"
+msgstr "Nízka (50%)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 229
+msgid "Medium (70%)"
+msgstr "Stredná (70%)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 230
+msgid "High (85%)"
+msgstr "Vysoká (85%)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 231
+msgid "Maximum (95%)"
+msgstr "Maximálna (95%)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 196
+msgid "Black & White (JBIG2)"
+msgstr "Čiernobiela (JBIG2)"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 210
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
+msgid "Default (viewer decides)"
+msgstr "Predvolené (rozhodne prehliadač)"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 211
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
+msgid "Single page"
+msgstr "Jedna strana"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 212
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
+msgid "Continuous scroll"
+msgstr "Súvislé posúvanie"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 213
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
+msgid "Two pages"
+msgstr "Dve strany"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 270
+msgid "No limit"
+msgstr "Žiadne obmedzenie"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
+msgid "5 MB"
+msgstr "5 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
+msgid "10 MB"
+msgstr "10 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
+msgid "15 MB"
+msgstr "15 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
+msgid "20 MB"
+msgstr "20 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 213
+msgid "25 MB"
+msgstr "25 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 214
+msgid "50 MB"
+msgstr "50 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 215
+msgid "100 MB"
+msgstr "100 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 171
+msgid "Low Precision"
+msgstr "Nízka presnosť"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 172
+msgid "Standard"
+msgstr "Štandardná"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 173
+msgid "Precise"
+msgstr "Presná"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 174
+msgid "Very Precise"
+msgstr "Veľmi presná"
+
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 708
 msgid ""
-"Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
+"OCR processing was completed for this file, but the extracted text could not "
+"be found."
 msgstr ""
-"Nedostatok miesta na disku. Potrebných {needed:.0f} MB, ale dostupných je "
-"len {free:.0f} MB."
+"Spracovanie OCR bolo dokončené pre tento súbor, ale extrahovaný text nebol "
+"nájdený."
 
 #: src/bigocrpdf/utils/temp_manager.py:94
 #, python-brace-format
-msgid "No write permission for folder: {path}"
-msgstr "Chýba oprávnenie na zápis do priečinka: {path}"
+msgid "{count} word"
+msgid_plural "{count} words"
+msgstr[0] "{count} slovo"
+msgstr[1] "{count} slová"
+msgstr[2] "{count} slov"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
+#, python-brace-format
+msgid "{count} character"
+msgid_plural "{count} characters"
+msgstr[0] "{count} znak"
+msgstr[1] "{count} znaky"
+msgstr[2] "{count} znakov"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
+#, python-brace-format
+msgid "{words} · {characters}"
+msgstr "{words} · {characters}"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
+msgid "Copy text to clipboard"
+msgstr "Kopírovať text do schránky"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 371
+msgid "Save TXT"
+msgstr "Uložiť TXT"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 203
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 204
+msgid "Decrease font size"
+msgstr "Zmenšiť veľkosť písma"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 209
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 210
+msgid "Increase font size"
+msgstr "Zväčšiť veľkosť písma"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1291
+# line: 1272
+# line: 1324
+msgid "Search in text..."
+msgstr "Hľadať v texte..."
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 287
+msgid "Search in text"
+msgstr "Hľadať v texte"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 294
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 295
+msgid "Previous match"
+msgstr "Predchádzajúca zhoda"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 301
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 302
+msgid "Next match"
+msgstr "Nasledujúca zhoda"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 507
+msgid "No matches"
+msgstr "Žiadne zhody"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 458
+msgid "Wrapped to first match"
+msgstr "Prechod na prvú zhodu"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 467
+msgid "Wrapped to last match"
+msgstr "Prechod na poslednú zhodu"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 449
+#, python-brace-format
+msgid "{current}/{total}"
+msgstr "{current}/{total}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 179
+msgid "Unsupported file format"
+msgstr "Nepodporovaný formát súboru"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 198
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 236
+msgid "No image found in clipboard"
+msgstr "V schránke sa nenašiel žiadny obrázok."
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 428
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 539
+msgid "Could not read the clipboard image"
+msgstr "Obrázok zo schránky sa nepodarilo načítať"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 633
+msgid "Clipboard file list is too large"
+msgstr "Zoznam súborov v schránke je príliš veľký"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
+msgid "Open Image"
+msgstr "Otvoriť obrázok"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 152
+msgid "Screen Capture"
+msgstr "Zachytenie obrazovky"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
+msgid "Image OCR"
+msgstr "OCR obrázkov"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
+msgid "Extract text from images or screen captures using OCR."
+msgstr "Extrahujte text z obrázkov alebo snímok obrazovky pomocou OCR."
+
+#
+# File: src/bigocrpdf/ui/image_ocr_window.py, line: 737
+msgid "No text found"
+msgstr ""
+
+#
+# File: src/bigocrpdf/ui/image_ocr_window.py, line: 740
+msgid ""
+"OCR finished but found no readable text. Capture a tighter region, or try a "
+"sharper image."
+msgstr ""
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 167
+msgid "Extracting text…"
+msgstr "Extrahovanie textu…"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 740
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 741
+msgid "Cancel text extraction"
+msgstr "Zrušiť extrakciu textu"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 196
+msgid "Extracted text"
+msgstr "Extrahovaný text"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
+msgid "Copy"
+msgstr "Kopírovať"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
+msgid "New Capture"
+msgstr "Nové zachytenie"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 216
+msgid "Capture a screen region"
+msgstr "Zachytiť oblasť obrazovky"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 224
+msgid "Open an image file"
+msgstr "Otvorte súbor s obrázkom"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
+msgid "Open Image to OCR"
+msgstr "Otvoriť obrázok na OCR"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 496
+msgid "Images"
+msgstr "Obrázky"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1102
+msgid "Could not open the selected image"
+msgstr "Nepodarilo sa otvoriť vybraný obrázok"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1127
+msgid "Could not copy text to the clipboard"
+msgstr "Nepodarilo sa skopírovať text do schránky"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
+msgid "Copied to clipboard"
+msgstr "Skopírované do schránky"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
+msgid "Error"
+msgstr "Chyba"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 37
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 53
+msgid "Open selected PDFs"
+msgstr "Otvoriť vybrané PDF súbory"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 68
+msgid "How would you like to open these files?"
+msgstr "Ako chcete otvoriť tieto súbory?"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 76
+#, python-brace-format
+msgid "{count} PDF file was selected."
+msgid_plural "{count} PDF files were selected."
+msgstr[0] "Bol vybratý {count} súbor PDF."
+msgstr[1] "Boli vybraté {count} súbory PDF."
+msgstr[2] "Bolo vybratých {count} súborov PDF."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 86
+msgid "Open in separate windows"
+msgstr "Otvoriť v samostatných oknách"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 87
+msgid "Edit each PDF in its own editor window."
+msgstr "Upraviť každý PDF súbor vo vlastnom okne editora."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 94
+msgid "Combine in one editor"
+msgstr "Zlúčiť v jednom editore"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 95
+msgid "Import all pages using the current selection order."
+msgstr "Importovať všetky strany v aktuálnom poradí výberu."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 102
+msgid "Choose order and combine"
+msgstr "Vybrať poradie a zlúčiť"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 103
+msgid "Set the document order before importing the pages."
+msgstr "Nastavte poradie dokumentov pred importom strán."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 136
+msgid "Choose import order"
+msgstr "Vybrať poradie importu"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 142
+msgid "Pages will be imported from top to bottom."
+msgstr "Strany sa importujú zhora nadol."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 166
+msgid "Open combined"
+msgstr "Otvoriť zlúčený PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 199
+#, python-brace-format
+msgid "{position}. {filename}"
+msgstr "{position}. {filename}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 246
+# 247
+msgid "Move up"
+msgstr "Presunúť hore"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 255
+# 256
+msgid "Move down"
+msgstr "Presunúť dole"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_grid.py, line: 126
+msgid ""
+"Page thumbnails. Ctrl+A select all, Ctrl+Up/Down reorder, Delete toggle "
+"page, Ctrl+L/R rotate, Ctrl+Z undo"
+msgstr ""
+"Miniatúry strán. Ctrl+A vybrať všetko, Ctrl+Hore/Dole zmeniť poradie, Delete "
+"zahrnúť/vylúčiť stranu, Ctrl+L/R otočiť, Ctrl+Z vrátiť"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 343
+#, python-brace-format
+msgid "Failed to add file {}: {}"
+msgstr "Nepodarilo sa pridať súbor {}: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 495
+msgid "PDF Editor Help"
+msgstr "Pomoc editora PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 92
+msgid "PDF Editor"
+msgstr "Editor PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 523
+msgid ""
+"Use the PDF editor to view and organize your documents. You can rearrange, "
+"rotate, or remove pages, compress files, and split documents by pages or "
+"file size."
+msgstr ""
+"Použite editor PDF na prezeranie a organizáciu dokumentov. Môžete "
+"preusporiadať, otáčať alebo odstraňovať strany, komprimovať súbory a deliť "
+"dokumenty podľa strán alebo veľkosti."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 536
+msgid "Keyboard shortcuts:"
+msgstr "Klávesové skratky:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 542
+msgid "Undo last action"
+msgstr "Vrátiť poslednú akciu"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 543
+msgid "Select all pages"
+msgstr "Vybrať všetky strany"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 544
+msgid "Save and close"
+msgstr "Uložiť a zavrieť"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 545
+msgid "Remove selected pages"
+msgstr "Odstrániť vybrané strany"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 546
+msgid "Rotate left / right"
+msgstr "Otočiť doľava / doprava"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 547
+msgid "Zoom in / out"
+msgstr "Priblížiť / oddialiť"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 566
+msgid "Tips:"
+msgstr "Tipy:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 573
+msgid "Drag and drop pages to reorder them"
+msgstr "Pretiahnutím strán zmeňte ich poradie"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 574
+msgid "Right-click a page to save it as image or PDF"
+msgstr "Kliknite pravým tlačidlom na stranu pre uloženie ako obrázok alebo PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 575
+msgid "Drag external files onto the editor to add them"
+msgstr "Pretiahnite externé súbory do editora na pridanie"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
+msgid "Use the menu to compress or split documents"
+msgstr "Použite menu na komprimáciu alebo rozdelenie dokumentov"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 611
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 616
+msgid "Got it"
+msgstr "Rozumiem"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 596
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 603
+msgid "Show when opening the editor"
+msgstr "Zobraziť pri otvorení editora"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 80
+#, python-brace-format
+msgid "Page {}"
+msgstr "Stránka {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 131
+msgid "Excluded"
+msgstr "Vylúčená"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 153
+msgid "Include this page in the final document"
+msgstr "Zahrňte túto stránku do konečného dokumentu"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 164
+#, python-brace-format
+msgid "Include page {} in the final document"
+msgstr "Zahrnúť stránku {} do výsledného dokumentu"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 169
+msgid "Rotate this page to the left"
+msgstr "Otočte túto stránku doľava."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 183
+#, python-brace-format
+msgid "Rotate page {} to the left"
+msgstr "Otočiť stránku {} doľava"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 178
+msgid "Rotate this page to the right"
+msgstr "Otočte túto stránku doprava"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 196
+#, python-brace-format
+msgid "Rotate page {} to the right"
+msgstr "Otočiť stránku {} doprava"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 211
+msgid "Horizontal Flip"
+msgstr "Vodorovné prevrátenie"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 212
+msgid "Vertical Flip"
+msgstr "Zvislé prevrátenie"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 231
+msgid "Mirror this page (Horizontal/Vertical)"
+msgstr "Zrkadliť túto stranu (vodorovne/zvisle)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 235
+#, python-brace-format
+msgid "Mirror page {}"
+msgstr "Zrkadliť stranu {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 268
+msgid "Save page as image"
+msgstr "Uložiť stranu ako obrázok"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 269
+msgid "Save page as PDF"
+msgstr "Uložiť stranu ako PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 556
+#, python-brace-format
+msgid "Page {n}"
+msgstr "Stránka {n}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 560
+#, python-brace-format
+msgid "Rotated {deg}°"
+msgstr "Otočená o {deg}°"
+
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 239
+msgid "Edit PDF"
+msgstr "Upraviť PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 190
+msgid "Reduce document file size"
+msgstr "Zmenšiť veľkosť súboru dokumentu"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 198
+msgid "Split document by number of pages"
+msgstr "Rozdeliť dokument podľa počtu strán"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 207
+msgid "Split document by target file size"
+msgstr "Rozdeliť dokument podľa cieľovej veľkosti"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 225
+msgid "How PDF viewers arrange pages when opening the file"
+msgstr "Ako prehliadače PDF usporiadajú strany pri otvorení súboru"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 221
+msgid "Select all pages in the document"
+msgstr "Vybrať všetky strany v dokumente"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 229
+msgid "Clear page selection"
+msgstr "Vymazať výber strán"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 261
+msgid "Reverse the order of all pages"
+msgstr "Obrátiť poradie všetkých strán"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 232
+msgid "Rotate / Flip"
+msgstr "Otočiť / Prevrátiť"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 239
+msgid "Rotate Left 90º"
+msgstr "Otočiť 90º doľava"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 240
+msgid "Rotate Right 90º"
+msgstr "Otočiť 90º doprava"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 241
+msgid "Flip Vertically"
+msgstr "Prevrátiť zvisle"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 242
+msgid "Flip Horizontally"
+msgstr "Prevrátiť vodorovne"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 176
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 177
+msgid "Open rotate and flip actions"
+msgstr "Otvoriť akcie otočenia a prevrátenia"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 253
+msgid "Rotate or flip selected pages"
+msgstr "Otočiť alebo prevrátiť vybrané strany"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 596
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 603
+msgid "Show or hide the editor sidebar"
+msgstr "Zobraziť alebo skryť bočný panel editora"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 308
+msgid "Insert PDF or image files"
+msgstr "Vložiť PDF alebo obrázky"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 309
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 375
+msgid "Add files"
+msgstr "Pridať súbory"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 314
+msgid "Save As"
+msgstr "Uložiť ako"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
+msgid "Apply"
+msgstr "Použiť"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 320
+msgid "Save PDF to a new file (Ctrl+S)"
+msgstr "Uložiť PDF do nového súboru (Ctrl+S)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 322
+msgid "Save PDF to a new file"
+msgstr "Uložiť PDF do nového súboru"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 187
+msgid "Save changes and go back (Ctrl+S)"
+msgstr "Uložiť zmeny a vrátiť sa (Ctrl+S)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 121
+msgid "Save changes and go back"
+msgstr "Uložiť zmeny a vrátiť sa späť"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 288
+msgid "Current file"
+msgstr "Aktuálny súbor"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 299
+msgid "Document status"
+msgstr "Stav dokumentu"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 431
+msgid "Selection count"
+msgstr "Počet vybraných strán"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 224
+msgid "Change the size of page previews"
+msgstr "Zmeňte veľkosť náhľadov stránok."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 313
+msgid "Zoom level"
+msgstr "Úroveň priblíženia"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 339
+msgid "Hide editor sidebar"
+msgstr "Skryť bočný panel editora"
+
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 46
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 47
+msgid "Show editor sidebar"
+msgstr "Zobraziť bočný panel editora"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 72
+#, python-brace-format
+msgid "PDF Editor - {}"
+msgstr "PDF editor - {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 397
+msgid "Could not open PDF file or file has no pages."
+msgstr "Nepodarilo sa otvoriť súbor PDF alebo súbor nemá žiadne stránky."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 428
+#, python-brace-format
+msgid "Failed to load PDF: {}"
+msgstr "Nepodarilo sa načítať PDF: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 605
+#, python-brace-format
+msgid "{total} page · {included} included"
+msgid_plural "{total} pages · {included} included"
+msgstr[0] "{total} strana · zahrnuté: {included}"
+msgstr[1] "{total} strany · zahrnuté: {included}"
+msgstr[2] "{total} strán · zahrnuté: {included}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
+#, python-brace-format
+msgid "{count} selected"
+msgstr "{count} vybraných"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 737
+#, python-brace-format
+msgid "{count} page selected"
+msgid_plural "{count} pages selected"
+msgstr[0] "{count} vybratá strana"
+msgstr[1] "{count} vybrané strany"
+msgstr[2] "{count} vybratých strán"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
+msgid "Saving…"
+msgstr "Ukladá sa…"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 674
+msgid "Failed to save PDF."
+msgstr "Nepodarilo sa uložiť PDF."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 822
+msgid "Save PDF As"
+msgstr "Uložiť PDF ako"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 653
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 788
+msgid "PDF Files"
+msgstr "PDF súbory"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 836
+msgid "document.pdf"
+msgstr "document.pdf"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 854
+#, python-brace-format
+msgid "Saved: {}"
+msgstr "Uložené: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
+msgid "Error saving changes."
+msgstr "Chyba pri ukladaní zmien."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 604
+msgid "Failed to merge PDF pages."
+msgstr "Zlúčenie strán PDF zlyhalo."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 626
+msgid "Unsaved Changes"
+msgstr "Neuložené zmeny"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 627
+msgid "What would you like to do with your changes?"
+msgstr "Čo by ste chceli urobiť so svojimi zmenami?"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 217
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 685
+msgid "Compress PDF"
+msgstr "Komprimovať PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 688
+msgid ""
+"Reduce the file size by compressing the images inside the PDF. Lower values "
+"produce smaller files but with less image detail."
+msgstr ""
+"Zmenšenie veľkosti súboru komprimáciou obrázkov v PDF. Nižšie hodnoty "
+"vytvárajú menšie súbory s menšími detailami."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 699
+msgid "Image Quality:"
+msgstr "Kvalita obrázkov:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 707
+msgid "10 = smallest file, 95 = best quality. 60 is a good default."
+msgstr ""
+"10 = najmenší súbor, 95 = najlepšia kvalita. 60 je dobré predvolené "
+"nastavenie."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 719
+msgid "Image Resolution (DPI):"
+msgstr "Rozlíšenie obrázkov (DPI):"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 727
+msgid "72 = screen only, 150 = digital reading, 300 = print quality."
+msgstr "72 = len obrazovka, 150 = digitálne čítanie, 300 = kvalita tlače."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 741
+msgid "Compress"
+msgstr "Komprimovať"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 770
+msgid "Failed to prepare document for compression."
+msgstr "Nepodarilo sa pripraviť dokument na komprimáciu."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 784
+msgid "Save Compressed PDF"
+msgstr "Uložiť komprimované PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 801
+#, python-brace-format
+msgid "Compression failed: {}"
+msgstr "Komprimácia zlyhala: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
+# 169
+#, python-brace-format
+msgid "Failed to save compressed PDF: {}"
+msgstr "Nepodarilo sa uložiť komprimovaný PDF: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 828
+msgid "Split by Page Count"
+msgstr "Rozdeliť podľa počtu stránok"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 829
+msgid "Split the document into parts with a fixed number of pages each."
+msgstr "Rozdeliť dokument na časti s pevným počtom stránok."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 833
+msgid "Pages per file:"
+msgstr "Stránok na súbor:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 841
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 873
+msgid "Split"
+msgstr "Rozdeliť"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 860
+msgid "Split by File Size"
+msgstr "Rozdeliť podľa veľkosti súboru"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 861
+msgid "Split the document so each part is at most the specified size."
+msgstr "Rozdeliť dokument tak, aby každá časť mala maximálne zadanú veľkosť."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 865
+msgid "Max size (MB):"
+msgstr "Max. veľkosť (MB):"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 889
+msgid "Select Output Directory"
+msgstr "Vybrať výstupný adresár"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 918
+msgid "Failed to prepare document for splitting."
+msgstr "Nepodarilo sa pripraviť dokument na rozdelenie."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
+# 291
+#, python-brace-format
+msgid "Parts: {parts} · Pages: {pages}"
+msgstr "Výsledné súbory: {parts} · Stránky: {pages}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 939
+#, python-brace-format
+msgid "Split failed: {}"
+msgstr "Rozdelenie zlyhalo: {}"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 424
+msgid "Processing Summary"
+msgstr "Súhrn spracovania"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 197
+msgid "Files processed"
+msgstr "Spracovaných súborov"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 207
+msgid "Pages processed"
+msgstr "Spracovaných strán"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 217
+msgid "Processing time"
+msgstr "Čas spracovania"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 227
+msgid "Output file size"
+msgstr "Veľkosť výstupného súboru"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 237
+msgid "File size change"
+msgstr "Zmena veľkosti súboru"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 450
+msgid "Files processed:"
+msgstr "Spracované súbory:"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 466
+msgid "Total pages:"
+msgstr "Celkový počet stránok:"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 488
+msgid "Processing time:"
+msgstr "Čas spracovania:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 140
+msgid "Output size:"
+msgstr "Veľkosť výstupu:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 149
+msgid "Size change:"
+msgstr "Zmena veľkosti:"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 529
+msgid "Generated Files"
+msgstr "Vygenerované súbory"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 265
+msgid "Select files for bulk actions"
+msgstr "Vyberte súbory pre hromadné akcie"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 281
+msgid "Output files"
+msgstr "Výstupné súbory"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 290
+msgid "Selected: 0"
+msgstr "Vybrané: 0"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 296
+msgid "Select all"
+msgstr "Vybrať všetko"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 335
+msgid "What is Big OCR PDF?"
+msgstr "Čo je Big OCR PDF?"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 324
+msgid ""
+"Big OCR PDF adds optical character recognition to your PDF files, making "
+"them searchable and allowing you to select and copy text from scanned "
+"documents."
+msgstr ""
+"Big OCR PDF pridáva do PDF súborov optické rozpoznávanie znakov, vďaka čomu "
+"v nich možno vyhľadávať a z naskenovaných dokumentov vyberať a kopírovať "
+"text."
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 335
+msgid "Benefits of using Big OCR PDF:"
+msgstr "Výhody používania Big OCR PDF:"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
+msgid "Search"
+msgstr "Hľadať"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
+msgid "Search through your scanned PDF documents"
+msgstr "Prehľadávajte svoje naskenované PDF dokumenty"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
+msgid "Copy text"
+msgstr "Kopírovať text"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
+msgid "Copy text from images and scanned documents"
+msgstr "Kopírovať text z obrázkov a naskenovaných dokumentov"
+
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 238
+msgid "Add image files and generate new PDFs from them"
+msgstr "Pridajte obrazové súbory a vytvorte z nich nové PDF súbory."
+
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 239
+msgid "Rearrange, rotate or remove pages before processing"
+msgstr "Preusporiadajte, otočte alebo odstráňte stránky pred spracovaním."
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
+msgid "Batch processing"
+msgstr "Hromadné spracovanie"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
+msgid "Process multiple files at once"
+msgstr "Spracovať viacero súborov naraz"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
+msgid "Auto-correction"
+msgstr "Automatická oprava"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
+msgid "Automatically correct page alignment and rotation"
+msgstr "Automaticky opraviť zarovnanie stránky a rotáciu"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 363
+msgid "Show this dialog at startup"
+msgstr "Zobraziť tento dialóg pri spustení"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 377
+msgid "Let's Get Started"
+msgstr "Poďme začať"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 400
+msgid "File queue"
+msgstr "Front súborov"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 57
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 100
+msgid "Add your PDFs"
+msgstr "Pridajte svoje PDF súbory"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 59
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 102
+msgid "Drag PDF files and images here, or use the button in the header bar"
+msgstr "Pretiahnite PDF súbory a obrázky sem, alebo použite tlačidlo v záhlaví"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 362
+msgid "Save in the same folder as the original file"
+msgstr "Uložiť do rovnakého priečinka ako pôvodný súbor"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 363
+msgid "Custom folder"
+msgstr "Vlastný priečinok"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 442
+msgid "Output folder location"
+msgstr "Umiestnenie výstupného priečinka"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1862
+msgid "Select folder"
+msgstr "Vybrať priečinok"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 458
+msgid "Destination folder path"
+msgstr "Cesta cieľového priečinka"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 465
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 466
+msgid "Browse for folder"
+msgstr "Prehľadávať priečinky"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 401
+msgid "Output options"
+msgstr "Možnosti výstupu"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 983
+msgid "Edit pages of this file"
+msgstr "Upravte stránky tohto súboru"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 999
+msgid "Remove this file from the list"
+msgstr "Odstrániť tento súbor zo zoznamu"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 290
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 384
+#, python-brace-format
+msgid "{size} MB"
+msgstr "{size} MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 481
+msgid "Open file"
+msgstr "Otvoriť súbor"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 486
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 746
+msgid "File information"
+msgstr "Informácie o súbore"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 679
+msgid "Name"
+msgstr "Názov"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 680
+msgid "Path"
+msgstr "Cesta"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 685
+msgid "Size"
+msgstr "Veľkosť"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 693
+msgid "Modified (local)"
+msgstr "Upravené (miestny čas)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 701
+msgid "Document"
+msgstr "Dokument"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 706
+msgid "Form"
+msgstr "Formulár"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 708
+msgid "JavaScript"
+msgstr "JavaScript"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 711
+msgid "Content"
+msgstr "Obsah"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 715
+msgid "Image formats"
+msgstr "Formáty obrázkov"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 721
+msgid "Fonts"
+msgstr "Písma"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 725
+msgid "Embedded fonts"
+msgstr "Vložené písma"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 729
+msgid "Font names"
+msgstr "Názvy písiem"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 732
+msgid "Attached files"
+msgstr "Priložené súbory"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 735
+msgid "Metadata"
+msgstr "Metadáta"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 740
+msgid "Created"
+msgstr "Vytvorené"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 742
+msgid "Modified"
+msgstr "Upravené"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 755
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 756
+msgid "Copy all information"
+msgstr "Kopírovať všetky informácie"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 782
+msgid "Image list"
+msgstr "Zoznam obrázkov"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 493
+#, python-brace-format
+msgid "{count} image"
+msgid_plural "{count} images"
+msgstr[0] "{count} obrázok"
+msgstr[1] "{count} obrázky"
+msgstr[2] "{count} obrázkov"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 792
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 793
+msgid "Extract this image"
+msgstr "Extrahovať tento obrázok"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 823
+msgid "Information copied"
+msgstr "Informácie boli skopírované"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 879
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 887
+msgid "Failed to extract image"
+msgstr "Nepodarilo sa extrahovať obrázok"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 885
+msgid "Image extracted"
+msgstr "Obrázok bol extrahovaný"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1114
+msgid "Failed to open PDF editor"
+msgstr "Nepodarilo sa otvoriť editor PDF."
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1094
+msgid "Changes saved"
+msgstr "Zmeny boli uložené"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1210
+msgid "Multiple Images Dropped"
+msgstr "Bolo sem presunutých viacero obrázkov"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1212
+#, python-brace-format
+msgid "You dropped {count} image. How would you like to add it?"
+msgid_plural "You dropped {count} images. How would you like to add them?"
+msgstr[0] "Presunuli ste sem {count} obrázok. Ako ho chcete pridať?"
+msgstr[1] "Presunuli ste sem {count} obrázky. Ako ich chcete pridať?"
+msgstr[2] "Presunuli ste sem {count} obrázkov. Ako ich chcete pridať?"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 1094
+msgid "All files removed from queue"
+msgstr "Všetky súbory boli odstránené z fronty"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1738
+msgid "PDF Output Options"
+msgstr "Možnosti výstupu PDF"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1757
+msgid "Save"
+msgstr "Uložiť"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 2003
+msgid "Preview"
+msgstr "Náhľad"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 2007
+msgid "Filename Example:"
+msgstr "Príklad názvu súboru:"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1772
+msgid "File Settings"
+msgstr "Nastavenia súboru"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1776
+msgid "Use Original Filename"
+msgstr "Použiť pôvodný názov súboru"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1777
+msgid "Use the same name as the original file"
+msgstr "Použite rovnaké meno ako pôvodný súbor."
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1785
+msgid "Warning"
+msgstr "Upozornenie"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 212
+msgid ""
+"To replace original files, also enable 'Overwrite Existing Files' below and "
+"save to the same folder"
+msgstr ""
+"Ak chcete nahradiť pôvodné súbory, povoľte aj možnosť „Prepisovať existujúce "
+"súbory“ nižšie a uložte ich do rovnakého priečinka"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1802
+msgid "Filename Suffix"
+msgstr "Prípona názvu súboru"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 176
+msgid "Text added to the end of the filename (e.g. document-ocr.pdf)"
+msgstr "Text pridaný na koniec názvu súboru (napr. dokument-ocr.pdf)"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1814
+msgid "Overwrite Existing Files"
+msgstr "Prepisovať existujúce súbory"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1815
+msgid "Replace files with the same name"
+msgstr "Nahradiť súbory so rovnakým názvom"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 231
+msgid "Overwrite Existing Files?"
+msgstr "Prepísať existujúce súbory?"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 234
+msgid ""
+"If files with the same name already exist in the output folder, they will be "
+"permanently replaced. This cannot be undone."
+msgstr ""
+"Ak súbory s rovnakým názvom už existujú vo výstupnom priečinku, budú trvalo "
+"nahradené. Túto akciu nemožno vrátiť."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 239
+msgid "Enable"
+msgstr "Zapnúť"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1825
+msgid "Save Text Files"
+msgstr "Uložiť textové súbory"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1826
+msgid "Automatically save extracted text as .txt files"
+msgstr "Automaticky ukladať extrahovaný text ako súbory .txt"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1834
+msgid "Use Separate Folder for Text Files"
+msgstr "Použiť samostatný priečinok pre textové súbory"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1835
+msgid "Save text files to a different folder"
+msgstr "Uložiť textové súbory do iného priečinka"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1852
+msgid "Not set"
+msgstr "Nenastavené"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 287
+msgid "Choose where to save the text files"
+msgstr "Vyberte miesto na uloženie textových súborov."
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1846
+msgid "Text Files Folder"
+msgstr "Priečinok textových súborov"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1847
+msgid "Select where to save text files"
+msgstr "Vyberte, kam uložiť textové súbory"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 306
+msgid "ODF Export"
+msgstr "Export ODF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 310
+msgid "Save ODF Files"
+msgstr "Uložiť súbory ODF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 311
+msgid "Automatically save extracted text as .odt files"
+msgstr "Automaticky ukladať extrahovaný text ako súbory .odt"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1919
+msgid "Date and Time"
+msgstr "Dátum a čas"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1923
+msgid "Add Date to Filename"
+msgstr "Pridať dátum k názvu súboru"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1924
+msgid "Include date elements in the filename"
+msgstr "Zahrnúť prvky dátumu do názvu súboru"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1930
+msgid "Date Format"
+msgstr "Formát dátumu"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 449
+msgid "Standard (2026-02-23)"
+msgstr "Štandardný (2026-02-23)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 450
+msgid "European (23-02-2026)"
+msgstr "Európsky (23-02-2026)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 451
+msgid "American (02-23-2026)"
+msgstr "Americký (02-23-2026)"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1959
+msgid "Include Year"
+msgstr "Zahrnúť rok"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1960
+msgid "Add YYYY to the date"
+msgstr "Pridajte YYYY k dátumu"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1970
+msgid "Include Month"
+msgstr "Zahrnúť mesiac"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1971
+msgid "Add MM to the date"
+msgstr "Pridajte MM k dátumu"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1981
+msgid "Include Day"
+msgstr "Zahrnúť deň"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1982
+msgid "Add DD to the date"
+msgstr "Pridajte DD k dátumu"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1992
+msgid "Include Time"
+msgstr "Zahrnúť čas"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1993
+msgid "Add HHMM to the filename"
+msgstr "Pridajte HHMM do názvu súboru"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1898
+msgid "Select Folder for Text Files"
+msgstr "Vybrať priečinok pre textové súbory"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_callbacks_mixin.py, line: 317
+msgid "PDF output settings saved"
+msgstr "Nastavenia výstupu PDF uložené"
 
 #: src/bigocrpdf/window_controller.py:195
 msgid "No supported files in clipboard"

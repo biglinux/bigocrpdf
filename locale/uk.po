@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: Ukrainian\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n % 10 == 1 && n % 100 != 11 ? 0 : n % 10 "
 ">= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2);\n"
@@ -640,8 +640,8 @@ msgstr "Зворотний виклик після завершення обро
 #: src/bigocrpdf/processing_controller.py:380
 msgid "Processing complete but no longer on terminal page, likely cancelled"
 msgstr ""
-"Обробку завершено, але сторінка обробки більше не активна; імовірно, "
-"операцію було скасовано."
+"Не вдалося зробити знімок екрана. Спробуйте ще раз або відкрийте файл "
+"зображення."
 
 #: src/bigocrpdf/processing_controller.py:445
 msgid "Back to Queue"
@@ -1572,9 +1572,10 @@ msgstr "Розпочати обробку OCR"
 
 #: src/bigocrpdf/ui/header_bar.py:218 src/bigocrpdf/ui/image_ocr_window.py:1192
 msgid ""
-"OCR is unavailable. Install the required engine and restart the application."
+"Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
 msgstr ""
-"OCR недоступний. Встановіть необхідний движок і перезапустіть програму."
+"Недостатньо місця на диску. Потрібно {needed:.0f} МБ, але доступно лише "
+"{free:.0f} МБ."
 
 #: src/bigocrpdf/ui/image_ocr_window.py:345
 #: src/bigocrpdf/ui/image_ocr_window.py:372
@@ -2265,11 +2266,11 @@ msgstr "Як ви хочете відкрити ці файли?"
 
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:75
 #, python-brace-format
-msgid "{count} PDF file was selected."
-msgid_plural "{count} PDF files were selected."
-msgstr[0] "Вибрано {count} PDF-файл."
-msgstr[1] "Вибрано {count} PDF-файли."
-msgstr[2] "Вибрано {count} PDF-файлів."
+msgid "{count} file"
+msgid_plural "{count} files"
+msgstr[0] "{count} файл"
+msgstr[1] "{count} файли"
+msgstr[2] "{count} файлів"
 
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:88
 msgid "Open in separate windows"
@@ -2314,8 +2315,11 @@ msgstr "Відкрити об'єднаний PDF"
 
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:199
 #, python-brace-format
-msgid "{position}. {filename}"
-msgstr "{position}. {filename}"
+msgid "This will remove {count} file from the queue."
+msgid_plural "This will remove {count} files from the queue."
+msgstr[0] "Це видалить {count} файл із черги."
+msgstr[1] "Це видалить {count} файли з черги."
+msgstr[2] "Це видалить {count} файлів із черги."
 
 #: src/bigocrpdf/ui/pdf_editor/page_grid.py:125
 msgid ""
@@ -2337,8 +2341,11 @@ msgstr "Включити цю сторінку в кінцевий докуме�
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:165
 #, python-brace-format
-msgid "Include page {} in the final document"
-msgstr "Включити сторінку {} в кінцевий документ"
+msgid "{count} file in queue"
+msgid_plural "{count} files in queue"
+msgstr[0] "{count} файл у черзі"
+msgstr[1] "{count} файли в черзі"
+msgstr[2] "{count} файлів у черзі"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:181
 msgid "Rotate this page to the left"
@@ -2346,8 +2353,8 @@ msgstr "Повернути цю сторінку ліворуч"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:184
 #, python-brace-format
-msgid "Rotate page {} to the left"
-msgstr "Повернути сторінку {} ліворуч"
+msgid "JPEG {quality}%"
+msgstr "JPEG {quality}%"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:194
 msgid "Rotate this page to the right"
@@ -2355,8 +2362,8 @@ msgstr "Повернути цю сторінку праворуч"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:197
 #, python-brace-format
-msgid "Rotate page {} to the right"
-msgstr "Повернути сторінку {} праворуч"
+msgid "{mb} MB"
+msgstr "{mb} MB"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:210
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:393
@@ -2374,8 +2381,8 @@ msgstr "Відзеркалити цю сторінку (горизонтальн
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:231
 #, python-brace-format
-msgid "Mirror page {}"
-msgstr "Відзеркалити сторінку {}"
+msgid "<b>Completed: {completed}/{total}</b> · Remaining: {remaining}"
+msgstr "<b>Виконано: {completed}/{total}</b> · Залишилося: {remaining}"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:263
 msgid "Save page as image"
@@ -2388,8 +2395,8 @@ msgstr "Зберегти сторінку як PDF"
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:387
 #: src/bigocrpdf/ui/settings_queue_mixin.py:989
 #, python-brace-format
-msgid "Page {n}"
-msgstr "Сторінка {n}"
+msgid "Processed file {current}/{total}: {filename}"
+msgstr "Оброблений файл {current}/{total}: {filename}"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:391
 #, python-brace-format
@@ -2439,11 +2446,16 @@ msgstr "Попередження"
 
 #: src/bigocrpdf/ui/pdf_options_controller.py:118
 msgid ""
-"To replace original files, also enable 'Overwrite Existing Files' below and "
-"save to the same folder"
-msgstr ""
-"Щоб замінити оригінальні файли, також увімкніть 'Перезаписати наявні файли' "
-"нижче та збережіть у ту саму папку"
+"<b>OCR processing complete!</b> {total} file processed · Total time: {time}"
+msgid_plural ""
+"<b>OCR processing complete!</b> {total} files processed · Total time: {time}"
+msgstr[0] ""
+"<b>OCR-обробку завершено!</b> Оброблено {total} файл · Загальний час: {time}"
+msgstr[1] ""
+"<b>OCR-обробку завершено!</b> Оброблено {total} файли · Загальний час: {time}"
+msgstr[2] ""
+"<b>OCR-обробку завершено!</b> Оброблено {total} файлів · Загальний час: "
+"{time}"
 
 #: src/bigocrpdf/ui/pdf_options_controller.py:129
 msgid "Filename Suffix"
@@ -2828,11 +2840,11 @@ msgstr "Список зображень"
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:981
 #, python-brace-format
-msgid "{count} image"
-msgid_plural "{count} images"
-msgstr[0] "{count} зображення"
-msgstr[1] "{count} зображення"
-msgstr[2] "{count} зображень"
+msgid "{count} page"
+msgid_plural "{count} pages"
+msgstr[0] "{count} сторінка"
+msgstr[1] "{count} сторінки"
+msgstr[2] "{count} сторінок"
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:996
 #: src/bigocrpdf/ui/settings_queue_mixin.py:997
@@ -2867,20 +2879,14 @@ msgstr "Кілька зображень перетягнуто"
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:1192
 #, python-brace-format
-msgid "You dropped {count} image. How would you like to add it?"
-msgid_plural "You dropped {count} images. How would you like to add them?"
-msgstr[0] "Ви перетягнули {count} зображення. Як його додати?"
-msgstr[1] "Ви перетягнули {count} зображення. Як їх додати?"
-msgstr[2] "Ви перетягнули {count} зображень. Як їх додати?"
+msgid "Exported to {}"
+msgstr "Експортовано до {}"
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:1244
 #: src/bigocrpdf/ui/window_ui.py:108
 #, python-brace-format
-msgid "{count} file in queue"
-msgid_plural "{count} files in queue"
-msgstr[0] "{count} файл у черзі"
-msgstr[1] "{count} файли в черзі"
-msgstr[2] "{count} файлів у черзі"
+msgid "Cancelled — saved {ok} of {total}"
+msgstr "Скасовано — збережено {ok} з {total}"
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:1259
 msgid "All files removed from queue"
@@ -3123,8 +3129,9 @@ msgid ""
 "OCR processing was completed for this file, but the extracted text could not "
 "be found."
 msgstr ""
-"Обробка OCR була завершена для цього файлу, але витягнутий текст не було "
-"знайдено."
+"Визначає, наскільки ретельно програма зчитує текст із ваших документів. "
+"Нижча точність знаходить більше тексту (корисно для розмитих сторінок), а "
+"вища точність дає менше помилок, але може пропустити блідий текст."
 
 #: src/bigocrpdf/ui/text_viewer_controller.py:155
 #, python-brace-format
@@ -3201,13 +3208,13 @@ msgstr "Що таке Big OCR PDF?"
 
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:81
 msgid ""
-"Big OCR PDF adds optical character recognition to your PDF files, making "
-"them searchable and allowing you to select and copy text from scanned "
-"documents."
+"When enabled, redoes the text recognition even if the PDF already has "
+"searchable text. Use this when the existing text layer is incorrect or of "
+"poor quality."
 msgstr ""
-"Big OCR PDF додає оптичне розпізнавання символів до PDF-файлів, завдяки чому "
-"в них можна виконувати пошук, а текст зі сканованих документів можна "
-"виділяти й копіювати."
+"При увімкненні повторює розпізнавання тексту, навіть якщо PDF вже має "
+"текстовий шар. Використовуйте, коли існуючий текстовий шар неправильний або "
+"низької якості."
 
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:93
 msgid "Benefits of using Big OCR PDF:"
@@ -3309,16 +3316,1395 @@ msgstr "Результати"
 
 #: src/bigocrpdf/utils/temp_manager.py:81
 #, python-brace-format
+msgid "{active} of {total} enabled"
+msgstr "{active} з {total} увімкнено"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 175
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 256
+#, python-brace-format
+msgid "{n} options enabled"
+msgstr "{n} опцій увімкнено"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 241
+msgid "Very Low (30%)"
+msgstr "Дуже низька (30%)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 242
+msgid "Low (50%)"
+msgstr "Низька (50%)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 243
+msgid "Medium (70%)"
+msgstr "Середня (70%)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 244
+msgid "High (85%)"
+msgstr "Висока (85%)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 245
+msgid "Maximum (95%)"
+msgstr "Максимальна (95%)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 196
+msgid "Black & White (JBIG2)"
+msgstr "Чорно-біла (JBIG2)"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 210
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
+msgid "Default (viewer decides)"
+msgstr "Типове (вирішує програма перегляду)"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 211
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
+msgid "Single page"
+msgstr "Одна сторінка"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 212
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
+msgid "Continuous scroll"
+msgstr "Безперервне прокручування"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 213
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
+msgid "Two pages"
+msgstr "Дві сторінки"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 283
+msgid "No limit"
+msgstr "Без обмежень"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
+msgid "5 MB"
+msgstr "5 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
+msgid "10 MB"
+msgstr "10 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
+msgid "15 MB"
+msgstr "15 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
+msgid "20 MB"
+msgstr "20 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 213
+msgid "25 MB"
+msgstr "25 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 214
+msgid "50 MB"
+msgstr "50 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 215
+msgid "100 MB"
+msgstr "100 MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 321
+msgid "Low Precision"
+msgstr "Низька точність"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 322
+msgid "Standard"
+msgstr "Стандартна"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 323
+msgid "Precise"
+msgstr "Точна"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 324
+msgid "Very Precise"
+msgstr "Дуже точна"
+
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 708
 msgid ""
-"Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
+"OCR processing was completed for this file, but the extracted text could not "
+"be found."
 msgstr ""
-"Недостатньо місця на диску. Потрібно {needed:.0f} МБ, але доступно лише "
-"{free:.0f} МБ."
+"Обробка OCR була завершена для цього файлу, але витягнутий текст не було "
+"знайдено."
 
 #: src/bigocrpdf/utils/temp_manager.py:94
 #, python-brace-format
-msgid "No write permission for folder: {path}"
-msgstr "Немає дозволу на запис у папку: {path}"
+msgid "{count} word"
+msgid_plural "{count} words"
+msgstr[0] "{count} слово"
+msgstr[1] "{count} слова"
+msgstr[2] "{count} слів"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 136
+#, python-brace-format
+msgid "{count} character"
+msgid_plural "{count} characters"
+msgstr[0] "{count} символ"
+msgstr[1] "{count} символи"
+msgstr[2] "{count} символів"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 136
+#, python-brace-format
+msgid "{words} · {characters}"
+msgstr "{words} · {characters}"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 210
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 224
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 225
+msgid "Copy text to clipboard"
+msgstr "Копіювати текст у буфер обміну"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 230
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 233
+msgid "Save TXT"
+msgstr "Зберегти TXT"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 203
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 204
+msgid "Decrease font size"
+msgstr "Зменшити розмір шрифту"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 209
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 210
+msgid "Increase font size"
+msgstr "Збільшити розмір шрифту"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1291
+# line: 1343
+msgid "Search in text..."
+msgstr "Шукати в тексті..."
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 287
+msgid "Search in text"
+msgstr "Пошук у тексті"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 294
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 295
+msgid "Previous match"
+msgstr "Попередній збіг"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 301
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 302
+msgid "Next match"
+msgstr "Наступний збіг"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 447
+msgid "No matches"
+msgstr "Збігів не знайдено"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 458
+msgid "Wrapped to first match"
+msgstr "Перехід до першого збігу"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 467
+msgid "Wrapped to last match"
+msgstr "Перехід до останнього збігу"
+
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 449
+#, python-brace-format
+msgid "{current}/{total}"
+msgstr "{current}/{total}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 179
+msgid "Unsupported file format"
+msgstr "Непідтримуваний формат файлу"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 198
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 236
+msgid "No image found in clipboard"
+msgstr "У буфері обміну не знайдено зображення."
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 428
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 539
+msgid "Could not read the clipboard image"
+msgstr "Не вдалося прочитати зображення з буфера обміну"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 633
+msgid "Clipboard file list is too large"
+msgstr "Список файлів у буфері обміну завеликий"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
+msgid "Open Image"
+msgstr "Відкрити зображення"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 154
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 159
+msgid "Screen Capture"
+msgstr "Знімок екрана"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
+msgid "Image OCR"
+msgstr "OCR зображень"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 136
+msgid "Extract text from images or screen captures using OCR."
+msgstr "Витягти текст із зображень або знімків екрана за допомогою OCR."
+
+#
+# File: src/bigocrpdf/ui/image_ocr_window.py, line: 737
+msgid "No text found"
+msgstr ""
+
+#
+# File: src/bigocrpdf/ui/image_ocr_window.py, line: 740
+msgid ""
+"OCR finished but found no readable text. Capture a tighter region, or try a "
+"sharper image."
+msgstr ""
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 170
+msgid "Extracting text…"
+msgstr "Витягування тексту…"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 740
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 741
+msgid "Cancel text extraction"
+msgstr "Скасувати вилучення тексту"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 196
+msgid "Extracted text"
+msgstr "Витягнутий текст"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
+msgid "Copy"
+msgstr "Копіювати"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
+msgid "New Capture"
+msgstr "Новий знімок"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 224
+msgid "Capture a screen region"
+msgstr "Захопити область екрана"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 232
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 233
+msgid "Open an image file"
+msgstr "Відкрити файл зображення"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
+msgid "Open Image to OCR"
+msgstr "Відкрити зображення для OCR"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 496
+msgid "Images"
+msgstr "Зображення"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1102
+msgid "Could not open the selected image"
+msgstr "Не вдалося відкрити вибране зображення"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1127
+msgid "Could not copy text to the clipboard"
+msgstr "Не вдалося скопіювати текст у буфер обміну"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 433
+msgid "Copied to clipboard"
+msgstr "Скопійовано в буфер обміну"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
+msgid "Error"
+msgstr "Помилка"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 37
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 53
+msgid "Open selected PDFs"
+msgstr "Відкрити вибрані PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 68
+msgid "How would you like to open these files?"
+msgstr "Як ви хочете відкрити ці файли?"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 76
+#, python-brace-format
+msgid "{count} PDF file was selected."
+msgid_plural "{count} PDF files were selected."
+msgstr[0] "Вибрано {count} PDF-файл."
+msgstr[1] "Вибрано {count} PDF-файли."
+msgstr[2] "Вибрано {count} PDF-файлів."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 86
+msgid "Open in separate windows"
+msgstr "Відкрити в окремих вікнах"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 87
+msgid "Edit each PDF in its own editor window."
+msgstr "Редагувати кожен PDF в окремому вікні редактора."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 94
+msgid "Combine in one editor"
+msgstr "Об'єднати в одному редакторі"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 95
+msgid "Import all pages using the current selection order."
+msgstr "Імпортувати всі сторінки в поточному порядку вибору."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 102
+msgid "Choose order and combine"
+msgstr "Вибрати порядок і об'єднати"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 103
+msgid "Set the document order before importing the pages."
+msgstr "Установіть порядок документів перед імпортом сторінок."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 136
+msgid "Choose import order"
+msgstr "Вибрати порядок імпорту"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 142
+msgid "Pages will be imported from top to bottom."
+msgstr "Сторінки буде імпортовано зверху вниз."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 166
+msgid "Open combined"
+msgstr "Відкрити об'єднаний PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 199
+#, python-brace-format
+msgid "{position}. {filename}"
+msgstr "{position}. {filename}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 246
+# 247
+msgid "Move up"
+msgstr "Перемістити вгору"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
+# 255
+# 256
+msgid "Move down"
+msgstr "Перемістити вниз"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_grid.py, line: 126
+msgid ""
+"Page thumbnails. Ctrl+A select all, Ctrl+Up/Down reorder, Delete toggle "
+"page, Ctrl+L/R rotate, Ctrl+Z undo"
+msgstr ""
+"Мініатюри сторінок. Ctrl+A вибрати все, Ctrl+Вгору/Вниз перевпорядкувати, "
+"Delete включити/виключити сторінку, Ctrl+L/R повернути, Ctrl+Z скасувати"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 446
+#, python-brace-format
+msgid "Failed to add file {}: {}"
+msgstr "Не вдалося додати файл {}: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 495
+msgid "PDF Editor Help"
+msgstr "Довідка редактора PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 92
+msgid "PDF Editor"
+msgstr "Редактор PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 523
+msgid ""
+"Use the PDF editor to view and organize your documents. You can rearrange, "
+"rotate, or remove pages, compress files, and split documents by pages or "
+"file size."
+msgstr ""
+"Використовуйте редактор PDF для перегляду та організації документів. Ви "
+"можете перевпорядковувати, повертати або видаляти сторінки, стискати файли "
+"та розділяти документи за сторінками або розміром."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 536
+msgid "Keyboard shortcuts:"
+msgstr "Комбінації клавіш:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 542
+msgid "Undo last action"
+msgstr "Скасувати останню дію"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 543
+msgid "Select all pages"
+msgstr "Вибрати всі сторінки"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 544
+msgid "Save and close"
+msgstr "Зберегти і закрити"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 545
+msgid "Remove selected pages"
+msgstr "Видалити вибрані сторінки"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 546
+msgid "Rotate left / right"
+msgstr "Повернути вліво / вправо"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 547
+msgid "Zoom in / out"
+msgstr "Збільшити / зменшити"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 566
+msgid "Tips:"
+msgstr "Поради:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 573
+msgid "Drag and drop pages to reorder them"
+msgstr "Перетягніть сторінки для зміни порядку"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 574
+msgid "Right-click a page to save it as image or PDF"
+msgstr ""
+"Клацніть правою кнопкою на сторінці, щоб зберегти як зображення або PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 575
+msgid "Drag external files onto the editor to add them"
+msgstr "Перетягніть зовнішні файли в редактор для додавання"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
+msgid "Use the menu to compress or split documents"
+msgstr "Використовуйте меню для стиснення або розділення документів"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 611
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 616
+msgid "Got it"
+msgstr "Зрозуміло"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 596
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 603
+msgid "Show when opening the editor"
+msgstr "Показувати при відкритті редактора"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 80
+#, python-brace-format
+msgid "Page {}"
+msgstr "Сторінка {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 138
+msgid "Excluded"
+msgstr "Виключена"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 160
+msgid "Include this page in the final document"
+msgstr "Включити цю сторінку в кінцевий документ"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 164
+#, python-brace-format
+msgid "Include page {} in the final document"
+msgstr "Включити сторінку {} в кінцевий документ"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 180
+msgid "Rotate this page to the left"
+msgstr "Повернути цю сторінку ліворуч"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 183
+#, python-brace-format
+msgid "Rotate page {} to the left"
+msgstr "Повернути сторінку {} ліворуч"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 193
+msgid "Rotate this page to the right"
+msgstr "Повернути цю сторінку праворуч"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 196
+#, python-brace-format
+msgid "Rotate page {} to the right"
+msgstr "Повернути сторінку {} праворуч"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 211
+msgid "Horizontal Flip"
+msgstr "Горизонтальне відзеркалення"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 212
+msgid "Vertical Flip"
+msgstr "Вертикальне відзеркалення"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 231
+msgid "Mirror this page (Horizontal/Vertical)"
+msgstr "Відзеркалити цю сторінку (горизонтально/вертикально)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 235
+#, python-brace-format
+msgid "Mirror page {}"
+msgstr "Відзеркалити сторінку {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 268
+msgid "Save page as image"
+msgstr "Зберегти сторінку як зображення"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 269
+msgid "Save page as PDF"
+msgstr "Зберегти сторінку як PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 556
+#, python-brace-format
+msgid "Page {n}"
+msgstr "Сторінка {n}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 560
+#, python-brace-format
+msgid "Rotated {deg}°"
+msgstr "Повернута на {deg}°"
+
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 236
+msgid "Edit PDF"
+msgstr "Редагувати PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 190
+msgid "Reduce document file size"
+msgstr "Зменшити розмір файлу документа"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 198
+msgid "Split document by number of pages"
+msgstr "Розділити документ за кількістю сторінок"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 207
+msgid "Split document by target file size"
+msgstr "Розділити документ за цільовим розміром"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 225
+msgid "How PDF viewers arrange pages when opening the file"
+msgstr ""
+"Як програми перегляду PDF розташовують сторінки під час відкриття файлу"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 221
+msgid "Select all pages in the document"
+msgstr "Вибрати всі сторінки в документі"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 229
+msgid "Clear page selection"
+msgstr "Очистити вибір сторінок"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 261
+msgid "Reverse the order of all pages"
+msgstr "Змінити порядок усіх сторінок на зворотний"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 232
+msgid "Rotate / Flip"
+msgstr "Повернути / Відзеркалити"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 239
+msgid "Rotate Left 90º"
+msgstr "Повернути на 90º вліво"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 240
+msgid "Rotate Right 90º"
+msgstr "Повернути на 90º вправо"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 241
+msgid "Flip Vertically"
+msgstr "Відзеркалити вертикально"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 242
+msgid "Flip Horizontally"
+msgstr "Відзеркалити горизонтально"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 176
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 177
+msgid "Open rotate and flip actions"
+msgstr "Відкрити дії обертання та перевертання"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 253
+msgid "Rotate or flip selected pages"
+msgstr "Повернути або відзеркалити вибрані сторінки"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 596
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 603
+msgid "Show or hide the editor sidebar"
+msgstr "Показати або приховати бічну панель редактора"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 308
+msgid "Insert PDF or image files"
+msgstr "Вставити PDF або зображення"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 309
+# File: bigocrpdf/src/bigocrpdf/application.py, line: 375
+msgid "Add files"
+msgstr "Додати файли"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 314
+msgid "Save As"
+msgstr "Зберегти як"
+
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
+msgid "Apply"
+msgstr "Застосувати"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 320
+msgid "Save PDF to a new file (Ctrl+S)"
+msgstr "Зберегти PDF у новий файл (Ctrl+S)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 322
+msgid "Save PDF to a new file"
+msgstr "Зберегти PDF у новий файл"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 187
+msgid "Save changes and go back (Ctrl+S)"
+msgstr "Зберегти зміни та повернутися (Ctrl+S)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 188
+msgid "Save changes and go back"
+msgstr "Зберегти зміни та повернутися"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 288
+msgid "Current file"
+msgstr "Поточний файл"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 299
+msgid "Document status"
+msgstr "Стан документа"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 431
+msgid "Selection count"
+msgstr "Кількість вибраних сторінок"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 312
+msgid "Change the size of page previews"
+msgstr "Змінити розмір попереднього перегляду сторінок"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 313
+msgid "Zoom level"
+msgstr "Масштаб"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 339
+msgid "Hide editor sidebar"
+msgstr "Приховати бічну панель редактора"
+
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 46
+# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 47
+msgid "Show editor sidebar"
+msgstr "Показати бічну панель редактора"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 84
+#, python-brace-format
+msgid "PDF Editor - {}"
+msgstr "Редактор PDF - {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 562
+msgid "Could not open PDF file or file has no pages."
+msgstr "Не вдалося відкрити PDF файл або файл не має сторінок."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 596
+#, python-brace-format
+msgid "Failed to load PDF: {}"
+msgstr "Не вдалося завантажити PDF: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 605
+#, python-brace-format
+msgid "{total} page · {included} included"
+msgid_plural "{total} pages · {included} included"
+msgstr[0] "{total} сторінка · включено: {included}"
+msgstr[1] "{total} сторінки · включено: {included}"
+msgstr[2] "{total} сторінок · включено: {included}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
+#, python-brace-format
+msgid "{count} selected"
+msgstr "{count} вибрано"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 737
+#, python-brace-format
+msgid "{count} page selected"
+msgid_plural "{count} pages selected"
+msgstr[0] "Вибрано {count} сторінку"
+msgstr[1] "Вибрано {count} сторінки"
+msgstr[2] "Вибрано {count} сторінок"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
+msgid "Saving…"
+msgstr "Збереження…"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 674
+msgid "Failed to save PDF."
+msgstr "Не вдалося зберегти PDF."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 822
+msgid "Save PDF As"
+msgstr "Зберегти PDF як"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 485
+msgid "PDF Files"
+msgstr "PDF файли"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 836
+msgid "document.pdf"
+msgstr "document.pdf"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 854
+#, python-brace-format
+msgid "Saved: {}"
+msgstr "Збережено: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1101
+msgid "Error saving changes."
+msgstr "Помилка збереження змін."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1130
+msgid "Failed to merge PDF pages."
+msgstr "Не вдалося об'єднати сторінки PDF."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1152
+msgid "Unsaved Changes"
+msgstr "Незбережені зміни"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 1153
+msgid "What would you like to do with your changes?"
+msgstr "Що ви хочете зробити зі змінами?"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 217
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 685
+msgid "Compress PDF"
+msgstr "Стиснути PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 688
+msgid ""
+"Reduce the file size by compressing the images inside the PDF. Lower values "
+"produce smaller files but with less image detail."
+msgstr ""
+"Зменшіть розмір файлу, стиснувши зображення всередині PDF. Нижчі значення "
+"створюють менші файли, але з меншою деталізацією зображень."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 699
+msgid "Image Quality:"
+msgstr "Якість зображення:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 707
+msgid "10 = smallest file, 95 = best quality. 60 is a good default."
+msgstr "10 = найменший файл, 95 = найкраща якість. 60 — гарне значення."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 719
+msgid "Image Resolution (DPI):"
+msgstr "Роздільна здатність зображення (DPI):"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 727
+msgid "72 = screen only, 150 = digital reading, 300 = print quality."
+msgstr "72 = лише екран, 150 = цифрове читання, 300 = якість друку."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 741
+msgid "Compress"
+msgstr "Стиснути"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 770
+msgid "Failed to prepare document for compression."
+msgstr "Не вдалося підготувати документ до стиснення."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 784
+msgid "Save Compressed PDF"
+msgstr "Зберегти стиснутий PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 801
+#, python-brace-format
+msgid "Compression failed: {}"
+msgstr "Стиснення не вдалося: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
+# 169
+#, python-brace-format
+msgid "Failed to save compressed PDF: {}"
+msgstr "Не вдалося зберегти стиснений PDF: {}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 828
+msgid "Split by Page Count"
+msgstr "Розділити за кількістю сторінок"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 829
+msgid "Split the document into parts with a fixed number of pages each."
+msgstr "Розділити документ на частини з фіксованою кількістю сторінок."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 833
+msgid "Pages per file:"
+msgstr "Сторінок на файл:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 841
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 873
+msgid "Split"
+msgstr "Розділити"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 860
+msgid "Split by File Size"
+msgstr "Розділити за розміром файлу"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 861
+msgid "Split the document so each part is at most the specified size."
+msgstr ""
+"Розділити документ так, щоб кожна частина не перевищувала вказаний розмір."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 865
+msgid "Max size (MB):"
+msgstr "Макс. розмір (МБ):"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 889
+msgid "Select Output Directory"
+msgstr "Вибрати вихідну директорію"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 918
+msgid "Failed to prepare document for splitting."
+msgstr "Не вдалося підготувати документ до розділення."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
+# 291
+#, python-brace-format
+msgid "Parts: {parts} · Pages: {pages}"
+msgstr "Створені файли: {parts} · Сторінки: {pages}"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 939
+#, python-brace-format
+msgid "Split failed: {}"
+msgstr "Розділення не вдалося: {}"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 424
+msgid "Processing Summary"
+msgstr "Підсумок обробки"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 197
+msgid "Files processed"
+msgstr "Файлів оброблено"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 207
+msgid "Pages processed"
+msgstr "Сторінок оброблено"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 217
+msgid "Processing time"
+msgstr "Час обробки"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 227
+msgid "Output file size"
+msgstr "Розмір вихідного файлу"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 237
+msgid "File size change"
+msgstr "Зміна розміру файлу"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 450
+msgid "Files processed:"
+msgstr "Оброблені файли:"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 466
+msgid "Total pages:"
+msgstr "Загальна кількість сторінок:"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 488
+msgid "Processing time:"
+msgstr "Час обробки:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 141
+msgid "Output size:"
+msgstr "Розмір виводу:"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 150
+msgid "Size change:"
+msgstr "Зміна розміру:"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 529
+msgid "Generated Files"
+msgstr "Згенеровані файли"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 265
+msgid "Select files for bulk actions"
+msgstr "Виберіть файли для масових дій"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 281
+msgid "Output files"
+msgstr "Вихідні файли"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 290
+msgid "Selected: 0"
+msgstr "Вибрано: 0"
+
+# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 296
+msgid "Select all"
+msgstr "Вибрати все"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 342
+msgid "What is Big OCR PDF?"
+msgstr "Що таке Big OCR PDF?"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 331
+msgid ""
+"Big OCR PDF adds optical character recognition to your PDF files, making "
+"them searchable and allowing you to select and copy text from scanned "
+"documents."
+msgstr ""
+"Big OCR PDF додає оптичне розпізнавання символів до PDF-файлів, завдяки чому "
+"в них можна виконувати пошук, а текст зі сканованих документів можна "
+"виділяти й копіювати."
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 342
+msgid "Benefits of using Big OCR PDF:"
+msgstr "Переваги використання Big OCR PDF:"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
+msgid "Search"
+msgstr "Пошук"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
+msgid "Search through your scanned PDF documents"
+msgstr "Шукати у відсканованих PDF-документах"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
+msgid "Copy text"
+msgstr "Скопіювати текст"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
+msgid "Copy text from images and scanned documents"
+msgstr "Копіюйте текст з зображень та відсканованих документів"
+
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 235
+msgid "Add image files and generate new PDFs from them"
+msgstr "Додати файли зображень та створити нові PDF з них"
+
+# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 236
+msgid "Rearrange, rotate or remove pages before processing"
+msgstr "Переставити, повернути або видалити сторінки перед обробкою"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
+msgid "Batch processing"
+msgstr "Пакетна обробка"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
+msgid "Process multiple files at once"
+msgstr "Обробляйте кілька файлів одночасно"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
+msgid "Auto-correction"
+msgstr "Автоматичне виправлення"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
+msgid "Automatically correct page alignment and rotation"
+msgstr "Автоматично виправляти вирівнювання сторінки та обертання"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 370
+msgid "Show this dialog at startup"
+msgstr "Показувати цей діалог під час запуску"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 384
+msgid "Let's Get Started"
+msgstr "Почнемо"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 400
+msgid "File queue"
+msgstr "Черга файлів"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 57
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 100
+msgid "Add your PDFs"
+msgstr "Додати PDF-файли"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 59
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 102
+msgid "Drag PDF files and images here, or use the button in the header bar"
+msgstr ""
+"Перетягніть PDF-файли та зображення сюди або використовуйте кнопку в "
+"заголовку"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 434
+msgid "Save in the same folder as the original file"
+msgstr "Зберегти в тій самій папці, що й оригінальний файл"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 435
+msgid "Custom folder"
+msgstr "Довільна папка"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 442
+msgid "Output folder location"
+msgstr "Розташування вихідної папки"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1881
+msgid "Select folder"
+msgstr "Виберіть папку"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 458
+msgid "Destination folder path"
+msgstr "Шлях до папки призначення"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 465
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 466
+msgid "Browse for folder"
+msgstr "Обрати папку"
+
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/cli.py, line: 244
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 481
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 483
+msgid "Output options"
+msgstr "Параметри виводу"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 946
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 947
+msgid "Edit pages of this file"
+msgstr "Редагувати сторінки цього файлу"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 966
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 968
+msgid "Remove this file from the list"
+msgstr "Видалити цей файл зі списку"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 290
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 384
+#, python-brace-format
+msgid "{size} MB"
+msgstr "{size} MB"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 481
+msgid "Open file"
+msgstr "Відкрити файл"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 486
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 746
+msgid "File information"
+msgstr "Інформація про файл"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 679
+msgid "Name"
+msgstr "Назва"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 680
+msgid "Path"
+msgstr "Шлях"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 685
+msgid "Size"
+msgstr "Розмір"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 693
+msgid "Modified (local)"
+msgstr "Змінено (місцевий час)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 701
+msgid "Document"
+msgstr "Документ"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 706
+msgid "Form"
+msgstr "Форма"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 708
+msgid "JavaScript"
+msgstr "JavaScript"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 711
+msgid "Content"
+msgstr "Вміст"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 715
+msgid "Image formats"
+msgstr "Формати зображень"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 721
+msgid "Fonts"
+msgstr "Шрифти"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 725
+msgid "Embedded fonts"
+msgstr "Вбудовані шрифти"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 729
+msgid "Font names"
+msgstr "Назви шрифтів"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 732
+msgid "Attached files"
+msgstr "Прикріплені файли"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 735
+msgid "Metadata"
+msgstr "Метадані"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 740
+msgid "Created"
+msgstr "Створено"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 742
+msgid "Modified"
+msgstr "Змінено"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 755
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 756
+msgid "Copy all information"
+msgstr "Копіювати всю інформацію"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 782
+msgid "Image list"
+msgstr "Список зображень"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 575
+#, python-brace-format
+msgid "{count} image"
+msgid_plural "{count} images"
+msgstr[0] "{count} зображення"
+msgstr[1] "{count} зображення"
+msgstr[2] "{count} зображень"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 792
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 793
+msgid "Extract this image"
+msgstr "Витягти це зображення"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 823
+msgid "Information copied"
+msgstr "Інформацію скопійовано"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 879
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 887
+msgid "Failed to extract image"
+msgstr "Не вдалося витягти зображення"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 885
+msgid "Image extracted"
+msgstr "Зображення витягнуто"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1084
+msgid "Failed to open PDF editor"
+msgstr "Не вдалося відкрити редактор PDF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1064
+msgid "Changes saved"
+msgstr "Зміни збережено"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1207
+msgid "Multiple Images Dropped"
+msgstr "Кілька зображень перетягнуто"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1209
+#, python-brace-format
+msgid "You dropped {count} image. How would you like to add it?"
+msgid_plural "You dropped {count} images. How would you like to add them?"
+msgstr[0] "Ви перетягнули {count} зображення. Як його додати?"
+msgstr[1] "Ви перетягнули {count} зображення. Як їх додати?"
+msgstr[2] "Ви перетягнули {count} зображень. Як їх додати?"
+
+# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 1094
+msgid "All files removed from queue"
+msgstr "Усі файли видалено з черги"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1757
+msgid "PDF Output Options"
+msgstr "Параметри виводу PDF"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1776
+msgid "Save"
+msgstr "Зберегти"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 2022
+msgid "Preview"
+msgstr "Попередній перегляд"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 2026
+msgid "Filename Example:"
+msgstr "Приклад імені файлу:"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1791
+msgid "File Settings"
+msgstr "Налаштування файлу"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1795
+msgid "Use Original Filename"
+msgstr "Використовувати оригінальне ім'я файлу"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1796
+msgid "Use the same name as the original file"
+msgstr "Використовувати таку саму назву, як у початкового файлу"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1804
+msgid "Warning"
+msgstr "Попередження"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 214
+msgid ""
+"To replace original files, also enable 'Overwrite Existing Files' below and "
+"save to the same folder"
+msgstr ""
+"Щоб замінити оригінальні файли, також увімкніть 'Перезаписати наявні файли' "
+"нижче та збережіть у ту саму папку"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1821
+msgid "Filename Suffix"
+msgstr "Суфікс назви файлу"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 178
+msgid "Text added to the end of the filename (e.g. document-ocr.pdf)"
+msgstr "Текст, доданий в кінець імені файлу (напр. document-ocr.pdf)"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1833
+msgid "Overwrite Existing Files"
+msgstr "Перезаписати наявні файли"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1834
+msgid "Replace files with the same name"
+msgstr "Замінити файли з тією ж назвою"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 231
+msgid "Overwrite Existing Files?"
+msgstr "Перезаписати наявні файли?"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 234
+msgid ""
+"If files with the same name already exist in the output folder, they will be "
+"permanently replaced. This cannot be undone."
+msgstr ""
+"Якщо файли з такою ж назвою вже існують у вихідній папці, вони будуть "
+"безповоротно замінені. Це не можна скасувати."
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 239
+msgid "Enable"
+msgstr "Увімкнути"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1844
+msgid "Save Text Files"
+msgstr "Зберегти текстові файли"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1845
+msgid "Automatically save extracted text as .txt files"
+msgstr "Автоматично зберігати витягнутий текст як .txt файли"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1853
+msgid "Use Separate Folder for Text Files"
+msgstr "Використовувати окрему папку для текстових файлів"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1854
+msgid "Save text files to a different folder"
+msgstr "Зберегти текстові файли в іншу папку"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1871
+msgid "Not set"
+msgstr "Не встановлено"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 289
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 291
+msgid "Choose where to save the text files"
+msgstr "Оберіть, куди зберегти текстові файли"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1865
+msgid "Text Files Folder"
+msgstr "Тека текстових файлів"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1866
+msgid "Select where to save text files"
+msgstr "Вибрати, куди зберігати текстові файли"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 311
+msgid "ODF Export"
+msgstr "Експорт ODF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 315
+msgid "Save ODF Files"
+msgstr "Зберегти файли ODF"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 316
+msgid "Automatically save extracted text as .odt files"
+msgstr "Автоматично зберігати витягнутий текст як файли .odt"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1938
+msgid "Date and Time"
+msgstr "Дата та час"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1942
+msgid "Add Date to Filename"
+msgstr "Додати дату до імені файлу"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1943
+msgid "Include date elements in the filename"
+msgstr "Включити елементи дати у ім'я файлу"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1949
+msgid "Date Format"
+msgstr "Формат дати"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 449
+msgid "Standard (2026-02-23)"
+msgstr "Стандартний (2026-02-23)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 450
+msgid "European (23-02-2026)"
+msgstr "Європейський (23-02-2026)"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 451
+msgid "American (02-23-2026)"
+msgstr "Американський (02-23-2026)"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1978
+msgid "Include Year"
+msgstr "Включити рік"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1979
+msgid "Add YYYY to the date"
+msgstr "Додати РРРР до дати"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1989
+msgid "Include Month"
+msgstr "Включити місяць"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1990
+msgid "Add MM to the date"
+msgstr "Додати ММ до дати"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 2000
+msgid "Include Day"
+msgstr "Включити день"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 2001
+msgid "Add DD to the date"
+msgstr "Додати ДД до дати"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 2011
+msgid "Include Time"
+msgstr "Включити час"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 2012
+msgid "Add HHMM to the filename"
+msgstr "Додати HHMM до імені файлу"
+
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1917
+msgid "Select Folder for Text Files"
+msgstr "Виберіть папку для текстових файлів"
+
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_callbacks_mixin.py, line: 317
+msgid "PDF output settings saved"
+msgstr "Налаштування виводу PDF збережено"
 
 #: src/bigocrpdf/window_controller.py:195
 msgid "No supported files in clipboard"

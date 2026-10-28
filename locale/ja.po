@@ -2,7 +2,7 @@
 # Copyright (C) 2026 BigLinux Team
 # This file is distributed under the same license as the bigocrpdf package.
 # BigLinux Translation Team <biglinux@biglinux.com.br>, 2026.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 4.0.0\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: Japanese\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.18.0\n"
@@ -1662,18 +1662,15 @@ msgstr "画質"
 
 #: src/bigocrpdf/ui/output_dialog.py:27
 msgid ""
-"Controls the compression applied to images inside the PDF. Lower quality "
-"means smaller files but some detail is lost. 'Keep Original' preserves "
-"images exactly as they are.\n"
+"Controls the compression applied to images inside the PDF. Lower quality means smaller files but "
+"some detail is lost. 'Keep Original' preserves images exactly as they are.\n"
 "\n"
 "The last option, 'Black & White', converts all pages to pure black and "
 "white, compressed with JBIG2 when jbig2enc is installed and with CCITT G4 "
 "otherwise. It gives the smallest files for text-only documents, but all "
 "color is lost."
 msgstr ""
-"PDF内の画像に適用される圧縮を制御します。低い品質ではファイルサイズが小さくな"
-"りますが、一部の細部が失われます。「元の画像を保持」は画像を変更せずそのまま"
-"保持します。\n"
+"PDF内の画像に適用される圧縮を制御します。低い品質ではファイルサイズが小さくなりますが、一部の細部が失われます。「元の画像を保持」は画像を変更せずそのまま保持します。\n"
 "\n"
 "最後のオプション「白黒」は、すべてのページを完全な白黒に変換します。jbig2enc"
 "がインストールされている場合はJBIG2で、それ以外の場合はCCITT G4で圧縮されま"
@@ -1703,10 +1700,9 @@ msgstr "ページレイアウト"
 
 #: src/bigocrpdf/ui/output_dialog.py:53
 msgid ""
-"Sets how PDF viewers arrange the pages when the file is opened: one page at "
-"a time, a continuous vertical scroll, or two pages side by side. 'Default' "
-"lets each viewer choose. Use this if pages appear at inconsistent sizes on "
-"phones."
+"Sets how PDF viewers arrange the pages when the file is opened: one page at a time, a continuous "
+"vertical scroll, or two pages side by side. 'Default' lets each viewer choose. Use this if pages "
+"appear at inconsistent sizes on phones."
 msgstr ""
 "ファイルを開いたときに PDF ビューアーがページをどのように配置するかを設定しま"
 "す。1 ページずつ表示、縦方向に連続スクロール、または 2 ページを横に並べて表示"
@@ -3231,8 +3227,249 @@ msgstr "結果"
 
 #: src/bigocrpdf/utils/temp_manager.py:81
 #, python-brace-format
-msgid ""
-"Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
+msgid "{active} of {total} enabled"
+msgstr "{total}中{active}個有効"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 175
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 256
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:145
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:237
+#, python-brace-format
+msgid "{n} options enabled"
+msgstr "{n}個のオプションが有効"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 227
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:158
+msgid "Very Low (30%)"
+msgstr "非常に低い (30%)"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 228
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:159
+msgid "Low (50%)"
+msgstr "低 (50%)"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 229
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:160
+msgid "Medium (70%)"
+msgstr "中程度 (70%)"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 230
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:161
+msgid "High (85%)"
+msgstr "高 (85%)"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 231
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:162
+msgid "Maximum (95%)"
+msgstr "最大 (95%)"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 196
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:163
+msgid "Black & White (JBIG2)"
+msgstr "白黒（JBIG2）"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 210
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:114
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:176
+msgid "Default (viewer decides)"
+msgstr "デフォルト（ビューアーが決定）"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 211
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:115
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:177
+msgid "Single page"
+msgstr "1 ページ"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 212
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:116
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:178
+msgid "Continuous scroll"
+msgstr "連続スクロール"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 213
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
+#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:117
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:179
+msgid "Two pages"
+msgstr "2 ページ"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 270
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:189
+msgid "No limit"
+msgstr "制限なし"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:190
+msgid "5 MB"
+msgstr "5 MB"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:191
+msgid "10 MB"
+msgstr "10 MB"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:192
+msgid "15 MB"
+msgstr "15 MB"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:193
+msgid "20 MB"
+msgstr "20 MB"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 213
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:194
+msgid "25 MB"
+msgstr "25 MB"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 214
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:195
+msgid "50 MB"
+msgstr "50 MB"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 215
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:196
+msgid "100 MB"
+msgstr "100 MB"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 171
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:249
+msgid "Low Precision"
+msgstr "低精度"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 172
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:250
+msgid "Standard"
+msgstr "標準"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 173
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:251
+msgid "Precise"
+msgstr "高精度"
+# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 174
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:252
+msgid "Very Precise"
+msgstr "最高精度"
+# File:
+# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
+# line: 708
+#: src/bigocrpdf/ui/text_viewer_controller.py:82
+msgid "OCR processing was completed for this file, but the extracted text could not be found."
+msgstr "このファイルのOCR処理は完了しましたが、抽出されたテキストが見つかりませんでした。"
+# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
+#: src/bigocrpdf/ui/text_viewer_controller.py:154
+#, python-brace-format
+msgid "{count} word"
+msgid_plural "{count} words"
+msgstr[0] "{count} 語"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
+#: src/bigocrpdf/ui/text_viewer_controller.py:157
+#, python-brace-format
+msgid "{count} character"
+msgid_plural "{count} characters"
+msgstr[0] "{count} 文字"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
+#: src/bigocrpdf/ui/text_viewer_controller.py:161
+#, python-brace-format
+msgid "{words} · {characters}"
+msgstr "{words} · {characters}"
+# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
+#: src/bigocrpdf/ui/image_ocr_window.py:782
+#: src/bigocrpdf/ui/image_ocr_window.py:784
+#: src/bigocrpdf/ui/text_viewer_controller.py:208
+#: src/bigocrpdf/ui/text_viewer_controller.py:209
+msgid "Copy text to clipboard"
+msgstr "クリップボードにテキストをコピー"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 371
+#: src/bigocrpdf/ui/text_viewer_controller.py:214
+#: src/bigocrpdf/ui/text_viewer_controller.py:217
+msgid "Save TXT"
+msgstr "TXTを保存"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 203
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 204
+#: src/bigocrpdf/ui/text_viewer_controller.py:237
+msgid "Decrease font size"
+msgstr "フォントサイズを縮小"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 209
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 210
+#: src/bigocrpdf/ui/text_viewer_controller.py:244
+msgid "Increase font size"
+msgstr "フォントサイズを拡大"
+# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
+# line: 1291
+# line: 1272
+# line: 1324
+#: src/bigocrpdf/ui/text_viewer_controller.py:351
+msgid "Search in text..."
+msgstr "テキスト内を検索..."
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 287
+#: src/bigocrpdf/ui/text_viewer_controller.py:353
+msgid "Search in text"
+msgstr "テキスト内を検索"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 294
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 295
+#: src/bigocrpdf/ui/text_viewer_controller.py:360
+#: src/bigocrpdf/ui/text_viewer_controller.py:361
+msgid "Previous match"
+msgstr "前の一致"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 301
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 302
+#: src/bigocrpdf/ui/text_viewer_controller.py:367
+#: src/bigocrpdf/ui/text_viewer_controller.py:368
+msgid "Next match"
+msgstr "次の一致"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 507
+#: src/bigocrpdf/ui/text_viewer_controller.py:496
+msgid "No matches"
+msgstr "一致なし"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 458
+#: src/bigocrpdf/ui/text_viewer_controller.py:537
+msgid "Wrapped to first match"
+msgstr "最初の一致に戻りました"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 467
+#: src/bigocrpdf/ui/text_viewer_controller.py:550
+msgid "Wrapped to last match"
+msgstr "最後の一致に戻りました"
+# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 449
+#: src/bigocrpdf/ui/text_viewer_controller.py:580
+#, python-brace-format
+msgid "{current}/{total}"
+msgstr "{current}/{total}"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 179
+#: src/bigocrpdf/application.py:402 src/bigocrpdf/ui/image_ocr_window.py:313
+msgid "Unsupported file format"
+msgstr "サポートされていないファイル形式"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 198
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 236
+#: src/bigocrpdf/ui/image_ocr_window.py:327
+#: src/bigocrpdf/ui/image_ocr_window.py:354
+#: src/bigocrpdf/ui/image_ocr_window.py:408
+#: src/bigocrpdf/ui/image_ocr_window.py:659
+msgid "No image found in clipboard"
+msgstr "クリップボードに画像が見つかりません。"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 428
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 539
+#: src/bigocrpdf/ui/image_ocr_window.py:428
+#: src/bigocrpdf/ui/image_ocr_window.py:539
+msgid "Could not read the clipboard image"
+msgstr "クリップボードの画像を読み取れませんでした"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 633
+#: src/bigocrpdf/ui/image_ocr_window.py:633
+msgid "Clipboard file list is too large"
+msgstr "クリップボードのファイル一覧が大きすぎます"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
+#: src/bigocrpdf/ui/image_ocr_window.py:702
+#: src/bigocrpdf/ui/image_ocr_window.py:706
+#: src/bigocrpdf/ui/image_ocr_window.py:803
+msgid "Open Image"
+msgstr "画像を開く"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 152
+#: src/bigocrpdf/ui/image_ocr_window.py:713
+#: src/bigocrpdf/ui/image_ocr_window.py:718
+msgid "Screen Capture"
+msgstr "スクリーンキャプチャ"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
+#: src/bigocrpdf/ui/image_ocr_window.py:693
+msgid "Image OCR"
+msgstr "画像OCR"
+# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
+#: src/bigocrpdf/ui/image_ocr_window.py:694
+msgid "Extract text from images or screen captures using OCR."
+msgstr "画像やスクリーンキャプチャからOCRを使用してテキストを抽出します。"
+# 
+# File: src/bigocrpdf/ui/image_ocr_window.py, line: 737
+#: NEEDS WORK
+msgid "No text found"
 msgstr ""
 "ディスク容量が不足しています。{needed:.0f} MB必要ですが、{free:.0f} MBしか利"
 "用できません。"
