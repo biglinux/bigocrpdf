@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: Dutch\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.18.0\n"
@@ -632,7 +632,8 @@ msgstr "Callback voor voltooide OCR-verwerking geactiveerd"
 #: src/bigocrpdf/processing_controller.py:380
 msgid "Processing complete but no longer on terminal page, likely cancelled"
 msgstr ""
-"Schermopname mislukt. Probeer het opnieuw of open een afbeeldingsbestand."
+"De verwerking is voltooid, maar de verwerkingspagina is niet meer actief; de "
+"bewerking is waarschijnlijk geannuleerd."
 
 #: src/bigocrpdf/processing_controller.py:445
 msgid "Back to Queue"
@@ -852,8 +853,7 @@ msgstr "Verwerkt bestand uit de wachtrij verwijderd: {0}"
 #: src/bigocrpdf/ui/image_ocr_window.py:1040
 msgid "Screen capture failed. Please try again or open an image file."
 msgstr ""
-"De verwerking is door de gebruiker geannuleerd tijdens de verwerking van het "
-"bestand: {0}"
+"Schermopname mislukt. Probeer het opnieuw of open een afbeeldingsbestand."
 
 #: src/bigocrpdf/services/screen_capture.py:490
 #: src/bigocrpdf/services/screen_capture.py:560
@@ -1559,10 +1559,10 @@ msgstr "Start de OCR-verwerking"
 
 #: src/bigocrpdf/ui/header_bar.py:218 src/bigocrpdf/ui/image_ocr_window.py:1192
 msgid ""
-"Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
+"OCR is unavailable. Install the required engine and restart the application."
 msgstr ""
-"Onvoldoende schijfruimte. {needed:.0f} MB nodig maar slechts {free:.0f} MB "
-"beschikbaar."
+"OCR is niet beschikbaar. Installeer de vereiste engine en start de "
+"applicatie opnieuw."
 
 #: src/bigocrpdf/ui/image_ocr_window.py:345
 #: src/bigocrpdf/ui/image_ocr_window.py:372
@@ -2249,10 +2249,10 @@ msgstr "Hoe wilt u deze bestanden openen?"
 
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:75
 #, python-brace-format
-msgid "{count} file"
-msgid_plural "{count} files"
-msgstr[0] "{count} bestand"
-msgstr[1] "{count} bestanden"
+msgid "{count} PDF file was selected."
+msgid_plural "{count} PDF files were selected."
+msgstr[0] "{count} PDF-bestand is geselecteerd."
+msgstr[1] "Er zijn {count} PDF-bestanden geselecteerd."
 
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:88
 msgid "Open in separate windows"
@@ -2297,10 +2297,8 @@ msgstr "Samengevoegde PDF openen"
 
 #: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:199
 #, python-brace-format
-msgid "This will remove {count} file from the queue."
-msgid_plural "This will remove {count} files from the queue."
-msgstr[0] "Hierdoor wordt {count} bestand uit de wachtrij verwijderd."
-msgstr[1] "Hierdoor worden {count} bestanden uit de wachtrij verwijderd."
+msgid "{position}. {filename}"
+msgstr "{position}. {filename}"
 
 #: src/bigocrpdf/ui/pdf_editor/page_grid.py:125
 msgid ""
@@ -2322,10 +2320,8 @@ msgstr "Neem deze pagina op in het einddocument."
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:165
 #, python-brace-format
-msgid "{count} file in queue"
-msgid_plural "{count} files in queue"
-msgstr[0] "{count} bestand in wachtrij"
-msgstr[1] "{count} bestanden in wachtrij"
+msgid "Include page {} in the final document"
+msgstr "Pagina {} opnemen in het definitieve document"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:181
 msgid "Rotate this page to the left"
@@ -2333,8 +2329,8 @@ msgstr "Draai deze pagina naar links"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:184
 #, python-brace-format
-msgid "JPEG {quality}%"
-msgstr "JPEG {quality}%"
+msgid "Rotate page {} to the left"
+msgstr "Pagina {} naar links roteren"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:194
 msgid "Rotate this page to the right"
@@ -2342,8 +2338,8 @@ msgstr "Draai deze pagina naar rechts"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:197
 #, python-brace-format
-msgid "{mb} MB"
-msgstr "{mb} MB"
+msgid "Rotate page {} to the right"
+msgstr "Pagina {} naar rechts roteren"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:210
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:393
@@ -2361,8 +2357,8 @@ msgstr "Spiegel deze pagina (horizontaal/verticaal)"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:231
 #, python-brace-format
-msgid "<b>Completed: {completed}/{total}</b> · Remaining: {remaining}"
-msgstr "<b>Voltooid: {completed}/{total}</b> · Resterend: {remaining}"
+msgid "Mirror page {}"
+msgstr "Pagina {} spiegelen"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:263
 msgid "Save page as image"
@@ -2375,8 +2371,8 @@ msgstr "Pagina opslaan als PDF"
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:387
 #: src/bigocrpdf/ui/settings_queue_mixin.py:989
 #, python-brace-format
-msgid "Processed file {current}/{total}: {filename}"
-msgstr "Verwerkt bestand {current}/{total}: {filename}"
+msgid "Page {n}"
+msgstr "Pagina {n}"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:391
 #, python-brace-format
@@ -2426,15 +2422,11 @@ msgstr "Waarschuwing"
 
 #: src/bigocrpdf/ui/pdf_options_controller.py:118
 msgid ""
-"<b>OCR processing complete!</b> {total} file processed · Total time: {time}"
-msgid_plural ""
-"<b>OCR processing complete!</b> {total} files processed · Total time: {time}"
-msgstr[0] ""
-"<b>OCR-verwerking voltooid!</b> {total} bestand verwerkt · Totale tijd: "
-"{time}"
-msgstr[1] ""
-"<b>OCR-verwerking voltooid!</b> {total} bestanden verwerkt · Totale tijd: "
-"{time}"
+"To replace original files, also enable 'Overwrite Existing Files' below and "
+"save to the same folder"
+msgstr ""
+"Om originele bestanden te vervangen, schakelt u hieronder ook ‘Bestaande "
+"bestanden overschrijven’ in en slaat u ze in dezelfde map op."
 
 #: src/bigocrpdf/ui/pdf_options_controller.py:129
 msgid "Filename Suffix"
@@ -2819,10 +2811,10 @@ msgstr "Afbeeldingslijst"
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:981
 #, python-brace-format
-msgid "{count} page"
-msgid_plural "{count} pages"
-msgstr[0] "{count} pagina"
-msgstr[1] "{count} pagina's"
+msgid "{count} image"
+msgid_plural "{count} images"
+msgstr[0] "{count} afbeelding"
+msgstr[1] "{count} afbeeldingen"
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:996
 #: src/bigocrpdf/ui/settings_queue_mixin.py:997
@@ -2857,14 +2849,19 @@ msgstr "Meerdere afbeeldingen neergezet"
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:1192
 #, python-brace-format
-msgid "Exported to {}"
-msgstr "Geëxporteerd naar {}"
+msgid "You dropped {count} image. How would you like to add it?"
+msgid_plural "You dropped {count} images. How would you like to add them?"
+msgstr[0] "U hebt {count} afbeelding hier neergezet. Hoe wilt u die toevoegen?"
+msgstr[1] ""
+"U hebt {count} afbeeldingen hier neergezet. Hoe wilt u die toevoegen?"
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:1244
 #: src/bigocrpdf/ui/window_ui.py:108
 #, python-brace-format
-msgid "Cancelled — saved {ok} of {total}"
-msgstr "Geannuleerd - opgeslagen {ok} van {total}"
+msgid "{count} file in queue"
+msgid_plural "{count} files in queue"
+msgstr[0] "{count} bestand in wachtrij"
+msgstr[1] "{count} bestanden in wachtrij"
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:1259
 msgid "All files removed from queue"
@@ -3103,9 +3100,8 @@ msgid ""
 "OCR processing was completed for this file, but the extracted text could not "
 "be found."
 msgstr ""
-"Analyseert de afbeelding op volledige resolutie voor tekstdetectie. Vindt "
-"meer tekst in hoge-resolutiescans maar duurt langer. De snelle modus is goed "
-"genoeg voor de meeste documenten."
+"De OCR-verwerking is voltooid voor dit bestand, maar de geëxtraheerde tekst "
+"kon niet worden gevonden."
 
 #: src/bigocrpdf/ui/text_viewer_controller.py:155
 #, python-brace-format
@@ -3180,8 +3176,9 @@ msgstr "Wat is Big OCR PDF?"
 
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:81
 msgid ""
-"Fine-tune how OCR text recognition works. The default settings work well for "
-"most documents."
+"Big OCR PDF adds optical character recognition to your PDF files, making "
+"them searchable and allowing you to select and copy text from scanned "
+"documents."
 msgstr ""
 "Big OCR PDF voegt optische tekenherkenning toe aan uw PDF-bestanden, "
 "waardoor ze doorzoekbaar worden en u tekst uit gescande documenten kunt "
@@ -3287,1381 +3284,16 @@ msgstr "Resultaten"
 
 #: src/bigocrpdf/utils/temp_manager.py:81
 #, python-brace-format
-msgid "{active} of {total} enabled"
-msgstr "{active} van {total} ingeschakeld"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 175
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 256
-#, python-brace-format
-msgid "{n} options enabled"
-msgstr "{n} opties ingeschakeld"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 227
-msgid "Very Low (30%)"
-msgstr "Zeer laag (30%)"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 228
-msgid "Low (50%)"
-msgstr "Laag (50%)"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 229
-msgid "Medium (70%)"
-msgstr "Gemiddeld (70%)"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 230
-msgid "High (85%)"
-msgstr "Hoog (85%)"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 231
-msgid "Maximum (95%)"
-msgstr "Maximaal (95%)"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 196
-msgid "Black & White (JBIG2)"
-msgstr "Zwart-wit (JBIG2)"
-
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 210
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
-msgid "Default (viewer decides)"
-msgstr "Standaard (lezer bepaalt)"
-
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 211
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
-msgid "Single page"
-msgstr "Eén pagina"
-
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 212
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
-msgid "Continuous scroll"
-msgstr "Doorlopend scrollen"
-
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 213
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
-msgid "Two pages"
-msgstr "Twee pagina's"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 270
-msgid "No limit"
-msgstr "Geen limiet"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
-msgid "5 MB"
-msgstr "5 MB"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
-msgid "10 MB"
-msgstr "10 MB"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
-msgid "15 MB"
-msgstr "15 MB"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
-msgid "20 MB"
-msgstr "20 MB"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 213
-msgid "25 MB"
-msgstr "25 MB"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 214
-msgid "50 MB"
-msgstr "50 MB"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 215
-msgid "100 MB"
-msgstr "100 MB"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 171
-msgid "Low Precision"
-msgstr "Lage precisie"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 172
-msgid "Standard"
-msgstr "Standaard"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 173
-msgid "Precise"
-msgstr "Nauwkeurig"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 174
-msgid "Very Precise"
-msgstr "Zeer nauwkeurig"
-
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 708
 msgid ""
-"OCR processing was completed for this file, but the extracted text could not "
-"be found."
+"Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
 msgstr ""
-"De OCR-verwerking is voltooid voor dit bestand, maar de geëxtraheerde tekst "
-"kon niet worden gevonden."
+"Onvoldoende schijfruimte. {needed:.0f} MB nodig maar slechts {free:.0f} MB "
+"beschikbaar."
 
 #: src/bigocrpdf/utils/temp_manager.py:94
 #, python-brace-format
-msgid "{count} word"
-msgid_plural "{count} words"
-msgstr[0] "{count} woord"
-msgstr[1] "{count} woorden"
-
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
-#, python-brace-format
-msgid "{count} character"
-msgid_plural "{count} characters"
-msgstr[0] "{count} teken"
-msgstr[1] "{count} tekens"
-
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 155
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 157
-#, python-brace-format
-msgid "{words} · {characters}"
-msgstr "{words} · {characters}"
-
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 206
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 364
-msgid "Copy text to clipboard"
-msgstr "Kopieer tekst naar klembord"
-
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 371
-msgid "Save TXT"
-msgstr "TXT opslaan"
-
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 203
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 204
-msgid "Decrease font size"
-msgstr "Lettergrootte verkleinen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 209
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 210
-msgid "Increase font size"
-msgstr "Lettergrootte vergroten"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1291
-# line: 1272
-# line: 1324
-msgid "Search in text..."
-msgstr "Zoeken in tekst..."
-
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 287
-msgid "Search in text"
-msgstr "Zoeken in tekst"
-
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 294
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 295
-msgid "Previous match"
-msgstr "Vorige overeenkomst"
-
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 301
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 302
-msgid "Next match"
-msgstr "Volgende overeenkomst"
-
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 507
-msgid "No matches"
-msgstr "Geen overeenkomsten"
-
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 458
-msgid "Wrapped to first match"
-msgstr "Terug naar eerste overeenkomst"
-
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 467
-msgid "Wrapped to last match"
-msgstr "Terug naar laatste overeenkomst"
-
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 449
-#, python-brace-format
-msgid "{current}/{total}"
-msgstr "{current}/{total}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 179
-msgid "Unsupported file format"
-msgstr "Niet-ondersteund bestandsformaat"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 198
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 236
-msgid "No image found in clipboard"
-msgstr "Geen afbeelding gevonden in het klembord."
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 428
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 539
-msgid "Could not read the clipboard image"
-msgstr "Kon de afbeelding van het klembord niet lezen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 633
-msgid "Clipboard file list is too large"
-msgstr "De bestandenlijst op het klembord is te groot"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
-msgid "Open Image"
-msgstr "Afbeelding openen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 152
-msgid "Screen Capture"
-msgstr "Schermafbeelding"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 134
-msgid "Image OCR"
-msgstr "Afbeeldings-OCR"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
-msgid "Extract text from images or screen captures using OCR."
-msgstr "Haal tekst uit afbeeldingen of schermafbeeldingen met behulp van OCR."
-
-#
-# File: src/bigocrpdf/ui/image_ocr_window.py, line: 737
-msgid "No text found"
-msgstr ""
-
-#
-# File: src/bigocrpdf/ui/image_ocr_window.py, line: 740
-msgid ""
-"OCR finished but found no readable text. Capture a tighter region, or try a "
-"sharper image."
-msgstr ""
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 167
-msgid "Extracting text…"
-msgstr "Tekst extraheren…"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 740
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 741
-msgid "Cancel text extraction"
-msgstr "Tekstextractie annuleren"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 196
-msgid "Extracted text"
-msgstr "Geëxtraheerde tekst"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
-msgid "Copy"
-msgstr "Kopiëren"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
-msgid "New Capture"
-msgstr "Nieuwe schermafbeelding"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 216
-msgid "Capture a screen region"
-msgstr "Leg een schermgebied vast"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 224
-msgid "Open an image file"
-msgstr "Open een afbeeldingsbestand"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
-msgid "Open Image to OCR"
-msgstr "Open afbeelding voor OCR"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 496
-msgid "Images"
-msgstr "Afbeeldingen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1102
-msgid "Could not open the selected image"
-msgstr "Kon de geselecteerde afbeelding niet openen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1127
-msgid "Could not copy text to the clipboard"
-msgstr "Kon de tekst niet naar het klembord kopiëren"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 415
-msgid "Copied to clipboard"
-msgstr "Gekopieerd naar klembord"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
-msgid "Error"
-msgstr "Fout"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 37
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 53
-msgid "Open selected PDFs"
-msgstr "Geselecteerde PDF's openen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 68
-msgid "How would you like to open these files?"
-msgstr "Hoe wilt u deze bestanden openen?"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 76
-#, python-brace-format
-msgid "{count} PDF file was selected."
-msgid_plural "{count} PDF files were selected."
-msgstr[0] "{count} PDF-bestand is geselecteerd."
-msgstr[1] "Er zijn {count} PDF-bestanden geselecteerd."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 86
-msgid "Open in separate windows"
-msgstr "Openen in afzonderlijke vensters"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 87
-msgid "Edit each PDF in its own editor window."
-msgstr "Elke PDF in een eigen editorvenster bewerken."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 94
-msgid "Combine in one editor"
-msgstr "Samenvoegen in één editor"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 95
-msgid "Import all pages using the current selection order."
-msgstr "Alle pagina's importeren in de huidige selectievolgorde."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 102
-msgid "Choose order and combine"
-msgstr "Volgorde kiezen en samenvoegen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 103
-msgid "Set the document order before importing the pages."
-msgstr "Stel de documentvolgorde in voordat de pagina's worden geïmporteerd."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 136
-msgid "Choose import order"
-msgstr "Importvolgorde kiezen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 142
-msgid "Pages will be imported from top to bottom."
-msgstr "Pagina's worden van boven naar beneden geïmporteerd."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 166
-msgid "Open combined"
-msgstr "Samengevoegde PDF openen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 199
-#, python-brace-format
-msgid "{position}. {filename}"
-msgstr "{position}. {filename}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 246
-# 247
-msgid "Move up"
-msgstr "Omhoog verplaatsen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 255
-# 256
-msgid "Move down"
-msgstr "Omlaag verplaatsen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_grid.py, line: 126
-msgid ""
-"Page thumbnails. Ctrl+A select all, Ctrl+Up/Down reorder, Delete toggle "
-"page, Ctrl+L/R rotate, Ctrl+Z undo"
-msgstr ""
-"Paginaminiaturen. Ctrl+A alles selecteren, Ctrl+Omhoog/Omlaag herordenen, "
-"Delete pagina opnemen/uitsluiten, Ctrl+L/R roteren, Ctrl+Z ongedaan maken"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 343
-#, python-brace-format
-msgid "Failed to add file {}: {}"
-msgstr "Kon het bestand {} niet toevoegen: {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 495
-msgid "PDF Editor Help"
-msgstr "Hulp voor de PDF-editor"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 92
-msgid "PDF Editor"
-msgstr "PDF-editor"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 523
-msgid ""
-"Use the PDF editor to view and organize your documents. You can rearrange, "
-"rotate, or remove pages, compress files, and split documents by pages or "
-"file size."
-msgstr ""
-"Gebruik de PDF-editor om uw documenten te bekijken en ordenen. U kunt "
-"pagina's herschikken, roteren of verwijderen, bestanden comprimeren en "
-"documenten splitsen op pagina's of bestandsgrootte."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 536
-msgid "Keyboard shortcuts:"
-msgstr "Sneltoetsen:"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 542
-msgid "Undo last action"
-msgstr "Laatste actie ongedaan maken"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 543
-msgid "Select all pages"
-msgstr "Alle pagina's selecteren"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 544
-msgid "Save and close"
-msgstr "Opslaan en sluiten"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 545
-msgid "Remove selected pages"
-msgstr "Geselecteerde pagina's verwijderen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 546
-msgid "Rotate left / right"
-msgstr "Naar links / rechts draaien"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 547
-msgid "Zoom in / out"
-msgstr "Inzoomen / uitzoomen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 566
-msgid "Tips:"
-msgstr "Tips:"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 573
-msgid "Drag and drop pages to reorder them"
-msgstr "Sleep pagina's om ze te herordenen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 574
-msgid "Right-click a page to save it as image or PDF"
-msgstr "Klik rechts op een pagina om als afbeelding of PDF op te slaan"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 575
-msgid "Drag external files onto the editor to add them"
-msgstr "Sleep externe bestanden naar de editor om ze toe te voegen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
-msgid "Use the menu to compress or split documents"
-msgstr "Gebruik het menu om documenten te comprimeren of te splitsen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 611
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 616
-msgid "Got it"
-msgstr "Begrepen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 596
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 603
-msgid "Show when opening the editor"
-msgstr "Tonen bij openen van de editor"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 80
-#, python-brace-format
-msgid "Page {}"
-msgstr "Pagina {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 131
-msgid "Excluded"
-msgstr "Uitgesloten"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 153
-msgid "Include this page in the final document"
-msgstr "Neem deze pagina op in het einddocument."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 164
-#, python-brace-format
-msgid "Include page {} in the final document"
-msgstr "Pagina {} opnemen in het definitieve document"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 169
-msgid "Rotate this page to the left"
-msgstr "Draai deze pagina naar links"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 183
-#, python-brace-format
-msgid "Rotate page {} to the left"
-msgstr "Pagina {} naar links roteren"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 178
-msgid "Rotate this page to the right"
-msgstr "Draai deze pagina naar rechts"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 196
-#, python-brace-format
-msgid "Rotate page {} to the right"
-msgstr "Pagina {} naar rechts roteren"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 211
-msgid "Horizontal Flip"
-msgstr "Horizontaal spiegelen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 212
-msgid "Vertical Flip"
-msgstr "Verticaal spiegelen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 231
-msgid "Mirror this page (Horizontal/Vertical)"
-msgstr "Spiegel deze pagina (horizontaal/verticaal)"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 235
-#, python-brace-format
-msgid "Mirror page {}"
-msgstr "Pagina {} spiegelen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 268
-msgid "Save page as image"
-msgstr "Pagina opslaan als afbeelding"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 269
-msgid "Save page as PDF"
-msgstr "Pagina opslaan als PDF"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 556
-#, python-brace-format
-msgid "Page {n}"
-msgstr "Pagina {n}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_thumbnail.py, line: 560
-#, python-brace-format
-msgid "Rotated {deg}°"
-msgstr "Geroteerd {deg}°"
-
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 239
-msgid "Edit PDF"
-msgstr "Bewerk PDF"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 190
-msgid "Reduce document file size"
-msgstr "Documentgrootte verkleinen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 198
-msgid "Split document by number of pages"
-msgstr "Document splitsen op aantal pagina's"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 207
-msgid "Split document by target file size"
-msgstr "Document splitsen op doelgrootte"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 225
-msgid "How PDF viewers arrange pages when opening the file"
-msgstr "Hoe PDF-lezers pagina's rangschikken wanneer het bestand wordt geopend"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 221
-msgid "Select all pages in the document"
-msgstr "Alle pagina's in het document selecteren"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 229
-msgid "Clear page selection"
-msgstr "Paginaselectie wissen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 261
-msgid "Reverse the order of all pages"
-msgstr "De volgorde van alle pagina's omkeren"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 232
-msgid "Rotate / Flip"
-msgstr "Roteren / Spiegelen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 239
-msgid "Rotate Left 90º"
-msgstr "90º naar links draaien"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 240
-msgid "Rotate Right 90º"
-msgstr "90º naar rechts draaien"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 241
-msgid "Flip Vertically"
-msgstr "Verticaal spiegelen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 242
-msgid "Flip Horizontally"
-msgstr "Horizontaal spiegelen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 176
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 177
-msgid "Open rotate and flip actions"
-msgstr "Open roteer- en spiegelacties"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 253
-msgid "Rotate or flip selected pages"
-msgstr "Geselecteerde pagina's roteren of spiegelen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 596
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 603
-msgid "Show or hide the editor sidebar"
-msgstr "Toon of verberg de zijbalk van de editor"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 308
-msgid "Insert PDF or image files"
-msgstr "PDF- of afbeeldingsbestanden invoegen"
-
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 309
-# File: bigocrpdf/src/bigocrpdf/application.py, line: 375
-msgid "Add files"
-msgstr "Bestanden toevoegen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 314
-msgid "Save As"
-msgstr "Opslaan als"
-
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 205
-msgid "Apply"
-msgstr "Toepassen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 320
-msgid "Save PDF to a new file (Ctrl+S)"
-msgstr "PDF opslaan als nieuw bestand (Ctrl+S)"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 322
-msgid "Save PDF to a new file"
-msgstr "PDF opslaan als nieuw bestand"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 187
-msgid "Save changes and go back (Ctrl+S)"
-msgstr "Wijzigingen opslaan en terug (Ctrl+S)"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 121
-msgid "Save changes and go back"
-msgstr "Wijzigingen opslaan en teruggaan"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 288
-msgid "Current file"
-msgstr "Huidig bestand"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 299
-msgid "Document status"
-msgstr "Documentstatus"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 431
-msgid "Selection count"
-msgstr "Aantal geselecteerde pagina's"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 224
-msgid "Change the size of page previews"
-msgstr "Wijzig de grootte van paginaminiaturen."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 313
-msgid "Zoom level"
-msgstr "Zoomniveau"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window_layout.py, line: 339
-msgid "Hide editor sidebar"
-msgstr "Verberg de zijbalk van de editor"
-
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 46
-# File: bigocrpdf/src/bigocrpdf/ui/header_bar.py, line: 47
-msgid "Show editor sidebar"
-msgstr "Zijbalk van de editor tonen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 72
-#, python-brace-format
-msgid "PDF Editor - {}"
-msgstr "PDF-editor - {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 397
-msgid "Could not open PDF file or file has no pages."
-msgstr "Kon PDF-bestand niet openen of bestand heeft geen pagina's."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 428
-#, python-brace-format
-msgid "Failed to load PDF: {}"
-msgstr "PDF kon niet worden geladen: {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 605
-#, python-brace-format
-msgid "{total} page · {included} included"
-msgid_plural "{total} pages · {included} included"
-msgstr[0] "{total} pagina · {included} inbegrepen"
-msgstr[1] "{total} pagina's · {included} inbegrepen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
-#, python-brace-format
-msgid "{count} selected"
-msgstr "{count} geselecteerd"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 737
-#, python-brace-format
-msgid "{count} page selected"
-msgid_plural "{count} pages selected"
-msgstr[0] "{count} pagina geselecteerd"
-msgstr[1] "{count} pagina's geselecteerd"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 804
-msgid "Saving…"
-msgstr "Bezig met opslaan…"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 674
-msgid "Failed to save PDF."
-msgstr "PDF opslaan mislukt."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 822
-msgid "Save PDF As"
-msgstr "PDF opslaan als"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 653
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 788
-msgid "PDF Files"
-msgstr "PDF-bestanden"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 836
-msgid "document.pdf"
-msgstr "document.pdf"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 854
-#, python-brace-format
-msgid "Saved: {}"
-msgstr "Opgeslagen: {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 576
-msgid "Error saving changes."
-msgstr "Fout bij het opslaan van wijzigingen."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 604
-msgid "Failed to merge PDF pages."
-msgstr "Mislukt om PDF-pagina's samen te voegen."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 626
-msgid "Unsaved Changes"
-msgstr "Niet-opgeslagen wijzigingen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 627
-msgid "What would you like to do with your changes?"
-msgstr "Wat wilt u doen met uw wijzigingen?"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 217
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 685
-msgid "Compress PDF"
-msgstr "PDF comprimeren"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 688
-msgid ""
-"Reduce the file size by compressing the images inside the PDF. Lower values "
-"produce smaller files but with less image detail."
-msgstr ""
-"Verklein de bestandsgrootte door de afbeeldingen in de PDF te comprimeren. "
-"Lagere waarden produceren kleinere bestanden met minder beelddetail."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 699
-msgid "Image Quality:"
-msgstr "Beeldkwaliteit:"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 707
-msgid "10 = smallest file, 95 = best quality. 60 is a good default."
-msgstr ""
-"10 = kleinste bestand, 95 = beste kwaliteit. 60 is een goede standaard."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 719
-msgid "Image Resolution (DPI):"
-msgstr "Beeldresolutie (DPI):"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 727
-msgid "72 = screen only, 150 = digital reading, 300 = print quality."
-msgstr "72 = alleen scherm, 150 = digitaal lezen, 300 = afdrukkwaliteit."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 741
-msgid "Compress"
-msgstr "Comprimeren"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 770
-msgid "Failed to prepare document for compression."
-msgstr "Document voorbereiden voor compressie mislukt."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 784
-msgid "Save Compressed PDF"
-msgstr "Gecomprimeerde PDF opslaan"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 801
-#, python-brace-format
-msgid "Compression failed: {}"
-msgstr "Compressie mislukt: {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
-# 169
-#, python-brace-format
-msgid "Failed to save compressed PDF: {}"
-msgstr "Kon de gecomprimeerde PDF niet opslaan: {}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 828
-msgid "Split by Page Count"
-msgstr "Splitsen op aantal pagina's"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 829
-msgid "Split the document into parts with a fixed number of pages each."
-msgstr "Splits het document in delen met een vast aantal pagina's elk."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 833
-msgid "Pages per file:"
-msgstr "Pagina's per bestand:"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 841
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 873
-msgid "Split"
-msgstr "Splitsen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 860
-msgid "Split by File Size"
-msgstr "Splitsen op bestandsgrootte"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 861
-msgid "Split the document so each part is at most the specified size."
-msgstr ""
-"Splits het document zodat elk deel maximaal de opgegeven grootte heeft."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 865
-msgid "Max size (MB):"
-msgstr "Max. grootte (MB):"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 889
-msgid "Select Output Directory"
-msgstr "Uitvoermap selecteren"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 918
-msgid "Failed to prepare document for splitting."
-msgstr "Document voorbereiden voor splitsing mislukt."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py, line:
-# 291
-#, python-brace-format
-msgid "Parts: {parts} · Pages: {pages}"
-msgstr "Aangemaakte bestanden: {parts} · Pagina's: {pages}"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 939
-#, python-brace-format
-msgid "Split failed: {}"
-msgstr "Splitsen mislukt: {}"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 424
-msgid "Processing Summary"
-msgstr "Verwerkingssamenvatting"
-
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 197
-msgid "Files processed"
-msgstr "Bestanden verwerkt"
-
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 207
-msgid "Pages processed"
-msgstr "Pagina's verwerkt"
-
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 217
-msgid "Processing time"
-msgstr "Verwerkingstijd"
-
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 227
-msgid "Output file size"
-msgstr "Grootte uitvoerbestand"
-
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 237
-msgid "File size change"
-msgstr "Wijziging bestandsgrootte"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 450
-msgid "Files processed:"
-msgstr "Verwerkte bestanden:"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 466
-msgid "Total pages:"
-msgstr "Totaal aantal pagina's:"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 488
-msgid "Processing time:"
-msgstr "Verwerkingstijd:"
-
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 140
-msgid "Output size:"
-msgstr "Uitvoergrootte:"
-
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 149
-msgid "Size change:"
-msgstr "Wijziging in grootte:"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 529
-msgid "Generated Files"
-msgstr "Gegenereerde bestanden"
-
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 265
-msgid "Select files for bulk actions"
-msgstr "Selecteer bestanden voor bulkacties"
-
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 281
-msgid "Output files"
-msgstr "Uitvoerbestanden"
-
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 290
-msgid "Selected: 0"
-msgstr "Geselecteerd: 0"
-
-# File: bigocrpdf/src/bigocrpdf/ui/conclusion_page_builder.py, line: 296
-msgid "Select all"
-msgstr "Alles selecteren"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 335
-msgid "What is Big OCR PDF?"
-msgstr "Wat is Big OCR PDF?"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 324
-msgid ""
-"Big OCR PDF adds optical character recognition to your PDF files, making "
-"them searchable and allowing you to select and copy text from scanned "
-"documents."
-msgstr ""
-"Big OCR PDF voegt optische tekenherkenning toe aan uw PDF-bestanden, "
-"waardoor ze doorzoekbaar worden en u tekst uit gescande documenten kunt "
-"selecteren en kopiëren."
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 335
-msgid "Benefits of using Big OCR PDF:"
-msgstr "Voordelen van het gebruik van Big OCR PDF:"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
-msgid "Search"
-msgstr "Zoeken"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 355
-msgid "Search through your scanned PDF documents"
-msgstr "Doorzoek uw gescande PDF-documenten"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
-msgid "Copy text"
-msgstr "Tekst kopiëren"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 356
-msgid "Copy text from images and scanned documents"
-msgstr "Kopieer tekst van afbeeldingen en gescande documenten"
-
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 238
-msgid "Add image files and generate new PDFs from them"
-msgstr "Voeg afbeeldingsbestanden toe en genereer nieuwe PDF's ervan."
-
-# File: bigocrpdf/src/bigocrpdf/window_actions.py, line: 239
-msgid "Rearrange, rotate or remove pages before processing"
-msgstr "Herschik, roteer of verwijder pagina's voordat u gaat verwerken."
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
-msgid "Batch processing"
-msgstr "Batchverwerking"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 357
-msgid "Process multiple files at once"
-msgstr "Verwerk meerdere bestanden tegelijk"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
-msgid "Auto-correction"
-msgstr "Automatische correctie"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 358
-msgid "Automatically correct page alignment and rotation"
-msgstr "Uitlijning en rotatie van pagina's automatisch corrigeren"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 363
-msgid "Show this dialog at startup"
-msgstr "Toon deze dialoog bij het opstarten"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/window.py, line: 377
-msgid "Let's Get Started"
-msgstr "Laten we beginnen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 400
-msgid "File queue"
-msgstr "Bestandswachtrij"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 57
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 100
-msgid "Add your PDFs"
-msgstr "Voeg uw PDF's toe"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 59
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 102
-msgid "Drag PDF files and images here, or use the button in the header bar"
-msgstr ""
-"Sleep PDF-bestanden en afbeeldingen hierheen, of gebruik de knop in de "
-"kopbalk"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 362
-msgid "Save in the same folder as the original file"
-msgstr "Opslaan in dezelfde map als het originele bestand"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 363
-msgid "Custom folder"
-msgstr "Aangepaste map"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 442
-msgid "Output folder location"
-msgstr "Locatie uitvoermap"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1862
-msgid "Select folder"
-msgstr "Selecteer map"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 458
-msgid "Destination folder path"
-msgstr "Pad van de doelmap"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 465
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 466
-msgid "Browse for folder"
-msgstr "Map selecteren"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 401
-msgid "Output options"
-msgstr "Uitvoeropties"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 983
-msgid "Edit pages of this file"
-msgstr "Bewerk pagina's van dit bestand"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 999
-msgid "Remove this file from the list"
-msgstr "Verwijder dit bestand uit de lijst"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 290
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 384
-#, python-brace-format
-msgid "{size} MB"
-msgstr "{size} MB"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 481
-msgid "Open file"
-msgstr "Bestand openen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 486
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 746
-msgid "File information"
-msgstr "Bestandsinformatie"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 679
-msgid "Name"
-msgstr "Naam"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 680
-msgid "Path"
-msgstr "Pad"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 685
-msgid "Size"
-msgstr "Grootte"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 693
-msgid "Modified (local)"
-msgstr "Gewijzigd (lokale tijd)"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 701
-msgid "Document"
-msgstr "Document"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 706
-msgid "Form"
-msgstr "Formulier"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 708
-msgid "JavaScript"
-msgstr "JavaScript"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 711
-msgid "Content"
-msgstr "Inhoud"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 715
-msgid "Image formats"
-msgstr "Afbeeldingsformaten"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 721
-msgid "Fonts"
-msgstr "Lettertypen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 725
-msgid "Embedded fonts"
-msgstr "Ingesloten lettertypen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 729
-msgid "Font names"
-msgstr "Lettertypenamen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 732
-msgid "Attached files"
-msgstr "Bijgevoegde bestanden"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 735
-msgid "Metadata"
-msgstr "Metadata"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 740
-msgid "Created"
-msgstr "Aangemaakt"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 742
-msgid "Modified"
-msgstr "Gewijzigd"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 755
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 756
-msgid "Copy all information"
-msgstr "Alle informatie kopiëren"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 782
-msgid "Image list"
-msgstr "Afbeeldingslijst"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 493
-#, python-brace-format
-msgid "{count} image"
-msgid_plural "{count} images"
-msgstr[0] "{count} afbeelding"
-msgstr[1] "{count} afbeeldingen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 792
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 793
-msgid "Extract this image"
-msgstr "Deze afbeelding extraheren"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 823
-msgid "Information copied"
-msgstr "Informatie is gekopieerd"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 879
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 887
-msgid "Failed to extract image"
-msgstr "Afbeelding extraheren mislukt"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 885
-msgid "Image extracted"
-msgstr "Afbeelding is geëxtraheerd"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1114
-msgid "Failed to open PDF editor"
-msgstr "Kon niet PDF-editor openen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1094
-msgid "Changes saved"
-msgstr "Wijzigingen zijn opgeslagen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1210
-msgid "Multiple Images Dropped"
-msgstr "Meerdere afbeeldingen neergezet"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 1212
-#, python-brace-format
-msgid "You dropped {count} image. How would you like to add it?"
-msgid_plural "You dropped {count} images. How would you like to add them?"
-msgstr[0] "U hebt {count} afbeelding hier neergezet. Hoe wilt u die toevoegen?"
-msgstr[1] ""
-"U hebt {count} afbeeldingen hier neergezet. Hoe wilt u die toevoegen?"
-
-# File: bigocrpdf/src/bigocrpdf/ui/settings_queue_mixin.py, line: 1094
-msgid "All files removed from queue"
-msgstr "Alle bestanden zijn uit de wachtrij verwijderd"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1738
-msgid "PDF Output Options"
-msgstr "PDF-uitvoeropties"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1757
-msgid "Save"
-msgstr "Opslaan"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 2003
-msgid "Preview"
-msgstr "Voorbeeld"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 2007
-msgid "Filename Example:"
-msgstr "Voorbeeld van bestandsnaam:"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1772
-msgid "File Settings"
-msgstr "Bestandinstellingen"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1776
-msgid "Use Original Filename"
-msgstr "Gebruik originele bestandsnaam"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1777
-msgid "Use the same name as the original file"
-msgstr "Gebruik dezelfde naam als het originele bestand"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1785
-msgid "Warning"
-msgstr "Waarschuwing"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 212
-msgid ""
-"To replace original files, also enable 'Overwrite Existing Files' below and "
-"save to the same folder"
-msgstr ""
-"Om originele bestanden te vervangen, schakelt u hieronder ook ‘Bestaande "
-"bestanden overschrijven’ in en slaat u ze in dezelfde map op."
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1802
-msgid "Filename Suffix"
-msgstr "Achtervoegsel voor bestandsnaam"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 176
-msgid "Text added to the end of the filename (e.g. document-ocr.pdf)"
-msgstr ""
-"Tekst toegevoegd aan het einde van de bestandsnaam (bijv. document-ocr.pdf)"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1814
-msgid "Overwrite Existing Files"
-msgstr "Bestaande bestanden overschrijven"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1815
-msgid "Replace files with the same name"
-msgstr "Bestanden met dezelfde naam vervangen"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 231
-msgid "Overwrite Existing Files?"
-msgstr "Bestaande bestanden overschrijven?"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 234
-msgid ""
-"If files with the same name already exist in the output folder, they will be "
-"permanently replaced. This cannot be undone."
-msgstr ""
-"Als bestanden met dezelfde naam al bestaan in de uitvoermap, worden ze "
-"permanent vervangen. Dit kan niet ongedaan worden gemaakt."
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 239
-msgid "Enable"
-msgstr "Inschakelen"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1825
-msgid "Save Text Files"
-msgstr "Sla tekstbestanden op"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1826
-msgid "Automatically save extracted text as .txt files"
-msgstr "Sla automatisch geëxtraheerde tekst op als .txt-bestanden"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1834
-msgid "Use Separate Folder for Text Files"
-msgstr "Gebruik aparte map voor tekstbestanden"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1835
-msgid "Save text files to a different folder"
-msgstr "Sla tekstbestanden op in een andere map"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1852
-msgid "Not set"
-msgstr "Niet ingesteld"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 287
-msgid "Choose where to save the text files"
-msgstr "Kies waar u de tekstbestanden wilt opslaan"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1846
-msgid "Text Files Folder"
-msgstr "Tekstbestandenmap"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1847
-msgid "Select where to save text files"
-msgstr "Selecteer waar u tekstbestanden wilt opslaan"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 306
-msgid "ODF Export"
-msgstr "ODF-export"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 310
-msgid "Save ODF Files"
-msgstr "ODF-bestanden opslaan"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 311
-msgid "Automatically save extracted text as .odt files"
-msgstr "Sla automatisch geëxtraheerde tekst op als .odt-bestanden"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1919
-msgid "Date and Time"
-msgstr "Datum en tijd"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1923
-msgid "Add Date to Filename"
-msgstr "Voeg datum toe aan bestandsnaam"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1924
-msgid "Include date elements in the filename"
-msgstr "Voeg datumelementen toe aan de bestandsnaam"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1930
-msgid "Date Format"
-msgstr "Datumformaat"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 449
-msgid "Standard (2026-02-23)"
-msgstr "Standaard (2026-02-23)"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 450
-msgid "European (23-02-2026)"
-msgstr "Europees (23-02-2026)"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_ui_mixin.py, line: 451
-msgid "American (02-23-2026)"
-msgstr "Amerikaans (02-23-2026)"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1959
-msgid "Include Year"
-msgstr "Jaar opnemen"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1960
-msgid "Add YYYY to the date"
-msgstr "Jaar (JJJJ) toevoegen aan de datum"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1970
-msgid "Include Month"
-msgstr "Maand opnemen"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1971
-msgid "Add MM to the date"
-msgstr "Maand (MM) toevoegen aan de datum"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1981
-msgid "Include Day"
-msgstr "Dag opnemen"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1982
-msgid "Add DD to the date"
-msgstr "Dag (DD) toevoegen aan de datum"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1992
-msgid "Include Time"
-msgstr "Tijd opnemen"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1993
-msgid "Add HHMM to the filename"
-msgstr "Tijd (HHMM) toevoegen aan de bestandsnaam"
-
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1898
-msgid "Select Folder for Text Files"
-msgstr "Selecteer map voor tekstbestanden"
-
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_options_callbacks_mixin.py, line: 317
-msgid "PDF output settings saved"
-msgstr "PDF-uitvoerinstellingen opgeslagen"
+msgid "No write permission for folder: {path}"
+msgstr "Geen schrijfrechten voor map: {path}"
 
 #: src/bigocrpdf/window_controller.py:195
 msgid "No supported files in clipboard"

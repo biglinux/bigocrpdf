@@ -2,7 +2,7 @@
 # Copyright (C) 2026 BigLinux Team
 # This file is distributed under the same license as the bigocrpdf package.
 # BigLinux Translation Team <biglinux@biglinux.com.br>, 2026.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 4.0.0\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: Chinese\n"
 "Language: zh\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.18.0\n"
@@ -1630,15 +1630,17 @@ msgstr "图像质量"
 
 #: src/bigocrpdf/ui/output_dialog.py:27
 msgid ""
-"Controls the compression applied to images inside the PDF. Lower quality means smaller files but "
-"some detail is lost. 'Keep Original' preserves images exactly as they are.\n"
+"Controls the compression applied to images inside the PDF. Lower quality "
+"means smaller files but some detail is lost. 'Keep Original' preserves "
+"images exactly as they are.\n"
 "\n"
 "The last option, 'Black & White', converts all pages to pure black and "
 "white, compressed with JBIG2 when jbig2enc is installed and with CCITT G4 "
 "otherwise. It gives the smallest files for text-only documents, but all "
 "color is lost."
 msgstr ""
-"控制 PDF 内图像的压缩。较低的质量会生成较小的文件，但会损失一些细节。“保留原图”会保持图像原样，不重新压缩。\n"
+"控制 PDF 内图像的压缩。较低的质量会生成较小的文件，但会损失一些细节。“保留原"
+"图”会保持图像原样，不重新压缩。\n"
 "\n"
 "最后一个选项“黑白”会将所有页面转换为纯黑白：已安装 jbig2enc 时使用 JBIG2 压"
 "缩，否则使用 CCITT G4 压缩。对于纯文本文档，它生成的文件最小，但会丢失所有颜"
@@ -2777,7 +2779,9 @@ msgid "Reset All Settings?"
 msgstr "重置所有设置？"
 
 #: src/bigocrpdf/ui/settings_reset_controller.py:39
-msgid "This will restore all options to their default values. Your file queue will not be affected."
+msgid ""
+"This will restore all options to their default values. Your file queue will "
+"not be affected."
 msgstr "这将把所有选项恢复为默认值。您的文件队列不会受到影响。"
 
 #: src/bigocrpdf/ui/settings_reset_controller.py:44
@@ -3172,397 +3176,6 @@ msgstr "结果"
 
 #: src/bigocrpdf/utils/temp_manager.py:81
 #, python-brace-format
-msgid "{active} of {total} enabled"
-msgstr "{total}项中已启用{active}项"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 175
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 256
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:145
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:237
-#, python-brace-format
-msgid "{n} options enabled"
-msgstr "已启用{n}个选项"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 241
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:158
-msgid "Very Low (30%)"
-msgstr "极低（30%）"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 242
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:159
-msgid "Low (50%)"
-msgstr "低（50%）"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 243
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:160
-msgid "Medium (70%)"
-msgstr "中等（70%）"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 244
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:161
-msgid "High (85%)"
-msgstr "高（85%）"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 245
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:162
-msgid "Maximum (95%)"
-msgstr "最高（95%）"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 196
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:163
-msgid "Black & White (JBIG2)"
-msgstr "黑白（JBIG2）"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 210
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:114
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:176
-msgid "Default (viewer decides)"
-msgstr "默认（由查看器决定）"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 211
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:115
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:177
-msgid "Single page"
-msgstr "单页"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 212
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:116
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:178
-msgid "Continuous scroll"
-msgstr "连续滚动"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 213
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
-#: src/bigocrpdf/ui/pdf_editor/editor_window_layout.py:117
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:179
-msgid "Two pages"
-msgstr "双页"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 283
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:189
-msgid "No limit"
-msgstr "无限制"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 209
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:190
-msgid "5 MB"
-msgstr "5 MB"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 210
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:191
-msgid "10 MB"
-msgstr "10 MB"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 211
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:192
-msgid "15 MB"
-msgstr "15 MB"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 212
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:193
-msgid "20 MB"
-msgstr "20 MB"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 213
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:194
-msgid "25 MB"
-msgstr "25 MB"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 214
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:195
-msgid "50 MB"
-msgstr "50 MB"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_sidebar_mixin.py, line: 215
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:196
-msgid "100 MB"
-msgstr "100 MB"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 321
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:249
-msgid "Low Precision"
-msgstr "低精度"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 322
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:250
-msgid "Standard"
-msgstr "标准"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 323
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:251
-msgid "Precise"
-msgstr "精确"
-# File: bigocrpdf/src/bigocrpdf/ui/settings_page.py, line: 324
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:252
-msgid "Very Precise"
-msgstr "高精度"
-# File:
-# bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/dialogs_manager.py,
-# line: 708
-#: src/bigocrpdf/ui/text_viewer_controller.py:82
-msgid "OCR processing was completed for this file, but the extracted text could not be found."
-msgstr "此文件的OCR处理已完成，但无法找到提取的文本。"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/editor_window.py, line: 609
-#: src/bigocrpdf/ui/text_viewer_controller.py:154
-#, python-brace-format
-msgid "{count} word"
-msgid_plural "{count} words"
-msgstr[0] "{count} 个词"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 136
-#: src/bigocrpdf/ui/text_viewer_controller.py:157
-#, python-brace-format
-msgid "{count} character"
-msgid_plural "{count} characters"
-msgstr[0] "{count} 个字符"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 136
-#: src/bigocrpdf/ui/text_viewer_controller.py:161
-#, python-brace-format
-msgid "{words} · {characters}"
-msgstr "{words} · {characters}"
-# #-#-#-#-#  bigocrpdf.pot (bigocrpdf)  #-#-#-#-#
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 210
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 224
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 225
-#: src/bigocrpdf/ui/image_ocr_window.py:782
-#: src/bigocrpdf/ui/image_ocr_window.py:784
-#: src/bigocrpdf/ui/text_viewer_controller.py:208
-#: src/bigocrpdf/ui/text_viewer_controller.py:209
-msgid "Copy text to clipboard"
-msgstr "复制文本到剪贴板"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 230
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 233
-#: src/bigocrpdf/ui/text_viewer_controller.py:214
-#: src/bigocrpdf/ui/text_viewer_controller.py:217
-msgid "Save TXT"
-msgstr "保存TXT"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 203
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 204
-#: src/bigocrpdf/ui/text_viewer_controller.py:237
-msgid "Decrease font size"
-msgstr "减小字体大小"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 209
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 210
-#: src/bigocrpdf/ui/text_viewer_controller.py:244
-msgid "Increase font size"
-msgstr "增大字体大小"
-# File: bigocrpdf/bigocrpdf/usr/share/biglinux/bigocrpdf/ui/ui_manager.py,
-# line: 1291
-# line: 1343
-#: src/bigocrpdf/ui/text_viewer_controller.py:351
-msgid "Search in text..."
-msgstr "在文本中搜索..."
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 287
-#: src/bigocrpdf/ui/text_viewer_controller.py:353
-msgid "Search in text"
-msgstr "在文本中搜索"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 294
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 295
-#: src/bigocrpdf/ui/text_viewer_controller.py:360
-#: src/bigocrpdf/ui/text_viewer_controller.py:361
-msgid "Previous match"
-msgstr "上一个匹配"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 301
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 302
-#: src/bigocrpdf/ui/text_viewer_controller.py:367
-#: src/bigocrpdf/ui/text_viewer_controller.py:368
-msgid "Next match"
-msgstr "下一个匹配"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 447
-#: src/bigocrpdf/ui/text_viewer_controller.py:496
-msgid "No matches"
-msgstr "无匹配"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 458
-#: src/bigocrpdf/ui/text_viewer_controller.py:537
-msgid "Wrapped to first match"
-msgstr "已跳转到第一个匹配"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 467
-#: src/bigocrpdf/ui/text_viewer_controller.py:550
-msgid "Wrapped to last match"
-msgstr "已跳转到最后一个匹配"
-# File: bigocrpdf/src/bigocrpdf/ui/text_viewer_mixin.py, line: 449
-#: src/bigocrpdf/ui/text_viewer_controller.py:580
-#, python-brace-format
-msgid "{current}/{total}"
-msgstr "{current}/{total}"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 179
-#: src/bigocrpdf/application.py:402 src/bigocrpdf/ui/image_ocr_window.py:313
-msgid "Unsupported file format"
-msgstr "不支持的文件格式"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 198
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 236
-#: src/bigocrpdf/ui/image_ocr_window.py:327
-#: src/bigocrpdf/ui/image_ocr_window.py:354
-#: src/bigocrpdf/ui/image_ocr_window.py:408
-#: src/bigocrpdf/ui/image_ocr_window.py:659
-msgid "No image found in clipboard"
-msgstr "剪贴板中未找到图像"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 428
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 539
-#: src/bigocrpdf/ui/image_ocr_window.py:428
-#: src/bigocrpdf/ui/image_ocr_window.py:539
-msgid "Could not read the clipboard image"
-msgstr "无法读取剪贴板图像"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 633
-#: src/bigocrpdf/ui/image_ocr_window.py:633
-msgid "Clipboard file list is too large"
-msgstr "剪贴板中的文件列表过大"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
-#: src/bigocrpdf/ui/image_ocr_window.py:702
-#: src/bigocrpdf/ui/image_ocr_window.py:706
-#: src/bigocrpdf/ui/image_ocr_window.py:803
-msgid "Open Image"
-msgstr "打开图像"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 154
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 159
-#: src/bigocrpdf/ui/image_ocr_window.py:713
-#: src/bigocrpdf/ui/image_ocr_window.py:718
-msgid "Screen Capture"
-msgstr "屏幕截图"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 135
-#: src/bigocrpdf/ui/image_ocr_window.py:693
-msgid "Image OCR"
-msgstr "图像 OCR"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 136
-#: src/bigocrpdf/ui/image_ocr_window.py:694
-msgid "Extract text from images or screen captures using OCR."
-msgstr "使用OCR从图像或屏幕截图中提取文本。"
-# 
-# File: src/bigocrpdf/ui/image_ocr_window.py, line: 737
-#: NEEDS WORK
-msgid "No text found"
-msgstr ""
-# 
-# File: src/bigocrpdf/ui/image_ocr_window.py, line: 740
-#: NEEDS WORK
-msgid "OCR finished but found no readable text. Capture a tighter region, or try a sharper image."
-msgstr ""
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 170
-#: src/bigocrpdf/ui/image_ocr_window.py:730
-msgid "Extracting text…"
-msgstr "提取文本中…"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 740
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 741
-#: src/bigocrpdf/ui/image_ocr_window.py:740
-#: src/bigocrpdf/ui/image_ocr_window.py:741
-msgid "Cancel text extraction"
-msgstr "取消文本提取"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 196
-#: src/bigocrpdf/ui/image_ocr_window.py:768
-msgid "Extracted text"
-msgstr "提取的文本"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 212
-#: src/bigocrpdf/ui/image_ocr_window.py:780
-msgid "Copy"
-msgstr "复制"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 217
-#: src/bigocrpdf/ui/image_ocr_window.py:792
-msgid "New Capture"
-msgstr "新建截图"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 223
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 224
-#: src/bigocrpdf/ui/image_ocr_window.py:795
-#: src/bigocrpdf/ui/image_ocr_window.py:796
-msgid "Capture a screen region"
-msgstr "截取屏幕区域"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 232
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 233
-#: src/bigocrpdf/ui/image_ocr_window.py:805
-#: src/bigocrpdf/ui/image_ocr_window.py:806
-msgid "Open an image file"
-msgstr "打开图像文件"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 487
-#: src/bigocrpdf/ui/image_ocr_window.py:1049
-msgid "Open Image to OCR"
-msgstr "打开图像进行OCR"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 496
-#: src/bigocrpdf/ui/image_ocr_window.py:1052
-#: src/bigocrpdf/ui/settings_queue_mixin.py:892
-#: src/bigocrpdf/ui/settings_queue_mixin.py:969
-#: src/bigocrpdf/ui/welcome_dialog_controller.py:109
-msgid "Images"
-msgstr "图像"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1102
-#: src/bigocrpdf/ui/image_ocr_window.py:1102
-msgid "Could not open the selected image"
-msgstr "无法打开所选图像"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 1127
-#: src/bigocrpdf/ui/image_ocr_window.py:1127
-msgid "Could not copy text to the clipboard"
-msgstr "无法将文本复制到剪贴板"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 433
-#: src/bigocrpdf/ui/image_ocr_window.py:1131
-msgid "Copied to clipboard"
-msgstr "已复制到剪贴板"
-# File: bigocrpdf/src/bigocrpdf/ui/image_ocr_window.py, line: 519
-#: src/bigocrpdf/ui/image_ocr_window.py:1185
-#: src/bigocrpdf/ui/pdf_editor/editor_window.py:679
-msgid "Error"
-msgstr "错误"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 37
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 53
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:38
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:54
-msgid "Open selected PDFs"
-msgstr "打开选中的 PDF"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 68
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:66
-msgid "How would you like to open these files?"
-msgstr "您想如何打开这些文件？"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 76
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:75
-#, python-brace-format
-msgid "{count} PDF file was selected."
-msgid_plural "{count} PDF files were selected."
-msgstr[0] "选择了 {count} 个 PDF 文件。"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 86
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:88
-msgid "Open in separate windows"
-msgstr "在单独窗口中打开"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 87
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:89
-msgid "Edit each PDF in its own editor window."
-msgstr "在各自的编辑器窗口中编辑每个 PDF。"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 94
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:96
-msgid "Combine in one editor"
-msgstr "在一个编辑器中合并"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line: 95
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:97
-msgid "Import all pages using the current selection order."
-msgstr "按当前选择顺序导入所有页面。"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 102
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:104
-msgid "Choose order and combine"
-msgstr "选择顺序并合并"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 103
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:105
-msgid "Set the document order before importing the pages."
-msgstr "导入页面前先设置文档顺序。"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 136
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:136
-msgid "Choose import order"
-msgstr "选择导入顺序"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 142
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:142
-msgid "Pages will be imported from top to bottom."
-msgstr "页面将从上到下导入。"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 166
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:166
-msgid "Open combined"
-msgstr "打开合并文档"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 199
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:199
-#, python-brace-format
-msgid "{position}. {filename}"
-msgstr "{position}. {filename}"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 246
-# 247
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:246
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:247
-msgid "Move up"
-msgstr "上移"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/open_options_dialog.py, line:
-# 255
-# 256
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:255
-#: src/bigocrpdf/ui/pdf_editor/open_options_dialog.py:256
-msgid "Move down"
-msgstr "下移"
-# File: bigocrpdf/src/bigocrpdf/ui/pdf_editor/page_grid.py, line: 126
-#: src/bigocrpdf/ui/pdf_editor/page_grid.py:131
 msgid ""
 "Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
 msgstr "磁盘空间不足。需要 {needed:.0f} MB，但仅有 {free:.0f} MB 可用。"
