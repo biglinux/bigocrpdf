@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 import pikepdf
 
-from bigocrpdf.constants import MIN_IMAGE_BOX_SIZE_PX, MIN_TEXT_BOX_HEIGHT_PX, MIN_TEXT_BOX_WIDTH_PX
+from bigocrpdf.constants import MIN_TEXT_BOX_HEIGHT_PX, MIN_TEXT_BOX_WIDTH_PX
 from bigocrpdf.services.ocr.config import OCRBoxData, OCRResult, ProcessingStats
 from bigocrpdf.services.ocr.ocr_document_pages import record_ocr_page
 from bigocrpdf.services.ocr.ocr_postprocess import read_refined
@@ -21,7 +21,7 @@ from bigocrpdf.services.ocr.pdf_extractor import (
     load_image_with_exif_rotation,
 )
 from bigocrpdf.services.ocr.pdf_image_analysis import open_pdf_image
-from bigocrpdf.services.ocr.pipeline_mixed_content import _prefer_native_text
+from bigocrpdf.services.ocr.pipeline_mixed_content import _prefer_native_text, record_image_failure
 from bigocrpdf.services.ocr.ppocr_native import (
     OCR_IMAGE_SUFFIX,
     ProtocolError,
@@ -141,15 +141,18 @@ class BackendEmbeddedImagePipelineMixin:
         text_commands: list[str] = []
         page_results: list[OCRResult] = []
         page_image_size = (0, 0)
-        for img_pos in img_positions:
-            if img_pos.width < 15 or img_pos.height < 15:
-                continue
-            if img_pos.name not in xobjects:
-                continue
+        readable = [
+            img_pos
+            for img_pos in img_positions
+            if min(img_pos.width, img_pos.height) >= 15 and img_pos.name in xobjects
+        ]
+        for number, img_pos in enumerate(readable, 1):
             img_array = self._extract_xobj_image(xobjects[img_pos.name], img_pos.name)
             if img_array is None:
                 continue
-            image_results = self._ocr_via_persistent(img_array, ocr_worker, stats, page_num)
+            image_results = self._ocr_via_persistent(
+                img_array, ocr_worker, stats, page_num, (number, len(readable))
+            )
             if not image_results:
                 continue
             img_h, img_w = img_array.shape[:2]
@@ -216,7 +219,7 @@ class BackendEmbeddedImagePipelineMixin:
                 stats,
                 self.config,
                 kernel_tier,
-                ocr_worker.threads,
+                ocr_worker,
                 1,
             )
             with pikepdf.open(merged_pdf_path, allow_overwriting_input=True) as pdf:
@@ -277,11 +280,17 @@ class BackendEmbeddedImagePipelineMixin:
 
     @staticmethod
     def _ocr_via_persistent(
-        image: np.ndarray, ocr_worker: Worker, stats: ProcessingStats, page_num: int
+        image: np.ndarray,
+        ocr_worker: Worker,
+        stats: ProcessingStats,
+        page_num: int,
+        image_of: tuple[int, int] = (1, 1),
     ) -> list[OCRResult]:
         """The text lines on an image, read by the job's persistent worker.
 
-        An image it could not read marks its page as failed.
+        An image it could not read marks its page as failed, naming it by
+        ``image_of``: its number and the count of the page's images large
+        enough to read.
         """
         try:
             with temp_file(OCR_IMAGE_SUFFIX) as image_path:
@@ -290,7 +299,7 @@ class BackendEmbeddedImagePipelineMixin:
                 return ocr_results(read_refined(ocr_worker.recognize, image_path))
         except (ReadError, ProtocolError) as exc:
             logger.error(f"Page {page_num}: {exc}")
-            stats.failed_pages[page_num] = str(exc)
+            record_image_failure(stats, page_num, image_of, exc)
             return []
 
     def _ocr_image_in_page(
@@ -305,26 +314,35 @@ class BackendEmbeddedImagePipelineMixin:
         stats: ProcessingStats,
         ocr_worker: Worker,
         skip_preprocessing: bool = False,
+        image_of: tuple[int, int] = (1, 1),
     ) -> list[str]:
-        # Skip very small images (likely icons or decorations)
-        if img_pos.width < MIN_IMAGE_BOX_SIZE_PX or img_pos.height < MIN_IMAGE_BOX_SIZE_PX:
-            logger.debug(f"Skipping small image: {img_pos.width}x{img_pos.height}")
-            return []
-
-        img = load_image_with_exif_rotation(img_path, self.config.max_image_megapixels)
+        img = load_image_with_exif_rotation(
+            img_path, self.config.max_image_megapixels, self.config.max_render_megapixels
+        )
         if img is None:
             logger.warning(f"Could not load image: {img_path}")
             return []
 
+        # A photo decoded at a reduced JPEG scale is read, never written back
+        # over its full-size original.
+        try:
+            xobj = page.Resources.XObject[img_pos.name]
+            stored_pixels = int(xobj.Width) * int(xobj.Height)
+        except (AttributeError, KeyError, TypeError, ValueError):
+            stored_pixels = 0
+        reduced = stored_pixels > img.shape[0] * img.shape[1]
         if skip_preprocessing:
             processed_img = img
         else:
             processed_img = self.preprocessor.process(img, cancel_check=self._raise_if_cancelled)
-            self._replace_pdf_image(
-                page, img_pos.name, apply_independent_effects(processed_img, self.config)
-            )
+            if not reduced:
+                self._replace_pdf_image(
+                    page, img_pos.name, apply_independent_effects(processed_img, self.config)
+                )
 
-        image_results = self._ocr_via_persistent(processed_img, ocr_worker, stats, page_num)
+        image_results = self._ocr_via_persistent(
+            processed_img, ocr_worker, stats, page_num, image_of
+        )
         if not image_results:
             logger.debug(f"No text found in image at ({img_pos.x}, {img_pos.y})")
             return []

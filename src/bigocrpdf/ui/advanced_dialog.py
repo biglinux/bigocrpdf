@@ -51,6 +51,17 @@ _ADVANCED_SETTINGS = [
             "The faster mode is good enough for most documents."
         ),
     },
+    {
+        "key": "use_gpu",
+        "type": "switch",
+        "svg": "use_gpu.svg",
+        "title": _("Use the Graphics Card"),
+        "description": _(
+            "Runs text recognition on the graphics card when the computer has one, which "
+            "is faster and leaves the processor free. Turn it off if the graphics driver "
+            "causes problems."
+        ),
+    },
 ]
 
 

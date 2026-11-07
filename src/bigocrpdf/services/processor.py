@@ -8,15 +8,46 @@ from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
-from bigocrpdf.services.ocr.backend import ProfessionalPDFOCR
+from bigocrpdf.services.ocr.backend import ProfessionalPDFOCR, failed_pages_message
 from bigocrpdf.services.ocr.config import OCRConfig, ProcessingStats
 from bigocrpdf.services.ocr.ocr_document_io import publish_ocr_pdfs
+from bigocrpdf.services.ocr.pipeline_mixed_content_pages import omitted_pages
 from bigocrpdf.services.settings import OcrSettings
 from bigocrpdf.utils.checkpoint_manager import CheckpointManager, get_checkpoint_manager
 from bigocrpdf.utils.history_manager import HistoryManager, get_history_manager
 from bigocrpdf.utils.i18n import _, ngettext
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.utils.temp_manager import staging_directory
+
+
+def _failed_pages_by_part(
+    outputs: list[str], failed_pages: dict[int, str], removed: set[int]
+) -> list[tuple[str, dict[int, str]]]:
+    """Each output file with the failed pages it holds, numbered as in that
+    file. The output leaves out the ``removed`` source pages, and a split
+    document's parts hold consecutive runs of what remains."""
+    failed_pages = {
+        page - sum(1 for gone in removed if gone < page): cause
+        for page, cause in failed_pages.items()
+    }
+    if len(outputs) == 1:
+        return [(outputs[0], failed_pages)]
+    import pikepdf
+
+    parts = []
+    first = 1
+    for output in outputs:
+        with pikepdf.open(output) as pdf:
+            count = len(pdf.pages)
+        held = {
+            page - first + 1: cause
+            for page, cause in failed_pages.items()
+            if first <= page < first + count
+        }
+        if held:
+            parts.append((output, held))
+        first += count
+    return parts
 
 
 class OcrProcessor:
@@ -51,6 +82,8 @@ class OcrProcessor:
         self._completed_input_count = 0
         self._successful_input_count = 0
         self._failures: list[tuple[str, str]] = []
+        # Published outputs that left some pages without their text, and why.
+        self._page_warnings: dict[str, str] = {}
 
         # Progress tracking (simplified)
         self._file_progress = 0.0  # Progress within current file (0.0-1.0)
@@ -154,6 +187,7 @@ class OcrProcessor:
             self._completed_input_count = 0
             self._successful_input_count = 0
             self._failures = []
+            self._page_warnings = {}
         # Store original file count before processing removes files from queue
         self._total_files_at_start = len(self.settings.selected_files)
         self.settings.processed_files = []
@@ -325,6 +359,16 @@ class OcrProcessor:
                 requested_output_path,
                 stats,
             )
+        if output_files and stats.failed_pages:
+            logger.warning(
+                "%s: %s", requested_output_path.name, failed_pages_message(stats.failed_pages)
+            )
+            with self._state_lock:
+                removed = omitted_pages(config.page_modifications)
+                for output, failed in _failed_pages_by_part(
+                    output_files, stats.failed_pages, removed
+                ):
+                    self._page_warnings[output] = failed_pages_message(failed)
 
         self._total_pages += stats.pages_total
 
@@ -532,6 +576,12 @@ class OcrProcessor:
         """Get (file name, reason) for each input of this run that failed."""
         with self._state_lock:
             return list(self._failures)
+
+    def get_page_warnings(self) -> dict[str, str]:
+        """Get, for each output of this run that left pages without their text,
+        the pages and their causes."""
+        with self._state_lock:
+            return dict(self._page_warnings)
 
     def get_successful_input_count(self) -> int:
         """Get the number of inputs that produced at least one output PDF."""

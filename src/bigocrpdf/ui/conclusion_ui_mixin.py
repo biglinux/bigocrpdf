@@ -173,8 +173,15 @@ class ConclusionStatsFileListMixin:
             An Adw.ActionRow for the file
         """
         row = Adw.ActionRow()
+        row.set_use_markup(False)
         row.set_title(os.path.basename(output_file))
-        row.set_subtitle(os.path.dirname(output_file))
+        page_failures = self.window.settings.page_failures.get(output_file)
+        if page_failures:
+            # The pages left without their text stay in view, selectable.
+            row.set_subtitle(f"{os.path.dirname(output_file)}\n{page_failures}")
+            row.set_subtitle_selectable(True)
+        else:
+            row.set_subtitle(os.path.dirname(output_file))
 
         self._add_file_statistics_to_row(row, pages, file_size, comparison)
 
@@ -186,8 +193,11 @@ class ConclusionStatsFileListMixin:
             check.connect("toggled", self._on_row_check_toggled, output_file)
             row.add_prefix(check)
         else:
-            file_icon = Gtk.Image.new_from_icon_name("x-office-document-symbolic")
-            row.add_prefix(file_icon)
+            icon = "dialog-warning-symbolic" if page_failures else "x-office-document-symbolic"
+            # The subtitle says what the warning icon shows.
+            row.add_prefix(
+                Gtk.Image(icon_name=icon, accessible_role=Gtk.AccessibleRole.PRESENTATION)
+            )
             button_container = self._create_file_action_buttons(output_file)
             row.add_suffix(button_container)
 

@@ -1,6 +1,7 @@
 """The ppocr-native workers as bigocrpdf starts, drives and stops them."""
 
 import json
+import signal
 import threading
 import time
 from pathlib import Path
@@ -35,10 +36,12 @@ def test_worker_command_carries_the_configuration(monkeypatch: pytest.MonkeyPatc
         "--limit-side-len",
         "4096",
         "--full-resolution",
+        "--gpu",
         "--persistent",
     ]
     assert ppocr_native.worker_command(config, threads=16)[1:3] == ["--threads", "8"]
     assert ppocr_native.worker_command(config)[1:3] == ["--threads", "8"]
+    assert "--gpu" not in ppocr_native.worker_command(OCRConfig(use_gpu=False), threads=6)
 
 
 def test_missing_worker_is_reported() -> None:
@@ -170,6 +173,86 @@ def test_worker_dying_twice_fails_the_page(tmp_path: Path) -> None:
     try:
         with pytest.raises(ppocr_native.ReadError, match="exited"):
             worker.recognize("/tmp/page.ppm")
+    finally:
+        worker.close()
+
+
+def _gpu_crashing_worker(tmp_path: Path, crash: str) -> str:
+    """A worker that kills itself with SIGSEGV when started with ``--gpu``:
+    ``before_ready``, ``after_ready``, ``on_request``, or a moment after its
+    ready line with its input already closed (``input_closed``). It reads
+    normally without it, and adds its arguments to ``starts`` each time."""
+    kill = "kill -SEGV $$"
+    script = (
+        "#!/bin/sh\n"
+        f"echo \"$*\" >> '{tmp_path / 'starts'}'\n"
+        'case " $* " in *" --gpu "*) gpu=1;; esac\n'
+        + (f'[ -n "$gpu" ] && {kill}\n' if crash == "before_ready" else "")
+        + ('[ -n "$gpu" ] && exec 0<&-\n' if crash == "input_closed" else "")
+        + 'echo \'{"ready": true, "tier": 3}\'\n'
+        + (f'[ -n "$gpu" ] && {kill}\n' if crash == "after_ready" else "")
+        + (f'[ -n "$gpu" ] && {{ sleep 0.3; {kill}; }}\n' if crash == "input_closed" else "")
+        + (f'[ -n "$gpu" ] && {{ read -r _; {kill}; }}\n' if crash == "on_request" else "")
+        + f"while read -r _; do echo '{json.dumps(_PAGE)}'; done\n"
+    )
+    worker = tmp_path / ppocr_native.WORKER
+    worker.write_text(script, encoding="utf-8")
+    worker.chmod(0o755)
+    return str(worker)
+
+
+@pytest.mark.parametrize("crash", ["before_ready", "on_request"])
+def test_crashing_gpu_worker_reads_on_cpu(tmp_path: Path, crash: str) -> None:
+    worker = ppocr_native.Worker([_gpu_crashing_worker(tmp_path, crash), "--gpu"])
+    try:
+        assert worker.recognize("/tmp/page.ppm") == _PAGE
+        assert worker.recognize("/tmp/page.ppm") == _PAGE
+        assert "--gpu" not in worker._command
+        assert worker.gpu_fallback == {"status": -signal.SIGSEGV}
+    finally:
+        worker.close()
+
+
+def test_diagnostics_show_a_later_gpu_fallback(tmp_path: Path) -> None:
+    from bigocrpdf.services.ocr.config import ProcessingStats
+    from bigocrpdf.services.ocr.ocr_runtime_diagnostics import record_ocr_runtime_diagnostics
+
+    worker = ppocr_native.Worker([_gpu_crashing_worker(tmp_path, "on_request"), "--gpu"])
+    stats = ProcessingStats()
+    try:
+        record_ocr_runtime_diagnostics(stats, OCRConfig(use_gpu=True), 3, worker, 1)
+        worker.recognize("/tmp/page.ppm")
+    finally:
+        worker.close()
+
+    runtime = stats.ocr_document.diagnostics["ocr_runtime"]
+    assert (runtime["use_gpu"], runtime["gpu_fallback"]) == (True, {"status": -signal.SIGSEGV})
+
+
+@pytest.mark.parametrize("crash", ["after_ready", "input_closed"])
+def test_dead_gpu_worker_reads_on_cpu(tmp_path: Path, crash: str) -> None:
+    """Dead before the request is written, or its input closed while it is."""
+    worker = ppocr_native.Worker([_gpu_crashing_worker(tmp_path, crash), "--gpu"])
+    try:
+        assert worker.wait_ready() == 3
+        if crash == "after_ready":
+            worker._proc.wait(timeout=5)
+        assert worker.recognize("/tmp/page.ppm") == _PAGE
+    finally:
+        worker.close()
+    assert (tmp_path / "starts").read_text().splitlines() == ["--gpu", ""]
+
+
+def test_killed_gpu_worker_stays_on_gpu(tmp_path: Path) -> None:
+    """A worker killed for a broken reply restarts where it ran."""
+    garbled = tmp_path / "garbled"
+    body = f"while read -r _; do [ -e '{garbled}' ] && echo '{json.dumps(_PAGE)}' "
+    body += f"|| {{ : > '{garbled}'; echo 'not json'; }}; done"
+    worker = ppocr_native.Worker([_fake_worker(tmp_path, body), "--gpu"])
+    try:
+        assert worker.recognize("/tmp/page.ppm") == _PAGE
+        assert "--gpu" in worker._command
+        assert worker.gpu_fallback == {}
     finally:
         worker.close()
 

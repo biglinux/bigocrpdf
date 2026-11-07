@@ -473,9 +473,9 @@ class BigOcrPdfApp(Adw.Application):
             os.close(fd)
 
             # Use pikepdf + Pillow to create a minimal PDF from the first image
-            from PIL import Image as PILImage
+            from bigocrpdf.utils.pdf_utils import open_image
 
-            with PILImage.open(first_path) as source_image:
+            with open_image(first_path) as source_image:
                 img = source_image
                 if source_image.mode in ("RGBA", "LA", "P"):
                     img = source_image.convert("RGB")

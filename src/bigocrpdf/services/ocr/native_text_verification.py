@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 from dataclasses import dataclass
@@ -10,6 +11,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 from bigocrpdf.services.ocr.config import OcrLine, OCRResult, OcrWord
+from bigocrpdf.utils.pdf_utils import confined
 
 _MIN_OVERLAP_RATIO = 0.20
 _MIN_TEXT_SIMILARITY = 0.45
@@ -64,16 +66,19 @@ def extract_native_text_spans(
     """Extract native text spans for one page using Poppler bbox output."""
     try:
         result = subprocess.run(
-            [
-                "pdftotext",
-                "-bbox-layout",
-                "-f",
-                str(page_num),
-                "-l",
-                str(page_num),
-                str(pdf_path),
-                "-",
-            ],
+            confined(
+                [
+                    "pdftotext",
+                    "-bbox-layout",
+                    "-f",
+                    str(page_num),
+                    "-l",
+                    str(page_num),
+                    os.path.abspath(pdf_path),
+                    "-",
+                ],
+                read=[pdf_path],
+            ),
             check=False,
             capture_output=True,
             text=True,

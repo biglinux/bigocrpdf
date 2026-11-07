@@ -165,9 +165,11 @@ def _add_image_page(source_file, page_state, new_pdf, resources: ExitStack):
     import io
 
     import pikepdf
-    from PIL import Image, ImageOps
+    from PIL import ImageOps
 
-    source_image = resources.enter_context(Image.open(source_file))
+    from bigocrpdf.utils.pdf_utils import open_image
+
+    source_image = resources.enter_context(open_image(source_file))
     img = ImageOps.exif_transpose(source_image)
     if img is not source_image:
         resources.callback(img.close)

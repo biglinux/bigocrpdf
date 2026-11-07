@@ -125,7 +125,8 @@ def _has_overlapping_full_page_images(page, images: list[ImagePosition]) -> bool
     return sum(1 for image in images if (image.width * image.height) / page_area > 0.5) >= 2
 
 
-def _mixed_excluded_pages(page_modifications: list[dict] | None) -> set[int]:
+def omitted_pages(page_modifications: list[dict] | None) -> set[int]:
+    """Source pages the output leaves out: deleted or excluded from OCR."""
     if not page_modifications:
         return set()
     return {

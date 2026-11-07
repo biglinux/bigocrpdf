@@ -52,9 +52,10 @@ Package names vary by distribution. Outside the packages above, provide:
 
 - Python 3.12 or newer
 - GTK 4.14 or newer, libadwaita 1.5 or newer, PyGObject, Pycairo, and their GObject
-  Introspection data, including Poppler's (`poppler-glib` on Arch)
+  Introspection data
 - Poppler command-line tools, including `pdfinfo`, `pdfimages`, `pdftotext`, `pdftoppm`,
   `pdffonts`, and `pdfdetach`
+- bubblewrap (`bwrap`), which those tools run in; without it they run unconfined
 - [ppocr-native](https://github.com/biglinux/ppocr-native) and its plans in
   `/usr/share/ppocr-native` (`PPOCR_NATIVE_PLANS` names another directory)
 - Noto Sans (`/usr/share/fonts/noto/NotoSans-Regular.ttf`; `BIGOCRPDF_TEXT_FONT` names

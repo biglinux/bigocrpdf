@@ -202,20 +202,22 @@ class TestPdfResourceLimits:
         assert select_render_dpi_for_page(612, 792, 300, 45) == 300
 
     def test_render_dpi_is_reduced_to_megapixel_budget(self):
-        dpi = select_render_dpi_for_page(612, 792, 300, 1, min_dpi=72)
+        dpi = select_render_dpi_for_page(612, 792, 300, 1)
         assert 90 <= dpi <= 110
-
-    def test_render_dpi_stops_at_floor_when_floor_fits_budget(self):
-        floor_budget = estimate_page_megapixels(612, 792, 150)
-        assert select_render_dpi_for_page(612, 792, 300, floor_budget, min_dpi=150) == 150
-
-    def test_render_dpi_rejects_page_when_floor_exceeds_budget(self):
-        with pytest.raises(ValueError, match=r"minimum 150 DPI.*configured limit is 1\.0 MP"):
-            select_render_dpi_for_page(612, 792, 300, 1, min_dpi=150)
 
     def test_render_dpi_downscales_photo_sized_page_box(self):
         """A photo PDF placing one point per source pixel must still render."""
         assert select_render_dpi_for_page(3864, 2814, 300, 45) == 146
+
+    def test_render_dpi_fits_metres_wide_page(self):
+        # A phone photo wrapped at 96 dpi: 15360x19968 pixels, 160x208 inches.
+        dpi = select_render_dpi_for_page(160 * 72, 208 * 72, 300, 45)
+        assert dpi == 36
+        assert estimate_page_megapixels(160 * 72, 208 * 72, dpi) <= 45
+
+    def test_render_dpi_rejects_huge_page(self):
+        with pytest.raises(ValueError, match="even at 1 DPI"):
+            select_render_dpi_for_page(10_000 * 72, 10_000 * 72, 300, 45)
 
     def test_render_dpi_rejects_invalid_page_dimensions(self):
         with pytest.raises(ValueError, match="invalid dimensions"):
@@ -230,8 +232,10 @@ class TestPdfResourceLimits:
         page["/UserUnit"] = 10
         pdf.save(pdf_path)
 
-        with pytest.raises(ValueError, match=r"minimum 100 DPI.*configured limit is 45\.0 MP"):
-            select_pdf_page_render_dpi(pdf_path, 1, 300, 45)
+        # 85 x 110 inches: 93.5 MP at 100 DPI, so it renders lower.
+        dpi = select_pdf_page_render_dpi(pdf_path, 1, 300, 45)
+        assert dpi == 69
+        assert estimate_page_megapixels(6120, 7920, dpi) <= 45
 
     def test_pdf_render_budget_rejects_invalid_page_number(self, tmp_path):
         with pytest.raises(ValueError, match="Invalid PDF page number"):

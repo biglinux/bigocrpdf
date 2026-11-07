@@ -3,8 +3,12 @@
 import os
 import sys
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from bigocrpdf.utils.i18n import _, setup_i18n
+
+if TYPE_CHECKING:
+    from gi.repository import Gio
 
 __version__ = "4.0.0"
 
@@ -16,6 +20,55 @@ _MIN_GTK_VERSION = (4, 14)
 _MIN_ADW_VERSION = (1, 5)
 
 
+def run_quitting_on_termination(app: "Gio.Application") -> int:
+    """Run ``app``, quitting it through its quit action on SIGTERM and SIGHUP
+    as closing its windows does, which cancels a running OCR job.
+
+    Once the main loop has returned nothing would handle a second signal while
+    the interpreter waits for a job's thread to finish its cleanup, so either
+    signal then removes the temporary files this process tracks, which exit
+    handlers would have removed, and ends it with its default action.
+    """
+    import signal
+
+    import gi
+    from gi.repository import GLib
+
+    try:
+        gi.require_version("GLibUnix", "2.0")
+        from gi.repository import GLibUnix
+
+        signal_add = GLibUnix.signal_add
+    except (ImportError, ValueError):  # GLib older than 2.80
+        signal_add = GLib.unix_signal_add
+
+    def quit_app(*_args: object) -> bool:
+        # A remote instance, which forwards its command line to the running
+        # one, has no quit action of its own: it only ends itself.
+        action = app.lookup_action("quit")
+        if action is None:
+            app.quit()
+        else:
+            action.activate(None)
+        return GLib.SOURCE_CONTINUE
+
+    def end_now(signum: int, _frame: object) -> None:
+        from bigocrpdf.utils.temp_manager import cleanup_all
+
+        cleanup_all()
+        signal.signal(signum, signal.SIG_DFL)
+        os.kill(os.getpid(), signum)
+
+    terminations = (signal.SIGTERM, signal.SIGHUP)
+    for signum in terminations:
+        signal_add(GLib.PRIORITY_DEFAULT, signum, quit_app)
+    try:
+        return app.run(sys.argv)
+    finally:
+        for signum in terminations:
+            signal.signal(signum, end_now)
+
+
 @dataclass(frozen=True)
 class OcrDependencyState:
     """Resolved startup availability of the OCR engine."""
@@ -24,13 +77,19 @@ class OcrDependencyState:
     error: str = ""
 
 
-def keep_cwd_out_of_child_imports() -> None:
-    """Stop child interpreters from importing modules found in the working directory.
+def set_process_environment() -> None:
+    """Settings this process and its children must have before they import
+    anything that reads them.
 
     Multiprocessing children put their cwd first on sys.path, and file
-    managers start the app in the opened file's directory.
+    managers start the app in the opened file's directory, so child
+    interpreters do not import from it. OpenCV reads its decoders' pixel limit
+    when it is imported: it gets the one Pillow's checks use.
     """
+    from bigocrpdf.services.ocr.config import DEFAULT_MAX_IMAGE_MEGAPIXELS
+
     os.environ["PYTHONSAFEPATH"] = "1"
+    os.environ["OPENCV_IO_MAX_IMAGE_PIXELS"] = str(int(DEFAULT_MAX_IMAGE_MEGAPIXELS * 1_000_000))
 
 
 def _check_ocr_dependencies() -> OcrDependencyState:
@@ -109,7 +168,7 @@ def main() -> int:
     Returns:
         The application exit code.
     """
-    keep_cwd_out_of_child_imports()
+    set_process_environment()
     # Configure locale before building translated UI.
     setup_i18n()
 
@@ -157,7 +216,7 @@ def main() -> int:
             logger.debug(f"Files provided in arguments: {args.files}")
 
         # Run the application
-        return app.run(sys.argv)
+        return run_quitting_on_termination(app)
     except Exception as e:
         logger.error(f"Critical error starting application: {e}")
         return 1
@@ -171,7 +230,7 @@ def main_image() -> int:
     Returns:
         The application exit code.
     """
-    keep_cwd_out_of_child_imports()
+    set_process_environment()
     setup_i18n()
 
     from bigocrpdf.utils.logger import logger, setup_logger
@@ -186,7 +245,7 @@ def main_image() -> int:
 
     try:
         app = ImageOcrApp(ocr_dependency=ocr_dependency)
-        return app.run(sys.argv)
+        return run_quitting_on_termination(app)
     except Exception as e:
         logger.error(f"Critical error starting Image OCR: {e}")
         return 1

@@ -12,6 +12,7 @@ from gi.repository import Gio, GLib, Gtk
 
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.pdf_utils import confined, is_regular_file
 
 if TYPE_CHECKING:
     from bigocrpdf.ui.pdf_editor.editor_window import PDFEditorWindow
@@ -69,8 +70,12 @@ class PageThumbnailExporter:
         import subprocess
 
         try:
+            source = os.path.abspath(source)
             result = subprocess.run(
-                ["pdfimages", "-list", "-f", str(page_num), "-l", str(page_num), source],
+                confined(
+                    ["pdfimages", "-list", "-f", str(page_num), "-l", str(page_num), source],
+                    read=[source],
+                ),
                 capture_output=True,
                 text=True,
                 encoding="utf-8",
@@ -90,19 +95,24 @@ class PageThumbnailExporter:
         import glob
         import subprocess
 
-        prefix = os.path.join(tmpdir, "img")
+        prefix = os.path.join(os.path.abspath(tmpdir), "img")
+        source = os.path.abspath(source)
         try:
             subprocess.run(
-                [
-                    "pdfimages",
-                    "-all",
-                    "-f",
-                    str(page_num),
-                    "-l",
-                    str(page_num),
-                    source,
-                    prefix,
-                ],
+                confined(
+                    [
+                        "pdfimages",
+                        "-all",
+                        "-f",
+                        str(page_num),
+                        "-l",
+                        str(page_num),
+                        source,
+                        prefix,
+                    ],
+                    read=[source],
+                    write=[tmpdir],
+                ),
                 check=True,
                 timeout=30,
                 capture_output=True,
@@ -111,7 +121,7 @@ class PageThumbnailExporter:
             logger.error(f"pdfimages failed: {e}")
             return None, ".png"
 
-        files = sorted(glob.glob(f"{prefix}-*"))
+        files = sorted(f for f in glob.glob(f"{prefix}-*") if is_regular_file(f))
         if not files:
             return None, ".png"
 
@@ -130,24 +140,29 @@ class PageThumbnailExporter:
             select_pdf_page_render_dpi,
         )
 
-        prefix = os.path.join(tmpdir, "page")
+        prefix = os.path.join(os.path.abspath(tmpdir), "page")
+        source = os.path.abspath(source)
         try:
             dpi = select_pdf_page_render_dpi(
                 source, page_num, _PAGE_IMAGE_DPI, DEFAULT_MAX_RENDER_MEGAPIXELS
             )
             subprocess.run(
-                [
-                    "pdftoppm",
-                    "-png",
-                    "-r",
-                    str(dpi),
-                    "-f",
-                    str(page_num),
-                    "-l",
-                    str(page_num),
-                    source,
-                    prefix,
-                ],
+                confined(
+                    [
+                        "pdftoppm",
+                        "-png",
+                        "-r",
+                        str(dpi),
+                        "-f",
+                        str(page_num),
+                        "-l",
+                        str(page_num),
+                        source,
+                        prefix,
+                    ],
+                    read=[source],
+                    write=[tmpdir],
+                ),
                 check=True,
                 timeout=30,
                 capture_output=True,
@@ -156,7 +171,7 @@ class PageThumbnailExporter:
             logger.error(f"pdftoppm failed: {e}")
             return None
 
-        files = sorted(glob.glob(f"{prefix}-*"))
+        files = sorted(f for f in glob.glob(f"{prefix}-*") if is_regular_file(f))
         return files[0] if files else None
 
     def _open_save_image_dialog(self, default_name: str, extracted: str, tmpdir: str) -> None:

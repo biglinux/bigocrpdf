@@ -5,13 +5,14 @@ import json
 from bigocrpdf.services.ocr import ppocr_native
 from bigocrpdf.services.ocr.config import OCRConfig, ProcessingStats
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.pdf_utils import sandbox_state
 
 
 def record_ocr_runtime_diagnostics(
     stats: ProcessingStats,
     config: OCRConfig,
     kernel_tier: int,
-    ocr_threads: int,
+    ocr_worker: ppocr_native.Worker,
     chunk_size: int,
     ocr_workers: int = 1,
     resource: dict[str, object] | None = None,
@@ -20,6 +21,8 @@ def record_ocr_runtime_diagnostics(
 
     Args:
         kernel_tier: What the worker reported in its ready line.
+        ocr_worker: The job's worker. Its ``gpu_fallback`` is recorded as the
+            same dict, so a fallback later in the job still shows.
         ocr_workers: Preprocessing workers the pipeline actually started, so a
             benchmark record reports the parallelism that ran.
         resource: The tier and budget the pipeline computed, when the caller
@@ -32,10 +35,13 @@ def record_ocr_runtime_diagnostics(
         "kernel_tier": kernel_tier,
         "detection_limit_side_len": config.detection_limit_side_len,
         "detection_full_resolution": config.detection_full_resolution,
+        "use_gpu": config.use_gpu,
+        "gpu_fallback": ocr_worker.gpu_fallback,
+        "sandbox": sandbox_state()[1],
         "box_thresh": config.box_thresh,
         "unclip_ratio": config.unclip_ratio,
         "text_score_threshold": config.text_score_threshold,
-        "ocr_threads": ocr_threads,
+        "ocr_threads": ocr_worker.threads,
         "ocr_workers": ocr_workers,
         "chunk_size": chunk_size,
         "worker_path": ppocr_native.find_worker(),

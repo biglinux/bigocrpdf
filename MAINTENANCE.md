@@ -40,24 +40,44 @@ GTK state, asynchronous delivery, OCR orchestration, and PDF/document models.
 Shell is limited to validation, staging, and packaging.
 
 The base runtime includes GTK4, libadwaita, ppocr-native, the text-layer font
-Noto Sans from `noto-fonts`, Poppler tools, pikepdf, Pillow, OpenCV, NumPy, SciPy,
-ReportLab, and odfpy. `jbig2enc` is optional; when it is absent, bilevel output
-must continue through CCITT Group 4.
+Noto Sans from `noto-fonts`, Poppler tools, bubblewrap, pikepdf, Pillow, OpenCV,
+NumPy, SciPy, ReportLab, and odfpy. `jbig2enc` is optional; when it is absent,
+bilevel output must continue through CCITT Group 4.
 
 `services/ocr/ppocr_native.py` owns the OCR engine: it finds the `ppocr-native`
 executable and the plans in `PPOCR_NATIVE_PLANS` (default
 `/usr/share/ppocr-native`), builds the worker's command line, and holds the one
 client of the worker's stdin/stdout JSON-lines protocol: `Worker` for a job's
 persistent OCR worker, and `Detector` for deskew and dewarp, which asks that
-worker or, in the preprocessing pool, a detect-only worker of its own. Image
-OCR runs one worker per request at normal priority. Each job owns its workers, so one job finishing or cancelling never
-touches another's. The worker reads only binary PPM and PGM, so OCR inputs are
-written as PPM. Its recognisers run one per physical core, capped by the
-resource manager's OCR thread count. A request has a 300 s deadline, and a
-cancelled job's waiting request returns within 0.1 s and kills its worker.
+worker or, in the preprocessing pool, a detect-only worker of its own. The OCR
+worker runs with `--gpu` unless the Use the Graphics Card setting or
+`--no-gpu` turns it off, and ppocr-native falls back to the CPU without a
+usable GPU; the detect-only workers stay on the CPU, so the pool's processes
+do not share one GPU. A `--gpu` worker that dies by a signal, or before its
+ready line, is started again without `--gpu`. Image OCR runs one worker per
+request at normal priority. Each job owns its workers, so one job finishing or
+cancelling never touches another's. The worker reads only binary PPM and PGM,
+so OCR inputs are written as PPM. Its recognisers run one per physical core,
+capped by the resource manager's OCR thread count. A request has a 300 s
+deadline, and a cancelled job's waiting request returns within 0.1 s and kills
+its worker.
 
 Subprocess calls use direct argv. A zero exit status is authoritative success;
 nonzero status, timeout, or signal is an explicit error/cancellation result.
+
+Every Poppler tool that reads a user's PDF (pdfimages, pdftoppm, pdfinfo,
+pdftotext, pdffonts, pdfdetach) runs through `utils/pdf_utils.confined`: a
+bubblewrap sandbox with no network, IPC or other processes, nothing of the home
+directory but the user's fonts, fontconfig settings and font cache (a PDF may
+name a font it does not embed), the system read-only, the PDF read-only and
+write access only to the job's output directory. The application process
+never parses a PDF with Poppler itself; pikepdf/qpdf still does, in process.
+The sandbox is probed once per process, by running `pdfinfo -v` the way every
+tool runs; without a usable bwrap or user namespaces, or inside Flatpak (whose
+own sandbox applies), the tools run unconfined, a warning is logged once per
+process and the OCR diagnostics record `sandbox: "none (<reason>)"`. A tool
+that fails inside the sandbox has failed: it is never retried unconfined. Files
+a tool writes are read only when they are regular files, never links.
 
 ## OCR and PDF invariants
 
@@ -87,6 +107,18 @@ nonzero status, timeout, or signal is an explicit error/cancellation result.
   membership, and a user's own `contract-02.pdf` must never be retired.
 - Positioned ODT keeps editable text at page coordinates; reflowable ODT keeps
   paragraphs, tables, and columns; empty pages remain present.
+- Scanned pages go through OCR in chunks. With more than one preprocessing
+  worker, the next chunk is extracted and queued for preprocessing while the
+  current one is read; the chunks take two directories in turn, and a chunk's
+  extracted images go once its preprocessing is done, each page's OCR input
+  once its OCR is read. A stop, a cancel or an error queues nothing more.
+- A page that cannot be read stays in the output without its text, and the
+  output is published: `ProcessingStats.failed_pages` holds each such page
+  and its cause, the CLI logs them as a warning and exits 0, and the window
+  lists them on the file's row and in the completion dialog. A document none
+  of whose pages could be read fails, as does an unreadable input file.
+- Pillow opens outside images only in the formats `utils/pdf_utils.py`
+  allows: it picks a decoder from the content, whatever the file is called.
 
 OCR or geometry changes require a focused regression plus a representative
 benchmark. File-size or line-count pressure alone is not a reason to rewrite an
@@ -114,6 +146,10 @@ checkpoints and dialog flags are program state.
 - Corrupt or partial input must not destroy the last readable state.
 - Destructive operations are idempotent and scoped to product-owned temporary
   paths or an explicitly confirmed user target.
+- A job's temporary directory and an output's staging folder are named with
+  the owner's PID and host, and the owner holds a lock on the directory while
+  it lives. A new job removes such a directory only when it belongs to this
+  user, its process on this host is gone and nobody holds its lock.
 
 ## UI contract
 

@@ -15,10 +15,10 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Gdk", "4.0")
-gi.require_version("Poppler", "0.18")
-from gi.repository import Gdk, GdkPixbuf, GLib, Poppler
+from gi.repository import Gdk, GdkPixbuf, GLib
 
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.pdf_utils import confined, get_pdf_page_count
 
 DocumentIdentity = tuple[str, int | None, int | None, int | None, int | None]
 ThumbnailCallback = Callable[[GdkPixbuf.Pixbuf | None], None]
@@ -99,14 +99,11 @@ class ThumbnailRenderer:
         self._cache_size = cache_size
         self._max_cache_bytes = max_cache_bytes
         self._default_size = default_size
-        self._documents: dict[DocumentIdentity, Poppler.Document] = {}
         self._lock = threading.Lock()
         self._pool = ThreadPoolExecutor(max_workers=4)
         self._jobs: dict[ThumbnailCacheKey, _ThumbnailJob] = {}
         self._request_ids = count(1)
         self._document_generations: dict[str, int] = {}
-        self._tls = threading.local()  # Thread-local document cache
-        self._doc_version = 0  # Bumped on cache clear to invalidate stale docs
         self._shutdown = False
 
     @staticmethod
@@ -134,24 +131,6 @@ class ThumbnailRenderer:
         with self._lock:
             generation = self._document_generations.get(identity[0], 0)
         return identity, generation, page_num, size, rotation
-
-    def _get_document(self, pdf_path: str) -> Poppler.Document | None:
-        """Get or load a Poppler document (main thread only, for metadata)."""
-        identity = self._get_document_identity(pdf_path)
-        if identity in self._documents:
-            return self._documents[identity]
-
-        try:
-            uri = GLib.filename_to_uri(identity[0], None)
-            doc = Poppler.Document.new_from_file(uri, None)
-            self._documents = {
-                key: value for key, value in self._documents.items() if key[0] != identity[0]
-            }
-            self._documents[identity] = doc
-            return doc
-        except Exception as e:
-            logger.error(f"Failed to load PDF {pdf_path}: {e}")
-            return None
 
     def _evict_cache(self) -> None:
         """Evict oldest items from cache."""
@@ -262,7 +241,7 @@ class ThumbnailRenderer:
         rotation: int,
         job: _ThumbnailJob,
     ) -> None:
-        """Worker thread: render PDF page to pixbuf via cairo surface."""
+        """Worker thread: render a page with pdftoppm, or load an image file."""
         try:
             if job.cancel_event.is_set():
                 self._finish_cancelled_job(job)
@@ -283,7 +262,6 @@ class ThumbnailRenderer:
             if is_image:
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(pdf_path, size, -1, True)
             else:
-                # pdftoppm renders a single page much faster than Poppler GI
                 pixbuf = self._render_pdf_page_pdftoppm(
                     pdf_path,
                     page_num,
@@ -378,28 +356,32 @@ class ThumbnailRenderer:
         cancel_event: threading.Event,
         job: _ThumbnailJob | None,
     ) -> GdkPixbuf.Pixbuf | None:
-        """Render a single PDF page via pdftoppm (native C, ~25x faster)."""
+        """Render a single PDF page with a confined pdftoppm."""
         process: subprocess.Popen[bytes] | None = None
+        source = os.path.abspath(pdf_path)
         try:
             page_1based = page_num + 1
             process = subprocess.Popen(
-                [
-                    "pdftoppm",
-                    "-cropbox",
-                    "-jpeg",
-                    "-r",
-                    "150",
-                    "-scale-to-x",
-                    str(size),
-                    "-scale-to-y",
-                    "-1",
-                    "-f",
-                    str(page_1based),
-                    "-l",
-                    str(page_1based),
-                    "-singlefile",
-                    pdf_path,
-                ],
+                confined(
+                    [
+                        "pdftoppm",
+                        "-cropbox",
+                        "-jpeg",
+                        "-r",
+                        "150",
+                        "-scale-to-x",
+                        str(size),
+                        "-scale-to-y",
+                        "-1",
+                        "-f",
+                        str(page_1based),
+                        "-l",
+                        str(page_1based),
+                        "-singlefile",
+                        source,
+                    ],
+                    read=[source],
+                ),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
@@ -436,11 +418,7 @@ class ThumbnailRenderer:
                 with self._lock:
                     if job.process is process:
                         job.process = None
-
-        # Fallback to Poppler GI
-        if cancel_event.is_set():
-            return None
-        return self._render_pdf_to_pixbuf(pdf_path, page_num, size)
+        return None
 
     @staticmethod
     def _request_process_termination(process: subprocess.Popen[bytes]) -> None:
@@ -465,79 +443,6 @@ class ThumbnailRenderer:
             process.communicate()
         except OSError:
             pass
-
-    def _get_thread_document(self, pdf_path: str) -> Poppler.Document | None:
-        """Get a Poppler document cached per worker thread.
-
-        Poppler documents are not thread-safe so each thread keeps its own
-        instance. The document is opened once per thread and reused for all
-        pages, reducing PDF opens from N (one per page) to W (one per worker).
-        """
-        ver = self._doc_version
-        if not hasattr(self._tls, "docs") or getattr(self._tls, "ver", -1) != ver:
-            self._tls.docs = {}
-            self._tls.ver = ver
-        identity = self._get_document_identity(pdf_path)
-        if identity not in self._tls.docs:
-            try:
-                uri = GLib.filename_to_uri(identity[0], None)
-                self._tls.docs = {
-                    key: value for key, value in self._tls.docs.items() if key[0] != identity[0]
-                }
-                self._tls.docs[identity] = Poppler.Document.new_from_file(uri, None)
-            except Exception as e:
-                logger.error(f"Failed to load PDF in worker: {e}")
-                return None
-        return self._tls.docs[identity]
-
-    def _render_pdf_to_pixbuf(
-        self, pdf_path: str, page_num: int, size: int
-    ) -> GdkPixbuf.Pixbuf | None:
-        """Render a PDF page to a GdkPixbuf using Poppler GI + Cairo.
-
-        Converts the Cairo surface directly to a GdkPixbuf via
-        Gdk.MemoryTexture, avoiding the slow PNG encode/decode round-trip.
-        Uses a thread-local Poppler document cache for speed.
-        """
-        import cairo
-
-        try:
-            doc = self._get_thread_document(pdf_path)
-            if doc is None:
-                return None
-            if page_num >= doc.get_n_pages():
-                return None
-            page = doc.get_page(page_num)
-            pw, ph = page.get_size()
-            if pw <= 0 or ph <= 0:
-                return None
-
-            scale = size / pw
-            w = int(pw * scale)
-            h = int(ph * scale)
-
-            surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
-            ctx = cairo.Context(surface)
-            ctx.set_source_rgb(1.0, 1.0, 1.0)
-            ctx.paint()
-            ctx.scale(scale, scale)
-            page.render(ctx)
-            surface.flush()
-
-            # Direct pixel copy: Cairo ARGB32 matches B8G8R8A8_PREMULTIPLIED
-            data = bytes(surface.get_data())
-            stride = surface.get_stride()
-            texture = Gdk.MemoryTexture.new(
-                w,
-                h,
-                Gdk.MemoryFormat.B8G8R8A8_PREMULTIPLIED,
-                GLib.Bytes.new(data),
-                stride,
-            )
-            return Gdk.pixbuf_get_from_texture(texture)
-        except Exception as e:
-            logger.error(f"Error rendering PDF page with Poppler: {e}")
-            return None
 
     def _apply_rotation(self, pixbuf: GdkPixbuf.Pixbuf, rotation: int) -> GdkPixbuf.Pixbuf:
         """Apply rotation to pixbuf."""
@@ -585,8 +490,7 @@ class ThumbnailRenderer:
         lower_path = pdf_path.lower()
         if lower_path.endswith((".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff", ".bmp")):
             return 1
-        doc = self._get_document(pdf_path)
-        return doc.get_n_pages() if doc else 0
+        return get_pdf_page_count(pdf_path)
 
     def clear_page_cache(self, pdf_path: str, page_num: int) -> None:
         """Evict cached variants for one page without disrupting other renders."""
@@ -604,7 +508,6 @@ class ThumbnailRenderer:
         canonical_path = self._canonical_path(pdf_path)
         jobs_to_cancel: list[_ThumbnailJob] = []
         with self._lock:
-            self._doc_version += 1
             self._document_generations[canonical_path] = (
                 self._document_generations.get(canonical_path, 0) + 1
             )
@@ -620,11 +523,6 @@ class ThumbnailRenderer:
                     request._finish_without_delivery()
                 job.callbacks.clear()
                 jobs_to_cancel.append(job)
-            self._documents = {
-                identity: document
-                for identity, document in self._documents.items()
-                if identity[0] != canonical_path
-            }
         self._cancel_jobs(jobs_to_cancel)
 
     def shutdown(self, *, wait: bool = True) -> None:
@@ -634,11 +532,9 @@ class ThumbnailRenderer:
             if self._shutdown:
                 return
             self._shutdown = True
-            self._doc_version += 1
             self._cache.clear()
             self._cache_costs.clear()
             self._cache_bytes = 0
-            self._documents.clear()
             self._document_generations.clear()
             for job in self._jobs.values():
                 job.cancel_event.set()

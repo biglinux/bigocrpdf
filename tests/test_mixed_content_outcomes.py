@@ -64,7 +64,12 @@ def test_mixed_content_records_reported_tier(
     with pikepdf.Pdf.new() as pdf:
         pdf.add_blank_page()
         pdf.save(source)
-    worker = SimpleNamespace(threads=7, wait_ready=MagicMock(return_value=2), close=MagicMock())
+    worker = SimpleNamespace(
+        threads=7,
+        wait_ready=MagicMock(return_value=2),
+        close=MagicMock(),
+        gpu_fallback={},
+    )
     engine = SimpleNamespace(
         config=OCRConfig(),
         _start_ocr_worker=MagicMock(return_value=worker),
@@ -101,7 +106,12 @@ def test_embedded_image_records_reported_tier(
     with pikepdf.Pdf.new() as pdf:
         pdf.add_blank_page()
         pdf.save(source)
-    worker = SimpleNamespace(threads=4, wait_ready=MagicMock(return_value=2), close=MagicMock())
+    worker = SimpleNamespace(
+        threads=4,
+        wait_ready=MagicMock(return_value=2),
+        close=MagicMock(),
+        gpu_fallback={},
+    )
     engine = SimpleNamespace(
         config=OCRConfig(),
         _start_ocr_worker=MagicMock(return_value=worker),
@@ -185,7 +195,7 @@ def test_cancel_during_an_image_stops_the_page() -> None:
         config=OCRConfig(),
         _ocr_image_in_page=MagicMock(side_effect=InterruptedError("cancelled")),
     )
-    pairs = [(SimpleNamespace(name="/Im0"), SimpleNamespace(idx=0))]
+    pairs = [(SimpleNamespace(name="/Im0", width=600, height=400), SimpleNamespace(idx=0))]
 
     with pytest.raises(InterruptedError):
         MixedContentMixin._ocr_positioned_image_pairs(
@@ -236,3 +246,30 @@ def test_page_with_oversized_image_is_rendered() -> None:
     candidates = _mixed_render_candidates(None, {1: [position]}, {1: [scan]}, set(), 128.0)
 
     assert candidates == {1}
+
+
+def test_failed_images_are_named(tmp_path: Path) -> None:
+    """The page keeps the read image's text; its cause names each failed one,
+    counting the images large enough to read, not the icon."""
+    engine = SimpleNamespace(
+        config=OCRConfig(),
+        _ocr_image_in_page=MagicMock(
+            side_effect=[RuntimeError("truncated"), ["Hello"], RuntimeError("decoder broke")]
+        ),
+    )
+    sizes = [(600, 400), (20, 20), (600, 400), (600, 400)]
+    pairs = [
+        (SimpleNamespace(name=f"/Im{i}", width=w, height=h), SimpleNamespace(idx=i))
+        for i, (w, h) in enumerate(sizes)
+    ]
+    paths = {i: tmp_path / f"{i}.png" for i in range(4)}
+    stats = ProcessingStats()
+    texts: list[str] = []
+
+    read = MixedContentMixin._ocr_positioned_image_pairs(
+        engine, None, None, 4, 600.0, 800.0, pairs, paths, stats, texts, None
+    )
+
+    assert (read, texts) == (1, ["Hello"])
+    assert stats.failed_pages == {4: "image 1 of 3: truncated; image 3 of 3: decoder broke"}
+    assert engine._ocr_image_in_page.call_args_list[1].kwargs["image_of"] == (2, 3)

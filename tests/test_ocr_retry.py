@@ -56,7 +56,11 @@ def _read_page(
     }
     pipeline = ProfessionalPDFOCR(OCRConfig())
     pipeline._ocr_chunk_result(
-        result, SimpleNamespace(recognize=recognize), [page_info], input_pdf=tmp_path / "in.pdf"
+        result,
+        SimpleNamespace(recognize=recognize),
+        [page_info],
+        input_pdf=tmp_path / "in.pdf",
+        scratch_dir=tmp_path,
     )
     stats = ProcessingStats()
     pipeline._page_ocr_results(result, 1, stats)
@@ -138,7 +142,9 @@ def test_rendered_fallback_is_removed_when_ocr_is_cancelled(tmp_path: Path):
     result = {"page_num": 1, "success": True, "temp_out_path": "page.png"}
 
     with pytest.raises(InterruptedError, match="cancelled"):
-        pipeline._ocr_chunk_result(result, worker, [], input_pdf=tmp_path / "in.pdf")
+        pipeline._ocr_chunk_result(
+            result, worker, [], input_pdf=tmp_path / "in.pdf", scratch_dir=tmp_path
+        )
 
     assert not rendered.exists()
 

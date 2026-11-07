@@ -211,7 +211,7 @@ def test_success_releases_generated_input_after_all_consumers_finish():
     assert events == ["compare", "display-name", "terminal", "remove"]
 
 
-def _completion_window(total: int, successful: int):
+def _completion_window(total: int, successful: int, page_warnings: dict[str, str] | None = None):
     output_files = [f"output-{index}.pdf" for index in range(successful)]
     terminal_page_manager = SimpleNamespace(
         show_completion_ui=MagicMock(),
@@ -232,6 +232,7 @@ def _completion_window(total: int, successful: int):
             get_total_count=MagicMock(return_value=total),
             get_successful_input_count=MagicMock(return_value=successful),
             get_failures=MagicMock(return_value=[("scan.pdf", "damaged")]),
+            get_page_warnings=MagicMock(return_value=page_warnings or {}),
         ),
         nav_manager=SimpleNamespace(navigate_to_conclusion=MagicMock()),
         reset_to_settings=MagicMock(),
@@ -324,9 +325,10 @@ def test_processing_completion_routes_each_truthful_state(successful, expected_s
         window._present_batch_completion.assert_not_called()
     else:
         window.ui.show_toast.assert_not_called()
-        outcome, failures = window._present_batch_completion.call_args.args
+        outcome, failures, unread_pages = window._present_batch_completion.call_args.args
         assert outcome.state is expected_state
         assert failures == [("scan.pdf", "damaged")]
+        assert unread_pages == []
         # The page behind the dialog is where its outcome leads.
         assert window.nav_manager.navigate_to_conclusion.called is bool(successful)
         assert window.reset_to_settings.called is not bool(successful)
@@ -342,6 +344,39 @@ def test_processing_completion_routes_each_truthful_state(successful, expected_s
         window.ui.conclusion_page_manager.update_conclusion_page.assert_not_called()
 
 
+def test_unread_pages_get_own_heading():
+    window = _completion_window(
+        total=1,
+        successful=1,
+        page_warnings={"/out/scan.pdf": "Page 2 could not be read: corrupt"},
+    )
+
+    with (
+        patch("bigocrpdf.processing_controller._", side_effect=lambda text: text),
+        patch(
+            "bigocrpdf.processing_controller.ngettext",
+            side_effect=lambda singular, plural, count: singular if count == 1 else plural,
+        ),
+        patch(
+            "bigocrpdf.processing_controller.GLib.idle_add",
+            side_effect=lambda callback: callback(),
+        ),
+    ):
+        ProcessingController._on_processing_complete(window)
+
+    window.ui.show_toast.assert_not_called()
+    window.nav_manager.navigate_to_conclusion.assert_called_once_with()
+    (outcome,) = window._present_batch_completion.call_args.args
+    kwargs = window._present_batch_completion.call_args.kwargs
+    assert outcome.state is _BatchCompletionState.SUCCESS
+    assert outcome.title == "Some pages have no text"
+    assert kwargs == {
+        "failures": [],
+        "unread_pages": [("scan.pdf", "Page 2 could not be read: corrupt")],
+    }
+    assert window.settings.page_failures == {"/out/scan.pdf": "Page 2 could not be read: corrupt"}
+
+
 @pytest.mark.parametrize("successful", (1, 0))
 def test_non_success_dialog_names_each_failed_file_and_cause(successful):
     dialog = MagicMock()
@@ -353,7 +388,7 @@ def test_non_success_dialog_names_each_failed_file_and_cause(successful):
         patch("bigocrpdf.processing_controller.Adw.AlertDialog", return_value=dialog) as alert,
     ):
         outcome = _build_batch_completion(3, successful)
-        ProcessingController._present_batch_completion(controller, outcome, failures)
+        ProcessingController._present_batch_completion(controller, outcome, failures, [])
 
     alert.assert_called_once_with(heading=outcome.title, body=outcome.message)
     # A partial run opens over its results; returning to the queue keeps the
@@ -470,3 +505,25 @@ def test_closed_controller_skips_result_postprocessing():
     save_odf.assert_not_called()
     compare.assert_not_called()
     idle_add.assert_not_called()
+
+
+def test_partial_lists_unread_pages_apart():
+    dialog = MagicMock()
+    controller = SimpleNamespace(parent=MagicMock(), reset_to_settings=MagicMock())
+    with (
+        patch("bigocrpdf.processing_controller._", side_effect=lambda text: text),
+        patch("bigocrpdf.processing_controller.Adw.AlertDialog", return_value=dialog),
+    ):
+        ProcessingController._present_batch_completion(
+            controller,
+            _build_batch_completion(2, 1),
+            [("b.pdf", "No page")],
+            [("a-ocr.pdf", "Page 2 could not be read: corrupt")],
+        )
+
+    details = dialog.set_extra_child.call_args.args[0]
+    label = details.get_first_child().get_child().get_child()
+    assert label.get_label() == (
+        "b.pdf: No page\n\nSaved, but some pages could not be read:\n"
+        "a-ocr.pdf: Page 2 could not be read: corrupt"
+    )

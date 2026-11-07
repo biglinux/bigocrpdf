@@ -51,6 +51,7 @@ def test_settings_round_trip_preserves_flat_owner_values(
     settings.enable_bilevel_compression = True
     settings.force_bilevel_compression = True
     settings.detection_full_resolution = True
+    settings.use_gpu = False
     settings.enable_deskew = False
     settings.quick_start_mode = False
 
@@ -68,6 +69,8 @@ def test_settings_round_trip_preserves_flat_owner_values(
     assert reloaded.enable_bilevel_compression is True
     assert reloaded.force_bilevel_compression is True
     assert reloaded.detection_full_resolution is True
+    assert reloaded.use_gpu is False
+    assert reloaded._snapshot_ocr_config().use_gpu is False
     assert reloaded.enable_deskew is False
     assert reloaded.quick_start_mode is False
 

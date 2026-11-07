@@ -37,6 +37,7 @@ from bigocrpdf.services.ocr.config import (
     DEFAULT_PAGE_LAYOUT,
     DEFAULT_SCANNER_EFFECT_STRENGTH,
     DEFAULT_TEXT_SCORE_THRESHOLD,
+    DEFAULT_USE_GPU,
     DEFAULT_VINTAGE_BW,
     DEFAULT_WORKERS,
     OCRConfig,
@@ -130,6 +131,7 @@ _PERSISTED_SETTINGS: dict[str, tuple[str, Any]] = {
         "rapidocr.detection_full_resolution",
         DEFAULT_DETECTION_FULL_RESOLUTION,
     ),
+    "use_gpu": ("rapidocr.use_gpu", DEFAULT_USE_GPU),
     "image_export_format": ("image_export.format", DEFAULT_IMAGE_EXPORT_FORMAT),
     "image_export_quality": ("image_export.quality", DEFAULT_IMAGE_EXPORT_QUALITY),
     "image_export_preserve_original": ("image_export.preserve_original", True),
@@ -200,6 +202,7 @@ class OcrSettings:
     text_score_threshold: float
     box_thresh: float
     detection_full_resolution: bool
+    use_gpu: bool
     replace_existing_ocr: bool
     enhance_embedded_images: bool
     quick_start_mode: bool
@@ -222,6 +225,8 @@ class OcrSettings:
         self.extracted_text: dict[str, str] = {}
         self.comparison_results: list[Any] = []
         self.ocr_boxes: dict[str, list[Any]] = {}
+        # Output file -> the pages it holds without their text, and why.
+        self.page_failures: dict[str, str] = {}
 
         # Ensure config directory exists
         os.makedirs(CONFIG_DIR, exist_ok=True)
@@ -264,6 +269,7 @@ class OcrSettings:
             text_score_threshold=self.text_score_threshold,
             box_thresh=self.box_thresh,
             detection_full_resolution=self.detection_full_resolution,
+            use_gpu=self.use_gpu,
             convert_to_pdfa=self.convert_to_pdfa,
             max_file_size_mb=self.max_file_size_mb,
             page_layout=self.page_layout,
@@ -723,6 +729,7 @@ class OcrSettings:
         """
         self.processed_files: list[str] = []
         self.comparison_results: list[Any] = []
+        self.page_failures = {}
 
         # Clear extracted text to free memory
         if self.extracted_text:

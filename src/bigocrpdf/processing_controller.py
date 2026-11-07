@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import time
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
@@ -391,25 +391,38 @@ class ProcessingController:
             terminal_page.update_terminal_progress(1.0, "100%")
             terminal_page.stop_progress_monitor()
 
+            page_warnings = self.ocr_processor.get_page_warnings()
+            self.settings.page_failures = page_warnings
             if outcome.successful_files:
                 self.ui.conclusion_page_manager.update_conclusion_page()
 
             logger.info("%s: %s", outcome.title, outcome.message)
             self._announce_status(outcome.message)
 
-            if outcome.action is _BatchCompletionAction.SHOW_RESULTS:
-                self.ui.show_toast(outcome.message)
-                self._schedule_conclusion_page()
-                return GLib.SOURCE_REMOVE
-
             # The dialog opens over the page its outcome leads to, never over
             # the finished progress view.
-            failures = self.ocr_processor.get_failures()
+            unread_pages = [
+                (os.path.basename(output), reason) for output, reason in page_warnings.items()
+            ]
+            if outcome.action is _BatchCompletionAction.SHOW_RESULTS:
+                if not unread_pages:
+                    self.ui.show_toast(outcome.message)
+                    self._schedule_conclusion_page()
+                    return GLib.SOURCE_REMOVE
+                self.nav_manager.navigate_to_conclusion()
+                saved = replace(
+                    outcome,
+                    title=_("Some pages have no text"),
+                    message=_("Every file was saved, but the pages below could not be read."),
+                )
+                self._present_batch_completion(saved, failures=[], unread_pages=unread_pages)
+                return GLib.SOURCE_REMOVE
+
             if outcome.action is _BatchCompletionAction.REVIEW_PARTIAL:
                 self.nav_manager.navigate_to_conclusion()
             else:
                 self.reset_to_settings()
-            self._present_batch_completion(outcome, failures)
+            self._present_batch_completion(outcome, self.ocr_processor.get_failures(), unread_pages)
 
             return GLib.SOURCE_REMOVE
 
@@ -436,9 +449,13 @@ class ProcessingController:
             self.conclusion_timer_id = None
 
     def _present_batch_completion(
-        self, outcome: _BatchCompletion, failures: list[tuple[str, str]]
+        self,
+        outcome: _BatchCompletion,
+        failures: list[tuple[str, str]],
+        unread_pages: list[tuple[str, str]],
     ) -> None:
-        """Explain a partial or failed batch, naming each failed file and its cause."""
+        """Explain a batch that did not fully succeed: each failed file and its
+        cause, then each saved file whose pages could not be read."""
         dialog = Adw.AlertDialog(heading=outcome.title, body=outcome.message)
         if outcome.action is _BatchCompletionAction.REVIEW_PARTIAL:
             # The failed files are still queued; the results page's Back clears them.
@@ -447,11 +464,18 @@ class ProcessingController:
         dialog.add_response("close", _("Close"))
         dialog.set_default_response("close")
         dialog.set_close_response("close")
-        if failures:
-            details = "\n".join(
-                _("{file}: {reason}").format(file=name, reason=reason) for name, reason in failures
-            )
-            dialog.set_extra_child(failure_details(details))
+
+        def lines(entries: list[tuple[str, str]]) -> list[str]:
+            return [
+                _("{file}: {reason}").format(file=name, reason=reason) for name, reason in entries
+            ]
+
+        details = lines(failures)
+        if failures and unread_pages:
+            details += ["", _("Saved, but some pages could not be read:")]
+        details += lines(unread_pages)
+        if details:
+            dialog.set_extra_child(failure_details("\n".join(details)))
         dialog.present(cast(Gtk.Widget, self.parent))
 
     def cancel(self) -> None:

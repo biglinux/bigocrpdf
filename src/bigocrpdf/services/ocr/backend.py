@@ -13,6 +13,7 @@ from bigocrpdf.services.ocr.pdf_extractor import (
     has_trusted_native_text,
 )
 from bigocrpdf.services.ocr.pdf_image_analysis import inspect_pdf_resource_metrics
+from bigocrpdf.services.ocr.pipeline_mixed_content_pages import omitted_pages
 from bigocrpdf.services.ocr.ppocr_native import Detector, Worker, start_ocr_worker
 from bigocrpdf.services.ocr.preprocessor import ImagePreprocessor
 from bigocrpdf.services.ocr.renderer import TextLayerRenderer
@@ -34,6 +35,21 @@ def should_use_mixed_content_pipeline(config: OCRConfig, input_pdf: Path) -> boo
     if not has_native_text(input_pdf):
         return False
     return has_trusted_native_text(input_pdf)
+
+
+def failed_pages_message(failed_pages: dict[int, str]) -> str:
+    """One line per cause naming the pages it left without their text."""
+    pages_by_cause: dict[str, list[int]] = {}
+    for page in sorted(failed_pages):
+        pages_by_cause.setdefault(failed_pages[page], []).append(page)
+    return "\n".join(
+        ngettext(
+            "Page {pages} could not be read: {cause}",
+            "Pages {pages} could not be read: {cause}",
+            len(pages),
+        ).format(pages=", ".join(map(str, pages)), cause=cause)
+        for cause, pages in pages_by_cause.items()
+    )
 
 
 class ProfessionalPDFOCR(
@@ -122,19 +138,10 @@ class ProfessionalPDFOCR(
             else:
                 logger.info("Detected image-only PDF. Using full OCR mode.")
             stats = self._process_image_only_pdf(input_pdf, output_pdf, progress_callback)
-        # A page left without its text is a failed document, not a blank page.
-        if stats.failed_pages:
-            pages_by_cause: dict[str, list[int]] = {}
-            for page in sorted(stats.failed_pages):
-                pages_by_cause.setdefault(stats.failed_pages[page], []).append(page)
-            raise RuntimeError(
-                "\n".join(
-                    ngettext(
-                        "Page {pages} could not be read: {cause}",
-                        "Pages {pages} could not be read: {cause}",
-                        len(pages),
-                    ).format(pages=", ".join(map(str, pages)), cause=cause)
-                    for cause, pages in pages_by_cause.items()
-                )
-            )
+        # Pages left without their text go out with the rest and are reported
+        # by the caller; a document none of whose pages to read could be read
+        # fails. Pages the user left out are not counted.
+        excluded = len(omitted_pages(self.config.page_modifications))
+        if stats.failed_pages and len(stats.failed_pages) >= stats.pages_total - excluded:
+            raise RuntimeError(failed_pages_message(stats.failed_pages))
         return stats

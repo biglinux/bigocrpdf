@@ -2,19 +2,20 @@
 Centralized temporary file management.
 
 Provides smart temp directory selection based on available space, automatic
-cleanup on exit (including SIGTERM), and tracking of all temp files/dirs
-to prevent orphaned files.
+cleanup on exit, and tracking of all temp files and directories to prevent
+orphaned files.
 """
 
 import atexit
+import fcntl
 import os
 import re
 import shutil
-import signal
 import socket
 import stat
 import tempfile
-import threading
+import time
+import weakref
 from pathlib import Path
 
 from bigocrpdf.utils.logger import logger
@@ -22,36 +23,25 @@ from bigocrpdf.utils.logger import logger
 _APP_CACHE_DIR = Path.home() / ".cache" / "bigocrpdf"
 _TMPFS_HEADROOM_RATIO = 0.50  # Use /tmp only if needed < 50% of free RAM
 _MIN_FREE_BYTES = 100 * 1024 * 1024  # 100 MB absolute minimum
+# A staging directory this recent may belong to a run, in another PID
+# namespace, that made it and has not locked it yet.
+_STAGING_GRACE_SECONDS = 60
 
 # Paths this process created, removed at exit.
 _tracked_files: set[str] = set()
 _tracked_dirs: set[str] = set()
 _cleanup_registered = False
-_sigterm_registered = False
 _run_cache_dir: Path | None = None
 
 
 def _register_cleanup() -> None:
-    """Register atexit and SIGTERM handlers exactly once."""
-    global _cleanup_registered, _sigterm_registered
+    """Register the exit cleanup exactly once. SIGTERM reaches it through
+    each entry point's own handler, which exits normally or, once the GUI's
+    main loop has returned, calls ``cleanup_all`` itself."""
+    global _cleanup_registered
     if not _cleanup_registered:
         _cleanup_registered = True
         atexit.register(cleanup_all)
-
-    # SIGTERM handler can only be set from the main thread
-    if not _sigterm_registered and threading.current_thread() is threading.main_thread():
-        prev_handler = signal.getsignal(signal.SIGTERM)
-
-        def _on_sigterm(signum, frame):
-            cleanup_all()
-            # Chain to previous handler
-            if callable(prev_handler):
-                prev_handler(signum, frame)
-            else:
-                raise SystemExit(1)
-
-        signal.signal(signal.SIGTERM, _on_sigterm)
-        _sigterm_registered = True
 
 
 def get_free_space(path: str | Path) -> int:
@@ -163,15 +153,41 @@ def mkdtemp(
     return path
 
 
-def staging_directory(directory: Path, prefix: str) -> tempfile.TemporaryDirectory[str]:
-    """Create a hidden staging directory for outputs published into ``directory``.
+class _HeldDirectory(tempfile.TemporaryDirectory):
+    """A temporary directory whose owner holds a lock on it until cleanup, so
+    a sweep in another PID namespace or on another host sharing the folder
+    can tell it is in use."""
 
-    The name records this process's PID and host, so a later call can remove
-    the ones a crashed or killed run left behind: directories owned by this
-    user whose process on this host is gone.
+    def __init__(self, prefix: str, dir: Path) -> None:
+        super().__init__(prefix=prefix, dir=dir)
+        lock = os.open(self.name, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+        except OSError:
+            # NFS and SMB may refuse a lock on a directory: the PID check
+            # still guards it, and a sweep that cannot lock it leaves it.
+            os.close(lock)
+            self._unlock = lambda: None
+            return
+        self._unlock = weakref.finalize(self, os.close, lock)
+
+    def cleanup(self) -> None:
+        self._unlock()
+        super().cleanup()
+
+
+def staging_directory(directory: Path, prefix: str) -> tempfile.TemporaryDirectory[str]:
+    """Create a private directory in ``directory``: a hidden staging folder for
+    outputs published there, or a job's scratch space in the temp directory.
+
+    The name records this process's PID and host, and the process holds a lock
+    on it, so a later call can remove the ones a crashed or killed run left
+    behind: directories owned by this user, unchanged for a minute, whose
+    process on this host is gone and whose lock nobody holds.
     """
     host = socket.gethostname()
-    stale = re.compile(rf"\.bigocr_[a-z_]+_(\d+)@{re.escape(host)}@")
+    # pid_max is at most 2**22, seven digits.
+    stale = re.compile(rf"(?:\.bigocr|bigocrpdf)_[a-z_]+_(\d{{1,7}})@{re.escape(host)}@")
     with os.scandir(directory) as entries:
         for entry in entries:
             match = stale.match(entry.name)
@@ -179,7 +195,7 @@ def staging_directory(directory: Path, prefix: str) -> tempfile.TemporaryDirecto
                 continue
             logger.info(f"Removing staging directory left by an interrupted run: {entry.path}")
             shutil.rmtree(entry.path, ignore_errors=True)
-    return tempfile.TemporaryDirectory(prefix=f"{prefix}{os.getpid()}@{host}@", dir=directory)
+    return _HeldDirectory(prefix=f"{prefix}{os.getpid()}@{host}@", dir=directory)
 
 
 def _staging_owner_gone(entry: os.DirEntry[str], pid: int) -> bool:
@@ -189,13 +205,27 @@ def _staging_owner_gone(entry: os.DirEntry[str], pid: int) -> bool:
         return False
     if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid():
         return False
+    if time.time() - info.st_mtime < _STAGING_GRACE_SECONDS:
+        return False
     try:
         os.kill(pid, 0)
     except ProcessLookupError:
-        return True
+        pass
     except OSError:
         return False
-    return False
+    else:
+        return False
+    try:
+        held = os.open(entry.path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    except OSError:
+        return False
+    try:
+        fcntl.flock(held, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        return False
+    finally:
+        os.close(held)
+    return True
 
 
 def track_file(path: str) -> None:

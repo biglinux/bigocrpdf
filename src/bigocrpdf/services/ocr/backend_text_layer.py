@@ -4,7 +4,6 @@
 
 from pathlib import Path
 
-from PIL import Image
 from reportlab.pdfgen import canvas
 
 from bigocrpdf.services.ocr.backend_text_layer_geometry import (
@@ -18,7 +17,9 @@ from bigocrpdf.services.ocr.native_text_verification import (
 from bigocrpdf.services.ocr.ocr_document_structure import build_ocr_lines_from_results
 from bigocrpdf.services.ocr.ocr_postprocess import fix_vertical_overlaps
 from bigocrpdf.services.ocr.ppocr_native import ocr_results as page_lines
+from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.pdf_utils import open_image
 
 
 class BackendTextLayerMixin:
@@ -113,9 +114,11 @@ class BackendTextLayerMixin:
         elif use_processed_for_page and draw_image_path:
             jpg_path = draw_image_path + ".jpg"
             try:
-                with Image.open(draw_image_path) as source:
-                    with source.convert("RGB") as rgb_image:
-                        rgb_image.save(jpg_path, "JPEG", quality=95)
+                with (
+                    open_image(draw_image_path) as source,
+                    source.convert("RGB") as rgb_image,
+                ):
+                    rgb_image.save(jpg_path, "JPEG", quality=95)
                 c.drawImage(jpg_path, 0, 0, width=pdf_width, height=pdf_height)
             finally:
                 Path(jpg_path).unlink(missing_ok=True)
@@ -312,12 +315,21 @@ class BackendTextLayerMixin:
         The canvas page already has the PDF page's size; a page drawn from its
         image sets its own.
         """
+        if work_item.get("unreadable"):
+            # The page stays, without text; the job reports it.
+            stats.failed_pages[page_num] = work_item["unreadable"]
+            c.showPage()
+            return 0.0, False
         if work_item["img_path"] is None:
             return self._handle_skipped_page(c, page_num, stats)
 
         if not result.get("success"):
             logger.warning(f"Failed to process page {page_num}: {result.get('error')}")
-            stats.failed_pages[page_num] = str(result.get("error"))
+            stats.failed_pages[page_num] = (
+                _("Unsupported or corrupted image file.")
+                if result.get("undecodable")
+                else str(result.get("error"))
+            )
             c.showPage()
             return 0.0, False
 
@@ -330,7 +342,7 @@ class BackendTextLayerMixin:
                 else {"rotation": 0, "mediabox": None}
             )
 
-            use_processed_for_page, _ = self._determine_page_mode(result, proc_w, proc_h)
+            use_processed_for_page = self._determine_page_mode(result, proc_w, proc_h)[0]
             if force_overlay and not result.get("geometry_applied", False):
                 # force_overlay preserves the original composite of a masked
                 # (JBIG2 foreground/background) page. It must not apply once a
@@ -391,9 +403,6 @@ class BackendTextLayerMixin:
 
         finally:
             Path(temp_path).unlink(missing_ok=True)
-            ocr_path = result.get("temp_ocr_path")
-            if ocr_path and ocr_path != temp_path:
-                Path(ocr_path).unlink(missing_ok=True)
 
     @staticmethod
     def _page_ocr_results(result: dict, page_num: int, stats: ProcessingStats) -> list[OCRResult]:

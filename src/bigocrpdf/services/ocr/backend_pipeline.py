@@ -38,6 +38,7 @@ from bigocrpdf.services.ocr.rotation import (
 )
 from bigocrpdf.utils.i18n import _, ngettext
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.temp_manager import staging_directory
 
 
 def _reserve_output_pdf(output_dir: Path, role: str) -> Path:
@@ -89,7 +90,7 @@ class BackendPipelineMixin(BackendEmbeddedImagePipelineMixin, ChunkedOCRMixin, M
         output_dir = output_pdf.parent
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        images_temp_dir = tempfile.TemporaryDirectory(prefix="bigocrpdf_imgs_")
+        images_temp_dir = staging_directory(Path(tempfile.gettempdir()), "bigocrpdf_imgs_")
         merged_pdf: Path | None = None
         text_layer_pdf: Path | None = None
 

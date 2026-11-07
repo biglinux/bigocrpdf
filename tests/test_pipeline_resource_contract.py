@@ -35,9 +35,6 @@ def _mixin() -> ChunkedOCRMixin:
     mixin.config = SimpleNamespace()
     mixin._start_ocr_worker = MagicMock(return_value=MagicMock(threads=4))
     mixin._raise_if_cancelled = MagicMock()
-    # Every chunk is skipped: the pipeline still sets up its executor, chunking
-    # and OCR worker, which is all this file asserts on.
-    mixin._skip_excluded_chunk = MagicMock(return_value=True)
     return mixin
 
 
@@ -46,7 +43,12 @@ def _run(mixin: ChunkedOCRMixin, tmp_path: Path, pipe_cfg, profile, pages: int):
     executor.__enter__.return_value = executor
     ctx = {
         "total_pages": pages,
-        "page_rotations": [],
+        # Every page is excluded: the pipeline still sets up its executor,
+        # chunking and OCR worker, which is all this file asserts on.
+        "page_rotations": [
+            SimpleNamespace(page_number=n, deleted=True, included_for_ocr=False)
+            for n in range(1, pages + 1)
+        ],
         "all_rotation_dicts": [{"mediabox": A4} for _ in range(pages)],
         "native_text_pages": set(),
         "page_encodings": {},

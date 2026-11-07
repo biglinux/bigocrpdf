@@ -7,8 +7,9 @@ from unittest.mock import MagicMock, patch
 import pikepdf
 import pytest
 
-from bigocrpdf.services.ocr.backend import OCRConfig, ProfessionalPDFOCR
+from bigocrpdf.services.ocr.backend import OCRConfig, ProfessionalPDFOCR, failed_pages_message
 from bigocrpdf.services.ocr.config import ProcessingStats
+from bigocrpdf.services.ocr.pdf_extractor import Extraction
 
 
 class TestBackendModifications(unittest.TestCase):
@@ -40,6 +41,7 @@ class TestBackendModifications(unittest.TestCase):
         self.backend._process_page_result = MagicMock(return_value=(0.95, False))
         worker = MagicMock(threads=4)
         worker.wait_ready.return_value = 3
+        worker.gpu_fallback = {}
         worker.recognize.return_value = {"boxes": None}
         self.backend._start_ocr_worker = MagicMock(return_value=worker)
 
@@ -65,7 +67,7 @@ class TestBackendModifications(unittest.TestCase):
 
         def extract_chunk(*_args, page_range, **_kwargs):
             start, end = page_range
-            return dummy_images[start - 1 : end]
+            return Extraction(dummy_images[start - 1 : end])
 
         self.backend.extractor.extract.side_effect = extract_chunk
 
@@ -124,25 +126,52 @@ class TestBackendModifications(unittest.TestCase):
         self.backend._finalize_output.assert_called_once()
 
 
-def test_unread_pages_fail_the_job(tmp_path: Path) -> None:
+def _backend_reporting(failed_pages: dict[int, str], pages_total: int) -> ProfessionalPDFOCR:
+    backend = ProfessionalPDFOCR(OCRConfig())
+    backend._process_image_only_pdf = MagicMock(
+        return_value=ProcessingStats(pages_total=pages_total, failed_pages=failed_pages)
+    )
+    return backend
+
+
+def test_unread_pages_go_out_reported(tmp_path: Path) -> None:
     source = tmp_path / "in.pdf"
     pdf = pikepdf.Pdf.new()
     pdf.add_blank_page()
     pdf.save(source)
-    backend = ProfessionalPDFOCR(OCRConfig())
-    backend._process_image_only_pdf = MagicMock(
-        return_value=ProcessingStats(
-            failed_pages={4: "worker crashed", 2: "plan truncated", 7: "plan truncated"}
-        )
-    )
+    failed = {4: "worker crashed", 2: "plan truncated", 7: "plan truncated"}
 
-    with pytest.raises(RuntimeError) as raised:
-        backend.process(source, tmp_path / "out.pdf")
+    stats = _backend_reporting(failed, pages_total=8).process(source, tmp_path / "out.pdf")
 
-    assert str(raised.value).splitlines() == [
+    assert stats.failed_pages == failed
+    assert failed_pages_message(stats.failed_pages).splitlines() == [
         "Pages 2, 7 could not be read: plan truncated",
         "Page 4 could not be read: worker crashed",
     ]
+
+
+def test_no_page_read_fails_the_job(tmp_path: Path) -> None:
+    source = tmp_path / "in.pdf"
+    pdf = pikepdf.Pdf.new()
+    pdf.add_blank_page()
+    pdf.save(source)
+
+    backend = _backend_reporting({1: "worker crashed", 2: "worker crashed"}, pages_total=2)
+
+    with pytest.raises(RuntimeError, match="Pages 1, 2 could not be read: worker crashed"):
+        backend.process(source, tmp_path / "out.pdf")
+
+
+def test_excluded_pages_leave_failures_fatal(tmp_path: Path) -> None:
+    source = tmp_path / "in.pdf"
+    pdf = pikepdf.Pdf.new()
+    pdf.add_blank_page()
+    pdf.save(source)
+    backend = _backend_reporting({1: "worker crashed"}, pages_total=2)
+    backend.config.page_modifications = [{"page_number": 2, "included_for_ocr": False}]
+
+    with pytest.raises(RuntimeError, match="Page 1 could not be read"):
+        backend.process(source, tmp_path / "out.pdf")
 
 
 def test_processing_temp_paths_do_not_follow_predictable_symlinks(tmp_path: Path) -> None:
@@ -175,3 +204,35 @@ def test_processing_temp_paths_do_not_follow_predictable_symlinks(tmp_path: Path
     assert not worker_scratch_path.exists()
     assert victim.read_text(encoding="utf-8") == "KEEP"
     assert all(path.is_symlink() for path in predictable_paths)
+
+
+def test_unreadable_page_is_a_failed_page() -> None:
+    stats = ProcessingStats()
+    canvas = MagicMock()
+
+    ProfessionalPDFOCR(OCRConfig())._process_page_result(
+        canvas,
+        {"page_num": 2, "success": False, "skipped": True},
+        {"img_path": None, "unreadable": "too large to render"},
+        [],
+        2,
+        stats,
+    )
+
+    assert stats.failed_pages == {2: "too large to render"}
+    canvas.showPage.assert_called_once()
+
+
+def test_undecodable_page_names_its_cause() -> None:
+    stats = ProcessingStats()
+
+    ProfessionalPDFOCR(OCRConfig())._process_page_result(
+        MagicMock(),
+        {"page_num": 3, "error": "the page image could not be decoded", "undecodable": True},
+        {"img_path": "page.jpg"},
+        [],
+        3,
+        stats,
+    )
+
+    assert stats.failed_pages == {3: "Unsupported or corrupted image file."}

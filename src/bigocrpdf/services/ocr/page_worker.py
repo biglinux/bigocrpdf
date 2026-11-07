@@ -25,6 +25,7 @@ from bigocrpdf.services.ocr.preprocess_enhance import apply_independent_effects
 from bigocrpdf.services.ocr.preprocess_orientation import correct_orientation, detect_orientation
 from bigocrpdf.services.ocr.preprocessor import ImagePreprocessor
 from bigocrpdf.utils.logger import DEFAULT_LOG_FORMAT
+from bigocrpdf.utils.pdf_utils import open_image_header
 
 logger = logging.getLogger(__name__)
 
@@ -150,7 +151,7 @@ def detect_image_quality(img_path: str) -> int:
         Detected quality (1-100) or 0 if not detectable
     """
     try:
-        with Image.open(img_path) as img:
+        with open_image_header(img_path) as img:
             if quality := _detect_jpeg_quality_from_tables(img):
                 return quality
             return _lossless_or_default_quality(img.format)
@@ -212,7 +213,7 @@ def detect_original_format(img_path: str) -> str:
         Format string: 'jpeg', 'png', 'webp', 'jp2', 'tiff', or 'unknown'
     """
     try:
-        with Image.open(img_path) as img:
+        with open_image_header(img_path) as img:
             fmt = (img.format or "").upper()
             format_map = {
                 "JPEG": "jpeg",
@@ -292,7 +293,7 @@ def _apply_pdf_rotation(
 
     exif_degrees = 0
     try:
-        with Image.open(img_path) as pil_check:
+        with open_image_header(img_path) as pil_check:
             exif_data = pil_check.getexif()
             exif_orient = exif_data.get(274, 1)
             _exif_to_deg = {1: 0, 2: 0, 3: 180, 4: 180, 5: 90, 6: 90, 7: 270, 8: 270}
@@ -460,7 +461,9 @@ def _create_page_preprocessor(
 
 
 def _load_page_source_image(img_path: str, config: OCRConfig) -> np.ndarray | None:
-    return load_image_with_exif_rotation(Path(img_path), config.max_image_megapixels)
+    return load_image_with_exif_rotation(
+        Path(img_path), config.max_image_megapixels, config.max_render_megapixels
+    )
 
 
 def _replace_with_rendered_source(
@@ -481,7 +484,7 @@ def _replace_with_rendered_source(
         page_num,
         config.fallback_render_dpi,
         config.max_render_megapixels,
-        args.get("scratch_dir"),
+        args["scratch_dir"],
     )
     if not rendered_source_path:
         return original_img, None
@@ -637,7 +640,12 @@ def process_page(args: dict[str, Any]) -> dict[str, Any]:
         preprocessor = _create_page_preprocessor(config, args, page_num)
         original_img = _load_page_source_image(img_path, config)
         if original_img is None:
-            return {"page_num": page_num, "error": f"Could not read image: {img_path}"}
+            logger.warning(f"Page {page_num}: could not read {img_path}")
+            return {
+                "page_num": page_num,
+                "error": "the page image could not be decoded",
+                "undecodable": True,
+            }
 
         original_img, rendered_source_path = _replace_with_rendered_source(
             original_img,
