@@ -665,6 +665,7 @@ class PDFImageExtractor:
         from concurrent.futures import ThreadPoolExecutor, as_completed
 
         preferred_dpi = int(self.dpi or 300)
+        unrenderable = _("the page could not be rendered")
         max_render_workers = min(len(pages), len(_os.sched_getaffinity(0)))
 
         def _render_one(page_num: int) -> tuple[int, Path | None, str]:
@@ -678,7 +679,7 @@ class PDFImageExtractor:
                 )
             except ValueError as e:
                 logger.error(f"Page {page_num}: {e}")
-                return page_num, None, _("the page could not be rendered")
+                return page_num, None, unrenderable
             if render_dpi != preferred_dpi:
                 logger.info(
                     f"Page {page_num}: reducing pdftoppm render DPI "
@@ -711,10 +712,10 @@ class PDFImageExtractor:
                 )
             except subprocess.TimeoutExpired:
                 logger.error(f"pdftoppm fallback timed out for page {page_num}")
-                return page_num, None, _("the page could not be rendered")
+                return page_num, None, unrenderable
             except subprocess.CalledProcessError as e:
                 logger.error(f"pdftoppm fallback failed for page {page_num}: {e.stderr}")
-                return page_num, None, _("the page could not be rendered")
+                return page_num, None, unrenderable
 
             rendered = Path(f"{prefix}.png")
             if is_regular_file(rendered):
@@ -723,7 +724,7 @@ class PDFImageExtractor:
                 logger.info(f"Page {page_num}: rendered via pdftoppm ({dest.name})")
                 return page_num, dest, ""
             logger.warning(f"pdftoppm produced no output for page {page_num}")
-            return page_num, None, _("the page could not be rendered")
+            return page_num, None, unrenderable
 
         with ThreadPoolExecutor(max_workers=max_render_workers) as tp:
             for page_num, dest, cause in (
