@@ -190,13 +190,15 @@ def _run_dewarp_only(
     logger: logging.Logger,
     page_set: set[int] | None = None,
 ) -> int:
-    """Run only preprocessing (dewarp/deskew) and save images."""
+    """Run only preprocessing (dewarp/deskew) and save images; fails when
+    no requested page gave an image."""
     if args.save_preprocessed:
         save_dir = args.save_preprocessed
         save_dir.mkdir(parents=True, exist_ok=True)
     else:
         save_dir = Path(tempfile.mkdtemp(prefix="bigocrpdf_debug_"))
 
+    from bigocrpdf.services.ocr.backend import failed_pages_message
     from bigocrpdf.services.ocr.pdf_extractor import PDFImageExtractor
     from bigocrpdf.services.ocr.ppocr_native import Detector
     from bigocrpdf.services.ocr.preprocessor import ImagePreprocessor
@@ -213,9 +215,10 @@ def _run_dewarp_only(
     with tempfile.TemporaryDirectory() as tmp, contextlib.closing(detector):
         tmp_path = Path(tmp)
         logger.info(f"Extracting images from {args.input}...")
-        images = extractor.extract(args.input, tmp_path, page_range=effective_range).images
+        extraction = extractor.extract(args.input, tmp_path, page_range=effective_range)
 
-        for i, img_path in enumerate(images):
+        saved = 0
+        for i, img_path in enumerate(extraction.images):
             if img_path is None:
                 continue
             page_num = (effective_range[0] if effective_range else 1) + i
@@ -225,8 +228,21 @@ def _run_dewarp_only(
 
             img = _load_dewarp_image(img_path, page_num, page_rotations, logger)
             _save_dewarp_images(img, page_num, save_dir, preprocessor, logger)
+            saved += 1
 
-    logger.info(f"All preprocessed images saved to {save_dir}")
+    unreadable = {
+        page: cause
+        for page, cause in extraction.unreadable_pages.items()
+        if not page_set or page in page_set
+    }
+    if unreadable:
+        logger.warning(failed_pages_message(unreadable))
+    if not saved:
+        if not args.save_preprocessed:
+            save_dir.rmdir()
+        logger.error("No page image to preprocess")
+        return 1
+    logger.info(f"Preprocessed images saved to {save_dir}")
     return 0
 
 

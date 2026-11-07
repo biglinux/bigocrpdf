@@ -413,6 +413,34 @@ def test_cli_warns_of_unread_pages(tmp_path: Path) -> None:
     warning.assert_called_once_with("Page 2 could not be read: image stream is corrupt")
 
 
+def test_dewarp_only_fails_without_images(tmp_path: Path) -> None:
+    from bigocrpdf.cli_ocr_commands import _run_dewarp_only
+    from bigocrpdf.services.ocr.pdf_extractor import Extraction
+
+    source = tmp_path / "source.pdf"
+    _write_pdf(source, pages=1)
+    args = argparse.Namespace(input=source, save_preprocessed=None)
+    extraction = Extraction(images=[None], unreadable_pages={1: "the page could not be rendered"})
+
+    logger = logging.Logger("test")
+    with (
+        patch(
+            "bigocrpdf.services.ocr.pdf_extractor.PDFImageExtractor.extract",
+            return_value=extraction,
+        ),
+        patch("bigocrpdf.services.ocr.ppocr_native.Detector"),
+        patch("bigocrpdf.services.ocr.preprocessor.ImagePreprocessor"),
+        patch.object(logger, "warning") as warning,
+        patch("tempfile.tempdir", str(tmp_path / "tmp")),
+    ):
+        (tmp_path / "tmp").mkdir()
+        result = _run_dewarp_only(args, OCRConfig(), None, logger)
+
+    assert result == 1
+    assert list((tmp_path / "tmp").iterdir()) == []
+    warning.assert_called_once_with("Page 1 could not be read: the page could not be rendered")
+
+
 def _descendants(pid: int) -> dict[int, str]:
     """Each process below ``pid``, with its start time to tell a reused PID apart."""
     children: dict[int, list[int]] = {}
