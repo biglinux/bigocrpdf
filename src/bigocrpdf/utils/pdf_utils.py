@@ -421,10 +421,11 @@ def open_jpeg_within(
 ) -> "tuple[JpegImagePlugin.JpegImageFile, int]":
     """A JPEG opened to decode whole when it holds at most ``full_pixels``,
     else at the largest of libjpeg's 1/2, 1/4 and 1/8 scales that holds at
-    most ``reduced_pixels``, and that scale's divisor (1 when whole);
-    ValueError when no scale fits, when it stores over
-    ``MAX_JPEG_STORED_PIXELS``, or when a progressive file would need a
-    reduced scale: libjpeg keeps all of a progressive file's coefficients.
+    most ``reduced_pixels``, and that scale's divisor (1 when whole).
+
+    A file that needs a reduced scale raises ValueError when no scale fits,
+    when it stores over ``MAX_JPEG_STORED_PIXELS``, or when it is progressive:
+    libjpeg keeps all of a progressive file's coefficients.
 
     The scale bounds the decode, so Pillow's decompression-bomb check, which
     ``Image.open`` makes on the stored size, is not needed here; this opens
