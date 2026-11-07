@@ -4,9 +4,12 @@ import os
 import subprocess
 from contextlib import ExitStack
 from functools import lru_cache
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from bigocrpdf.utils.logger import logger
+
+if TYPE_CHECKING:
+    from PIL import Image
 
 
 def get_pdf_page_count(file_path: str, use_cache: bool = True) -> int:
@@ -208,6 +211,31 @@ def render_pdf_page_to_png(
         return None
 
 
+# Pillow decoders allowed on bytes from outside: the formats screenshots,
+# pdfimages, pdftoppm and our own outputs come in. Pillow picks a plugin from
+# the content, whatever the file is called, and some (EPS, through Ghostscript)
+# run external code.
+_SAFE_IMAGE_FORMATS = frozenset(
+    ("AVIF", "BMP", "GIF", "JPEG", "JPEG2000", "PNG", "PPM", "TIFF", "WEBP")
+)
+
+
+def safe_image_formats() -> tuple[str, ...]:
+    """The ``_SAFE_IMAGE_FORMATS`` this Pillow build can decode."""
+    from PIL import Image
+
+    Image.init()
+    return tuple(name for name in sorted(_SAFE_IMAGE_FORMATS) if name in Image.OPEN)
+
+
+def open_image(source: Any) -> "Image.Image":
+    """``PIL.Image.open`` limited to ``_SAFE_IMAGE_FORMATS``: any other format
+    raises ``UnidentifiedImageError``."""
+    from PIL import Image
+
+    return Image.open(source, formats=safe_image_formats())
+
+
 # Image extensions recognized as valid inputs.
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff", ".bmp", ".avif")
 
@@ -250,7 +278,7 @@ def images_to_pdf(image_paths: list[str], output_path: str | None = None) -> str
         images: list[Image.Image] = []
         for path in image_paths:
             try:
-                source = resources.enter_context(Image.open(path))
+                source = resources.enter_context(open_image(path))
                 image = ImageOps.exif_transpose(source)
                 if image is not source:
                     resources.callback(image.close)

@@ -115,7 +115,9 @@ def _load_dewarp_image(img_path: Path, page_num: int, page_rotations: list[int],
     import numpy as np
     from PIL import Image as PILImage
 
-    with PILImage.open(img_path) as pil_img:
+    from bigocrpdf.utils.pdf_utils import open_image
+
+    with open_image(img_path) as pil_img:
         max_pixels = 200_000_000  # ~200 MP ≈ ~600 MB at 3 bytes/px
         w, h = pil_img.size
         if w * h > max_pixels:

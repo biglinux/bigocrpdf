@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: src/bigocrpdf/__init__.py:89
+#: src/bigocrpdf/__init__.py:95
 #, python-brace-format
 msgid ""
 "The OCR engine, {worker}, is not installed, or its model files are missing "
@@ -576,8 +576,8 @@ msgid "Saved {ok}; {n} failed"
 msgstr "保存: {ok}、失敗: {n}"
 
 #: src/bigocrpdf/processing_controller.py:91
-#: src/bigocrpdf/services/screen_capture.py:425
-#: src/bigocrpdf/services/screen_capture.py:1009
+#: src/bigocrpdf/services/screen_capture.py:410
+#: src/bigocrpdf/services/screen_capture.py:994
 #: src/bigocrpdf/ui/image_ocr_window.py:937
 msgid "OCR processing failed."
 msgstr "OCR処理に失敗しました。"
@@ -843,22 +843,22 @@ msgstr "{0}の出力パスを作成中にエラーが発生しました: {1}"
 msgid "Removed processed file from queue: {0}"
 msgstr "キューから処理済みファイルを削除しました: {0}"
 
-#: src/bigocrpdf/services/screen_capture.py:489
-#: src/bigocrpdf/services/screen_capture.py:564
+#: src/bigocrpdf/services/screen_capture.py:474
+#: src/bigocrpdf/services/screen_capture.py:549
 #: src/bigocrpdf/ui/image_ocr_window.py:1040
 msgid "Screen capture failed. Please try again or open an image file."
 msgstr ""
 "スクリーンキャプチャに失敗しました。もう一度試すか、画像ファイルを開いてくだ"
 "さい。"
 
-#: src/bigocrpdf/services/screen_capture.py:490
-#: src/bigocrpdf/services/screen_capture.py:560
-#: src/bigocrpdf/services/screen_capture.py:565
+#: src/bigocrpdf/services/screen_capture.py:475
+#: src/bigocrpdf/services/screen_capture.py:545
+#: src/bigocrpdf/services/screen_capture.py:550
 #: src/bigocrpdf/ui/image_ocr_window.py:1042
 msgid "Could not capture the screen"
 msgstr "画面をキャプチャできませんでした"
 
-#: src/bigocrpdf/services/screen_capture.py:557
+#: src/bigocrpdf/services/screen_capture.py:542
 msgid ""
 "No screenshot tool available. Please install spectacle, gnome-screenshot, or "
 "flameshot."
@@ -866,11 +866,11 @@ msgstr ""
 "スクリーンショットツールが利用できません。spectacle、gnome-screenshot、または"
 "flameshotをインストールしてください。"
 
-#: src/bigocrpdf/services/screen_capture.py:968
+#: src/bigocrpdf/services/screen_capture.py:953
 msgid "Could not prepare the image for OCR."
 msgstr "OCR用に画像を準備できませんでした。"
 
-#: src/bigocrpdf/services/screen_capture.py:979
+#: src/bigocrpdf/services/screen_capture.py:964
 #, python-brace-format
 msgid ""
 "The OCR engine stopped with an error. If the details name a model file, "
@@ -879,49 +879,49 @@ msgstr ""
 "OCR エンジンがエラーで停止しました。詳細にモデルファイルが示されている場合"
 "は、{package} パッケージを再インストールしてください。"
 
-#: src/bigocrpdf/services/screen_capture.py:1001
+#: src/bigocrpdf/services/screen_capture.py:986
 msgid "OCR engine not available. Please check your installation."
 msgstr "OCRエンジンが利用できません。インストールを確認してください。"
 
-#: src/bigocrpdf/services/screen_capture.py:1062
-#: src/bigocrpdf/services/screen_capture.py:1068
-#: src/bigocrpdf/services/screen_capture.py:1074
-#: src/bigocrpdf/services/screen_capture.py:1148
-#: src/bigocrpdf/services/screen_capture.py:1171
-#: src/bigocrpdf/services/screen_capture.py:1179
+#: src/bigocrpdf/services/screen_capture.py:1047
+#: src/bigocrpdf/services/screen_capture.py:1053
+#: src/bigocrpdf/services/screen_capture.py:1059
+#: src/bigocrpdf/services/screen_capture.py:1133
+#: src/bigocrpdf/services/screen_capture.py:1156
+#: src/bigocrpdf/services/screen_capture.py:1164
 msgid "Could not load image file."
 msgstr "画像ファイルを読み込めませんでした。"
 
-#: src/bigocrpdf/services/screen_capture.py:1076
-#: src/bigocrpdf/services/screen_capture.py:1143
-#: src/bigocrpdf/services/screen_capture.py:1250
+#: src/bigocrpdf/services/screen_capture.py:1061
+#: src/bigocrpdf/services/screen_capture.py:1128
+#: src/bigocrpdf/services/screen_capture.py:1235
 msgid "Unsupported or corrupted image file."
 msgstr "対応していない、または破損している画像ファイルです。"
 
-#: src/bigocrpdf/services/screen_capture.py:1078
-#: src/bigocrpdf/services/screen_capture.py:1181
-#: src/bigocrpdf/services/screen_capture.py:1208
+#: src/bigocrpdf/services/screen_capture.py:1063
+#: src/bigocrpdf/services/screen_capture.py:1166
+#: src/bigocrpdf/services/screen_capture.py:1193
 msgid "Image file is too large to process safely."
 msgstr "画像ファイルが大きすぎるため、安全に処理できません。"
 
-#: src/bigocrpdf/services/screen_capture.py:1094
+#: src/bigocrpdf/services/screen_capture.py:1079
 msgid "No supported image decoder is available."
 msgstr "対応する画像デコーダーを利用できません。"
 
-#: src/bigocrpdf/services/screen_capture.py:1247
+#: src/bigocrpdf/services/screen_capture.py:1232
 msgid "Unsupported image format."
 msgstr "対応していない画像形式です。"
 
-#: src/bigocrpdf/services/screen_capture.py:1252
+#: src/bigocrpdf/services/screen_capture.py:1237
 #: src/bigocrpdf/ui/image_ocr_window.py:433
 msgid "Image dimensions exceed the configured safety limit."
 msgstr "画像サイズが設定された安全上の上限を超えています。"
 
-#: src/bigocrpdf/services/screen_capture.py:1258
+#: src/bigocrpdf/services/screen_capture.py:1243
 msgid "Animated or multi-page images are not supported."
 msgstr "アニメーション画像または複数ページの画像には対応していません。"
 
-#: src/bigocrpdf/services/screen_capture.py:1279
+#: src/bigocrpdf/services/screen_capture.py:1264
 msgid "Image file changed while it was being read. Please try again."
 msgstr "読み取り中に画像ファイルが変更されました。もう一度お試しください。"
 

@@ -17,6 +17,7 @@ from bigocrpdf.services.ocr.resource_manager import (
     select_render_dpi_for_page,
 )
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.pdf_utils import open_image
 
 
 def render_pdf_page_to_ppm(
@@ -175,7 +176,7 @@ def load_image_with_exif_rotation(img_path: Path, max_megapixels: float) -> np.n
     from PIL import ImageOps, UnidentifiedImageError
 
     try:
-        with Image.open(img_path) as source:
+        with open_image(img_path) as source:
             width, height = source.size
             if max_megapixels > 0 and width * height > max_megapixels * 1_000_000:
                 raise ValueError(
@@ -187,7 +188,10 @@ def load_image_with_exif_rotation(img_path: Path, max_megapixels: float) -> np.n
                     with oriented.convert("RGB") as rgb_image:
                         img_rgb = np.array(rgb_image)
             except Exception:
-                return cv2.imread(str(img_path))
+                try:
+                    return cv2.imread(str(img_path))
+                except cv2.error as exc:
+                    raise ValueError(f"Image exceeds the decoder safety limit: {exc}") from exc
     except Image.DecompressionBombError as exc:
         raise ValueError(f"Image exceeds the decoder safety limit: {exc}") from exc
     except (UnidentifiedImageError, OSError):

@@ -221,7 +221,7 @@ def test_load_dewarp_image_closes_pillow_image(monkeypatch, tmp_path: Path) -> N
             return np.zeros((3, 4, 3), dtype=dtype or np.uint8)
 
     image = FakeImage()
-    monkeypatch.setattr("PIL.Image.open", lambda _path: image)
+    monkeypatch.setattr("PIL.Image.open", lambda _path, **_kwargs: image)
 
     result = _load_dewarp_image(tmp_path / "page.png", 1, [], _logger())
 

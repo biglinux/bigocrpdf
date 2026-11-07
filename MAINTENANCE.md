@@ -98,6 +98,8 @@ nonzero status, timeout, or signal is an explicit error/cancellation result.
   current one is read; the chunks take two directories in turn, and a chunk's
   extracted images go once its preprocessing is done, each page's OCR input
   once its OCR is read. A stop, a cancel or an error queues nothing more.
+- Pillow opens outside images only in the formats `utils/pdf_utils.py`
+  allows: it picks a decoder from the content, whatever the file is called.
 
 OCR or geometry changes require a focused regression plus a representative
 benchmark. File-size or line-count pressure alone is not a reason to rewrite an

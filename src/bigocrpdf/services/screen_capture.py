@@ -34,6 +34,7 @@ from bigocrpdf.services.ocr.text_formatting_controller import (
 )
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.pdf_utils import safe_image_formats
 from bigocrpdf.utils.temp_manager import mkstemp as tm_mkstemp
 from bigocrpdf.utils.temp_manager import remove_file as tm_remove
 
@@ -216,31 +217,15 @@ class ImageOcrRequest:
 MAX_IMAGE_FILE_BYTES = 192 * 1024 * 1024
 DIRECT_IMAGE_HARD_MAX_MEGAPIXELS = 24.0
 
-_SAFE_IMAGE_FORMATS = frozenset(
-    (
-        "AVIF",
-        "BMP",
-        "GIF",
-        "JPEG",
-        "PNG",
-        "PPM",
-        "TIFF",
-        "WEBP",
-    )
-)
 
-
-def _safe_runtime_image_formats() -> tuple[str, ...]:
-    """Return conservative in-process Pillow decoders available at runtime."""
-    Image.init()
-    return tuple(
-        image_format for image_format in sorted(_SAFE_IMAGE_FORMATS) if image_format in Image.OPEN
-    )
+def _image_ocr_formats() -> tuple[str, ...]:
+    """The page-image allowlist without JPEG 2000, which image OCR does not accept."""
+    return tuple(name for name in safe_image_formats() if name != "JPEG2000")
 
 
 def get_supported_image_extensions() -> frozenset[str]:
     """Return extensions backed by the safe runtime decoder allowlist."""
-    formats = frozenset(_safe_runtime_image_formats())
+    formats = frozenset(_image_ocr_formats())
     return frozenset(
         extension
         for extension, image_format in Image.registered_extensions().items()
@@ -1089,7 +1074,7 @@ class ScreenCaptureService:
                 )
                 image_snapshot.seek(0)
 
-                safe_formats = _safe_runtime_image_formats()
+                safe_formats = _image_ocr_formats()
                 if not safe_formats:
                     raise ImageInputError(_("No supported image decoder is available."))
 

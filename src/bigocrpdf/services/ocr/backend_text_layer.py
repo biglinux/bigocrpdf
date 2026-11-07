@@ -4,7 +4,6 @@
 
 from pathlib import Path
 
-from PIL import Image
 from reportlab.pdfgen import canvas
 
 from bigocrpdf.services.ocr.backend_text_layer_geometry import (
@@ -19,6 +18,7 @@ from bigocrpdf.services.ocr.ocr_document_structure import build_ocr_lines_from_r
 from bigocrpdf.services.ocr.ocr_postprocess import fix_vertical_overlaps
 from bigocrpdf.services.ocr.ppocr_native import ocr_results as page_lines
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.pdf_utils import open_image
 
 
 class BackendTextLayerMixin:
@@ -113,7 +113,7 @@ class BackendTextLayerMixin:
         elif use_processed_for_page and draw_image_path:
             jpg_path = draw_image_path + ".jpg"
             try:
-                with Image.open(draw_image_path) as source:
+                with open_image(draw_image_path) as source:
                     with source.convert("RGB") as rgb_image:
                         rgb_image.save(jpg_path, "JPEG", quality=95)
                 c.drawImage(jpg_path, 0, 0, width=pdf_width, height=pdf_height)

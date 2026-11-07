@@ -223,3 +223,24 @@ def test_oversized_page_image_is_rejected_before_decoding(
 
     with pytest.raises(ValueError, match="limit"):
         pdf_page_geometry.load_image_with_exif_rotation(image_path, 128.0)
+
+
+def test_postscript_page_image_is_refused(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """pdfimages writes DCT streams as .jpg whatever they hold; Pillow would
+    hand PostScript to Ghostscript."""
+    from PIL import Image
+
+    from bigocrpdf.services.ocr import pdf_page_geometry
+    from bigocrpdf.utils.pdf_utils import open_image
+
+    image_path = tmp_path / "obj-000.jpg"
+    image_path.write_bytes(b"%!PS-Adobe-3.0 EPSF-3.0\n%%BoundingBox: 0 0 10 10\nshowpage\n")
+    monkeypatch.setattr(
+        pdf_page_geometry.cv2,
+        "imread",
+        Mock(side_effect=AssertionError("PostScript reached OpenCV")),
+    )
+
+    with pytest.raises(Image.UnidentifiedImageError):
+        open_image(image_path)
+    assert pdf_page_geometry.load_image_with_exif_rotation(image_path, 128.0) is None

@@ -14,7 +14,6 @@ from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor, 
 from pathlib import Path
 from typing import Any
 
-from PIL import Image
 from reportlab.pdfgen import canvas
 
 from bigocrpdf.services.ocr.config import ProcessingStats
@@ -38,6 +37,7 @@ from bigocrpdf.services.ocr.resource_manager import (
 )
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.pdf_utils import open_image
 
 
 def _chunk_result_page_size(abs_idx: int, all_rotation_dicts: list[dict]) -> tuple[float, float]:
@@ -80,7 +80,7 @@ def _resource_diagnostics(
 
 def _record_ocr_image_size(result: dict, image_path: str) -> None:
     """Note the size of the image OCR read, from its header alone."""
-    with contextlib.suppress(OSError), Image.open(image_path) as image:
+    with contextlib.suppress(OSError), open_image(image_path) as image:
         result["ocr_img_w"], result["ocr_img_h"] = image.size
 
 

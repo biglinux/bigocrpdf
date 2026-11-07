@@ -236,7 +236,7 @@ def test_exif_image_loader_closes_source_file(
     image_path = tmp_path / "page.png"
     Image.new("RGB", (4, 3), "white").save(image_path)
     source = Image.open(image_path)
-    monkeypatch.setattr(pdf_page_geometry.Image, "open", lambda _path: source)
+    monkeypatch.setattr(pdf_page_geometry.Image, "open", lambda _path, **_kwargs: source)
 
     result = pdf_page_geometry.load_image_with_exif_rotation(image_path, 128.0)
 

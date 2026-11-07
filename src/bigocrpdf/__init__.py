@@ -69,13 +69,19 @@ class OcrDependencyState:
     error: str = ""
 
 
-def keep_cwd_out_of_child_imports() -> None:
-    """Stop child interpreters from importing modules found in the working directory.
+def set_process_environment() -> None:
+    """Settings this process and its children must have before they import
+    anything that reads them.
 
     Multiprocessing children put their cwd first on sys.path, and file
-    managers start the app in the opened file's directory.
+    managers start the app in the opened file's directory, so child
+    interpreters do not import from it. OpenCV reads its decoders' pixel limit
+    when it is imported: it gets the one Pillow's checks use.
     """
+    from bigocrpdf.services.ocr.config import DEFAULT_MAX_IMAGE_MEGAPIXELS
+
     os.environ["PYTHONSAFEPATH"] = "1"
+    os.environ["OPENCV_IO_MAX_IMAGE_PIXELS"] = str(int(DEFAULT_MAX_IMAGE_MEGAPIXELS * 1_000_000))
 
 
 def _check_ocr_dependencies() -> OcrDependencyState:
@@ -154,7 +160,7 @@ def main() -> int:
     Returns:
         The application exit code.
     """
-    keep_cwd_out_of_child_imports()
+    set_process_environment()
     # Configure locale before building translated UI.
     setup_i18n()
 
@@ -216,7 +222,7 @@ def main_image() -> int:
     Returns:
         The application exit code.
     """
-    keep_cwd_out_of_child_imports()
+    set_process_environment()
     setup_i18n()
 
     from bigocrpdf.utils.logger import logger, setup_logger

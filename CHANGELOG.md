@@ -4,6 +4,7 @@ All notable user-visible and release-engineering changes are documented here.
 
 ## Unreleased
 
+- Open images from PDFs, screenshots and other files only in the formats OCR reads, so a crafted image cannot reach a decoder that runs an external program such as Ghostscript. OpenCV refuses images over the same pixel limit as Pillow.
 - Read text on the graphics card by default, through Vulkan, and on the processor when there is no usable one. A 10-page 300 dpi scan takes 6.9 s instead of 11.8 s on a Core i5-13400 with a GeForce GTX 1660 Ti, with the same text. Turning off Use the Graphics Card in the advanced settings, or passing `bigocrpdf-cli ocr --no-gpu`, keeps OCR on the processor, and a worker that crashes on the graphics card is started again on the processor. Needs ppocr-native 26.11.06-1615 or newer.
 - Extract and preprocess the next pages while the current ones are read, so the OCR engine no longer waits between batches of pages. A 177-page scanned book takes about 115 s instead of 145 s with a GeForce GTX 1660 Ti, with the same text. Machines with a single preprocessing worker, which budget memory for one batch, still prepare one batch at a time.
 - Delete each page's OCR input as soon as the page is read and each batch's extracted images once they are processed, so temporary disk use stays near two batches of pages however large the PDF: about 230 MB instead of 630 MB on a 177-page scan.

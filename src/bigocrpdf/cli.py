@@ -5,7 +5,7 @@ import logging
 import signal
 import sys
 
-from bigocrpdf import keep_cwd_out_of_child_imports
+from bigocrpdf import set_process_environment
 from bigocrpdf.cli_editor_commands import _cmd_edit
 from bigocrpdf.cli_export_commands import _cmd_export_md, _cmd_export_odf, _cmd_export_txt
 from bigocrpdf.cli_ocr_commands import _cmd_ocr
@@ -39,7 +39,7 @@ def _setup_environment() -> None:
 
 def main(argv: list[str] | None = None) -> int:
     """CLI entry point."""
-    keep_cwd_out_of_child_imports()
+    set_process_environment()
     _setup_environment()
     for signum in (signal.SIGTERM, signal.SIGHUP):
         signal.signal(signum, _exit_on_termination)
