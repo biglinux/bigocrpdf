@@ -32,7 +32,7 @@ _SANDBOX_PROFILE = (
     "--dev",
     "/dev",
     "--tmpfs",
-    "/tmp",
+    "/tmp",  # NOSONAR: a fresh tmpfs private to the sandbox, shared with nobody
     "--ro-bind-try",
     "/etc/fonts",
     "/etc/fonts",
