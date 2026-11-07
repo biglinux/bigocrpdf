@@ -137,6 +137,11 @@ class ChunkedOCRMixin:
             finally:
                 if rendered_ocr:
                     Path(rendered_ocr).unlink(missing_ok=True)
+                # The uncompressed OCR input is read only here; the flush
+                # draws temp_out_path and takes the OCR size from the result.
+                ocr_input = result.pop("temp_ocr_path", None)
+                if ocr_input and ocr_input != result["temp_out_path"]:
+                    Path(ocr_input).unlink(missing_ok=True)
 
     def _chunk_ocr_path(
         self,
@@ -424,6 +429,11 @@ class ChunkedOCRMixin:
                                 pages_before=chunk_range(chunk_idx)[0] - 1,
                                 total_pages=total_pages,
                             )
+                            # Every page of the chunk is preprocessed: the
+                            # flush reads only the workers' outputs.
+                            for file_path in chunk_dir.glob("*"):
+                                with contextlib.suppress(OSError):
+                                    file_path.unlink()
                             total_confidence += self._flush_chunk_results(
                                 c,
                                 ocr_done,

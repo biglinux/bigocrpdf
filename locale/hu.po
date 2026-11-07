@@ -681,7 +681,7 @@ msgstr[0] "A(z) {pages}. oldal nem olvasható: {cause}"
 msgstr[1] "Nem olvasható oldalak ({pages}): {cause}"
 
 #: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:250
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:515
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:525
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "A(z) {0}/{1}. oldal feldolgozása…"
@@ -723,7 +723,7 @@ msgstr "PDF/A-ra konvertálás..."
 msgid "Splitting PDF by size limit..."
 msgstr "PDF felosztása méretkorlátozás szerint..."
 
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:294
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:299
 msgid "Starting OCR..."
 msgstr "OCR indítása..."
 

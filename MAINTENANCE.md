@@ -95,8 +95,9 @@ nonzero status, timeout, or signal is an explicit error/cancellation result.
   paragraphs, tables, and columns; empty pages remain present.
 - Scanned pages go through OCR in chunks. With more than one preprocessing
   worker, the next chunk is extracted and queued for preprocessing while the
-  current one is read; the chunks take two directories in turn. A stop, a
-  cancel or an error queues nothing more.
+  current one is read; the chunks take two directories in turn, and a chunk's
+  extracted images go once its preprocessing is done, each page's OCR input
+  once its OCR is read. A stop, a cancel or an error queues nothing more.
 
 OCR or geometry changes require a focused regression plus a representative
 benchmark. File-size or line-count pressure alone is not a reason to rewrite an

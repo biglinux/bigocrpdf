@@ -162,6 +162,30 @@ def test_chunk_work_items_receive_the_owned_scratch_directory(
     assert work_items[0]["scratch_dir"] == str(tmp_path)
 
 
+def test_ocr_input_goes_once_read(tmp_path: Path) -> None:
+    """The uncompressed OCR input leaves the disk with its page's OCR; the
+    image the flush draws stays."""
+    drawn, ocr_input = tmp_path / "page.jpg", tmp_path / "page.ppm"
+    drawn.write_bytes(b"jpeg")
+    ocr_input.write_bytes(b"ppm")
+    mixin = ChunkedOCRMixin()
+    mixin._retry_chunk_ocr_if_needed = MagicMock()
+    result = {
+        "page_num": 1,
+        "success": True,
+        "temp_out_path": str(drawn),
+        "temp_ocr_path": str(ocr_input),
+        "geometry_applied": True,
+    }
+
+    with patch("bigocrpdf.services.ocr.pipeline_chunked_ocr.read_refined", return_value=[]):
+        mixin._ocr_chunk_result(result, MagicMock(), [{}], scratch_dir=tmp_path)
+
+    assert drawn.exists()
+    assert not ocr_input.exists()
+    assert "temp_ocr_path" not in result
+
+
 def test_preprocessing_failure_cancels_unstarted_futures() -> None:
     mixin = ChunkedOCRMixin()
     futures = [MagicMock(), MagicMock()]
@@ -341,6 +365,26 @@ def test_prefetch_keeps_its_own_directory(tmp_path: Path) -> None:
 
     assert [page_range for page_range, _ in used] == [(1, 1), (3, 3)]
     assert used[0][1] != used[1][1]
+
+
+def test_chunk_images_go_before_flush(tmp_path: Path) -> None:
+    mixin = _chunk_pipeline()
+    present_at_flush = []
+
+    def extract(_pdf, *, output_dir, page_range, skip_pages):
+        output_dir.mkdir(parents=True, exist_ok=True)
+        image = output_dir / f"page_{page_range[0]}.png"
+        image.write_bytes(b"png")
+        return Extraction([image])
+
+    mixin.extractor.extract.side_effect = extract
+    mixin._flush_chunk_results.side_effect = lambda *_args: (
+        present_at_flush.append(sorted(p.name for p in (tmp_path / "images").rglob("page_1.png")))
+        or 0.0
+    )
+    _run_chunks(mixin, tmp_path, 1)
+
+    assert present_at_flush == [[]]
 
 
 def test_interrupt_queues_no_prefetched_pages(tmp_path: Path) -> None:

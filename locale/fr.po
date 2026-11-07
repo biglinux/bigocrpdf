@@ -682,7 +682,7 @@ msgstr[0] "Impossible de lire la page {pages} : {cause}"
 msgstr[1] "Impossible de lire les pages {pages} : {cause}"
 
 #: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:250
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:515
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:525
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "Traitement de la page {0}/{1}..."
@@ -724,7 +724,7 @@ msgstr "Conversion en PDF/A..."
 msgid "Splitting PDF by size limit..."
 msgstr "Division du PDF selon la limite de taille…"
 
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:294
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:299
 msgid "Starting OCR..."
 msgstr "Démarrage de l’OCR..."
 

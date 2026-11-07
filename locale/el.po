@@ -683,7 +683,7 @@ msgstr[0] "Δεν ήταν δυνατή η ανάγνωση της σελίδα�
 msgstr[1] "Δεν ήταν δυνατή η ανάγνωση των σελίδων {pages}: {cause}"
 
 #: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:250
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:515
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:525
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "Επεξεργασία σελίδας {0}/{1}..."
@@ -725,7 +725,7 @@ msgstr "Μετατροπή σε PDF/A..."
 msgid "Splitting PDF by size limit..."
 msgstr "Διαχωρισμός PDF με βάση το όριο μεγέθους..."
 
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:294
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:299
 msgid "Starting OCR..."
 msgstr "Έναρξη OCR..."
 

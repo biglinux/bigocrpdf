@@ -391,9 +391,6 @@ class BackendTextLayerMixin:
 
         finally:
             Path(temp_path).unlink(missing_ok=True)
-            ocr_path = result.get("temp_ocr_path")
-            if ocr_path and ocr_path != temp_path:
-                Path(ocr_path).unlink(missing_ok=True)
 
     @staticmethod
     def _page_ocr_results(result: dict, page_num: int, stats: ProcessingStats) -> list[OCRResult]:

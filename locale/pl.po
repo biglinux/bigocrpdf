@@ -686,7 +686,7 @@ msgstr[1] "Nie udało się odczytać stron {pages}: {cause}"
 msgstr[2] "Nie udało się odczytać stron {pages}: {cause}"
 
 #: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:250
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:515
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:525
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "Przetwarzanie strony {0}/{1}..."
@@ -729,7 +729,7 @@ msgstr "Konwertowanie do PDF/A..."
 msgid "Splitting PDF by size limit..."
 msgstr "Dzielenie pliku PDF według limitu rozmiaru..."
 
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:294
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:299
 msgid "Starting OCR..."
 msgstr "Rozpoczynanie OCR..."
 

@@ -676,7 +676,7 @@ msgstr[0] "Kunne ikke lese side {pages}: {cause}"
 msgstr[1] "Kunne ikke lese sidene {pages}: {cause}"
 
 #: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:250
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:515
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:525
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "Behandler side {0}/{1}..."
@@ -718,7 +718,7 @@ msgstr "Konverterer til PDF/A..."
 msgid "Splitting PDF by size limit..."
 msgstr "Deler PDF etter størrelsesgrense..."
 
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:294
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:299
 msgid "Starting OCR..."
 msgstr "Starter OCR..."
 
