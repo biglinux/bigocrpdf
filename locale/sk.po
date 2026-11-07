@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 4.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-11-06 21:25-0300\n"
+"POT-Creation-Date: 2026-11-07 01:57-0300\n"
 "PO-Revision-Date: 2026-10-03 09:30+0000\n"
 "Last-Translator: BigLinux Translation Team <biglinux@biglinux.com.br>\n"
 "Language-Team: Slovak\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n >= 2 && n <= 4 ? 1 : 2);\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: src/bigocrpdf/__init__.py:95
+#: src/bigocrpdf/__init__.py:103
 #, python-brace-format
 msgid ""
 "The OCR engine, {worker}, is not installed, or its model files are missing "
@@ -695,14 +695,14 @@ msgstr[0] "Stranu {pages} sa nepodarilo prečítať: {cause}"
 msgstr[1] "Strany {pages} sa nepodarilo prečítať: {cause}"
 msgstr[2] "Strany {pages} sa nepodarilo prečítať: {cause}"
 
-#: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:250
+#: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:253
 #: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:526
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "Spracovanie stránky {0}/{1}..."
 
 #: src/bigocrpdf/services/ocr/backend_pipeline.py:151
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:293
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:308
 msgid "Done!"
 msgstr "Hotovo!"
 
@@ -735,22 +735,19 @@ msgid "Converting to PDF/A..."
 msgstr "Konverzia na PDF/A..."
 
 #: src/bigocrpdf/services/ocr/backend_pipeline.py:373
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:591
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:613
 msgid "Splitting PDF by size limit..."
 msgstr "Rozdeľovanie PDF podľa limitu veľkosti..."
 
-#: src/bigocrpdf/services/ocr/backend_text_layer.py:327
+#: src/bigocrpdf/services/ocr/backend_text_layer.py:329
 #: src/bigocrpdf/services/screen_capture.py:1061
 #: src/bigocrpdf/services/screen_capture.py:1140
 #: src/bigocrpdf/services/screen_capture.py:1247
 msgid "Unsupported or corrupted image file."
 msgstr "Nepodporovaný alebo poškodený súbor s obrázkom."
 
-#: src/bigocrpdf/services/ocr/pdf_extractor.py:681
-#: src/bigocrpdf/services/ocr/pdf_extractor.py:714
-#: src/bigocrpdf/services/ocr/pdf_extractor.py:717
-#: src/bigocrpdf/services/ocr/pdf_extractor.py:726
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:668
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:553
 msgid "the page could not be rendered"
 msgstr "nepodarilo sa vykresliť stranu"
 
@@ -758,7 +755,12 @@ msgstr "nepodarilo sa vykresliť stranu"
 msgid "Starting OCR..."
 msgstr "Spúšťanie OCR..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:103
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:64
+#, python-brace-format
+msgid "image {number} of {count}: {cause}"
+msgstr "obrázok {number} z {count}: {cause}"
+
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:118
 #, python-brace-format
 msgid ""
 "Page {page} already has an OCR text layer and was left unchanged. Enable "
@@ -767,24 +769,24 @@ msgstr ""
 "Strana {page} už obsahuje textovú vrstvu OCR a zostala nezmenená. Ak ju "
 "chcete spracovať znova, zapnite „Nahradiť existujúce OCR“."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:152
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:167
 msgid "Extracting images..."
 msgstr "Extrahovanie obrázkov..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:183
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:198
 msgid "Analyzing PDF structure..."
 msgstr "Analyzovanie štruktúry PDF..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:268
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:283
 msgid "Saving PDF..."
 msgstr "Ukladanie PDF..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:374
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:389
 #, python-brace-format
 msgid "OCR page {0}..."
 msgstr "OCR strany {0}…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:516
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:538
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "OCR strany {0} (po vykreslení)…"
@@ -3337,7 +3339,7 @@ msgstr "Hlavné zobrazenie"
 msgid "Results"
 msgstr "Výsledky"
 
-#: src/bigocrpdf/utils/temp_manager.py:66
+#: src/bigocrpdf/utils/temp_manager.py:71
 #, python-brace-format
 msgid ""
 "Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
@@ -3345,7 +3347,7 @@ msgstr ""
 "Nedostatok miesta na disku. Potrebných {needed:.0f} MB, ale dostupných je "
 "len {free:.0f} MB."
 
-#: src/bigocrpdf/utils/temp_manager.py:79
+#: src/bigocrpdf/utils/temp_manager.py:84
 #, python-brace-format
 msgid "No write permission for folder: {path}"
 msgstr "Chýba oprávnenie na zápis do priečinka: {path}"

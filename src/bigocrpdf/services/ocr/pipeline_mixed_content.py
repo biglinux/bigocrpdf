@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pikepdf
 
-from bigocrpdf.constants import PDF_TOOL_TIMEOUT_SECS
+from bigocrpdf.constants import MIN_IMAGE_BOX_SIZE_PX, PDF_TOOL_TIMEOUT_SECS
 from bigocrpdf.services.ocr.config import ProcessingStats
 from bigocrpdf.services.ocr.native_text_verification import (
     extract_native_text_spans,
@@ -51,6 +51,21 @@ from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.utils.pdf_utils import confined, is_regular_file
 from bigocrpdf.utils.temp_manager import staging_directory
+
+
+def record_image_failure(
+    stats: ProcessingStats, page_num: int, image_of: tuple[int, int], cause: object
+) -> None:
+    """Mark the page failed because image ``number`` of its ``count`` images
+    large enough to read, ``image_of``, could not be read. On a page with
+    several the cause names each failed one: the others keep their text."""
+    number, count = image_of
+    if count > 1:
+        cause = _("image {number} of {count}: {cause}").format(
+            number=number, count=count, cause=cause
+        )
+    earlier = stats.failed_pages.get(page_num)
+    stats.failed_pages[page_num] = f"{earlier}; {cause}" if earlier else str(cause)
 
 
 def _prefer_native_text(
@@ -419,12 +434,18 @@ class MixedContentMixin:
         ocr_texts: list[str],
         ocr_worker: Worker,
     ) -> int:
-        processed = 0
+        located = []
         for img_pos, info in pairs:
             img_path = idx_to_path.get(info.idx) if info is not None else None
             if img_path is None:
                 logger.warning(f"Page {page_num}: no extracted image for position {img_pos.name}")
-                continue
+            elif min(img_pos.width, img_pos.height) < MIN_IMAGE_BOX_SIZE_PX:
+                # Likely an icon or a decoration.
+                logger.debug(f"Skipping small image: {img_pos.width}x{img_pos.height}")
+            else:
+                located.append((img_pos, img_path))
+        processed = 0
+        for number, (img_pos, img_path) in enumerate(located, 1):
             try:
                 texts = self._ocr_image_in_page(
                     img_path,
@@ -437,6 +458,7 @@ class MixedContentMixin:
                     stats,
                     ocr_worker,
                     skip_preprocessing=not self.config.enhance_embedded_images,
+                    image_of=(number, len(located)),
                 )
                 ocr_texts.extend(texts)
                 processed += 1 if texts else 0
@@ -444,7 +466,7 @@ class MixedContentMixin:
                 raise
             except Exception as e:
                 logger.error(f"Error processing image {img_path}: {e}")
-                stats.failed_pages[page_num] = str(e)
+                record_image_failure(stats, page_num, (number, len(located)), e)
         return processed
 
     def _ocr_rendered_pages(

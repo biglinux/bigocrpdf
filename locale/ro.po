@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 4.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-11-06 21:25-0300\n"
+"POT-Creation-Date: 2026-11-07 01:57-0300\n"
 "PO-Revision-Date: 2026-10-03 09:30+0000\n"
 "Last-Translator: BigLinux Translation Team <biglinux@biglinux.com.br>\n"
 "Language-Team: Romanian\n"
@@ -19,7 +19,7 @@ msgstr ""
 "% 100 < 20)) ? 1 : 2);\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: src/bigocrpdf/__init__.py:95
+#: src/bigocrpdf/__init__.py:103
 #, python-brace-format
 msgid ""
 "The OCR engine, {worker}, is not installed, or its model files are missing "
@@ -699,14 +699,14 @@ msgstr[0] "Pagina {pages} nu a putut fi citită: {cause}"
 msgstr[1] "Paginile {pages} nu au putut fi citite: {cause}"
 msgstr[2] "Paginile {pages} nu au putut fi citite: {cause}"
 
-#: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:250
+#: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:253
 #: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:526
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "Se procesează pagina {0}/{1}..."
 
 #: src/bigocrpdf/services/ocr/backend_pipeline.py:151
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:293
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:308
 msgid "Done!"
 msgstr "Gata!"
 
@@ -739,22 +739,19 @@ msgid "Converting to PDF/A..."
 msgstr "Se convertește în PDF/A..."
 
 #: src/bigocrpdf/services/ocr/backend_pipeline.py:373
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:591
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:613
 msgid "Splitting PDF by size limit..."
 msgstr "Se împarte PDF-ul după limita de dimensiune..."
 
-#: src/bigocrpdf/services/ocr/backend_text_layer.py:327
+#: src/bigocrpdf/services/ocr/backend_text_layer.py:329
 #: src/bigocrpdf/services/screen_capture.py:1061
 #: src/bigocrpdf/services/screen_capture.py:1140
 #: src/bigocrpdf/services/screen_capture.py:1247
 msgid "Unsupported or corrupted image file."
 msgstr "Fișier imagine nesuportat sau corupt."
 
-#: src/bigocrpdf/services/ocr/pdf_extractor.py:681
-#: src/bigocrpdf/services/ocr/pdf_extractor.py:714
-#: src/bigocrpdf/services/ocr/pdf_extractor.py:717
-#: src/bigocrpdf/services/ocr/pdf_extractor.py:726
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:668
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:553
 msgid "the page could not be rendered"
 msgstr "nu s-a putut randa pagina"
 
@@ -762,7 +759,12 @@ msgstr "nu s-a putut randa pagina"
 msgid "Starting OCR..."
 msgstr "Se pornește OCR..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:103
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:64
+#, python-brace-format
+msgid "image {number} of {count}: {cause}"
+msgstr "imaginea {number} din {count}: {cause}"
+
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:118
 #, python-brace-format
 msgid ""
 "Page {page} already has an OCR text layer and was left unchanged. Enable "
@@ -771,24 +773,24 @@ msgstr ""
 "Pagina {page} are deja un strat de text OCR și a rămas neschimbată. "
 "Activează „Înlocuiește OCR-ul existent” pentru a o procesa din nou."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:152
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:167
 msgid "Extracting images..."
 msgstr "Se extrag imaginile..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:183
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:198
 msgid "Analyzing PDF structure..."
 msgstr "Se analizează structura PDF-ului..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:268
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:283
 msgid "Saving PDF..."
 msgstr "Se salvează PDF-ul..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:374
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:389
 #, python-brace-format
 msgid "OCR page {0}..."
 msgstr "OCR pentru pagina {0}…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:516
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:538
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "OCR pentru pagina {0} (randată)…"
@@ -3351,7 +3353,7 @@ msgstr "Vizualizare principală"
 msgid "Results"
 msgstr "Rezultate"
 
-#: src/bigocrpdf/utils/temp_manager.py:66
+#: src/bigocrpdf/utils/temp_manager.py:71
 #, python-brace-format
 msgid ""
 "Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
@@ -3359,7 +3361,7 @@ msgstr ""
 "Spațiu insuficient pe disc. Sunt necesari {needed:.0f} MB, dar sunt "
 "disponibili doar {free:.0f} MB."
 
-#: src/bigocrpdf/utils/temp_manager.py:79
+#: src/bigocrpdf/utils/temp_manager.py:84
 #, python-brace-format
 msgid "No write permission for folder: {path}"
 msgstr "Nu există permisiune de scriere pentru dosarul: {path}"

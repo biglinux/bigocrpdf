@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 4.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-11-06 21:25-0300\n"
+"POT-Creation-Date: 2026-11-07 01:57-0300\n"
 "PO-Revision-Date: 2026-10-03 09:30+0000\n"
 "Last-Translator: BigLinux Translation Team <biglinux@biglinux.com.br>\n"
 "Language-Team: Chinese\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: src/bigocrpdf/__init__.py:95
+#: src/bigocrpdf/__init__.py:103
 #, python-brace-format
 msgid ""
 "The OCR engine, {worker}, is not installed, or its model files are missing "
@@ -667,14 +667,14 @@ msgid "Page {pages} could not be read: {cause}"
 msgid_plural "Pages {pages} could not be read: {cause}"
 msgstr[0] "无法读取第 {pages} 页：{cause}"
 
-#: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:250
+#: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:253
 #: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:526
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "正在处理第{0}/{1}页..."
 
 #: src/bigocrpdf/services/ocr/backend_pipeline.py:151
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:293
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:308
 msgid "Done!"
 msgstr "完成！"
 
@@ -705,22 +705,19 @@ msgid "Converting to PDF/A..."
 msgstr "正在转换为 PDF/A…"
 
 #: src/bigocrpdf/services/ocr/backend_pipeline.py:373
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:591
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:613
 msgid "Splitting PDF by size limit..."
 msgstr "正在按大小限制拆分 PDF…"
 
-#: src/bigocrpdf/services/ocr/backend_text_layer.py:327
+#: src/bigocrpdf/services/ocr/backend_text_layer.py:329
 #: src/bigocrpdf/services/screen_capture.py:1061
 #: src/bigocrpdf/services/screen_capture.py:1140
 #: src/bigocrpdf/services/screen_capture.py:1247
 msgid "Unsupported or corrupted image file."
 msgstr "图像文件不受支持或已损坏。"
 
-#: src/bigocrpdf/services/ocr/pdf_extractor.py:681
-#: src/bigocrpdf/services/ocr/pdf_extractor.py:714
-#: src/bigocrpdf/services/ocr/pdf_extractor.py:717
-#: src/bigocrpdf/services/ocr/pdf_extractor.py:726
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:668
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:553
 msgid "the page could not be rendered"
 msgstr "无法渲染该页"
 
@@ -728,7 +725,12 @@ msgstr "无法渲染该页"
 msgid "Starting OCR..."
 msgstr "正在启动 OCR..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:103
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:64
+#, python-brace-format
+msgid "image {number} of {count}: {cause}"
+msgstr "第 {number} 张图像（共 {count} 张）：{cause}"
+
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:118
 #, python-brace-format
 msgid ""
 "Page {page} already has an OCR text layer and was left unchanged. Enable "
@@ -737,24 +739,24 @@ msgstr ""
 "第 {page} 页已包含 OCR 文本层，因此保持不变。若要重新处理，请启用“替换现有 "
 "OCR”。"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:152
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:167
 msgid "Extracting images..."
 msgstr "正在提取图像…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:183
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:198
 msgid "Analyzing PDF structure..."
 msgstr "正在分析 PDF 结构…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:268
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:283
 msgid "Saving PDF..."
 msgstr "正在保存 PDF…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:374
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:389
 #, python-brace-format
 msgid "OCR page {0}..."
 msgstr "正在对第 {0} 页进行 OCR…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:516
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:538
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "正在对已渲染的第 {0} 页进行 OCR…"
@@ -3210,13 +3212,13 @@ msgstr "主视图"
 msgid "Results"
 msgstr "结果"
 
-#: src/bigocrpdf/utils/temp_manager.py:66
+#: src/bigocrpdf/utils/temp_manager.py:71
 #, python-brace-format
 msgid ""
 "Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
 msgstr "磁盘空间不足。需要 {needed:.0f} MB，但仅有 {free:.0f} MB 可用。"
 
-#: src/bigocrpdf/utils/temp_manager.py:79
+#: src/bigocrpdf/utils/temp_manager.py:84
 #, python-brace-format
 msgid "No write permission for folder: {path}"
 msgstr "没有对该文件夹的写入权限：{path}"
