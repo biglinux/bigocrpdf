@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: src/bigocrpdf/__init__.py:44
+#: src/bigocrpdf/__init__.py:89
 #, python-brace-format
 msgid ""
 "The OCR engine, {worker}, is not installed, or its model files are missing "
@@ -681,40 +681,40 @@ msgstr[1] "Sivuja {pages} ei voitu lukea: {cause}"
 msgid "Processing page {0}/{1}..."
 msgstr "Käsitellään sivua {0}/{1}..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:150
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:290
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:151
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:291
 msgid "Done!"
 msgstr "Valmis!"
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:169
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:170
 msgid "Analyzing PDF..."
 msgstr "Analysoidaan PDF:tä..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:236
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:237
 msgid "Merging text layer..."
 msgstr "Yhdistetään tekstikerros..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:286
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:287
 msgid "Processing text page images..."
 msgstr "Käsitellään tekstisivukuvia…"
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:304
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:305
 msgid "Optimizing image compression..."
 msgstr "Optimoidaan kuvanpakkausta..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:317
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:318
 #, python-brace-format
 msgid "{count} page re-encoded with JBIG2"
 msgid_plural "{count} pages re-encoded with JBIG2"
 msgstr[0] "{count} sivu koodattu uudelleen JBIG2:lla"
 msgstr[1] "{count} sivua uudelleen koodattu JBIG2:lla"
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:347
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:348
 msgid "Converting to PDF/A..."
 msgstr "Muunnetaan PDF/A:ksi..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:372
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:588
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:373
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:589
 msgid "Splitting PDF by size limit..."
 msgstr "Jaetaan PDF kokorajan mukaan…"
 
@@ -722,7 +722,7 @@ msgstr "Jaetaan PDF kokorajan mukaan…"
 msgid "Starting OCR..."
 msgstr "Aloitetaan OCR..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:100
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:101
 #, python-brace-format
 msgid ""
 "Page {page} already has an OCR text layer and was left unchanged. Enable "
@@ -731,29 +731,29 @@ msgstr ""
 "Sivulla {page} on jo OCR-tekstikerros, joten se jätettiin ennalleen. Ota "
 "käyttöön ”Korvaa olemassa oleva OCR”, jos haluat käsitellä sen uudelleen."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:149
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:150
 msgid "Extracting images..."
 msgstr "Poimitaan kuvia..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:180
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:181
 msgid "Analyzing PDF structure..."
 msgstr "Analysoidaan PDF-rakennetta..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:265
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:266
 msgid "Saving PDF..."
 msgstr "Tallennetaan PDF-tiedostoa..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:371
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:372
 #, python-brace-format
 msgid "OCR page {0}..."
 msgstr "Sivun {0} OCR-käsittely…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:513
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:514
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "Sivun {0} OCR-käsittely (renderöity)…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:528
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:529
 msgid "the page could not be rendered"
 msgstr "sivua ei voitu hahmontaa"
 
@@ -3286,7 +3286,7 @@ msgstr "Päänäkymä"
 msgid "Results"
 msgstr "Tulokset"
 
-#: src/bigocrpdf/utils/temp_manager.py:81
+#: src/bigocrpdf/utils/temp_manager.py:66
 #, python-brace-format
 msgid ""
 "Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
@@ -3294,7 +3294,7 @@ msgstr ""
 "Levytila ei riitä. Tarvitaan {needed:.0f} MB mutta vain {free:.0f} MB "
 "käytettävissä."
 
-#: src/bigocrpdf/utils/temp_manager.py:94
+#: src/bigocrpdf/utils/temp_manager.py:79
 #, python-brace-format
 msgid "No write permission for folder: {path}"
 msgstr "Ei kirjoitusoikeutta kansioon: {path}"

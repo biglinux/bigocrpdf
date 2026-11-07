@@ -125,6 +125,10 @@ checkpoints and dialog flags are program state.
 - Corrupt or partial input must not destroy the last readable state.
 - Destructive operations are idempotent and scoped to product-owned temporary
   paths or an explicitly confirmed user target.
+- A job's temporary directory and an output's staging folder are named with
+  the owner's PID and host, and the owner holds a lock on the directory while
+  it lives. A new job removes such a directory only when it belongs to this
+  user, its process on this host is gone and nobody holds its lock.
 
 ## UI contract
 

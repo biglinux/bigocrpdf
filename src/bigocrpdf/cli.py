@@ -2,6 +2,7 @@
 """BigOcrPdf CLI entry point."""
 
 import logging
+import signal
 import sys
 
 from bigocrpdf import keep_cwd_out_of_child_imports
@@ -24,6 +25,11 @@ from bigocrpdf.cli_pdf_commands import (
 __all__ = ["_parse_page_list", "_parse_ranges", "build_parser", "main"]
 
 
+def _exit_on_termination(signum: int, _frame) -> None:
+    """End like Ctrl+C does, so a job stops its workers and removes its files."""
+    raise SystemExit(128 + signum)
+
+
 def _setup_environment() -> None:
     """Minimal setup without GTK dependencies."""
     from bigocrpdf.utils.i18n import setup_i18n
@@ -35,6 +41,8 @@ def main(argv: list[str] | None = None) -> int:
     """CLI entry point."""
     keep_cwd_out_of_child_imports()
     _setup_environment()
+    for signum in (signal.SIGTERM, signal.SIGHUP):
+        signal.signal(signum, _exit_on_termination)
 
     parser = build_parser()
     args = parser.parse_args(argv)

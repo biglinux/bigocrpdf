@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: src/bigocrpdf/__init__.py:44
+#: src/bigocrpdf/__init__.py:89
 #, python-brace-format
 msgid ""
 "The OCR engine, {worker}, is not installed, or its model files are missing "
@@ -686,40 +686,40 @@ msgstr[1] "Страници {pages} не можаха да бъдат проче
 msgid "Processing page {0}/{1}..."
 msgstr "Обработка на страница {0}/{1}..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:150
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:290
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:151
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:291
 msgid "Done!"
 msgstr "Готово!"
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:169
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:170
 msgid "Analyzing PDF..."
 msgstr "Анализиране на PDF..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:236
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:237
 msgid "Merging text layer..."
 msgstr "Сливане на текстовия слой..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:286
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:287
 msgid "Processing text page images..."
 msgstr "Обработка на текстови изображения на страници…"
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:304
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:305
 msgid "Optimizing image compression..."
 msgstr "Оптимизиране на компресията на изображения..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:317
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:318
 #, python-brace-format
 msgid "{count} page re-encoded with JBIG2"
 msgid_plural "{count} pages re-encoded with JBIG2"
 msgstr[0] "{count} страница, прекодирана с JBIG2"
 msgstr[1] "{count} страници, прекодирани с JBIG2"
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:347
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:348
 msgid "Converting to PDF/A..."
 msgstr "Конвертиране в PDF/A..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:372
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:588
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:373
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:589
 msgid "Splitting PDF by size limit..."
 msgstr "Разделяне на PDF по ограничение на размера..."
 
@@ -727,7 +727,7 @@ msgstr "Разделяне на PDF по ограничение на разме�
 msgid "Starting OCR..."
 msgstr "Започване на OCR..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:100
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:101
 #, python-brace-format
 msgid ""
 "Page {page} already has an OCR text layer and was left unchanged. Enable "
@@ -736,29 +736,29 @@ msgstr ""
 "Страница {page} вече има OCR текстов слой и беше оставена без промени. "
 "Активирайте „Замени съществуващия OCR“, за да я обработите отново."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:149
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:150
 msgid "Extracting images..."
 msgstr "Извличане на изображения..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:180
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:181
 msgid "Analyzing PDF structure..."
 msgstr "Анализиране на структурата на PDF..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:265
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:266
 msgid "Saving PDF..."
 msgstr "Записване на PDF..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:371
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:372
 #, python-brace-format
 msgid "OCR page {0}..."
 msgstr "OCR на страница {0}…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:513
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:514
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "OCR на страница {0} (рендирана)…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:528
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:529
 msgid "the page could not be rendered"
 msgstr "страницата не може да бъде изобразена"
 
@@ -3300,7 +3300,7 @@ msgstr "Основен изглед"
 msgid "Results"
 msgstr "Резултати"
 
-#: src/bigocrpdf/utils/temp_manager.py:81
+#: src/bigocrpdf/utils/temp_manager.py:66
 #, python-brace-format
 msgid ""
 "Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
@@ -3308,7 +3308,7 @@ msgstr ""
 "Няма достатъчно дисково пространство. Необходими са {needed:.0f} MB, но само "
 "{free:.0f} MB са налични."
 
-#: src/bigocrpdf/utils/temp_manager.py:94
+#: src/bigocrpdf/utils/temp_manager.py:79
 #, python-brace-format
 msgid "No write permission for folder: {path}"
 msgstr "Няма разрешение за запис в папка: {path}"

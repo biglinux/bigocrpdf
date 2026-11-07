@@ -48,6 +48,7 @@ from bigocrpdf.services.ocr.pipeline_mixed_content_pages import (
 from bigocrpdf.services.ocr.ppocr_native import Worker
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.temp_manager import staging_directory
 
 
 def _prefer_native_text(
@@ -223,7 +224,7 @@ class MixedContentMixin:
             logger.info("All pages have images; skipping native text extraction")
         ocr_texts: list[str] = []
 
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with staging_directory(Path(tempfile.gettempdir()), "bigocrpdf_mixed_") as temp_dir:
             images_dir = Path(temp_dir) / "images"
             images_dir.mkdir()
 

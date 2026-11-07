@@ -2,11 +2,17 @@
 
 import argparse
 import logging
+import os
+import signal
+import subprocess
+import sys
+import time
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
 import pikepdf
+import pytest
 
 from bigocrpdf.cli_ocr_commands import _run_full_ocr
 from bigocrpdf.services.ocr.config import (
@@ -20,6 +26,7 @@ from bigocrpdf.services.ocr.ocr_document_io import (
     load_ocr_document_json,
     ocr_document_json_path,
 )
+from bigocrpdf.services.ocr.ppocr_native import find_worker
 
 
 def _write_pdf(path: Path, pages: int = 1) -> None:
@@ -378,3 +385,97 @@ def test_sidecar_json_failure_does_not_fail_a_finished_ocr(tmp_path: Path, caplo
 
     assert "not written" in caplog.text
     assert not ocr_document_json_path(published).exists()
+
+
+def _descendants(pid: int) -> dict[int, str]:
+    """Each process below ``pid``, with its start time to tell a reused PID apart."""
+    children: dict[int, list[int]] = {}
+    started: dict[int, str] = {}
+    for stat_path in Path("/proc").glob("[0-9]*/stat"):
+        try:
+            fields = stat_path.read_text().rsplit(")", 1)[1].split()
+        except OSError:
+            continue
+        child = int(stat_path.parent.name)
+        children.setdefault(int(fields[1]), []).append(child)
+        started[child] = fields[19]
+    found, queue = {}, [pid]
+    while queue:
+        for child in children.get(queue.pop(), []):
+            found[child] = started[child]
+            queue.append(child)
+    return found
+
+
+def _alive(processes: dict[int, str]) -> list[int]:
+    alive = []
+    for pid, started in processes.items():
+        try:
+            fields = Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()
+        except OSError:
+            continue
+        if fields[19] == started and fields[0] != "Z":
+            alive.append(pid)
+    return alive
+
+
+@pytest.mark.real_ocr
+@pytest.mark.skipif(find_worker() is None, reason="ppocr-native and its plans are not installed")
+def test_sigterm_leaves_no_files_or_workers(tmp_path: Path) -> None:
+    from PIL import Image, ImageDraw
+
+    pages = []
+    for number in range(48):
+        page = Image.new("L", (1240, 1754), 255)
+        draw = ImageDraw.Draw(page)
+        for line in range(30):
+            draw.text((100, 120 + line * 50), f"Page {number + 1} line {line + 1}", fill=0)
+        pages.append(page)
+    source = tmp_path / "scan.pdf"
+    pages[0].save(source, save_all=True, append_images=pages[1:], resolution=150)
+    scratch = tmp_path / "tmp"
+    scratch.mkdir()
+    env = {
+        **os.environ,
+        "TMPDIR": str(scratch),
+        "PYTHONPATH": str(Path(__file__).parents[1] / "src"),
+    }
+
+    cli = subprocess.Popen(
+        [
+            sys.executable,
+            "-m",
+            "bigocrpdf.cli",
+            "ocr",
+            str(source),
+            "-o",
+            str(tmp_path / "out.pdf"),
+            "--no-gpu",
+        ],
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    try:
+        deadline = time.monotonic() + 60
+        while not any(
+            Path(f"/proc/{pid}/exe").resolve().name == "ppocr-native"
+            for pid in _descendants(cli.pid)
+            if Path(f"/proc/{pid}").exists()
+        ):
+            assert cli.poll() is None and time.monotonic() < deadline
+            time.sleep(0.1)
+        time.sleep(1)
+        workers = _descendants(cli.pid)
+        cli.send_signal(signal.SIGTERM)
+        assert cli.wait(timeout=30) == 128 + signal.SIGTERM
+    finally:
+        if cli.poll() is None:
+            cli.kill()
+            cli.wait()
+
+    deadline = time.monotonic() + 10
+    while _alive(workers) and time.monotonic() < deadline:
+        time.sleep(0.1)
+    assert _alive(workers) == []
+    assert [p.name for p in scratch.iterdir() if p.name.startswith("bigocrpdf_")] == []

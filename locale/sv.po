@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: src/bigocrpdf/__init__.py:44
+#: src/bigocrpdf/__init__.py:89
 #, python-brace-format
 msgid ""
 "The OCR engine, {worker}, is not installed, or its model files are missing "
@@ -682,40 +682,40 @@ msgstr[1] "Det gick inte att läsa sidorna {pages}: {cause}"
 msgid "Processing page {0}/{1}..."
 msgstr "Bearbetar sida {0}/{1}..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:150
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:290
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:151
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:291
 msgid "Done!"
 msgstr "Klart!"
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:169
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:170
 msgid "Analyzing PDF..."
 msgstr "Analyserar PDF..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:236
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:237
 msgid "Merging text layer..."
 msgstr "Slår samman textlager..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:286
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:287
 msgid "Processing text page images..."
 msgstr "Bearbetar textsidbilder…"
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:304
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:305
 msgid "Optimizing image compression..."
 msgstr "Optimerar bildkomprimering..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:317
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:318
 #, python-brace-format
 msgid "{count} page re-encoded with JBIG2"
 msgid_plural "{count} pages re-encoded with JBIG2"
 msgstr[0] "{count} sida kodad om med JBIG2"
 msgstr[1] "{count} sidor kodade om med JBIG2"
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:347
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:348
 msgid "Converting to PDF/A..."
 msgstr "Konverterar till PDF/A..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:372
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:588
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:373
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:589
 msgid "Splitting PDF by size limit..."
 msgstr "Dela PDF efter storleksgräns..."
 
@@ -723,7 +723,7 @@ msgstr "Dela PDF efter storleksgräns..."
 msgid "Starting OCR..."
 msgstr "Startar OCR..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:100
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:101
 #, python-brace-format
 msgid ""
 "Page {page} already has an OCR text layer and was left unchanged. Enable "
@@ -732,29 +732,29 @@ msgstr ""
 "Sida {page} har redan ett OCR-textlager och lämnades oförändrad. Aktivera "
 "”Ersätt befintlig OCR” för att bearbeta den igen."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:149
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:150
 msgid "Extracting images..."
 msgstr "Extraherar bilder..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:180
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:181
 msgid "Analyzing PDF structure..."
 msgstr "Analyserar PDF-struktur..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:265
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:266
 msgid "Saving PDF..."
 msgstr "Sparar PDF..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:371
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:372
 #, python-brace-format
 msgid "OCR page {0}..."
 msgstr "OCR-behandlar sida {0}…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:513
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:514
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "OCR-behandlar sida {0} (renderad)…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:528
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:529
 msgid "the page could not be rendered"
 msgstr "det gick inte att rendera sidan"
 
@@ -3278,7 +3278,7 @@ msgstr "Huvudvy"
 msgid "Results"
 msgstr "Resultat"
 
-#: src/bigocrpdf/utils/temp_manager.py:81
+#: src/bigocrpdf/utils/temp_manager.py:66
 #, python-brace-format
 msgid ""
 "Not enough disk space. Need {needed:.0f} MB but only {free:.0f} MB available."
@@ -3286,7 +3286,7 @@ msgstr ""
 "Inte tillräckligt med diskutrymme. Behöver {needed:.0f} MB men bara "
 "{free:.0f} MB tillgängligt."
 
-#: src/bigocrpdf/utils/temp_manager.py:94
+#: src/bigocrpdf/utils/temp_manager.py:79
 #, python-brace-format
 msgid "No write permission for folder: {path}"
 msgstr "Ingen skrivbehörighet för mapp: {path}"

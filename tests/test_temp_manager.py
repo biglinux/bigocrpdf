@@ -1,7 +1,7 @@
 """Ownership tests for temporary resource cleanup."""
 
+import fcntl
 import os
-import signal
 from pathlib import Path
 
 from bigocrpdf.utils import temp_manager
@@ -43,36 +43,6 @@ def test_cleanup_preserves_other_process_cache_files(
     assert not owned_run.exists()
     assert other_file.read_bytes() == b"active"
     assert unrelated_file.read_text(encoding="utf-8") == "keep"
-
-
-def test_main_thread_can_install_sigterm_after_worker_registered_atexit(monkeypatch) -> None:
-    registered_atexit = []
-    registered_signals = []
-    current_thread = object()
-    main_thread = object()
-    monkeypatch.setattr(temp_manager, "_cleanup_registered", False)
-    monkeypatch.setattr(temp_manager, "_sigterm_registered", False)
-    monkeypatch.setattr(temp_manager.atexit, "register", registered_atexit.append)
-    monkeypatch.setattr(temp_manager.threading, "current_thread", lambda: current_thread)
-    monkeypatch.setattr(temp_manager.threading, "main_thread", lambda: main_thread)
-    monkeypatch.setattr(
-        temp_manager.signal,
-        "signal",
-        lambda signal_number, handler: registered_signals.append((signal_number, handler)),
-    )
-
-    temp_manager._register_cleanup()
-
-    assert len(registered_atexit) == 1
-    assert registered_signals == []
-
-    current_thread = main_thread
-    monkeypatch.setattr(temp_manager.signal, "getsignal", lambda _signal_number: signal.SIG_DFL)
-    temp_manager._register_cleanup()
-
-    assert len(registered_atexit) == 1
-    assert len(registered_signals) == 1
-    assert registered_signals[0][0] == signal.SIGTERM
 
 
 def test_remove_file_retries_after_transient_failure(tmp_path: Path, monkeypatch) -> None:
@@ -153,13 +123,28 @@ def test_staging_sweep_removes_only_dead_runs_of_this_user(tmp_path: Path) -> No
     linked.symlink_to(target)
     document = tmp_path / "scan.pdf"
     document.write_bytes(b"%PDF")
+    crashed_scratch = tmp_path / f"bigocrpdf_imgs_{dead.pid}@{host}@mno"
+    (crashed_scratch / "chunk_imgs").mkdir(parents=True)
+    running_scratch = tmp_path / f"bigocrpdf_imgs_{os.getpid()}@{host}@pqr"
+    running_scratch.mkdir()
+    # A PID from another namespace that looks dead here, its lock still held.
+    foreign = tmp_path / f"bigocrpdf_imgs_{dead.pid}@{host}@stu"
+    foreign.mkdir()
+    held = os.open(foreign, os.O_RDONLY | os.O_DIRECTORY)
+    fcntl.flock(held, fcntl.LOCK_EX)
+    overlong = tmp_path / f"bigocrpdf_imgs_{'9' * 25}@{host}@vwx"
+    overlong.mkdir()
 
     with temp_manager.staging_directory(tmp_path, ".bigocr_stage_") as staging:
         assert Path(staging).name.startswith(f".bigocr_stage_{os.getpid()}@{host}@")
         survivors = {path.name for path in tmp_path.iterdir()}
 
+    os.close(held)
     assert survivors == {
         running.name,
+        running_scratch.name,
+        foreign.name,
+        overlong.name,
         other_host.name,
         target.name,
         linked.name,

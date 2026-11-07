@@ -3,8 +3,12 @@
 import os
 import sys
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from bigocrpdf.utils.i18n import _, setup_i18n
+
+if TYPE_CHECKING:
+    from gi.repository import Gio
 
 __version__ = "4.0.0"
 
@@ -14,6 +18,47 @@ __version__ = "4.0.0"
 # and Ubuntu 24.04 carries GTK 4.14 with libadwaita 1.5.
 _MIN_GTK_VERSION = (4, 14)
 _MIN_ADW_VERSION = (1, 5)
+
+
+def run_quitting_on_termination(app: "Gio.Application") -> int:
+    """Run ``app``, quitting it through its quit action on SIGTERM and SIGHUP
+    as closing its windows does, which cancels a running OCR job.
+
+    Once the main loop has returned nothing would handle a second signal while
+    the interpreter waits for a job's thread to finish its cleanup, so both go
+    back to their default action then.
+    """
+    import signal
+
+    import gi
+    from gi.repository import GLib
+
+    try:
+        gi.require_version("GLibUnix", "2.0")
+        from gi.repository import GLibUnix
+
+        signal_add = GLibUnix.signal_add
+    except (ImportError, ValueError):  # GLib older than 2.80
+        signal_add = GLib.unix_signal_add
+
+    def quit_app(*_args: object) -> bool:
+        # A remote instance, which forwards its command line to the running
+        # one, has no quit action of its own: it only ends itself.
+        action = app.lookup_action("quit")
+        if action is None:
+            app.quit()
+        else:
+            action.activate(None)
+        return GLib.SOURCE_CONTINUE
+
+    terminations = (signal.SIGTERM, signal.SIGHUP)
+    for signum in terminations:
+        signal_add(GLib.PRIORITY_DEFAULT, signum, quit_app)
+    try:
+        return app.run(sys.argv)
+    finally:
+        for signum in terminations:
+            signal.signal(signum, signal.SIG_DFL)
 
 
 @dataclass(frozen=True)
@@ -157,7 +202,7 @@ def main() -> int:
             logger.debug(f"Files provided in arguments: {args.files}")
 
         # Run the application
-        return app.run(sys.argv)
+        return run_quitting_on_termination(app)
     except Exception as e:
         logger.error(f"Critical error starting application: {e}")
         return 1
@@ -186,7 +231,7 @@ def main_image() -> int:
 
     try:
         app = ImageOcrApp(ocr_dependency=ocr_dependency)
-        return app.run(sys.argv)
+        return run_quitting_on_termination(app)
     except Exception as e:
         logger.error(f"Critical error starting Image OCR: {e}")
         return 1
