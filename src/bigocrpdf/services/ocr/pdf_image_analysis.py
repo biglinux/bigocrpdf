@@ -1,6 +1,7 @@
 """PDF image position and pdfimages metadata analysis."""
 
 import math
+import os
 import subprocess
 import zlib
 from dataclasses import dataclass
@@ -10,6 +11,7 @@ import pikepdf
 from PIL import Image
 
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.pdf_utils import confined
 
 # Filters PIL decodes from a header that states the size, or that decode to
 # the declared size.
@@ -314,7 +316,7 @@ def parse_pdfimages_list(
     """
     try:
         result = subprocess.run(
-            ["pdfimages", "-list", str(pdf_path)],
+            confined(["pdfimages", "-list", os.path.abspath(pdf_path)], read=[pdf_path]),
             capture_output=True,
             text=True,
             encoding="utf-8",

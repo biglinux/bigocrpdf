@@ -6,9 +6,12 @@ output into structured word / line objects, plus lightweight text classifiers.
 
 import csv
 import io
+import os
 import re
 import subprocess
 from dataclasses import dataclass, field
+
+from bigocrpdf.utils.pdf_utils import confined
 
 
 @dataclass
@@ -100,8 +103,9 @@ PARA_INDENT_MAX = 60.0  # max_x shift; beyond this, it's not a first-line indent
 
 def parse_tsv_pages(pdf_path: str) -> dict[int, list[Word]]:
     """Parse pdftotext -tsv output into words per page."""
+    source = os.path.abspath(pdf_path)
     result = subprocess.run(
-        ["pdftotext", "-tsv", pdf_path, "-"],
+        confined(["pdftotext", "-tsv", source, "-"], read=[source]),
         capture_output=True,
         text=True,
         encoding="utf-8",

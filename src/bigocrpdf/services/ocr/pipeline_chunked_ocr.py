@@ -94,7 +94,8 @@ class ChunkedOCRMixin:
         all_rotation_dicts,
         input_pdf=None,
         masked_pages=None,
-        scratch_dir: Path | str | None = None,
+        *,
+        scratch_dir: Path | str,
     ):
         """Run OCR on a single chunk result.
 
@@ -149,7 +150,7 @@ class ChunkedOCRMixin:
         page_num: int,
         input_pdf: Path | None,
         masked_pages: set[int] | None,
-        scratch_dir: Path | str | None,
+        scratch_dir: Path | str,
     ) -> tuple[str, str | None]:
         ocr_path = result.get("temp_ocr_path") or result["temp_out_path"]
         if not (
@@ -180,7 +181,7 @@ class ChunkedOCRMixin:
         ocr_worker: Worker,
         page_num: int,
         input_pdf: Path | None,
-        scratch_dir: Path | str | None,
+        scratch_dir: Path | str,
     ) -> None:
         result["retry_level"] = 0
         reason = page_retry_reason(result.get("ocr_raw"))
@@ -512,7 +513,7 @@ class ChunkedOCRMixin:
                     all_rotation_dicts,
                     input_pdf=input_pdf,
                     masked_pages=masked_pages_set,
-                    scratch_dir=work_items[idx].get("scratch_dir"),
+                    scratch_dir=work_items[idx]["scratch_dir"],
                 )
                 ocr_done[idx] = (result, work_items[idx])
                 # Reported as pages are read: a chunk can be the whole document,
@@ -600,7 +601,8 @@ class ChunkedOCRMixin:
         page_encodings: dict[int, str],
         pipe_cfg: PipelineConfig,
         input_pdf: Path | None = None,
-        scratch_dir: Path | None = None,
+        *,
+        scratch_dir: Path,
     ) -> list[dict[str, Any]]:
         """Build work items for parallel preprocessing of a chunk."""
         work_items = []
@@ -655,7 +657,7 @@ class ChunkedOCRMixin:
                 "force_overlay": keep_original or bool(use_rendered_source and input_pdf),
                 "probmap_max_side": pipe_cfg.downscale_probmap,
                 "original_encoding": page_encodings.get(page_num, ""),
-                "scratch_dir": str(scratch_dir) if scratch_dir else None,
+                "scratch_dir": str(scratch_dir),
             }
             if use_rendered_source and input_pdf:
                 work_item["use_rendered_source"] = True

@@ -36,3 +36,12 @@ def _no_installed_ocr_engine(request, monkeypatch):
     from bigocrpdf.services.ocr import ppocr_native
 
     monkeypatch.setattr(ppocr_native, "find_worker", lambda: None)
+
+
+@pytest.fixture(autouse=True, scope="session")
+def _probe_pdf_sandbox():
+    """Probe the PDF tools' sandbox before any test replaces ``subprocess``:
+    the probe runs once per process, and a mocked ``Popen`` would answer it."""
+    from bigocrpdf.utils.pdf_utils import sandbox_state
+
+    sandbox_state()

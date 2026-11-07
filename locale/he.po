@@ -331,8 +331,8 @@ msgstr "הפעל מראה עתיק (ספיה/שחור-לבן)."
 msgid "Vintage in black & white"
 msgstr "עתיק בשחור ולבן"
 
-#: src/bigocrpdf/cli_parser.py:191 src/bigocrpdf/ui/settings_queue_mixin.py:304
-#: src/bigocrpdf/ui/settings_queue_mixin.py:306
+#: src/bigocrpdf/cli_parser.py:191 src/bigocrpdf/ui/settings_queue_mixin.py:307
+#: src/bigocrpdf/ui/settings_queue_mixin.py:309
 msgid "Output options"
 msgstr "אפשרויות פלט"
 
@@ -679,13 +679,13 @@ msgstr[2] "לא ניתן לקרוא את העמודים {pages}: {cause}"
 msgstr[3] "לא ניתן לקרוא את העמודים {pages}: {cause}"
 
 #: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:250
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:525
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:526
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "מעבד עמוד {0}/{1}..."
 
 #: src/bigocrpdf/services/ocr/backend_pipeline.py:151
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:291
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:293
 msgid "Done!"
 msgstr "הושלם!"
 
@@ -719,15 +719,15 @@ msgid "Converting to PDF/A..."
 msgstr "ממיר ל-PDF/A..."
 
 #: src/bigocrpdf/services/ocr/backend_pipeline.py:373
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:589
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:591
 msgid "Splitting PDF by size limit..."
 msgstr "מפצל PDF לפי מגבלת גודל…"
 
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:299
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:300
 msgid "Starting OCR..."
 msgstr "מתחיל OCR..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:101
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:103
 #, python-brace-format
 msgid ""
 "Page {page} already has an OCR text layer and was left unchanged. Enable "
@@ -736,29 +736,29 @@ msgstr ""
 "בעמוד {page} כבר קיימת שכבת טקסט של OCR, ולכן הוא נותר ללא שינוי. יש להפעיל "
 "את האפשרות ״החלף OCR קיים״ כדי לעבד אותו שוב."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:150
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:152
 msgid "Extracting images..."
 msgstr "חילוץ תמונות..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:181
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:183
 msgid "Analyzing PDF structure..."
 msgstr "מנתח מבנה PDF..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:266
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:268
 msgid "Saving PDF..."
 msgstr "שומר PDF..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:372
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:374
 #, python-brace-format
 msgid "OCR page {0}..."
 msgstr "OCR לעמוד {0}…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:514
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:516
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "OCR לעמוד {0} (לאחר רינדור)..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:529
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
 msgid "the page could not be rendered"
 msgstr "לא ניתן לבצע רינדור לעמוד"
 
@@ -1286,8 +1286,8 @@ msgid "Selected: {count}"
 msgstr "נבחרו: {count}"
 
 #: src/bigocrpdf/ui/conclusion_ui_mixin.py:249
-#: src/bigocrpdf/ui/settings_queue_mixin.py:552
-#: src/bigocrpdf/ui/settings_queue_mixin.py:664
+#: src/bigocrpdf/ui/settings_queue_mixin.py:555
+#: src/bigocrpdf/ui/settings_queue_mixin.py:667
 #, python-brace-format
 msgid "{count} page"
 msgid_plural "{count} pages"
@@ -1301,7 +1301,7 @@ msgid "Open the processed file"
 msgstr "פתח את הקובץ המעובד"
 
 #: src/bigocrpdf/ui/conclusion_ui_mixin.py:288
-#: src/bigocrpdf/ui/settings_queue_mixin.py:711
+#: src/bigocrpdf/ui/settings_queue_mixin.py:714
 msgid "Show in file manager"
 msgstr "הצג במנהל הקבצים"
 
@@ -1671,8 +1671,8 @@ msgid "Open Image to OCR"
 msgstr "פתח תמונה ל-OCR"
 
 #: src/bigocrpdf/ui/image_ocr_window.py:1109
-#: src/bigocrpdf/ui/settings_queue_mixin.py:889
-#: src/bigocrpdf/ui/settings_queue_mixin.py:973
+#: src/bigocrpdf/ui/settings_queue_mixin.py:892
+#: src/bigocrpdf/ui/settings_queue_mixin.py:976
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:108
 msgid "Images"
 msgstr "תמונות"
@@ -2047,7 +2047,7 @@ msgstr[2] "נבחרו {count} עמודים"
 msgstr[3] "נבחרו {count} עמודים"
 
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:382
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:206
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:221
 #, python-brace-format
 msgid "Could not save {name}: {error}"
 msgstr "לא ניתן לשמור את {name}: {error}"
@@ -2073,7 +2073,7 @@ msgid "document.pdf"
 msgstr "document.pdf"
 
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:535
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:211
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:226
 #, python-brace-format
 msgid "Saved: {}"
 msgstr "נשמר: {}"
@@ -2386,7 +2386,7 @@ msgid "Save page as PDF"
 msgstr "שמור עמוד כ-PDF"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:387
-#: src/bigocrpdf/ui/settings_queue_mixin.py:991
+#: src/bigocrpdf/ui/settings_queue_mixin.py:994
 #, python-brace-format
 msgid "Page {n}"
 msgstr "עמוד {n}"
@@ -2396,12 +2396,12 @@ msgstr "עמוד {n}"
 msgid "Rotated {deg}°"
 msgstr "סיבוב: {deg}°"
 
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:46
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:47
 #, python-brace-format
 msgid "Could not render page {page}"
 msgstr "לא ניתן לבצע רינדור לעמוד {page}"
 
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:200
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:215
 msgid "Choose a folder on this computer to save the page."
 msgstr "בחר תיקייה במחשב זה כדי לשמור את העמוד."
 
@@ -2635,197 +2635,197 @@ msgstr "לא ניתן לחדש את ההפעלה"
 msgid "Previous session discarded"
 msgstr "ההפעלה הקודמת הושלכה"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:186
-#: src/bigocrpdf/ui/settings_queue_mixin.py:226
+#: src/bigocrpdf/ui/settings_queue_mixin.py:189
+#: src/bigocrpdf/ui/settings_queue_mixin.py:229
 msgid "File queue"
 msgstr "תור קבצים"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:190
-#: src/bigocrpdf/ui/settings_queue_mixin.py:233
+#: src/bigocrpdf/ui/settings_queue_mixin.py:193
+#: src/bigocrpdf/ui/settings_queue_mixin.py:236
 msgid "Add your PDFs"
 msgstr "הוסף את קובצי ה-PDF שלך"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:192
-#: src/bigocrpdf/ui/settings_queue_mixin.py:235
+#: src/bigocrpdf/ui/settings_queue_mixin.py:195
+#: src/bigocrpdf/ui/settings_queue_mixin.py:238
 msgid "Drag PDF files and images here, or use the button in the header bar"
 msgstr "גרור קובצי PDF ותמונות לכאן, או השתמש בכפתור בשורת הכותרת"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:260
+#: src/bigocrpdf/ui/settings_queue_mixin.py:263
 msgid "Save in the same folder as the original file"
 msgstr "שמור באותה תיקייה כמו הקובץ המקורי"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:261
+#: src/bigocrpdf/ui/settings_queue_mixin.py:264
 msgid "Custom folder"
 msgstr "תיקיה מותאמת אישית"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:268
+#: src/bigocrpdf/ui/settings_queue_mixin.py:271
 msgid "Output folder location"
 msgstr "מיקום תיקיית פלט"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:279
+#: src/bigocrpdf/ui/settings_queue_mixin.py:282
 msgid "Select folder"
 msgstr "בחר תיקייה"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:282
+#: src/bigocrpdf/ui/settings_queue_mixin.py:285
 msgid "Destination folder path"
 msgstr "נתיב תיקיית יעד"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:288
-#: src/bigocrpdf/ui/settings_queue_mixin.py:289
+#: src/bigocrpdf/ui/settings_queue_mixin.py:291
+#: src/bigocrpdf/ui/settings_queue_mixin.py:292
 msgid "Browse for folder"
 msgstr "עיין בתיקיות"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:417
-#: src/bigocrpdf/ui/settings_queue_mixin.py:418
-#: src/bigocrpdf/ui/settings_queue_mixin.py:592
-#: src/bigocrpdf/ui/settings_queue_mixin.py:593
+#: src/bigocrpdf/ui/settings_queue_mixin.py:420
+#: src/bigocrpdf/ui/settings_queue_mixin.py:421
+#: src/bigocrpdf/ui/settings_queue_mixin.py:595
+#: src/bigocrpdf/ui/settings_queue_mixin.py:596
 msgid "Edit pages of this file"
 msgstr "ערוך דפים של קובץ זה"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:425
-#: src/bigocrpdf/ui/settings_queue_mixin.py:426
-#: src/bigocrpdf/ui/settings_queue_mixin.py:600
-#: src/bigocrpdf/ui/settings_queue_mixin.py:601
+#: src/bigocrpdf/ui/settings_queue_mixin.py:428
+#: src/bigocrpdf/ui/settings_queue_mixin.py:429
+#: src/bigocrpdf/ui/settings_queue_mixin.py:603
+#: src/bigocrpdf/ui/settings_queue_mixin.py:604
 msgid "Remove this file from the list"
 msgstr "הסר קובץ זה מהרשימה"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:543
-#: src/bigocrpdf/ui/settings_queue_mixin.py:668
+#: src/bigocrpdf/ui/settings_queue_mixin.py:546
+#: src/bigocrpdf/ui/settings_queue_mixin.py:671
 msgid "Cannot read this PDF"
 msgstr "לא ניתן לקרוא PDF זה"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:710
+#: src/bigocrpdf/ui/settings_queue_mixin.py:713
 msgid "Open file"
 msgstr "פתח קובץ"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:715
-#: src/bigocrpdf/ui/settings_queue_mixin.py:930
+#: src/bigocrpdf/ui/settings_queue_mixin.py:718
+#: src/bigocrpdf/ui/settings_queue_mixin.py:933
 msgid "File information"
 msgstr "מידע על הקובץ"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:843
+#: src/bigocrpdf/ui/settings_queue_mixin.py:846
 msgid "Name"
 msgstr "שם"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:844
+#: src/bigocrpdf/ui/settings_queue_mixin.py:847
 msgid "Path"
 msgstr "נתיב"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:850
+#: src/bigocrpdf/ui/settings_queue_mixin.py:853
 msgid "Size"
 msgstr "גודל"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:857
+#: src/bigocrpdf/ui/settings_queue_mixin.py:860
 msgid "Modified (local)"
 msgstr "שונה (זמן מקומי)"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:863
+#: src/bigocrpdf/ui/settings_queue_mixin.py:866
 msgid "Document"
 msgstr "מסמך"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:865
+#: src/bigocrpdf/ui/settings_queue_mixin.py:868
 msgid "Pages"
 msgstr "עמודים"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:866
+#: src/bigocrpdf/ui/settings_queue_mixin.py:869
 msgid "Page size"
 msgstr "גודל עמוד"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:867
+#: src/bigocrpdf/ui/settings_queue_mixin.py:870
 msgid "PDF version"
 msgstr "גרסת PDF"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:868
+#: src/bigocrpdf/ui/settings_queue_mixin.py:871
 msgid "Encrypted"
 msgstr "מוצפן"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:869
+#: src/bigocrpdf/ui/settings_queue_mixin.py:872
 msgid "Optimized"
 msgstr "ממוטב"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:870
+#: src/bigocrpdf/ui/settings_queue_mixin.py:873
 msgid "Tagged"
 msgstr "מתויג"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:875
+#: src/bigocrpdf/ui/settings_queue_mixin.py:878
 msgid "Form"
 msgstr "טופס"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:877
+#: src/bigocrpdf/ui/settings_queue_mixin.py:880
 msgid "JavaScript"
 msgstr "JavaScript"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:888
-#: src/bigocrpdf/ui/settings_queue_mixin.py:973
+#: src/bigocrpdf/ui/settings_queue_mixin.py:891
+#: src/bigocrpdf/ui/settings_queue_mixin.py:976
 msgid "Content"
 msgstr "תוכן"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:892
+#: src/bigocrpdf/ui/settings_queue_mixin.py:895
 msgid "Image formats"
 msgstr "פורמטי תמונה"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:896
+#: src/bigocrpdf/ui/settings_queue_mixin.py:899
 msgid "Fonts"
 msgstr "גופנים"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:898
+#: src/bigocrpdf/ui/settings_queue_mixin.py:901
 msgid "Embedded fonts"
 msgstr "גופנים מוטמעים"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:900
+#: src/bigocrpdf/ui/settings_queue_mixin.py:903
 msgid "Font names"
 msgstr "שמות גופנים"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:903
+#: src/bigocrpdf/ui/settings_queue_mixin.py:906
 msgid "Attached files"
 msgstr "קבצים מצורפים"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:907
+#: src/bigocrpdf/ui/settings_queue_mixin.py:910
 msgid "Metadata"
 msgstr "מטא-נתונים"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:909
+#: src/bigocrpdf/ui/settings_queue_mixin.py:912
 msgid "Title"
 msgstr "כותרת"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:910
+#: src/bigocrpdf/ui/settings_queue_mixin.py:913
 msgid "Subject"
 msgstr "נושא"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:911
+#: src/bigocrpdf/ui/settings_queue_mixin.py:914
 msgid "Author"
 msgstr "מחבר"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:912
+#: src/bigocrpdf/ui/settings_queue_mixin.py:915
 msgid "Creator"
 msgstr "יוצר"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:913
+#: src/bigocrpdf/ui/settings_queue_mixin.py:916
 msgid "Producer"
 msgstr "יצרן"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:914
+#: src/bigocrpdf/ui/settings_queue_mixin.py:917
 msgid "Keywords"
 msgstr "מילות מפתח"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:919
+#: src/bigocrpdf/ui/settings_queue_mixin.py:922
 msgid "Created"
 msgstr "נוצר"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:921
+#: src/bigocrpdf/ui/settings_queue_mixin.py:924
 msgid "Modified"
 msgstr "שונה"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:949
-#: src/bigocrpdf/ui/settings_queue_mixin.py:950
+#: src/bigocrpdf/ui/settings_queue_mixin.py:952
+#: src/bigocrpdf/ui/settings_queue_mixin.py:953
 msgid "Copy all information"
 msgstr "העתק את כל המידע"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:980
+#: src/bigocrpdf/ui/settings_queue_mixin.py:983
 msgid "Image list"
 msgstr "רשימת תמונות"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:983
+#: src/bigocrpdf/ui/settings_queue_mixin.py:986
 #, python-brace-format
 msgid "{count} image"
 msgid_plural "{count} images"
@@ -2834,38 +2834,38 @@ msgstr[1] "{count} תמונות"
 msgstr[2] "{count} תמונות"
 msgstr[3] "{count} תמונות"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:998
-#: src/bigocrpdf/ui/settings_queue_mixin.py:999
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1001
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1002
 msgid "Extract this image"
 msgstr "חלץ תמונה זו"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1022
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1025
 msgid "Information copied"
 msgstr "המידע הועתק"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1058
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1064
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1077
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1061
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1067
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1080
 msgid "Failed to extract image"
 msgstr "חילוץ התמונה נכשל"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1077
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1080
 msgid "Image extracted"
 msgstr "התמונה חולצה"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1132
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1140
 msgid "Failed to open PDF editor"
 msgstr "כישלון בפתיחת עורך PDF"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1146
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1154
 msgid "Changes saved"
 msgstr "שינויים נשמרו"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1194
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1202
 msgid "Multiple Images Dropped"
 msgstr "מספר תמונות נגררו לכאן"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1196
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1204
 #, python-brace-format
 msgid "You dropped {count} image. How would you like to add it?"
 msgid_plural "You dropped {count} images. How would you like to add them?"
@@ -2874,7 +2874,7 @@ msgstr[1] "גררת {count} תמונות. כיצד להוסיף אותן?"
 msgstr[2] "גררת {count} תמונות. כיצד להוסיף אותן?"
 msgstr[3] "גררת {count} תמונות. כיצד להוסיף אותן?"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1248
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1256
 #: src/bigocrpdf/ui/window_ui.py:108
 #, python-brace-format
 msgid "{count} file in queue"
@@ -2884,7 +2884,7 @@ msgstr[1] "{count} קבצים בתור"
 msgstr[2] "{count} קבצים בתור"
 msgstr[3] "{count} קבצים בתור"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1263
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1271
 msgid "All files removed from queue"
 msgstr "כל הקבצים הוסרו מהתור"
 

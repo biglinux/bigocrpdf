@@ -332,8 +332,8 @@ msgstr "Ενεργοποίηση ρετρό εμφάνισης (σέπια/ΑΜ)
 msgid "Vintage in black & white"
 msgstr "Ρετρό σε ασπρόμαυρο"
 
-#: src/bigocrpdf/cli_parser.py:191 src/bigocrpdf/ui/settings_queue_mixin.py:304
-#: src/bigocrpdf/ui/settings_queue_mixin.py:306
+#: src/bigocrpdf/cli_parser.py:191 src/bigocrpdf/ui/settings_queue_mixin.py:307
+#: src/bigocrpdf/ui/settings_queue_mixin.py:309
 msgid "Output options"
 msgstr "Επιλογές εξόδου"
 
@@ -683,13 +683,13 @@ msgstr[0] "Δεν ήταν δυνατή η ανάγνωση της σελίδα�
 msgstr[1] "Δεν ήταν δυνατή η ανάγνωση των σελίδων {pages}: {cause}"
 
 #: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:250
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:525
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:526
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "Επεξεργασία σελίδας {0}/{1}..."
 
 #: src/bigocrpdf/services/ocr/backend_pipeline.py:151
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:291
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:293
 msgid "Done!"
 msgstr "Ολοκληρώθηκε!"
 
@@ -721,15 +721,15 @@ msgid "Converting to PDF/A..."
 msgstr "Μετατροπή σε PDF/A..."
 
 #: src/bigocrpdf/services/ocr/backend_pipeline.py:373
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:589
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:591
 msgid "Splitting PDF by size limit..."
 msgstr "Διαχωρισμός PDF με βάση το όριο μεγέθους..."
 
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:299
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:300
 msgid "Starting OCR..."
 msgstr "Έναρξη OCR..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:101
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:103
 #, python-brace-format
 msgid ""
 "Page {page} already has an OCR text layer and was left unchanged. Enable "
@@ -739,29 +739,29 @@ msgstr ""
 "Ενεργοποιήστε την «Αντικατάσταση υπάρχοντος OCR» για να την επεξεργαστείτε "
 "ξανά."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:150
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:152
 msgid "Extracting images..."
 msgstr "Εξαγωγή εικόνων..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:181
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:183
 msgid "Analyzing PDF structure..."
 msgstr "Ανάλυση δομής PDF..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:266
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:268
 msgid "Saving PDF..."
 msgstr "Αποθήκευση PDF..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:372
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:374
 #, python-brace-format
 msgid "OCR page {0}..."
 msgstr "OCR στη σελίδα {0}…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:514
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:516
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "OCR στη σελίδα {0} (μετά την απόδοση)…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:529
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
 msgid "the page could not be rendered"
 msgstr "δεν ήταν δυνατή η απόδοση της σελίδας"
 
@@ -1285,8 +1285,8 @@ msgid "Selected: {count}"
 msgstr "Επιλεγμένο: {count}"
 
 #: src/bigocrpdf/ui/conclusion_ui_mixin.py:249
-#: src/bigocrpdf/ui/settings_queue_mixin.py:552
-#: src/bigocrpdf/ui/settings_queue_mixin.py:664
+#: src/bigocrpdf/ui/settings_queue_mixin.py:555
+#: src/bigocrpdf/ui/settings_queue_mixin.py:667
 #, python-brace-format
 msgid "{count} page"
 msgid_plural "{count} pages"
@@ -1298,7 +1298,7 @@ msgid "Open the processed file"
 msgstr "Άνοιγμα του επεξεργασμένου αρχείου"
 
 #: src/bigocrpdf/ui/conclusion_ui_mixin.py:288
-#: src/bigocrpdf/ui/settings_queue_mixin.py:711
+#: src/bigocrpdf/ui/settings_queue_mixin.py:714
 msgid "Show in file manager"
 msgstr "Εμφάνιση στη διαχείριση αρχείων"
 
@@ -1671,8 +1671,8 @@ msgid "Open Image to OCR"
 msgstr "Άνοιγμα εικόνας για OCR"
 
 #: src/bigocrpdf/ui/image_ocr_window.py:1109
-#: src/bigocrpdf/ui/settings_queue_mixin.py:889
-#: src/bigocrpdf/ui/settings_queue_mixin.py:973
+#: src/bigocrpdf/ui/settings_queue_mixin.py:892
+#: src/bigocrpdf/ui/settings_queue_mixin.py:976
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:108
 msgid "Images"
 msgstr "Εικόνες"
@@ -2050,7 +2050,7 @@ msgstr[0] "Επιλέχθηκε {count} σελίδα"
 msgstr[1] "Επιλέχθηκαν {count} σελίδες"
 
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:382
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:206
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:221
 #, python-brace-format
 msgid "Could not save {name}: {error}"
 msgstr "Δεν ήταν δυνατή η αποθήκευση του {name}: {error}"
@@ -2077,7 +2077,7 @@ msgid "document.pdf"
 msgstr "document.pdf"
 
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:535
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:211
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:226
 #, python-brace-format
 msgid "Saved: {}"
 msgstr "Αποθηκεύτηκε: {}"
@@ -2391,7 +2391,7 @@ msgid "Save page as PDF"
 msgstr "Αποθήκευση σελίδας ως PDF"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:387
-#: src/bigocrpdf/ui/settings_queue_mixin.py:991
+#: src/bigocrpdf/ui/settings_queue_mixin.py:994
 #, python-brace-format
 msgid "Page {n}"
 msgstr "Σελίδα {n}"
@@ -2401,12 +2401,12 @@ msgstr "Σελίδα {n}"
 msgid "Rotated {deg}°"
 msgstr "Περιστράφηκε κατά {deg}°"
 
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:46
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:47
 #, python-brace-format
 msgid "Could not render page {page}"
 msgstr "Δεν ήταν δυνατή η απόδοση της σελίδας {page}"
 
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:200
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:215
 msgid "Choose a folder on this computer to save the page."
 msgstr ""
 "Επιλέξτε έναν φάκελο σε αυτόν τον υπολογιστή για να αποθηκεύσετε τη σελίδα."
@@ -2641,244 +2641,244 @@ msgstr "Δεν ήταν δυνατή η συνέχιση της συνεδρία
 msgid "Previous session discarded"
 msgstr "Η προηγούμενη συνεδρία απορρίφθηκε."
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:186
-#: src/bigocrpdf/ui/settings_queue_mixin.py:226
+#: src/bigocrpdf/ui/settings_queue_mixin.py:189
+#: src/bigocrpdf/ui/settings_queue_mixin.py:229
 msgid "File queue"
 msgstr "Ουρά αρχείων"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:190
-#: src/bigocrpdf/ui/settings_queue_mixin.py:233
+#: src/bigocrpdf/ui/settings_queue_mixin.py:193
+#: src/bigocrpdf/ui/settings_queue_mixin.py:236
 msgid "Add your PDFs"
 msgstr "Προσθήκη αρχείων PDF"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:192
-#: src/bigocrpdf/ui/settings_queue_mixin.py:235
+#: src/bigocrpdf/ui/settings_queue_mixin.py:195
+#: src/bigocrpdf/ui/settings_queue_mixin.py:238
 msgid "Drag PDF files and images here, or use the button in the header bar"
 msgstr ""
 "Σύρετε αρχεία PDF και εικόνες εδώ ή χρησιμοποιήστε το κουμπί στη γραμμή "
 "τίτλου"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:260
+#: src/bigocrpdf/ui/settings_queue_mixin.py:263
 msgid "Save in the same folder as the original file"
 msgstr "Αποθήκευση στον ίδιο φάκελο με το αρχικό αρχείο"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:261
+#: src/bigocrpdf/ui/settings_queue_mixin.py:264
 msgid "Custom folder"
 msgstr "Προσαρμοσμένος φάκελος"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:268
+#: src/bigocrpdf/ui/settings_queue_mixin.py:271
 msgid "Output folder location"
 msgstr "Τοποθεσία φακέλου εξόδου"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:279
+#: src/bigocrpdf/ui/settings_queue_mixin.py:282
 msgid "Select folder"
 msgstr "Επιλέξτε φάκελο"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:282
+#: src/bigocrpdf/ui/settings_queue_mixin.py:285
 msgid "Destination folder path"
 msgstr "Διαδρομή φακέλου προορισμού"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:288
-#: src/bigocrpdf/ui/settings_queue_mixin.py:289
+#: src/bigocrpdf/ui/settings_queue_mixin.py:291
+#: src/bigocrpdf/ui/settings_queue_mixin.py:292
 msgid "Browse for folder"
 msgstr "Αναζήτηση φακέλου"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:417
-#: src/bigocrpdf/ui/settings_queue_mixin.py:418
-#: src/bigocrpdf/ui/settings_queue_mixin.py:592
-#: src/bigocrpdf/ui/settings_queue_mixin.py:593
+#: src/bigocrpdf/ui/settings_queue_mixin.py:420
+#: src/bigocrpdf/ui/settings_queue_mixin.py:421
+#: src/bigocrpdf/ui/settings_queue_mixin.py:595
+#: src/bigocrpdf/ui/settings_queue_mixin.py:596
 msgid "Edit pages of this file"
 msgstr "Επεξεργασία των σελίδων αυτού του αρχείου"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:425
-#: src/bigocrpdf/ui/settings_queue_mixin.py:426
-#: src/bigocrpdf/ui/settings_queue_mixin.py:600
-#: src/bigocrpdf/ui/settings_queue_mixin.py:601
+#: src/bigocrpdf/ui/settings_queue_mixin.py:428
+#: src/bigocrpdf/ui/settings_queue_mixin.py:429
+#: src/bigocrpdf/ui/settings_queue_mixin.py:603
+#: src/bigocrpdf/ui/settings_queue_mixin.py:604
 msgid "Remove this file from the list"
 msgstr "Αφαίρεση αυτού του αρχείου από τη λίστα"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:543
-#: src/bigocrpdf/ui/settings_queue_mixin.py:668
+#: src/bigocrpdf/ui/settings_queue_mixin.py:546
+#: src/bigocrpdf/ui/settings_queue_mixin.py:671
 msgid "Cannot read this PDF"
 msgstr "Δεν είναι δυνατή η ανάγνωση αυτού του PDF"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:710
+#: src/bigocrpdf/ui/settings_queue_mixin.py:713
 msgid "Open file"
 msgstr "Άνοιγμα αρχείου"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:715
-#: src/bigocrpdf/ui/settings_queue_mixin.py:930
+#: src/bigocrpdf/ui/settings_queue_mixin.py:718
+#: src/bigocrpdf/ui/settings_queue_mixin.py:933
 msgid "File information"
 msgstr "Πληροφορίες αρχείου"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:843
+#: src/bigocrpdf/ui/settings_queue_mixin.py:846
 msgid "Name"
 msgstr "Όνομα"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:844
+#: src/bigocrpdf/ui/settings_queue_mixin.py:847
 msgid "Path"
 msgstr "Διαδρομή"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:850
+#: src/bigocrpdf/ui/settings_queue_mixin.py:853
 msgid "Size"
 msgstr "Μέγεθος"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:857
+#: src/bigocrpdf/ui/settings_queue_mixin.py:860
 msgid "Modified (local)"
 msgstr "Τροποποιήθηκε (τοπική ώρα)"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:863
+#: src/bigocrpdf/ui/settings_queue_mixin.py:866
 msgid "Document"
 msgstr "Έγγραφο"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:865
+#: src/bigocrpdf/ui/settings_queue_mixin.py:868
 msgid "Pages"
 msgstr "Σελίδες"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:866
+#: src/bigocrpdf/ui/settings_queue_mixin.py:869
 msgid "Page size"
 msgstr "Μέγεθος σελίδας"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:867
+#: src/bigocrpdf/ui/settings_queue_mixin.py:870
 msgid "PDF version"
 msgstr "Έκδοση PDF"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:868
+#: src/bigocrpdf/ui/settings_queue_mixin.py:871
 msgid "Encrypted"
 msgstr "Κρυπτογραφημένο"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:869
+#: src/bigocrpdf/ui/settings_queue_mixin.py:872
 msgid "Optimized"
 msgstr "Βελτιστοποιημένο"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:870
+#: src/bigocrpdf/ui/settings_queue_mixin.py:873
 msgid "Tagged"
 msgstr "Με ετικέτες"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:875
+#: src/bigocrpdf/ui/settings_queue_mixin.py:878
 msgid "Form"
 msgstr "Φόρμα"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:877
+#: src/bigocrpdf/ui/settings_queue_mixin.py:880
 msgid "JavaScript"
 msgstr "JavaScript"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:888
-#: src/bigocrpdf/ui/settings_queue_mixin.py:973
+#: src/bigocrpdf/ui/settings_queue_mixin.py:891
+#: src/bigocrpdf/ui/settings_queue_mixin.py:976
 msgid "Content"
 msgstr "Περιεχόμενο"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:892
+#: src/bigocrpdf/ui/settings_queue_mixin.py:895
 msgid "Image formats"
 msgstr "Μορφές εικόνων"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:896
+#: src/bigocrpdf/ui/settings_queue_mixin.py:899
 msgid "Fonts"
 msgstr "Γραμματοσειρές"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:898
+#: src/bigocrpdf/ui/settings_queue_mixin.py:901
 msgid "Embedded fonts"
 msgstr "Ενσωματωμένες γραμματοσειρές"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:900
+#: src/bigocrpdf/ui/settings_queue_mixin.py:903
 msgid "Font names"
 msgstr "Ονόματα γραμματοσειρών"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:903
+#: src/bigocrpdf/ui/settings_queue_mixin.py:906
 msgid "Attached files"
 msgstr "Συνημμένα αρχεία"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:907
+#: src/bigocrpdf/ui/settings_queue_mixin.py:910
 msgid "Metadata"
 msgstr "Μεταδεδομένα"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:909
+#: src/bigocrpdf/ui/settings_queue_mixin.py:912
 msgid "Title"
 msgstr "Τίτλος"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:910
+#: src/bigocrpdf/ui/settings_queue_mixin.py:913
 msgid "Subject"
 msgstr "Θέμα"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:911
+#: src/bigocrpdf/ui/settings_queue_mixin.py:914
 msgid "Author"
 msgstr "Συγγραφέας"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:912
+#: src/bigocrpdf/ui/settings_queue_mixin.py:915
 msgid "Creator"
 msgstr "Δημιουργός"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:913
+#: src/bigocrpdf/ui/settings_queue_mixin.py:916
 msgid "Producer"
 msgstr "Παραγωγός"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:914
+#: src/bigocrpdf/ui/settings_queue_mixin.py:917
 msgid "Keywords"
 msgstr "Λέξεις-κλειδιά"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:919
+#: src/bigocrpdf/ui/settings_queue_mixin.py:922
 msgid "Created"
 msgstr "Δημιουργήθηκε"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:921
+#: src/bigocrpdf/ui/settings_queue_mixin.py:924
 msgid "Modified"
 msgstr "Τροποποιήθηκε"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:949
-#: src/bigocrpdf/ui/settings_queue_mixin.py:950
+#: src/bigocrpdf/ui/settings_queue_mixin.py:952
+#: src/bigocrpdf/ui/settings_queue_mixin.py:953
 msgid "Copy all information"
 msgstr "Αντιγραφή όλων των πληροφοριών"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:980
+#: src/bigocrpdf/ui/settings_queue_mixin.py:983
 msgid "Image list"
 msgstr "Λίστα εικόνων"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:983
+#: src/bigocrpdf/ui/settings_queue_mixin.py:986
 #, python-brace-format
 msgid "{count} image"
 msgid_plural "{count} images"
 msgstr[0] "{count} εικόνα"
 msgstr[1] "{count} εικόνες"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:998
-#: src/bigocrpdf/ui/settings_queue_mixin.py:999
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1001
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1002
 msgid "Extract this image"
 msgstr "Εξαγωγή αυτής της εικόνας"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1022
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1025
 msgid "Information copied"
 msgstr "Οι πληροφορίες αντιγράφηκαν"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1058
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1064
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1077
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1061
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1067
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1080
 msgid "Failed to extract image"
 msgstr "Αποτυχία εξαγωγής εικόνας"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1077
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1080
 msgid "Image extracted"
 msgstr "Η εικόνα εξήχθη"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1132
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1140
 msgid "Failed to open PDF editor"
 msgstr "Αποτυχία ανοίγματος επεξεργαστή PDF"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1146
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1154
 msgid "Changes saved"
 msgstr "Οι αλλαγές αποθηκεύτηκαν"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1194
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1202
 msgid "Multiple Images Dropped"
 msgstr "Αφέθηκαν πολλές εικόνες"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1196
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1204
 #, python-brace-format
 msgid "You dropped {count} image. How would you like to add it?"
 msgid_plural "You dropped {count} images. How would you like to add them?"
 msgstr[0] "Αποθέσατε {count} εικόνα. Πώς θέλετε να την προσθέσετε;"
 msgstr[1] "Αποθέσατε {count} εικόνες. Πώς θέλετε να τις προσθέσετε;"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1248
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1256
 #: src/bigocrpdf/ui/window_ui.py:108
 #, python-brace-format
 msgid "{count} file in queue"
@@ -2886,7 +2886,7 @@ msgid_plural "{count} files in queue"
 msgstr[0] "{count} αρχείο στην ουρά"
 msgstr[1] "{count} αρχεία στην ουρά"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1263
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1271
 msgid "All files removed from queue"
 msgstr "Όλα τα αρχεία αφαιρέθηκαν από την ουρά"
 

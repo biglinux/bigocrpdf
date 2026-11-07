@@ -7,8 +7,8 @@
   wrapGAppsHook4,
   gobject-introspection,
   gettext,
-  poppler,
   poppler_utils,
+  bubblewrap,
   noto-fonts,
   wqy_microhei,
   jbig2enc ? null,
@@ -53,14 +53,13 @@ python3Packages.buildPythonApplication {
   buildInputs = [
     gtk4
     libadwaita
-    poppler
   ];
 
-  # The application runs the Poppler tools and jbig2 from PATH. nixpkgs
+  # The application runs the Poppler tools, jbig2 and bwrap from PATH. nixpkgs
   # installs Noto Sans as one variable font with the axis tag removed from its
   # name.
   makeWrapperArgs = [
-    "--prefix" "PATH" ":" (lib.makeBinPath ([ poppler_utils ] ++ lib.optional (jbig2enc != null) jbig2enc))
+    "--prefix" "PATH" ":" (lib.makeBinPath ([ poppler_utils bubblewrap ] ++ lib.optional (jbig2enc != null) jbig2enc))
     "--set-default" "BIGOCRPDF_TEXT_FONT" "${noto-fonts}/share/fonts/noto/NotoSans.ttf"
     "--set-default" "BIGOCRPDF_CJK_FONT" "${wqy_microhei}/share/fonts/truetype/wqy-microhei.ttc"
   ] ++ (if ppocr-native != null then [

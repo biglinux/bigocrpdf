@@ -482,7 +482,7 @@ def _replace_with_rendered_source(
         page_num,
         config.fallback_render_dpi,
         config.max_render_megapixels,
-        args.get("scratch_dir"),
+        args["scratch_dir"],
     )
     if not rendered_source_path:
         return original_img, None

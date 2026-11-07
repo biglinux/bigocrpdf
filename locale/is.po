@@ -328,8 +328,8 @@ msgstr "Virkja gamaldags útlit (sepía/SH)."
 msgid "Vintage in black & white"
 msgstr "Gamaldags í svarthvítu"
 
-#: src/bigocrpdf/cli_parser.py:191 src/bigocrpdf/ui/settings_queue_mixin.py:304
-#: src/bigocrpdf/ui/settings_queue_mixin.py:306
+#: src/bigocrpdf/cli_parser.py:191 src/bigocrpdf/ui/settings_queue_mixin.py:307
+#: src/bigocrpdf/ui/settings_queue_mixin.py:309
 msgid "Output options"
 msgstr "Úttaksvalkostir"
 
@@ -673,13 +673,13 @@ msgstr[0] "Ekki tókst að lesa bls. {pages}: {cause}"
 msgstr[1] "Ekki tókst að lesa síður {pages}: {cause}"
 
 #: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:250
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:525
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:526
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "Vinnsla síðu {0}/{1}..."
 
 #: src/bigocrpdf/services/ocr/backend_pipeline.py:151
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:291
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:293
 msgid "Done!"
 msgstr "Gert!"
 
@@ -711,15 +711,15 @@ msgid "Converting to PDF/A..."
 msgstr "Að breyta í PDF/A..."
 
 #: src/bigocrpdf/services/ocr/backend_pipeline.py:373
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:589
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:591
 msgid "Splitting PDF by size limit..."
 msgstr "Að skipta PDF eftir stærðarmörkum..."
 
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:299
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:300
 msgid "Starting OCR..."
 msgstr "Byrjar OCR..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:101
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:103
 #, python-brace-format
 msgid ""
 "Page {page} already has an OCR text layer and was left unchanged. Enable "
@@ -728,29 +728,29 @@ msgstr ""
 "Síða {page} er þegar með OCR-textalag og var skilin eftir óbreytt. Virkjaðu "
 "„Skipta út núverandi OCR“ til að vinna hana aftur."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:150
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:152
 msgid "Extracting images..."
 msgstr "Að draga út myndir..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:181
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:183
 msgid "Analyzing PDF structure..."
 msgstr "Greini uppbyggingu PDF..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:266
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:268
 msgid "Saving PDF..."
 msgstr "Vista PDF..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:372
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:374
 #, python-brace-format
 msgid "OCR page {0}..."
 msgstr "OCR á síðu {0}…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:514
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:516
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "OCR á síðu {0} (eftir myndgerð)…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:529
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
 msgid "the page could not be rendered"
 msgstr "gat ekki myndgert síðuna"
 
@@ -1270,8 +1270,8 @@ msgid "Selected: {count}"
 msgstr "Valið: {count}"
 
 #: src/bigocrpdf/ui/conclusion_ui_mixin.py:249
-#: src/bigocrpdf/ui/settings_queue_mixin.py:552
-#: src/bigocrpdf/ui/settings_queue_mixin.py:664
+#: src/bigocrpdf/ui/settings_queue_mixin.py:555
+#: src/bigocrpdf/ui/settings_queue_mixin.py:667
 #, python-brace-format
 msgid "{count} page"
 msgid_plural "{count} pages"
@@ -1283,7 +1283,7 @@ msgid "Open the processed file"
 msgstr "Opna unnu skrána"
 
 #: src/bigocrpdf/ui/conclusion_ui_mixin.py:288
-#: src/bigocrpdf/ui/settings_queue_mixin.py:711
+#: src/bigocrpdf/ui/settings_queue_mixin.py:714
 msgid "Show in file manager"
 msgstr "Sýna í skráastjóra"
 
@@ -1651,8 +1651,8 @@ msgid "Open Image to OCR"
 msgstr "Opna mynd til OCR"
 
 #: src/bigocrpdf/ui/image_ocr_window.py:1109
-#: src/bigocrpdf/ui/settings_queue_mixin.py:889
-#: src/bigocrpdf/ui/settings_queue_mixin.py:973
+#: src/bigocrpdf/ui/settings_queue_mixin.py:892
+#: src/bigocrpdf/ui/settings_queue_mixin.py:976
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:108
 msgid "Images"
 msgstr "Myndir"
@@ -2023,7 +2023,7 @@ msgstr[0] "{count} síða valin"
 msgstr[1] "{count} síður valdar"
 
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:382
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:206
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:221
 #, python-brace-format
 msgid "Could not save {name}: {error}"
 msgstr "Gat ekki vistað {name}: {error}"
@@ -2049,7 +2049,7 @@ msgid "document.pdf"
 msgstr "document.pdf"
 
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:535
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:211
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:226
 #, python-brace-format
 msgid "Saved: {}"
 msgstr "Vistað: {}"
@@ -2360,7 +2360,7 @@ msgid "Save page as PDF"
 msgstr "Vista síðu sem PDF"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:387
-#: src/bigocrpdf/ui/settings_queue_mixin.py:991
+#: src/bigocrpdf/ui/settings_queue_mixin.py:994
 #, python-brace-format
 msgid "Page {n}"
 msgstr "Síða {n}"
@@ -2370,12 +2370,12 @@ msgstr "Síða {n}"
 msgid "Rotated {deg}°"
 msgstr "Snúin {deg}°"
 
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:46
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:47
 #, python-brace-format
 msgid "Could not render page {page}"
 msgstr "Gat ekki myndgert síðu {page}"
 
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:200
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:215
 msgid "Choose a folder on this computer to save the page."
 msgstr "Veldu möppu á þessari tölvu til að vista síðuna."
 
@@ -2607,242 +2607,242 @@ msgstr "Gat ekki haldið áfram vinnslulotu"
 msgid "Previous session discarded"
 msgstr "Fyrri vinnslulotu var hent"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:186
-#: src/bigocrpdf/ui/settings_queue_mixin.py:226
+#: src/bigocrpdf/ui/settings_queue_mixin.py:189
+#: src/bigocrpdf/ui/settings_queue_mixin.py:229
 msgid "File queue"
 msgstr "Skráabiðröð"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:190
-#: src/bigocrpdf/ui/settings_queue_mixin.py:233
+#: src/bigocrpdf/ui/settings_queue_mixin.py:193
+#: src/bigocrpdf/ui/settings_queue_mixin.py:236
 msgid "Add your PDFs"
 msgstr "Bættu PDF-skjölum við"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:192
-#: src/bigocrpdf/ui/settings_queue_mixin.py:235
+#: src/bigocrpdf/ui/settings_queue_mixin.py:195
+#: src/bigocrpdf/ui/settings_queue_mixin.py:238
 msgid "Drag PDF files and images here, or use the button in the header bar"
 msgstr "Dragðu PDF-skrár og myndir hingað, eða notaðu hnappinn í hausstiku"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:260
+#: src/bigocrpdf/ui/settings_queue_mixin.py:263
 msgid "Save in the same folder as the original file"
 msgstr "Vista í sömu möppu og upprunalega skráin"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:261
+#: src/bigocrpdf/ui/settings_queue_mixin.py:264
 msgid "Custom folder"
 msgstr "Sérsniðin mappa"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:268
+#: src/bigocrpdf/ui/settings_queue_mixin.py:271
 msgid "Output folder location"
 msgstr "Staðsetning úttaksmöppu"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:279
+#: src/bigocrpdf/ui/settings_queue_mixin.py:282
 msgid "Select folder"
 msgstr "Veldu möppu"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:282
+#: src/bigocrpdf/ui/settings_queue_mixin.py:285
 msgid "Destination folder path"
 msgstr "Slóð markmöppu"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:288
-#: src/bigocrpdf/ui/settings_queue_mixin.py:289
+#: src/bigocrpdf/ui/settings_queue_mixin.py:291
+#: src/bigocrpdf/ui/settings_queue_mixin.py:292
 msgid "Browse for folder"
 msgstr "Fletta í möppum"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:417
-#: src/bigocrpdf/ui/settings_queue_mixin.py:418
-#: src/bigocrpdf/ui/settings_queue_mixin.py:592
-#: src/bigocrpdf/ui/settings_queue_mixin.py:593
+#: src/bigocrpdf/ui/settings_queue_mixin.py:420
+#: src/bigocrpdf/ui/settings_queue_mixin.py:421
+#: src/bigocrpdf/ui/settings_queue_mixin.py:595
+#: src/bigocrpdf/ui/settings_queue_mixin.py:596
 msgid "Edit pages of this file"
 msgstr "Breyta síðum þessarar skráar"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:425
-#: src/bigocrpdf/ui/settings_queue_mixin.py:426
-#: src/bigocrpdf/ui/settings_queue_mixin.py:600
-#: src/bigocrpdf/ui/settings_queue_mixin.py:601
+#: src/bigocrpdf/ui/settings_queue_mixin.py:428
+#: src/bigocrpdf/ui/settings_queue_mixin.py:429
+#: src/bigocrpdf/ui/settings_queue_mixin.py:603
+#: src/bigocrpdf/ui/settings_queue_mixin.py:604
 msgid "Remove this file from the list"
 msgstr "Fjarlægja þessa skrá af listanum"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:543
-#: src/bigocrpdf/ui/settings_queue_mixin.py:668
+#: src/bigocrpdf/ui/settings_queue_mixin.py:546
+#: src/bigocrpdf/ui/settings_queue_mixin.py:671
 msgid "Cannot read this PDF"
 msgstr "Ekki er hægt að lesa þessa PDF-skrá"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:710
+#: src/bigocrpdf/ui/settings_queue_mixin.py:713
 msgid "Open file"
 msgstr "Opna skrá"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:715
-#: src/bigocrpdf/ui/settings_queue_mixin.py:930
+#: src/bigocrpdf/ui/settings_queue_mixin.py:718
+#: src/bigocrpdf/ui/settings_queue_mixin.py:933
 msgid "File information"
 msgstr "Upplýsingar um skrá"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:843
+#: src/bigocrpdf/ui/settings_queue_mixin.py:846
 msgid "Name"
 msgstr "Heiti"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:844
+#: src/bigocrpdf/ui/settings_queue_mixin.py:847
 msgid "Path"
 msgstr "Slóð"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:850
+#: src/bigocrpdf/ui/settings_queue_mixin.py:853
 msgid "Size"
 msgstr "Stærð"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:857
+#: src/bigocrpdf/ui/settings_queue_mixin.py:860
 msgid "Modified (local)"
 msgstr "Breytt (staðartími)"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:863
+#: src/bigocrpdf/ui/settings_queue_mixin.py:866
 msgid "Document"
 msgstr "Skjal"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:865
+#: src/bigocrpdf/ui/settings_queue_mixin.py:868
 msgid "Pages"
 msgstr "Síður"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:866
+#: src/bigocrpdf/ui/settings_queue_mixin.py:869
 msgid "Page size"
 msgstr "Síðustærð"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:867
+#: src/bigocrpdf/ui/settings_queue_mixin.py:870
 msgid "PDF version"
 msgstr "PDF-útgáfa"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:868
+#: src/bigocrpdf/ui/settings_queue_mixin.py:871
 msgid "Encrypted"
 msgstr "Dulritað"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:869
+#: src/bigocrpdf/ui/settings_queue_mixin.py:872
 msgid "Optimized"
 msgstr "Fínstillt"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:870
+#: src/bigocrpdf/ui/settings_queue_mixin.py:873
 msgid "Tagged"
 msgstr "Merkt"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:875
+#: src/bigocrpdf/ui/settings_queue_mixin.py:878
 msgid "Form"
 msgstr "Eyðublað"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:877
+#: src/bigocrpdf/ui/settings_queue_mixin.py:880
 msgid "JavaScript"
 msgstr "JavaScript"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:888
-#: src/bigocrpdf/ui/settings_queue_mixin.py:973
+#: src/bigocrpdf/ui/settings_queue_mixin.py:891
+#: src/bigocrpdf/ui/settings_queue_mixin.py:976
 msgid "Content"
 msgstr "Efni"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:892
+#: src/bigocrpdf/ui/settings_queue_mixin.py:895
 msgid "Image formats"
 msgstr "Myndsnið"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:896
+#: src/bigocrpdf/ui/settings_queue_mixin.py:899
 msgid "Fonts"
 msgstr "Leturgerðir"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:898
+#: src/bigocrpdf/ui/settings_queue_mixin.py:901
 msgid "Embedded fonts"
 msgstr "Innfelldar leturgerðir"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:900
+#: src/bigocrpdf/ui/settings_queue_mixin.py:903
 msgid "Font names"
 msgstr "Heiti leturgerða"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:903
+#: src/bigocrpdf/ui/settings_queue_mixin.py:906
 msgid "Attached files"
 msgstr "Meðfylgjandi skrár"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:907
+#: src/bigocrpdf/ui/settings_queue_mixin.py:910
 msgid "Metadata"
 msgstr "Lýsigögn"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:909
+#: src/bigocrpdf/ui/settings_queue_mixin.py:912
 msgid "Title"
 msgstr "Titill"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:910
+#: src/bigocrpdf/ui/settings_queue_mixin.py:913
 msgid "Subject"
 msgstr "Viðfangsefni"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:911
+#: src/bigocrpdf/ui/settings_queue_mixin.py:914
 msgid "Author"
 msgstr "Höfundur"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:912
+#: src/bigocrpdf/ui/settings_queue_mixin.py:915
 msgid "Creator"
 msgstr "Gert af"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:913
+#: src/bigocrpdf/ui/settings_queue_mixin.py:916
 msgid "Producer"
 msgstr "Framleiðandi"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:914
+#: src/bigocrpdf/ui/settings_queue_mixin.py:917
 msgid "Keywords"
 msgstr "Stikkorð"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:919
+#: src/bigocrpdf/ui/settings_queue_mixin.py:922
 msgid "Created"
 msgstr "Búið til"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:921
+#: src/bigocrpdf/ui/settings_queue_mixin.py:924
 msgid "Modified"
 msgstr "Breytt"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:949
-#: src/bigocrpdf/ui/settings_queue_mixin.py:950
+#: src/bigocrpdf/ui/settings_queue_mixin.py:952
+#: src/bigocrpdf/ui/settings_queue_mixin.py:953
 msgid "Copy all information"
 msgstr "Afrita allar upplýsingar"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:980
+#: src/bigocrpdf/ui/settings_queue_mixin.py:983
 msgid "Image list"
 msgstr "Myndalisti"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:983
+#: src/bigocrpdf/ui/settings_queue_mixin.py:986
 #, python-brace-format
 msgid "{count} image"
 msgid_plural "{count} images"
 msgstr[0] "{count} mynd"
 msgstr[1] "{count} myndir"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:998
-#: src/bigocrpdf/ui/settings_queue_mixin.py:999
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1001
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1002
 msgid "Extract this image"
 msgstr "Draga út þessa mynd"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1022
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1025
 msgid "Information copied"
 msgstr "Upplýsingar afritaðar"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1058
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1064
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1077
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1061
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1067
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1080
 msgid "Failed to extract image"
 msgstr "Tókst ekki að draga út mynd"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1077
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1080
 msgid "Image extracted"
 msgstr "Mynd dregin út"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1132
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1140
 msgid "Failed to open PDF editor"
 msgstr "Ekki tókst að opna PDF-ritil"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1146
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1154
 msgid "Changes saved"
 msgstr "Breytingar vistaðar"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1194
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1202
 msgid "Multiple Images Dropped"
 msgstr "Margar myndir dregnar inn"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1196
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1204
 #, python-brace-format
 msgid "You dropped {count} image. How would you like to add it?"
 msgid_plural "You dropped {count} images. How would you like to add them?"
 msgstr[0] "Þú slepptir {count} mynd hér. Hvernig viltu bæta henni við?"
 msgstr[1] "Þú slepptir {count} myndum hér. Hvernig viltu bæta þeim við?"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1248
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1256
 #: src/bigocrpdf/ui/window_ui.py:108
 #, python-brace-format
 msgid "{count} file in queue"
@@ -2850,7 +2850,7 @@ msgid_plural "{count} files in queue"
 msgstr[0] "{count} skrá í biðröð"
 msgstr[1] "{count} skrár í biðröð"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1263
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1271
 msgid "All files removed from queue"
 msgstr "Allar skrár fjarlægðar úr biðröð"
 

@@ -332,8 +332,8 @@ msgstr "Luba vanaaegne välimus (seepia/MV)."
 msgid "Vintage in black & white"
 msgstr "Vanaaegne mustvalgelt"
 
-#: src/bigocrpdf/cli_parser.py:191 src/bigocrpdf/ui/settings_queue_mixin.py:304
-#: src/bigocrpdf/ui/settings_queue_mixin.py:306
+#: src/bigocrpdf/cli_parser.py:191 src/bigocrpdf/ui/settings_queue_mixin.py:307
+#: src/bigocrpdf/ui/settings_queue_mixin.py:309
 msgid "Output options"
 msgstr "Väljundivalikud"
 
@@ -683,13 +683,13 @@ msgstr[0] "Lehekülge {pages} ei õnnestunud lugeda: {cause}"
 msgstr[1] "Lehekülgi {pages} ei õnnestunud lugeda: {cause}"
 
 #: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:250
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:525
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:526
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "Lehekülje {0}/{1} töötlemine..."
 
 #: src/bigocrpdf/services/ocr/backend_pipeline.py:151
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:291
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:293
 msgid "Done!"
 msgstr "Valmis!"
 
@@ -721,15 +721,15 @@ msgid "Converting to PDF/A..."
 msgstr "Teisendamine PDF/A-vormingusse..."
 
 #: src/bigocrpdf/services/ocr/backend_pipeline.py:373
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:589
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:591
 msgid "Splitting PDF by size limit..."
 msgstr "PDF-i jagamine suurusepiirangu järgi..."
 
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:299
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:300
 msgid "Starting OCR..."
 msgstr "OCR-i käivitamine..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:101
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:103
 #, python-brace-format
 msgid ""
 "Page {page} already has an OCR text layer and was left unchanged. Enable "
@@ -738,29 +738,29 @@ msgstr ""
 "Lehel {page} on juba OCR-i tekstikiht ja see jäeti muutmata. Selle uuesti "
 "töötlemiseks lubage „Asenda olemasolev OCR“."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:150
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:152
 msgid "Extracting images..."
 msgstr "Piltide väljavõtmine..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:181
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:183
 msgid "Analyzing PDF structure..."
 msgstr "PDF struktuuri analüüsimine..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:266
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:268
 msgid "Saving PDF..."
 msgstr "PDF-faili salvestamine..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:372
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:374
 #, python-brace-format
 msgid "OCR page {0}..."
 msgstr "Lehekülje {0} OCR..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:514
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:516
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "Lehekülje {0} OCR (pärast renderdamist)..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:529
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
 msgid "the page could not be rendered"
 msgstr "lehekülge ei õnnestunud renderdada"
 
@@ -1281,8 +1281,8 @@ msgid "Selected: {count}"
 msgstr "Valitud: {count}"
 
 #: src/bigocrpdf/ui/conclusion_ui_mixin.py:249
-#: src/bigocrpdf/ui/settings_queue_mixin.py:552
-#: src/bigocrpdf/ui/settings_queue_mixin.py:664
+#: src/bigocrpdf/ui/settings_queue_mixin.py:555
+#: src/bigocrpdf/ui/settings_queue_mixin.py:667
 #, python-brace-format
 msgid "{count} page"
 msgid_plural "{count} pages"
@@ -1294,7 +1294,7 @@ msgid "Open the processed file"
 msgstr "Ava töödeldud fail"
 
 #: src/bigocrpdf/ui/conclusion_ui_mixin.py:288
-#: src/bigocrpdf/ui/settings_queue_mixin.py:711
+#: src/bigocrpdf/ui/settings_queue_mixin.py:714
 msgid "Show in file manager"
 msgstr "Näita failihalduris"
 
@@ -1663,8 +1663,8 @@ msgid "Open Image to OCR"
 msgstr "Ava pilt OCR-iks"
 
 #: src/bigocrpdf/ui/image_ocr_window.py:1109
-#: src/bigocrpdf/ui/settings_queue_mixin.py:889
-#: src/bigocrpdf/ui/settings_queue_mixin.py:973
+#: src/bigocrpdf/ui/settings_queue_mixin.py:892
+#: src/bigocrpdf/ui/settings_queue_mixin.py:976
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:108
 msgid "Images"
 msgstr "Pildid"
@@ -2038,7 +2038,7 @@ msgstr[0] "Valitud on {count} lehekülg"
 msgstr[1] "Valitud on {count} lehekülge"
 
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:382
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:206
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:221
 #, python-brace-format
 msgid "Could not save {name}: {error}"
 msgstr "Faili {name} ei õnnestunud salvestada: {error}"
@@ -2064,7 +2064,7 @@ msgid "document.pdf"
 msgstr "dokument.pdf"
 
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:535
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:211
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:226
 #, python-brace-format
 msgid "Saved: {}"
 msgstr "Salvestatud: {}"
@@ -2376,7 +2376,7 @@ msgid "Save page as PDF"
 msgstr "Salvesta lehekülg PDF-ina"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:387
-#: src/bigocrpdf/ui/settings_queue_mixin.py:991
+#: src/bigocrpdf/ui/settings_queue_mixin.py:994
 #, python-brace-format
 msgid "Page {n}"
 msgstr "Leht {n}"
@@ -2386,12 +2386,12 @@ msgstr "Leht {n}"
 msgid "Rotated {deg}°"
 msgstr "Pööratud {deg}°"
 
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:46
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:47
 #, python-brace-format
 msgid "Could not render page {page}"
 msgstr "Lehekülge {page} ei õnnestunud renderdada"
 
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:200
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:215
 msgid "Choose a folder on this computer to save the page."
 msgstr "Vali lehekülje salvestamiseks kaust selles arvutis."
 
@@ -2623,242 +2623,242 @@ msgstr "Seanssi ei õnnestunud taastada."
 msgid "Previous session discarded"
 msgstr "Eelmine seanss hüljati."
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:186
-#: src/bigocrpdf/ui/settings_queue_mixin.py:226
+#: src/bigocrpdf/ui/settings_queue_mixin.py:189
+#: src/bigocrpdf/ui/settings_queue_mixin.py:229
 msgid "File queue"
 msgstr "Failijärjekord"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:190
-#: src/bigocrpdf/ui/settings_queue_mixin.py:233
+#: src/bigocrpdf/ui/settings_queue_mixin.py:193
+#: src/bigocrpdf/ui/settings_queue_mixin.py:236
 msgid "Add your PDFs"
 msgstr "Lisa oma PDF-id"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:192
-#: src/bigocrpdf/ui/settings_queue_mixin.py:235
+#: src/bigocrpdf/ui/settings_queue_mixin.py:195
+#: src/bigocrpdf/ui/settings_queue_mixin.py:238
 msgid "Drag PDF files and images here, or use the button in the header bar"
 msgstr "Lohista PDF-failid ja pildid siia või kasuta päiseriba nuppu"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:260
+#: src/bigocrpdf/ui/settings_queue_mixin.py:263
 msgid "Save in the same folder as the original file"
 msgstr "Salvesta algse failiga samasse kausta"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:261
+#: src/bigocrpdf/ui/settings_queue_mixin.py:264
 msgid "Custom folder"
 msgstr "Kohandatud kaust"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:268
+#: src/bigocrpdf/ui/settings_queue_mixin.py:271
 msgid "Output folder location"
 msgstr "Väljundkausta asukoht"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:279
+#: src/bigocrpdf/ui/settings_queue_mixin.py:282
 msgid "Select folder"
 msgstr "Vali kaust"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:282
+#: src/bigocrpdf/ui/settings_queue_mixin.py:285
 msgid "Destination folder path"
 msgstr "Sihtkausta tee"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:288
-#: src/bigocrpdf/ui/settings_queue_mixin.py:289
+#: src/bigocrpdf/ui/settings_queue_mixin.py:291
+#: src/bigocrpdf/ui/settings_queue_mixin.py:292
 msgid "Browse for folder"
 msgstr "Sirvi kausta"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:417
-#: src/bigocrpdf/ui/settings_queue_mixin.py:418
-#: src/bigocrpdf/ui/settings_queue_mixin.py:592
-#: src/bigocrpdf/ui/settings_queue_mixin.py:593
+#: src/bigocrpdf/ui/settings_queue_mixin.py:420
+#: src/bigocrpdf/ui/settings_queue_mixin.py:421
+#: src/bigocrpdf/ui/settings_queue_mixin.py:595
+#: src/bigocrpdf/ui/settings_queue_mixin.py:596
 msgid "Edit pages of this file"
 msgstr "Muuda selle faili lehti"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:425
-#: src/bigocrpdf/ui/settings_queue_mixin.py:426
-#: src/bigocrpdf/ui/settings_queue_mixin.py:600
-#: src/bigocrpdf/ui/settings_queue_mixin.py:601
+#: src/bigocrpdf/ui/settings_queue_mixin.py:428
+#: src/bigocrpdf/ui/settings_queue_mixin.py:429
+#: src/bigocrpdf/ui/settings_queue_mixin.py:603
+#: src/bigocrpdf/ui/settings_queue_mixin.py:604
 msgid "Remove this file from the list"
 msgstr "Eemalda see fail loendist."
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:543
-#: src/bigocrpdf/ui/settings_queue_mixin.py:668
+#: src/bigocrpdf/ui/settings_queue_mixin.py:546
+#: src/bigocrpdf/ui/settings_queue_mixin.py:671
 msgid "Cannot read this PDF"
 msgstr "Seda PDF-i ei saa lugeda"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:710
+#: src/bigocrpdf/ui/settings_queue_mixin.py:713
 msgid "Open file"
 msgstr "Ava fail"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:715
-#: src/bigocrpdf/ui/settings_queue_mixin.py:930
+#: src/bigocrpdf/ui/settings_queue_mixin.py:718
+#: src/bigocrpdf/ui/settings_queue_mixin.py:933
 msgid "File information"
 msgstr "Failiteave"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:843
+#: src/bigocrpdf/ui/settings_queue_mixin.py:846
 msgid "Name"
 msgstr "Nimi"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:844
+#: src/bigocrpdf/ui/settings_queue_mixin.py:847
 msgid "Path"
 msgstr "Tee"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:850
+#: src/bigocrpdf/ui/settings_queue_mixin.py:853
 msgid "Size"
 msgstr "Suurus"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:857
+#: src/bigocrpdf/ui/settings_queue_mixin.py:860
 msgid "Modified (local)"
 msgstr "Muudetud (kohalik aeg)"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:863
+#: src/bigocrpdf/ui/settings_queue_mixin.py:866
 msgid "Document"
 msgstr "Dokument"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:865
+#: src/bigocrpdf/ui/settings_queue_mixin.py:868
 msgid "Pages"
 msgstr "Leheküljed"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:866
+#: src/bigocrpdf/ui/settings_queue_mixin.py:869
 msgid "Page size"
 msgstr "Lehekülje suurus"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:867
+#: src/bigocrpdf/ui/settings_queue_mixin.py:870
 msgid "PDF version"
 msgstr "PDF-i versioon"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:868
+#: src/bigocrpdf/ui/settings_queue_mixin.py:871
 msgid "Encrypted"
 msgstr "Krüpteeritud"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:869
+#: src/bigocrpdf/ui/settings_queue_mixin.py:872
 msgid "Optimized"
 msgstr "Optimeeritud"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:870
+#: src/bigocrpdf/ui/settings_queue_mixin.py:873
 msgid "Tagged"
 msgstr "Märgendatud"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:875
+#: src/bigocrpdf/ui/settings_queue_mixin.py:878
 msgid "Form"
 msgstr "Vorm"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:877
+#: src/bigocrpdf/ui/settings_queue_mixin.py:880
 msgid "JavaScript"
 msgstr "JavaScript"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:888
-#: src/bigocrpdf/ui/settings_queue_mixin.py:973
+#: src/bigocrpdf/ui/settings_queue_mixin.py:891
+#: src/bigocrpdf/ui/settings_queue_mixin.py:976
 msgid "Content"
 msgstr "Sisu"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:892
+#: src/bigocrpdf/ui/settings_queue_mixin.py:895
 msgid "Image formats"
 msgstr "Pildiformaadid"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:896
+#: src/bigocrpdf/ui/settings_queue_mixin.py:899
 msgid "Fonts"
 msgstr "Fondid"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:898
+#: src/bigocrpdf/ui/settings_queue_mixin.py:901
 msgid "Embedded fonts"
 msgstr "Manustatud fondid"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:900
+#: src/bigocrpdf/ui/settings_queue_mixin.py:903
 msgid "Font names"
 msgstr "Fondide nimed"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:903
+#: src/bigocrpdf/ui/settings_queue_mixin.py:906
 msgid "Attached files"
 msgstr "Manustatud failid"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:907
+#: src/bigocrpdf/ui/settings_queue_mixin.py:910
 msgid "Metadata"
 msgstr "Metaandmed"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:909
+#: src/bigocrpdf/ui/settings_queue_mixin.py:912
 msgid "Title"
 msgstr "Pealkiri"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:910
+#: src/bigocrpdf/ui/settings_queue_mixin.py:913
 msgid "Subject"
 msgstr "Teema"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:911
+#: src/bigocrpdf/ui/settings_queue_mixin.py:914
 msgid "Author"
 msgstr "Autor"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:912
+#: src/bigocrpdf/ui/settings_queue_mixin.py:915
 msgid "Creator"
 msgstr "Looja"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:913
+#: src/bigocrpdf/ui/settings_queue_mixin.py:916
 msgid "Producer"
 msgstr "Tootja"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:914
+#: src/bigocrpdf/ui/settings_queue_mixin.py:917
 msgid "Keywords"
 msgstr "Märksõnad"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:919
+#: src/bigocrpdf/ui/settings_queue_mixin.py:922
 msgid "Created"
 msgstr "Loodud"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:921
+#: src/bigocrpdf/ui/settings_queue_mixin.py:924
 msgid "Modified"
 msgstr "Muudetud"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:949
-#: src/bigocrpdf/ui/settings_queue_mixin.py:950
+#: src/bigocrpdf/ui/settings_queue_mixin.py:952
+#: src/bigocrpdf/ui/settings_queue_mixin.py:953
 msgid "Copy all information"
 msgstr "Kopeeri kogu teave"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:980
+#: src/bigocrpdf/ui/settings_queue_mixin.py:983
 msgid "Image list"
 msgstr "Pildiloend"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:983
+#: src/bigocrpdf/ui/settings_queue_mixin.py:986
 #, python-brace-format
 msgid "{count} image"
 msgid_plural "{count} images"
 msgstr[0] "{count} pilt"
 msgstr[1] "{count} pilti"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:998
-#: src/bigocrpdf/ui/settings_queue_mixin.py:999
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1001
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1002
 msgid "Extract this image"
 msgstr "Eralda see pilt"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1022
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1025
 msgid "Information copied"
 msgstr "Teave kopeeritud"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1058
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1064
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1077
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1061
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1067
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1080
 msgid "Failed to extract image"
 msgstr "Pildi eraldamine ebaõnnestus"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1077
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1080
 msgid "Image extracted"
 msgstr "Pilt eraldatud"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1132
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1140
 msgid "Failed to open PDF editor"
 msgstr "PDF-redaktori avamine ebaõnnestus"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1146
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1154
 msgid "Changes saved"
 msgstr "Muudatused salvestatud"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1194
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1202
 msgid "Multiple Images Dropped"
 msgstr "Lohistati mitu pilti"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1196
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1204
 #, python-brace-format
 msgid "You dropped {count} image. How would you like to add it?"
 msgid_plural "You dropped {count} images. How would you like to add them?"
 msgstr[0] "Lohistasite siia {count} pildi. Kuidas soovite selle lisada?"
 msgstr[1] "Lohistasite siia {count} pilti. Kuidas soovite need lisada?"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1248
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1256
 #: src/bigocrpdf/ui/window_ui.py:108
 #, python-brace-format
 msgid "{count} file in queue"
@@ -2866,7 +2866,7 @@ msgid_plural "{count} files in queue"
 msgstr[0] "Järjekorras on {count} fail"
 msgstr[1] "Järjekorras on {count} faili"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1263
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1271
 msgid "All files removed from queue"
 msgstr "Kõik failid eemaldatud järjekorrast"
 

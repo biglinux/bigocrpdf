@@ -319,8 +319,8 @@ msgstr "启用复古效果（棕褐色/黑白）。"
 msgid "Vintage in black & white"
 msgstr "黑白复古"
 
-#: src/bigocrpdf/cli_parser.py:191 src/bigocrpdf/ui/settings_queue_mixin.py:304
-#: src/bigocrpdf/ui/settings_queue_mixin.py:306
+#: src/bigocrpdf/cli_parser.py:191 src/bigocrpdf/ui/settings_queue_mixin.py:307
+#: src/bigocrpdf/ui/settings_queue_mixin.py:309
 msgid "Output options"
 msgstr "输出选项"
 
@@ -656,13 +656,13 @@ msgid_plural "Pages {pages} could not be read: {cause}"
 msgstr[0] "无法读取第 {pages} 页：{cause}"
 
 #: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:250
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:525
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:526
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "正在处理第{0}/{1}页..."
 
 #: src/bigocrpdf/services/ocr/backend_pipeline.py:151
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:291
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:293
 msgid "Done!"
 msgstr "完成！"
 
@@ -693,15 +693,15 @@ msgid "Converting to PDF/A..."
 msgstr "正在转换为 PDF/A…"
 
 #: src/bigocrpdf/services/ocr/backend_pipeline.py:373
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:589
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:591
 msgid "Splitting PDF by size limit..."
 msgstr "正在按大小限制拆分 PDF…"
 
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:299
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:300
 msgid "Starting OCR..."
 msgstr "正在启动 OCR..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:101
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:103
 #, python-brace-format
 msgid ""
 "Page {page} already has an OCR text layer and was left unchanged. Enable "
@@ -710,29 +710,29 @@ msgstr ""
 "第 {page} 页已包含 OCR 文本层，因此保持不变。若要重新处理，请启用“替换现有 "
 "OCR”。"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:150
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:152
 msgid "Extracting images..."
 msgstr "正在提取图像…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:181
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:183
 msgid "Analyzing PDF structure..."
 msgstr "正在分析 PDF 结构…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:266
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:268
 msgid "Saving PDF..."
 msgstr "正在保存 PDF…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:372
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:374
 #, python-brace-format
 msgid "OCR page {0}..."
 msgstr "正在对第 {0} 页进行 OCR…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:514
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:516
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "正在对已渲染的第 {0} 页进行 OCR…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:529
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
 msgid "the page could not be rendered"
 msgstr "无法渲染该页"
 
@@ -1241,8 +1241,8 @@ msgid "Selected: {count}"
 msgstr "已选择：{count}"
 
 #: src/bigocrpdf/ui/conclusion_ui_mixin.py:249
-#: src/bigocrpdf/ui/settings_queue_mixin.py:552
-#: src/bigocrpdf/ui/settings_queue_mixin.py:664
+#: src/bigocrpdf/ui/settings_queue_mixin.py:555
+#: src/bigocrpdf/ui/settings_queue_mixin.py:667
 #, python-brace-format
 msgid "{count} page"
 msgid_plural "{count} pages"
@@ -1253,7 +1253,7 @@ msgid "Open the processed file"
 msgstr "打开已处理的文件"
 
 #: src/bigocrpdf/ui/conclusion_ui_mixin.py:288
-#: src/bigocrpdf/ui/settings_queue_mixin.py:711
+#: src/bigocrpdf/ui/settings_queue_mixin.py:714
 msgid "Show in file manager"
 msgstr "在文件管理器中显示"
 
@@ -1602,8 +1602,8 @@ msgid "Open Image to OCR"
 msgstr "打开图像进行 OCR"
 
 #: src/bigocrpdf/ui/image_ocr_window.py:1109
-#: src/bigocrpdf/ui/settings_queue_mixin.py:889
-#: src/bigocrpdf/ui/settings_queue_mixin.py:973
+#: src/bigocrpdf/ui/settings_queue_mixin.py:892
+#: src/bigocrpdf/ui/settings_queue_mixin.py:976
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:108
 msgid "Images"
 msgstr "图像"
@@ -1966,7 +1966,7 @@ msgid_plural "{count} pages selected"
 msgstr[0] "已选择 {count} 个页面"
 
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:382
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:206
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:221
 #, python-brace-format
 msgid "Could not save {name}: {error}"
 msgstr "无法保存 {name}：{error}"
@@ -1992,7 +1992,7 @@ msgid "document.pdf"
 msgstr "document.pdf"
 
 #: src/bigocrpdf/ui/pdf_editor/editor_window.py:535
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:211
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:226
 #, python-brace-format
 msgid "Saved: {}"
 msgstr "已保存：{}"
@@ -2302,7 +2302,7 @@ msgid "Save page as PDF"
 msgstr "将页面保存为 PDF"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:387
-#: src/bigocrpdf/ui/settings_queue_mixin.py:991
+#: src/bigocrpdf/ui/settings_queue_mixin.py:994
 #, python-brace-format
 msgid "Page {n}"
 msgstr "第 {n} 页"
@@ -2312,12 +2312,12 @@ msgstr "第 {n} 页"
 msgid "Rotated {deg}°"
 msgstr "已旋转 {deg}°"
 
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:46
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:47
 #, python-brace-format
 msgid "Could not render page {page}"
 msgstr "无法渲染第 {page} 页"
 
-#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:200
+#: src/bigocrpdf/ui/pdf_editor/page_thumbnail_export.py:215
 msgid "Choose a folder on this computer to save the page."
 msgstr "请选择此计算机上的文件夹来保存页面。"
 
@@ -2544,247 +2544,247 @@ msgstr "无法恢复会话"
 msgid "Previous session discarded"
 msgstr "上一个会话已丢弃"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:186
-#: src/bigocrpdf/ui/settings_queue_mixin.py:226
+#: src/bigocrpdf/ui/settings_queue_mixin.py:189
+#: src/bigocrpdf/ui/settings_queue_mixin.py:229
 msgid "File queue"
 msgstr "文件队列"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:190
-#: src/bigocrpdf/ui/settings_queue_mixin.py:233
+#: src/bigocrpdf/ui/settings_queue_mixin.py:193
+#: src/bigocrpdf/ui/settings_queue_mixin.py:236
 msgid "Add your PDFs"
 msgstr "添加 PDF 文件"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:192
-#: src/bigocrpdf/ui/settings_queue_mixin.py:235
+#: src/bigocrpdf/ui/settings_queue_mixin.py:195
+#: src/bigocrpdf/ui/settings_queue_mixin.py:238
 msgid "Drag PDF files and images here, or use the button in the header bar"
 msgstr "将 PDF 文件和图像拖到此处，或使用顶栏按钮"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:260
+#: src/bigocrpdf/ui/settings_queue_mixin.py:263
 msgid "Save in the same folder as the original file"
 msgstr "保存到与原始文件相同的文件夹"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:261
+#: src/bigocrpdf/ui/settings_queue_mixin.py:264
 msgid "Custom folder"
 msgstr "自定义文件夹"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:268
+#: src/bigocrpdf/ui/settings_queue_mixin.py:271
 msgid "Output folder location"
 msgstr "输出文件夹位置"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:279
+#: src/bigocrpdf/ui/settings_queue_mixin.py:282
 msgid "Select folder"
 msgstr "选择文件夹"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:282
+#: src/bigocrpdf/ui/settings_queue_mixin.py:285
 msgid "Destination folder path"
 msgstr "目标文件夹路径"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:288
-#: src/bigocrpdf/ui/settings_queue_mixin.py:289
+#: src/bigocrpdf/ui/settings_queue_mixin.py:291
+#: src/bigocrpdf/ui/settings_queue_mixin.py:292
 msgid "Browse for folder"
 msgstr "浏览文件夹"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:417
-#: src/bigocrpdf/ui/settings_queue_mixin.py:418
-#: src/bigocrpdf/ui/settings_queue_mixin.py:592
-#: src/bigocrpdf/ui/settings_queue_mixin.py:593
+#: src/bigocrpdf/ui/settings_queue_mixin.py:420
+#: src/bigocrpdf/ui/settings_queue_mixin.py:421
+#: src/bigocrpdf/ui/settings_queue_mixin.py:595
+#: src/bigocrpdf/ui/settings_queue_mixin.py:596
 msgid "Edit pages of this file"
 msgstr "编辑此文件的页面"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:425
-#: src/bigocrpdf/ui/settings_queue_mixin.py:426
-#: src/bigocrpdf/ui/settings_queue_mixin.py:600
-#: src/bigocrpdf/ui/settings_queue_mixin.py:601
+#: src/bigocrpdf/ui/settings_queue_mixin.py:428
+#: src/bigocrpdf/ui/settings_queue_mixin.py:429
+#: src/bigocrpdf/ui/settings_queue_mixin.py:603
+#: src/bigocrpdf/ui/settings_queue_mixin.py:604
 msgid "Remove this file from the list"
 msgstr "从列表中移除此文件"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:543
-#: src/bigocrpdf/ui/settings_queue_mixin.py:668
+#: src/bigocrpdf/ui/settings_queue_mixin.py:546
+#: src/bigocrpdf/ui/settings_queue_mixin.py:671
 msgid "Cannot read this PDF"
 msgstr "无法读取此 PDF"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:710
+#: src/bigocrpdf/ui/settings_queue_mixin.py:713
 msgid "Open file"
 msgstr "打开文件"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:715
-#: src/bigocrpdf/ui/settings_queue_mixin.py:930
+#: src/bigocrpdf/ui/settings_queue_mixin.py:718
+#: src/bigocrpdf/ui/settings_queue_mixin.py:933
 msgid "File information"
 msgstr "文件信息"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:843
+#: src/bigocrpdf/ui/settings_queue_mixin.py:846
 msgid "Name"
 msgstr "名称"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:844
+#: src/bigocrpdf/ui/settings_queue_mixin.py:847
 msgid "Path"
 msgstr "路径"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:850
+#: src/bigocrpdf/ui/settings_queue_mixin.py:853
 msgid "Size"
 msgstr "大小"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:857
+#: src/bigocrpdf/ui/settings_queue_mixin.py:860
 msgid "Modified (local)"
 msgstr "修改时间（本地）"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:863
+#: src/bigocrpdf/ui/settings_queue_mixin.py:866
 msgid "Document"
 msgstr "文档"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:865
+#: src/bigocrpdf/ui/settings_queue_mixin.py:868
 msgid "Pages"
 msgstr "页数"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:866
+#: src/bigocrpdf/ui/settings_queue_mixin.py:869
 msgid "Page size"
 msgstr "页面大小"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:867
+#: src/bigocrpdf/ui/settings_queue_mixin.py:870
 msgid "PDF version"
 msgstr "PDF 版本"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:868
+#: src/bigocrpdf/ui/settings_queue_mixin.py:871
 msgid "Encrypted"
 msgstr "已加密"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:869
+#: src/bigocrpdf/ui/settings_queue_mixin.py:872
 msgid "Optimized"
 msgstr "已优化"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:870
+#: src/bigocrpdf/ui/settings_queue_mixin.py:873
 msgid "Tagged"
 msgstr "带标签"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:875
+#: src/bigocrpdf/ui/settings_queue_mixin.py:878
 msgid "Form"
 msgstr "表单"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:877
+#: src/bigocrpdf/ui/settings_queue_mixin.py:880
 msgid "JavaScript"
 msgstr "JavaScript"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:888
-#: src/bigocrpdf/ui/settings_queue_mixin.py:973
+#: src/bigocrpdf/ui/settings_queue_mixin.py:891
+#: src/bigocrpdf/ui/settings_queue_mixin.py:976
 msgid "Content"
 msgstr "内容"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:892
+#: src/bigocrpdf/ui/settings_queue_mixin.py:895
 msgid "Image formats"
 msgstr "图像格式"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:896
+#: src/bigocrpdf/ui/settings_queue_mixin.py:899
 msgid "Fonts"
 msgstr "字体"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:898
+#: src/bigocrpdf/ui/settings_queue_mixin.py:901
 msgid "Embedded fonts"
 msgstr "嵌入字体"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:900
+#: src/bigocrpdf/ui/settings_queue_mixin.py:903
 msgid "Font names"
 msgstr "字体名称"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:903
+#: src/bigocrpdf/ui/settings_queue_mixin.py:906
 msgid "Attached files"
 msgstr "附件"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:907
+#: src/bigocrpdf/ui/settings_queue_mixin.py:910
 msgid "Metadata"
 msgstr "元数据"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:909
+#: src/bigocrpdf/ui/settings_queue_mixin.py:912
 msgid "Title"
 msgstr "标题"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:910
+#: src/bigocrpdf/ui/settings_queue_mixin.py:913
 msgid "Subject"
 msgstr "主题"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:911
+#: src/bigocrpdf/ui/settings_queue_mixin.py:914
 msgid "Author"
 msgstr "作者"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:912
+#: src/bigocrpdf/ui/settings_queue_mixin.py:915
 msgid "Creator"
 msgstr "创建程序"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:913
+#: src/bigocrpdf/ui/settings_queue_mixin.py:916
 msgid "Producer"
 msgstr "生成程序"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:914
+#: src/bigocrpdf/ui/settings_queue_mixin.py:917
 msgid "Keywords"
 msgstr "关键词"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:919
+#: src/bigocrpdf/ui/settings_queue_mixin.py:922
 msgid "Created"
 msgstr "创建时间"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:921
+#: src/bigocrpdf/ui/settings_queue_mixin.py:924
 msgid "Modified"
 msgstr "修改时间"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:949
-#: src/bigocrpdf/ui/settings_queue_mixin.py:950
+#: src/bigocrpdf/ui/settings_queue_mixin.py:952
+#: src/bigocrpdf/ui/settings_queue_mixin.py:953
 msgid "Copy all information"
 msgstr "复制所有信息"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:980
+#: src/bigocrpdf/ui/settings_queue_mixin.py:983
 msgid "Image list"
 msgstr "图像列表"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:983
+#: src/bigocrpdf/ui/settings_queue_mixin.py:986
 #, python-brace-format
 msgid "{count} image"
 msgid_plural "{count} images"
 msgstr[0] "{count} 张图片"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:998
-#: src/bigocrpdf/ui/settings_queue_mixin.py:999
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1001
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1002
 msgid "Extract this image"
 msgstr "提取此图像"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1022
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1025
 msgid "Information copied"
 msgstr "信息已复制"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1058
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1064
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1077
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1061
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1067
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1080
 msgid "Failed to extract image"
 msgstr "提取图像失败"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1077
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1080
 msgid "Image extracted"
 msgstr "图像已提取"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1132
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1140
 msgid "Failed to open PDF editor"
 msgstr "打开 PDF 编辑器失败"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1146
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1154
 msgid "Changes saved"
 msgstr "更改已保存"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1194
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1202
 msgid "Multiple Images Dropped"
 msgstr "拖入了多张图像"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1196
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1204
 #, python-brace-format
 msgid "You dropped {count} image. How would you like to add it?"
 msgid_plural "You dropped {count} images. How would you like to add them?"
 msgstr[0] "您拖放了 {count} 张图像。要如何添加？"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1248
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1256
 #: src/bigocrpdf/ui/window_ui.py:108
 #, python-brace-format
 msgid "{count} file in queue"
 msgid_plural "{count} files in queue"
 msgstr[0] "队列中有 {count} 个文件"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1263
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1271
 msgid "All files removed from queue"
 msgstr "所有文件已从队列中移除"
 

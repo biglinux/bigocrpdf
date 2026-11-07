@@ -1,15 +1,160 @@
-"""PDF page counts, metadata and page rendering through Poppler."""
+"""PDF page counts, metadata and page rendering through Poppler, and the
+sandbox every Poppler tool reading a user's PDF runs in."""
 
 import os
+import shutil
+import stat
 import subprocess
+import threading
+from collections.abc import Iterable
 from contextlib import ExitStack
-from functools import lru_cache
+from functools import cache, lru_cache
 from typing import TYPE_CHECKING, Any
 
 from bigocrpdf.utils.logger import logger
 
 if TYPE_CHECKING:
     from PIL import Image
+
+# What a confined Poppler tool sees besides the files it is given: the system
+# read-only, fonts, a private /tmp, and no network, IPC, other processes or
+# home directory.
+_SANDBOX_PROFILE = (
+    "--unshare-all",
+    "--die-with-parent",
+    "--new-session",
+    "--clearenv",
+    "--setenv",
+    "LANG",
+    "C.UTF-8",
+    "--setenv",
+    "HOME",
+    "/tmp",
+    "--proc",
+    "/proc",
+    "--dev",
+    "/dev",
+    "--tmpfs",
+    "/tmp",
+    "--ro-bind-try",
+    "/etc/fonts",
+    "/etc/fonts",
+    "--ro-bind-try",
+    "/var/cache/fontconfig",
+    "/var/cache/fontconfig",
+)
+
+
+# The host's top-level program and library directories, often merged-/usr links.
+_TOP_LEVEL_ROOTS = ("/bin", "/sbin", "/lib", "/lib32", "/lib64")
+# Where the system's programs and libraries live: bound read-only, so a
+# tool found there needs no bind of its own.
+_SYSTEM_ROOTS = ("/usr", "/nix/store", *_TOP_LEVEL_ROOTS)
+
+
+@cache
+def _system_binds() -> tuple[str, ...]:
+    """The read-only system: /usr, the Nix store and the loader cache when
+    they exist, and the host's top-level /bin, /sbin and /lib* as they are,
+    merged-/usr links kept as links."""
+    binds = ["--ro-bind-try", "/usr", "/usr", "--ro-bind-try", "/nix/store", "/nix/store"]
+    binds += ["--ro-bind-try", "/etc/ld.so.cache", "/etc/ld.so.cache"]
+    for path in _TOP_LEVEL_ROOTS:
+        if os.path.islink(path):
+            binds += ["--symlink", os.readlink(path), path]
+        elif os.path.isdir(path):
+            binds += ["--ro-bind", path, path]
+    return tuple(binds)
+
+
+def _sandboxed(
+    bwrap: str,
+    tool: str,
+    args: list[str],
+    read: Iterable[str | os.PathLike[str]],
+    write: Iterable[str | os.PathLike[str]],
+) -> list[str]:
+    """``tool`` (a resolved path) with ``args`` in bwrap, seeing ``read``
+    read-only and ``write`` read-write. Read binds come last, so a file read
+    from inside a writable directory stays read-only."""
+    command = [bwrap, *_SANDBOX_PROFILE, *_system_binds()]
+    if not tool.startswith(tuple(root + "/" for root in _SYSTEM_ROOTS)):
+        command += ["--ro-bind", tool, tool]
+    for flag, paths in (("--bind", write), ("--ro-bind", read)):
+        for path in paths:
+            name = os.path.abspath(path)
+            command += [flag, os.path.realpath(name), name]
+    return [*command, "--", tool, *args]
+
+
+# The probe's result, guarded by its lock so concurrent first callers probe once.
+_SANDBOX_LOCK = threading.Lock()
+_sandbox: tuple[str | None, str] | None = None
+
+
+def sandbox_state() -> tuple[str | None, str]:
+    """``(bwrap, "bwrap")`` when Poppler tools can run confined, else
+    ``(None, "none (<reason>)")``; probed once per process, by running
+    ``pdfinfo -v`` the way every tool runs."""
+    global _sandbox
+    with _SANDBOX_LOCK:
+        if _sandbox is None:
+            _sandbox = _probe_sandbox()
+        return _sandbox
+
+
+def _probe_sandbox() -> tuple[str | None, str]:
+    if os.environ.get("FLATPAK_ID"):
+        reason = "flatpak"
+    elif (bwrap := shutil.which("bwrap")) is None:
+        reason = "bwrap not installed"
+    elif (pdfinfo := shutil.which("pdfinfo")) is None:
+        reason = "no pdfinfo to probe with"
+    else:
+        probe = _sandboxed(bwrap, os.path.realpath(pdfinfo), ["-v"], (), ())
+        try:
+            result = subprocess.run(probe, capture_output=True, text=True, check=False, timeout=10)
+        except (OSError, subprocess.SubprocessError) as error:
+            reason = f"bwrap failed: {error}"
+        else:
+            if result.returncode == 0:
+                return bwrap, "bwrap"
+            reason = f"bwrap failed: {result.stderr.strip()[:200]}"
+    logger.warning(f"PDF tools in this process run without a sandbox: {reason}")
+    return None, f"none ({reason})"
+
+
+def confined(
+    argv: list[str],
+    *,
+    read: Iterable[str | os.PathLike[str]] = (),
+    write: Iterable[str | os.PathLike[str]] = (),
+) -> list[str]:
+    """``argv`` of a Poppler tool, run in a bwrap sandbox that sees only the
+    files in ``read`` (read-only) and the directories in ``write``.
+
+    Paths are bound at their absolute names, which the tool must be given;
+    ``argv[0]`` is resolved here, so the sandbox needs no PATH. Without a
+    usable bwrap the command runs as given. A tool that fails inside the
+    sandbox has failed: callers never retry it unconfined.
+    """
+    bwrap, _state = sandbox_state()
+    if bwrap is None:
+        return argv
+    tool = shutil.which(argv[0])
+    if tool is None:
+        return argv
+    return _sandboxed(bwrap, os.path.realpath(tool), argv[1:], read, write)
+
+
+def is_regular_file(path: str | os.PathLike[str]) -> bool:
+    """Whether ``path`` is a regular file itself, not a link to one: what a
+    confined tool wrote is read only then, so a tool that plants a link
+    cannot hand the app another file of the user's."""
+    try:
+        return stat.S_ISREG(os.lstat(path).st_mode)
+    except OSError:
+        return False
 
 
 def get_pdf_page_count(file_path: str, use_cache: bool = True) -> int:
@@ -28,10 +173,10 @@ def get_pdf_page_count(file_path: str, use_cache: bool = True) -> int:
     if not use_cache:
         return _get_page_count_uncached(file_path)
     try:
-        stat = os.stat(file_path)
+        info = os.stat(file_path)
     except OSError:
         return 0
-    return _get_page_count_cached(file_path, stat.st_mtime_ns, stat.st_size)
+    return _get_page_count_cached(file_path, info.st_mtime_ns, info.st_size)
 
 
 @lru_cache(maxsize=256)
@@ -49,8 +194,9 @@ def _get_page_count_uncached(file_path: str) -> int:
         Number of pages, or 0 if unable to determine
     """
     try:
+        source = os.path.abspath(file_path)
         result = subprocess.run(
-            ["pdfinfo", file_path],
+            confined(["pdfinfo", source], read=[source]),
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -74,8 +220,6 @@ def _get_page_count_uncached(file_path: str) -> int:
 
 def get_pdf_thumbnail(file_path: str, max_size: int = 200) -> bytes | None:
     """Get a thumbnail of the first page of a PDF.
-
-    Uses Poppler library directly for rendering, avoiding subprocess overhead.
 
     Args:
         file_path: Path to the PDF file
@@ -119,8 +263,9 @@ def get_pdf_info(file_path: str) -> dict[str, Any]:
 
     # Get page count and metadata from one pdfinfo snapshot.
     try:
+        source = os.path.abspath(file_path)
         result = subprocess.run(
-            ["pdfinfo", file_path],
+            confined(["pdfinfo", source], read=[source]),
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -155,60 +300,29 @@ def render_pdf_page_to_png(
     page_num: int,
     size: int = 200,
 ) -> bytes | None:
-    """Render a single PDF page to PNG bytes using Poppler.
-
-    Uses the Poppler GObject Introspection library directly instead of
-    spawning a subprocess, which is faster and avoids pdftoppm dependency.
-
-    Args:
-        pdf_path: Path to the PDF file
-        page_num: Page number (0-indexed)
-        size: Maximum dimension in pixels
+    """PNG bytes of one page (0-indexed), its longer side ``size`` pixels,
+    rendered by a confined pdftoppm.
 
     Returns:
         PNG image bytes, or None if rendering failed
     """
+    source = os.path.abspath(pdf_path)
+    page = str(page_num + 1)
+    command = ["pdftoppm", "-png", "-scale-to", str(size), "-f", page, "-l", page, "-singlefile"]
     try:
-        import gi
-
-        gi.require_version("Poppler", "0.18")
-        from gi.repository import GLib, Poppler
-
-        # Poppler requires absolute paths for filename_to_uri
-        abs_path = os.path.abspath(pdf_path)
-        uri = GLib.filename_to_uri(abs_path, None)
-        doc = Poppler.Document.new_from_file(uri, None)
-        if not doc or page_num >= doc.get_n_pages():
-            return None
-
-        page = doc.get_page(page_num)
-        if not page:
-            return None
-
-        pw, ph = page.get_size()
-        scale = size / max(pw, ph)
-        render_w = int(pw * scale)
-        render_h = int(ph * scale)
-
-        import cairo
-
-        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, render_w, render_h)
-        ctx = cairo.Context(surface)
-        ctx.scale(scale, scale)
-        # White background
-        ctx.set_source_rgb(1.0, 1.0, 1.0)
-        ctx.paint()
-        page.render(ctx)
-
-        import io
-
-        buf = io.BytesIO()
-        surface.write_to_png(buf)
-        return buf.getvalue()
-
-    except Exception as e:
+        result = subprocess.run(
+            confined([*command, source], read=[source]),
+            capture_output=True,
+            check=False,
+            timeout=30,
+        )
+    except (OSError, subprocess.SubprocessError) as e:
         logger.error(f"Error rendering PDF page: {e}")
         return None
+    if result.returncode != 0 or not result.stdout:
+        logger.error(f"pdftoppm could not render page {page}: {result.stderr[:200]!r}")
+        return None
+    return result.stdout
 
 
 # Pillow decoders allowed on bytes from outside: the formats screenshots,

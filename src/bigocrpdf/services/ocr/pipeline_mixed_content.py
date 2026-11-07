@@ -2,6 +2,7 @@
 # Host attributes are supplied by ProfessionalPDFOCR's explicit mixin composition.
 # pyright: reportAttributeAccessIssue=false
 
+import os
 import subprocess
 import tempfile
 import time
@@ -48,6 +49,7 @@ from bigocrpdf.services.ocr.pipeline_mixed_content_pages import (
 from bigocrpdf.services.ocr.ppocr_native import Worker
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.pdf_utils import confined, is_regular_file
 from bigocrpdf.utils.temp_manager import staging_directory
 
 
@@ -607,7 +609,7 @@ class MixedContentMixin:
         """
         try:
             result = subprocess.run(
-                ["pdftotext", str(input_pdf), "-"],
+                confined(["pdftotext", os.path.abspath(input_pdf), "-"], read=[input_pdf]),
                 capture_output=True,
                 text=True,
                 encoding="utf-8",
@@ -643,10 +645,12 @@ class MixedContentMixin:
         """
         UNSUPPORTED_EXTS = frozenset({".jb2e", ".jb2g", ".ccitt"})
 
-        cmd = ["pdfimages", "-all", str(input_pdf), str(images_dir / "img")]
+        images_dir = Path(os.path.abspath(images_dir))
+        source = os.path.abspath(input_pdf)
+        cmd = ["pdfimages", "-all", source, str(images_dir / "img")]
         try:
             subprocess.run(
-                cmd,
+                confined(cmd, read=[source], write=[images_dir]),
                 check=True,
                 capture_output=True,
                 text=True,
@@ -658,7 +662,7 @@ class MixedContentMixin:
             logger.error(f"pdfimages failed: {e.stderr}")
             raise RuntimeError(f"Failed to extract images: {e}") from e
 
-        extracted = sorted(images_dir.glob("img-*"))
+        extracted = sorted(f for f in images_dir.glob("img-*") if is_regular_file(f))
 
         # Check for unsupported formats (JBIG2, CCITT fax)
         has_unsupported = any(f.suffix.lower() in UNSUPPORTED_EXTS for f in extracted)
@@ -675,10 +679,10 @@ class MixedContentMixin:
                     pass
 
             # Re-extract without -all: produces PBM/PPM/PGM (universally readable)
-            cmd_pbm = ["pdfimages", str(input_pdf), str(images_dir / "img")]
+            cmd_pbm = ["pdfimages", source, str(images_dir / "img")]
             try:
                 subprocess.run(
-                    cmd_pbm,
+                    confined(cmd_pbm, read=[source], write=[images_dir]),
                     check=True,
                     capture_output=True,
                     text=True,
@@ -690,7 +694,7 @@ class MixedContentMixin:
                 logger.error(f"pdfimages fallback failed: {e.stderr}")
                 raise RuntimeError(f"Failed to extract images: {e}") from e
 
-            extracted = sorted(images_dir.glob("img-*"))
+            extracted = sorted(f for f in images_dir.glob("img-*") if is_regular_file(f))
 
         filtered = [
             img

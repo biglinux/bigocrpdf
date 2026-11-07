@@ -23,8 +23,8 @@ pkgs.mkShell {
     gobject-introspection
 
     # Runtime tools; ppocr-native has no nixpkgs package and must be on PATH
-    poppler
     poppler_utils
+    bubblewrap
     gettext
     noto-fonts
 

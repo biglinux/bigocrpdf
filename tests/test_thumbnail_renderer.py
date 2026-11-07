@@ -421,7 +421,6 @@ def test_pdftoppm_renders_the_cropbox(monkeypatch) -> None:
     process.returncode = 1
     process.args = ["pdftoppm"]
     monkeypatch.setattr(thumbnail_renderer.subprocess, "Popen", MagicMock(return_value=process))
-    monkeypatch.setattr(renderer, "_render_pdf_to_pixbuf", MagicMock(return_value=None))
 
     renderer._render_pdf_page_pdftoppm(
         "document.pdf",
@@ -456,7 +455,7 @@ def test_renderer_shutdown_cancels_jobs_and_does_not_create_a_replacement_pool(
     assert renderer._jobs == {}
 
 
-def test_pdftoppm_cancellation_stops_before_poppler_fallback(monkeypatch) -> None:
+def test_cancel_terminates_pdftoppm(monkeypatch) -> None:
     renderer, _pool = _renderer_with_recording_pool(monkeypatch)
     cancel_event = threading.Event()
     process = MagicMock()
@@ -475,8 +474,6 @@ def test_pdftoppm_cancellation_stops_before_poppler_fallback(monkeypatch) -> Non
 
     process.communicate.side_effect = cancel_during_communicate
     monkeypatch.setattr(thumbnail_renderer.subprocess, "Popen", lambda *_args, **_kwargs: process)
-    fallback = MagicMock()
-    monkeypatch.setattr(renderer, "_render_pdf_to_pixbuf", fallback)
 
     result = renderer._render_pdf_page_pdftoppm(
         "document.pdf",
@@ -488,7 +485,6 @@ def test_pdftoppm_cancellation_stops_before_poppler_fallback(monkeypatch) -> Non
 
     assert result is None
     process.terminate.assert_called_once_with()
-    fallback.assert_not_called()
 
 
 class _RecordingListItem(Gtk.FlowBoxChild):

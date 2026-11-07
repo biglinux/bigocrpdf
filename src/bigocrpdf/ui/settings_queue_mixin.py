@@ -27,14 +27,17 @@ from bigocrpdf.utils.a11y import set_a11y_label
 from bigocrpdf.utils.durable_writes import copy_file_atomically
 from bigocrpdf.utils.i18n import _, ngettext
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.pdf_utils import confined, is_regular_file
 
 
 def _run_pdf_info_command(command: list[str], timeout: int) -> str:
+    """Output of a Poppler tool whose last argument is the PDF it reads."""
+    pdf_path = os.path.abspath(command[-1])
     try:
         environment = os.environ.copy()
         environment["LC_ALL"] = "C"
         result = subprocess.run(
-            command,
+            confined([*command[:-1], pdf_path], read=[pdf_path]),
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -1087,9 +1090,14 @@ class SettingsQueueMixin:
 
         with tempfile.TemporaryDirectory() as tmpdir:
             prefix = os.path.join(tmpdir, "img")
+            source = os.path.abspath(pdf_path)
             try:
                 subprocess.run(
-                    ["pdfimages", "-all", "-f", page, "-l", page, pdf_path, prefix],
+                    confined(
+                        ["pdfimages", "-all", "-f", page, "-l", page, source, prefix],
+                        read=[source],
+                        write=[tmpdir],
+                    ),
                     check=True,
                     timeout=30,
                     capture_output=True,
@@ -1098,7 +1106,7 @@ class SettingsQueueMixin:
                 logger.error("pdfimages extraction failed: %s", error)
                 return False
 
-            files = sorted(glob.glob(f"{prefix}-*"))
+            files = sorted(f for f in glob.glob(f"{prefix}-*") if is_regular_file(f))
             if not 0 <= idx < len(files):
                 return False
             try:

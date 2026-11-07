@@ -1,4 +1,5 @@
 import math
+import os
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -24,6 +25,7 @@ from bigocrpdf.services.ocr.pdf_page_geometry import (
 from bigocrpdf.services.ocr.pdf_validation import classify_text_layer
 from bigocrpdf.services.ocr.resource_manager import select_render_dpi_for_page
 from bigocrpdf.utils.logger import logger
+from bigocrpdf.utils.pdf_utils import confined, is_regular_file
 
 __all__ = [
     "ImagePosition",
@@ -348,7 +350,7 @@ def extract_native_text_for_quality(pdf_path: Path) -> str:
     """Extract native PDF text for trust classification."""
     try:
         result = subprocess.run(
-            ["pdftotext", "-layout", str(pdf_path), "-"],
+            confined(["pdftotext", "-layout", os.path.abspath(pdf_path), "-"], read=[pdf_path]),
             check=False,
             capture_output=True,
             text=True,
@@ -531,11 +533,12 @@ class PDFImageExtractor:
         cmd = ["pdfimages"]
         if page_range:
             cmd.extend(["-f", str(start_page), "-l", str(end_page)])
-        cmd.extend(["-all", str(pdf_path), str(output_dir / "obj")])
+        output_dir = Path(os.path.abspath(output_dir))
+        cmd.extend(["-all", os.path.abspath(pdf_path), str(output_dir / "obj")])
 
         try:
             subprocess.run(
-                cmd,
+                confined(cmd, read=[pdf_path], write=[output_dir]),
                 check=True,
                 capture_output=True,
                 text=True,
@@ -651,7 +654,7 @@ class PDFImageExtractor:
                     f"{preferred_dpi} -> {render_dpi} to stay under "
                     f"{self.max_render_megapixels:.1f} MP"
                 )
-            prefix = str(output_dir / f"render_{page_num}")
+            prefix = os.path.join(os.path.abspath(output_dir), f"render_{page_num}")
             cmd = [
                 "pdftoppm",
                 "-f",
@@ -662,12 +665,12 @@ class PDFImageExtractor:
                 str(render_dpi),
                 "-png",
                 "-singlefile",
-                str(pdf_path),
+                os.path.abspath(pdf_path),
                 prefix,
             ]
             try:
                 subprocess.run(
-                    cmd,
+                    confined(cmd, read=[pdf_path], write=[output_dir]),
                     check=True,
                     capture_output=True,
                     text=True,
@@ -680,7 +683,7 @@ class PDFImageExtractor:
                 return page_num, None
 
             rendered = Path(f"{prefix}.png")
-            if rendered.exists():
+            if is_regular_file(rendered):
                 dest = output_dir / f"page_{page_num}.png"
                 rendered.rename(dest)
                 logger.info(f"Page {page_num}: rendered via pdftoppm ({dest.name})")
@@ -722,10 +725,10 @@ class PDFImageExtractor:
         cmd = ["pdfimages", "-list"]
         if page_range:
             cmd.extend(["-f", str(page_range[0]), "-l", str(page_range[1])])
-        cmd.append(str(pdf_path))
+        cmd.append(os.path.abspath(pdf_path))
         try:
             result = subprocess.run(
-                cmd,
+                confined(cmd, read=[pdf_path]),
                 check=True,
                 capture_output=True,
                 text=True,
@@ -750,9 +753,8 @@ class PDFImageExtractor:
         return mapping, masked_pages
 
     def _find_file_for_index(self, output_dir: Path, idx: int) -> Path | None:
-        pattern = f"obj-{idx:03d}.*"
-        matches = list(output_dir.glob(pattern))
-        if not matches:
-            pattern = f"obj-{idx:04d}.*"
-            matches = list(output_dir.glob(pattern))
-        return matches[0] if matches else None
+        for pattern in (f"obj-{idx:03d}.*", f"obj-{idx:04d}.*"):
+            matches = [path for path in output_dir.glob(pattern) if is_regular_file(path)]
+            if matches:
+                return matches[0]
+        return None

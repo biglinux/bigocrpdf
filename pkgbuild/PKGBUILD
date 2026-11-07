@@ -21,8 +21,8 @@ depends=(
 	'python-pillow'
 	'python-reportlab'
 	'poppler'
-	# Poppler GObject bindings for the editor's page thumbnails
-	'poppler-glib'
+	# The sandbox the Poppler tools read untrusted PDFs in
+	'bubblewrap'
 	# Image processing
 	'python-opencv'
 	'python-numpy'

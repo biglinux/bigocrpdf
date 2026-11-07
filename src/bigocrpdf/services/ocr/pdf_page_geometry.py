@@ -17,7 +17,7 @@ from bigocrpdf.services.ocr.resource_manager import (
     select_render_dpi_for_page,
 )
 from bigocrpdf.utils.logger import logger
-from bigocrpdf.utils.pdf_utils import open_image
+from bigocrpdf.utils.pdf_utils import confined, is_regular_file, open_image
 
 
 def render_pdf_page_to_ppm(
@@ -25,9 +25,10 @@ def render_pdf_page_to_ppm(
     page_num: int,
     dpi: int = 300,
     *,
-    output_dir: Path | str | None = None,
+    output_dir: Path | str,
 ) -> str | None:
-    """Render one composited PDF page to an owned temporary PPM."""
+    """Render one composited PDF page to an owned temporary PPM in
+    ``output_dir``, the only directory the confined pdftoppm may write."""
     fd, prefix = tempfile.mkstemp(
         suffix="",
         prefix=f"bigocr_render_{page_num}_",
@@ -45,12 +46,12 @@ def render_pdf_page_to_ppm(
         "-r",
         str(dpi),
         "-singlefile",
-        str(pdf_path),
-        prefix,
+        os.path.abspath(pdf_path),
+        os.path.abspath(prefix),
     ]
     try:
         subprocess.run(
-            command,
+            confined(command, read=[pdf_path], write=[os.path.dirname(os.path.abspath(prefix))]),
             check=True,
             capture_output=True,
             text=True,
@@ -62,7 +63,7 @@ def render_pdf_page_to_ppm(
         rendered.unlink(missing_ok=True)
         logger.warning("pdftoppm render failed for page %d: %s", page_num, error)
         return None
-    return str(rendered) if rendered.is_file() else None
+    return str(rendered) if is_regular_file(rendered) else None
 
 
 def render_page_for_ocr(
@@ -70,7 +71,7 @@ def render_page_for_ocr(
     page_num: int,
     preferred_dpi: int,
     max_megapixels: float,
-    output_dir: Path | str | None = None,
+    output_dir: Path | str,
     page_size: tuple[float, float] | None = None,
 ) -> str | None:
     """Render a page at ``preferred_dpi``, or lower when that would pass ``max_megapixels``.
@@ -220,11 +221,16 @@ def get_page_image_encodings(
     cmd = ["pdfimages", "-list"]
     if page_range:
         cmd.extend(["-f", str(page_range[0]), "-l", str(page_range[1])])
-    cmd.append(str(pdf_path))
+    cmd.append(os.path.abspath(pdf_path))
 
     try:
         result = subprocess.run(
-            cmd, check=True, capture_output=True, text=True, encoding="utf-8", timeout=30
+            confined(cmd, read=[pdf_path]),
+            check=True,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=30,
         )
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
         return {}

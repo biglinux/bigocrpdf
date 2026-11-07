@@ -159,6 +159,7 @@ def test_fresh_render_keeps_its_coordinates(tmp_path: Path, monkeypatch):
         [{"rotation": 0, "mediabox": [0, 0, 595, 842], "image_rect": None}],
         input_pdf=tmp_path / "in.pdf",
         masked_pages={1},
+        scratch_dir=tmp_path,
     )
 
     assert result["ocr_raw"]["boxes"] == [box]
