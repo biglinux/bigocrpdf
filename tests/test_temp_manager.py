@@ -151,3 +151,48 @@ def test_staging_sweep_removes_only_dead_runs_of_this_user(tmp_path: Path) -> No
         document.name,
         Path(staging).name,
     }
+
+
+_LATE_SIGTERM = """
+import sys, threading, time
+from bigocrpdf import run_quitting_on_termination
+from bigocrpdf.utils.temp_manager import track_file
+
+open(sys.argv[1], "w").close()
+track_file(sys.argv[1])
+
+
+class App:
+    def run(self, argv):
+        return 0
+
+
+# A job's thread still finishing after the window closed.
+threading.Thread(target=time.sleep, args=(30,)).start()
+run_quitting_on_termination(App())
+print("closed", flush=True)
+"""
+
+
+def test_sigterm_after_close_removes_tracked_files(tmp_path: Path) -> None:
+    import signal
+    import subprocess
+    import sys
+
+    tracked = tmp_path / "clipboard.tiff"
+    env = {**os.environ, "PYTHONPATH": str(Path(__file__).parents[1] / "src")}
+    gui = subprocess.Popen(
+        [sys.executable, "-c", _LATE_SIGTERM, str(tracked)],
+        stdout=subprocess.PIPE,
+        text=True,
+        env=env,
+    )
+    try:
+        assert gui.stdout is not None
+        assert gui.stdout.readline() == "closed\n"
+        gui.send_signal(signal.SIGTERM)
+        assert gui.wait(timeout=10) == -signal.SIGTERM
+    finally:
+        gui.kill()
+        gui.wait()
+    assert not tracked.exists()

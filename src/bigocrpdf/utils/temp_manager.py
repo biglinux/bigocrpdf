@@ -32,7 +32,8 @@ _run_cache_dir: Path | None = None
 
 def _register_cleanup() -> None:
     """Register the exit cleanup exactly once. SIGTERM reaches it through
-    each entry point's own handler, which exits normally."""
+    each entry point's own handler, which exits normally or, once the GUI's
+    main loop has returned, calls ``cleanup_all`` itself."""
     global _cleanup_registered
     if not _cleanup_registered:
         _cleanup_registered = True

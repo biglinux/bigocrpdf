@@ -25,8 +25,9 @@ def run_quitting_on_termination(app: "Gio.Application") -> int:
     as closing its windows does, which cancels a running OCR job.
 
     Once the main loop has returned nothing would handle a second signal while
-    the interpreter waits for a job's thread to finish its cleanup, so both go
-    back to their default action then.
+    the interpreter waits for a job's thread to finish its cleanup, so either
+    signal then removes the temporary files this process tracks, which exit
+    handlers would have removed, and ends it with its default action.
     """
     import signal
 
@@ -51,6 +52,13 @@ def run_quitting_on_termination(app: "Gio.Application") -> int:
             action.activate(None)
         return GLib.SOURCE_CONTINUE
 
+    def end_now(signum: int, _frame: object) -> None:
+        from bigocrpdf.utils.temp_manager import cleanup_all
+
+        cleanup_all()
+        signal.signal(signum, signal.SIG_DFL)
+        os.kill(os.getpid(), signum)
+
     terminations = (signal.SIGTERM, signal.SIGHUP)
     for signum in terminations:
         signal_add(GLib.PRIORITY_DEFAULT, signum, quit_app)
@@ -58,7 +66,7 @@ def run_quitting_on_termination(app: "Gio.Application") -> int:
         return app.run(sys.argv)
     finally:
         for signum in terminations:
-            signal.signal(signum, signal.SIG_DFL)
+            signal.signal(signum, end_now)
 
 
 @dataclass(frozen=True)
