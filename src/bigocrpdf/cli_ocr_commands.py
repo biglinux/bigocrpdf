@@ -67,6 +67,7 @@ def _build_ocr_config(args: argparse.Namespace) -> "OCRConfig":
         image_export_format=args.image_format,
         image_export_quality=args.image_quality,
         detection_full_resolution=args.full_resolution,
+        use_gpu=args.gpu,
         # Behavior
         replace_existing_ocr=args.replace_existing_ocr,
         force_full_ocr=args.force_full_ocr,

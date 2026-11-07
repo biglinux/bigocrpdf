@@ -235,6 +235,8 @@ class SettingsSidebarMixin:
             parts.append(
                 ngettext("{n} option enabled", "{n} options enabled", active).format(n=active)
             )
+        if not self.use_gpu_switch.get_active():
+            parts.append(_("without the graphics card"))
         self._adv_row.set_subtitle(", ".join(parts) if parts else "")
 
     def _create_advanced_widgets(self) -> None:
@@ -259,10 +261,14 @@ class SettingsSidebarMixin:
         self._full_res_signal_connected = False
         self.full_resolution_switch = Adw.SwitchRow(title=_("Full Resolution Detection"))
 
+        self._use_gpu_signal_connected = False
+        self.use_gpu_switch = Adw.SwitchRow(title=_("Use the Graphics Card"))
+
         self._advanced_widgets: dict[str, Gtk.Widget] = {
             "ocr_precision": self.ocr_precision_combo,
             "replace_ocr": self.replace_ocr_switch,
             "full_resolution": self.full_resolution_switch,
+            "use_gpu": self.use_gpu_switch,
         }
 
         # Update subtitle when any widget changes
@@ -280,6 +286,7 @@ class SettingsSidebarMixin:
         self._load_max_size_setting()
         self._load_replace_ocr_setting()
         self._load_full_resolution_setting()
+        self._load_use_gpu_setting()
 
     def _on_folder_type_changed(self, combo, _param) -> None:
         """Handle folder type combo change."""
@@ -526,6 +533,18 @@ class SettingsSidebarMixin:
     def _on_full_resolution_changed(self, switch_row: Adw.SwitchRow, _pspec) -> None:
         """Handle full resolution detection toggle."""
         self.window.settings.detection_full_resolution = switch_row.get_active()
+        self.window.settings._save_all_settings()
+
+    def _load_use_gpu_setting(self) -> None:
+        """Load the graphics card setting from OcrSettings."""
+        self.use_gpu_switch.set_active(self.window.settings.use_gpu)
+        if not self._use_gpu_signal_connected:
+            self._use_gpu_signal_connected = True
+            self.use_gpu_switch.connect("notify::active", self._on_use_gpu_changed)
+
+    def _on_use_gpu_changed(self, switch_row: Adw.SwitchRow, _pspec) -> None:
+        """Handle the graphics card toggle."""
+        self.window.settings.use_gpu = switch_row.get_active()
         self.window.settings._save_all_settings()
 
     def _on_preprocessing_changed(self, switch_row: Adw.SwitchRow, _pspec) -> None:

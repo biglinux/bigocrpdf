@@ -699,6 +699,19 @@
         },
         {
           "choices": null,
+          "class": "BooleanOptionalAction",
+          "default": true,
+          "dest": "gpu",
+          "nargs": 0,
+          "options": [
+            "--gpu",
+            "--no-gpu"
+          ],
+          "required": false,
+          "type": null
+        },
+        {
+          "choices": null,
           "class": "_StoreTrueAction",
           "default": false,
           "dest": "no_dewarp",
@@ -1345,6 +1358,7 @@
         "enable_vintage_look": true,
         "scanner_effect_strength": 1.125,
         "text_score_threshold": 0.425,
+        "use_gpu": true,
         "vintage_bw": true
       },
       "text_extraction": {

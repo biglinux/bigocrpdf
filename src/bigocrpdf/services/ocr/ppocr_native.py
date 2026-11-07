@@ -111,6 +111,8 @@ def worker_command(config: OCRConfig, *, threads: int | None = None) -> list[str
         command.extend([flag, str(value)])
     if config.detection_full_resolution:
         command.append("--full-resolution")
+    if config.use_gpu:
+        command.append("--gpu")
     command.append("--persistent")
     return command
 
@@ -156,7 +158,8 @@ class Worker:
     request, or ``wait_ready``, waits for its ready line. A request waits at
     most ``REQUEST_TIMEOUT_SECONDS``, and returns at once when ``cancel_event``
     is set; either way the worker is killed. A request to a worker that has
-    exited starts a new one.
+    exited starts a new one, on the CPU when a ``--gpu`` worker died by a
+    signal or before its ready line, as a failing graphics driver makes it.
     """
 
     def __init__(
@@ -170,13 +173,21 @@ class Worker:
 
     def _start(self) -> subprocess.Popen:
         logger.debug(f"Starting {' '.join(self._command)}")
+        self._output_closed = False
         return subprocess.Popen(self._command, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
     def wait_ready(self) -> int:
         """Wait for the models to load and return the kernel tier the worker
         runs: 3 is AVX2 with FMA, 2 AVX, 1 SSE4.1, 0 plain code."""
         if self.tier is None:
-            ready = self._read()
+            try:
+                ready = self._read()
+            except RuntimeError:
+                if not self._fall_back_to_cpu():
+                    raise
+                self._release_pipes()
+                self._proc = self._start()
+                ready = self._read()
             tier = ready.get("tier")
             if ready.get("ready") is not True:
                 self.close()
@@ -217,6 +228,7 @@ class Worker:
                 if isinstance(exc, (InterruptedError, TimeoutError)):
                     raise
                 logger.warning(f"{WORKER} failed on {image_path}, starting it again: {exc}")
+                self._fall_back_to_cpu()
                 self.kill()
                 reply = self.request(image_path)
         except InterruptedError:
@@ -247,6 +259,7 @@ class Worker:
                 continue
             chunk = os.read(fd, 1 << 16)
             if not chunk:
+                self._output_closed = True
                 raise RuntimeError(f"{WORKER} exited")
             line += chunk
             if len(line) > _MAX_REPLY_BYTES:
@@ -256,6 +269,23 @@ class Worker:
 
     def exited(self) -> bool:
         return self._proc.poll() is not None
+
+    def _fall_back_to_cpu(self) -> bool:
+        """Drop ``--gpu`` from the command when the worker died by a signal,
+        or at all before its ready line, and say whether it did."""
+        if "--gpu" not in self._command or not self._output_closed:
+            return False
+        # Its output closes a moment before its exit status is ready.
+        try:
+            code = self._proc.wait(timeout=1)
+        except subprocess.TimeoutExpired:
+            return False
+        if code >= 0 and self.tier is not None:
+            return False
+        logger.warning(f"{WORKER} ended with status {code} on the GPU; reading on the CPU now")
+        self._command = [arg for arg in self._command if arg != "--gpu"]
+        self.tier = None
+        return True
 
     def kill(self) -> None:
         """Stop the worker now; the next request starts a new one."""

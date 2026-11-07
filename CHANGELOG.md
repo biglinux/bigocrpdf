@@ -4,6 +4,7 @@ All notable user-visible and release-engineering changes are documented here.
 
 ## Unreleased
 
+- Read text on the graphics card by default, through Vulkan, and on the processor when there is no usable one. A 10-page 300 dpi scan takes 6.9 s instead of 11.8 s on a Core i5-13400 with a GeForce GTX 1660 Ti, with the same text. Turning off Use the Graphics Card in the advanced settings, or passing `bigocrpdf-cli ocr --no-gpu`, keeps OCR on the processor, and a worker that crashes on the graphics card is started again on the processor. Needs ppocr-native 26.11.06-1615 or newer.
 - Keep scanned pages the way the PDF shows them when it draws the page image turned or mirrored, also from inside a form XObject. Such pages came out upside down or mirrored after OCR.
 - OCR PDFs that hold an image over 128 MP instead of refusing the whole document. The page with that image is read from a render within the 45 MP render budget, and the text is laid over the original image, which is kept as is and gets no geometric correction.
 

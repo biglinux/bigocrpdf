@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 
 from bigocrpdf.config import APP_VERSION
+from bigocrpdf.services.ocr.config import DEFAULT_DETECTION_FULL_RESOLUTION, DEFAULT_USE_GPU
 from bigocrpdf.utils.i18n import _
 
 
@@ -126,15 +127,23 @@ def _add_ocr_behavior_options(ocr_parser: argparse.ArgumentParser) -> None:
     behavior.add_argument(
         "--full-resolution",
         action=argparse.BooleanOptionalAction,
-        # Spelled out rather than imported: importing the OCR configuration here
-        # would pull cv2, numpy, pikepdf and reportlab into every CLI start,
-        # --help included. A test pins this to DEFAULT_DETECTION_FULL_RESOLUTION.
-        default=False,
+        default=DEFAULT_DETECTION_FULL_RESOLUTION,
         # The settings switch's description, so both read the same.
         help=_(
             "Analyzes the image at full resolution for text detection. Finds more text in "
             "high-resolution scans but takes longer. The faster mode is good enough for "
             "most documents."
+        ),
+    )
+    behavior.add_argument(
+        "--gpu",
+        action=argparse.BooleanOptionalAction,
+        default=DEFAULT_USE_GPU,
+        # The settings switch's description, so both read the same.
+        help=_(
+            "Runs text recognition on the graphics card when the computer has one, which "
+            "is faster and leaves the processor free. Turn it off if the graphics driver "
+            "causes problems."
         ),
     )
 

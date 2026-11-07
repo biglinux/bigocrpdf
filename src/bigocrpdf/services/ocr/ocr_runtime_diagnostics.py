@@ -32,6 +32,7 @@ def record_ocr_runtime_diagnostics(
         "kernel_tier": kernel_tier,
         "detection_limit_side_len": config.detection_limit_side_len,
         "detection_full_resolution": config.detection_full_resolution,
+        "use_gpu": config.use_gpu,
         "box_thresh": config.box_thresh,
         "unclip_ratio": config.unclip_ratio,
         "text_score_threshold": config.text_score_threshold,

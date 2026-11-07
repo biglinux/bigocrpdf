@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bigocrpdf 4.0.0\n"
 "Report-Msgid-Bugs-To: biglinux@biglinux.com.br\n"
-"POT-Creation-Date: 2026-10-13 03:32-0300\n"
+"POT-Creation-Date: 2026-11-06 21:25-0300\n"
 "PO-Revision-Date: 2026-10-03 09:30+0000\n"
 "Last-Translator: BigLinux Translation Team <biglinux@biglinux.com.br>\n"
 "Language-Team: Bulgarian\n"
@@ -27,7 +27,7 @@ msgstr ""
 "OCR механизмът {worker} не е инсталиран или файловете на модела му липсват в "
 "{path}."
 
-#: src/bigocrpdf/application.py:54 src/bigocrpdf/cli_parser.py:72
+#: src/bigocrpdf/application.py:54 src/bigocrpdf/cli_parser.py:73
 #: src/bigocrpdf/config.py:84 src/bigocrpdf/image_application.py:50
 msgid "Print version information and exit"
 msgstr "Покажи информация за версията и излез"
@@ -87,7 +87,7 @@ msgstr[1] "Отворени са {count} файла"
 msgid "Error opening files"
 msgstr "Грешка при отваряне на файловете"
 
-#: src/bigocrpdf/application.py:434 src/bigocrpdf/services/settings.py:504
+#: src/bigocrpdf/application.py:434 src/bigocrpdf/services/settings.py:508
 #, python-brace-format
 msgid "Unsupported file type: {0}"
 msgstr "Неподдържан тип файл: {0}"
@@ -199,64 +199,64 @@ msgstr "Разработчици"
 msgid "Powered by"
 msgstr "Използвани технологии"
 
-#: src/bigocrpdf/cli_parser.py:74
+#: src/bigocrpdf/cli_parser.py:75
 msgid "Verbose logging (DEBUG)"
 msgstr "Подробно журналиране (DEBUG)"
 
-#: src/bigocrpdf/cli_parser.py:75
+#: src/bigocrpdf/cli_parser.py:76
 msgid "Available commands"
 msgstr "Налични команди"
 
-#: src/bigocrpdf/cli_parser.py:84
+#: src/bigocrpdf/cli_parser.py:85
 msgid "OCR processing for PDF files"
 msgstr "OCR обработка на PDF файлове"
 
-#: src/bigocrpdf/cli_parser.py:85 src/bigocrpdf/cli_parser.py:249
-#: src/bigocrpdf/cli_parser.py:254 src/bigocrpdf/cli_parser.py:279
-#: src/bigocrpdf/cli_parser.py:301 src/bigocrpdf/cli_parser.py:322
-#: src/bigocrpdf/cli_parser.py:333 src/bigocrpdf/cli_parser.py:373
+#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:258
+#: src/bigocrpdf/cli_parser.py:263 src/bigocrpdf/cli_parser.py:288
+#: src/bigocrpdf/cli_parser.py:310 src/bigocrpdf/cli_parser.py:331
+#: src/bigocrpdf/cli_parser.py:342 src/bigocrpdf/cli_parser.py:382
 msgid "Input PDF file"
 msgstr "Входен PDF файл"
 
-#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:274
-#: src/bigocrpdf/cli_parser.py:281 src/bigocrpdf/cli_parser.py:303
-#: src/bigocrpdf/cli_parser.py:324 src/bigocrpdf/cli_parser.py:335
-#: src/bigocrpdf/cli_parser.py:346 src/bigocrpdf/cli_parser.py:375
+#: src/bigocrpdf/cli_parser.py:87 src/bigocrpdf/cli_parser.py:283
+#: src/bigocrpdf/cli_parser.py:290 src/bigocrpdf/cli_parser.py:312
+#: src/bigocrpdf/cli_parser.py:333 src/bigocrpdf/cli_parser.py:344
+#: src/bigocrpdf/cli_parser.py:355 src/bigocrpdf/cli_parser.py:384
 msgid "Output PDF file"
 msgstr "Изходен PDF файл"
 
-#: src/bigocrpdf/cli_parser.py:91
+#: src/bigocrpdf/cli_parser.py:92
 msgid "Pages to process (e.g. '7', '3-10', '1,3,7'). Default: all."
 msgstr ""
 "Страници за обработка (напр. '7', '3-10', '1,3,7'). По подразбиране: всички."
 
-#: src/bigocrpdf/cli_parser.py:94
+#: src/bigocrpdf/cli_parser.py:95
 msgid "Parallel workers (0 = auto). Default: 0."
 msgstr "Паралелни процеси (0 = авто). По подразбиране: 0."
 
-#: src/bigocrpdf/cli_parser.py:97
+#: src/bigocrpdf/cli_parser.py:98
 msgid "DPI for extraction (default: 300)"
 msgstr "DPI за извличане (по подразбиране: 300)"
 
-#: src/bigocrpdf/cli_parser.py:107
+#: src/bigocrpdf/cli_parser.py:108
 msgid "OCR behavior"
 msgstr "Поведение на OCR"
 
-#: src/bigocrpdf/cli_parser.py:112
+#: src/bigocrpdf/cli_parser.py:113
 msgid "Re-OCR pages that already have text (default: skip them)."
 msgstr "Повторен OCR на страници с текст (по подразбиране: пропускане)."
 
-#: src/bigocrpdf/cli_parser.py:118
+#: src/bigocrpdf/cli_parser.py:119
 msgid "Process all pages as image-only (for editor-merged files)."
 msgstr ""
 "Обработка на всички страници като изображения (за файлове обединени в "
 "редактора)."
 
-#: src/bigocrpdf/cli_parser.py:124
+#: src/bigocrpdf/cli_parser.py:125
 msgid "PDF text handling mode (default: auto)."
 msgstr "PDF режим на работа с текст (по подразбиране: auto)."
 
-#: src/bigocrpdf/cli_parser.py:135 src/bigocrpdf/ui/advanced_dialog.py:49
+#: src/bigocrpdf/cli_parser.py:133 src/bigocrpdf/ui/advanced_dialog.py:49
 msgid ""
 "Analyzes the image at full resolution for text detection. Finds more text in "
 "high-resolution scans but takes longer. The faster mode is good enough for "
@@ -266,90 +266,100 @@ msgstr ""
 "повече текст в сканирания с висока резолюция, но отнема повече време. "
 "Бързият режим е достатъчен за повечето документи."
 
-#: src/bigocrpdf/cli_parser.py:143
+#: src/bigocrpdf/cli_parser.py:144 src/bigocrpdf/ui/advanced_dialog.py:60
+msgid ""
+"Runs text recognition on the graphics card when the computer has one, which "
+"is faster and leaves the processor free. Turn it off if the graphics driver "
+"causes problems."
+msgstr ""
+"Разпознава текста с графичната карта, когато компютърът има такава, което е "
+"по-бързо и оставя процесора свободен. Изключете, ако графичният драйвер "
+"създава проблеми."
+
+#: src/bigocrpdf/cli_parser.py:152
 msgid "Geometric corrections"
 msgstr "Геометрични корекции"
 
-#: src/bigocrpdf/cli_parser.py:145
+#: src/bigocrpdf/cli_parser.py:154
 msgid "Disable curvature correction"
 msgstr "Изключване на корекция на кривина"
 
-#: src/bigocrpdf/cli_parser.py:147
+#: src/bigocrpdf/cli_parser.py:156
 msgid "Disable skew correction"
 msgstr "Изключване на корекция на наклон"
 
-#: src/bigocrpdf/cli_parser.py:149
+#: src/bigocrpdf/cli_parser.py:158
 msgid "Disable perspective correction"
 msgstr "Изключване на корекция на перспектива"
 
-#: src/bigocrpdf/cli_parser.py:152
+#: src/bigocrpdf/cli_parser.py:161
 msgid "Disable orientation detection"
 msgstr "Изключване на разпознаване на ориентация"
 
-#: src/bigocrpdf/cli_parser.py:157
+#: src/bigocrpdf/cli_parser.py:166
 msgid "Image enhancements"
 msgstr "Подобрения на изображението"
 
-#: src/bigocrpdf/cli_parser.py:162
+#: src/bigocrpdf/cli_parser.py:171
 msgid "Enable scanner effect (whitens background)."
 msgstr "Включване на скенер ефект (избелва фона)."
 
-#: src/bigocrpdf/cli_parser.py:164
+#: src/bigocrpdf/cli_parser.py:173
 msgid "Disable scanner effect."
 msgstr "Изключване на скенер ефект."
 
-#: src/bigocrpdf/cli_parser.py:165
+#: src/bigocrpdf/cli_parser.py:174
 msgid "Enable CLAHE contrast"
 msgstr "Включване на CLAHE контраст"
 
-#: src/bigocrpdf/cli_parser.py:166
+#: src/bigocrpdf/cli_parser.py:175
 msgid "Enable auto brightness"
 msgstr "Включване на автоматична яркост"
 
-#: src/bigocrpdf/cli_parser.py:167
+#: src/bigocrpdf/cli_parser.py:176
 msgid "Enable denoising"
 msgstr "Включване на шумопотискане"
 
-#: src/bigocrpdf/cli_parser.py:168
+#: src/bigocrpdf/cli_parser.py:177
 msgid "Remove dark borders"
 msgstr "Премахване на тъмни рамки"
 
-#: src/bigocrpdf/cli_parser.py:169
+#: src/bigocrpdf/cli_parser.py:178
 msgid "Enable vintage look (sepia/BW)."
 msgstr "Включване на ретро вид (сепия/ЧБ)."
 
-#: src/bigocrpdf/cli_parser.py:170
+#: src/bigocrpdf/cli_parser.py:179
 msgid "Vintage in black & white"
 msgstr "Ретро в черно-бяло"
 
-#: src/bigocrpdf/cli_parser.py:174 src/bigocrpdf/ui/settings_queue_mixin.py:304
+#: src/bigocrpdf/cli_parser.py:183 src/bigocrpdf/ui/settings_queue_mixin.py:304
 #: src/bigocrpdf/ui/settings_queue_mixin.py:306
 msgid "Output options"
 msgstr "Опции за изход"
 
-#: src/bigocrpdf/cli_parser.py:181
+#: src/bigocrpdf/cli_parser.py:190
 msgid "Convert output to PDF/A-2b (default)"
 msgstr "Конвертиране на изхода в PDF/A-2b (по подразбиране)"
 
-#: src/bigocrpdf/cli_parser.py:187
+#: src/bigocrpdf/cli_parser.py:196
 msgid "Create a regular PDF instead of PDF/A-2b"
 msgstr "Създаване на обикновен PDF вместо PDF/A-2b"
 
-#: src/bigocrpdf/cli_parser.py:194
+#: src/bigocrpdf/cli_parser.py:203
 msgid "Viewer page layout (/PageLayout) in output PDF. Default: default."
 msgstr ""
 "Оформление на страниците във визуализатора (/PageLayout) в изходния PDF. По "
 "подразбиране: default."
 
-#: src/bigocrpdf/cli_parser.py:201
+#: src/bigocrpdf/cli_parser.py:210
 msgid "Image format in output PDF. Default: original."
 msgstr "Формат на изображенията в изходния PDF. По подразбиране: original."
 
-#: src/bigocrpdf/cli_parser.py:208
+#: src/bigocrpdf/cli_parser.py:217
 msgid "Image quality for JPEG/WebP (1-95, default: 85)."
 msgstr "Качество на изображения за JPEG/WebP (1-95, по подразбиране: 85)."
 
-#: src/bigocrpdf/cli_parser.py:217
+#: src/bigocrpdf/cli_parser.py:226
 msgid ""
 "Also write structured OCR data (text, word boxes, confidence, layout) as "
 "JSON. Nothing is written without this option. If FILE is omitted, the name "
@@ -359,170 +369,170 @@ msgstr ""
 "оформление) като JSON. Без тази опция не се записва нищо. Ако FILE е "
 "пропуснат, името е изходният PDF с наставка .bigocr.json."
 
-#: src/bigocrpdf/cli_parser.py:225
+#: src/bigocrpdf/cli_parser.py:234
 msgid "Debugging"
 msgstr "Отстраняване на грешки"
 
-#: src/bigocrpdf/cli_parser.py:230
+#: src/bigocrpdf/cli_parser.py:239
 msgid "Save preprocessed images to this directory."
 msgstr "Запазване на предварително обработени изображения в тази директория."
 
-#: src/bigocrpdf/cli_parser.py:235
+#: src/bigocrpdf/cli_parser.py:244
 msgid "Only run preprocessing (dewarp/deskew), save images, skip OCR."
 msgstr ""
 "Само предварителна обработка (корекция на изкривяването/наклона), запазване "
 "на изображения и пропускане на OCR."
 
-#: src/bigocrpdf/cli_parser.py:248
+#: src/bigocrpdf/cli_parser.py:257
 msgid "Show PDF metadata and page count"
 msgstr "Показване на PDF метаданни и брой страници"
 
-#: src/bigocrpdf/cli_parser.py:253
+#: src/bigocrpdf/cli_parser.py:262
 msgid "Split PDF into smaller files"
 msgstr "Разделяне на PDF на по-малки файлове"
 
-#: src/bigocrpdf/cli_parser.py:256
+#: src/bigocrpdf/cli_parser.py:265
 msgid "Output directory"
 msgstr "Изходна директория"
 
-#: src/bigocrpdf/cli_parser.py:259
+#: src/bigocrpdf/cli_parser.py:268
 msgid "Split every N pages"
 msgstr "Разделяне на всеки N страници"
 
-#: src/bigocrpdf/cli_parser.py:261
+#: src/bigocrpdf/cli_parser.py:270
 msgid "Maximum file size per part in megabytes"
 msgstr "Максимален размер на файл за част в мегабайти"
 
-#: src/bigocrpdf/cli_parser.py:264
+#: src/bigocrpdf/cli_parser.py:273
 msgid "Explicit ranges (e.g. '1-5,6-10,11-15')"
 msgstr "Конкретни диапазони (напр. '1-5,6-10,11-15')"
 
-#: src/bigocrpdf/cli_parser.py:267
+#: src/bigocrpdf/cli_parser.py:276
 msgid "Filename prefix for output parts"
 msgstr "Префикс на файлово име за изходните части"
 
-#: src/bigocrpdf/cli_parser.py:272
+#: src/bigocrpdf/cli_parser.py:281
 msgid "Merge multiple PDFs into one"
 msgstr "Обединяване на няколко PDF в един"
 
-#: src/bigocrpdf/cli_parser.py:273
+#: src/bigocrpdf/cli_parser.py:282
 msgid "Input PDF files (in order)"
 msgstr "Входни PDF файлове (по ред)"
 
-#: src/bigocrpdf/cli_parser.py:278
+#: src/bigocrpdf/cli_parser.py:287
 msgid "Compress PDF to reduce file size"
 msgstr "Компресиране на PDF за намаляване на размера"
 
-#: src/bigocrpdf/cli_parser.py:288
+#: src/bigocrpdf/cli_parser.py:297
 msgid "JPEG quality for images (1-95, default: 60)"
 msgstr "JPEG качество за изображения (1-95, по подразбиране: 60)"
 
-#: src/bigocrpdf/cli_parser.py:295
+#: src/bigocrpdf/cli_parser.py:304
 msgid "Target DPI for images (default: 150)"
 msgstr "Целеви DPI за изображения (по подразбиране: 150)"
 
-#: src/bigocrpdf/cli_parser.py:300
+#: src/bigocrpdf/cli_parser.py:309
 msgid "Rotate pages in a PDF"
 msgstr "Завъртане на страници в PDF"
 
-#: src/bigocrpdf/cli_parser.py:310
+#: src/bigocrpdf/cli_parser.py:319
 msgid "Rotation angle in degrees (clockwise)"
 msgstr "Ъгъл на завъртане в градуси (по часовниковата стрелка)"
 
-#: src/bigocrpdf/cli_parser.py:316
+#: src/bigocrpdf/cli_parser.py:325
 msgid "Pages to rotate (e.g. '1,3,5' or '1-5'). Default: all."
 msgstr ""
 "Страници за завъртане (напр. '1,3,5' или '1-5'). По подразбиране: всички."
 
-#: src/bigocrpdf/cli_parser.py:321
+#: src/bigocrpdf/cli_parser.py:330
 msgid "Remove pages from a PDF"
 msgstr "Премахване на страници от PDF"
 
-#: src/bigocrpdf/cli_parser.py:327
+#: src/bigocrpdf/cli_parser.py:336
 msgid "Pages to delete (e.g. '3,5,7' or '2-4')"
 msgstr "Страници за изтриване (напр. '3,5,7' или '2-4')"
 
-#: src/bigocrpdf/cli_parser.py:332
+#: src/bigocrpdf/cli_parser.py:341
 msgid "Extract pages to a new PDF"
 msgstr "Извличане на страници в нов PDF"
 
-#: src/bigocrpdf/cli_parser.py:338
+#: src/bigocrpdf/cli_parser.py:347
 msgid "Pages to extract (e.g. '3-5' or '1,3,7')"
 msgstr "Страници за извличане (напр. '3-5' или '1,3,7')"
 
-#: src/bigocrpdf/cli_parser.py:343
+#: src/bigocrpdf/cli_parser.py:352
 msgid "Insert pages from another PDF"
 msgstr "Вмъкване на страници от друг PDF"
 
-#: src/bigocrpdf/cli_parser.py:344
+#: src/bigocrpdf/cli_parser.py:353
 msgid "Target PDF file"
 msgstr "Целеви PDF файл"
 
-#: src/bigocrpdf/cli_parser.py:354
+#: src/bigocrpdf/cli_parser.py:363
 msgid "PDF file to insert pages from"
 msgstr "PDF файл за вмъкване на страници от"
 
-#: src/bigocrpdf/cli_parser.py:361
+#: src/bigocrpdf/cli_parser.py:370
 msgid "Insert at this page position (1-indexed, 0 = append). Default: append."
 msgstr "Вмъкване на тази позиция (от 1, 0 = в края). По подразбиране: в края."
 
-#: src/bigocrpdf/cli_parser.py:367
+#: src/bigocrpdf/cli_parser.py:376
 msgid "Pages to insert from the source (e.g. '1-3'). Default: all."
 msgstr ""
 "Страници за вмъкване от източника (напр. '1-3'). По подразбиране: всички."
 
-#: src/bigocrpdf/cli_parser.py:372
+#: src/bigocrpdf/cli_parser.py:381
 msgid "Reorder or reverse pages"
 msgstr "Пренареждане или обръщане на страниците"
 
-#: src/bigocrpdf/cli_parser.py:379
+#: src/bigocrpdf/cli_parser.py:388
 msgid "New page order (e.g. '3,1,2,5,4')"
 msgstr "Нов ред на страниците (напр. '3,1,2,5,4')"
 
-#: src/bigocrpdf/cli_parser.py:381
+#: src/bigocrpdf/cli_parser.py:390
 msgid "Reverse the page order"
 msgstr "Обръщане на реда на страниците"
 
-#: src/bigocrpdf/cli_parser.py:385
+#: src/bigocrpdf/cli_parser.py:394
 msgid "Input PDF file (must have text layer)"
 msgstr "Входен PDF файл (трябва да има текстов слой)"
 
-#: src/bigocrpdf/cli_parser.py:389
+#: src/bigocrpdf/cli_parser.py:398
 msgid "Export OCR'd PDF as ODF document"
 msgstr "Експортиране на OCR PDF като ODF документ"
 
-#: src/bigocrpdf/cli_parser.py:391
+#: src/bigocrpdf/cli_parser.py:400
 msgid "Output ODF file (default: same name as input with .odt)"
 msgstr "Изходен ODF файл (по подразбиране: същото име с .odt)"
 
-#: src/bigocrpdf/cli_parser.py:396
+#: src/bigocrpdf/cli_parser.py:405
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:36
 #: src/bigocrpdf/ui/pdf_options_controller.py:233
 msgid "Preserve Text Layout"
 msgstr "Запазване на оформлението на текста"
 
-#: src/bigocrpdf/cli_parser.py:401
+#: src/bigocrpdf/cli_parser.py:410
 msgid "Export OCR'd PDF as formatted text"
 msgstr "Експортиране на OCR PDF като форматиран текст"
 
-#: src/bigocrpdf/cli_parser.py:403
+#: src/bigocrpdf/cli_parser.py:412
 msgid "Output text file (default: same name as input with .txt)"
 msgstr "Изходен текстов файл (по подразбиране: същото име с .txt)"
 
-#: src/bigocrpdf/cli_parser.py:408
+#: src/bigocrpdf/cli_parser.py:417
 msgid "Export OCR'd PDF as Markdown"
 msgstr "Експортиране на PDF, обработен с OCR, като Markdown"
 
-#: src/bigocrpdf/cli_parser.py:410
+#: src/bigocrpdf/cli_parser.py:419
 msgid "Output Markdown file (default: same name as input with .md)"
 msgstr "Изходен Markdown файл (по подразбиране: същото име като входа с .md)"
 
-#: src/bigocrpdf/cli_parser.py:415
+#: src/bigocrpdf/cli_parser.py:424
 msgid "Prepend YAML front-matter (title, source, page count, date)."
 msgstr ""
 "Добавяне на YAML заглавна част (заглавие, източник, брой страници, дата)."
 
-#: src/bigocrpdf/cli_parser.py:435
+#: src/bigocrpdf/cli_parser.py:444
 msgid ""
 "Export from structured OCR JSON written earlier by 'ocr --sidecar-json', "
 "instead of reading the PDF text layer."
@@ -530,11 +540,11 @@ msgstr ""
 "Изнася от структурирания OCR JSON, записан по-рано от „ocr --sidecar-json“, "
 "вместо да чете текстовия слой на PDF."
 
-#: src/bigocrpdf/cli_parser.py:443
+#: src/bigocrpdf/cli_parser.py:452
 msgid "Open interactive GUI editor"
 msgstr "Отваряне на интерактивен графичен редактор"
 
-#: src/bigocrpdf/cli_parser.py:444
+#: src/bigocrpdf/cli_parser.py:453
 msgid "PDF file to edit"
 msgstr "PDF файл за редактиране"
 
@@ -663,7 +673,7 @@ msgstr "Извлеченият текст е запазен в: {0}"
 msgid "Failed to save text file: {0}"
 msgstr "Неуспешно запазване на текстов файл: {0}"
 
-#: src/bigocrpdf/services/ocr/backend.py:135
+#: src/bigocrpdf/services/ocr/backend.py:133
 #, python-brace-format
 msgid "Page {pages} could not be read: {cause}"
 msgid_plural "Pages {pages} could not be read: {cause}"
@@ -677,7 +687,7 @@ msgid "Processing page {0}/{1}..."
 msgstr "Обработка на страница {0}/{1}..."
 
 #: src/bigocrpdf/services/ocr/backend_pipeline.py:150
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:295
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:290
 msgid "Done!"
 msgstr "Готово!"
 
@@ -685,31 +695,31 @@ msgstr "Готово!"
 msgid "Analyzing PDF..."
 msgstr "Анализиране на PDF..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:233
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:236
 msgid "Merging text layer..."
 msgstr "Сливане на текстовия слой..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:283
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:286
 msgid "Processing text page images..."
 msgstr "Обработка на текстови изображения на страници…"
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:301
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:304
 msgid "Optimizing image compression..."
 msgstr "Оптимизиране на компресията на изображения..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:314
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:317
 #, python-brace-format
 msgid "{count} page re-encoded with JBIG2"
 msgid_plural "{count} pages re-encoded with JBIG2"
 msgstr[0] "{count} страница, прекодирана с JBIG2"
 msgstr[1] "{count} страници, прекодирани с JBIG2"
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:344
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:347
 msgid "Converting to PDF/A..."
 msgstr "Конвертиране в PDF/A..."
 
-#: src/bigocrpdf/services/ocr/backend_pipeline.py:369
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:593
+#: src/bigocrpdf/services/ocr/backend_pipeline.py:372
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:588
 msgid "Splitting PDF by size limit..."
 msgstr "Разделяне на PDF по ограничение на размера..."
 
@@ -717,7 +727,7 @@ msgstr "Разделяне на PDF по ограничение на разме�
 msgid "Starting OCR..."
 msgstr "Започване на OCR..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:101
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:100
 #, python-brace-format
 msgid ""
 "Page {page} already has an OCR text layer and was left unchanged. Enable "
@@ -726,29 +736,29 @@ msgstr ""
 "Страница {page} вече има OCR текстов слой и беше оставена без промени. "
 "Активирайте „Замени съществуващия OCR“, за да я обработите отново."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:150
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:149
 msgid "Extracting images..."
 msgstr "Извличане на изображения..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:181
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:180
 msgid "Analyzing PDF structure..."
 msgstr "Анализиране на структурата на PDF..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:270
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:265
 msgid "Saving PDF..."
 msgstr "Записване на PDF..."
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:376
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:371
 #, python-brace-format
 msgid "OCR page {0}..."
 msgstr "OCR на страница {0}…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:518
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:513
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "OCR на страница {0} (рендирана)…"
 
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:533
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:528
 msgid "the page could not be rendered"
 msgstr "страницата не може да бъде изобразена"
 
@@ -931,77 +941,77 @@ msgid "Image file changed while it was being read. Please try again."
 msgstr ""
 "Файлът с изображение беше променен по време на четенето. Опитайте отново."
 
-#: src/bigocrpdf/services/settings.py:299
+#: src/bigocrpdf/services/settings.py:303
 #, python-brace-format
 msgid "Attempting to add {count} file"
 msgid_plural "Attempting to add {count} files"
 msgstr[0] "Опит за добавяне на {count} файл"
 msgstr[1] "Опит за добавяне на {count} файла"
 
-#: src/bigocrpdf/services/settings.py:321
+#: src/bigocrpdf/services/settings.py:325
 #, python-brace-format
 msgid "Successfully added {count} file"
 msgid_plural "Successfully added {count} files"
 msgstr[0] "Успешно добавен {count} файл"
 msgstr[1] "Успешно добавени {count} файла"
 
-#: src/bigocrpdf/services/settings.py:327
+#: src/bigocrpdf/services/settings.py:331
 msgid "No valid files were found to add"
 msgstr "Не бяха намерени валидни файлове за добавяне."
 
-#: src/bigocrpdf/services/settings.py:483
+#: src/bigocrpdf/services/settings.py:487
 msgid "Empty file path provided"
 msgstr "Предоставен е празен път до файл."
 
-#: src/bigocrpdf/services/settings.py:488
+#: src/bigocrpdf/services/settings.py:492
 #, python-brace-format
 msgid "File does not exist: {0}"
 msgstr "Файлът не съществува: {0}"
 
-#: src/bigocrpdf/services/settings.py:510
+#: src/bigocrpdf/services/settings.py:514
 #, python-brace-format
 msgid "File already in list: {0}"
 msgstr "Файлът вече е в списъка: {0}"
 
-#: src/bigocrpdf/services/settings.py:514
+#: src/bigocrpdf/services/settings.py:518
 #, python-brace-format
 msgid "Adding valid file: {0}"
 msgstr "Добавяне на валиден файл: {0}"
 
-#: src/bigocrpdf/services/settings.py:538
+#: src/bigocrpdf/services/settings.py:542
 msgid "Settings saved successfully"
 msgstr "Настройките бяха запазени успешно."
 
-#: src/bigocrpdf/services/settings.py:541
+#: src/bigocrpdf/services/settings.py:545
 #: src/bigocrpdf/ui/settings_reset_controller.py:65
 #, python-brace-format
 msgid "Error saving settings: {0}"
 msgstr "Грешка при запазване на настройките: {0}"
 
-#: src/bigocrpdf/services/settings.py:642
+#: src/bigocrpdf/services/settings.py:646
 #, python-brace-format
 msgid "Saved {count} selected file"
 msgid_plural "Saved {count} selected files"
 msgstr[0] "Запазен е {count} избран файл"
 msgstr[1] "Запазени са {count} избрани файла"
 
-#: src/bigocrpdf/services/settings.py:648
+#: src/bigocrpdf/services/settings.py:652
 #, python-brace-format
 msgid "Error saving selected files: {0}"
 msgstr "Грешка при запазване на избраните файлове: {0}"
 
-#: src/bigocrpdf/services/settings.py:696
+#: src/bigocrpdf/services/settings.py:700
 #, python-brace-format
 msgid "Error loading selected files: {0}"
 msgstr "Грешка при зареждане на избраните файлове: {0}"
 
-#: src/bigocrpdf/services/settings.py:745
+#: src/bigocrpdf/services/settings.py:749
 msgid "Processing state reset successfully"
 msgstr "Състоянието на обработката е нулирано."
 
 #: src/bigocrpdf/ui/advanced_dialog.py:25
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:245
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:246
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:247
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:248
 msgid "OCR Precision"
 msgstr "Точност на OCR"
 
@@ -1016,7 +1026,7 @@ msgstr ""
 "прецизност прави по-малко грешки, но може да пропусне слаб текст."
 
 #: src/bigocrpdf/ui/advanced_dialog.py:36
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:257
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:259
 msgid "Replace Existing OCR"
 msgstr "Замени съществуващия OCR"
 
@@ -1031,16 +1041,21 @@ msgstr ""
 "ниско качество."
 
 #: src/bigocrpdf/ui/advanced_dialog.py:47
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:260
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:262
 msgid "Full Resolution Detection"
 msgstr "Откриване в пълна резолюция"
 
-#: src/bigocrpdf/ui/advanced_dialog.py:68
+#: src/bigocrpdf/ui/advanced_dialog.py:58
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:265
+msgid "Use the Graphics Card"
+msgstr "Използвай графичната карта"
+
+#: src/bigocrpdf/ui/advanced_dialog.py:79
 #: src/bigocrpdf/ui/settings_sidebar_mixin.py:63
 msgid "Advanced"
 msgstr "Разширени"
 
-#: src/bigocrpdf/ui/advanced_dialog.py:88
+#: src/bigocrpdf/ui/advanced_dialog.py:99
 msgid ""
 "Fine-tune how OCR text recognition works. The default settings work well for "
 "most documents."
@@ -2961,19 +2976,23 @@ msgid_plural "{n} options enabled"
 msgstr[0] "{n} опция е включена"
 msgstr[1] "{n} опции са включени"
 
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:249
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:239
+msgid "without the graphics card"
+msgstr "без графичната карта"
+
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:251
 msgid "Low Precision"
 msgstr "Ниска точност"
 
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:250
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:252
 msgid "Standard"
 msgstr "Стандартна"
 
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:251
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:253
 msgid "Precise"
 msgstr "Точна"
 
-#: src/bigocrpdf/ui/settings_sidebar_mixin.py:252
+#: src/bigocrpdf/ui/settings_sidebar_mixin.py:254
 msgid "Very Precise"
 msgstr "Много точна"
 

@@ -35,10 +35,12 @@ def test_worker_command_carries_the_configuration(monkeypatch: pytest.MonkeyPatc
         "--limit-side-len",
         "4096",
         "--full-resolution",
+        "--gpu",
         "--persistent",
     ]
     assert ppocr_native.worker_command(config, threads=16)[1:3] == ["--threads", "8"]
     assert ppocr_native.worker_command(config)[1:3] == ["--threads", "8"]
+    assert "--gpu" not in ppocr_native.worker_command(OCRConfig(use_gpu=False), threads=6)
 
 
 def test_missing_worker_is_reported() -> None:
@@ -170,6 +172,37 @@ def test_worker_dying_twice_fails_the_page(tmp_path: Path) -> None:
     try:
         with pytest.raises(ppocr_native.ReadError, match="exited"):
             worker.recognize("/tmp/page.ppm")
+    finally:
+        worker.close()
+
+
+def _gpu_crashing_worker(tmp_path: Path, crash_before_ready: bool) -> str:
+    """A worker that kills itself with SIGSEGV when started with ``--gpu``,
+    before or after its ready line, and reads normally without it."""
+    crash = "kill -SEGV $$"
+    body = f"while read -r _; do echo '{json.dumps(_PAGE)}'; done"
+    script = (
+        "#!/bin/sh\n"
+        'case " $* " in *" --gpu "*) gpu=1;; esac\n'
+        + (f'[ -n "$gpu" ] && {crash}\n' if crash_before_ready else "")
+        + 'echo \'{"ready": true, "tier": 3}\'\n'
+        + (f'[ -n "$gpu" ] && {{ read -r _; {crash}; }}\n' if not crash_before_ready else "")
+        + body
+        + "\n"
+    )
+    worker = tmp_path / ppocr_native.WORKER
+    worker.write_text(script, encoding="utf-8")
+    worker.chmod(0o755)
+    return str(worker)
+
+
+@pytest.mark.parametrize("crash_before_ready", [True, False])
+def test_crashing_gpu_worker_reads_on_cpu(tmp_path: Path, crash_before_ready: bool) -> None:
+    worker = ppocr_native.Worker([_gpu_crashing_worker(tmp_path, crash_before_ready), "--gpu"])
+    try:
+        assert worker.recognize("/tmp/page.ppm") == _PAGE
+        assert worker.recognize("/tmp/page.ppm") == _PAGE
+        assert "--gpu" not in worker._command
     finally:
         worker.close()
 

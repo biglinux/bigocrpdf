@@ -49,12 +49,18 @@ executable and the plans in `PPOCR_NATIVE_PLANS` (default
 `/usr/share/ppocr-native`), builds the worker's command line, and holds the one
 client of the worker's stdin/stdout JSON-lines protocol: `Worker` for a job's
 persistent OCR worker, and `Detector` for deskew and dewarp, which asks that
-worker or, in the preprocessing pool, a detect-only worker of its own. Image
-OCR runs one worker per request at normal priority. Each job owns its workers, so one job finishing or cancelling never
-touches another's. The worker reads only binary PPM and PGM, so OCR inputs are
-written as PPM. Its recognisers run one per physical core, capped by the
-resource manager's OCR thread count. A request has a 300 s deadline, and a
-cancelled job's waiting request returns within 0.1 s and kills its worker.
+worker or, in the preprocessing pool, a detect-only worker of its own. The OCR
+worker runs with `--gpu` unless the Use the Graphics Card setting or
+`--no-gpu` turns it off, and ppocr-native falls back to the CPU without a
+usable GPU; the detect-only workers stay on the CPU, so the pool's processes
+do not share one GPU. A `--gpu` worker that dies by a signal, or before its
+ready line, is started again without `--gpu`. Image OCR runs one worker per
+request at normal priority. Each job owns its workers, so one job finishing or
+cancelling never touches another's. The worker reads only binary PPM and PGM,
+so OCR inputs are written as PPM. Its recognisers run one per physical core,
+capped by the resource manager's OCR thread count. A request has a 300 s
+deadline, and a cancelled job's waiting request returns within 0.1 s and kills
+its worker.
 
 Subprocess calls use direct argv. A zero exit status is authoritative success;
 nonzero status, timeout, or signal is an explicit error/cancellation result.

@@ -185,19 +185,6 @@ class TestBuildParser:
         assert args.no_deskew is True
 
 
-def test_parser_default_matches_the_pipeline_default() -> None:
-    """The parser spells the default out, so something must keep the two equal."""
-    from bigocrpdf.services.ocr.config import (
-        DEFAULT_DETECTION_FULL_RESOLUTION,
-        OCRConfig,
-    )
-
-    args = build_parser().parse_args(["ocr", "in.pdf", "-o", "out.pdf"])
-
-    assert args.full_resolution is DEFAULT_DETECTION_FULL_RESOLUTION
-    assert args.full_resolution is OCRConfig().detection_full_resolution
-
-
 def test_building_the_parser_does_not_load_the_ocr_stack() -> None:
     """--help must not pay for cv2, numpy, pikepdf and reportlab.
 

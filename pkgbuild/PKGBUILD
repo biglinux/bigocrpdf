@@ -11,8 +11,9 @@ depends=(
 	'python>=3.12'
 	'python-gobject'
 	'python-cairo'
-	# OCR engine: PP-OCRv6 small (Chinese, English, Japanese and Latin scripts)
-	'ppocr-native'
+	# OCR engine: PP-OCRv6 small (Chinese, English, Japanese and Latin scripts);
+	# the first build that takes --gpu
+	'ppocr-native>=26.11.06-1615'
 	# Noto Sans, the font the text layer is written with
 	'noto-fonts'
 	# PDF processing

@@ -54,6 +54,10 @@ DEFAULT_FORCE_BILEVEL_COMPRESSION = False
 # gain, and memory already caps the worker count. `--full-resolution` and the
 # Full Resolution Detection switch turn it on.
 DEFAULT_DETECTION_FULL_RESOLUTION = False
+# The OCR worker runs its networks on a Vulkan GPU when there is one and on
+# the CPU otherwise; `--no-gpu` and the Use the Graphics Card switch keep it
+# on the CPU.
+DEFAULT_USE_GPU = True
 # Execution
 DEFAULT_WORKERS = 0
 DEFAULT_REPLACE_EXISTING_OCR = False
@@ -113,6 +117,7 @@ class OCRConfig:
     unclip_ratio: float = DEFAULT_UNCLIP_RATIO
     detection_limit_side_len: int = DEFAULT_DETECTION_LIMIT_SIDE_LEN
     detection_full_resolution: bool = DEFAULT_DETECTION_FULL_RESOLUTION
+    use_gpu: bool = DEFAULT_USE_GPU
     text_score_threshold: float = DEFAULT_TEXT_SCORE_THRESHOLD
 
     pdf_mode: Literal["ocr", "geometric", "auto", "auto_verified"] = DEFAULT_PDF_MODE
