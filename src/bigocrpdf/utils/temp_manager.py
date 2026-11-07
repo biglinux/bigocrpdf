@@ -14,6 +14,7 @@ import shutil
 import socket
 import stat
 import tempfile
+import time
 import weakref
 from pathlib import Path
 
@@ -22,6 +23,9 @@ from bigocrpdf.utils.logger import logger
 _APP_CACHE_DIR = Path.home() / ".cache" / "bigocrpdf"
 _TMPFS_HEADROOM_RATIO = 0.50  # Use /tmp only if needed < 50% of free RAM
 _MIN_FREE_BYTES = 100 * 1024 * 1024  # 100 MB absolute minimum
+# A staging directory this recent may belong to a run, in another PID
+# namespace, that made it and has not locked it yet.
+_STAGING_GRACE_SECONDS = 60
 
 # Paths this process created, removed at exit.
 _tracked_files: set[str] = set()
@@ -178,8 +182,8 @@ def staging_directory(directory: Path, prefix: str) -> tempfile.TemporaryDirecto
 
     The name records this process's PID and host, and the process holds a lock
     on it, so a later call can remove the ones a crashed or killed run left
-    behind: directories owned by this user whose process on this host is gone
-    and whose lock nobody holds.
+    behind: directories owned by this user, unchanged for a minute, whose
+    process on this host is gone and whose lock nobody holds.
     """
     host = socket.gethostname()
     # pid_max is at most 2**22, seven digits.
@@ -200,6 +204,8 @@ def _staging_owner_gone(entry: os.DirEntry[str], pid: int) -> bool:
     except OSError:
         return False
     if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid():
+        return False
+    if time.time() - info.st_mtime < _STAGING_GRACE_SECONDS:
         return False
     try:
         os.kill(pid, 0)

@@ -2,6 +2,7 @@
 
 import fcntl
 import os
+import time
 from pathlib import Path
 
 from bigocrpdf.utils import temp_manager
@@ -134,6 +135,12 @@ def test_staging_sweep_removes_only_dead_runs_of_this_user(tmp_path: Path) -> No
     fcntl.flock(held, fcntl.LOCK_EX)
     overlong = tmp_path / f"bigocrpdf_imgs_{'9' * 25}@{host}@vwx"
     overlong.mkdir()
+    an_hour_ago = time.time() - 3600
+    for path in tmp_path.iterdir():
+        os.utime(path, (an_hour_ago, an_hour_ago), follow_symlinks=False)
+    # Just made by a run in another PID namespace, not locked yet.
+    unlocked = tmp_path / f"bigocrpdf_imgs_{dead.pid}@{host}@yza"
+    unlocked.mkdir()
 
     with temp_manager.staging_directory(tmp_path, ".bigocr_stage_") as staging:
         assert Path(staging).name.startswith(f".bigocr_stage_{os.getpid()}@{host}@")
@@ -144,6 +151,7 @@ def test_staging_sweep_removes_only_dead_runs_of_this_user(tmp_path: Path) -> No
         running.name,
         running_scratch.name,
         foreign.name,
+        unlocked.name,
         overlong.name,
         other_host.name,
         target.name,
