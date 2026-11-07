@@ -114,9 +114,11 @@ class BackendTextLayerMixin:
         elif use_processed_for_page and draw_image_path:
             jpg_path = draw_image_path + ".jpg"
             try:
-                with open_image(draw_image_path) as source:
-                    with source.convert("RGB") as rgb_image:
-                        rgb_image.save(jpg_path, "JPEG", quality=95)
+                with (
+                    open_image(draw_image_path) as source,
+                    source.convert("RGB") as rgb_image,
+                ):
+                    rgb_image.save(jpg_path, "JPEG", quality=95)
                 c.drawImage(jpg_path, 0, 0, width=pdf_width, height=pdf_height)
             finally:
                 Path(jpg_path).unlink(missing_ok=True)
