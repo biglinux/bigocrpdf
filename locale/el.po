@@ -901,21 +901,21 @@ msgstr "Η μηχανή OCR δεν είναι διαθέσιμη. Ελέγξτε
 #: src/bigocrpdf/services/screen_capture.py:1047
 #: src/bigocrpdf/services/screen_capture.py:1053
 #: src/bigocrpdf/services/screen_capture.py:1059
-#: src/bigocrpdf/services/screen_capture.py:1133
-#: src/bigocrpdf/services/screen_capture.py:1156
-#: src/bigocrpdf/services/screen_capture.py:1164
+#: src/bigocrpdf/services/screen_capture.py:1145
+#: src/bigocrpdf/services/screen_capture.py:1168
+#: src/bigocrpdf/services/screen_capture.py:1176
 msgid "Could not load image file."
 msgstr "Δεν ήταν δυνατή η φόρτωση του αρχείου εικόνας."
 
 #: src/bigocrpdf/services/screen_capture.py:1061
-#: src/bigocrpdf/services/screen_capture.py:1128
-#: src/bigocrpdf/services/screen_capture.py:1235
+#: src/bigocrpdf/services/screen_capture.py:1140
+#: src/bigocrpdf/services/screen_capture.py:1247
 msgid "Unsupported or corrupted image file."
 msgstr "Μη υποστηριζόμενο ή κατεστραμμένο αρχείο εικόνας."
 
 #: src/bigocrpdf/services/screen_capture.py:1063
-#: src/bigocrpdf/services/screen_capture.py:1166
-#: src/bigocrpdf/services/screen_capture.py:1193
+#: src/bigocrpdf/services/screen_capture.py:1178
+#: src/bigocrpdf/services/screen_capture.py:1205
 msgid "Image file is too large to process safely."
 msgstr "Το αρχείο εικόνας είναι πολύ μεγάλο για ασφαλή επεξεργασία."
 
@@ -923,20 +923,21 @@ msgstr "Το αρχείο εικόνας είναι πολύ μεγάλο για
 msgid "No supported image decoder is available."
 msgstr "Δεν υπάρχει διαθέσιμος υποστηριζόμενος αποκωδικοποιητής εικόνας."
 
-#: src/bigocrpdf/services/screen_capture.py:1232
-msgid "Unsupported image format."
-msgstr "Μη υποστηριζόμενη μορφή εικόνας."
-
-#: src/bigocrpdf/services/screen_capture.py:1237
+#: src/bigocrpdf/services/screen_capture.py:1099
+#: src/bigocrpdf/services/screen_capture.py:1249
 #: src/bigocrpdf/ui/image_ocr_window.py:433
 msgid "Image dimensions exceed the configured safety limit."
 msgstr "Οι διαστάσεις της εικόνας υπερβαίνουν το καθορισμένο όριο ασφαλείας."
 
-#: src/bigocrpdf/services/screen_capture.py:1243
+#: src/bigocrpdf/services/screen_capture.py:1244
+msgid "Unsupported image format."
+msgstr "Μη υποστηριζόμενη μορφή εικόνας."
+
+#: src/bigocrpdf/services/screen_capture.py:1255
 msgid "Animated or multi-page images are not supported."
 msgstr "Οι κινούμενες ή πολυσέλιδες εικόνες δεν υποστηρίζονται."
 
-#: src/bigocrpdf/services/screen_capture.py:1264
+#: src/bigocrpdf/services/screen_capture.py:1276
 msgid "Image file changed while it was being read. Please try again."
 msgstr "Το αρχείο εικόνας άλλαξε κατά την ανάγνωσή του. Δοκιμάστε ξανά."
 

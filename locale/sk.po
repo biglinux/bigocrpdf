@@ -902,21 +902,21 @@ msgstr "Modul OCR nie je k dispozícii. Skontrolujte svoju inštaláciu."
 #: src/bigocrpdf/services/screen_capture.py:1047
 #: src/bigocrpdf/services/screen_capture.py:1053
 #: src/bigocrpdf/services/screen_capture.py:1059
-#: src/bigocrpdf/services/screen_capture.py:1133
-#: src/bigocrpdf/services/screen_capture.py:1156
-#: src/bigocrpdf/services/screen_capture.py:1164
+#: src/bigocrpdf/services/screen_capture.py:1145
+#: src/bigocrpdf/services/screen_capture.py:1168
+#: src/bigocrpdf/services/screen_capture.py:1176
 msgid "Could not load image file."
 msgstr "Nepodarilo sa načítať súbor s obrázkom."
 
 #: src/bigocrpdf/services/screen_capture.py:1061
-#: src/bigocrpdf/services/screen_capture.py:1128
-#: src/bigocrpdf/services/screen_capture.py:1235
+#: src/bigocrpdf/services/screen_capture.py:1140
+#: src/bigocrpdf/services/screen_capture.py:1247
 msgid "Unsupported or corrupted image file."
 msgstr "Nepodporovaný alebo poškodený súbor s obrázkom."
 
 #: src/bigocrpdf/services/screen_capture.py:1063
-#: src/bigocrpdf/services/screen_capture.py:1166
-#: src/bigocrpdf/services/screen_capture.py:1193
+#: src/bigocrpdf/services/screen_capture.py:1178
+#: src/bigocrpdf/services/screen_capture.py:1205
 msgid "Image file is too large to process safely."
 msgstr "Súbor s obrázkom je príliš veľký na bezpečné spracovanie."
 
@@ -924,20 +924,21 @@ msgstr "Súbor s obrázkom je príliš veľký na bezpečné spracovanie."
 msgid "No supported image decoder is available."
 msgstr "Nie je k dispozícii žiadny podporovaný dekodér obrázkov."
 
-#: src/bigocrpdf/services/screen_capture.py:1232
-msgid "Unsupported image format."
-msgstr "Nepodporovaný formát obrázka."
-
-#: src/bigocrpdf/services/screen_capture.py:1237
+#: src/bigocrpdf/services/screen_capture.py:1099
+#: src/bigocrpdf/services/screen_capture.py:1249
 #: src/bigocrpdf/ui/image_ocr_window.py:433
 msgid "Image dimensions exceed the configured safety limit."
 msgstr "Rozmery obrázka prekračujú nastavený bezpečnostný limit."
 
-#: src/bigocrpdf/services/screen_capture.py:1243
+#: src/bigocrpdf/services/screen_capture.py:1244
+msgid "Unsupported image format."
+msgstr "Nepodporovaný formát obrázka."
+
+#: src/bigocrpdf/services/screen_capture.py:1255
 msgid "Animated or multi-page images are not supported."
 msgstr "Animované alebo viacstranové obrázky nie sú podporované."
 
-#: src/bigocrpdf/services/screen_capture.py:1264
+#: src/bigocrpdf/services/screen_capture.py:1276
 msgid "Image file changed while it was being read. Please try again."
 msgstr "Súbor s obrázkom sa počas čítania zmenil. Skúste to znova."
 

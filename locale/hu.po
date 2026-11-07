@@ -900,21 +900,21 @@ msgstr "Az OCR-motor nem érhető el. Ellenőrizze a telepítést."
 #: src/bigocrpdf/services/screen_capture.py:1047
 #: src/bigocrpdf/services/screen_capture.py:1053
 #: src/bigocrpdf/services/screen_capture.py:1059
-#: src/bigocrpdf/services/screen_capture.py:1133
-#: src/bigocrpdf/services/screen_capture.py:1156
-#: src/bigocrpdf/services/screen_capture.py:1164
+#: src/bigocrpdf/services/screen_capture.py:1145
+#: src/bigocrpdf/services/screen_capture.py:1168
+#: src/bigocrpdf/services/screen_capture.py:1176
 msgid "Could not load image file."
 msgstr "Nem sikerült betölteni a képfájlt."
 
 #: src/bigocrpdf/services/screen_capture.py:1061
-#: src/bigocrpdf/services/screen_capture.py:1128
-#: src/bigocrpdf/services/screen_capture.py:1235
+#: src/bigocrpdf/services/screen_capture.py:1140
+#: src/bigocrpdf/services/screen_capture.py:1247
 msgid "Unsupported or corrupted image file."
 msgstr "Nem támogatott vagy sérült képfájl."
 
 #: src/bigocrpdf/services/screen_capture.py:1063
-#: src/bigocrpdf/services/screen_capture.py:1166
-#: src/bigocrpdf/services/screen_capture.py:1193
+#: src/bigocrpdf/services/screen_capture.py:1178
+#: src/bigocrpdf/services/screen_capture.py:1205
 msgid "Image file is too large to process safely."
 msgstr "A képfájl túl nagy a biztonságos feldolgozáshoz."
 
@@ -922,20 +922,21 @@ msgstr "A képfájl túl nagy a biztonságos feldolgozáshoz."
 msgid "No supported image decoder is available."
 msgstr "Nem érhető el támogatott képdekódoló."
 
-#: src/bigocrpdf/services/screen_capture.py:1232
-msgid "Unsupported image format."
-msgstr "Nem támogatott képformátum."
-
-#: src/bigocrpdf/services/screen_capture.py:1237
+#: src/bigocrpdf/services/screen_capture.py:1099
+#: src/bigocrpdf/services/screen_capture.py:1249
 #: src/bigocrpdf/ui/image_ocr_window.py:433
 msgid "Image dimensions exceed the configured safety limit."
 msgstr "A kép méretei meghaladják a beállított biztonsági korlátot."
 
-#: src/bigocrpdf/services/screen_capture.py:1243
+#: src/bigocrpdf/services/screen_capture.py:1244
+msgid "Unsupported image format."
+msgstr "Nem támogatott képformátum."
+
+#: src/bigocrpdf/services/screen_capture.py:1255
 msgid "Animated or multi-page images are not supported."
 msgstr "Az animált vagy többoldalas képek nem támogatottak."
 
-#: src/bigocrpdf/services/screen_capture.py:1264
+#: src/bigocrpdf/services/screen_capture.py:1276
 msgid "Image file changed while it was being read. Please try again."
 msgstr "A képfájl olvasás közben megváltozott. Próbálja újra."
 

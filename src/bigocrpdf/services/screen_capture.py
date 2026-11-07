@@ -34,7 +34,7 @@ from bigocrpdf.services.ocr.text_formatting_controller import (
 )
 from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
-from bigocrpdf.utils.pdf_utils import safe_image_formats
+from bigocrpdf.utils.pdf_utils import is_jpeg, open_jpeg_within, safe_image_formats
 from bigocrpdf.utils.temp_manager import mkstemp as tm_mkstemp
 from bigocrpdf.utils.temp_manager import remove_file as tm_remove
 
@@ -1086,11 +1086,23 @@ class ScreenCaptureService:
                     DIRECT_IMAGE_HARD_MAX_MEGAPIXELS,
                 )
                 max_pixels = int(max_megapixels * 1_000_000)
+                # A camera JPEG over the limit decodes at a reduced scale.
+                snapshot_is_jpeg = is_jpeg(image_snapshot)
+
+                def open_snapshot() -> Image.Image:
+                    if not snapshot_is_jpeg:
+                        return Image.open(image_snapshot, formats=safe_formats)
+                    try:
+                        return open_jpeg_within(image_snapshot, max_pixels, max_pixels)[0]
+                    except ValueError as e:
+                        raise ImageInputError(
+                            _("Image dimensions exceed the configured safety limit.")
+                        ) from e
 
                 with warnings.catch_warnings():
                     warnings.simplefilter("error", Image.DecompressionBombWarning)
                     try:
-                        with Image.open(image_snapshot, formats=safe_formats) as probe:
+                        with open_snapshot() as probe:
                             ScreenCaptureService._validate_image_header(
                                 probe,
                                 max_pixels,
@@ -1101,7 +1113,7 @@ class ScreenCaptureService:
                         request.raise_if_cancelled()
                         image_snapshot.seek(0)
 
-                        with Image.open(image_snapshot, formats=safe_formats) as source:
+                        with open_snapshot() as source:
                             ScreenCaptureService._validate_image_header(
                                 source,
                                 max_pixels,

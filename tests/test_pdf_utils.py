@@ -16,7 +16,9 @@ from bigocrpdf.utils.pdf_utils import (
     get_pdf_info,
     images_to_pdf,
     is_image_file,
+    is_jpeg,
     is_regular_file,
+    open_jpeg_within,
     sandbox_state,
 )
 
@@ -176,6 +178,51 @@ def test_missing_bwrap_runs_tools_as_given(monkeypatch) -> None:
 
     assert sandbox_state() == (None, "none (bwrap not installed)")
     assert confined(["pdfinfo", "/x.pdf"], read=["/x.pdf"]) == ["pdfinfo", "/x.pdf"]
+
+
+def _jpeg(path, size=(400, 300)) -> None:
+    Image.new("RGB", size, (200, 100, 50)).save(path, quality=90)
+
+
+@pytest.mark.parametrize(
+    ("reduced_pixels", "decoded"),
+    [(200 * 150, (200, 150)), (100 * 75, (100, 75)), (50 * 38, (50, 38))],
+)
+def test_large_jpeg_decodes_at_a_scale(tmp_path, reduced_pixels, decoded) -> None:
+    path = tmp_path / "photo.jpg"
+    _jpeg(path)
+
+    image, scale = open_jpeg_within(path, 50_000, reduced_pixels)
+    with image:
+        image.load()
+        assert image.size == decoded
+    assert scale == 400 // decoded[0]
+
+
+def test_jpeg_within_its_limit_decodes_whole(tmp_path) -> None:
+    path = tmp_path / "photo.jpg"
+    _jpeg(path)
+
+    image, scale = open_jpeg_within(path, 400 * 300, 1)
+    with image:
+        assert (image.size, scale) == ((400, 300), 1)
+
+
+def test_jpeg_over_eighth_scale_refused(tmp_path) -> None:
+    path = tmp_path / "photo.jpg"
+    _jpeg(path)
+
+    with pytest.raises(ValueError, match="1/8"):
+        open_jpeg_within(path, 1, 50 * 38 - 1)
+
+
+def test_jpeg_opener_refuses_other_formats(tmp_path) -> None:
+    path = tmp_path / "page.png"
+    Image.new("RGB", (40, 30)).save(path)
+
+    assert not is_jpeg(path)
+    with pytest.raises(SyntaxError):
+        open_jpeg_within(path, 1, 1)
 
 
 def test_planted_link_is_rejected(tmp_path) -> None:

@@ -886,21 +886,21 @@ msgstr "OCRエンジンが利用できません。インストールを確認し
 #: src/bigocrpdf/services/screen_capture.py:1047
 #: src/bigocrpdf/services/screen_capture.py:1053
 #: src/bigocrpdf/services/screen_capture.py:1059
-#: src/bigocrpdf/services/screen_capture.py:1133
-#: src/bigocrpdf/services/screen_capture.py:1156
-#: src/bigocrpdf/services/screen_capture.py:1164
+#: src/bigocrpdf/services/screen_capture.py:1145
+#: src/bigocrpdf/services/screen_capture.py:1168
+#: src/bigocrpdf/services/screen_capture.py:1176
 msgid "Could not load image file."
 msgstr "画像ファイルを読み込めませんでした。"
 
 #: src/bigocrpdf/services/screen_capture.py:1061
-#: src/bigocrpdf/services/screen_capture.py:1128
-#: src/bigocrpdf/services/screen_capture.py:1235
+#: src/bigocrpdf/services/screen_capture.py:1140
+#: src/bigocrpdf/services/screen_capture.py:1247
 msgid "Unsupported or corrupted image file."
 msgstr "対応していない、または破損している画像ファイルです。"
 
 #: src/bigocrpdf/services/screen_capture.py:1063
-#: src/bigocrpdf/services/screen_capture.py:1166
-#: src/bigocrpdf/services/screen_capture.py:1193
+#: src/bigocrpdf/services/screen_capture.py:1178
+#: src/bigocrpdf/services/screen_capture.py:1205
 msgid "Image file is too large to process safely."
 msgstr "画像ファイルが大きすぎるため、安全に処理できません。"
 
@@ -908,20 +908,21 @@ msgstr "画像ファイルが大きすぎるため、安全に処理できませ
 msgid "No supported image decoder is available."
 msgstr "対応する画像デコーダーを利用できません。"
 
-#: src/bigocrpdf/services/screen_capture.py:1232
-msgid "Unsupported image format."
-msgstr "対応していない画像形式です。"
-
-#: src/bigocrpdf/services/screen_capture.py:1237
+#: src/bigocrpdf/services/screen_capture.py:1099
+#: src/bigocrpdf/services/screen_capture.py:1249
 #: src/bigocrpdf/ui/image_ocr_window.py:433
 msgid "Image dimensions exceed the configured safety limit."
 msgstr "画像サイズが設定された安全上の上限を超えています。"
 
-#: src/bigocrpdf/services/screen_capture.py:1243
+#: src/bigocrpdf/services/screen_capture.py:1244
+msgid "Unsupported image format."
+msgstr "対応していない画像形式です。"
+
+#: src/bigocrpdf/services/screen_capture.py:1255
 msgid "Animated or multi-page images are not supported."
 msgstr "アニメーション画像または複数ページの画像には対応していません。"
 
-#: src/bigocrpdf/services/screen_capture.py:1264
+#: src/bigocrpdf/services/screen_capture.py:1276
 msgid "Image file changed while it was being read. Please try again."
 msgstr "読み取り中に画像ファイルが変更されました。もう一度お試しください。"
 

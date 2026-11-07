@@ -915,21 +915,21 @@ msgstr "Рухавік OCR недаступны. Праверце ўсталяв
 #: src/bigocrpdf/services/screen_capture.py:1047
 #: src/bigocrpdf/services/screen_capture.py:1053
 #: src/bigocrpdf/services/screen_capture.py:1059
-#: src/bigocrpdf/services/screen_capture.py:1133
-#: src/bigocrpdf/services/screen_capture.py:1156
-#: src/bigocrpdf/services/screen_capture.py:1164
+#: src/bigocrpdf/services/screen_capture.py:1145
+#: src/bigocrpdf/services/screen_capture.py:1168
+#: src/bigocrpdf/services/screen_capture.py:1176
 msgid "Could not load image file."
 msgstr "Не ўдалося загрузіць файл выявы."
 
 #: src/bigocrpdf/services/screen_capture.py:1061
-#: src/bigocrpdf/services/screen_capture.py:1128
-#: src/bigocrpdf/services/screen_capture.py:1235
+#: src/bigocrpdf/services/screen_capture.py:1140
+#: src/bigocrpdf/services/screen_capture.py:1247
 msgid "Unsupported or corrupted image file."
 msgstr "Файл выявы не падтрымліваецца або пашкоджаны."
 
 #: src/bigocrpdf/services/screen_capture.py:1063
-#: src/bigocrpdf/services/screen_capture.py:1166
-#: src/bigocrpdf/services/screen_capture.py:1193
+#: src/bigocrpdf/services/screen_capture.py:1178
+#: src/bigocrpdf/services/screen_capture.py:1205
 msgid "Image file is too large to process safely."
 msgstr "Файл выявы занадта вялікі для бяспечнай апрацоўкі."
 
@@ -937,20 +937,21 @@ msgstr "Файл выявы занадта вялікі для бяспечна�
 msgid "No supported image decoder is available."
 msgstr "Няма даступнага дэкодара, які падтрымлівае гэтую выяву."
 
-#: src/bigocrpdf/services/screen_capture.py:1232
-msgid "Unsupported image format."
-msgstr "Фармат выявы не падтрымліваецца."
-
-#: src/bigocrpdf/services/screen_capture.py:1237
+#: src/bigocrpdf/services/screen_capture.py:1099
+#: src/bigocrpdf/services/screen_capture.py:1249
 #: src/bigocrpdf/ui/image_ocr_window.py:433
 msgid "Image dimensions exceed the configured safety limit."
 msgstr "Памеры выявы перавышаюць зададзенае абмежаванне бяспекі."
 
-#: src/bigocrpdf/services/screen_capture.py:1243
+#: src/bigocrpdf/services/screen_capture.py:1244
+msgid "Unsupported image format."
+msgstr "Фармат выявы не падтрымліваецца."
+
+#: src/bigocrpdf/services/screen_capture.py:1255
 msgid "Animated or multi-page images are not supported."
 msgstr "Анімаваныя або шматстаронкавыя выявы не падтрымліваюцца."
 
-#: src/bigocrpdf/services/screen_capture.py:1264
+#: src/bigocrpdf/services/screen_capture.py:1276
 msgid "Image file changed while it was being read. Please try again."
 msgstr "Файл выявы змяніўся падчас чытання. Паўтарыце спробу."
 

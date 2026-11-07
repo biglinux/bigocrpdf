@@ -311,18 +311,29 @@ class BackendEmbeddedImagePipelineMixin:
             logger.debug(f"Skipping small image: {img_pos.width}x{img_pos.height}")
             return []
 
-        img = load_image_with_exif_rotation(img_path, self.config.max_image_megapixels)
+        img = load_image_with_exif_rotation(
+            img_path, self.config.max_image_megapixels, self.config.max_render_megapixels
+        )
         if img is None:
             logger.warning(f"Could not load image: {img_path}")
             return []
 
+        # A photo decoded at a reduced JPEG scale is read, never written back
+        # over its full-size original.
+        try:
+            xobj = page.Resources.XObject[img_pos.name]
+            stored_pixels = int(xobj.Width) * int(xobj.Height)
+        except (AttributeError, KeyError, TypeError, ValueError):
+            stored_pixels = 0
+        reduced = stored_pixels > img.shape[0] * img.shape[1]
         if skip_preprocessing:
             processed_img = img
         else:
             processed_img = self.preprocessor.process(img, cancel_check=self._raise_if_cancelled)
-            self._replace_pdf_image(
-                page, img_pos.name, apply_independent_effects(processed_img, self.config)
-            )
+            if not reduced:
+                self._replace_pdf_image(
+                    page, img_pos.name, apply_independent_effects(processed_img, self.config)
+                )
 
         image_results = self._ocr_via_persistent(processed_img, ocr_worker, stats, page_num)
         if not image_results:

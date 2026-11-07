@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, Any
 from bigocrpdf.utils.logger import logger
 
 if TYPE_CHECKING:
-    from PIL import Image
+    from PIL import Image, JpegImagePlugin
 
 # What a confined Poppler tool sees besides the files it is given: the system
 # read-only, fonts, a private /tmp, and no network, IPC, other processes or
@@ -348,6 +348,76 @@ def open_image(source: Any) -> "Image.Image":
     from PIL import Image
 
     return Image.open(source, formats=safe_image_formats())
+
+
+def is_jpeg(source: Any) -> bool:
+    """Whether a path's file, or a binary stream from where it stands,
+    starts with a JPEG start-of-image marker."""
+    if hasattr(source, "read"):
+        start = source.tell()
+        head = source.read(3)
+        source.seek(start)
+        return head == b"\xff\xd8\xff"
+    with open(source, "rb") as f:
+        return f.read(3) == b"\xff\xd8\xff"
+
+
+def open_image_header(source: Any) -> "Image.Image":
+    """An image opened for its size, format, EXIF and JPEG tables, never
+    decoded. A JPEG skips Pillow's decompression-bomb check, which guards
+    decoding, so a phone photo of any size reads; anything else opens as
+    ``open_image``."""
+    from PIL import JpegImagePlugin
+
+    if is_jpeg(source):
+        return JpegImagePlugin.JpegImageFile(source)
+    return open_image(source)
+
+
+# The most pixels a JPEG may store to be decoded at a reduced scale: 200 MP
+# phone photos and some margin. A baseline file is decoded one row of blocks
+# at a time, so its memory follows the reduced size, but every block is still
+# entropy-decoded, so its decode time follows the stored size.
+MAX_JPEG_STORED_PIXELS = 256_000_000
+
+
+def open_jpeg_within(
+    source: Any, full_pixels: float, reduced_pixels: float
+) -> "tuple[JpegImagePlugin.JpegImageFile, int]":
+    """A JPEG opened to decode whole when it holds at most ``full_pixels``,
+    else at the largest of libjpeg's 1/2, 1/4 and 1/8 scales that holds at
+    most ``reduced_pixels``, and that scale's divisor (1 when whole);
+    ValueError when no scale fits, when it stores over
+    ``MAX_JPEG_STORED_PIXELS``, or when a progressive file would need a
+    reduced scale: libjpeg keeps all of a progressive file's coefficients.
+
+    The scale bounds the decode, so Pillow's decompression-bomb check, which
+    ``Image.open`` makes on the stored size, is not needed here; this opens
+    JPEG only and raises SyntaxError on anything else.
+    """
+    from PIL import JpegImagePlugin
+
+    image = JpegImagePlugin.JpegImageFile(source)
+    width, height = image.size
+    if width * height <= full_pixels:
+        return image, 1
+    if width * height > MAX_JPEG_STORED_PIXELS or image.info.get("progressive"):
+        kind = "progressive JPEG" if image.info.get("progressive") else "JPEG"
+        image.close()
+        raise ValueError(f"{kind} of {width}x{height} is too large to decode reduced")
+    for scale in (2, 4, 8):
+        # libjpeg rounds a scaled size up; draft() picks the largest scale
+        # the requested size allows, so it is asked for the rounded-down one.
+        if -(-width // scale) * -(-height // scale) <= reduced_pixels:
+            image.draft(None, (max(width // scale, 1), max(height // scale, 1)))
+            if image.size[0] * image.size[1] <= reduced_pixels:
+                return image, scale
+            break
+    image.close()
+    raise ValueError(
+        f"JPEG of {width}x{height} does not decode within "
+        f"{reduced_pixels / 1_000_000:g} MP even at 1/8 scale"
+    )
 
 
 # Image extensions recognized as valid inputs.

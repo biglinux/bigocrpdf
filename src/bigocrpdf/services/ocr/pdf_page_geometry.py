@@ -17,7 +17,13 @@ from bigocrpdf.services.ocr.resource_manager import (
     select_render_dpi_for_page,
 )
 from bigocrpdf.utils.logger import logger
-from bigocrpdf.utils.pdf_utils import confined, is_regular_file, open_image
+from bigocrpdf.utils.pdf_utils import (
+    confined,
+    is_jpeg,
+    is_regular_file,
+    open_image,
+    open_jpeg_within,
+)
 
 
 def render_pdf_page_to_ppm(
@@ -167,17 +173,28 @@ def _free_font_name(page_fonts: pikepdf.Object, wanted: str) -> str:
     return f"/BigOcr{stem}_{suffix}"
 
 
-def load_image_with_exif_rotation(img_path: Path, max_megapixels: float) -> np.ndarray | None:
+def load_image_with_exif_rotation(
+    img_path: Path, max_megapixels: float, reduced_megapixels: float = 0
+) -> np.ndarray | None:
     """Load image and apply EXIF orientation correction.
 
     The declared size is checked against ``max_megapixels`` (0 = no limit)
-    before any pixel is decoded; an image over it raises ValueError. OpenCV
-    only decodes files whose size Pillow has read but cannot decode.
+    before any pixel is decoded; an image over it raises ValueError, except a
+    JPEG, which decodes at the largest 1/2, 1/4 or 1/8 scale within
+    ``reduced_megapixels`` when that is set. OpenCV only decodes files whose
+    size Pillow has read but cannot decode.
     """
     from PIL import ImageOps, UnidentifiedImageError
 
     try:
-        with open_image(img_path) as source:
+        scale = 1
+        if max_megapixels > 0 and reduced_megapixels > 0 and is_jpeg(img_path):
+            source, scale = open_jpeg_within(
+                img_path, max_megapixels * 1_000_000, reduced_megapixels * 1_000_000
+            )
+        else:
+            source = open_image(img_path)
+        with source:
             width, height = source.size
             if max_megapixels > 0 and width * height > max_megapixels * 1_000_000:
                 raise ValueError(
@@ -189,13 +206,16 @@ def load_image_with_exif_rotation(img_path: Path, max_megapixels: float) -> np.n
                     with oriented.convert("RGB") as rgb_image:
                         img_rgb = np.array(rgb_image)
             except Exception:
+                # OpenCV decodes whole: never for a file opened to decode reduced.
+                if scale > 1:
+                    return None
                 try:
                     return cv2.imread(str(img_path))
                 except cv2.error as exc:
                     raise ValueError(f"Image exceeds the decoder safety limit: {exc}") from exc
     except Image.DecompressionBombError as exc:
         raise ValueError(f"Image exceeds the decoder safety limit: {exc}") from exc
-    except (UnidentifiedImageError, OSError):
+    except (UnidentifiedImageError, OSError, SyntaxError):
         return None
     return cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
 

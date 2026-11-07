@@ -25,7 +25,7 @@ from bigocrpdf.services.ocr.pdf_page_geometry import (
 from bigocrpdf.services.ocr.pdf_validation import classify_text_layer
 from bigocrpdf.services.ocr.resource_manager import select_render_dpi_for_page
 from bigocrpdf.utils.logger import logger
-from bigocrpdf.utils.pdf_utils import confined, is_regular_file
+from bigocrpdf.utils.pdf_utils import confined, is_regular_file, open_jpeg_within
 
 __all__ = [
     "ImagePosition",
@@ -570,7 +570,9 @@ class PDFImageExtractor:
 
         largest = max(img_entries, key=lambda image: image.width * image.height)
         megapixels = largest.width * largest.height / 1_000_000
-        if 0 < self.max_image_megapixels < megapixels:
+        if 0 < self.max_image_megapixels < megapixels and not self._decodes_reduced(
+            output_dir, largest
+        ):
             # Decoding it would take gigabytes; poppler renders it in budget.
             fallback_pages.append(current_page)
             extraction.oversized_pages.add(current_page)
@@ -608,6 +610,28 @@ class PDFImageExtractor:
         if not dest.exists():
             valid_img_path.rename(dest)
             extraction.images[result_index] = dest
+
+    def _decodes_reduced(self, output_dir: Path, image: _PageImage) -> bool:
+        """Whether ``image``'s file opens to decode at a reduced JPEG scale
+        within the render budget, as ``load_image_with_exif_rotation`` opens
+        it, so its page takes the normal path."""
+        found = self._find_file_for_index(output_dir, image.index)
+        if found is None:
+            return False
+        try:
+            opened, _scale = open_jpeg_within(
+                found,
+                self.max_image_megapixels * 1_000_000,
+                self.max_render_megapixels * 1_000_000,
+            )
+        except (ValueError, SyntaxError, OSError):
+            return False
+        opened.close()
+        logger.info(
+            f"Image {image.width}x{image.height} is over "
+            f"{self.max_image_megapixels:g} MP; it decodes at a reduced JPEG scale"
+        )
+        return True
 
     def _best_readable_image(
         self,

@@ -835,6 +835,17 @@ def test_image_loader_rejects_corrupted_images(tmp_path):
         )
 
 
+def test_image_loader_reports_oversized_jpeg_dimensions(tmp_path):
+    image_path = tmp_path / "huge.jpg"
+    Image.new("RGB", (400, 300), "white").save(image_path)
+
+    with pytest.raises(screen_capture_module.ImageInputError, match="safety limit"):
+        ScreenCaptureService()._load_image_for_ocr(
+            str(image_path),
+            OCRConfig(max_image_megapixels=0.0001),
+        )
+
+
 def test_image_loader_rejects_fifo_without_blocking(tmp_path):
     image_path = tmp_path / "image.pipe"
     os.mkfifo(image_path)
