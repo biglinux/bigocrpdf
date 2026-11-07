@@ -26,7 +26,7 @@ msgid ""
 msgstr ""
 "{worker} OCR motoru yüklü değil veya model dosyaları {path} konumunda eksik."
 
-#: src/bigocrpdf/application.py:54 src/bigocrpdf/cli_parser.py:73
+#: src/bigocrpdf/application.py:54 src/bigocrpdf/cli_parser.py:79
 #: src/bigocrpdf/config.py:84 src/bigocrpdf/image_application.py:50
 msgid "Print version information and exit"
 msgstr "Sürüm bilgisini göster ve çık"
@@ -195,63 +195,63 @@ msgstr "Geliştiriciler"
 msgid "Powered by"
 msgstr "Destekleyen teknolojiler"
 
-#: src/bigocrpdf/cli_parser.py:75
+#: src/bigocrpdf/cli_parser.py:81
 msgid "Verbose logging (DEBUG)"
 msgstr "Ayrıntılı günlük (DEBUG)"
 
-#: src/bigocrpdf/cli_parser.py:76
+#: src/bigocrpdf/cli_parser.py:82
 msgid "Available commands"
 msgstr "Kullanılabilir komutlar"
 
-#: src/bigocrpdf/cli_parser.py:85
+#: src/bigocrpdf/cli_parser.py:91
 msgid "OCR processing for PDF files"
 msgstr "PDF dosyaları için OCR işleme"
 
-#: src/bigocrpdf/cli_parser.py:86 src/bigocrpdf/cli_parser.py:258
-#: src/bigocrpdf/cli_parser.py:263 src/bigocrpdf/cli_parser.py:288
-#: src/bigocrpdf/cli_parser.py:310 src/bigocrpdf/cli_parser.py:331
-#: src/bigocrpdf/cli_parser.py:342 src/bigocrpdf/cli_parser.py:382
+#: src/bigocrpdf/cli_parser.py:92 src/bigocrpdf/cli_parser.py:266
+#: src/bigocrpdf/cli_parser.py:271 src/bigocrpdf/cli_parser.py:300
+#: src/bigocrpdf/cli_parser.py:322 src/bigocrpdf/cli_parser.py:343
+#: src/bigocrpdf/cli_parser.py:354 src/bigocrpdf/cli_parser.py:394
 msgid "Input PDF file"
 msgstr "Giriş PDF dosyası"
 
-#: src/bigocrpdf/cli_parser.py:87 src/bigocrpdf/cli_parser.py:283
-#: src/bigocrpdf/cli_parser.py:290 src/bigocrpdf/cli_parser.py:312
-#: src/bigocrpdf/cli_parser.py:333 src/bigocrpdf/cli_parser.py:344
-#: src/bigocrpdf/cli_parser.py:355 src/bigocrpdf/cli_parser.py:384
+#: src/bigocrpdf/cli_parser.py:94 src/bigocrpdf/cli_parser.py:294
+#: src/bigocrpdf/cli_parser.py:302 src/bigocrpdf/cli_parser.py:324
+#: src/bigocrpdf/cli_parser.py:345 src/bigocrpdf/cli_parser.py:356
+#: src/bigocrpdf/cli_parser.py:367 src/bigocrpdf/cli_parser.py:396
 msgid "Output PDF file"
 msgstr "Çıkış PDF dosyası"
 
-#: src/bigocrpdf/cli_parser.py:92
+#: src/bigocrpdf/cli_parser.py:100
 msgid "Pages to process (e.g. '7', '3-10', '1,3,7'). Default: all."
 msgstr "İşlenecek sayfalar (ör. '7', '3-10', '1,3,7'). Varsayılan: tümü."
 
-#: src/bigocrpdf/cli_parser.py:95
+#: src/bigocrpdf/cli_parser.py:103
 msgid "Parallel workers (0 = auto). Default: 0."
 msgstr "Paralel görev sayısı (0 = otomatik). Varsayılan: 0."
 
-#: src/bigocrpdf/cli_parser.py:98
+#: src/bigocrpdf/cli_parser.py:106
 msgid "DPI for extraction (default: 300)"
 msgstr "Çıkarma için DPI (varsayılan: 300)"
 
-#: src/bigocrpdf/cli_parser.py:108
+#: src/bigocrpdf/cli_parser.py:116
 msgid "OCR behavior"
 msgstr "OCR davranışı"
 
-#: src/bigocrpdf/cli_parser.py:113
+#: src/bigocrpdf/cli_parser.py:121
 msgid "Re-OCR pages that already have text (default: skip them)."
 msgstr "Zaten metin içeren sayfalara yeniden OCR uygula (varsayılan: atla)."
 
-#: src/bigocrpdf/cli_parser.py:119
+#: src/bigocrpdf/cli_parser.py:127
 msgid "Process all pages as image-only (for editor-merged files)."
 msgstr ""
 "Tüm sayfaları yalnızca görüntü olarak işle (düzenleyicide birleştirilmiş "
 "dosyalar için)."
 
-#: src/bigocrpdf/cli_parser.py:125
+#: src/bigocrpdf/cli_parser.py:133
 msgid "PDF text handling mode (default: auto)."
 msgstr "PDF metin işleme modu (varsayılan: auto)."
 
-#: src/bigocrpdf/cli_parser.py:133 src/bigocrpdf/ui/advanced_dialog.py:49
+#: src/bigocrpdf/cli_parser.py:141 src/bigocrpdf/ui/advanced_dialog.py:49
 msgid ""
 "Analyzes the image at full resolution for text detection. Finds more text in "
 "high-resolution scans but takes longer. The faster mode is good enough for "
@@ -261,7 +261,7 @@ msgstr ""
 "çözünürlüklü taramalarda daha fazla metin bulur ama daha uzun sürer. Hızlı "
 "mod çoğu belge için yeterlidir."
 
-#: src/bigocrpdf/cli_parser.py:144 src/bigocrpdf/ui/advanced_dialog.py:60
+#: src/bigocrpdf/cli_parser.py:152 src/bigocrpdf/ui/advanced_dialog.py:60
 msgid ""
 "Runs text recognition on the graphics card when the computer has one, which "
 "is faster and leaves the processor free. Turn it off if the graphics driver "
@@ -271,90 +271,90 @@ msgstr ""
 "hızlıdır ve işlemciyi serbest bırakır. Ekran kartı sürücüsü sorun çıkarırsa "
 "kapatın."
 
-#: src/bigocrpdf/cli_parser.py:152
+#: src/bigocrpdf/cli_parser.py:160
 msgid "Geometric corrections"
 msgstr "Geometrik düzeltmeler"
 
-#: src/bigocrpdf/cli_parser.py:154
+#: src/bigocrpdf/cli_parser.py:162
 msgid "Disable curvature correction"
 msgstr "Eğrilik düzeltmeyi devre dışı bırak"
 
-#: src/bigocrpdf/cli_parser.py:156
+#: src/bigocrpdf/cli_parser.py:164
 msgid "Disable skew correction"
 msgstr "Eğiklik düzeltmeyi devre dışı bırak"
 
-#: src/bigocrpdf/cli_parser.py:158
+#: src/bigocrpdf/cli_parser.py:166
 msgid "Disable perspective correction"
 msgstr "Perspektif düzeltmeyi devre dışı bırak"
 
-#: src/bigocrpdf/cli_parser.py:161
+#: src/bigocrpdf/cli_parser.py:169
 msgid "Disable orientation detection"
 msgstr "Yönelim algılamayı devre dışı bırak"
 
-#: src/bigocrpdf/cli_parser.py:166
+#: src/bigocrpdf/cli_parser.py:174
 msgid "Image enhancements"
 msgstr "Görüntü iyileştirmeleri"
 
-#: src/bigocrpdf/cli_parser.py:171
+#: src/bigocrpdf/cli_parser.py:179
 msgid "Enable scanner effect (whitens background)."
 msgstr "Tarayıcı efektini etkinleştir (arka planı beyazlatır)."
 
-#: src/bigocrpdf/cli_parser.py:173
+#: src/bigocrpdf/cli_parser.py:181
 msgid "Disable scanner effect."
 msgstr "Tarayıcı efektini devre dışı bırak."
 
-#: src/bigocrpdf/cli_parser.py:174
+#: src/bigocrpdf/cli_parser.py:182
 msgid "Enable CLAHE contrast"
 msgstr "CLAHE kontrastı etkinleştir"
 
-#: src/bigocrpdf/cli_parser.py:175
+#: src/bigocrpdf/cli_parser.py:183
 msgid "Enable auto brightness"
 msgstr "Otomatik parlaklığı etkinleştir"
 
-#: src/bigocrpdf/cli_parser.py:176
+#: src/bigocrpdf/cli_parser.py:184
 msgid "Enable denoising"
 msgstr "Gürültü azaltmayı etkinleştir"
 
-#: src/bigocrpdf/cli_parser.py:177
+#: src/bigocrpdf/cli_parser.py:185
 msgid "Remove dark borders"
 msgstr "Koyu kenarları kaldır"
 
-#: src/bigocrpdf/cli_parser.py:178
+#: src/bigocrpdf/cli_parser.py:186
 msgid "Enable vintage look (sepia/BW)."
 msgstr "Vintage görünümü etkinleştir (sepya/SB)."
 
-#: src/bigocrpdf/cli_parser.py:179
+#: src/bigocrpdf/cli_parser.py:187
 msgid "Vintage in black & white"
 msgstr "Siyah beyaz vintage"
 
-#: src/bigocrpdf/cli_parser.py:183 src/bigocrpdf/ui/settings_queue_mixin.py:304
+#: src/bigocrpdf/cli_parser.py:191 src/bigocrpdf/ui/settings_queue_mixin.py:304
 #: src/bigocrpdf/ui/settings_queue_mixin.py:306
 msgid "Output options"
 msgstr "Çıktı seçenekleri"
 
-#: src/bigocrpdf/cli_parser.py:190
+#: src/bigocrpdf/cli_parser.py:198
 msgid "Convert output to PDF/A-2b (default)"
 msgstr "Çıkışı PDF/A-2b'ye dönüştür (varsayılan)"
 
-#: src/bigocrpdf/cli_parser.py:196
+#: src/bigocrpdf/cli_parser.py:204
 msgid "Create a regular PDF instead of PDF/A-2b"
 msgstr "PDF/A-2b yerine normal bir PDF oluştur"
 
-#: src/bigocrpdf/cli_parser.py:203
+#: src/bigocrpdf/cli_parser.py:211
 msgid "Viewer page layout (/PageLayout) in output PDF. Default: default."
 msgstr ""
 "Çıktı PDF'sindeki görüntüleyici sayfa düzeni (/PageLayout). Varsayılan: "
 "default."
 
-#: src/bigocrpdf/cli_parser.py:210
+#: src/bigocrpdf/cli_parser.py:218
 msgid "Image format in output PDF. Default: original."
 msgstr "Çıkış PDF'inde görüntü biçimi. Varsayılan: original."
 
-#: src/bigocrpdf/cli_parser.py:217
+#: src/bigocrpdf/cli_parser.py:225
 msgid "Image quality for JPEG/WebP (1-95, default: 85)."
 msgstr "JPEG/WebP görüntü kalitesi (1-95, varsayılan: 85)."
 
-#: src/bigocrpdf/cli_parser.py:226
+#: src/bigocrpdf/cli_parser.py:234
 msgid ""
 "Also write structured OCR data (text, word boxes, confidence, layout) as "
 "JSON. Nothing is written without this option. If FILE is omitted, the name "
@@ -364,167 +364,167 @@ msgstr ""
 "JSON olarak da yaz. Bu seçenek olmadan hiçbir şey yazılmaz. FILE atlanırsa "
 "ad, çıktı PDF'sinin .bigocr.json uzantılı hâlidir."
 
-#: src/bigocrpdf/cli_parser.py:234
+#: src/bigocrpdf/cli_parser.py:242
 msgid "Debugging"
 msgstr "Hata ayıklama"
 
-#: src/bigocrpdf/cli_parser.py:239
+#: src/bigocrpdf/cli_parser.py:247
 msgid "Save preprocessed images to this directory."
 msgstr "Ön işlenmiş görüntüleri bu dizine kaydet."
 
-#: src/bigocrpdf/cli_parser.py:244
+#: src/bigocrpdf/cli_parser.py:252
 msgid "Only run preprocessing (dewarp/deskew), save images, skip OCR."
 msgstr ""
 "Yalnızca ön işlemeyi (eğrilik/eğiklik düzeltme) çalıştır, görüntüleri kaydet "
 "ve OCR’yi atla."
 
-#: src/bigocrpdf/cli_parser.py:257
+#: src/bigocrpdf/cli_parser.py:265
 msgid "Show PDF metadata and page count"
 msgstr "PDF üst verilerini ve sayfa sayısını göster"
 
-#: src/bigocrpdf/cli_parser.py:262
+#: src/bigocrpdf/cli_parser.py:270
 msgid "Split PDF into smaller files"
 msgstr "PDF'yi daha küçük dosyalara böl"
 
-#: src/bigocrpdf/cli_parser.py:265
+#: src/bigocrpdf/cli_parser.py:273
 msgid "Output directory"
 msgstr "Çıkış dizini"
 
-#: src/bigocrpdf/cli_parser.py:268
+#: src/bigocrpdf/cli_parser.py:276
 msgid "Split every N pages"
 msgstr "Her N sayfada böl"
 
-#: src/bigocrpdf/cli_parser.py:270
+#: src/bigocrpdf/cli_parser.py:278
 msgid "Maximum file size per part in megabytes"
 msgstr "Parça başına maksimum dosya boyutu (megabayt)"
 
-#: src/bigocrpdf/cli_parser.py:273
+#: src/bigocrpdf/cli_parser.py:281
 msgid "Explicit ranges (e.g. '1-5,6-10,11-15')"
 msgstr "Açık aralıklar (ör. '1-5,6-10,11-15')"
 
-#: src/bigocrpdf/cli_parser.py:276
+#: src/bigocrpdf/cli_parser.py:284
 msgid "Filename prefix for output parts"
 msgstr "Çıkış parçaları için dosya adı öneki"
 
-#: src/bigocrpdf/cli_parser.py:281
+#: src/bigocrpdf/cli_parser.py:289
 msgid "Merge multiple PDFs into one"
 msgstr "Birden fazla PDF'yi birleştir"
 
-#: src/bigocrpdf/cli_parser.py:282
+#: src/bigocrpdf/cli_parser.py:291
 msgid "Input PDF files (in order)"
 msgstr "Giriş PDF dosyaları (sıralı)"
 
-#: src/bigocrpdf/cli_parser.py:287
+#: src/bigocrpdf/cli_parser.py:299
 msgid "Compress PDF to reduce file size"
 msgstr "Dosya boyutunu küçültmek için PDF'yi sıkıştır"
 
-#: src/bigocrpdf/cli_parser.py:297
+#: src/bigocrpdf/cli_parser.py:309
 msgid "JPEG quality for images (1-95, default: 60)"
 msgstr "Görüntüler için JPEG kalitesi (1-95, varsayılan: 60)"
 
-#: src/bigocrpdf/cli_parser.py:304
+#: src/bigocrpdf/cli_parser.py:316
 msgid "Target DPI for images (default: 150)"
 msgstr "Görüntüler için hedef DPI (varsayılan: 150)"
 
-#: src/bigocrpdf/cli_parser.py:309
+#: src/bigocrpdf/cli_parser.py:321
 msgid "Rotate pages in a PDF"
 msgstr "PDF'deki sayfaları döndür"
 
-#: src/bigocrpdf/cli_parser.py:319
+#: src/bigocrpdf/cli_parser.py:331
 msgid "Rotation angle in degrees (clockwise)"
 msgstr "Derece cinsinden dönüş açısı (saat yönünde)"
 
-#: src/bigocrpdf/cli_parser.py:325
+#: src/bigocrpdf/cli_parser.py:337
 msgid "Pages to rotate (e.g. '1,3,5' or '1-5'). Default: all."
 msgstr "Döndürülecek sayfalar (ör. '1,3,5' veya '1-5'). Varsayılan: tümü."
 
-#: src/bigocrpdf/cli_parser.py:330
+#: src/bigocrpdf/cli_parser.py:342
 msgid "Remove pages from a PDF"
 msgstr "PDF'den sayfa kaldır"
 
-#: src/bigocrpdf/cli_parser.py:336
+#: src/bigocrpdf/cli_parser.py:348
 msgid "Pages to delete (e.g. '3,5,7' or '2-4')"
 msgstr "Silinecek sayfalar (ör. '3,5,7' veya '2-4')"
 
-#: src/bigocrpdf/cli_parser.py:341
+#: src/bigocrpdf/cli_parser.py:353
 msgid "Extract pages to a new PDF"
 msgstr "Sayfaları yeni bir PDF'ye çıkar"
 
-#: src/bigocrpdf/cli_parser.py:347
+#: src/bigocrpdf/cli_parser.py:359
 msgid "Pages to extract (e.g. '3-5' or '1,3,7')"
 msgstr "Çıkarılacak sayfalar (ör. '3-5' veya '1,3,7')"
 
-#: src/bigocrpdf/cli_parser.py:352
+#: src/bigocrpdf/cli_parser.py:364
 msgid "Insert pages from another PDF"
 msgstr "Başka bir PDF'den sayfa ekle"
 
-#: src/bigocrpdf/cli_parser.py:353
+#: src/bigocrpdf/cli_parser.py:365
 msgid "Target PDF file"
 msgstr "Hedef PDF dosyası"
 
-#: src/bigocrpdf/cli_parser.py:363
+#: src/bigocrpdf/cli_parser.py:375
 msgid "PDF file to insert pages from"
 msgstr "Sayfa eklenecek PDF dosyası"
 
-#: src/bigocrpdf/cli_parser.py:370
+#: src/bigocrpdf/cli_parser.py:382
 msgid "Insert at this page position (1-indexed, 0 = append). Default: append."
 msgstr "Bu sayfa konumuna ekle (1'den başlayan, 0 = sona). Varsayılan: sona."
 
-#: src/bigocrpdf/cli_parser.py:376
+#: src/bigocrpdf/cli_parser.py:388
 msgid "Pages to insert from the source (e.g. '1-3'). Default: all."
 msgstr "Kaynaktan eklenecek sayfalar (ör. '1-3'). Varsayılan: tümü."
 
-#: src/bigocrpdf/cli_parser.py:381
+#: src/bigocrpdf/cli_parser.py:393
 msgid "Reorder or reverse pages"
 msgstr "Sayfaları yeniden sırala veya tersine çevir"
 
-#: src/bigocrpdf/cli_parser.py:388
+#: src/bigocrpdf/cli_parser.py:400
 msgid "New page order (e.g. '3,1,2,5,4')"
 msgstr "Yeni sayfa sırası (ör. '3,1,2,5,4')"
 
-#: src/bigocrpdf/cli_parser.py:390
+#: src/bigocrpdf/cli_parser.py:402
 msgid "Reverse the page order"
 msgstr "Sayfa sırasını tersine çevir"
 
-#: src/bigocrpdf/cli_parser.py:394
+#: src/bigocrpdf/cli_parser.py:406
 msgid "Input PDF file (must have text layer)"
 msgstr "Giriş PDF dosyası (metin katmanı olmalı)"
 
-#: src/bigocrpdf/cli_parser.py:398
+#: src/bigocrpdf/cli_parser.py:410
 msgid "Export OCR'd PDF as ODF document"
 msgstr "OCR'li PDF'yi ODF belgesi olarak dışa aktar"
 
-#: src/bigocrpdf/cli_parser.py:400
+#: src/bigocrpdf/cli_parser.py:412
 msgid "Output ODF file (default: same name as input with .odt)"
 msgstr "Çıkış ODF dosyası (varsayılan: aynı ad, .odt uzantılı)"
 
-#: src/bigocrpdf/cli_parser.py:405
+#: src/bigocrpdf/cli_parser.py:417
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:36
 #: src/bigocrpdf/ui/pdf_options_controller.py:233
 msgid "Preserve Text Layout"
 msgstr "Metin düzenini koru"
 
-#: src/bigocrpdf/cli_parser.py:410
+#: src/bigocrpdf/cli_parser.py:422
 msgid "Export OCR'd PDF as formatted text"
 msgstr "OCR'li PDF'yi biçimlendirilmiş metin olarak dışa aktar"
 
-#: src/bigocrpdf/cli_parser.py:412
+#: src/bigocrpdf/cli_parser.py:424
 msgid "Output text file (default: same name as input with .txt)"
 msgstr "Çıkış metin dosyası (varsayılan: aynı ad, .txt uzantılı)"
 
-#: src/bigocrpdf/cli_parser.py:417
+#: src/bigocrpdf/cli_parser.py:429
 msgid "Export OCR'd PDF as Markdown"
 msgstr "OCR uygulanmış PDF'yi Markdown olarak dışa aktar"
 
-#: src/bigocrpdf/cli_parser.py:419
+#: src/bigocrpdf/cli_parser.py:431
 msgid "Output Markdown file (default: same name as input with .md)"
 msgstr "Çıktı Markdown dosyası (varsayılan: .md uzantılı girdi ile aynı isim)"
 
-#: src/bigocrpdf/cli_parser.py:424
+#: src/bigocrpdf/cli_parser.py:436
 msgid "Prepend YAML front-matter (title, source, page count, date)."
 msgstr "YAML ön bilgisini başa ekle (başlık, kaynak, sayfa sayısı, tarih)."
 
-#: src/bigocrpdf/cli_parser.py:444
+#: src/bigocrpdf/cli_parser.py:458
 msgid ""
 "Export from structured OCR JSON written earlier by 'ocr --sidecar-json', "
 "instead of reading the PDF text layer."
@@ -532,11 +532,11 @@ msgstr ""
 "PDF'nin metin katmanını okumak yerine, daha önce 'ocr --sidecar-json' ile "
 "yazılan yapılandırılmış OCR JSON dosyasından dışa aktar."
 
-#: src/bigocrpdf/cli_parser.py:452
+#: src/bigocrpdf/cli_parser.py:466
 msgid "Open interactive GUI editor"
 msgstr "Etkileşimli grafik düzenleyiciyi aç"
 
-#: src/bigocrpdf/cli_parser.py:453
+#: src/bigocrpdf/cli_parser.py:467
 msgid "PDF file to edit"
 msgstr "Düzenlenecek PDF dosyası"
 
@@ -1149,12 +1149,12 @@ msgid "Exported to {}"
 msgstr "{}'ye aktarıldı"
 
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:514
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:308
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:309
 msgid "OpenDocument (.odt)"
 msgstr "OpenDocument (.odt)"
 
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:515
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:309
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:310
 msgid "Markdown (.md)"
 msgstr "Markdown (.md)"
 
@@ -1258,34 +1258,34 @@ msgstr "Tümünü Seç"
 msgid "Clear"
 msgstr "Temizle"
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:228
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:229
 #, python-brace-format
 msgid "Selected: {count}"
 msgstr "Seçilen: {count}"
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:248
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:249
 #: src/bigocrpdf/ui/settings_queue_mixin.py:552
-#: src/bigocrpdf/ui/settings_queue_mixin.py:662
+#: src/bigocrpdf/ui/settings_queue_mixin.py:664
 #, python-brace-format
 msgid "{count} page"
 msgid_plural "{count} pages"
 msgstr[0] "{count} sayfa"
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:278
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:279
 msgid "Open the processed file"
 msgstr "İşlenmiş dosyayı aç"
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:287
-#: src/bigocrpdf/ui/settings_queue_mixin.py:709
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:288
+#: src/bigocrpdf/ui/settings_queue_mixin.py:711
 msgid "Show in file manager"
 msgstr "Dosya yöneticisinde göster"
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:294
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:295
 msgid "View the text found in this document"
 msgstr "Bu belgede bulunan metni görüntüle."
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:313
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:315
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:314
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:316
 msgid "Export to other formats"
 msgstr "Diğer formatlara aktarın"
 
@@ -1644,8 +1644,8 @@ msgid "Open Image to OCR"
 msgstr "OCR için Görüntü Aç"
 
 #: src/bigocrpdf/ui/image_ocr_window.py:1109
-#: src/bigocrpdf/ui/settings_queue_mixin.py:887
-#: src/bigocrpdf/ui/settings_queue_mixin.py:971
+#: src/bigocrpdf/ui/settings_queue_mixin.py:889
+#: src/bigocrpdf/ui/settings_queue_mixin.py:973
 #: src/bigocrpdf/ui/welcome_dialog_controller.py:108
 msgid "Images"
 msgstr "Görüntüler"
@@ -2353,7 +2353,7 @@ msgid "Save page as PDF"
 msgstr "Sayfayı PDF olarak kaydet"
 
 #: src/bigocrpdf/ui/pdf_editor/page_thumbnail.py:387
-#: src/bigocrpdf/ui/settings_queue_mixin.py:989
+#: src/bigocrpdf/ui/settings_queue_mixin.py:991
 #, python-brace-format
 msgid "Page {n}"
 msgstr "Sayfa {n}"
@@ -2643,205 +2643,205 @@ msgstr "Klasör gözat"
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:417
 #: src/bigocrpdf/ui/settings_queue_mixin.py:418
-#: src/bigocrpdf/ui/settings_queue_mixin.py:590
-#: src/bigocrpdf/ui/settings_queue_mixin.py:591
+#: src/bigocrpdf/ui/settings_queue_mixin.py:592
+#: src/bigocrpdf/ui/settings_queue_mixin.py:593
 msgid "Edit pages of this file"
 msgstr "Bu dosyanın sayfalarını düzenle."
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:425
 #: src/bigocrpdf/ui/settings_queue_mixin.py:426
-#: src/bigocrpdf/ui/settings_queue_mixin.py:598
-#: src/bigocrpdf/ui/settings_queue_mixin.py:599
+#: src/bigocrpdf/ui/settings_queue_mixin.py:600
+#: src/bigocrpdf/ui/settings_queue_mixin.py:601
 msgid "Remove this file from the list"
 msgstr "Bu dosyayı listeden kaldır."
 
 #: src/bigocrpdf/ui/settings_queue_mixin.py:543
-#: src/bigocrpdf/ui/settings_queue_mixin.py:666
+#: src/bigocrpdf/ui/settings_queue_mixin.py:668
 msgid "Cannot read this PDF"
 msgstr "Bu PDF okunamıyor"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:708
+#: src/bigocrpdf/ui/settings_queue_mixin.py:710
 msgid "Open file"
 msgstr "Dosyayı aç"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:713
-#: src/bigocrpdf/ui/settings_queue_mixin.py:928
+#: src/bigocrpdf/ui/settings_queue_mixin.py:715
+#: src/bigocrpdf/ui/settings_queue_mixin.py:930
 msgid "File information"
 msgstr "Dosya bilgisi"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:841
+#: src/bigocrpdf/ui/settings_queue_mixin.py:843
 msgid "Name"
 msgstr "Ad"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:842
+#: src/bigocrpdf/ui/settings_queue_mixin.py:844
 msgid "Path"
 msgstr "Yol"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:848
+#: src/bigocrpdf/ui/settings_queue_mixin.py:850
 msgid "Size"
 msgstr "Boyut"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:855
+#: src/bigocrpdf/ui/settings_queue_mixin.py:857
 msgid "Modified (local)"
 msgstr "Değiştirilme zamanı (yerel)"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:861
+#: src/bigocrpdf/ui/settings_queue_mixin.py:863
 msgid "Document"
 msgstr "Belge"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:863
+#: src/bigocrpdf/ui/settings_queue_mixin.py:865
 msgid "Pages"
 msgstr "Sayfalar"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:864
+#: src/bigocrpdf/ui/settings_queue_mixin.py:866
 msgid "Page size"
 msgstr "Sayfa boyutu"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:865
+#: src/bigocrpdf/ui/settings_queue_mixin.py:867
 msgid "PDF version"
 msgstr "PDF sürümü"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:866
+#: src/bigocrpdf/ui/settings_queue_mixin.py:868
 msgid "Encrypted"
 msgstr "Şifreli"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:867
+#: src/bigocrpdf/ui/settings_queue_mixin.py:869
 msgid "Optimized"
 msgstr "Optimize edilmiş"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:868
+#: src/bigocrpdf/ui/settings_queue_mixin.py:870
 msgid "Tagged"
 msgstr "Etiketli"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:873
+#: src/bigocrpdf/ui/settings_queue_mixin.py:875
 msgid "Form"
 msgstr "Form"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:875
+#: src/bigocrpdf/ui/settings_queue_mixin.py:877
 msgid "JavaScript"
 msgstr "JavaScript"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:886
-#: src/bigocrpdf/ui/settings_queue_mixin.py:971
+#: src/bigocrpdf/ui/settings_queue_mixin.py:888
+#: src/bigocrpdf/ui/settings_queue_mixin.py:973
 msgid "Content"
 msgstr "İçerik"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:890
+#: src/bigocrpdf/ui/settings_queue_mixin.py:892
 msgid "Image formats"
 msgstr "Görüntü biçimleri"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:894
+#: src/bigocrpdf/ui/settings_queue_mixin.py:896
 msgid "Fonts"
 msgstr "Yazı tipleri"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:896
+#: src/bigocrpdf/ui/settings_queue_mixin.py:898
 msgid "Embedded fonts"
 msgstr "Gömülü yazı tipleri"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:898
+#: src/bigocrpdf/ui/settings_queue_mixin.py:900
 msgid "Font names"
 msgstr "Yazı tipi adları"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:901
+#: src/bigocrpdf/ui/settings_queue_mixin.py:903
 msgid "Attached files"
 msgstr "Ekli dosyalar"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:905
+#: src/bigocrpdf/ui/settings_queue_mixin.py:907
 msgid "Metadata"
 msgstr "Üst veri"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:907
+#: src/bigocrpdf/ui/settings_queue_mixin.py:909
 msgid "Title"
 msgstr "Başlık"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:908
+#: src/bigocrpdf/ui/settings_queue_mixin.py:910
 msgid "Subject"
 msgstr "Konu"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:909
+#: src/bigocrpdf/ui/settings_queue_mixin.py:911
 msgid "Author"
 msgstr "Yazar"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:910
+#: src/bigocrpdf/ui/settings_queue_mixin.py:912
 msgid "Creator"
 msgstr "Oluşturucu"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:911
+#: src/bigocrpdf/ui/settings_queue_mixin.py:913
 msgid "Producer"
 msgstr "Üretici"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:912
+#: src/bigocrpdf/ui/settings_queue_mixin.py:914
 msgid "Keywords"
 msgstr "Anahtar sözcükler"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:917
+#: src/bigocrpdf/ui/settings_queue_mixin.py:919
 msgid "Created"
 msgstr "Oluşturulma"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:919
+#: src/bigocrpdf/ui/settings_queue_mixin.py:921
 msgid "Modified"
 msgstr "Değiştirilme"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:947
-#: src/bigocrpdf/ui/settings_queue_mixin.py:948
+#: src/bigocrpdf/ui/settings_queue_mixin.py:949
+#: src/bigocrpdf/ui/settings_queue_mixin.py:950
 msgid "Copy all information"
 msgstr "Tüm bilgileri kopyala"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:978
+#: src/bigocrpdf/ui/settings_queue_mixin.py:980
 msgid "Image list"
 msgstr "Görüntü listesi"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:981
+#: src/bigocrpdf/ui/settings_queue_mixin.py:983
 #, python-brace-format
 msgid "{count} image"
 msgid_plural "{count} images"
 msgstr[0] "{count} görsel"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:996
-#: src/bigocrpdf/ui/settings_queue_mixin.py:997
+#: src/bigocrpdf/ui/settings_queue_mixin.py:998
+#: src/bigocrpdf/ui/settings_queue_mixin.py:999
 msgid "Extract this image"
 msgstr "Bu görüntüyü çıkar"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1020
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1022
 msgid "Information copied"
 msgstr "Bilgi kopyalandı"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1054
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1060
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1073
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1058
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1064
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1077
 msgid "Failed to extract image"
 msgstr "Görüntü çıkarılamadı"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1073
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1077
 msgid "Image extracted"
 msgstr "Görüntü çıkarıldı"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1128
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1132
 msgid "Failed to open PDF editor"
 msgstr "PDF düzenleyici açılamadı."
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1142
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1146
 msgid "Changes saved"
 msgstr "Değişiklikler kaydedildi"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1190
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1194
 msgid "Multiple Images Dropped"
 msgstr "Birden fazla görüntü bırakıldı"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1192
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1196
 #, python-brace-format
 msgid "You dropped {count} image. How would you like to add it?"
 msgid_plural "You dropped {count} images. How would you like to add them?"
 msgstr[0] "{count} görsel bıraktınız. Nasıl eklemek istersiniz?"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1244
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1248
 #: src/bigocrpdf/ui/window_ui.py:108
 #, python-brace-format
 msgid "{count} file in queue"
 msgid_plural "{count} files in queue"
 msgstr[0] "Kuyrukta {count} dosya"
 
-#: src/bigocrpdf/ui/settings_queue_mixin.py:1259
+#: src/bigocrpdf/ui/settings_queue_mixin.py:1263
 msgid "All files removed from queue"
 msgstr "Tüm dosyalar kuyruktan kaldırıldı"
 

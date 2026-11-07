@@ -173,6 +173,7 @@ class ConclusionStatsFileListMixin:
             An Adw.ActionRow for the file
         """
         row = Adw.ActionRow()
+        row.set_use_markup(False)
         row.set_title(os.path.basename(output_file))
         row.set_subtitle(os.path.dirname(output_file))
 

@@ -8,6 +8,12 @@ from bigocrpdf.services.ocr.config import DEFAULT_DETECTION_FULL_RESOLUTION, DEF
 from bigocrpdf.utils.i18n import _
 
 
+def _absolute_path(text: str) -> Path:
+    """A path argument made absolute, so the tools it is handed to never read
+    a name that starts with "-" as an option."""
+    return Path(text).absolute()
+
+
 def _parse_page_list(text: str) -> list[int]:
     """Parse a page specification string into sorted 1-indexed numbers."""
     pages: set[int] = set()
@@ -83,8 +89,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 def _add_ocr_parser(subparsers: argparse._SubParsersAction) -> None:
     ocr_parser = subparsers.add_parser("ocr", help=_("OCR processing for PDF files"))
-    ocr_parser.add_argument("input", type=Path, help=_("Input PDF file"))
-    ocr_parser.add_argument("-o", "--output", type=Path, required=True, help=_("Output PDF file"))
+    ocr_parser.add_argument("input", type=_absolute_path, help=_("Input PDF file"))
+    ocr_parser.add_argument(
+        "-o", "--output", type=_absolute_path, required=True, help=_("Output PDF file")
+    )
     ocr_parser.add_argument(
         "--pages",
         type=str,
@@ -234,7 +242,7 @@ def _add_ocr_debug_options(ocr_parser: argparse.ArgumentParser) -> None:
     debug = ocr_parser.add_argument_group(_("Debugging"))
     debug.add_argument(
         "--save-preprocessed",
-        type=Path,
+        type=_absolute_path,
         default=None,
         help=_("Save preprocessed images to this directory."),
     )
@@ -255,14 +263,14 @@ def _add_pdf_operation_parsers(subparsers: argparse._SubParsersAction) -> None:
     _add_insert_parser(subparsers)
     _add_reorder_parser(subparsers)
     info_parser = subparsers.add_parser("info", help=_("Show PDF metadata and page count"))
-    info_parser.add_argument("input", type=Path, help=_("Input PDF file"))
+    info_parser.add_argument("input", type=_absolute_path, help=_("Input PDF file"))
 
 
 def _add_split_parser(subparsers: argparse._SubParsersAction) -> None:
     split_parser = subparsers.add_parser("split", help=_("Split PDF into smaller files"))
-    split_parser.add_argument("input", type=Path, help=_("Input PDF file"))
+    split_parser.add_argument("input", type=_absolute_path, help=_("Input PDF file"))
     split_parser.add_argument(
-        "-o", "--output", type=Path, required=True, help=_("Output directory")
+        "-o", "--output", type=_absolute_path, required=True, help=_("Output directory")
     )
     split_mode = split_parser.add_mutually_exclusive_group(required=True)
     split_mode.add_argument("--pages", type=int, metavar="N", help=_("Split every N pages"))
@@ -279,15 +287,19 @@ def _add_split_parser(subparsers: argparse._SubParsersAction) -> None:
 
 def _add_merge_parser(subparsers: argparse._SubParsersAction) -> None:
     merge_parser = subparsers.add_parser("merge", help=_("Merge multiple PDFs into one"))
-    merge_parser.add_argument("inputs", nargs="+", type=Path, help=_("Input PDF files (in order)"))
-    merge_parser.add_argument("-o", "--output", type=Path, required=True, help=_("Output PDF file"))
+    merge_parser.add_argument(
+        "inputs", nargs="+", type=_absolute_path, help=_("Input PDF files (in order)")
+    )
+    merge_parser.add_argument(
+        "-o", "--output", type=_absolute_path, required=True, help=_("Output PDF file")
+    )
 
 
 def _add_compress_parser(subparsers: argparse._SubParsersAction) -> None:
     compress_parser = subparsers.add_parser("compress", help=_("Compress PDF to reduce file size"))
-    compress_parser.add_argument("input", type=Path, help=_("Input PDF file"))
+    compress_parser.add_argument("input", type=_absolute_path, help=_("Input PDF file"))
     compress_parser.add_argument(
-        "-o", "--output", type=Path, required=True, help=_("Output PDF file")
+        "-o", "--output", type=_absolute_path, required=True, help=_("Output PDF file")
     )
     compress_parser.add_argument(
         "--quality",
@@ -307,9 +319,9 @@ def _add_compress_parser(subparsers: argparse._SubParsersAction) -> None:
 
 def _add_rotate_parser(subparsers: argparse._SubParsersAction) -> None:
     rotate_parser = subparsers.add_parser("rotate", help=_("Rotate pages in a PDF"))
-    rotate_parser.add_argument("input", type=Path, help=_("Input PDF file"))
+    rotate_parser.add_argument("input", type=_absolute_path, help=_("Input PDF file"))
     rotate_parser.add_argument(
-        "-o", "--output", type=Path, required=True, help=_("Output PDF file")
+        "-o", "--output", type=_absolute_path, required=True, help=_("Output PDF file")
     )
     rotate_parser.add_argument(
         "--angle",
@@ -328,9 +340,9 @@ def _add_rotate_parser(subparsers: argparse._SubParsersAction) -> None:
 
 def _add_delete_parser(subparsers: argparse._SubParsersAction) -> None:
     delete_parser = subparsers.add_parser("delete", help=_("Remove pages from a PDF"))
-    delete_parser.add_argument("input", type=Path, help=_("Input PDF file"))
+    delete_parser.add_argument("input", type=_absolute_path, help=_("Input PDF file"))
     delete_parser.add_argument(
-        "-o", "--output", type=Path, required=True, help=_("Output PDF file")
+        "-o", "--output", type=_absolute_path, required=True, help=_("Output PDF file")
     )
     delete_parser.add_argument(
         "--pages", type=str, required=True, help=_("Pages to delete (e.g. '3,5,7' or '2-4')")
@@ -339,9 +351,9 @@ def _add_delete_parser(subparsers: argparse._SubParsersAction) -> None:
 
 def _add_extract_parser(subparsers: argparse._SubParsersAction) -> None:
     extract_parser = subparsers.add_parser("extract", help=_("Extract pages to a new PDF"))
-    extract_parser.add_argument("input", type=Path, help=_("Input PDF file"))
+    extract_parser.add_argument("input", type=_absolute_path, help=_("Input PDF file"))
     extract_parser.add_argument(
-        "-o", "--output", type=Path, required=True, help=_("Output PDF file")
+        "-o", "--output", type=_absolute_path, required=True, help=_("Output PDF file")
     )
     extract_parser.add_argument(
         "--pages", type=str, required=True, help=_("Pages to extract (e.g. '3-5' or '1,3,7')")
@@ -350,14 +362,14 @@ def _add_extract_parser(subparsers: argparse._SubParsersAction) -> None:
 
 def _add_insert_parser(subparsers: argparse._SubParsersAction) -> None:
     insert_parser = subparsers.add_parser("insert", help=_("Insert pages from another PDF"))
-    insert_parser.add_argument("input", type=Path, help=_("Target PDF file"))
+    insert_parser.add_argument("input", type=_absolute_path, help=_("Target PDF file"))
     insert_parser.add_argument(
-        "-o", "--output", type=Path, required=True, help=_("Output PDF file")
+        "-o", "--output", type=_absolute_path, required=True, help=_("Output PDF file")
     )
     insert_parser.add_argument(
         "--from",
         dest="insert_from",
-        type=Path,
+        type=_absolute_path,
         required=True,
         metavar="FILE",
         help=_("PDF file to insert pages from"),
@@ -379,9 +391,9 @@ def _add_insert_parser(subparsers: argparse._SubParsersAction) -> None:
 
 def _add_reorder_parser(subparsers: argparse._SubParsersAction) -> None:
     reorder_parser = subparsers.add_parser("reorder", help=_("Reorder or reverse pages"))
-    reorder_parser.add_argument("input", type=Path, help=_("Input PDF file"))
+    reorder_parser.add_argument("input", type=_absolute_path, help=_("Input PDF file"))
     reorder_parser.add_argument(
-        "-o", "--output", type=Path, required=True, help=_("Output PDF file")
+        "-o", "--output", type=_absolute_path, required=True, help=_("Output PDF file")
     )
     reorder_group = reorder_parser.add_mutually_exclusive_group(required=True)
     reorder_group.add_argument(
@@ -433,11 +445,13 @@ def _add_export_output_parser(
     output_help: str,
 ) -> argparse.ArgumentParser:
     export_parser = subparsers.add_parser(command, help=command_help)
-    export_parser.add_argument("input", type=Path, help=input_help)
-    export_parser.add_argument("-o", "--output", type=Path, default=None, help=output_help)
+    export_parser.add_argument("input", type=_absolute_path, help=input_help)
+    export_parser.add_argument(
+        "-o", "--output", type=_absolute_path, default=None, help=output_help
+    )
     export_parser.add_argument(
         "--from-json",
-        type=Path,
+        type=_absolute_path,
         default=None,
         metavar="FILE",
         help=_(
@@ -450,4 +464,4 @@ def _add_export_output_parser(
 
 def _add_editor_parser(subparsers: argparse._SubParsersAction) -> None:
     edit_parser = subparsers.add_parser("edit", help=_("Open interactive GUI editor"))
-    edit_parser.add_argument("input", type=Path, help=_("PDF file to edit"))
+    edit_parser.add_argument("input", type=_absolute_path, help=_("PDF file to edit"))

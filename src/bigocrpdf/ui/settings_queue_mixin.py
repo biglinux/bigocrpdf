@@ -570,6 +570,8 @@ class SettingsQueueMixin:
     def _create_file_row(self, file_path: str, idx: int) -> None:
         """Create a row for a single file in the list."""
         row = Adw.ActionRow()
+        # File names and folders are text, not Pango markup.
+        row.set_use_markup(False)
         row.set_activatable(True)
         row._file_idx = idx
 
@@ -1023,6 +1025,8 @@ class SettingsQueueMixin:
     def _add_info_row(group: Adw.PreferencesGroup, title: str, value: str) -> None:
         """Add a read-only info row to a preferences group."""
         row = Adw.ActionRow()
+        # The value comes from the PDF's metadata.
+        row.set_use_markup(False)
         row.set_title(title)
         row.set_subtitle(value)
         row.set_subtitle_selectable(True)

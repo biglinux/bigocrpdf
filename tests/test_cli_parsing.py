@@ -1,5 +1,7 @@
 """Tests for CLI argument parsing functions."""
 
+from pathlib import Path
+
 import pytest
 
 from bigocrpdf.cli import _parse_page_list, _parse_ranges, build_parser
@@ -100,8 +102,8 @@ class TestBuildParser:
         p = build_parser()
         args = p.parse_args(["ocr", "input.pdf", "-o", "output.pdf"])
         assert args.command == "ocr"
-        assert str(args.input) == "input.pdf"
-        assert str(args.output) == "output.pdf"
+        assert args.input == Path.cwd() / "input.pdf"
+        assert args.output == Path.cwd() / "output.pdf"
 
     def test_split_by_pages(self):
         p = build_parser()
@@ -218,3 +220,9 @@ def test_building_the_parser_does_not_load_the_ocr_stack() -> None:
 
     assert imported_from == str(bigocrpdf.cli_parser.__file__), imported_from
     assert heavy == "[]", heavy
+
+
+def test_dash_named_input_stays_a_file() -> None:
+    args = build_parser().parse_args(["info", "--", "-name.pdf"])
+
+    assert args.input == Path.cwd() / "-name.pdf"
