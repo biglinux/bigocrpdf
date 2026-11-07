@@ -184,7 +184,7 @@ def load_image_with_exif_rotation(
     ``reduced_megapixels`` when that is set. OpenCV only decodes files whose
     size Pillow has read but cannot decode.
     """
-    from PIL import ImageOps, UnidentifiedImageError
+    from PIL import ImageOps
 
     try:
         scale = 1
@@ -216,7 +216,7 @@ def load_image_with_exif_rotation(
                     raise ValueError(f"Image exceeds the decoder safety limit: {exc}") from exc
     except Image.DecompressionBombError as exc:
         raise ValueError(f"Image exceeds the decoder safety limit: {exc}") from exc
-    except (UnidentifiedImageError, OSError, SyntaxError):
+    except (OSError, SyntaxError):  # UnidentifiedImageError is an OSError
         return None
     return cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
 
