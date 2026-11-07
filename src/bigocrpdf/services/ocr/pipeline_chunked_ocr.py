@@ -317,7 +317,7 @@ class ChunkedOCRMixin:
                     stats,
                     self.config,
                     kernel_tier,
-                    ocr_worker.threads,
+                    ocr_worker,
                     CHUNK_SIZE,
                     ocr_workers=pipe_cfg.max_workers,
                     resource=_resource_diagnostics(res_profile, pipe_cfg, CHUNK_SIZE),

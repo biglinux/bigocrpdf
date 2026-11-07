@@ -167,6 +167,9 @@ class Worker:
     ) -> None:
         self.threads = threads
         self.tier: int | None = None
+        # {"status": N} once a --gpu worker ended with status N and the work
+        # moved to the CPU; the job's diagnostics hold this same dict.
+        self.gpu_fallback: dict[str, int] = {}
         self._command = command
         self._cancel_event = cancel_event or threading.Event()
         self._proc = self._start()
@@ -174,6 +177,7 @@ class Worker:
     def _start(self) -> subprocess.Popen:
         logger.debug(f"Starting {' '.join(self._command)}")
         self._output_closed = False
+        self._killed = False
         return subprocess.Popen(self._command, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
     def wait_ready(self) -> int:
@@ -205,13 +209,19 @@ class Worker:
         if self._cancel_event.is_set():
             raise InterruptedError(f"{WORKER} request cancelled")
         if self.exited():
+            self._fall_back_to_cpu()
             self._release_pipes()
             self._proc = self._start()
             self.tier = None
         self.wait_ready()
         assert self._proc.stdin is not None
-        self._proc.stdin.write(os.fsencode(line) + b"\n")
-        self._proc.stdin.flush()
+        try:
+            self._proc.stdin.write(os.fsencode(line) + b"\n")
+            self._proc.stdin.flush()
+        except BrokenPipeError:
+            # Its input closed: the worker is gone, as when its output closes.
+            self._output_closed = True
+            raise
         return self._read()
 
     def recognize(self, image_path: str) -> dict:
@@ -272,8 +282,11 @@ class Worker:
 
     def _fall_back_to_cpu(self) -> bool:
         """Drop ``--gpu`` from the command when the worker died by a signal,
-        or at all before its ready line, and say whether it did."""
-        if "--gpu" not in self._command or not self._output_closed:
+        or at all before its ready line, unless it was killed here, and say
+        whether it did."""
+        if "--gpu" not in self._command or self._killed:
+            return False
+        if not (self._output_closed or self.exited()):
             return False
         # Its output closes a moment before its exit status is ready.
         try:
@@ -284,11 +297,13 @@ class Worker:
             return False
         logger.warning(f"{WORKER} ended with status {code} on the GPU; reading on the CPU now")
         self._command = [arg for arg in self._command if arg != "--gpu"]
+        self.gpu_fallback["status"] = code
         self.tier = None
         return True
 
     def kill(self) -> None:
         """Stop the worker now; the next request starts a new one."""
+        self._killed = True
         with contextlib.suppress(ProcessLookupError):
             self._proc.kill()
         self._proc.wait()

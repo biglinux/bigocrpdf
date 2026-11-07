@@ -41,6 +41,7 @@ class TestBackendModifications(unittest.TestCase):
         self.backend._process_page_result = MagicMock(return_value=(0.95, False))
         worker = MagicMock(threads=4)
         worker.wait_ready.return_value = 3
+        worker.gpu_fallback = {}
         worker.recognize.return_value = {"boxes": None}
         self.backend._start_ocr_worker = MagicMock(return_value=worker)
 

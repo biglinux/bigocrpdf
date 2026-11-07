@@ -64,7 +64,12 @@ def test_mixed_content_records_reported_tier(
     with pikepdf.Pdf.new() as pdf:
         pdf.add_blank_page()
         pdf.save(source)
-    worker = SimpleNamespace(threads=7, wait_ready=MagicMock(return_value=2), close=MagicMock())
+    worker = SimpleNamespace(
+        threads=7,
+        wait_ready=MagicMock(return_value=2),
+        close=MagicMock(),
+        gpu_fallback={},
+    )
     engine = SimpleNamespace(
         config=OCRConfig(),
         _start_ocr_worker=MagicMock(return_value=worker),
@@ -101,7 +106,12 @@ def test_embedded_image_records_reported_tier(
     with pikepdf.Pdf.new() as pdf:
         pdf.add_blank_page()
         pdf.save(source)
-    worker = SimpleNamespace(threads=4, wait_ready=MagicMock(return_value=2), close=MagicMock())
+    worker = SimpleNamespace(
+        threads=4,
+        wait_ready=MagicMock(return_value=2),
+        close=MagicMock(),
+        gpu_fallback={},
+    )
     engine = SimpleNamespace(
         config=OCRConfig(),
         _start_ocr_worker=MagicMock(return_value=worker),

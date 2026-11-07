@@ -216,7 +216,7 @@ class BackendEmbeddedImagePipelineMixin:
                 stats,
                 self.config,
                 kernel_tier,
-                ocr_worker.threads,
+                ocr_worker,
                 1,
             )
             with pikepdf.open(merged_pdf_path, allow_overwriting_input=True) as pdf:

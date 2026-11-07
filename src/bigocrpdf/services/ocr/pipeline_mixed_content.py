@@ -237,7 +237,7 @@ class MixedContentMixin:
                     stats,
                     self.config,
                     kernel_tier,
-                    ocr_worker.threads,
+                    ocr_worker,
                     1,
                 )
                 with pikepdf.open(input_pdf, allow_overwriting_input=True) as pdf:
