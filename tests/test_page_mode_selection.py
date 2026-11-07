@@ -7,6 +7,7 @@ uncorrected one, displacing every word on the page.
 Rule for this file: never reimplement a production formula. Call it.
 """
 
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
 
@@ -14,6 +15,7 @@ import pytest
 
 from bigocrpdf.services.ocr.backend_text_layer import BackendTextLayerMixin
 from bigocrpdf.services.ocr.config import ProcessingStats
+from bigocrpdf.services.ocr.pdf_extractor import Extraction
 from bigocrpdf.services.ocr.pipeline_chunked_ocr import ChunkedOCRMixin
 
 
@@ -140,13 +142,19 @@ def test_oversized_page_keeps_its_image(export_format: str, keeps_original: bool
         enable_perspective_correction=False,
         enable_baseline_dewarp=False,
     )
-    mixin.extractor = SimpleNamespace(masked_pages=set(), rendered_pages={1}, oversized_pages={1})
+    extraction = Extraction(["page_1.png"], rendered_pages={1}, oversized_pages={1})
     rotation = SimpleNamespace(
         deleted=False, included_for_ocr=True, original_pdf_rotation=0, image_turn=(False, 0)
     )
 
     [item] = mixin._build_chunk_work_items(
-        ["page_1.png"], 0, [rotation], set(), {}, SimpleNamespace(downscale_probmap=0)
+        extraction,
+        0,
+        [rotation],
+        set(),
+        {},
+        SimpleNamespace(downscale_probmap=0),
+        scratch_dir=Path("/x"),
     )
 
     assert (item["skip_geometric"], item["force_overlay"]) == (keeps_original, keeps_original)

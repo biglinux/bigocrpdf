@@ -677,7 +677,7 @@ msgstr[0] "Det gick inte att läsa sida {pages}: {cause}"
 msgstr[1] "Det gick inte att läsa sidorna {pages}: {cause}"
 
 #: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:250
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:450
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:515
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "Bearbetar sida {0}/{1}..."
@@ -719,7 +719,7 @@ msgstr "Konverterar till PDF/A..."
 msgid "Splitting PDF by size limit..."
 msgstr "Dela PDF efter storleksgräns..."
 
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:291
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:294
 msgid "Starting OCR..."
 msgstr "Startar OCR..."
 

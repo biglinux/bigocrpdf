@@ -1,5 +1,6 @@
 """Ownership and failure tests for page-worker scratch artifacts."""
 
+import threading
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
@@ -10,6 +11,7 @@ import pytest
 from bigocrpdf.services.ocr import page_worker
 from bigocrpdf.services.ocr.config import ProcessingStats
 from bigocrpdf.services.ocr.geometry_trace import GeometryTrace
+from bigocrpdf.services.ocr.pdf_extractor import Extraction
 from bigocrpdf.services.ocr.pipeline_chunked_ocr import ChunkedOCRMixin
 from bigocrpdf.services.ocr.resource_manager import PipelineConfig, ResourceProfile, ResourceTier
 
@@ -139,7 +141,6 @@ def test_chunk_work_items_receive_the_owned_scratch_directory(
         enable_perspective_correction=False,
         enable_baseline_dewarp=False,
     )
-    mixin.extractor = SimpleNamespace(masked_pages=set(), rendered_pages=set())
     rotation = SimpleNamespace(
         deleted=False,
         included_for_ocr=True,
@@ -149,7 +150,7 @@ def test_chunk_work_items_receive_the_owned_scratch_directory(
     pipe_config = SimpleNamespace(downscale_probmap=0)
 
     work_items = mixin._build_chunk_work_items(
-        [tmp_path / "source.png"],
+        Extraction([tmp_path / "source.png"]),
         0,
         [rotation],
         set(),
@@ -163,10 +164,7 @@ def test_chunk_work_items_receive_the_owned_scratch_directory(
 
 def test_preprocessing_failure_cancels_unstarted_futures() -> None:
     mixin = ChunkedOCRMixin()
-    mixin.extractor = SimpleNamespace(masked_pages=set())
     futures = [MagicMock(), MagicMock()]
-    executor = MagicMock()
-    executor.submit.side_effect = futures
 
     def fail_iteration(_futures):
         raise InterruptedError("cancelled")
@@ -176,11 +174,12 @@ def test_preprocessing_failure_cancels_unstarted_futures() -> None:
         pytest.raises(InterruptedError, match="cancelled"),
     ):
         mixin._ocr_chunk_work_items(
-            executor,
+            {future: idx for idx, future in enumerate(futures)},
             [{"page_num": 1}, {"page_num": 2}],
             MagicMock(),
             [],
             Path("input.pdf"),
+            set(),
         )
 
     assert all(future.cancel.call_count == 1 for future in futures)
@@ -189,7 +188,6 @@ def test_preprocessing_failure_cancels_unstarted_futures() -> None:
 def test_progress_follows_pages_read() -> None:
     """A chunk reports each page as it is read, before any page is written."""
     mixin = ChunkedOCRMixin()
-    mixin.extractor = SimpleNamespace(masked_pages=set())
     mixin._ocr_chunk_result = MagicMock()
     mixin._raise_if_cancelled = MagicMock()
     futures = {MagicMock(): 0, MagicMock(): 1}
@@ -197,11 +195,12 @@ def test_progress_follows_pages_read() -> None:
 
     with patch("bigocrpdf.services.ocr.pipeline_chunked_ocr.as_completed", iter):
         mixin._ocr_chunk_work_items(
-            MagicMock(submit=MagicMock(side_effect=list(futures))),
-            [{"page_num": 3}, {"page_num": 4}],
+            futures,
+            [{"page_num": 3, "scratch_dir": "/x"}, {"page_num": 4, "scratch_dir": "/x"}],
             MagicMock(),
             [],
             Path("input.pdf"),
+            set(),
             progress_callback=lambda *args: reported.append(args),
             pages_before=2,
             total_pages=4,
@@ -214,7 +213,6 @@ def test_single_preprocessing_worker_is_recycled_after_each_page(tmp_path: Path)
     mixin = ChunkedOCRMixin()
     mixin.config = SimpleNamespace()
     mixin._start_ocr_worker = MagicMock(return_value=MagicMock(threads=2))
-    mixin._skip_excluded_chunk = MagicMock(return_value=True)
     executor = MagicMock()
     executor.__enter__.return_value = executor
     pipe_config = PipelineConfig(
@@ -226,7 +224,7 @@ def test_single_preprocessing_worker_is_recycled_after_each_page(tmp_path: Path)
     )
     ctx = {
         "total_pages": 1,
-        "page_rotations": [],
+        "page_rotations": [SimpleNamespace(page_number=1, deleted=True, included_for_ocr=False)],
         "all_rotation_dicts": [{"mediabox": [0, 0, 595, 842]}],
         "native_text_pages": set(),
         "page_encodings": {},
@@ -262,3 +260,110 @@ def test_single_preprocessing_worker_is_recycled_after_each_page(tmp_path: Path)
     assert kwargs["max_workers"] == 1
     assert kwargs["initializer"] is page_worker.worker_init
     assert kwargs["max_tasks_per_child"] == 1
+
+
+def _chunk_pipeline() -> ChunkedOCRMixin:
+    """A chunked pipeline whose collaborators are mocks: one page a chunk."""
+    mixin = ChunkedOCRMixin()
+    mixin.config = SimpleNamespace(
+        image_export_format="original",
+        enable_deskew=False,
+        enable_perspective_correction=False,
+        enable_baseline_dewarp=False,
+    )
+    mixin._start_ocr_worker = MagicMock(return_value=MagicMock(threads=2))
+    mixin._ocr_chunk_work_items = MagicMock(return_value={})
+    mixin._flush_chunk_results = MagicMock(return_value=0.0)
+    mixin._raise_if_cancelled = MagicMock()
+    mixin.extractor = MagicMock()
+    return mixin
+
+
+def _run_chunks(
+    mixin: ChunkedOCRMixin, tmp_path: Path, pages: int, executor=None, deleted=frozenset()
+) -> None:
+    executor = executor or MagicMock()
+    executor.__enter__.return_value = executor
+    rotations = [
+        SimpleNamespace(
+            page_number=n,
+            deleted=n in deleted,
+            included_for_ocr=True,
+            original_pdf_rotation=0,
+            image_turn=(False, 0),
+        )
+        for n in range(1, pages + 1)
+    ]
+    ctx = {
+        "total_pages": pages,
+        "page_rotations": rotations,
+        "all_rotation_dicts": [{"mediabox": [0, 0, 595, 842]}] * pages,
+        "native_text_pages": set(),
+        "page_encodings": {},
+    }
+    with (
+        patch(
+            "bigocrpdf.services.ocr.pipeline_chunked_ocr.ProcessPoolExecutor", return_value=executor
+        ),
+        patch("bigocrpdf.services.ocr.pipeline_chunked_ocr.adjust_chunk_size", return_value=1),
+        patch("bigocrpdf.services.ocr.pipeline_chunked_ocr.record_ocr_runtime_diagnostics"),
+        patch("reportlab.pdfgen.canvas.Canvas", return_value=MagicMock()),
+    ):
+        mixin._run_chunked_ocr_pipeline(
+            tmp_path / "input.pdf",
+            tmp_path / "text.pdf",
+            tmp_path / "images",
+            tmp_path / "scratch",
+            ctx,
+            PipelineConfig(
+                max_workers=2, chunk_size=1, ocr_threads=2, gc_after_page=False, downscale_probmap=0
+            ),
+            ResourceProfile(
+                available_ram_mb=4096, total_ram_mb=8192, cpu_count=4, tier=ResourceTier.ABUNDANT
+            ),
+            ProcessingStats(),
+            None,
+        )
+
+
+def test_prefetch_keeps_its_own_directory(tmp_path: Path) -> None:
+    """The chunk prepared ahead must not wipe the images of the chunk in OCR,
+    also when an excluded chunk sits between them."""
+    mixin = _chunk_pipeline()
+    used = []
+
+    def extract(_pdf, *, output_dir, page_range, skip_pages):
+        used.append((page_range, output_dir))
+        return Extraction([output_dir / f"page_{page_range[0]}.png"])
+
+    mixin.extractor.extract.side_effect = extract
+    _run_chunks(mixin, tmp_path, 3, deleted={2})
+
+    assert [page_range for page_range, _ in used] == [(1, 1), (3, 3)]
+    assert used[0][1] != used[1][1]
+
+
+def test_interrupt_queues_no_prefetched_pages(tmp_path: Path) -> None:
+    """An error while the next chunk is still extracting must not queue its
+    preprocessing once the extraction returns."""
+    mixin = _chunk_pipeline()
+    release = threading.Event()
+
+    def extract(_pdf, *, output_dir, page_range, skip_pages):
+        if page_range == (2, 2):
+            release.wait(5)
+        return Extraction([output_dir / f"page_{page_range[0]}.png"])
+
+    def interrupted(*_args, **_kwargs):
+        threading.Timer(0.2, release.set).start()
+        raise KeyboardInterrupt
+
+    mixin.extractor.extract.side_effect = extract
+    mixin._ocr_chunk_work_items.side_effect = interrupted
+    executor = MagicMock()
+
+    with pytest.raises(KeyboardInterrupt):
+        _run_chunks(mixin, tmp_path, 2, executor)
+
+    queued = [call.args[1]["page_num"] for call in executor.submit.call_args_list]
+    assert queued == [1]

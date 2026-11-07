@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from bigocrpdf.services.ocr.pdf_extractor import (
+    Extraction,
     PDFImageExtractor,
     _add_pdfimages_mapping_line,
     _PageImage,
@@ -42,14 +43,14 @@ def test_oversized_scan_is_rendered_instead(tmp_path: Path):
     extractor = PDFImageExtractor(max_render_megapixels=45, max_image_megapixels=128)
     scan = _PageImage(index=0, width=10_000, height=15_000, x_ppi=1210, y_ppi=1282)
     fallback_pages: list[int] = []
-    results: list[Path | None] = [None]
+    extraction = Extraction([None])
 
     extractor._process_extracted_page(
-        1, 0, tmp_path, {1: [scan]}, {1: (595.0, 842.0)}, set(), fallback_pages, results
+        1, 0, tmp_path, {1: [scan]}, {1: (595.0, 842.0)}, set(), fallback_pages, extraction
     )
 
     assert fallback_pages == [1]
-    assert extractor.oversized_pages == {1}
+    assert extraction.oversized_pages == {1}
 
 
 def test_mapping_line_reads_placement_resolution():

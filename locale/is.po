@@ -673,7 +673,7 @@ msgstr[0] "Ekki tókst að lesa bls. {pages}: {cause}"
 msgstr[1] "Ekki tókst að lesa síður {pages}: {cause}"
 
 #: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:250
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:450
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:515
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "Vinnsla síðu {0}/{1}..."
@@ -715,7 +715,7 @@ msgstr "Að breyta í PDF/A..."
 msgid "Splitting PDF by size limit..."
 msgstr "Að skipta PDF eftir stærðarmörkum..."
 
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:291
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:294
 msgid "Starting OCR..."
 msgstr "Byrjar OCR..."
 

@@ -669,7 +669,7 @@ msgid_plural "Pages {pages} could not be read: {cause}"
 msgstr[0] "{pages} ページを読み取れませんでした: {cause}"
 
 #: src/bigocrpdf/services/ocr/backend_embedded_image_pipeline.py:250
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:450
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:515
 #, python-brace-format
 msgid "Processing page {0}/{1}..."
 msgstr "ページ {0}/{1} を処理中..."
@@ -710,7 +710,7 @@ msgstr "PDF/Aに変換中..."
 msgid "Splitting PDF by size limit..."
 msgstr "サイズ制限によるPDFの分割..."
 
-#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:291
+#: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:294
 msgid "Starting OCR..."
 msgstr "OCRを開始しています..."
 

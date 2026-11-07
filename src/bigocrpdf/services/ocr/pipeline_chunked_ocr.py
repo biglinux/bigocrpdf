@@ -5,10 +5,12 @@
 import contextlib
 import dataclasses
 import gc
+import itertools
 import logging
 import multiprocessing
+import threading
 from collections.abc import Callable
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
@@ -26,6 +28,7 @@ from bigocrpdf.services.ocr.ocr_runtime_diagnostics import (
     record_ocr_runtime_diagnostics,
 )
 from bigocrpdf.services.ocr.page_worker import process_page, worker_init
+from bigocrpdf.services.ocr.pdf_extractor import Extraction
 from bigocrpdf.services.ocr.pdf_page_geometry import render_page_for_ocr
 from bigocrpdf.services.ocr.ppocr_native import ReadError, Worker
 from bigocrpdf.services.ocr.resource_manager import (
@@ -314,39 +317,39 @@ class ChunkedOCRMixin:
                     resource=_resource_diagnostics(res_profile, pipe_cfg, CHUNK_SIZE),
                 )
 
-                for chunk_idx in range(num_chunks):
-                    chunk_start = chunk_idx * CHUNK_SIZE
-                    chunk_end = min(chunk_start + CHUNK_SIZE, total_pages)
+                def chunk_range(chunk_idx: int) -> tuple[int, int]:
+                    first = chunk_idx * CHUNK_SIZE + 1
+                    return first, min(first + CHUNK_SIZE - 1, total_pages)
 
-                    chunk_page_nums = set(range(chunk_start + 1, chunk_end + 1))
-                    if self._skip_excluded_chunk(
-                        c,
-                        chunk_page_nums,
-                        skip_pages,
-                        all_rotation_dicts,
-                        page_standalone_flags,
-                        stats,
-                    ):
-                        logger.info(
-                            f"Chunk {chunk_idx + 1}/{num_chunks} skipped "
-                            f"(all {len(chunk_page_nums)} pages excluded)"
-                        )
-                        continue
+                def chunk_pages(chunk_idx: int) -> set[int]:
+                    first, last = chunk_range(chunk_idx)
+                    return set(range(first, last + 1))
 
-                    for file_path in images_dir.glob("*"):
+                # Set when an exception leaves the loop, so a chunk still being
+                # prepared queues nothing more.
+                stop = threading.Event()
+
+                def prepare(
+                    chunk_idx: int, chunk_dir: Path
+                ) -> tuple[list[dict], dict[Future, int], set[int], Path]:
+                    """Extract a chunk into ``chunk_dir`` and queue its
+                    preprocessing behind what the pool already holds."""
+                    first, last = chunk_range(chunk_idx)
+                    if stop.is_set():
+                        raise InterruptedError("the pipeline stopped")
+                    self._raise_if_cancelled()
+                    for file_path in chunk_dir.glob("*"):
                         with contextlib.suppress(OSError):
                             file_path.unlink()
-
-                    chunk_images = self.extractor.extract(
+                    extraction = self.extractor.extract(
                         input_pdf,
-                        output_dir=images_dir,
-                        page_range=(chunk_start + 1, chunk_end),
+                        output_dir=chunk_dir,
+                        page_range=(first, last),
                         skip_pages=skip_pages,
                     )
-
                     work_items = self._build_chunk_work_items(
-                        chunk_images,
-                        chunk_start,
+                        extraction,
+                        first - 1,
                         page_rotations,
                         native_text_pages,
                         page_encodings,
@@ -354,34 +357,103 @@ class ChunkedOCRMixin:
                         input_pdf=input_pdf,
                         scratch_dir=worker_scratch_dir,
                     )
+                    if stop.is_set():
+                        raise InterruptedError("the pipeline stopped")
+                    self._raise_if_cancelled()
+                    futures = {
+                        executor.submit(process_page, work_item): idx
+                        for idx, work_item in enumerate(work_items)
+                    }
+                    return work_items, futures, extraction.masked_pages, chunk_dir
 
-                    ocr_done = self._ocr_chunk_work_items(
-                        executor,
-                        work_items,
-                        ocr_worker,
-                        all_rotation_dicts,
-                        input_pdf,
-                        progress_callback=progress_callback,
-                        pages_before=chunk_start,
-                        total_pages=total_pages,
-                    )
-                    total_confidence += self._flush_chunk_results(
-                        c,
-                        ocr_done,
-                        work_items,
-                        all_rotation_dicts,
-                        stats,
-                        page_standalone_flags,
-                        page_result_encodings,
-                        pipe_cfg,
-                    )
+                # One thread extracts, so the extractor's calls never overlap;
+                # at most one chunk is prepared ahead of the one in OCR, and
+                # none on a one-worker pool, which budgets memory for one chunk.
+                # The chunks prepared take two directories in turn, so the one
+                # being extracted never holds the images of the one being read.
+                chunk_dirs = itertools.cycle((images_dir / "0", images_dir / "1"))
+                look_ahead = max_workers > 1
+                with ThreadPoolExecutor(max_workers=1) as extracting:
+                    # Every prepared chunk whose result nobody has taken yet.
+                    ahead: dict[int, Future] = {}
+                    try:
+                        for chunk_idx in range(num_chunks):
+                            chunk_page_nums = chunk_pages(chunk_idx)
+                            if chunk_page_nums <= skip_pages:
+                                self._write_excluded_chunk(
+                                    c,
+                                    chunk_page_nums,
+                                    all_rotation_dicts,
+                                    page_standalone_flags,
+                                    stats,
+                                )
+                                logger.info(
+                                    f"Chunk {chunk_idx + 1}/{num_chunks} skipped "
+                                    f"(all {len(chunk_page_nums)} pages excluded)"
+                                )
+                                continue
 
-                    logger.info(
-                        f"Chunk {chunk_idx + 1}/{num_chunks} done "
-                        f"(pages {chunk_start + 1}-{chunk_end})"
-                    )
+                            if chunk_idx not in ahead:
+                                ahead[chunk_idx] = extracting.submit(
+                                    prepare, chunk_idx, next(chunk_dirs)
+                                )
+                            work_items, futures, masked_pages, chunk_dir = ahead[chunk_idx].result()
+                            del ahead[chunk_idx]
+                            self._raise_if_cancelled()
+                            following = next(
+                                (
+                                    i
+                                    for i in range(chunk_idx + 1, num_chunks)
+                                    if not chunk_pages(i) <= skip_pages
+                                ),
+                                None,
+                            )
+                            if look_ahead and following is not None:
+                                ahead[following] = extracting.submit(
+                                    prepare, following, next(chunk_dirs)
+                                )
 
-                    gc.collect()
+                            ocr_done = self._ocr_chunk_work_items(
+                                futures,
+                                work_items,
+                                ocr_worker,
+                                all_rotation_dicts,
+                                input_pdf,
+                                masked_pages,
+                                progress_callback=progress_callback,
+                                pages_before=chunk_range(chunk_idx)[0] - 1,
+                                total_pages=total_pages,
+                            )
+                            total_confidence += self._flush_chunk_results(
+                                c,
+                                ocr_done,
+                                work_items,
+                                all_rotation_dicts,
+                                stats,
+                                page_standalone_flags,
+                                page_result_encodings,
+                                pipe_cfg,
+                            )
+
+                            first, last = chunk_range(chunk_idx)
+                            logger.info(
+                                f"Chunk {chunk_idx + 1}/{num_chunks} done (pages {first}-{last})"
+                            )
+
+                            gc.collect()
+                    except BaseException:
+                        # Nothing queued for a chunk that will not be read may
+                        # keep the pool busy after an error, a cancel or a signal:
+                        # once a running preparation has queued what it will,
+                        # the pool drops every task that has not started.
+                        stop.set()
+                        for prepared in ahead.values():
+                            prepared.cancel()
+                        for prepared in ahead.values():
+                            with contextlib.suppress(BaseException):
+                                prepared.result()
+                        executor.shutdown(wait=False, cancel_futures=True)
+                        raise
 
             finally:
                 ocr_worker.close()
@@ -391,41 +463,34 @@ class ChunkedOCRMixin:
         self._page_standalone_flags = page_standalone_flags
         self._page_original_encodings = page_result_encodings
 
-    def _skip_excluded_chunk(
+    def _write_excluded_chunk(
         self,
         c,
         chunk_page_nums: set[int],
-        skip_pages: set[int],
         all_rotation_dicts: list[dict],
         page_standalone_flags: list[bool],
         stats: ProcessingStats,
-    ) -> bool:
-        if not chunk_page_nums <= skip_pages:
-            return False
+    ) -> None:
         for page_num in sorted(chunk_page_nums):
             c.setPageSize(_chunk_result_page_size(page_num - 1, all_rotation_dicts))
             c.showPage()
             page_standalone_flags.append(False)
             stats.pages_processed += 1
-        return True
 
     def _ocr_chunk_work_items(
         self,
-        executor,
+        preprocess_futures: dict[Future, int],
         work_items: list[dict],
         ocr_worker: Worker,
         all_rotation_dicts: list[dict],
         input_pdf: Path,
+        masked_pages_set: set[int],
         progress_callback: Callable[[int, int, str], None] | None = None,
         pages_before: int = 0,
         total_pages: int = 0,
     ) -> dict[int, tuple[dict, dict]]:
-        preprocess_futures = {
-            executor.submit(process_page, work_item): idx
-            for idx, work_item in enumerate(work_items)
-        }
+        """OCR a chunk's pages as their queued preprocessing finishes."""
         ocr_done: dict[int, tuple[dict, dict]] = {}
-        masked_pages_set = getattr(self.extractor, "masked_pages", None)
         try:
             for pp_fut in as_completed(preprocess_futures):
                 idx = preprocess_futures[pp_fut]
@@ -518,7 +583,7 @@ class ChunkedOCRMixin:
 
     def _build_chunk_work_items(
         self,
-        chunk_images: list,
+        extraction: Extraction,
         chunk_start: int,
         page_rotations: list,
         native_text_pages: set[int],
@@ -529,7 +594,7 @@ class ChunkedOCRMixin:
     ) -> list[dict[str, Any]]:
         """Build work items for parallel preprocessing of a chunk."""
         work_items = []
-        masked_pages = getattr(self.extractor, "masked_pages", set())
+        masked_pages = extraction.masked_pages
         # Determine if user wants image modifications that require
         # high-quality source for masked (DjVu-like) pages.
         format_changed = self.config.image_export_format not in ("original", "")
@@ -538,7 +603,7 @@ class ChunkedOCRMixin:
             or self.config.enable_perspective_correction
             or self.config.enable_baseline_dewarp
         )
-        for i, img_path in enumerate(chunk_images):
+        for i, img_path in enumerate(extraction.images):
             abs_idx = chunk_start + i
             page_num = abs_idx + 1
             rot = page_rotations[abs_idx]
@@ -553,7 +618,7 @@ class ChunkedOCRMixin:
             # pdftoppm already renders with /Rotate applied, so images
             # from the fallback renderer are display-oriented; tell the
             # worker to skip its own rotation step.
-            rendered = page_num in getattr(self.extractor, "rendered_pages", set())
+            rendered = page_num in extraction.rendered_pages
 
             masked = page_num in masked_pages
 
@@ -566,9 +631,7 @@ class ChunkedOCRMixin:
             # A page read from a render because its image is too large keeps
             # that image, uncorrected, beside the OCR text, unless the user
             # asked for the images to be re-encoded.
-            keep_original = (
-                page_num in getattr(self.extractor, "oversized_pages", set()) and not format_changed
-            )
+            keep_original = page_num in extraction.oversized_pages and not format_changed
 
             work_item: dict[str, Any] = {
                 "page_num": page_num,

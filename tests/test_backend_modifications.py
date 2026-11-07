@@ -9,6 +9,7 @@ import pytest
 
 from bigocrpdf.services.ocr.backend import OCRConfig, ProfessionalPDFOCR
 from bigocrpdf.services.ocr.config import ProcessingStats
+from bigocrpdf.services.ocr.pdf_extractor import Extraction
 
 
 class TestBackendModifications(unittest.TestCase):
@@ -65,7 +66,7 @@ class TestBackendModifications(unittest.TestCase):
 
         def extract_chunk(*_args, page_range, **_kwargs):
             start, end = page_range
-            return dummy_images[start - 1 : end]
+            return Extraction(dummy_images[start - 1 : end])
 
         self.backend.extractor.extract.side_effect = extract_chunk
 

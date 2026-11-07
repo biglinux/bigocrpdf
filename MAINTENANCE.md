@@ -93,6 +93,10 @@ nonzero status, timeout, or signal is an explicit error/cancellation result.
   membership, and a user's own `contract-02.pdf` must never be retired.
 - Positioned ODT keeps editable text at page coordinates; reflowable ODT keeps
   paragraphs, tables, and columns; empty pages remain present.
+- Scanned pages go through OCR in chunks. With more than one preprocessing
+  worker, the next chunk is extracted and queued for preprocessing while the
+  current one is read; the chunks take two directories in turn. A stop, a
+  cancel or an error queues nothing more.
 
 OCR or geometry changes require a focused regression plus a representative
 benchmark. File-size or line-count pressure alone is not a reason to rewrite an

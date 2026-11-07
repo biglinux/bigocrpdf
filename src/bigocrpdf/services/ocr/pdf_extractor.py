@@ -406,6 +406,23 @@ def page_has_ocr_text(page: pikepdf.Page) -> bool:
     return _page_has_invisible_ocr_text(page)
 
 
+@dataclass
+class Extraction:
+    """What one ``PDFImageExtractor.extract`` call produced.
+
+    ``images[i]`` is page ``start + i``'s image, or None. The page sets hold
+    1-indexed page numbers of that call only.
+    """
+
+    images: list[Path | None]
+    # Rendered with pdftoppm, rotation already applied.
+    rendered_pages: set[int] = field(default_factory=set)
+    # Rendered because their own image is too large to decode.
+    oversized_pages: set[int] = field(default_factory=set)
+    # With image masks (DjVu-like foreground/background layers).
+    masked_pages: set[int] = field(default_factory=set)
+
+
 class PDFImageExtractor:
     """Native PDF image extraction without re-encoding.
 
@@ -433,13 +450,6 @@ class PDFImageExtractor:
         self.dpi = dpi
         self.max_render_megapixels = max_render_megapixels
         self.max_image_megapixels = max_image_megapixels
-        # Track which 1-indexed pages were rendered via pdftoppm
-        # (rotation already baked into the image)
-        self.rendered_pages: set[int] = set()
-        # Rendered pages whose own image is too large to decode
-        self.oversized_pages: set[int] = set()
-        # Pages with image masks (DjVu-like FG/BG layers)
-        self.masked_pages: set[int] = set()
 
     def extract(
         self,
@@ -447,7 +457,7 @@ class PDFImageExtractor:
         output_dir: Path,
         page_range: tuple[int, int] | None = None,
         skip_pages: set[int] | None = None,
-    ) -> list[Path | None]:
+    ) -> Extraction:
         """Extract native images from PDF ensuring correct page mapping.
 
         When page_range is provided, only images from those pages are
@@ -464,16 +474,14 @@ class PDFImageExtractor:
             skip_pages: Optional set of 1-indexed page numbers to skip entirely.
         """
         output_dir.mkdir(parents=True, exist_ok=True)
-        self.rendered_pages = set()
-        self.oversized_pages = set()
 
         with pikepdf.open(pdf_path) as pdf:
             total_pages = len(pdf.pages)
 
         start_page, end_page = _bounded_page_range(total_pages, page_range)
         num_pages_to_process = end_page - start_page + 1
-        results: list[Path | None] = [None] * num_pages_to_process
-        image_mapping = self._get_image_mapping(pdf_path, page_range)
+        image_mapping, masked_pages = self._get_image_mapping(pdf_path, page_range)
+        extraction = Extraction([None] * num_pages_to_process, masked_pages=masked_pages)
 
         _clean_pdfimages_output(output_dir)
         self._run_pdfimages_extract(pdf_path, output_dir, start_page, end_page, page_range)
@@ -495,7 +503,7 @@ class PDFImageExtractor:
                 page_dimensions,
                 text_rich_pages,
                 fallback_pages,
-                results,
+                extraction,
             )
 
         _cleanup_pdfimages_objects(output_dir)
@@ -504,12 +512,12 @@ class PDFImageExtractor:
                 pdf_path,
                 output_dir,
                 fallback_pages,
-                results,
+                extraction,
                 start_page,
                 page_dimensions,
             )
 
-        return results
+        return extraction
 
     def _run_pdfimages_extract(
         self,
@@ -548,7 +556,7 @@ class PDFImageExtractor:
         page_dimensions: dict[int, tuple[float, float]],
         text_rich_pages: set[int],
         fallback_pages: list[int],
-        results: list[Path | None],
+        extraction: Extraction,
     ) -> None:
         img_entries = image_mapping.get(current_page, [])
         if not img_entries:
@@ -562,7 +570,7 @@ class PDFImageExtractor:
         if 0 < self.max_image_megapixels < megapixels:
             # Decoding it would take gigabytes; poppler renders it in budget.
             fallback_pages.append(current_page)
-            self.oversized_pages.add(current_page)
+            extraction.oversized_pages.add(current_page)
             logger.info(
                 f"Page {current_page}: image is {megapixels:.0f} MP, over "
                 f"{self.max_image_megapixels:g} MP, will render with pdftoppm"
@@ -596,7 +604,7 @@ class PDFImageExtractor:
         dest = output_dir / f"page_{current_page}{valid_img_path.suffix}"
         if not dest.exists():
             valid_img_path.rename(dest)
-            results[result_index] = dest
+            extraction.images[result_index] = dest
 
     def _best_readable_image(
         self,
@@ -614,7 +622,7 @@ class PDFImageExtractor:
         pdf_path: Path,
         output_dir: Path,
         pages: list[int],
-        results: list[Path | None],
+        extraction: Extraction,
         start_page: int,
         page_dimensions: dict[int, tuple[float, float]],
     ) -> None:
@@ -686,30 +694,30 @@ class PDFImageExtractor:
             ):
                 if dest is not None:
                     idx = page_num - start_page
-                    if 0 <= idx < len(results):
-                        results[idx] = dest
-                        self.rendered_pages.add(page_num)
+                    if 0 <= idx < len(extraction.images):
+                        extraction.images[idx] = dest
+                        extraction.rendered_pages.add(page_num)
 
     def _get_image_mapping(
         self,
         pdf_path: Path,
         page_range: tuple[int, int] | None = None,
-    ) -> dict[int, list[_PageImage]]:
+    ) -> tuple[dict[int, list[_PageImage]], set[int]]:
         """Map page numbers to image info using pdfimages -list.
 
         When page_range is provided, uses -f/-l flags so that image
         indices match the files produced by a corresponding pdfimages -all
         call with the same range.
 
-        Also populates ``self.masked_pages``, the set of page numbers that
-        contain image masks (SMask / soft-mask).  Pages with masks typically
-        use DjVu-like foreground/background layer separation where the
-        extracted background layer is heavily compressed (~Q10) and
-        unusable for OCR on its own.  Such pages should be rendered via
-        pdftoppm to get the composited image.
+        Also returns the set of page numbers that contain image masks (SMask /
+        soft-mask). Pages with masks typically use DjVu-like
+        foreground/background layer separation where the extracted background
+        layer is heavily compressed (~Q10) and unusable for OCR on its own.
+        Such pages should be rendered via pdftoppm to get the composited image.
 
         Returns:
-            Dict mapping page_num -> list of _PageImage.
+            Dict mapping page_num -> list of _PageImage, and the masked pages;
+            both empty when pdfimages fails.
         """
         cmd = ["pdfimages", "-list"]
         if page_range:
@@ -725,10 +733,10 @@ class PDFImageExtractor:
                 timeout=PDF_TOOL_TIMEOUT_SECS,
             )
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-            return {}
+            return {}, set()
 
         mapping: dict[int, list[_PageImage]] = {}
-        self.masked_pages: set[int] = set()
+        masked_pages: set[int] = set()
         lines = result.stdout.splitlines()
         start_parsing = False
         for line in lines:
@@ -738,8 +746,8 @@ class PDFImageExtractor:
             if not start_parsing:
                 continue
 
-            _add_pdfimages_mapping_line(line, mapping, self.masked_pages)
-        return mapping
+            _add_pdfimages_mapping_line(line, mapping, masked_pages)
+        return mapping, masked_pages
 
     def _find_file_for_index(self, output_dir: Path, idx: int) -> Path | None:
         pattern = f"obj-{idx:03d}.*"

@@ -211,7 +211,7 @@ def _run_dewarp_only(
     with tempfile.TemporaryDirectory() as tmp, contextlib.closing(detector):
         tmp_path = Path(tmp)
         logger.info(f"Extracting images from {args.input}...")
-        images = extractor.extract(args.input, tmp_path, page_range=effective_range)
+        images = extractor.extract(args.input, tmp_path, page_range=effective_range).images
 
         for i, img_path in enumerate(images):
             if img_path is None:
