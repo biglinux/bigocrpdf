@@ -39,12 +39,12 @@ from bigocrpdf.services.ocr.pdf_extractor import (
 from bigocrpdf.services.ocr.pdf_page_geometry import render_page_for_ocr
 from bigocrpdf.services.ocr.pipeline_mixed_content_pages import (
     _index_extracted_images,
-    _mixed_excluded_pages,
     _mixed_progress_bands,
     _mixed_render_candidates,
     _pdf_page_size,
     _position_image_pairs,
     _reflow_text,
+    omitted_pages,
 )
 from bigocrpdf.services.ocr.ppocr_native import Worker
 from bigocrpdf.utils.i18n import _
@@ -241,7 +241,7 @@ class MixedContentMixin:
                     1,
                 )
                 with pikepdf.open(input_pdf, allow_overwriting_input=True) as pdf:
-                    excluded_pages = _mixed_excluded_pages(self.config.page_modifications)
+                    excluded_pages = omitted_pages(self.config.page_modifications)
                     self._run_mixed_ocr_pass(
                         input_pdf,
                         pdf,

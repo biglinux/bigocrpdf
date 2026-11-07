@@ -225,6 +225,8 @@ class OcrSettings:
         self.extracted_text: dict[str, str] = {}
         self.comparison_results: list[Any] = []
         self.ocr_boxes: dict[str, list[Any]] = {}
+        # Output file -> the pages it holds without their text, and why.
+        self.page_failures: dict[str, str] = {}
 
         # Ensure config directory exists
         os.makedirs(CONFIG_DIR, exist_ok=True)
@@ -727,6 +729,7 @@ class OcrSettings:
         """
         self.processed_files: list[str] = []
         self.comparison_results: list[Any] = []
+        self.page_failures = {}
 
         # Clear extracted text to free memory
         if self.extracted_text:

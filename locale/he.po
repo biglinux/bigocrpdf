@@ -92,7 +92,7 @@ msgstr[3] "נפתחו {count} קבצים"
 msgid "Error opening files"
 msgstr "שגיאה בפתיחת הקבצים"
 
-#: src/bigocrpdf/application.py:434 src/bigocrpdf/services/settings.py:508
+#: src/bigocrpdf/application.py:434 src/bigocrpdf/services/settings.py:510
 #, python-brace-format
 msgid "Unsupported file type: {0}"
 msgstr "סוג קובץ לא נתמך: {0}"
@@ -113,7 +113,7 @@ msgstr ""
 "\n"
 "Big OCR PDF פותח מסמכי PDF ותמונות מסוג PNG, JPEG, WebP, BMP, TIFF ו-AVIF."
 
-#: src/bigocrpdf/application.py:444 src/bigocrpdf/processing_controller.py:447
+#: src/bigocrpdf/application.py:444 src/bigocrpdf/processing_controller.py:464
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:177
 #: src/bigocrpdf/ui/text_viewer_controller.py:221
 #: src/bigocrpdf/ui/text_viewer_controller.py:223
@@ -642,20 +642,32 @@ msgstr "ה-callback להשלמת עיבוד OCR הופעל"
 msgid "Processing complete but no longer on terminal page, likely cancelled"
 msgstr "העיבוד הושלם, אך דף העיבוד כבר אינו פעיל; כנראה שהפעולה בוטלה"
 
-#: src/bigocrpdf/processing_controller.py:445
+#: src/bigocrpdf/processing_controller.py:415
+msgid "Some pages have no text"
+msgstr "בחלק מהעמודים אין טקסט"
+
+#: src/bigocrpdf/processing_controller.py:416
+msgid "Every file was saved, but the pages below could not be read."
+msgstr "כל הקבצים נשמרו, אך לא ניתן לקרוא את העמודים שלהלן."
+
+#: src/bigocrpdf/processing_controller.py:462
 msgid "Back to Queue"
 msgstr "חזור לתור"
 
-#: src/bigocrpdf/processing_controller.py:452
+#: src/bigocrpdf/processing_controller.py:470
 #, python-brace-format
 msgid "{file}: {reason}"
 msgstr "{file}: {reason}"
 
-#: src/bigocrpdf/processing_controller.py:459
+#: src/bigocrpdf/processing_controller.py:475
+msgid "Saved, but some pages could not be read:"
+msgstr "נשמרו, אך לא ניתן לקרוא חלק מהעמודים:"
+
+#: src/bigocrpdf/processing_controller.py:483
 msgid "OCR processing cancelled by user"
 msgstr "עיבוד OCR בוטל על ידי המשתמש"
 
-#: src/bigocrpdf/processing_controller.py:460
+#: src/bigocrpdf/processing_controller.py:484
 msgid "OCR processing cancelled"
 msgstr "עיבוד OCR בוטל"
 
@@ -669,7 +681,7 @@ msgstr "הטקסט שחולץ נשמר ב: {0}"
 msgid "Failed to save text file: {0}"
 msgstr "שגיאה בשמירת קובץ טקסט: {0}"
 
-#: src/bigocrpdf/services/ocr/backend.py:133
+#: src/bigocrpdf/services/ocr/backend.py:47
 #, python-brace-format
 msgid "Page {pages} could not be read: {cause}"
 msgid_plural "Pages {pages} could not be read: {cause}"
@@ -798,7 +810,7 @@ msgstr "לא סופקו קובצי קלט."
 msgid "No readable input files were provided."
 msgstr "לא סופקו קובצי קלט שניתן לקרוא."
 
-#: src/bigocrpdf/services/processor.py:110
+#: src/bigocrpdf/services/processor.py:143
 #, python-brace-format
 msgid "Started OCR processing for {count} file"
 msgid_plural "Started OCR processing for {count} files"
@@ -807,64 +819,64 @@ msgstr[1] "עיבוד OCR החל עבור {count} קבצים"
 msgstr[2] "עיבוד OCR החל עבור {count} קבצים"
 msgstr[3] "עיבוד OCR החל עבור {count} קבצים"
 
-#: src/bigocrpdf/services/processor.py:125
+#: src/bigocrpdf/services/processor.py:158
 #, python-brace-format
 msgid "Error starting OCR processing: {0}"
 msgstr "שגיאה בהתחלת עיבוד OCR: {0}"
 
-#: src/bigocrpdf/services/processor.py:138
+#: src/bigocrpdf/services/processor.py:171
 msgid "No files to process"
 msgstr "אין קבצים לעיבוד"
 
-#: src/bigocrpdf/services/processor.py:182
+#: src/bigocrpdf/services/processor.py:216
 msgid "Processing stopped by user"
 msgstr "העיבוד הופסק על ידי המשתמש"
 
-#: src/bigocrpdf/services/processor.py:191
+#: src/bigocrpdf/services/processor.py:225
 #, python-brace-format
 msgid "Processing thread error: {0}"
 msgstr "שגיאה בתהליכון העיבוד: {0}"
 
-#: src/bigocrpdf/services/processor.py:212
+#: src/bigocrpdf/services/processor.py:246
 #, python-brace-format
 msgid "Processing cancelled by user during file: {0}"
 msgstr "העיבוד בוטל על ידי המשתמש במהלך עיבוד הקובץ: {0}"
 
-#: src/bigocrpdf/services/processor.py:215
+#: src/bigocrpdf/services/processor.py:249
 #, python-brace-format
 msgid "Out of memory processing {0}"
 msgstr "אין זיכרון פנוי לעיבוד {0}"
 
-#: src/bigocrpdf/services/processor.py:226
+#: src/bigocrpdf/services/processor.py:260
 msgid "No page could be processed."
 msgstr "לא ניתן היה לעבד אף עמוד."
 
-#: src/bigocrpdf/services/processor.py:274
+#: src/bigocrpdf/services/processor.py:308
 #, python-brace-format
 msgid "Error processing {0}: {1}"
 msgstr "שגיאה בעיבוד {0}: {1}"
 
-#: src/bigocrpdf/services/processor.py:299
+#: src/bigocrpdf/services/processor.py:333
 #, python-brace-format
 msgid "Error: File not found or invalid: {0}"
 msgstr "שגיאה: הקובץ לא נמצא או לא תקין: {0}"
 
-#: src/bigocrpdf/services/processor.py:332
+#: src/bigocrpdf/services/processor.py:376
 #, python-brace-format
 msgid "Processed {filename}: Pages: {pages} · Words: {words}"
 msgstr "הקובץ {filename} עובד: עמודים: {pages} · מילים: {words}"
 
-#: src/bigocrpdf/services/processor.py:470
+#: src/bigocrpdf/services/processor.py:514
 #, python-brace-format
 msgid "Could not determine output directory for {0}"
 msgstr "לא ניתן לקבוע את תיקיית הפלט עבור {0}"
 
-#: src/bigocrpdf/services/processor.py:477
+#: src/bigocrpdf/services/processor.py:521
 #, python-brace-format
 msgid "Error creating output path for {0}: {1}"
 msgstr "שגיאה ביצירת נתיב פלט עבור {0}: {1}"
 
-#: src/bigocrpdf/services/processor.py:584
+#: src/bigocrpdf/services/processor.py:634
 #, python-brace-format
 msgid "Removed processed file from queue: {0}"
 msgstr "הקובץ המעובד הוסר מהתור: {0}"
@@ -943,7 +955,7 @@ msgstr "אין תמיכה בתמונות מונפשות או מרובות עמו
 msgid "Image file changed while it was being read. Please try again."
 msgstr "קובץ התמונה השתנה במהלך הקריאה. נסה שוב."
 
-#: src/bigocrpdf/services/settings.py:303
+#: src/bigocrpdf/services/settings.py:305
 #, python-brace-format
 msgid "Attempting to add {count} file"
 msgid_plural "Attempting to add {count} files"
@@ -952,7 +964,7 @@ msgstr[1] "מנסה להוסיף {count} קבצים"
 msgstr[2] "מנסה להוסיף {count} קבצים"
 msgstr[3] "מנסה להוסיף {count} קבצים"
 
-#: src/bigocrpdf/services/settings.py:325
+#: src/bigocrpdf/services/settings.py:327
 #, python-brace-format
 msgid "Successfully added {count} file"
 msgid_plural "Successfully added {count} files"
@@ -961,40 +973,40 @@ msgstr[1] "{count} קבצים נוספו בהצלחה"
 msgstr[2] "{count} קבצים נוספו בהצלחה"
 msgstr[3] "{count} קבצים נוספו בהצלחה"
 
-#: src/bigocrpdf/services/settings.py:331
+#: src/bigocrpdf/services/settings.py:333
 msgid "No valid files were found to add"
 msgstr "לא נמצאו קבצים תקפים להוספה"
 
-#: src/bigocrpdf/services/settings.py:487
+#: src/bigocrpdf/services/settings.py:489
 msgid "Empty file path provided"
 msgstr "נתיב קובץ ריק שסופק"
 
-#: src/bigocrpdf/services/settings.py:492
+#: src/bigocrpdf/services/settings.py:494
 #, python-brace-format
 msgid "File does not exist: {0}"
 msgstr "הקובץ אינו קיים: {0}"
 
-#: src/bigocrpdf/services/settings.py:514
+#: src/bigocrpdf/services/settings.py:516
 #, python-brace-format
 msgid "File already in list: {0}"
 msgstr "הקובץ כבר ברשימה: {0}"
 
-#: src/bigocrpdf/services/settings.py:518
+#: src/bigocrpdf/services/settings.py:520
 #, python-brace-format
 msgid "Adding valid file: {0}"
 msgstr "הוספת קובץ תקף: {0}"
 
-#: src/bigocrpdf/services/settings.py:542
+#: src/bigocrpdf/services/settings.py:544
 msgid "Settings saved successfully"
 msgstr "הגדרות נשמרו בהצלחה"
 
-#: src/bigocrpdf/services/settings.py:545
+#: src/bigocrpdf/services/settings.py:547
 #: src/bigocrpdf/ui/settings_reset_controller.py:65
 #, python-brace-format
 msgid "Error saving settings: {0}"
 msgstr "שגיאה בשמירת ההגדרות: {0}"
 
-#: src/bigocrpdf/services/settings.py:646
+#: src/bigocrpdf/services/settings.py:648
 #, python-brace-format
 msgid "Saved {count} selected file"
 msgid_plural "Saved {count} selected files"
@@ -1003,17 +1015,17 @@ msgstr[1] "נשמרו {count} קבצים נבחרים"
 msgstr[2] "נשמרו {count} קבצים נבחרים"
 msgstr[3] "נשמרו {count} קבצים נבחרים"
 
-#: src/bigocrpdf/services/settings.py:652
+#: src/bigocrpdf/services/settings.py:654
 #, python-brace-format
 msgid "Error saving selected files: {0}"
 msgstr "שגיאה בשמירת הקבצים שנבחרו: {0}"
 
-#: src/bigocrpdf/services/settings.py:700
+#: src/bigocrpdf/services/settings.py:702
 #, python-brace-format
 msgid "Error loading selected files: {0}"
 msgstr "שגיאה בטעינת הקבצים שנבחרו: {0}"
 
-#: src/bigocrpdf/services/settings.py:749
+#: src/bigocrpdf/services/settings.py:752
 msgid "Processing state reset successfully"
 msgstr "מצב העיבוד אופס"
 
@@ -1174,12 +1186,12 @@ msgid "Exported to {}"
 msgstr "יוצא אל {}"
 
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:514
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:309
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:318
 msgid "OpenDocument (.odt)"
 msgstr "OpenDocument (.odt)"
 
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:515
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:310
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:319
 msgid "Markdown (.md)"
 msgstr "Markdown (.md)"
 
@@ -1286,12 +1298,12 @@ msgstr "בחר הכל"
 msgid "Clear"
 msgstr "נקה"
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:229
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:238
 #, python-brace-format
 msgid "Selected: {count}"
 msgstr "נבחרו: {count}"
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:249
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:258
 #: src/bigocrpdf/ui/settings_queue_mixin.py:555
 #: src/bigocrpdf/ui/settings_queue_mixin.py:667
 #, python-brace-format
@@ -1302,21 +1314,21 @@ msgstr[1] "{count} עמודים"
 msgstr[2] "{count} עמודים"
 msgstr[3] "{count} עמודים"
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:279
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:288
 msgid "Open the processed file"
 msgstr "פתח את הקובץ המעובד"
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:288
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:297
 #: src/bigocrpdf/ui/settings_queue_mixin.py:714
 msgid "Show in file manager"
 msgstr "הצג במנהל הקבצים"
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:295
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:304
 msgid "View the text found in this document"
 msgstr "הצג את הטקסט שנמצא במסמך זה"
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:314
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:316
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:323
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:325
 msgid "Export to other formats"
 msgstr "ייצוא לפורמטים אחרים"
 

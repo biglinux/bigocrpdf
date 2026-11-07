@@ -238,7 +238,7 @@ def _run_full_ocr(
     page_set: set[int] | None = None,
 ) -> int:
     """Run the full OCR pipeline."""
-    from bigocrpdf.services.ocr.backend import ProfessionalPDFOCR
+    from bigocrpdf.services.ocr.backend import ProfessionalPDFOCR, failed_pages_message
     from bigocrpdf.services.ocr.ocr_document_io import (
         complete_ocr_document,
         publish_ocr_pdfs,
@@ -313,6 +313,8 @@ def _run_full_ocr(
         pages = stats.pages_processed
         confidence = stats.average_confidence
         logger.info(f"Done: {pages} pages, {confidence:.1%} avg confidence, {elapsed:.1f}s total")
+        if stats.failed_pages:
+            logger.warning(failed_pages_message(stats.failed_pages))
         if args.sidecar_json is not None:
             _write_requested_sidecar_json(
                 args.sidecar_json,

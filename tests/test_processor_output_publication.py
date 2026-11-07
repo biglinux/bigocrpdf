@@ -114,6 +114,74 @@ def test_success_publishes_complete_output(tmp_path: Path) -> None:
     assert processor.get_total_pages() == 1
 
 
+def test_unread_pages_publish_with_a_warning(tmp_path: Path) -> None:
+    target = tmp_path / "out.pdf"
+    processor = _processor(target)
+
+    def partly_read(_input: Path, staged: Path, _progress) -> ProcessingStats:
+        _write_pdf(staged, pages=3)
+        return ProcessingStats(
+            pages_total=3, pages_processed=3, failed_pages={2: "image stream is corrupt"}
+        )
+
+    success, _text, _boxes, primary_output = _run_with_engine(processor, partly_read)
+
+    assert success is True
+    assert _pdf_page_count(target) == 3
+    assert processor.get_page_warnings() == {
+        primary_output: "Page 2 could not be read: image stream is corrupt"
+    }
+
+
+def test_split_parts_warn_their_own_pages(tmp_path: Path) -> None:
+    target = tmp_path / "out.pdf"
+    processor = _processor(target)
+
+    def partly_read(_input: Path, staged: Path, _progress) -> ProcessingStats:
+        first = staged.with_name("out-part-1.pdf")
+        second = staged.with_name("out-part-2.pdf")
+        _write_pdf(first, pages=2)
+        _write_pdf(second, pages=3)
+        return ProcessingStats(
+            pages_total=5,
+            pages_processed=5,
+            failed_pages={4: "image stream is corrupt"},
+            split_output_files=[str(first), str(second)],
+        )
+
+    _run_with_engine(processor, partly_read)
+
+    assert processor.get_page_warnings() == {
+        str(tmp_path / "out-part-2.pdf"): "Page 2 could not be read: image stream is corrupt"
+    }
+
+
+def test_warnings_skip_excluded_pages(tmp_path: Path) -> None:
+    target = tmp_path / "out.pdf"
+    processor = _processor(target)
+    processor._create_ocr_config.return_value.page_modifications = [
+        {"page_number": 2, "included_for_ocr": False}
+    ]
+
+    def partly_read(_input: Path, staged: Path, _progress) -> ProcessingStats:
+        first = staged.with_name("out-part-1.pdf")
+        second = staged.with_name("out-part-2.pdf")
+        _write_pdf(first, pages=2)
+        _write_pdf(second, pages=3)
+        return ProcessingStats(
+            pages_total=6,
+            pages_processed=5,
+            failed_pages={5: "image stream is corrupt"},
+            split_output_files=[str(first), str(second)],
+        )
+
+    _run_with_engine(processor, partly_read)
+
+    assert processor.get_page_warnings() == {
+        str(tmp_path / "out-part-2.pdf"): "Page 2 could not be read: image stream is corrupt"
+    }
+
+
 def test_success_publishes_the_pdf_and_nothing_beside_it(tmp_path: Path) -> None:
     """The interface produces one file per run, structured data or not."""
     target = tmp_path / "out.pdf"

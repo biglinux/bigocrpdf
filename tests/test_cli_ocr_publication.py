@@ -387,6 +387,32 @@ def test_sidecar_json_failure_does_not_fail_a_finished_ocr(tmp_path: Path, caplo
     assert not ocr_document_json_path(published).exists()
 
 
+def test_cli_warns_of_unread_pages(tmp_path: Path) -> None:
+    source = tmp_path / "source.pdf"
+    _write_pdf(source, pages=3)
+    output = tmp_path / "output.pdf"
+
+    def process(_source, staged, progress_callback):
+        _write_pdf(Path(staged), pages=3)
+        return ProcessingStats(
+            pages_total=3, pages_processed=3, failed_pages={2: "image stream is corrupt"}
+        )
+
+    logger = logging.Logger("test")
+    with (
+        patch(
+            "bigocrpdf.services.ocr.backend.ProfessionalPDFOCR",
+            return_value=SimpleNamespace(process=process),
+        ),
+        patch.object(logger, "warning") as warning,
+    ):
+        result = _run_full_ocr(_args(source, output), OCRConfig(), None, logger)
+
+    assert result == 0
+    assert _pdf_page_count(output) == 3
+    warning.assert_called_once_with("Page 2 could not be read: image stream is corrupt")
+
+
 def _descendants(pid: int) -> dict[int, str]:
     """Each process below ``pid``, with its start time to tell a reused PID apart."""
     children: dict[int, list[int]] = {}

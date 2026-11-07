@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pikepdf
 import pytest
 
-from bigocrpdf.services.ocr.backend import OCRConfig, ProfessionalPDFOCR
+from bigocrpdf.services.ocr.backend import OCRConfig, ProfessionalPDFOCR, failed_pages_message
 from bigocrpdf.services.ocr.config import ProcessingStats
 from bigocrpdf.services.ocr.pdf_extractor import Extraction
 
@@ -125,25 +125,52 @@ class TestBackendModifications(unittest.TestCase):
         self.backend._finalize_output.assert_called_once()
 
 
-def test_unread_pages_fail_the_job(tmp_path: Path) -> None:
+def _backend_reporting(failed_pages: dict[int, str], pages_total: int) -> ProfessionalPDFOCR:
+    backend = ProfessionalPDFOCR(OCRConfig())
+    backend._process_image_only_pdf = MagicMock(
+        return_value=ProcessingStats(pages_total=pages_total, failed_pages=failed_pages)
+    )
+    return backend
+
+
+def test_unread_pages_go_out_reported(tmp_path: Path) -> None:
     source = tmp_path / "in.pdf"
     pdf = pikepdf.Pdf.new()
     pdf.add_blank_page()
     pdf.save(source)
-    backend = ProfessionalPDFOCR(OCRConfig())
-    backend._process_image_only_pdf = MagicMock(
-        return_value=ProcessingStats(
-            failed_pages={4: "worker crashed", 2: "plan truncated", 7: "plan truncated"}
-        )
-    )
+    failed = {4: "worker crashed", 2: "plan truncated", 7: "plan truncated"}
 
-    with pytest.raises(RuntimeError) as raised:
-        backend.process(source, tmp_path / "out.pdf")
+    stats = _backend_reporting(failed, pages_total=8).process(source, tmp_path / "out.pdf")
 
-    assert str(raised.value).splitlines() == [
+    assert stats.failed_pages == failed
+    assert failed_pages_message(stats.failed_pages).splitlines() == [
         "Pages 2, 7 could not be read: plan truncated",
         "Page 4 could not be read: worker crashed",
     ]
+
+
+def test_no_page_read_fails_the_job(tmp_path: Path) -> None:
+    source = tmp_path / "in.pdf"
+    pdf = pikepdf.Pdf.new()
+    pdf.add_blank_page()
+    pdf.save(source)
+
+    with pytest.raises(RuntimeError, match="Pages 1, 2 could not be read: worker crashed"):
+        _backend_reporting({1: "worker crashed", 2: "worker crashed"}, pages_total=2).process(
+            source, tmp_path / "out.pdf"
+        )
+
+
+def test_excluded_pages_leave_failures_fatal(tmp_path: Path) -> None:
+    source = tmp_path / "in.pdf"
+    pdf = pikepdf.Pdf.new()
+    pdf.add_blank_page()
+    pdf.save(source)
+    backend = _backend_reporting({1: "worker crashed"}, pages_total=2)
+    backend.config.page_modifications = [{"page_number": 2, "included_for_ocr": False}]
+
+    with pytest.raises(RuntimeError, match="Page 1 could not be read"):
+        backend.process(source, tmp_path / "out.pdf")
 
 
 def test_processing_temp_paths_do_not_follow_predictable_symlinks(tmp_path: Path) -> None:

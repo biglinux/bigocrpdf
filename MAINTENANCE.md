@@ -111,6 +111,11 @@ regular files, never links.
   current one is read; the chunks take two directories in turn, and a chunk's
   extracted images go once its preprocessing is done, each page's OCR input
   once its OCR is read. A stop, a cancel or an error queues nothing more.
+- A page that cannot be read stays in the output without its text, and the
+  output is published: `ProcessingStats.failed_pages` holds each such page
+  and its cause, the CLI logs them as a warning and exits 0, and the window
+  lists them on the file's row and in the completion dialog. A document none
+  of whose pages could be read fails, as does an unreadable input file.
 - Pillow opens outside images only in the formats `utils/pdf_utils.py`
   allows: it picks a decoder from the content, whatever the file is called.
 

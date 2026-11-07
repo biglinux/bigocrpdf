@@ -86,7 +86,7 @@ msgstr[1] "Åpnet {count} filer"
 msgid "Error opening files"
 msgstr "Feil ved åpning av filer"
 
-#: src/bigocrpdf/application.py:434 src/bigocrpdf/services/settings.py:508
+#: src/bigocrpdf/application.py:434 src/bigocrpdf/services/settings.py:510
 #, python-brace-format
 msgid "Unsupported file type: {0}"
 msgstr "Ustøttet filtype: {0}"
@@ -108,7 +108,7 @@ msgstr ""
 "Big OCR PDF åpner PDF-dokumenter og PNG-, JPEG-, WebP-, BMP-, TIFF- og AVIF-"
 "bilder."
 
-#: src/bigocrpdf/application.py:444 src/bigocrpdf/processing_controller.py:447
+#: src/bigocrpdf/application.py:444 src/bigocrpdf/processing_controller.py:464
 #: src/bigocrpdf/ui/pdf_editor/editor_tools_controller.py:177
 #: src/bigocrpdf/ui/text_viewer_controller.py:221
 #: src/bigocrpdf/ui/text_viewer_controller.py:223
@@ -641,20 +641,32 @@ msgstr ""
 "Behandlingen er fullført, men behandlingssiden er ikke lenger aktiv; "
 "operasjonen ble sannsynligvis avbrutt."
 
-#: src/bigocrpdf/processing_controller.py:445
+#: src/bigocrpdf/processing_controller.py:415
+msgid "Some pages have no text"
+msgstr "Noen sider har ingen tekst"
+
+#: src/bigocrpdf/processing_controller.py:416
+msgid "Every file was saved, but the pages below could not be read."
+msgstr "Alle filene ble lagret, men sidene nedenfor kunne ikke leses."
+
+#: src/bigocrpdf/processing_controller.py:462
 msgid "Back to Queue"
 msgstr "Tilbake til køen"
 
-#: src/bigocrpdf/processing_controller.py:452
+#: src/bigocrpdf/processing_controller.py:470
 #, python-brace-format
 msgid "{file}: {reason}"
 msgstr "{file}: {reason}"
 
-#: src/bigocrpdf/processing_controller.py:459
+#: src/bigocrpdf/processing_controller.py:475
+msgid "Saved, but some pages could not be read:"
+msgstr "Lagret, men noen sider kunne ikke leses:"
+
+#: src/bigocrpdf/processing_controller.py:483
 msgid "OCR processing cancelled by user"
 msgstr "OCR-behandling avbrutt av bruker"
 
-#: src/bigocrpdf/processing_controller.py:460
+#: src/bigocrpdf/processing_controller.py:484
 msgid "OCR processing cancelled"
 msgstr "OCR-behandling avbrutt"
 
@@ -668,7 +680,7 @@ msgstr "Utdraget tekst lagret i: {0}"
 msgid "Failed to save text file: {0}"
 msgstr "Kunne ikke lagre tekstfil: {0}"
 
-#: src/bigocrpdf/services/ocr/backend.py:133
+#: src/bigocrpdf/services/ocr/backend.py:47
 #, python-brace-format
 msgid "Page {pages} could not be read: {cause}"
 msgid_plural "Pages {pages} could not be read: {cause}"
@@ -793,71 +805,71 @@ msgstr "Ingen inndatafiler angitt."
 msgid "No readable input files were provided."
 msgstr "Ingen lesbare inndatafiler ble oppgitt."
 
-#: src/bigocrpdf/services/processor.py:110
+#: src/bigocrpdf/services/processor.py:143
 #, python-brace-format
 msgid "Started OCR processing for {count} file"
 msgid_plural "Started OCR processing for {count} files"
 msgstr[0] "Startet OCR-behandling for {count} fil"
 msgstr[1] "Startet OCR-behandling for {count} filer"
 
-#: src/bigocrpdf/services/processor.py:125
+#: src/bigocrpdf/services/processor.py:158
 #, python-brace-format
 msgid "Error starting OCR processing: {0}"
 msgstr "Feil ved oppstart av OCR-behandling: {0}"
 
-#: src/bigocrpdf/services/processor.py:138
+#: src/bigocrpdf/services/processor.py:171
 msgid "No files to process"
 msgstr "Ingen filer å behandle"
 
-#: src/bigocrpdf/services/processor.py:182
+#: src/bigocrpdf/services/processor.py:216
 msgid "Processing stopped by user"
 msgstr "Behandling stoppet av bruker"
 
-#: src/bigocrpdf/services/processor.py:191
+#: src/bigocrpdf/services/processor.py:225
 #, python-brace-format
 msgid "Processing thread error: {0}"
 msgstr "Behandlingstrådfeil: {0}"
 
-#: src/bigocrpdf/services/processor.py:212
+#: src/bigocrpdf/services/processor.py:246
 #, python-brace-format
 msgid "Processing cancelled by user during file: {0}"
 msgstr "Behandlingen ble avbrutt av brukeren under behandling av filen: {0}"
 
-#: src/bigocrpdf/services/processor.py:215
+#: src/bigocrpdf/services/processor.py:249
 #, python-brace-format
 msgid "Out of memory processing {0}"
 msgstr "Ikke nok minne til å behandle {0}"
 
-#: src/bigocrpdf/services/processor.py:226
+#: src/bigocrpdf/services/processor.py:260
 msgid "No page could be processed."
 msgstr "Ingen sider kunne behandles."
 
-#: src/bigocrpdf/services/processor.py:274
+#: src/bigocrpdf/services/processor.py:308
 #, python-brace-format
 msgid "Error processing {0}: {1}"
 msgstr "Feil ved behandling av {0}: {1}"
 
-#: src/bigocrpdf/services/processor.py:299
+#: src/bigocrpdf/services/processor.py:333
 #, python-brace-format
 msgid "Error: File not found or invalid: {0}"
 msgstr "Feil: Fil ikke funnet eller ugyldig: {0}"
 
-#: src/bigocrpdf/services/processor.py:332
+#: src/bigocrpdf/services/processor.py:376
 #, python-brace-format
 msgid "Processed {filename}: Pages: {pages} · Words: {words}"
 msgstr "Behandlet {filename}: Sider: {pages} · Ord: {words}"
 
-#: src/bigocrpdf/services/processor.py:470
+#: src/bigocrpdf/services/processor.py:514
 #, python-brace-format
 msgid "Could not determine output directory for {0}"
 msgstr "Kunne ikke bestemme utdata-mappen for {0}"
 
-#: src/bigocrpdf/services/processor.py:477
+#: src/bigocrpdf/services/processor.py:521
 #, python-brace-format
 msgid "Error creating output path for {0}: {1}"
 msgstr "Feil ved oppretting av utdatabane for {0}: {1}"
 
-#: src/bigocrpdf/services/processor.py:584
+#: src/bigocrpdf/services/processor.py:634
 #, python-brace-format
 msgid "Removed processed file from queue: {0}"
 msgstr "Fjernet behandlet fil fra køen: {0}"
@@ -937,71 +949,71 @@ msgstr "Animerte bilder eller bilder med flere sider støttes ikke."
 msgid "Image file changed while it was being read. Please try again."
 msgstr "Bildefilen ble endret mens den ble lest. Prøv igjen."
 
-#: src/bigocrpdf/services/settings.py:303
+#: src/bigocrpdf/services/settings.py:305
 #, python-brace-format
 msgid "Attempting to add {count} file"
 msgid_plural "Attempting to add {count} files"
 msgstr[0] "Forsøker å legge til {count} fil"
 msgstr[1] "Forsøker å legge til {count} filer"
 
-#: src/bigocrpdf/services/settings.py:325
+#: src/bigocrpdf/services/settings.py:327
 #, python-brace-format
 msgid "Successfully added {count} file"
 msgid_plural "Successfully added {count} files"
 msgstr[0] "{count} fil er lagt til"
 msgstr[1] "Lagt til {count} filer"
 
-#: src/bigocrpdf/services/settings.py:331
+#: src/bigocrpdf/services/settings.py:333
 msgid "No valid files were found to add"
 msgstr "Ingen gyldige filer ble funnet for å legge til."
 
-#: src/bigocrpdf/services/settings.py:487
+#: src/bigocrpdf/services/settings.py:489
 msgid "Empty file path provided"
 msgstr "Tom filbane er oppgitt"
 
-#: src/bigocrpdf/services/settings.py:492
+#: src/bigocrpdf/services/settings.py:494
 #, python-brace-format
 msgid "File does not exist: {0}"
 msgstr "Filen finnes ikke: {0}"
 
-#: src/bigocrpdf/services/settings.py:514
+#: src/bigocrpdf/services/settings.py:516
 #, python-brace-format
 msgid "File already in list: {0}"
 msgstr "Fil allerede i listen: {0}"
 
-#: src/bigocrpdf/services/settings.py:518
+#: src/bigocrpdf/services/settings.py:520
 #, python-brace-format
 msgid "Adding valid file: {0}"
 msgstr "Legger til gyldig fil: {0}"
 
-#: src/bigocrpdf/services/settings.py:542
+#: src/bigocrpdf/services/settings.py:544
 msgid "Settings saved successfully"
 msgstr "Innstillinger lagret vellykket"
 
-#: src/bigocrpdf/services/settings.py:545
+#: src/bigocrpdf/services/settings.py:547
 #: src/bigocrpdf/ui/settings_reset_controller.py:65
 #, python-brace-format
 msgid "Error saving settings: {0}"
 msgstr "Feil ved lagring av innstillinger: {0}"
 
-#: src/bigocrpdf/services/settings.py:646
+#: src/bigocrpdf/services/settings.py:648
 #, python-brace-format
 msgid "Saved {count} selected file"
 msgid_plural "Saved {count} selected files"
 msgstr[0] "Lagret {count} valgt fil"
 msgstr[1] "Lagret {count} valgte filer"
 
-#: src/bigocrpdf/services/settings.py:652
+#: src/bigocrpdf/services/settings.py:654
 #, python-brace-format
 msgid "Error saving selected files: {0}"
 msgstr "Feil ved lagring av valgte filer: {0}"
 
-#: src/bigocrpdf/services/settings.py:700
+#: src/bigocrpdf/services/settings.py:702
 #, python-brace-format
 msgid "Error loading selected files: {0}"
 msgstr "Feil ved lasting av valgte filer: {0}"
 
-#: src/bigocrpdf/services/settings.py:749
+#: src/bigocrpdf/services/settings.py:752
 msgid "Processing state reset successfully"
 msgstr "Behandlingsstatus tilbakestilt"
 
@@ -1163,12 +1175,12 @@ msgid "Exported to {}"
 msgstr "Eksportert til {}"
 
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:514
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:309
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:318
 msgid "OpenDocument (.odt)"
 msgstr "OpenDocument (.odt)"
 
 #: src/bigocrpdf/ui/conclusion_export_mixin.py:515
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:310
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:319
 msgid "Markdown (.md)"
 msgstr "Markdown (.md)"
 
@@ -1273,12 +1285,12 @@ msgstr "Velg alt"
 msgid "Clear"
 msgstr "Tøm"
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:229
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:238
 #, python-brace-format
 msgid "Selected: {count}"
 msgstr "Valgt: {count}"
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:249
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:258
 #: src/bigocrpdf/ui/settings_queue_mixin.py:555
 #: src/bigocrpdf/ui/settings_queue_mixin.py:667
 #, python-brace-format
@@ -1287,21 +1299,21 @@ msgid_plural "{count} pages"
 msgstr[0] "{count} side"
 msgstr[1] "{count} sider"
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:279
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:288
 msgid "Open the processed file"
 msgstr "Åpne den behandlede filen"
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:288
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:297
 #: src/bigocrpdf/ui/settings_queue_mixin.py:714
 msgid "Show in file manager"
 msgstr "Vis i filbehandler"
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:295
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:304
 msgid "View the text found in this document"
 msgstr "Vis teksten som finnes i dette dokumentet"
 
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:314
-#: src/bigocrpdf/ui/conclusion_ui_mixin.py:316
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:323
+#: src/bigocrpdf/ui/conclusion_ui_mixin.py:325
 msgid "Export to other formats"
 msgstr "Eksporter til andre formater"
 
