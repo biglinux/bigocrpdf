@@ -156,10 +156,10 @@ def test_no_page_read_fails_the_job(tmp_path: Path) -> None:
     pdf.add_blank_page()
     pdf.save(source)
 
+    backend = _backend_reporting({1: "worker crashed", 2: "worker crashed"}, pages_total=2)
+
     with pytest.raises(RuntimeError, match="Pages 1, 2 could not be read: worker crashed"):
-        _backend_reporting({1: "worker crashed", 2: "worker crashed"}, pages_total=2).process(
-            source, tmp_path / "out.pdf"
-        )
+        backend.process(source, tmp_path / "out.pdf")
 
 
 def test_excluded_pages_leave_failures_fatal(tmp_path: Path) -> None:

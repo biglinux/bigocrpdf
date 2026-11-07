@@ -517,7 +517,8 @@ def test_sigterm_leaves_no_files_or_workers(tmp_path: Path) -> None:
             for pid in _descendants(cli.pid)
             if Path(f"/proc/{pid}").exists()
         ):
-            assert cli.poll() is None and time.monotonic() < deadline
+            assert cli.poll() is None
+            assert time.monotonic() < deadline
             time.sleep(0.1)
         time.sleep(1)
         workers = _descendants(cli.pid)
