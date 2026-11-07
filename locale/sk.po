@@ -726,6 +726,21 @@ msgstr "Konverzia na PDF/A..."
 msgid "Splitting PDF by size limit..."
 msgstr "Rozdeľovanie PDF podľa limitu veľkosti..."
 
+#: src/bigocrpdf/services/ocr/backend_text_layer.py:327
+#: src/bigocrpdf/services/screen_capture.py:1061
+#: src/bigocrpdf/services/screen_capture.py:1140
+#: src/bigocrpdf/services/screen_capture.py:1247
+msgid "Unsupported or corrupted image file."
+msgstr "Nepodporovaný alebo poškodený súbor s obrázkom."
+
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:681
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:714
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:717
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:726
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
+msgid "the page could not be rendered"
+msgstr "nepodarilo sa vykresliť stranu"
+
 #: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:300
 msgid "Starting OCR..."
 msgstr "Spúšťanie OCR..."
@@ -760,10 +775,6 @@ msgstr "OCR strany {0}…"
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "OCR strany {0} (po vykreslení)…"
-
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
-msgid "the page could not be rendered"
-msgstr "nepodarilo sa vykresliť stranu"
 
 #: src/bigocrpdf/services/pdf_operations.py:65
 msgid "Could not find the file. Was it moved or deleted?"
@@ -907,12 +918,6 @@ msgstr "Modul OCR nie je k dispozícii. Skontrolujte svoju inštaláciu."
 #: src/bigocrpdf/services/screen_capture.py:1176
 msgid "Could not load image file."
 msgstr "Nepodarilo sa načítať súbor s obrázkom."
-
-#: src/bigocrpdf/services/screen_capture.py:1061
-#: src/bigocrpdf/services/screen_capture.py:1140
-#: src/bigocrpdf/services/screen_capture.py:1247
-msgid "Unsupported or corrupted image file."
-msgstr "Nepodporovaný alebo poškodený súbor s obrázkom."
 
 #: src/bigocrpdf/services/screen_capture.py:1063
 #: src/bigocrpdf/services/screen_capture.py:1178

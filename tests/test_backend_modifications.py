@@ -176,3 +176,35 @@ def test_processing_temp_paths_do_not_follow_predictable_symlinks(tmp_path: Path
     assert not worker_scratch_path.exists()
     assert victim.read_text(encoding="utf-8") == "KEEP"
     assert all(path.is_symlink() for path in predictable_paths)
+
+
+def test_unreadable_page_is_a_failed_page() -> None:
+    stats = ProcessingStats()
+    canvas = MagicMock()
+
+    ProfessionalPDFOCR(OCRConfig())._process_page_result(
+        canvas,
+        {"page_num": 2, "success": False, "skipped": True},
+        {"img_path": None, "unreadable": "too large to render"},
+        [],
+        2,
+        stats,
+    )
+
+    assert stats.failed_pages == {2: "too large to render"}
+    canvas.showPage.assert_called_once()
+
+
+def test_undecodable_page_names_its_cause() -> None:
+    stats = ProcessingStats()
+
+    ProfessionalPDFOCR(OCRConfig())._process_page_result(
+        MagicMock(),
+        {"page_num": 3, "error": "the page image could not be decoded", "undecodable": True},
+        {"img_path": "page.jpg"},
+        [],
+        3,
+        stats,
+    )
+
+    assert stats.failed_pages == {3: "Unsupported or corrupted image file."}

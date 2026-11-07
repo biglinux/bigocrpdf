@@ -24,6 +24,7 @@ from bigocrpdf.services.ocr.pdf_page_geometry import (
 )
 from bigocrpdf.services.ocr.pdf_validation import classify_text_layer
 from bigocrpdf.services.ocr.resource_manager import select_render_dpi_for_page
+from bigocrpdf.utils.i18n import _
 from bigocrpdf.utils.logger import logger
 from bigocrpdf.utils.pdf_utils import confined, is_regular_file, open_jpeg_within
 
@@ -423,6 +424,8 @@ class Extraction:
     oversized_pages: set[int] = field(default_factory=set)
     # With image masks (DjVu-like foreground/background layers).
     masked_pages: set[int] = field(default_factory=set)
+    # Pages no image could be had for, with the cause.
+    unreadable_pages: dict[int, str] = field(default_factory=dict)
 
 
 class PDFImageExtractor:
@@ -664,14 +667,18 @@ class PDFImageExtractor:
         preferred_dpi = int(self.dpi or 300)
         max_render_workers = min(len(pages), len(_os.sched_getaffinity(0)))
 
-        def _render_one(page_num: int) -> tuple[int, Path | None]:
+        def _render_one(page_num: int) -> tuple[int, Path | None, str]:
             width_pts, height_pts = page_dimensions.get(page_num, (0.0, 0.0))
-            render_dpi = select_render_dpi_for_page(
-                width_pts,
-                height_pts,
-                preferred_dpi,
-                self.max_render_megapixels,
-            )
+            try:
+                render_dpi = select_render_dpi_for_page(
+                    width_pts,
+                    height_pts,
+                    preferred_dpi,
+                    self.max_render_megapixels,
+                )
+            except ValueError as e:
+                logger.error(f"Page {page_num}: {e}")
+                return page_num, None, _("the page could not be rendered")
             if render_dpi != preferred_dpi:
                 logger.info(
                     f"Page {page_num}: reducing pdftoppm render DPI "
@@ -702,24 +709,29 @@ class PDFImageExtractor:
                     errors="replace",
                     timeout=PDF_TOOL_TIMEOUT_SECS,
                 )
-            except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+            except subprocess.TimeoutExpired:
+                logger.error(f"pdftoppm fallback timed out for page {page_num}")
+                return page_num, None, _("the page could not be rendered")
+            except subprocess.CalledProcessError as e:
                 logger.error(f"pdftoppm fallback failed for page {page_num}: {e.stderr}")
-                return page_num, None
+                return page_num, None, _("the page could not be rendered")
 
             rendered = Path(f"{prefix}.png")
             if is_regular_file(rendered):
                 dest = output_dir / f"page_{page_num}.png"
                 rendered.rename(dest)
                 logger.info(f"Page {page_num}: rendered via pdftoppm ({dest.name})")
-                return page_num, dest
+                return page_num, dest, ""
             logger.warning(f"pdftoppm produced no output for page {page_num}")
-            return page_num, None
+            return page_num, None, _("the page could not be rendered")
 
         with ThreadPoolExecutor(max_workers=max_render_workers) as tp:
-            for page_num, dest in (
+            for page_num, dest, cause in (
                 fut.result() for fut in as_completed({tp.submit(_render_one, p): p for p in pages})
             ):
-                if dest is not None:
+                if dest is None:
+                    extraction.unreadable_pages[page_num] = cause
+                else:
                     idx = page_num - start_page
                     if 0 <= idx < len(extraction.images):
                         extraction.images[idx] = dest

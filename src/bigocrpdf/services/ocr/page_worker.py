@@ -640,7 +640,12 @@ def process_page(args: dict[str, Any]) -> dict[str, Any]:
         preprocessor = _create_page_preprocessor(config, args, page_num)
         original_img = _load_page_source_image(img_path, config)
         if original_img is None:
-            return {"page_num": page_num, "error": f"Could not read image: {img_path}"}
+            logger.warning(f"Page {page_num}: could not read {img_path}")
+            return {
+                "page_num": page_num,
+                "error": "the page image could not be decoded",
+                "undecodable": True,
+            }
 
         original_img, rendered_source_path = _replace_with_rendered_source(
             original_img,

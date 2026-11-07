@@ -219,3 +219,16 @@ def test_reduced_photo_keeps_its_original(tmp_path: Path, limit, written_back):
     pipeline._ocr_image_in_page(path, position, None, page, 1, 400, 300, None, None)
 
     assert pipeline._replace_pdf_image.called is written_back
+
+
+def test_unrenderable_page_fails_alone(tmp_path: Path):
+    """A page too large even at 1 DPI fails alone; the extraction goes on."""
+    extractor = PDFImageExtractor(max_render_megapixels=45, max_image_megapixels=128)
+    extraction = Extraction([None])
+
+    extractor._render_fallback_pages(
+        tmp_path / "in.pdf", tmp_path, [1], extraction, 1, {1: (720_000.0, 720_000.0)}
+    )
+
+    assert extraction.images == [None]
+    assert extraction.unreadable_pages[1] == "the page could not be rendered"

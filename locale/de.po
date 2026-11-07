@@ -725,6 +725,21 @@ msgstr "Konvertierung nach PDF/A…"
 msgid "Splitting PDF by size limit..."
 msgstr "PDF wird nach Größenbeschränkung aufgeteilt…"
 
+#: src/bigocrpdf/services/ocr/backend_text_layer.py:327
+#: src/bigocrpdf/services/screen_capture.py:1061
+#: src/bigocrpdf/services/screen_capture.py:1140
+#: src/bigocrpdf/services/screen_capture.py:1247
+msgid "Unsupported or corrupted image file."
+msgstr "Nicht unterstützte oder beschädigte Bilddatei."
+
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:681
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:714
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:717
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:726
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
+msgid "the page could not be rendered"
+msgstr "die Seite konnte nicht dargestellt werden"
+
 #: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:300
 msgid "Starting OCR..."
 msgstr "OCR wird gestartet..."
@@ -760,10 +775,6 @@ msgstr "OCR für Seite {0}…"
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "OCR für Seite {0} (gerendert)…"
-
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
-msgid "the page could not be rendered"
-msgstr "die Seite konnte nicht dargestellt werden"
 
 #: src/bigocrpdf/services/pdf_operations.py:65
 msgid "Could not find the file. Was it moved or deleted?"
@@ -910,12 +921,6 @@ msgstr "OCR-Engine nicht verfügbar. Überprüfen Sie die Installation."
 #: src/bigocrpdf/services/screen_capture.py:1176
 msgid "Could not load image file."
 msgstr "Bilddatei konnte nicht geladen werden."
-
-#: src/bigocrpdf/services/screen_capture.py:1061
-#: src/bigocrpdf/services/screen_capture.py:1140
-#: src/bigocrpdf/services/screen_capture.py:1247
-msgid "Unsupported or corrupted image file."
-msgstr "Nicht unterstützte oder beschädigte Bilddatei."
 
 #: src/bigocrpdf/services/screen_capture.py:1063
 #: src/bigocrpdf/services/screen_capture.py:1178

@@ -710,6 +710,21 @@ msgstr "PDF/Aに変換中..."
 msgid "Splitting PDF by size limit..."
 msgstr "サイズ制限によるPDFの分割..."
 
+#: src/bigocrpdf/services/ocr/backend_text_layer.py:327
+#: src/bigocrpdf/services/screen_capture.py:1061
+#: src/bigocrpdf/services/screen_capture.py:1140
+#: src/bigocrpdf/services/screen_capture.py:1247
+msgid "Unsupported or corrupted image file."
+msgstr "対応していない、または破損している画像ファイルです。"
+
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:681
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:714
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:717
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:726
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
+msgid "the page could not be rendered"
+msgstr "ページをレンダリングできませんでした"
+
 #: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:300
 msgid "Starting OCR..."
 msgstr "OCRを開始しています..."
@@ -744,10 +759,6 @@ msgstr "ページ {0} をOCR処理中…"
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "ページ {0} をOCR処理中（レンダリング済み）…"
-
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
-msgid "the page could not be rendered"
-msgstr "ページをレンダリングできませんでした"
 
 #: src/bigocrpdf/services/pdf_operations.py:65
 msgid "Could not find the file. Was it moved or deleted?"
@@ -891,12 +902,6 @@ msgstr "OCRエンジンが利用できません。インストールを確認し
 #: src/bigocrpdf/services/screen_capture.py:1176
 msgid "Could not load image file."
 msgstr "画像ファイルを読み込めませんでした。"
-
-#: src/bigocrpdf/services/screen_capture.py:1061
-#: src/bigocrpdf/services/screen_capture.py:1140
-#: src/bigocrpdf/services/screen_capture.py:1247
-msgid "Unsupported or corrupted image file."
-msgstr "対応していない、または破損している画像ファイルです。"
 
 #: src/bigocrpdf/services/screen_capture.py:1063
 #: src/bigocrpdf/services/screen_capture.py:1178

@@ -725,6 +725,21 @@ msgstr "Μετατροπή σε PDF/A..."
 msgid "Splitting PDF by size limit..."
 msgstr "Διαχωρισμός PDF με βάση το όριο μεγέθους..."
 
+#: src/bigocrpdf/services/ocr/backend_text_layer.py:327
+#: src/bigocrpdf/services/screen_capture.py:1061
+#: src/bigocrpdf/services/screen_capture.py:1140
+#: src/bigocrpdf/services/screen_capture.py:1247
+msgid "Unsupported or corrupted image file."
+msgstr "Μη υποστηριζόμενο ή κατεστραμμένο αρχείο εικόνας."
+
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:681
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:714
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:717
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:726
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
+msgid "the page could not be rendered"
+msgstr "δεν ήταν δυνατή η απόδοση της σελίδας"
+
 #: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:300
 msgid "Starting OCR..."
 msgstr "Έναρξη OCR..."
@@ -760,10 +775,6 @@ msgstr "OCR στη σελίδα {0}…"
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "OCR στη σελίδα {0} (μετά την απόδοση)…"
-
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
-msgid "the page could not be rendered"
-msgstr "δεν ήταν δυνατή η απόδοση της σελίδας"
 
 #: src/bigocrpdf/services/pdf_operations.py:65
 msgid "Could not find the file. Was it moved or deleted?"
@@ -906,12 +917,6 @@ msgstr "Η μηχανή OCR δεν είναι διαθέσιμη. Ελέγξτε
 #: src/bigocrpdf/services/screen_capture.py:1176
 msgid "Could not load image file."
 msgstr "Δεν ήταν δυνατή η φόρτωση του αρχείου εικόνας."
-
-#: src/bigocrpdf/services/screen_capture.py:1061
-#: src/bigocrpdf/services/screen_capture.py:1140
-#: src/bigocrpdf/services/screen_capture.py:1247
-msgid "Unsupported or corrupted image file."
-msgstr "Μη υποστηριζόμενο ή κατεστραμμένο αρχείο εικόνας."
 
 #: src/bigocrpdf/services/screen_capture.py:1063
 #: src/bigocrpdf/services/screen_capture.py:1178

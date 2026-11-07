@@ -723,6 +723,21 @@ msgstr "PDF/A-ra konvertálás..."
 msgid "Splitting PDF by size limit..."
 msgstr "PDF felosztása méretkorlátozás szerint..."
 
+#: src/bigocrpdf/services/ocr/backend_text_layer.py:327
+#: src/bigocrpdf/services/screen_capture.py:1061
+#: src/bigocrpdf/services/screen_capture.py:1140
+#: src/bigocrpdf/services/screen_capture.py:1247
+msgid "Unsupported or corrupted image file."
+msgstr "Nem támogatott vagy sérült képfájl."
+
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:681
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:714
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:717
+#: src/bigocrpdf/services/ocr/pdf_extractor.py:726
+#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
+msgid "the page could not be rendered"
+msgstr "az oldalt nem sikerült megjeleníteni"
+
 #: src/bigocrpdf/services/ocr/pipeline_chunked_ocr.py:300
 msgid "Starting OCR..."
 msgstr "OCR indítása..."
@@ -758,10 +773,6 @@ msgstr "A(z) {0}. oldal OCR-feldolgozása…"
 #, python-brace-format
 msgid "OCR page {0} (rendered)..."
 msgstr "A(z) {0}. oldal OCR-feldolgozása (renderelve)…"
-
-#: src/bigocrpdf/services/ocr/pipeline_mixed_content.py:531
-msgid "the page could not be rendered"
-msgstr "az oldalt nem sikerült megjeleníteni"
 
 #: src/bigocrpdf/services/pdf_operations.py:65
 msgid "Could not find the file. Was it moved or deleted?"
@@ -905,12 +916,6 @@ msgstr "Az OCR-motor nem érhető el. Ellenőrizze a telepítést."
 #: src/bigocrpdf/services/screen_capture.py:1176
 msgid "Could not load image file."
 msgstr "Nem sikerült betölteni a képfájlt."
-
-#: src/bigocrpdf/services/screen_capture.py:1061
-#: src/bigocrpdf/services/screen_capture.py:1140
-#: src/bigocrpdf/services/screen_capture.py:1247
-msgid "Unsupported or corrupted image file."
-msgstr "Nem támogatott vagy sérült képfájl."
 
 #: src/bigocrpdf/services/screen_capture.py:1063
 #: src/bigocrpdf/services/screen_capture.py:1178

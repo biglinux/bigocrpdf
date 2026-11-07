@@ -661,5 +661,7 @@ class ChunkedOCRMixin:
             }
             if use_rendered_source and input_pdf:
                 work_item["use_rendered_source"] = True
+            if page_num in extraction.unreadable_pages:
+                work_item["unreadable"] = extraction.unreadable_pages[page_num]
             work_items.append(work_item)
         return work_items

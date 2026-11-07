@@ -265,10 +265,6 @@ def compute_pipeline_config(profile: ResourceProfile, requested_workers: int = 0
 _PDF_POINTS_PER_INCH = 72.0
 # Bytes per pixel (RGB)
 _BYTES_PER_PIXEL = 3
-# Lowest DPI worth rendering at. Oversized page boxes (photo and scan PDFs that
-# map one point per source pixel) need to drop well below the 150 DPI a real
-# paper scan would use before they fit the megapixel budget.
-_MIN_RENDER_DPI = 100
 
 
 def estimate_page_memory_mb(width_pts: float, height_pts: float, render_dpi: int = 300) -> float:
@@ -301,9 +297,14 @@ def select_render_dpi_for_page(
     height_pts: float,
     preferred_dpi: int,
     max_megapixels: float,
-    min_dpi: int = _MIN_RENDER_DPI,
 ) -> int:
-    """Choose a render DPI that stays under the configured megapixel budget."""
+    """Choose a render DPI that stays under the configured megapixel budget.
+
+    A page too large for ``preferred_dpi`` renders at the highest DPI within the
+    budget, however low: a phone photo saved at 72 dpi or none makes a page
+    metres wide, where DPI says nothing about the text and the budget still
+    gives the OCR its pixels.
+    """
     if preferred_dpi <= 0 or max_megapixels <= 0:
         return preferred_dpi
     width_pts = abs(width_pts)
@@ -319,20 +320,13 @@ def select_render_dpi_for_page(
         return preferred_dpi
 
     page_area_inches = (width_pts / _PDF_POINTS_PER_INCH) * (height_pts / _PDF_POINTS_PER_INCH)
-    effective_min_dpi = min(preferred_dpi, max(1, min_dpi))
-    minimum_megapixels = estimate_page_megapixels(
-        width_pts,
-        height_pts,
-        effective_min_dpi,
-    )
-    if minimum_megapixels > max_megapixels + 1e-9:
-        raise ValueError(
-            f"Page would render at {minimum_megapixels:.1f} MP at minimum "
-            f"{effective_min_dpi} DPI; configured limit is {max_megapixels:.1f} MP"
-        )
-
     capped_dpi = int(math.floor(math.sqrt((max_megapixels * 1_000_000) / page_area_inches)))
-    return max(effective_min_dpi, min(preferred_dpi, capped_dpi))
+    if capped_dpi < 1:
+        raise ValueError(
+            f"Page would render at {estimate_page_megapixels(width_pts, height_pts, 1):.1f} MP "
+            f"even at 1 DPI; configured limit is {max_megapixels:.1f} MP"
+        )
+    return min(preferred_dpi, capped_dpi)
 
 
 def select_pdf_page_render_dpi(
@@ -340,7 +334,6 @@ def select_pdf_page_render_dpi(
     page_num: int,
     preferred_dpi: int,
     max_megapixels: float,
-    min_dpi: int = _MIN_RENDER_DPI,
 ) -> int:
     """Choose render DPI for a PDF page, failing closed when its size cannot be inspected."""
     if max_megapixels <= 0:
@@ -367,7 +360,6 @@ def select_pdf_page_render_dpi(
         height_pts,
         preferred_dpi,
         max_megapixels,
-        min_dpi,
     )
 
 

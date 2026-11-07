@@ -13,6 +13,7 @@ All notable user-visible and release-engineering changes are documented here.
 - Quit the application on SIGTERM or SIGHUP, at logout or shutdown, the way closing its window does, and stop `bigocrpdf-cli` on them the way Ctrl+C does: a running OCR job is cancelled and its workers and temporary files are cleaned up instead of being left behind. A job's temporary folder now carries its process ID, so the next job removes one left by a run that was killed or crashed.
 - Keep scanned pages the way the PDF shows them when it draws the page image turned or mirrored, also from inside a form XObject. Such pages came out upside down or mirrored after OCR.
 - OCR PDFs that hold an image over 128 MP instead of refusing the whole document. A JPEG photo of that size, as 200 MP phone cameras take, gets the same corrections as any other page; an image of that size in another format gets no geometric correction. Image OCR reads such photos instead of refusing them.
+- Render a page too large for the 45 MP render budget at whatever resolution fits it, instead of stopping the whole document: a photo saved at 72 dpi or none makes a page metres wide. A page that still yields no image is reported as unread and the following pages are read as usual.
 
 ## 4.0.0 - 2026-10-13
 
