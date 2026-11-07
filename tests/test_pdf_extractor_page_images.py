@@ -201,6 +201,17 @@ def test_broken_reduced_jpeg_stays_reduced(tmp_path: Path):
     assert load_image_with_exif_rotation(path, 0.05, 0.03) is None
 
 
+def test_reduced_jpeg_uses_render_budget(tmp_path: Path):
+    """A render budget above the image budget lets a reduced JPEG past the image one."""
+    path = tmp_path / "photo.jpg"
+    Image.new("RGB", (400, 300), (90, 90, 90)).save(path)
+
+    image = load_image_with_exif_rotation(path, 0.02, 0.05)
+
+    assert image is not None
+    assert image.shape == (150, 200, 3)
+
+
 @pytest.mark.parametrize(("limit", "written_back"), [(1.0, True), (0.05, False)])
 def test_reduced_photo_keeps_its_original(tmp_path: Path, limit, written_back):
     """An embedded photo decoded reduced is read, never written over its original."""

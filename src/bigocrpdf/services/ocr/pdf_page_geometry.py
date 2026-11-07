@@ -196,10 +196,11 @@ def load_image_with_exif_rotation(
             source = open_image(img_path)
         with source:
             width, height = source.size
-            if max_megapixels > 0 and width * height > max_megapixels * 1_000_000:
+            limit = reduced_megapixels if scale > 1 else max_megapixels
+            if limit > 0 and width * height > limit * 1_000_000:
                 raise ValueError(
                     f"Image is {width * height / 1_000_000:.1f} MP; "
-                    f"configured limit is {max_megapixels:.1f} MP"
+                    f"configured limit is {limit:.1f} MP"
                 )
             try:
                 with ImageOps.exif_transpose(source) as oriented:
