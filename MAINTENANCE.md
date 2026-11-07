@@ -67,16 +67,17 @@ nonzero status, timeout, or signal is an explicit error/cancellation result.
 
 Every Poppler tool that reads a user's PDF (pdfimages, pdftoppm, pdfinfo,
 pdftotext, pdffonts, pdfdetach) runs through `utils/pdf_utils.confined`: a
-bubblewrap sandbox with no network, IPC, other processes or home directory, the
-system read-only, the PDF read-only and write access only to the job's output
-directory. The application process never parses a PDF with Poppler itself;
-pikepdf/qpdf still does, in process. The sandbox is probed once per process, by
-running `pdfinfo -v` the way every tool runs; without a usable bwrap or user
-namespaces, or inside Flatpak (whose own sandbox applies), the tools run
-unconfined, a warning is logged once per process and the OCR diagnostics record
-`sandbox: "none (<reason>)"`. A tool that fails inside the sandbox has failed:
-it is never retried unconfined. Files a tool writes are read only when they are
-regular files, never links.
+bubblewrap sandbox with no network, IPC or other processes, nothing of the home
+directory but the user's fonts, fontconfig settings and font cache (a PDF may
+name a font it does not embed), the system read-only, the PDF read-only and
+write access only to the job's output directory. The application process
+never parses a PDF with Poppler itself; pikepdf/qpdf still does, in process.
+The sandbox is probed once per process, by running `pdfinfo -v` the way every
+tool runs; without a usable bwrap or user namespaces, or inside Flatpak (whose
+own sandbox applies), the tools run unconfined, a warning is logged once per
+process and the OCR diagnostics record `sandbox: "none (<reason>)"`. A tool
+that fails inside the sandbox has failed: it is never retried unconfined. Files
+a tool writes are read only when they are regular files, never links.
 
 ## OCR and PDF invariants
 

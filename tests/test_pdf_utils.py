@@ -123,7 +123,67 @@ def test_sandbox_sees_only_given_files(tmp_path) -> None:
 
     assert _run(confined(["cat", str(secret)])).returncode != 0
     assert _run(confined(["cat", str(secret)], read=[secret])).stdout == "kept out"
-    assert _run(confined(["ls", os.path.expanduser("~")])).returncode != 0
+
+
+@needs_sandbox
+def test_sandbox_home_holds_only_fonts(tmp_path, monkeypatch) -> None:
+    home = tmp_path / "home"
+    (home / ".fonts").mkdir(parents=True)
+    (home / ".fonts" / "user.ttf").write_bytes(b"font")
+    (home / "Documents").mkdir()
+    (home / "Documents" / "letter.pdf").write_bytes(b"%PDF")
+    monkeypatch.setenv("HOME", str(home))
+    for name in ("XDG_DATA_HOME", "XDG_CONFIG_HOME", "XDG_CACHE_HOME"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setattr(pdf_utils, "_user_font_binds", pdf_utils._user_font_binds.__wrapped__)
+
+    listed = _run(confined(["find", str(home), "-mindepth", "1"]))
+
+    assert listed.returncode == 0
+    assert sorted(listed.stdout.split()) == [str(home / ".fonts"), str(home / ".fonts/user.ttf")]
+
+
+def test_font_link_into_home_skipped(tmp_path, monkeypatch) -> None:
+    home = tmp_path / "home"
+    (home / ".local/share").mkdir(parents=True)
+    (home / ".config").mkdir()
+    (home / "Documents").mkdir()
+    shared = tmp_path / "shared-fonts"
+    shared.mkdir()
+    (home / ".local/share/fonts").symlink_to(home)
+    (home / ".fonts").symlink_to(tmp_path)
+    (home / ".config/fontconfig").symlink_to(home / "Documents")
+    (home / ".cache/fontconfig").parent.mkdir()
+    (home / ".cache/fontconfig").symlink_to(shared)
+    monkeypatch.setenv("HOME", str(home))
+    for name in ("XDG_DATA_HOME", "XDG_CONFIG_HOME", "XDG_CACHE_HOME"):
+        monkeypatch.delenv(name, raising=False)
+
+    binds = pdf_utils._user_font_binds.__wrapped__()
+
+    bound = [binds[i + 2] for i, arg in enumerate(binds) if arg == "--ro-bind"]
+    assert bound == [str(home / ".cache/fontconfig")]
+
+
+@needs_sandbox
+@pytest.mark.skipif(shutil.which("fc-match") is None, reason="no fontconfig tools")
+def test_sandbox_sees_user_fonts(tmp_path, monkeypatch) -> None:
+    """A font the PDF names but does not embed may be installed for the user only."""
+    system_font = _run(["fc-match", "-f", "%{file}", "sans"]).stdout
+    if not os.path.isfile(system_font):
+        pytest.skip("no system font to copy")
+    fonts = tmp_path / "data" / "fonts"
+    fonts.mkdir(parents=True)
+    shutil.copy(system_font, fonts / "user.ttf")
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
+    for name in ("XDG_CONFIG_HOME", "XDG_CACHE_HOME"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setattr(pdf_utils, "_user_font_binds", pdf_utils._user_font_binds.__wrapped__)
+
+    listed = _run(confined(["fc-list", "-f", "%{file}\\n"])).stdout.splitlines()
+
+    assert str(fonts / "user.ttf") in listed
 
 
 @needs_sandbox

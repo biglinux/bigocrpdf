@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 # What a confined Poppler tool sees besides the files it is given: the system
 # read-only, fonts, a private /tmp, and no network, IPC, other processes or
-# home directory.
+# home directory beyond the user's fonts (``_user_font_binds``).
 _SANDBOX_PROFILE = (
     "--unshare-all",
     "--die-with-parent",
@@ -27,9 +27,6 @@ _SANDBOX_PROFILE = (
     "--setenv",
     "LANG",
     "C.UTF-8",
-    "--setenv",
-    "HOME",
-    "/tmp",
     "--proc",
     "/proc",
     "--dev",
@@ -67,6 +64,44 @@ def _system_binds() -> tuple[str, ...]:
     return tuple(binds)
 
 
+@cache
+def _user_font_binds() -> tuple[str, ...]:
+    """HOME and the XDG base directories at the host's paths, so fontconfig
+    resolves the user's fonts, settings and font cache as outside, with only
+    those bound in, read-only: a PDF may name a font it does not embed."""
+    home = os.path.expanduser("~")
+    binds = ["--setenv", "HOME", home]
+    base = {}
+    for name, default in (
+        ("XDG_DATA_HOME", ".local/share"),
+        ("XDG_CONFIG_HOME", ".config"),
+        ("XDG_CACHE_HOME", ".cache"),
+    ):
+        value = os.environ.get(name, "")
+        base[name] = value if os.path.isabs(value) else os.path.join(home, default)
+        binds += ["--setenv", name, base[name]]
+    fonts = (
+        os.path.join(base["XDG_DATA_HOME"], "fonts"),
+        os.path.join(home, ".fonts"),
+        os.path.join(base["XDG_CONFIG_HOME"], "fontconfig"),
+        os.path.join(base["XDG_CACHE_HOME"], "fontconfig"),
+    )
+    # Where each would be as a plain directory: a link to anywhere else in the
+    # home directory, or to the home directory or above it, is left out.
+    plain = [os.path.join(os.path.realpath(os.path.dirname(f)), os.path.basename(f)) for f in fonts]
+    real_home = os.path.realpath(home)
+    for path in fonts:
+        if not os.path.isdir(path):
+            continue
+        real = os.path.realpath(path)
+        in_home = os.path.commonpath([real, real_home]) in (real, real_home)
+        if in_home and not any(os.path.commonpath([real, p]) == p for p in plain):
+            logger.warning(f"Not binding {path} into the PDF sandbox: it is {real}")
+            continue
+        binds += ["--ro-bind", real, path]
+    return tuple(binds)
+
+
 def _sandboxed(
     bwrap: str,
     tool: str,
@@ -77,7 +112,7 @@ def _sandboxed(
     """``tool`` (a resolved path) with ``args`` in bwrap, seeing ``read``
     read-only and ``write`` read-write. Read binds come last, so a file read
     from inside a writable directory stays read-only."""
-    command = [bwrap, *_SANDBOX_PROFILE, *_system_binds()]
+    command = [bwrap, *_SANDBOX_PROFILE, *_system_binds(), *_user_font_binds()]
     if not tool.startswith(tuple(root + "/" for root in _SYSTEM_ROOTS)):
         command += ["--ro-bind", tool, tool]
     for flag, paths in (("--bind", write), ("--ro-bind", read)):
