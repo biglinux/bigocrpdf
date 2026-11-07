@@ -4,9 +4,10 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
+import cv2
 import numpy as np
 import pytest
-from PIL import Image
+from PIL import Image, ImageOps
 
 from bigocrpdf.services.ocr.backend_embedded_image_pipeline import (
     BackendEmbeddedImagePipelineMixin,
@@ -192,13 +193,19 @@ def test_large_progressive_jpeg_is_refused(tmp_path: Path):
         open_jpeg_within(path, 128e6, 45e6)
 
 
-def test_broken_reduced_jpeg_stays_reduced(tmp_path: Path):
+def test_broken_reduced_jpeg_stays_reduced(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     """A JPEG opened at a reduced scale never falls back to a full decode."""
     path = tmp_path / "photo.jpg"
     Image.new("RGB", (400, 300), (90, 90, 90)).save(path)
     path.write_bytes(path.read_bytes()[:-200])
+    transpose = MagicMock(wraps=ImageOps.exif_transpose)
+    imread = MagicMock(return_value=None)
+    monkeypatch.setattr(ImageOps, "exif_transpose", transpose)
+    monkeypatch.setattr(cv2, "imread", imread)
 
     assert load_image_with_exif_rotation(path, 0.05, 0.03) is None
+    assert transpose.call_args.args[0].size == (200, 150)
+    imread.assert_not_called()
 
 
 def test_reduced_jpeg_uses_render_budget(tmp_path: Path):
@@ -234,12 +241,17 @@ def test_reduced_photo_keeps_its_original(tmp_path: Path, limit, written_back):
 
 def test_unrenderable_page_fails_alone(tmp_path: Path):
     """A page too large even at 1 DPI fails alone; the extraction goes on."""
-    extractor = PDFImageExtractor(max_render_megapixels=45, max_image_megapixels=128)
-    extraction = Extraction([None])
+    source = tmp_path / "in.pdf"
+    Image.new("RGB", (100, 100), "white").save(
+        source, save_all=True, append_images=[Image.new("RGB", (100, 100), "white")]
+    )
+    extractor = PDFImageExtractor(dpi=72, max_render_megapixels=45, max_image_megapixels=128)
+    extraction = Extraction([None, None])
 
     extractor._render_fallback_pages(
-        tmp_path / "in.pdf", tmp_path, [1], extraction, 1, {1: (720_000.0, 720_000.0)}
+        source, tmp_path, [1, 2], extraction, 1, {1: (720_000.0, 720_000.0), 2: (72.0, 72.0)}
     )
 
-    assert extraction.images == [None]
-    assert extraction.unreadable_pages[1] == "the page could not be rendered"
+    assert extraction.images == [None, tmp_path / "page_2.png"]
+    assert extraction.rendered_pages == {2}
+    assert extraction.unreadable_pages == {1: "the page could not be rendered"}

@@ -355,16 +355,30 @@ def test_prefetch_keeps_its_own_directory(tmp_path: Path) -> None:
     also when an excluded chunk sits between them."""
     mixin = _chunk_pipeline()
     used = []
+    third_prepared = threading.Event()
+    first_kept = []
 
     def extract(_pdf, *, output_dir, page_range, skip_pages):
-        used.append((page_range, output_dir))
-        return Extraction([output_dir / f"page_{page_range[0]}.png"])
+        output_dir.mkdir(parents=True, exist_ok=True)
+        image = output_dir / f"page_{page_range[0]}.png"
+        image.write_bytes(b"png")
+        used.append((page_range, image))
+        if page_range == (3, 3):
+            third_prepared.set()
+        return Extraction([image])
+
+    def ocr(*_args, **_kwargs):
+        if not first_kept:
+            first_kept.append(third_prepared.wait(5) and used[0][1].exists())
+        return {}
 
     mixin.extractor.extract.side_effect = extract
+    mixin._ocr_chunk_work_items.side_effect = ocr
     _run_chunks(mixin, tmp_path, 3, deleted={2})
 
     assert [page_range for page_range, _ in used] == [(1, 1), (3, 3)]
-    assert used[0][1] != used[1][1]
+    assert used[0][1].parent != used[1][1].parent
+    assert first_kept == [True]
 
 
 def test_chunk_images_go_before_flush(tmp_path: Path) -> None:
@@ -391,14 +405,18 @@ def test_interrupt_queues_no_prefetched_pages(tmp_path: Path) -> None:
     """An error while the next chunk is still extracting must not queue its
     preprocessing once the extraction returns."""
     mixin = _chunk_pipeline()
+    extracting = threading.Event()
     release = threading.Event()
 
     def extract(_pdf, *, output_dir, page_range, skip_pages):
         if page_range == (2, 2):
+            extracting.set()
             release.wait(5)
         return Extraction([output_dir / f"page_{page_range[0]}.png"])
 
     def interrupted(*_args, **_kwargs):
+        # Page 2 is extracting; it returns well after the pipeline stops.
+        assert extracting.wait(5)
         threading.Timer(0.2, release.set).start()
         raise KeyboardInterrupt
 
