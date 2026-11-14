@@ -462,19 +462,9 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
         """
         import tempfile
 
-        candidates: list[str] = []
-        if self._source_path:
-            candidates.append(os.path.dirname(os.path.abspath(self._source_path)))
-        if self._document:
-            for page in self._document.get_active_pages():
-                src = getattr(page, "source_file", "") or ""
-                if src:
-                    candidates.append(os.path.dirname(os.path.abspath(src)))
-        if self._pdf_path:
-            candidates.append(os.path.dirname(os.path.abspath(self._pdf_path)))
-
         tmp_dir = os.path.realpath(tempfile.gettempdir())
-        for folder in candidates:
+        for source in self._save_dir_sources():
+            folder = os.path.dirname(os.path.abspath(source))
             if not folder or not os.path.isdir(folder) or not os.access(folder, os.W_OK):
                 continue
             real = os.path.realpath(folder)
@@ -482,6 +472,19 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
                 continue
             return folder
         return os.path.expanduser("~")
+
+    def _save_dir_sources(self) -> list[str]:
+        """List the files whose folders the Save dialog may open in, best first."""
+        sources = [self._source_path] if self._source_path else []
+        if self._document:
+            sources.extend(
+                src
+                for page in self._document.get_active_pages()
+                if (src := getattr(page, "source_file", "") or "")
+            )
+        if self._pdf_path:
+            sources.append(self._pdf_path)
+        return sources
 
     def _on_save_as_clicked(self, _button: Gtk.Button | None) -> None:
         """Ask where to save the PDF, then save it."""
