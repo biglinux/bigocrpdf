@@ -402,6 +402,46 @@ class TestEditorWindowLogic(unittest.TestCase):
         window._apply_merged.assert_called_once_with(document)
         save_callback.assert_not_called()
 
+    def _save_dialog_folder(self, pdf_path, source_path=None):
+        """Open the Save dialog for a one-page document and return the folder it
+        starts in. ``pdf_path`` lives in a stand-in temp directory when the
+        document was built from ``source_path``."""
+        window = self._editor(standalone=True)
+        window._pdf_path = pdf_path
+        window._source_path = source_path
+        window._saving = False
+        document = PDFDocument(path=pdf_path, total_pages=1)
+        document.pages[0].source_file = pdf_path
+        window._document = document
+        with (
+            patch("tempfile.gettempdir", return_value=self._temp_dir),
+            patch("bigocrpdf.ui.pdf_editor.editor_window.Gtk.FileDialog"),
+            patch("bigocrpdf.ui.pdf_editor.editor_window.Gio.File.new_for_path") as folder,
+        ):
+            window._save_as(close_after=False)
+        return folder.call_args.args[0]
+
+    def _folders(self):
+        root = self.enterContext(tempfile.TemporaryDirectory())
+        self._temp_dir = os.path.join(root, "tmp")
+        scans = os.path.join(root, "scans")
+        os.mkdir(self._temp_dir)
+        os.mkdir(scans)
+        return scans
+
+    def test_pdf_built_from_one_image_saves_beside_the_image(self):
+        scans = self._folders()
+        temp_pdf = os.path.join(self._temp_dir, "bigocr_images_x1y2.pdf")
+
+        folder = self._save_dialog_folder(temp_pdf, os.path.join(scans, "receipt.jpg"))
+
+        self.assertEqual(folder, scans)
+
+    def test_opened_pdf_saves_beside_itself(self):
+        scans = self._folders()
+
+        self.assertEqual(self._save_dialog_folder(os.path.join(scans, "report.pdf")), scans)
+
     def test_unsaved_changes_save_follows_editor_mode(self):
         for standalone in (False, True):
             window = MagicMock()

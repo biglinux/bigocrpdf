@@ -87,6 +87,7 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
         initial_state: dict | None = None,
         standalone: bool = False,
         save_in_place: bool = False,
+        source_path: str | None = None,
     ) -> None:
         """Initialize the PDF editor window.
 
@@ -99,6 +100,9 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
             standalone: If True, show Save As button instead of Apply
             save_in_place: If True, Apply rewrites ``pdf_path`` instead of
                 handing the changes to ``on_save_callback``
+            source_path: The file the document was built from when ``pdf_path``
+                is a temporary PDF made from it, such as the first image of
+                "Create PDF". Save dialogs open in its folder.
         """
         super().__init__(application=application)
         self.add_css_class("bigocrpdf-editor")
@@ -106,6 +110,7 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
         self._help = EditorHelpController(self)
         self._tools = EditorToolsController(self)
         self._pdf_path = pdf_path
+        self._source_path = source_path
         self._on_save_callback = on_save_callback
         self._on_close_callback = on_close_callback
         self._initial_state = initial_state
@@ -457,17 +462,9 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
         """
         import tempfile
 
-        candidates: list[str] = []
-        if self._document:
-            for page in self._document.get_active_pages():
-                src = getattr(page, "source_file", "") or ""
-                if src:
-                    candidates.append(os.path.dirname(os.path.abspath(src)))
-        if self._pdf_path:
-            candidates.append(os.path.dirname(os.path.abspath(self._pdf_path)))
-
         tmp_dir = os.path.realpath(tempfile.gettempdir())
-        for folder in candidates:
+        for source in self._save_dir_sources():
+            folder = os.path.dirname(os.path.abspath(source))
             if not folder or not os.path.isdir(folder) or not os.access(folder, os.W_OK):
                 continue
             real = os.path.realpath(folder)
@@ -475,6 +472,19 @@ class PDFEditorWindow(EditorWindowLayoutMixin, EditorPageActionsMixin, Adw.Windo
                 continue
             return folder
         return os.path.expanduser("~")
+
+    def _save_dir_sources(self) -> list[str]:
+        """List the files whose folders the Save dialog may open in, best first."""
+        sources = [self._source_path] if self._source_path else []
+        if self._document:
+            sources.extend(
+                src
+                for page in self._document.get_active_pages()
+                if (src := getattr(page, "source_file", "") or "")
+            )
+        if self._pdf_path:
+            sources.append(self._pdf_path)
+        return sources
 
     def _on_save_as_clicked(self, _button: Gtk.Button | None) -> None:
         """Ask where to save the PDF, then save it."""

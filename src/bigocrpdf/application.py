@@ -497,6 +497,7 @@ class BigOcrPdfApp(Adw.Application):
                 application=app,
                 pdf_path=tmp_pdf,
                 standalone=True,
+                source_path=first_path,
             )
             win.present()
             transferred = True
